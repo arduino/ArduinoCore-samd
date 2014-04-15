@@ -1,0 +1,60 @@
+1- Prerequesites
+
+ARM GCC toolchain from https://launchpad.net/gcc-arm-embedded/+download
+
+*Windows only*
+
+GNU Make from http://gnuwin32.sourceforge.net/packages/make.htm
+  Binaries http://gnuwin32.sourceforge.net/downlinks/make-bin-zip.php
+	Dependencies http://gnuwin32.sourceforge.net/downlinks/make-dep-zip.php
+
+*MacOS*
+
+*Linux*
+
+
+2- Path to GCC ARM toolchain and Make
+
+Set into environment variables the ARM_GCC_TOOLCHAIN variable:
+ex:
+ARM_GCC_TOOLCHAIN=C:\GNU Tools ARM Embedded_4.8 2013q4\bin
+
+Add to PATH the path were Make has been installed
+
+3- Compile libarduino (Arduino API)
+
+Go to hardware/arduino/samd/cores/arduino/build_gcc
+
+run the command: 'make'
+
+This will compile the libarduino library and deliver to main Arduino folder the files:
+
+hardware/arduino/samd/cores/arduino/libarduino_arduino_zero_gcc_dbg.a
+hardware/arduino/samd/cores/arduino/libarduino_arduino_zero_gcc_dbg.a.txt (result of nm)
+
+4- Compile libvariant (variant specific library, use Arduino API and libsam)
+
+Go to hardware/sam/variants/arduino_zero/build_gcc
+
+run the command: 'make'
+
+This will compile the libvariant library and deliver to main Arduino folder the files:
+
+hardware/arduino/samd/cores/arduino/libvariant_arduino_zero_gcc_dbg.a
+hardware/arduino/samd/cores/arduino/libvariant_arduino_zero_gcc_dbg.a.txt (result of nm)
+
+5- Compile test application
+
+Go to hardware/arduino/samd/cores/arduino/validation/build_gcc
+
+run the command: 'make'
+
+This will compile the test application and deliver the binary into:
+
+hardware/arduino/samd/cores/arduino/validation/debug_arduino_zero/test_gcc_dbg.elf
+hardware/arduino/samd/cores/arduino/validation/debug_arduino_zero/test_gcc_dbg.bin
+hardware/arduino/samd/cores/arduino/validation/debug_arduino_zero/test_gcc_dbg.map (mapping matching linker script)
+hardware/arduino/samd/cores/arduino/validation/debug_arduino_zero/test_gcc_dbg.elf.txt (result of nm)
+
+
+
