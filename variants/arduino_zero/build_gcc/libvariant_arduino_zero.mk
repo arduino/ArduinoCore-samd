@@ -19,7 +19,7 @@
 # Makefile for compiling libArduino
 .SUFFIXES: .o .a .c .s
 
-CHIP=__SAMD21J18A__
+CHIP=__SAMD21G18A__
 VARIANT=arduino_zero
 LIBNAME=libvariant_$(VARIANT)
 TOOLCHAIN=gcc
