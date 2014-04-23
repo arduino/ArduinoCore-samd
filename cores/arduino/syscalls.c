@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -17,16 +17,9 @@
 */
 
 /**
-  * \file syscalls_sam3.c
-  *
   * Implementation of newlib syscall.
   *
   */
-
-/*----------------------------------------------------------------------------
- *        Headers
- *----------------------------------------------------------------------------*/
-
 
 #include "syscalls.h"
 
@@ -38,35 +31,31 @@
   #include <sys/stat.h>
 #endif
 
-/*----------------------------------------------------------------------------
- *        Exported variables
- *----------------------------------------------------------------------------*/
-
 #undef errno
 extern int errno ;
-extern int  _end ;
+extern int __end__ ;
+extern int __ram_end__ ;
 
-/*----------------------------------------------------------------------------
- *        Exported functions
- *----------------------------------------------------------------------------*/
-extern void _exit( int status ) ;
-extern void _kill( int pid, int sig ) ;
-extern int _getpid ( void ) ;
-
-extern caddr_t _sbrk ( int incr )
+extern caddr_t _sbrk( int incr )
 {
-    static unsigned char *heap = NULL ;
-    unsigned char *prev_heap ;
+	static unsigned char *heap = NULL ;
+	unsigned char *prev_heap ;
+	int ramend = (int)&__ram_end__ ;
 
-    if ( heap == NULL )
-    {
-        heap = (unsigned char *)&_end ;
-    }
-    prev_heap = heap;
+	if ( heap == NULL )
+	{
+		heap = (unsigned char *)&__end__ ;
+	}
+	prev_heap = heap ;
 
-    heap += incr ;
+	if ( ((int)prev_heap + incr) > ramend )
+	{
+		return (caddr_t) -1 ;
+	}
 
-    return (caddr_t) prev_heap ;
+	heap += incr ;
+
+	return (caddr_t) prev_heap ;
 }
 
 extern int link( char *cOld, char *cNew )

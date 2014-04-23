@@ -8,7 +8,7 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
@@ -53,6 +53,12 @@ extern int _lseek( int file, int ptr, int dir ) ;
 extern int _read(int file, char *ptr, int len) ;
 
 extern int _write( int file, char *ptr, int len ) ;
+
+extern void _exit( int status ) ;
+
+extern void _kill( int pid, int sig ) ;
+
+extern int _getpid ( void ) ;
 
 #ifdef __cplusplus
 }

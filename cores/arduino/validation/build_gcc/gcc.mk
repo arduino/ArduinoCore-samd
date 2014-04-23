@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2011 Arduino.  All right reserved.
+#  Copyright (c) 2014 Arduino.  All right reserved.
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -17,8 +17,6 @@
 #
 
 # Tool suffix when cross-compiling
-#CROSS_COMPILE = ../../../../tools/CodeSourcery_arm/bin/arm-none-eabi-
-#CROSS_COMPILE = C:/CodeSourcery_2011.03-42/bin/arm-none-eabi-
 CROSS_COMPILE = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-
 
 # Compilation tools
@@ -73,7 +71,7 @@ CPPFLAGS += -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations
 CPPFLAGS += -Wpacked -Wredundant-decls -Winline -Wlong-long
 
 #-fno-rtti -fno-exceptions
-CPPFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m3 -mthumb -mlong-calls -ffunction-sections -std=c++98
+CPPFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m0p -mthumb -mlong-calls -ffunction-sections -fdata-sections -std=c++98
 CPPFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(CHIP)
 
 # To reduce application size use only integer printf function.
