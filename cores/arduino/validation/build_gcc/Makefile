@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2011 Arduino.  All right reserved.
+#  Copyright (c) 2014 Arduino.  All right reserved.
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -22,95 +22,52 @@ SUBMAKE_OPTIONS=--no-builtin-rules --no-builtin-variables --no-print-directory
 # Rules
 #-------------------------------------------------------------------------------
 
-all: test
+all: clean test
 
-test: test_arduino_due_x test_sam3x_ek test_adk2
-	@echo ------------------------------------------------------------------------------------
-	@echo --- Making test
-	@$(MAKE) DEBUG=1 VARIANT=arduino_due_x $(SUBMAKE_OPTIONS) -f test.mk
-#	@$(MAKE) DEBUG=1 VARIANT=sam3s_ek $(SUBMAKE_OPTIONS) -f test.mk
-#	@$(MAKE) DEBUG=1 VARIANT=sam3u_ek $(SUBMAKE_OPTIONS) -f test.mk
-	@$(MAKE) DEBUG=1 VARIANT=sam3x_ek $(SUBMAKE_OPTIONS) -f test.mk
-	@$(MAKE) DEBUG=1 VARIANT=adk2 $(SUBMAKE_OPTIONS) -f test.mk
-	@echo ------------------------------------------------------------------------------------
+test: test_arduino_zero test_samd21_xpro
 
-.PHONY: test_arduino_due_x
-test_arduino_due_x:
+clean: clean_arduino_zero clean_samd21_xpro
+
+.PHONY: test_arduino_zero
+test_arduino_zero:
 	@echo ------------------------------------------------------------------------------------
-	@echo --- Making test_arduino_due_x
-	@$(MAKE) DEBUG=1 VARIANT=arduino_due_x $(SUBMAKE_OPTIONS) -f test.mk
+	@echo --- Making test_arduino_zero
+	@$(MAKE) DEBUG=1 VARIANT=arduino_zero $(SUBMAKE_OPTIONS) -f test.mk
 	@echo ------------------------------------------------------------------------------------
 
-.PHONY: test_adk2
-test_adk2:
+.PHONY: clean_arduino_zero
+clean_arduino_zero:
 	@echo ------------------------------------------------------------------------------------
-	@echo --- Making test_adk2
-	@$(MAKE) DEBUG=1 VARIANT=adk2 $(SUBMAKE_OPTIONS) -f test.mk
-	@echo ------------------------------------------------------------------------------------
-
-.PHONY: test_sam3s_ek
-test_sam3s_ek:
-	@echo ------------------------------------------------------------------------------------
-	@echo --- Making test_sam3s_ek
-	@$(MAKE) DEBUG=1 VARIANT=sam3s_ek $(SUBMAKE_OPTIONS) -f test.mk
+	@echo --- Cleaning test arduino_zero
+	@$(MAKE) DEBUG=1 VARIANT=arduino_zero $(SUBMAKE_OPTIONS) -f test.mk $@
 	@echo ------------------------------------------------------------------------------------
 
-.PHONY: test_sam3u_ek
-test_sam3u_ek:
+.PHONY: debug_arduino_zero
+debug_arduino_zero:
 	@echo ------------------------------------------------------------------------------------
-	@echo --- Making test_sam3u_ek
-	@$(MAKE) DEBUG=1 VARIANT=sam3u_ek $(SUBMAKE_OPTIONS) -f test.mk
-	@echo ------------------------------------------------------------------------------------
-
-.PHONY: test_sam3x_ek
-test_sam3x_ek:
-	@echo ------------------------------------------------------------------------------------
-	@echo --- Making test_sam3x_ek
-	@$(MAKE) DEBUG=1 VARIANT=sam3x_ek $(SUBMAKE_OPTIONS) -f test.mk
+	@echo --- Debugging test arduino_zero
+	@$(MAKE) DEBUG=1 VARIANT=arduino_zero $(SUBMAKE_OPTIONS) -f test.mk $@
 	@echo ------------------------------------------------------------------------------------
 
-.PHONY: clean
+
+
+.PHONY: test_samd21_xpro
+test_samd21_xpro:
+	@echo ------------------------------------------------------------------------------------
+	@echo --- Making test_samd21_xpro
+	@$(MAKE) DEBUG=1 VARIANT=samd21_xpro $(SUBMAKE_OPTIONS) -f test.mk
+	@echo ------------------------------------------------------------------------------------
+
+.PHONY: clean_samd21_xpro
 clean:
 	@echo ------------------------------------------------------------------------------------
-	@echo --- Cleaning test
-	@$(MAKE) DEBUG=1 VARIANT=arduino_due_x $(SUBMAKE_OPTIONS) -f test.mk $@
-	@$(MAKE) DEBUG=1 VARIANT=adk2 $(SUBMAKE_OPTIONS) -f test.mk $@
-	@$(MAKE) DEBUG=1 VARIANT=sam3s_ek $(SUBMAKE_OPTIONS) -f test.mk $@
-	@$(MAKE) DEBUG=1 VARIANT=sam3u_ek $(SUBMAKE_OPTIONS) -f test.mk $@
-	@$(MAKE) DEBUG=1 VARIANT=sam3x_ek $(SUBMAKE_OPTIONS) -f test.mk $@
+	@echo --- Cleaning test samd21_xpro
+	@$(MAKE) DEBUG=1 VARIANT=samd21_xpro $(SUBMAKE_OPTIONS) -f test.mk $@
 	@echo ------------------------------------------------------------------------------------
 
-.PHONY: debug_arduino_due_x
-debug_arduino_due_x:
+.PHONY: debug_samd21_xpro
+debug_samd21_xpro:
 	@echo ------------------------------------------------------------------------------------
-	@echo --- Debugging test arduino_due_x
-	@$(MAKE) DEBUG=1 VARIANT=arduino_due_x $(SUBMAKE_OPTIONS) -f test.mk $@
-	@echo ------------------------------------------------------------------------------------
-
-.PHONY: debug_adk2
-debug_adk2:
-	@echo ------------------------------------------------------------------------------------
-	@echo --- Debugging test adk2
-	@$(MAKE) DEBUG=1 VARIANT=adk2 $(SUBMAKE_OPTIONS) -f test.mk $@
-	@echo ------------------------------------------------------------------------------------
-
-.PHONY: debug_sam3s_ek
-debug_sam3s_ek:
-	@echo ------------------------------------------------------------------------------------
-	@echo --- Debugging test sam3s_ek
-	@$(MAKE) DEBUG=1 VARIANT=sam3s_ek $(SUBMAKE_OPTIONS) -f test.mk $@
-	@echo ------------------------------------------------------------------------------------
-
-.PHONY: debug_sam3u_ek
-debug_sam3u_ek:
-	@echo ------------------------------------------------------------------------------------
-	@echo --- Debugging test sam3u_ek
-	@$(MAKE) DEBUG=1 VARIANT=sam3u_ek $(SUBMAKE_OPTIONS) -f test.mk $@
-	@echo ------------------------------------------------------------------------------------
-
-.PHONY: debug_sam3x_ek
-debug_sam3x_ek:
-	@echo ------------------------------------------------------------------------------------
-	@echo --- Debugging test sam3x_ek
-	@$(MAKE) DEBUG=1 VARIANT=sam3x_ek $(SUBMAKE_OPTIONS) -f test.mk $@
+	@echo --- Debugging test samd21_xpro
+	@$(MAKE) DEBUG=1 VARIANT=samd21_xpro $(SUBMAKE_OPTIONS) -f test.mk $@
 	@echo ------------------------------------------------------------------------------------
