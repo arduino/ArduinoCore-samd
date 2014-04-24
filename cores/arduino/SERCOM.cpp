@@ -5,6 +5,7 @@ SERCOM::SERCOM(Sercom* sercom)
 {
 	this->sercom = sercom;
 	sercomUart = sercom->UART;
+	sercomSpi = sercom->SPI;
 }
 
 void SERCOM::initUART(SercomUartMode mode, SercomUartTXPad txPad, SercomUartRXPad rxPad, SercomCharSize charSize, 
@@ -49,17 +50,55 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartTXPad txPad, SercomUartRXPa
 
 void SERCOM::resetUART()
 {
-	sercomUart->CTRLA.SWRST = 0x1u;
-	while(sercomUart->CTRLA.SWRST || sercomUart->SYNCBUSY.SWRST);
+	sercomUart->CTRLA.bit.SWRST = 0x1u;
+	while(sercomUart->CTRLA.bit.SWRST || sercomUart->SYNCBUSY.SWRST);
 }
 
 void SERCOM::enableUART()
 {
-	sercomUart->CTRLA.ENABLE = 0x1u;
+	sercomUart->CTRLA.bit.ENABLE = 0x1u;
+}
+
+void SERCOM::flushUART()
+{
+	while(sercomUart->INTFLAG.bit.DRE != SERCOM_USART_INTFLAG_DRE);
+}
+
+void SERCOM::clearStatusUART()
+{
+	sercomUart->STATUS.reg = SERCOM_USART_STATUS_RESETVALUE;
 }
 
 bool SERCOM::availableDataUART()
 {
-	return sercomUart->INTFLAG.RXC;
+	return sercomUart->INTFLAG.bit.RXC;
+}
+
+bool SERCOM::isBufferOverflowErrorUART()
+{
+	return sercomUart->STATUS.bit.BUFOVF;
+}
+
+bool SERCOM::isFrameErrorUART()
+{
+	return sercomUart->STATUS.bit.FERR;
+}
+
+bool SERCOM::isParityErrorUART()
+{
+	return sercomUart->STATUS.bit.PERR;
+}
+
+uint8_t SERCOM::readDataUART()
+{
+	return sercomUart->DATA.bit.DATA;
+}
+
+int SERCOM::writeDataUART(uint8_t data)
+{
+	flushUART();
+
+	sercomUart->DATA.bit.DATA = data;
+	return 1;
 }
 

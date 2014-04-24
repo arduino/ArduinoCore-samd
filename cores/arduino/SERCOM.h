@@ -74,20 +74,42 @@ typedef enum
 	SAMPLE_RATE_x3 = 0x3	//Arithmetic
 } SercomUartSampleRate;
 
+typedef enum
+{//					CPOL	CPHA
+	MODE_0 = 0,	//	  0		  0			
+	MODE_1,		//	  0		  1
+	MODE_2,		//	  1		  0	
+	MODE_3		//	  1		  1
+} SercomSpiMode;
+
 class SERCOM
 {
 	public:
 		SERCOM(Sercom* sercom);
-		
+	
+		/* ========== UART ========== */
 		void initUART(SercomUartMode mode, SercomUartTXPad txPad, SercomUartRXPad rxPad, SercomCharSize charSize, 
 						SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits,
 						SercomUartSampleRate sampleRate, uint32_t baudrate=0);
 		void resetUART();
 		void enableUART();
+		void flushUART();
+		void clearStatusUART();
 		bool availableDataUART();
+		bool isBufferOverflowErrorUART();
+		bool isFrameErrorUART();
+		bool isParityErrorUART();
+		uint8_t readDataUART();
+		int writeDataUART(uint8_t data);
+
+		/* ========== SPI ========== */
+		void initSPI();
+		
+
 	private:
 		Sercom* sercom;
 		SercomUart* sercomUart;
+		SercomSpi* sercomSpi;
 };
 
 #endif

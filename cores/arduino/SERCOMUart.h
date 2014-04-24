@@ -2,6 +2,8 @@
 #define _SERCOM_UART_CLASS
 
 #include "SERCOM.h"
+#include "RingBuffer.h"
+
 
 class SERCOMUart
 {
@@ -22,11 +24,11 @@ class SERCOMUart
 
 	private:
 		SERCOM *sercom;
+		RingBuffer rxBuffer;
 
 		SercomNumberStopBit extractNbStopBit(uint8_t config);
 		SercomCharSize extractCharSize(uint8_t config);
 		SercomParityMode extractParity(uint8_t config)
-
 };
 
 

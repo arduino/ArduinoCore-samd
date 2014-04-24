@@ -20,11 +20,47 @@ void SERCOMUart::begin(uint16_t baudrate, uint8_t config)
 
 void SERCOMUart::end(){
 	sercom->resetUART();
+	rxBuffer.clear();
+}
+
+void SERCOMUart::flush()
+{
+	sercom->flushUART();
+}
+
+void SERCOMUart::IrqHandler()
+{
+	if(sercom->availableDataUART())
+	{
+		rxBuffer.store_char(sercom->readDataUART())
+	}
+
+	if(	sercom->isBufferOverflowErrorUART() ||
+		sercom->isFrameErrorUART() ||
+		sercom->isParityErrorUART())
+	{
+		sercom->clearStatusUART();
+	}
 }
 
 bool SERCOMUart::available()
 {
+	return rxBuffer.available_char();
+}
 
+int SERCOMUart::peek()
+{
+	return rxBuffer.peek();
+}
+
+int SERCOMUart::read()
+{
+	return rxBuffer.read_char();
+}
+
+size_t SERCOMUart::write(uint8_t data)
+{
+	return sercom->writeDataUART(data);
 }
 
 SercomNumberStopBit extractNbStopBit(uint8_t config)
