@@ -20,7 +20,8 @@ void SERCOMUart::begin(uint16_t baudrate, uint8_t config)
 	sercom->enableUART();
 }
 
-void SERCOMUart::end(){
+void SERCOMUart::end()
+{
 	sercom->resetUART();
 	rxBuffer.clear();
 }
@@ -47,7 +48,7 @@ void SERCOMUart::IrqHandler()
 
 bool SERCOMUart::available()
 {
-	return rxBuffer.available_char();
+	return rxBuffer.available();
 }
 
 int SERCOMUart::peek()
