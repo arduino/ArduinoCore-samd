@@ -216,8 +216,8 @@ void SystemInit( void )
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( SYSCTRL_GCLK_ID_DFLL48 ) | GCLK_CLKCTRL_CLKEN ;
 
   /* DFLL Enable (Closed Loop) */
-  ul_Coarse_calibration_value = (DFLL_CALIB_COARSE >> DFLL_CALIB_COARSE_POS) & DFLL_CALIB_COARSE_MSK ;
-  ul_Fine_calibration_value = DFLL_CALIB_FINE & DFLL_CALIB_FINE_MSK;
+  ul_Coarse_calibration_value = (*DFLL_CALIB_COARSE >> DFLL_CALIB_COARSE_POS) & DFLL_CALIB_COARSE_MSK ;
+  ul_Fine_calibration_value = *DFLL_CALIB_FINE & DFLL_CALIB_FINE_MSK;
 
   SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 4 ) | // Coarse step is 4
                          SYSCTRL_DFLLMUL_FSTEP( 1 ) | // Fine step is 1
@@ -278,12 +278,14 @@ void SystemInit( void )
     /* Wait for synchronization */
   }
 
-************************************************************
-  /* CPU and BUS clocks */
-  system_cpu_clock_set_divider(CONF_CLOCK_CPU_DIVIDER);
-  system_main_clock_set_failure_detect(CONF_CLOCK_CPU_CLOCK_FAILURE_DETECT);
-  system_apb_clock_set_divider(SYSTEM_CLOCK_APB_APBA, CONF_CLOCK_APBA_DIVIDER);
-  system_apb_clock_set_divider(SYSTEM_CLOCK_APB_APBB, CONF_CLOCK_APBB_DIVIDER);
+  /*
+	 * Now that all system clocks are configured, we can set CPU and APBx BUS clocks.
+	 * There values are normally the one present after Reset.
+   */
+	PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
+	PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;
+	PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val ;
+	PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
 }
 
 /**
