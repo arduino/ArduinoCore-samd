@@ -141,14 +141,6 @@ const DeviceVectors exception_table=
  */
 void SystemInit( void )
 {
-  uint32_t ul_Coarse_calibration_value ;
-  uint32_t ul_Fine_calibration_value ;
-#define DFLL_CALIB_COARSE       ((uint32_t*)(NVMCTRL_OTP4+4))
-#define DFLL_CALIB_COARSE_MSK   (0x3FUL)
-#define DFLL_CALIB_COARSE_POS   (26UL)
-#define DFLL_CALIB_FINE         ((uint32_t*)(NVMCTRL_OTP4+8))
-#define DFLL_CALIB_FINE_MSK     (0x3FFUL)
-
   /* Set 1 Flash Wait State for 48MHz, cf tables 20.9 and 35.27 in SAMD21 Datasheet */
   NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ;
 
@@ -216,13 +208,9 @@ void SystemInit( void )
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( SYSCTRL_GCLK_ID_DFLL48 ) | GCLK_CLKCTRL_CLKEN ;
 
   /* DFLL Enable (Closed Loop) */
-  ul_Coarse_calibration_value = (*DFLL_CALIB_COARSE >> DFLL_CALIB_COARSE_POS) & DFLL_CALIB_COARSE_MSK ;
-  ul_Fine_calibration_value = *DFLL_CALIB_FINE & DFLL_CALIB_FINE_MSK;
-
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 4 ) | // Coarse step is 4
-                         SYSCTRL_DFLLMUL_FSTEP( 1 ) | // Fine step is 1
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
                          SYSCTRL_DFLLMUL_MUL( (48000000ul/32768ul) ) ; // External 32KHz is the reference
-  SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE( ul_Coarse_calibration_value ) | SYSCTRL_DFLLVAL_FINE( ul_Fine_calibration_value ) ;
 
   /* Write full configuration to DFLL control register */
   SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
@@ -286,6 +274,8 @@ void SystemInit( void )
 	PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;
 	PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val ;
 	PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
+
+	SystemCoreClock=48000000ul ;
 }
 
 /**
