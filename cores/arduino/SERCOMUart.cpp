@@ -67,73 +67,31 @@ size_t SERCOMUart::write(uint8_t data)
 
 SercomNumberStopBit extractNbStopBit(uint8_t config)
 {
-	switch(config)
+	switch(config & STOP_BITE_MASK)
 	{
-		case SERIAL_5N1:
-		case SERIAL_6N1:
-		case SERIAL_7N1:
-		case SERIAL_8N1:
-		case SERIAL_5E1:
-		case SERIAL_6E1:
-		case SERIAL_7E1:
-		case SERIAL_8E1:	
-		case SERIAL_5O1:
-		case SERIAL_6O1:
-		case SERIAL_7O1:
-		case SERIAL_8O1:	
+		case STOP_BITE_1:	
 		default:
 			return 1_STOP_BIT;
 
-		case SERIAL_5N2:
-		case SERIAL_6N2:
-		case SERIAL_7N2:
-		case SERIAL_8N2:
-		case SERIAL_5E2:
-		case SERIAL_6E2:
-		case SERIAL_7E2:
-		case SERIAL_8E2:	
-		case SERIAL_5O2:
-		case SERIAL_6O2:
-		case SERIAL_7O2:
-		case SERIAL_8O2:	
+		case STOP_BITE_2:	
 			return 2_STOP_BITS;
 	}
 }
 
 SercomCharSize extractCharSize(uint8_t config)
 {
-	switch(config)
+	switch(config & DATA_MASK)
 	{
-		case SERIAL_5N1:
-		case SERIAL_5N2:
-		case SERIAL_5E1:
-		case SERIAL_5E2:
-		case SERIAL_5O1:
-		case SERIAL_5O2:
+		case DATA_5:
 			return 5_BITS;
 
-		case SERIAL_6N1:
-		case SERIAL_6N2:
-		case SERIAL_6E1:
-		case SERIAL_6E2:
-		case SERIAL_6O1:
-		case SERIAL_6O2:
+		case DATA_6:
 			return 6_BITS;
 
-		case SERIAL_7N1:
-		case SERIAL_7N2:
-		case SERIAL_7E1:
-		case SERIAL_7E2:
-		case SERIAL_7O1:
-		case SERIAL_7O2:
+		case DATA_7:
 			return 7_BITS;
 
-		case SERIAL_8N1:
-		case SERIAL_8N2:
-		case SERIAL_8E1:
-		case SERIAL_8E2:
-		case SERIAL_8O1:
-		case SERIAL_8O2:
+		case DATA_8:
 		default:
 			return 8_BITS;
 
@@ -142,37 +100,16 @@ SercomCharSize extractCharSize(uint8_t config)
 
 SercomParityMode extractParity(uint8_t config)
 {
-	switch(config)
+	switch(config & PARITY_MASK)
 	{
-		case SERIAL_5N1:
-		case SERIAL_6N1:
-		case SERIAL_7N1:
-		case SERIAL_8N1:
-		case SERIAL_5N2:
-		case SERIAL_6N2:
-		case SERIAL_7N2:
-		case SERIAL_8N2:
+		case PARITY_NONE:
 		default:
 			return NO_PARITY;
 
-		case SERIAL_5E1:
-		case SERIAL_6E1:
-		case SERIAL_7E1:
-		case SERIAL_8E1:
-		case SERIAL_5E2:
-		case SERIAL_6E2:
-		case SERIAL_7E2:
-		case SERIAL_8E2:
+		case PARITY_EVEN:
 			return EVEN_PARITY;
 
-		case SERIAL_5O1:
-		case SERIAL_6O1:
-		case SERIAL_7O1:
-		case SERIAL_8O1:
-		case SERIAL_5O2:
-		case SERIAL_6O2:
-		case SERIAL_7O2:
-		case SERIAL_8O2:
+		case PARITY_ODD:
 			return ODD_PARITY;
 	}
 }
