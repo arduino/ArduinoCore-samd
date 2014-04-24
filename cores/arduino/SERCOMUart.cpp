@@ -13,8 +13,10 @@ void SERCOMUart::begin(uint16_t baudrate)
 
 void SERCOMUart::begin(uint16_t baudrate, uint8_t config)
 {
-	sercom->init(UART_INT_CLOCK, PAD_0, PAD_2, extractCharSize(config), LSB_FIRST,
-				 extractParity(config), extractNbStopBit(config), SAMPLE_RATE_x16, baudrate);
+	sercom->init(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
+	sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
+	sercom->initPads(PAD_0, PAD_2);
+	
 	sercom->enableUART();
 }
 

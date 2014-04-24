@@ -75,12 +75,16 @@ typedef enum
 } SercomUartSampleRate;
 
 typedef enum
-{//					CPOL	CPHA
-	MODE_0 = 0,	//	  0		  0			
-	MODE_1,		//	  0		  1
-	MODE_2,		//	  1		  0	
-	MODE_3		//	  1		  1
-} SercomSpiMode;
+{
+	CPOL_0 = 0,
+	CPOL_1
+} SercomSpiCphaMode;
+
+typedef enum
+{
+	CPHA_0 = 0,
+	CPHA_1
+} SercomSpiCpolMode;
 
 class SERCOM
 {
@@ -88,9 +92,10 @@ class SERCOM
 		SERCOM(Sercom* sercom);
 	
 		/* ========== UART ========== */
-		void initUART(SercomUartMode mode, SercomUartTXPad txPad, SercomUartRXPad rxPad, SercomCharSize charSize, 
-						SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits,
-						SercomUartSampleRate sampleRate, uint32_t baudrate=0);
+		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);
+		void initFrame(SercomCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits);
+		void initPads(SercomUartTXPad txPad, SercomUartRXPad rxPad);
+		
 		void resetUART();
 		void enableUART();
 		void flushUART();

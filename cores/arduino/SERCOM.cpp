@@ -8,24 +8,12 @@ SERCOM::SERCOM(Sercom* sercom)
 	sercomSpi = sercom->SPI;
 }
 
-void SERCOM::initUART(SercomUartMode mode, SercomUartTXPad txPad, SercomUartRXPad rxPad, SercomCharSize charSize, 
-						SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits,
-						SercomUartSampleRate sampleRate, uint32_t baudrate)
+void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {
 	resetUART();
 	
 	sercomUart->CTRLA.reg =		SERCOM_UART_CTRLA_MODE(mode) |
-								SERCOM_USART_CTRLA_SAMPR(sampleRate) |
-								SERCOM_UART_CTRLA_TXPO(txPad) |
-								SERCOM_UART_CTRLA_RXPO(rxPad) |
-								SERCOM_UART_CTRLA_FORM( (parityMode == NO_PARITY ? 0 : 1) ) |
-								dataOrder << SERCOM_UART_CTRLA_DORD_Pos;
-
-	sercomUart->CTRLB.reg =		SERCOM_UART_CTRLB_CHSIZE(charSize) |
-								nbStopBits << SERCOM_UART_CTRLB_SBMODE_Pos |
-								(parityMode == NO_PARITY ? 0 : parityMode) << SERCOM_UART_CTRLB_PMODE_Pos |
-								SERCOM_UART_CTRLB_TXEN |
-								SERCOM_UART_CTRLB_RXEN;
+								SERCOM_USART_CTRLA_SAMPR(sampleRate);
 
 	if(mode == UART_INT_CLOCK)
 	{
@@ -46,6 +34,24 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartTXPad txPad, SercomUartRXPa
 		//Asynchronous arithmetic mode
 		sercomUart->BAUD.reg = 65535 * ( 1 - sampleRateValue * (baudrate / SERCOM_FREQ_REF));
 	}
+}
+void initFrame(SercomCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
+{
+	sercomUart->CTRLA.reg |=	SERCOM_UART_CTRLA_FORM( (parityMode == NO_PARITY ? 0 : 1) ) |
+								dataOrder << SERCOM_UART_CTRLA_DORD_Pos;
+
+	sercomUart->CTRLB.reg |=	SERCOM_UART_CTRLB_CHSIZE(charSize) |
+								nbStopBits << SERCOM_UART_CTRLB_SBMODE_Pos |
+								(parityMode == NO_PARITY ? 0 : parityMode) << SERCOM_UART_CTRLB_PMODE_Pos |;
+}
+
+void initPads(SercomUartTXPad txPad, SercomUartRXPad rxPad)
+{
+	sercomUart->CTRLA.reg |=	SERCOM_UART_CTRLA_TXPO(txPad) |
+								SERCOM_UART_CTRLA_RXPO(rxPad);
+
+	sercomUart->CTRLB.reg |=	SERCOM_UART_CTRLB_TXEN |
+								SERCOM_UART_CTRLB_RXEN;
 }
 
 void SERCOM::resetUART()
