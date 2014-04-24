@@ -3,7 +3,7 @@
 
 #include "sam.h"
 
-#define UART_FREQ_REF 48000000
+#define SERCOM_FREQ_REF 48000000
 
 typedef enum
 {

@@ -44,7 +44,7 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartTXPad txPad, SercomUartRXPa
 		}
 
 		//Asynchronous arithmetic mode
-		sercomUart->BAUD.reg = 65535 * ( 1 - sampleRateValue * (baudrate / UART_FREQ_REF));
+		sercomUart->BAUD.reg = 65535 * ( 1 - sampleRateValue * (baudrate / SERCOM_FREQ_REF));
 	}
 }
 
