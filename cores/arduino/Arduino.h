@@ -187,7 +187,7 @@ extern const PinDescription g_APinDescription[] ;
 #define USB_PID_LEONARDO   0x0034
 #define USB_PID_MICRO      0x0035
 #define USB_PID_DUE        0x003E
-#define USB_PID_DUE        0x004D
+#define USB_PID_ZERO       0x004D
 #include "USB/USBDesc.h"
 #include "USB/USBCore.h"
 #include "USB/USBAPI.h"
