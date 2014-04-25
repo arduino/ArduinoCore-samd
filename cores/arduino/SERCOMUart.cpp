@@ -46,7 +46,7 @@ void SERCOMUart::IrqHandler()
 	}
 }
 
-bool SERCOMUart::available()
+int SERCOMUart::available()
 {
 	return rxBuffer.available();
 }
