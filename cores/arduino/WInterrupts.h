@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011 Arduino.  All right reserved.
+  Copyright (c) 2011-2012 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -8,7 +8,7 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
   See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
@@ -16,22 +16,21 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _WIRING_
-#define _WIRING_
+#ifndef _WIRING_INTERRUPTS_
+#define _WIRING_INTERRUPTS_
+
+#include "Arduino.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-extern uint32_t SystemCoreClock ;
+void attachInterrupt(uint32_t pin, void (*callback)(void), uint32_t mode);
 
-/**
- *
- */
-extern void init( void ) ;
+void detachInterrupt(uint32_t pin);
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* _WIRING_ */
+#endif /* _WIRING_INTERRUPTS_ */
