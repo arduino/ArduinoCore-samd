@@ -91,22 +91,32 @@ void SERCOM::clearStatusUART()
 
 bool SERCOM::availableDataUART()
 {
+	//RXC : Receive Complete
 	return sercom->USART.INTFLAG.bit.RXC;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()
 {
+	//BUFOVF : Buffer Overflow
 	return sercom->USART.STATUS.bit.BUFOVF;
 }
 
 bool SERCOM::isFrameErrorUART()
 {
+	//FERR : Frame Error
 	return sercom->USART.STATUS.bit.FERR;
 }
 
 bool SERCOM::isParityErrorUART()
 {
+	//PERR : Parity Error
 	return sercom->USART.STATUS.bit.PERR;
+}
+
+bool SERCOM::isDataRegisterEmptyUART()
+{
+	//DRE : Data Register Empty
+	return sercom->USART.INTFLAG.bit.DRE;
 }
 
 uint8_t SERCOM::readDataUART()
@@ -145,6 +155,7 @@ void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize ch
 
 void SERCOM::initClock(SercomSpiClockMode clockMode, uint32_t baudrate)
 {
+	//Extract data from clockMode
 	int cpha, cpol;
 	
 	if((clockMode & (0x1ul)) == 0 )	
@@ -162,7 +173,7 @@ void SERCOM::initClock(SercomSpiClockMode clockMode, uint32_t baudrate)
 								cpol << SERCOM_SPI_CTRLA_CPOL_Pos;
 	
 	//Synchronous arithmetic
-	sercom->SPI.BAUD.reg = SERCOM_FREQ_REF / (2 * baudrate) - 1;
+	sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(baudrate);
 }
 
 void SERCOM::resetSPI()
@@ -182,8 +193,95 @@ void SERCOM::enableSPI()
 	//Waiting then enable bit from SYNCBUSY is equal to 0;
 	while(sercom->SPI.SYNCBUSY.bit.ENABLE);
 }
+	
+void SERCOM::disableSPI()
+{
+	//Set the enable bit to 0
+	sercom->SPI.CTRLA.bit.ENABLE = 0x0ul;
+	
+	//Waiting then enable bit from SYNCBUSY is equal to 0;
+	while(sercom->SPI.SYNCBUSY.bit.ENABLE);
+}
+
+void setDataOrderSPI(SercomDataOrder dataOrder)
+{
+	//Register enable-protected
+	disableSPI();
+	
+	sercom->SPI.CTRLA.bit.DORD = dataOrder;
+	
+	enableSPI();
+}
+
+void setBaudrateSPI(uint8_t divider)
+{
+	//Can't divide by 0
+	if(baudrate == 0)
+		return;
+		
+	//Register enable-protected
+	disableSPI();
+	
+	sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(SERCOM_FREQ_REF / baudrate);
+	
+	enableSPI();
+}
+
+void setClockModeSPI(SercomSpiClockMode clockMode)
+{
+	int cpha, cpol;
+	if((clockMode & (0x1ul)) == 0)
+		cpha = 0;
+	else
+		cpha = 1;
+
+	if((clockMode & (0x2ul)) == 0)
+		cpol = 0;
+	else
+		cpol = 1;
+
+	//Register enable-protected
+	disableSPI();
+	
+	sercom->SPI.CTRLA.bit.CPOL = cpol;
+	sercom->SPI.CTRLA.bit.CPHA = cpha;
+	
+	enableSPI();
+}
+void writeDataSPI(uint8_t data)
+{
+	sercom->SPI.DATA.bit.DATA = data;
+}
+
+uint8_t readDataSPI()
+{
+	return sercom->SPI.DATA.bit.DATA;
+}
 
 bool SERCOM::isBufferOverflowErrorSPI()
 {
 	return sercom->SPI.STATUS.bit.BUFOVF;
+}
+
+bool SERCOM::isDataRegisterEmptySPI()
+{
+	//DRE : Data Register Empty
+	return sercom->SPI.INTFLAG.bit.DRE;
+}
+
+bool SERCOM::isTransmitCompleteSPI()
+{
+	//TXC : Transmit complete
+	return sercom->SPI.INTFLAG.bit.TXC;
+}
+
+bool SERCOM::isReceiveCompleteSPI()
+{
+	//RXC : Receive complete
+	return sercom->SPI.INTFLAG.bit.RXC;
+}
+
+uint8_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
+{
+	return SERCOM_FREQ_REF / (2 * baudrate) - 1;
 }

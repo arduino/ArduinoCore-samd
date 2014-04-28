@@ -79,3 +79,8 @@ int RingBuffer::nextIndex(int index)
 {
 	return (uint32_t)(index + 1) % SERIAL_BUFFER_SIZE;
 }
+
+int RingBuffer::isFull()
+{
+	return (nextIndex(_iTail) == _iHead);
+}

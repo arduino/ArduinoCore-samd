@@ -114,6 +114,7 @@ class SERCOM
 		bool isBufferOverflowErrorUART();
 		bool isFrameErrorUART();
 		bool isParityErrorUART();
+		bool isDataRegisterEmptyUART()
 		uint8_t readDataUART();
 		int writeDataUART(uint8_t data);
 
@@ -123,12 +124,21 @@ class SERCOM
 		
 		void resetSPI();
 		void enableSPI();
+		void disableSPI();
+		void setDataOrderSPI(SercomDataOrder dataOrder);
+		void setBaudrateSPI(uint8_t divider);
+		void setClockModeSPI(SercomSpiClockMode clockMode);
+		void writeDataSPI(uint8_t data);
+		uint8_t readDataSPI();
 		bool isBufferOverflowErrorSPI();
-		
+		bool isDataRegisterEmptySPI();
+		bool isTransmitCompleteSPI();
+		bool isReceiveCompleteSPI();
 		
 
 	private:
 		Sercom* sercom;
+		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 };
 
 #endif

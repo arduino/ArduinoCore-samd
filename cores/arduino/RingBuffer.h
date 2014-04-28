@@ -41,6 +41,7 @@ class RingBuffer
 	int read_char();
 	int available();
 	int peek();
+	bool isFull();
 	
   private:
 	int nextIndex(int index);

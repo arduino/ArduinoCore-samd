@@ -12,46 +12,29 @@
 #define _SPI_H_INCLUDED
 
 #include "variant.h"
+#include "SERCOM.h"
+
 #include <stdio.h>
-
-#define SPI_MODE0 0x02
-#define SPI_MODE1 0x00
-#define SPI_MODE2 0x03
-#define SPI_MODE3 0x01
-
-enum SPITransferMode {
-	SPI_CONTINUE,
-	SPI_LAST
-};
 
 class SPIClass {
   public:
-	SPIClass(Spi *_spi, uint32_t _id, void(*_initCb)(void));
+	SPIClass(SERCOM *sercom);
 
-	byte transfer(uint8_t _data, SPITransferMode _mode = SPI_LAST) { return transfer(BOARD_SPI_DEFAULT_SS, _data, _mode); }
-	byte transfer(byte _channel, uint8_t _data, SPITransferMode _mode = SPI_LAST);
+	byte transfer(uint8_t _data);
 
 	// SPI Configuration methods
-	void attachInterrupt(void);
-	void detachInterrupt(void);
+	void attachInterrupt();
+	void detachInterrupt();
 
-	void begin(void);
-	void end(void);
+	void begin();
+	void end();
 	
-	void setBitOrder(BitOrder _order);
-	void setDataMode(uint8_t _mode);
-	void setClockDivider(uint8_t _div);
+	void setBitOrder(BitOrder order);
+	void setDataMode(uint8_t mode);
+	void setClockDivider(uint8_t div);
 
   private:
-	void init();
-
-	Spi *spi;
-	uint32_t id;
-	BitOrder bitOrder[SPI_CHANNELS_NUM];
-	uint32_t divider[SPI_CHANNELS_NUM];
-	uint32_t mode[SPI_CHANNELS_NUM];
-	void (*initCb)(void);
-	bool initialized;
+	SERCOM *sercom;
 };
 
 #if SPI_INTERFACES_COUNT > 0

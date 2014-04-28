@@ -25,6 +25,7 @@ class SERCOMUart
 	private:
 		SERCOM *sercom;
 		RingBuffer rxBuffer;
+		RingBuffer txBuffer;
 
 		SercomNumberStopBit extractNbStopBit(uint8_t config);
 		SercomCharSize extractCharSize(uint8_t config);
