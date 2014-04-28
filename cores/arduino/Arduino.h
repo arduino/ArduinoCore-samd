@@ -38,8 +38,8 @@
 extern "C"{
 #endif // __cplusplus
 
-// Includes Atmel CMSIS
-#include <chip.h>
+// Include Atmel headers
+#include "sam.h"
 
 #include "wiring_constants.h"
 
@@ -100,39 +100,64 @@ typedef enum _EAnalogChannel
 typedef enum _EPWMChannel
 {
   NOT_ON_PWM=-1,
-  PWM_CH0=0, // todo
-  PWM_CH1,
-  PWM_CH2,
-  PWM_CH3,
-  PWM_CH4,
-  PWM_CH5,
-  PWM_CH6,
-  PWM_CH7
+ // PWM_CH0=0, // todo
+ // PWM_CH1,
+ // PWM_CH2,
+ // PWM_CH3,
+ // PWM_CH4,
+ // PWM_CH5,
+ // PWM_CH6,
+ // PWM_CH7
 } EPWMChannel ;
 
 // Definitions for TC channels
 typedef enum _ETCChannel
 {
   NOT_ON_TIMER=-1,
-  TC0_CHA0=0, // todo
-  TC0_CHB0,
-  TC0_CHA1,
-  TC0_CHB1,
-  TC0_CHA2,
-  TC0_CHB2,
-  TC1_CHA3,
-  TC1_CHB3,
-  TC1_CHA4,
-  TC1_CHB4,
-  TC1_CHA5,
-  TC1_CHB5,
-  TC2_CHA6,
-  TC2_CHB6,
-  TC2_CHA7,
-  TC2_CHB7,
-  TC2_CHA8,
-  TC2_CHB8
+ // TC0_CHA0=0, // todo
+ // TC0_CHB0,
+ // TC0_CHA1,
+ // TC0_CHB1,
+ // TC0_CHA2,
+ // TC0_CHB2,
+ // TC1_CHA3,
+ // TC1_CHB3,
+ // TC1_CHA4,
+ // TC1_CHB4,
+ // TC1_CHA5,
+ // TC1_CHB5,
+ // TC2_CHA6,
+ // TC2_CHB6,
+ // TC2_CHA7,
+ // TC2_CHB7,
+ // TC2_CHA8,
+ // TC2_CHB8
 } ETCChannel ;
+
+#define PORTA    (0ul)
+#define PORTB    (1ul)
+#define PORTC    (2ul)
+
+//A    B                 C       D          E      F   G   H
+//EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC/TCC TCC COM AC/GCLK
+
+typedef enum _EPioType
+{
+  PIO_NOT_A_PIN,  /* Not under control of a peripheral. */
+  PIO_DIGITAL,    /* The pin is controlled by PORT. */
+  PIO_EXTINT,     /* The pin is controlled by the associated signal of peripheral A. */
+  PIO_ANALOG,     /* The pin is controlled by the associated signal of peripheral B. */
+  PIO_SERCOM,     /* The pin is controlled by the associated signal of peripheral C. */
+  PIO_SERCOM_ALT, /* The pin is controlled by the associated signal of peripheral D. */
+  PIO_TIMER,      /* The pin is controlled by the associated signal of peripheral E. */
+  PIO_TIMER_ALT,  /* The pin is controlled by the associated signal of peripheral F. */
+  PIO_COM,        /* The pin is controlled by the associated signal of peripheral G. */
+  PIO_AC_CLK,     /* The pin is controlled by the associated signal of peripheral H. */
+
+  PIO_INPUT,      /* The pin is an input. */
+  PIO_OUTPUT_0,   /* The pin is an output and has a default level of 0. */
+  PIO_OUTPUT_1    /* The pin is an output and has a default level of 1. */
+} EPioType ;
 
 /**
  * Pin Attributes to be OR-ed
@@ -143,10 +168,10 @@ typedef enum _ETCChannel
 #define PIN_ATTR_PWM           (1UL<<3)
 #define PIN_ATTR_TIMER         (1UL<<4)
 
-/* Types used for the tables below */
+/* Types used for the table below */
 typedef struct _PinDescription
 {
-  Pio* pPort ;
+  void* pPort ;
   uint32_t ulPin ;
   uint32_t ulPeripheralId ;
   EPioType ulPinType ;
@@ -174,7 +199,7 @@ extern const PinDescription g_APinDescription[] ;
 #endif // __cplusplus
 
 // Include board variant
-#include "variant.h"
+//#include "variant.h"
 
 #include "wiring.h"
 #include "wiring_digital.h"

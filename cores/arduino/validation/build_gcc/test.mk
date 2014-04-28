@@ -21,44 +21,39 @@
 
 # putting default variant
 ifeq ("$(VARIANT)", "")
-VARIANT=samd21_xpro
-#VARIANT=arduino_zero
+VARIANT=arduino_zero
 endif
 
-ifeq ("$(VARIANT)", "samd21_xpro")
-DEVICE=__SAMD21J18__
-VARIANT_PATH = ../../../../../../atmel/sam/variants/$(VARIANT)
-else ifeq ("$(VARIANT)", "arduino_zero")
+ifeq ("$(VARIANT)", "arduino_zero")
 DEVICE=__SAMD21G18__
-VARIANT_PATH = ../../../../../../atmel/sam/variants/$(VARIANT)
 endif
 
-TOOLCHAIN=gcc
+ifeq ($(DEVICE), __SAMD21G18__)
+DEVICE_NAME=samd21g18
+DEVICE_SERIE=samd21
+else ifeq ($(DEVICE), __SAMD21J18__)
+DEVICE_NAME=samd21j18
+DEVICE_SERIE=samd21
+endif
 
 #-------------------------------------------------------------------------------
 # Path
 #-------------------------------------------------------------------------------
-
-# Libraries
-PROJECT_BASE_PATH = ..
-SYSTEM_PATH = ../../../../system
-
-ifeq ($(DEVICE), __SAMD21G18__)
-DEVICE_NAME=samd21g18
-DEVICE_SERIE=samd
-else ifeq ($(DEVICE), __SAMD21J18__)
-DEVICE_NAME=samd21j18
-DEVICE_SERIE=samd
-else
-endif
-
-CMSIS_ROOT_PATH = $(SYSTEM_PATH)/CMSIS
+HARDWARE_PATH=../../../../../../
+ARCH_PATH=$(HARDWARE_PATH)/arduino/samd
+ARDUINO_CORE_PATH=$(ARCH_PATH)/cores/arduino
+ARDUINO_USB_PATH=$(ARDUINO_CORE_PATH)/USB
+VARIANT_PATH = $(ARCH_PATH)/variants/$(VARIANT)
+TOOLS_PATH = $(HARDWARE_PATH)/tools
+CMSIS_ROOT_PATH=$(TOOLS_PATH)/CMSIS
 CMSIS_ARM_PATH=$(CMSIS_ROOT_PATH)/CMSIS/Include
 CMSIS_ATMEL_PATH=$(CMSIS_ROOT_PATH)/Device/ATMEL
-CMSIS_DEVICE_PATH=$(CMSIS_ROOT_PATH)/Device/ATMEL/$(DEVICE_SERIE)
+#CMSIS_DEVICE_PATH=$(CMSIS_ROOT_PATH)/Device/ATMEL/$(DEVICE_SERIE)
 
-ARDUINO_CORE_PATH=../../../../cores/arduino
-ARDUINO_USB_PATH=$(ARDUINO_CORE_PATH)/USB
+PROJECT_BASE_PATH = ..
+
+TOOLCHAIN=gcc
+
 
 # Output directories
 OUTPUT_PATH = debug_$(VARIANT)
@@ -67,7 +62,6 @@ OUTPUT_PATH = debug_$(VARIANT)
 # Files
 #-------------------------------------------------------------------------------
 
-#vpath %.h $(PROJECT_BASE_PATH)/.. $(PROJECT_BASE_PATH)/../USB $(VARIANT_PATH) $(SYSTEM_PATH) $(CMSIS_ARM_PATH)
 vpath %.cpp $(PROJECT_BASE_PATH)
 
 #VPATH+=$(PROJECT_BASE_PATH)
@@ -111,8 +105,6 @@ LIBS=-Wl,--start-group -lgcc -lc -lstdc++ -Wl,--end-group
 LIB_PATH =-L$(PROJECT_BASE_PATH)/..
 LIB_PATH+=-L=/lib/thumb2
 #LIB_PATH+=-L=/../lib/gcc/arm-none-eabi/4.5.2/thumb2
-
-LDFLAGS= -mcpu=cortex-m0p -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
 
 #-------------------------------------------------------------------------------
 # CPP source files and objects
@@ -161,8 +153,8 @@ create_output:
 
 $(addprefix $(OUTPUT_PATH)/,$(CPP_OBJ)): $(OUTPUT_PATH)/%.o: %.cpp
 	@echo *** Current folder is $(shell cd)
-	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
-#	"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
+#	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
+	"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
 
 $(OUTPUT_BIN): $(addprefix $(OUTPUT_PATH)/, $(C_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(A_OBJ))
 	@"$(CC)" $(LIB_PATH) $(LDFLAGS) -T"$(VARIANT_PATH)/linker_scripts/gcc/flash.ld" -Wl,-Map,$(OUTPUT_PATH)/$@.map -o $(OUTPUT_PATH)/$@.elf $^ $(LIBS)
@@ -175,14 +167,6 @@ clean:
 	@echo ------------------------------------------------------------------------------------
 	@echo --- Cleaning test files for $(VARIANT)
 	-@$(RM) $(OUTPUT_PATH) 1>NUL 2>&1
-	@echo ------------------------------------------------------------------------------------
-	@echo ------------------------------------------------------------------------------------
-	@echo Sub-making clean for Arduino core
-	$(MAKE) -C $(ARDUINO_CORE_PATH)/build_gcc -f Makefile clean
-	@echo ------------------------------------------------------------------------------------
-	@echo ------------------------------------------------------------------------------------
-	@echo Sub-making clean for variant $(VARIANT)
-	$(MAKE) -C $(VARIANT_PATH)/build_gcc -f Makefile clean
 	@echo ------------------------------------------------------------------------------------
 
 #	-$(RM) $(OUTPUT_PATH)/test.o
