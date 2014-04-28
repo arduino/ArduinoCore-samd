@@ -49,7 +49,7 @@ typedef enum
 	5_BITS = 0x5u,
 	6_BITS,
 	7_BITS
-} SercomCharSize;
+} SercomUartCharSize;
 
 typedef enum
 {
@@ -57,7 +57,7 @@ typedef enum
 	PAD_1,
 	PAD_2,
 	PAD_3
-} SercomUartRXPad;
+} SercomRXPad;
 
 Vtypedef enum
 {
@@ -76,15 +76,25 @@ typedef enum
 
 typedef enum
 {
-	CPOL_0 = 0,
-	CPOL_1
-} SercomSpiCphaMode;
+	SPI_MODE_0 = 0,	// CPOL : 0  | CPHA : 0
+	SPI_MODE_1,		// CPOL : 0  | CPHA : 1
+	SPI_MODE_2,		// CPOL : 1  | CPHA : 0
+	SPI_MODE_3		// CPOL : 1  | CPHA : 1
+} SercomSpiClockMode;
 
 typedef enum
 {
-	CPHA_0 = 0,
-	CPHA_1
-} SercomSpiCpolMode;
+	PAD_0_SCK_1 = 0,
+	PAD_2_SCK_3,
+	PAD_3_SCK_1,
+	PAD_0_SCK_3
+} SercomSpiTXPad;
+
+typedef enum
+{
+	8_BITS = 0,
+	9_BITS = 1
+} SercomSpiCharSize;
 
 class SERCOM
 {
@@ -93,8 +103,8 @@ class SERCOM
 	
 		/* ========== UART ========== */
 		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);
-		void initFrame(SercomCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits);
-		void initPads(SercomUartTXPad txPad, SercomUartRXPad rxPad);
+		void initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits);
+		void initPads(SercomUartTXPad txPad, SercomRXPad rxPad);
 		
 		void resetUART();
 		void enableUART();
@@ -104,17 +114,31 @@ class SERCOM
 		bool isBufferOverflowErrorUART();
 		bool isFrameErrorUART();
 		bool isParityErrorUART();
+		bool isDataRegisterEmptyUART()
 		uint8_t readDataUART();
 		int writeDataUART(uint8_t data);
 
 		/* ========== SPI ========== */
-		void initSPI();
+		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder);
+		void initClock(SercomSpiClockMode clockMode, uint32_t baudrate);
+		
+		void resetSPI();
+		void enableSPI();
+		void disableSPI();
+		void setDataOrderSPI(SercomDataOrder dataOrder);
+		void setBaudrateSPI(uint8_t divider);
+		void setClockModeSPI(SercomSpiClockMode clockMode);
+		void writeDataSPI(uint8_t data);
+		uint8_t readDataSPI();
+		bool isBufferOverflowErrorSPI();
+		bool isDataRegisterEmptySPI();
+		bool isTransmitCompleteSPI();
+		bool isReceiveCompleteSPI();
 		
 
 	private:
 		Sercom* sercom;
-		SercomUart* sercomUart;
-		SercomSpi* sercomSpi;
+		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 };
 
 #endif

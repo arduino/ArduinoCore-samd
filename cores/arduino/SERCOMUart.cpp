@@ -37,7 +37,12 @@ void SERCOMUart::IrqHandler()
 	{
 		rxBuffer.store_char(sercom->readDataUART())
 	}
-
+	
+	if(sercom->isDataRegisterEmptyUART())
+	{
+		writeDataUART(txBuffer.read_char());
+	}
+	
 	if(	sercom->isBufferOverflowErrorUART() ||
 		sercom->isFrameErrorUART() ||
 		sercom->isParityErrorUART())
@@ -46,7 +51,7 @@ void SERCOMUart::IrqHandler()
 	}
 }
 
-bool SERCOMUart::available()
+int SERCOMUart::available()
 {
 	return rxBuffer.available();
 }
@@ -63,7 +68,11 @@ int SERCOMUart::read()
 
 size_t SERCOMUart::write(uint8_t data)
 {
-	return sercom->writeDataUART(data);
+	if(txBuffer.isFull())
+		return 0;
+		
+	txBuffer.store_char(data);
+	return 1;
 }
 
 SercomNumberStopBit extractNbStopBit(uint8_t config)
