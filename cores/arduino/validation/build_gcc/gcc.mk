@@ -47,7 +47,7 @@ CFLAGS += -Wunreachable-code
 CFLAGS += -Wcast-align
 
 CFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m0plus -mthumb -mlong-calls -ffunction-sections -nostdlib -std=c99
-CFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(CHIP) -D$(VARIANT)
+CFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(DEVICE) -D$(VARIANT)
 
 # To reduce application size use only integer printf function.
 CFLAGS += -Dprintf=iprintf
@@ -68,7 +68,7 @@ CPPFLAGS += -Wpacked -Wredundant-decls -Winline -Wlong-long
 
 #-fno-rtti -fno-exceptions
 CPPFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m0plus -mthumb -mlong-calls -ffunction-sections -fdata-sections -std=c++98
-CPPFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(CHIP)
+CPPFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(DEVICE)
 
 # To reduce application size use only integer printf function.
 CPPFLAGS += -Dprintf=iprintf
