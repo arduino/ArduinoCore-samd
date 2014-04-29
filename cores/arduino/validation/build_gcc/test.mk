@@ -149,45 +149,45 @@ create_output:
 	@echo -
 	@echo -
 	@echo INCLUDES -------------------------
-	@echo *$(INCLUDES)
+	@echo $(INCLUDES)
 	@echo -
 	@echo -
 	@echo C_SRC -------------------------
-	@echo *$(C_SRC)
+	@echo $(C_SRC)
 	@echo -
 	@echo -
 	@echo C_OBJ -------------------------
-	@echo *$(C_OBJ)
+	@echo $(C_OBJ)
 	@echo -
 	@echo -
 	@echo C_OBJ prefix -------------------------
-	@echo *$(addprefix $(OUTPUT_PATH)/, $(C_OBJ))
+	@echo $(addprefix $(OUTPUT_PATH)/, $(C_OBJ))
 	@echo -
 	@echo -
 	@echo CPP_SRC -------------------------
-	@echo *$(CPP_SRC)
+	@echo $(CPP_SRC)
 	@echo -
 	@echo -
 	@echo CPP_OBJ -------------------------
-	@echo *$(CPP_OBJ)
+	@echo $(CPP_OBJ)
 	@echo -
 	@echo -
 	@echo CPP_OBJ prefix -------------------------
-	@echo *$(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ))
+	@echo $(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ))
 #	@echo A_SRC -------------------------
-#	@echo *$(A_SRC)
+#	@echo $(A_SRC)
 	@echo -------------------------
 
 	-@mkdir $(OUTPUT_PATH) 1>NUL 2>&1
 	@echo ------------------------------------------------------------------------------------
 
 $(addprefix $(OUTPUT_PATH)/,$(C_OBJ)): $(OUTPUT_PATH)/%.o: %.c
-	@echo *** Current folder is $(shell cd)
+	@echo Current folder is $(shell cd)
 #	@"$(CC)" -c $(CFLAGS) $< -o $@
 	"$(CC)" -v -c $(CFLAGS) $< -o $@
 
 $(addprefix $(OUTPUT_PATH)/,$(CPP_OBJ)): $(OUTPUT_PATH)/%.o: %.cpp
-	@echo *** Current folder is $(shell cd)
+	@echo Current folder is $(shell cd)
 #	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
 	"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
 
