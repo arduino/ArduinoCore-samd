@@ -39,7 +39,7 @@ endif
 #-------------------------------------------------------------------------------
 # Path
 #-------------------------------------------------------------------------------
-HARDWARE_PATH=../../../../../../
+HARDWARE_PATH=../../../../../..
 ARCH_PATH=$(HARDWARE_PATH)/arduino/samd
 ARDUINO_CORE_PATH=$(ARCH_PATH)/cores/arduino
 ARDUINO_USB_PATH=$(ARDUINO_CORE_PATH)/USB
@@ -63,13 +63,13 @@ OUTPUT_PATH = debug_$(VARIANT)
 #-------------------------------------------------------------------------------
 
 vpath %.cpp $(PROJECT_BASE_PATH)
+vpath %.c $(ARDUINO_CORE_PATH) $(VARIANT_PATH)
 
 #VPATH+=$(PROJECT_BASE_PATH)
 
 INCLUDES = -I$(ARDUINO_CORE_PATH)
-INCLUDES += -I$(ARDUINO_CORE_PATH)/USB
+INCLUDES += -I$(ARDUINO_USB_PATH)
 INCLUDES += -I$(VARIANT_PATH)
-INCLUDES += -I$(SYSTEM_PATH)/libsam
 INCLUDES += -I$(CMSIS_ARM_PATH)
 INCLUDES += -I$(CMSIS_ATMEL_PATH)
 INCLUDES += -I$(CMSIS_DEVICE_PATH)
@@ -107,9 +107,25 @@ LIB_PATH+=-L=/lib/thumb2
 #LIB_PATH+=-L=/../lib/gcc/arm-none-eabi/4.5.2/thumb2
 
 #-------------------------------------------------------------------------------
+# C source files and objects
+#-------------------------------------------------------------------------------
+C_SRC=$(wildcard $(PROJECT_BASE_PATH)/*.c)
+C_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.c)
+C_SRC+=$(wildcard $(VARIANT_PATH)/*.c)
+
+C_OBJ_TEMP = $(patsubst %.c, %.o, $(notdir $(C_SRC)))
+
+# during development, remove some files
+C_OBJ_FILTER=
+
+C_OBJ=$(filter-out $(C_OBJ_FILTER), $(C_OBJ_TEMP))
+
+#-------------------------------------------------------------------------------
 # CPP source files and objects
 #-------------------------------------------------------------------------------
 CPP_SRC=$(wildcard $(PROJECT_BASE_PATH)/*.cpp)
+CPP_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.cpp)
+CPP_SRC+=$(wildcard $(VARIANT_PATH)/*.cpp)
 
 CPP_OBJ_TEMP = $(patsubst %.cpp, %.o, $(notdir $(CPP_SRC)))
 
@@ -130,26 +146,45 @@ test: create_output $(OUTPUT_BIN)
 create_output:
 	@echo ------------------------------------------------------------------------------------
 	@echo --- Preparing $(VARIANT) files in $(OUTPUT_PATH) $(OUTPUT_BIN)
-#	@echo -------------------------
-#	@echo *$(INCLUDES)
-#	@echo -------------------------
-#	@echo *$(C_SRC)
-#	@echo -------------------------
-#	@echo *$(C_OBJ)
-#	@echo -------------------------
-#	@echo *$(addprefix $(OUTPUT_PATH)/, $(C_OBJ))
-#	@echo -------------------------
-#	@echo *$(CPP_SRC)
-#	@echo -------------------------
-#	@echo *$(CPP_OBJ)
-#	@echo -------------------------
-#	@echo *$(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ))
-#	@echo -------------------------
+	@echo -
+	@echo -
+	@echo INCLUDES -------------------------
+	@echo *$(INCLUDES)
+	@echo -
+	@echo -
+	@echo C_SRC -------------------------
+	@echo *$(C_SRC)
+	@echo -
+	@echo -
+	@echo C_OBJ -------------------------
+	@echo *$(C_OBJ)
+	@echo -
+	@echo -
+	@echo C_OBJ prefix -------------------------
+	@echo *$(addprefix $(OUTPUT_PATH)/, $(C_OBJ))
+	@echo -
+	@echo -
+	@echo CPP_SRC -------------------------
+	@echo *$(CPP_SRC)
+	@echo -
+	@echo -
+	@echo CPP_OBJ -------------------------
+	@echo *$(CPP_OBJ)
+	@echo -
+	@echo -
+	@echo CPP_OBJ prefix -------------------------
+	@echo *$(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ))
+#	@echo A_SRC -------------------------
 #	@echo *$(A_SRC)
-#	@echo -------------------------
+	@echo -------------------------
 
 	-@mkdir $(OUTPUT_PATH) 1>NUL 2>&1
 	@echo ------------------------------------------------------------------------------------
+
+$(addprefix $(OUTPUT_PATH)/,$(C_OBJ)): $(OUTPUT_PATH)/%.o: %.c
+	@echo *** Current folder is $(shell cd)
+#	@"$(CC)" -c $(CFLAGS) $< -o $@
+	"$(CC)" -v -c $(CFLAGS) $< -o $@
 
 $(addprefix $(OUTPUT_PATH)/,$(CPP_OBJ)): $(OUTPUT_PATH)/%.o: %.cpp
 	@echo *** Current folder is $(shell cd)
