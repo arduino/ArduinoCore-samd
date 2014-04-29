@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 /**
  * \brief Returns the number of milliseconds since the Arduino board began running the current program.
  *
