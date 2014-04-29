@@ -34,27 +34,24 @@ void __libc_init_array(void);
  * Arduino Zero board initialization
  *
  * Good to know:
+ *   - At reset, ResetHandler did the system clock configuration. Core is running at 48MHz.
  *   - Watchdog is disabled by default, unless someone plays with NVM User page
- *   -
+ *   - During reset, all PORT lines are configured as inputs with input buffers, output buffers and pull disabled.
  */
 void init( void )
 {
-  // Set Systick to 1ms interval, common to all SAM3 variants
-  if (SysTick_Config(SystemCoreClock / 1000))
+  // Set Systick to 1ms interval, common to all Cortex-M variants
+  if ( SysTick_Config( SystemCoreClock / 1000 ) )
   {
     // Capture error
     while (true);
   }
 
-
   // Initialize C library
 //  __libc_init_array();
 
-  // Disable pull-up on every pin
-  for ( int i = 0 ; i < PINS_COUNT ; i++ )
-	{
-	  digitalWrite( i, LOW ) ;
-	}
+  // Setup PORT for Digital I/O
+	PM->APBBMASK.bit.PORT=1 ;
 
   // Initialize Serial port U(S)ART pins
 	// Todo

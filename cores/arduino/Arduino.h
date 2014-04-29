@@ -25,11 +25,11 @@
 #include <string.h>
 #include <math.h>
 
-// some libraries and sketches depend on this
-// AVR stuff, assuming Arduino.h or WProgram.h
-// automatically includes it...
-#include <avr/pgmspace.h>
-#include <avr/interrupt.h>
+// some libraries and sketches depend on this AVR stuff,
+// assuming Arduino.h or WProgram.h automatically includes it...
+//
+#include "avr/pgmspace.h"
+#include "avr/interrupt.h"
 
 #include "binary.h"
 #include "itoa.h"
@@ -47,7 +47,7 @@ extern "C"{
 #define clockCyclesToMicroseconds(a) ( ((a) * 1000L) / (SystemCoreClock / 1000L) )
 #define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
 
-void yield(void);
+void yield( void ) ;
 
 /* sketch */
 extern void setup( void ) ;
@@ -173,7 +173,7 @@ typedef struct _PinDescription
 {
   void* pPort ;
   uint32_t ulPin ;
-  uint32_t ulPeripheralId ;
+//  uint32_t ulPeripheralId ;
   EPioType ulPinType ;
   uint32_t ulPinConfiguration ;
   uint32_t ulPinAttribute ;
