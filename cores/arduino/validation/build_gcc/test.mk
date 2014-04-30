@@ -25,13 +25,13 @@ VARIANT=arduino_zero
 endif
 
 ifeq ("$(VARIANT)", "arduino_zero")
-DEVICE=__SAMD21G18__
+DEVICE=__SAMD21G18A__
 endif
 
-ifeq ($(DEVICE), __SAMD21G18__)
+ifeq ($(DEVICE), __SAMD21G18A__)
 DEVICE_NAME=samd21g18
 DEVICE_SERIE=samd21
-else ifeq ($(DEVICE), __SAMD21J18__)
+else ifeq ($(DEVICE), __SAMD21J18A__)
 DEVICE_NAME=samd21j18
 DEVICE_SERIE=samd21
 endif
@@ -62,7 +62,7 @@ OUTPUT_PATH = debug_$(VARIANT)
 # Files
 #-------------------------------------------------------------------------------
 
-vpath %.cpp $(PROJECT_BASE_PATH)
+vpath %.cpp $(PROJECT_BASE_PATH) $(ARDUINO_CORE_PATH) $(VARIANT_PATH)
 vpath %.c $(ARDUINO_CORE_PATH) $(VARIANT_PATH)
 
 #VPATH+=$(PROJECT_BASE_PATH)
@@ -72,7 +72,7 @@ INCLUDES += -I$(ARDUINO_USB_PATH)
 INCLUDES += -I$(VARIANT_PATH)
 INCLUDES += -I$(CMSIS_ARM_PATH)
 INCLUDES += -I$(CMSIS_ATMEL_PATH)
-INCLUDES += -I$(CMSIS_DEVICE_PATH)
+#INCLUDES += -I$(CMSIS_DEVICE_PATH)
 
 #-------------------------------------------------------------------------------
 ifdef DEBUG
@@ -109,9 +109,10 @@ LIB_PATH+=-L=/lib/thumb2
 #-------------------------------------------------------------------------------
 # C source files and objects
 #-------------------------------------------------------------------------------
-C_SRC=$(wildcard $(PROJECT_BASE_PATH)/*.c)
-C_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.c)
-C_SRC+=$(wildcard $(VARIANT_PATH)/*.c)
+C_SRC=
+#C_SRC+=$(wildcard $(PROJECT_BASE_PATH)/*.c)
+#C_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.c)
+#C_SRC+=$(wildcard $(VARIANT_PATH)/*.c)
 
 C_OBJ_TEMP = $(patsubst %.c, %.o, $(notdir $(C_SRC)))
 
@@ -182,14 +183,16 @@ create_output:
 	@echo ------------------------------------------------------------------------------------
 
 $(addprefix $(OUTPUT_PATH)/,$(C_OBJ)): $(OUTPUT_PATH)/%.o: %.c
-	@echo Current folder is $(shell cd)
+	@echo Current folder is $(shell cd) - $@ $^
 #	@"$(CC)" -c $(CFLAGS) $< -o $@
-	"$(CC)" -v -c $(CFLAGS) $< -o $@
+#	"$(CC)" -v -c $(CFLAGS) $< -o $@
+	"$(CC)" -c $(CFLAGS) $< -o $@
 
 $(addprefix $(OUTPUT_PATH)/,$(CPP_OBJ)): $(OUTPUT_PATH)/%.o: %.cpp
-	@echo Current folder is $(shell cd)
+	@echo Current folder is $(shell cd) - $@ $^
 #	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
-	"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
+#	"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
+	"$(CXX)" -c $(CPPFLAGS) $< -o $@
 
 $(OUTPUT_BIN): $(addprefix $(OUTPUT_PATH)/, $(C_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(A_OBJ))
 	@"$(CC)" $(LIB_PATH) $(LDFLAGS) -T"$(VARIANT_PATH)/linker_scripts/gcc/flash.ld" -Wl,-Map,$(OUTPUT_PATH)/$@.map -o $(OUTPUT_PATH)/$@.elf $^ $(LIBS)
