@@ -164,9 +164,9 @@ typedef enum _EPioType
   PIO_COM,        /* The pin is controlled by the associated signal of peripheral G. */
   PIO_AC_CLK,     /* The pin is controlled by the associated signal of peripheral H. */
 
-  PIO_INPUT,      /* The pin is an input. */
-  PIO_OUTPUT_0,   /* The pin is an output and has a default level of 0. */
-  PIO_OUTPUT_1    /* The pin is an output and has a default level of 1. */
+  PIO_INPUT,      /* The pin is controlled by PORT and is an input. */
+  PIO_OUTPUT_0,   /* The pin is controlled by PORT and is an output with a default level of 0. */
+  PIO_OUTPUT_1    /* The pin is controlled by PORT and is an output with a default level of 1. */
 } EPioType ;
 
 /**
