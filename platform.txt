@@ -7,7 +7,7 @@
 name=Arduino ARM (32-bits) Boards
 version=1.5.6
 
-# SAM3 compile variables
+# SAMD compile variables
 # ----------------------
 
 compiler.path={runtime.ide.path}/hardware/tools/g++_arm_none_eabi/bin/
