@@ -54,17 +54,17 @@ extern "C"{
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (25u)
+#define PINS_COUNT           (34u)
 #define NUM_DIGITAL_PINS     (19u)
 #define NUM_ANALOG_INPUTS    (5u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
-#define digitalPinToPort(P)        ( g_APinDescription[P].pPort )
-#define digitalPinToBitMask(P)     ( g_APinDescription[P].ulPin )
+#define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
+#define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
 #define digitalPinToTimer(P)       (  )
 //#define analogInPinToBit(P)        ( )
-#define portOutputRegister(port)   ( &(port->PIO_ODSR) )
-#define portInputRegister(port)    ( &(port->PIO_PDSR) )
+#define portOutputRegister(port)   ( &(port->OUT) )
+#define portInputRegister(port)    ( &(port->IN) )
 //#define portModeRegister(P)        (  )
 #define digitalPinHasPWM(P)        ( g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER )
 
@@ -73,8 +73,8 @@ extern "C"{
 
 // LEDs
 #define PIN_LED_13           (13u)
-#define PIN_LED_RXL          (72u)
-#define PIN_LED_TXL          (73u)
+#define PIN_LED_RXL          (30u)
+#define PIN_LED_TXL          (31u)
 #define PIN_LED              PIN_LED_13
 #define PIN_LED2             PIN_LED_RXL
 #define PIN_LED3             PIN_LED_TXL
@@ -84,7 +84,7 @@ extern "C"{
  * SPI Interfaces
  */
 #define SPI_INTERFACES_COUNT 1
-
+/*
 #define SPI_INTERFACE        SPI0
 #define SPI_INTERFACE_ID     ID_SPI0
 #define SPI_CHANNELS_NUM 4
@@ -117,42 +117,32 @@ static const uint8_t SS3  = BOARD_SPI_SS3;
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
+*/
 
 /*
  * Wire Interfaces
  */
-#define WIRE_INTERFACES_COUNT 2
+#define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE_SDA         (20u)
-#define PIN_WIRE_SCL         (21u)
+#define PIN_WIRE_SDA         (16u)
+#define PIN_WIRE_SCL         (17u)
+/*
 #define WIRE_INTERFACE       TWI1
 #define WIRE_INTERFACE_ID    ID_TWI1
 #define WIRE_ISR_HANDLER     TWI1_Handler
 #define WIRE_ISR_ID          TWI1_IRQn
-
-#define PIN_WIRE1_SDA        (70u)
-#define PIN_WIRE1_SCL        (71u)
-#define WIRE1_INTERFACE      TWI0
-#define WIRE1_INTERFACE_ID   ID_TWI0
-#define WIRE1_ISR_HANDLER    TWI0_Handler
-#define WIRE1_ISR_ID         TWI0_IRQn
+*/
 
 /*
  * UART/USART Interfaces
  */
 // Serial
-#define PINS_UART            (81u)
-// Serial1
-#define PINS_USART0          (82u)
-// Serial2
-#define PINS_USART1          (83u)
-// Serial3
-#define PINS_USART3          (84u)
+//#define PINS_UART            (81u)
 
 /*
  * USB Interfaces
  */
-#define PINS_USB             (85u)
+//#define PINS_USB             (85u)
 
 /*
  * Analog pins
@@ -168,31 +158,37 @@ static const uint8_t A5  = 25 ;
 /*
  * DAC
  */
+/*
 #define DACC_INTERFACE		   DACC
 #define DACC_INTERFACE_ID	   ID_DACC
 #define DACC_RESOLUTION		   12
 #define DACC_ISR_HANDLER     DACC_Handler
 #define DACC_ISR_ID          DACC_IRQn
+*/
 
 /*
  * PWM
  */
+/*
 #define PWM_INTERFACE		PWM
 #define PWM_INTERFACE_ID	ID_PWM
 #define PWM_FREQUENCY		1000
 #define PWM_MAX_DUTY_CYCLE	255
 #define PWM_MIN_DUTY_CYCLE	0
 #define PWM_RESOLUTION		8
+*/
 
 /*
  * TC
  */
+/*
 #define TC_INTERFACE        TC0
 #define TC_INTERFACE_ID     ID_TC0
 #define TC_FREQUENCY        1000
 #define TC_MAX_DUTY_CYCLE   255
 #define TC_MIN_DUTY_CYCLE   0
 #define TC_RESOLUTION		8
+*/
 
 #ifdef __cplusplus
 }
