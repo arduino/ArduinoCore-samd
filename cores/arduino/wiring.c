@@ -18,6 +18,9 @@
 
 //#include "Arduino.h"
 #include "variant.h"
+//#include "wiring_constants.h"
+#include "wiring_digital.h"
+#include "wiring.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -47,7 +50,7 @@ void init( void )
   if ( SysTick_Config( SystemCoreClock / 1000 ) )
   {
     // Capture error
-    while (true);
+    while ( 1 ) ;
   }
 
   // Initialize C library
