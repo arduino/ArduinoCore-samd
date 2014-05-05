@@ -20,7 +20,6 @@
 
 void setup( void )
 {
-/*
   // Initialize the digital pin as an output.
   // Pin PIN_LED has a LED connected on most Arduino boards:
   pinMode( PIN_LED, OUTPUT ) ;
@@ -30,11 +29,11 @@ void setup( void )
   pinMode( PIN_LED2, OUTPUT ) ;
   digitalWrite( PIN_LED2, HIGH ) ;
 
+/*
   Serial1.begin( 115200 ) ;
 */
 }
 
-/*
 static void led_step1( void )
 {
   digitalWrite( PIN_LED, LOW ) ;  // set the LED on
@@ -46,23 +45,24 @@ static void led_step2( void )
   digitalWrite( PIN_LED, HIGH ) ;   // set the LED off
   digitalWrite( PIN_LED2, HIGH ) ;  // set the red LED on
 }
-*/
 
 void loop( void )
 {
-/*
   led_step1() ;
   delay( 1000 ) ;              // wait for a second
   led_step2() ;
   delay( 1000 ) ;              // wait for a second
 
+/*
   Serial1.write( '-' ) ;   // send a char
-//  Serial1.write( "test1\n" ) ;   // send a string
-//  Serial1.write( "test2" ) ;   // send another string
+  Serial1.write( "test1\n" ) ;   // send a string
+  Serial1.write( "test2" ) ;   // send another string
+*/
 
+/*
   Serial1.print("Analog pins: ");
 
-  for ( int i = A0 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
+  for ( int i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
     int a = analogRead(i);
     Serial1.print(a, DEC);
@@ -70,5 +70,5 @@ void loop( void )
   }
   Serial1.println();
   delay(100);
-	*/
+*/
 }
