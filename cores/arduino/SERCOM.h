@@ -96,11 +96,39 @@ typedef enum
 	9_BITS = 1
 } SercomSpiCharSize;
 
+typedef enum
+{
+	UNKNOWN_STATE = 0,
+	IDLE_STATE,
+	OWNER_STATE,
+	BUSY_STATE
+} SercomWireBusState;
+
+typedef enum
+{
+	WRITE_FLAG = 0,
+	READ_FLAG
+} SercomWireReadWriteFlag;
+
+typedef enum
+{
+	ACT_NO_ACTION = 0,
+	ACT_REPEAT_START,
+	ACT_READ,
+	ACT_STOP
+} SercomMasterCommandWire;
+
+typedef enum
+{
+	ACK_ACTION = 0,
+	NACK_ACTION
+} SercomMasterAckActionWire;
+	
 class SERCOM
 {
 	public:
 		SERCOM(Sercom* sercom);
-	
+	    
 		/* ========== UART ========== */
 		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);
 		void initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits);
@@ -117,7 +145,7 @@ class SERCOM
 		bool isDataRegisterEmptyUART()
 		uint8_t readDataUART();
 		int writeDataUART(uint8_t data);
-
+        
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder);
 		void initClock(SercomSpiClockMode clockMode, uint32_t baudrate);
@@ -135,7 +163,28 @@ class SERCOM
 		bool isTransmitCompleteSPI();
 		bool isReceiveCompleteSPI();
 		
-
+		
+		/* ========== WIRE ========== */
+		void initSlaveWIRE(uint8_t address);
+		void initMasterWIRE(uint32_t baudrate);
+		
+		void resetWIRE();
+		void enableWIRE();
+		void prepareStopBitWIRE();
+		bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag);
+		bool sendDataMasterWIRE(uint8_t data);
+		bool sendDataSlaveWIRE(uint8_t data);
+		bool isMasterWIRE();
+		bool isSlaveWIRE();
+		bool isBusIdleWIRE();
+		bool isDataReadyWIRE();
+		bool isStopDetectedWIRE();
+		bool isRestartDetectedWIRE();
+		bool isAddressMatch();
+		bool isMasterReadOperationWIRE();
+		int availableWIRE();
+		uint8_t readDataWIRE();
+		
 	private:
 		Sercom* sercom;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
