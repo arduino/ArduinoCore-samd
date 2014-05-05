@@ -23,7 +23,8 @@
 extern "C" {
 #endif
 
-extern uint32_t SystemCoreClock ;
+// Exported in CMSIS header file in hardware/tools/CMSIS/Device/ATMEL/samd21/include/system_samd21.h
+//extern uint32_t SystemCoreClock ;
 
 /**
  *

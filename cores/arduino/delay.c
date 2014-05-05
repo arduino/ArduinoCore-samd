@@ -7,8 +7,10 @@ extern "C" {
 
 uint32_t millis( void )
 {
+/* TODO
 // todo: ensure no interrupts
     return GetTickCount() ;
+*/ return 0ul ;
 }
 
 // Interrupt-compatible version of micros
@@ -17,6 +19,7 @@ uint32_t millis( void )
 // values to calculate micros. If there is a pending SysTick, add one to the millis counter in the calculation.
 uint32_t micros( void )
 {
+/* TODO
     uint32_t ticks, ticks2;
     uint32_t pend, pend2;
     uint32_t count, count2;
@@ -37,6 +40,7 @@ uint32_t micros( void )
     return ((count+pend) * 1000) + (((SysTick->LOAD  - ticks)*(1048576/(F_CPU/1000000)))>>20) ;
     // this is an optimization to turn a runtime division into two compile-time divisions and
     // a runtime multiplication and shift, saving a few cycles
+*/ return 0ul ;
 }
 
 // original function:
@@ -57,12 +61,14 @@ uint32_t micros( void )
 
 void delay( uint32_t ms )
 {
+/* TODO
     if (ms == 0)
         return;
     uint32_t start = GetTickCount();
     do {
         yield();
     } while (GetTickCount() - start < ms);
+*/
 }
 
 #ifdef __cplusplus
