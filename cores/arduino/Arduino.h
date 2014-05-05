@@ -53,9 +53,6 @@ void yield( void ) ;
 extern void setup( void ) ;
 extern void loop( void ) ;
 
-//#define NOT_A_PIN 0  // defined in pio.h/EPioType
-#define NOT_A_PORT           0
-
 #define NOT_AN_INTERRUPT -1
 
 typedef enum _EExt_Interrupts
@@ -87,11 +84,19 @@ typedef enum _EAnalogChannel
 {
   NO_ADC=-1,
   ADC0=0,
-  ADC1,
-  ADC2,
-  ADC3,
-  ADC4,
-  ADC5
+  ADC1=1,
+  ADC2=2,
+  ADC3=3,
+  ADC4=4,
+  ADC5=5,
+  ADC6=6,
+  ADC7=7,
+  ADC10=10,
+  ADC16=16,
+  ADC17=17,
+  ADC18=18,
+  ADC19=19,
+  DAC0,
 } EAnalogChannel ;
 
 #define ADC_CHANNEL_NUMBER_NONE 0xffffffff
@@ -134,9 +139,13 @@ typedef enum _ETCChannel
  // TC2_CHB8
 } ETCChannel ;
 
-#define PORTA    (0ul)
-#define PORTB    (1ul)
-#define PORTC    (2ul)
+typedef enum _EPortType
+{
+	NOT_A_PORT=-1,
+	PORTA=0,
+	PORTB=1,
+	PORTC=2,
+} EPortType ;
 
 //A    B                 C       D          E      F   G   H
 //EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC/TCC TCC COM AC/GCLK
@@ -171,9 +180,8 @@ typedef enum _EPioType
 /* Types used for the table below */
 typedef struct _PinDescription
 {
-  void* pPort ;
+  uint32_t ulPort ;
   uint32_t ulPin ;
-//  uint32_t ulPeripheralId ;
   EPioType ulPinType ;
   uint32_t ulPinConfiguration ;
   uint32_t ulPinAttribute ;

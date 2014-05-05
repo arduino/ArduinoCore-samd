@@ -18,6 +18,7 @@
 
 #include "Arduino.h"
 
+/*
 #ifdef _VARIANT_SAM3X_EK_
 #define MAX_ANALOG A0
 #elif defined _VARIANT_ARDUINO_DUE_X_
@@ -25,9 +26,11 @@
 #elif defined _VARIANT_ADK2_
 #define MAX_ANALOG A9
 #endif
+*/
 
 void setup( void )
 {
+/*
   // Initialize the digital pin as an output.
   // Pin PIN_LED has a LED connected on most Arduino boards:
   pinMode( PIN_LED, OUTPUT ) ;
@@ -38,46 +41,26 @@ void setup( void )
   digitalWrite( PIN_LED2, HIGH ) ;
 
   Serial1.begin( 115200 ) ;
+*/
 }
 
+/*
 static void led_step1( void )
 {
-#if defined sam3s_ek
-  digitalWrite( PIN_LED, HIGH ) ;  // set the LED on
-  digitalWrite( PIN_LED2, LOW ) ;   // set the red LED off
-#endif /* sam3s_ek */
-
-#if defined sam3u_ek
-  digitalWrite( PIN_LED, HIGH ) ;  // set the LED on
-  digitalWrite( PIN_LED2, LOW ) ;   // set the red LED off
-#endif /* sam3u_ek */
-
-#if defined arduino_due_x
   digitalWrite( PIN_LED, LOW ) ;  // set the LED on
   digitalWrite( PIN_LED2, LOW ) ;   // set the red LED off
-#endif /* arduino_due_x */
 }
 
 static void led_step2( void )
 {
-#if defined sam3s_ek
-  digitalWrite( PIN_LED, LOW ) ;   // set the LED off
-  digitalWrite( PIN_LED2, HIGH ) ;  // set the red LED on
-#endif /* sam3s_ek */
-
-#if defined sam3u_ek
-  digitalWrite( PIN_LED, LOW ) ;   // set the LED off
-  digitalWrite( PIN_LED2, HIGH ) ;  // set the red LED on
-#endif /* sam3u_ek */
-
-#if defined arduino_due_x
   digitalWrite( PIN_LED, HIGH ) ;   // set the LED off
   digitalWrite( PIN_LED2, HIGH ) ;  // set the red LED on
-#endif /* arduino_due_x */
 }
+*/
 
 void loop( void )
 {
+/*
   led_step1() ;
   delay( 1000 ) ;              // wait for a second
   led_step2() ;
@@ -95,4 +78,5 @@ void loop( void )
   }
   Serial1.println();
   delay(100);
+	*/
 }
