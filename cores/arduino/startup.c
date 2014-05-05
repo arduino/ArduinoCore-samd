@@ -18,6 +18,7 @@
 */
 
 #include "sam.h"
+#include "variant.h"
 
 /* Initialize segments */
 extern uint32_t __etext ;

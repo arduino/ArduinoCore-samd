@@ -18,16 +18,6 @@
 
 #include "Arduino.h"
 
-/*
-#ifdef _VARIANT_SAM3X_EK_
-#define MAX_ANALOG A0
-#elif defined _VARIANT_ARDUINO_DUE_X_
-#define MAX_ANALOG A10
-#elif defined _VARIANT_ADK2_
-#define MAX_ANALOG A9
-#endif
-*/
-
 void setup( void )
 {
 /*
@@ -71,7 +61,9 @@ void loop( void )
 //  Serial1.write( "test2" ) ;   // send another string
 
   Serial1.print("Analog pins: ");
-  for (int i=A0; i<=MAX_ANALOG; i++) {
+
+  for ( int i = A0 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
+  {
     int a = analogRead(i);
     Serial1.print(a, DEC);
     Serial1.print(" ");

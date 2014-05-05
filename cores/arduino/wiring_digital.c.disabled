@@ -59,13 +59,15 @@ int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral )
 			PORT->Group[g_APinDescription[ulPin].ulPort]->PMUX[g_APinDescription[ulPin].ulPin].
 			PORT->Group[g_APinDescription[ulPin].ulPort]->PINCFG[g_APinDescription[ulPin].ulPin].bit.PMUXEN = 1 ;
 
+      // Is the pio pin in the lower 16 ones?
+			// The WRCONFIG register allows update of only 16 pin max out of 32
 			if ( g_APinDescription[ulPin].ulPin < 16 )
 			{
 				PORT->Group[g_APinDescription[ulPin].ulPort]->WRCONFIG.reg=PORT_WRCONFIG_PMUXEN|PORT_WRCONFIG_PINMASK( g_APinDescription[ulPin].ulPin ) ;
 			}
 			else
 			{
-				PORT->Group[g_APinDescription[ulPin].ulPort]->WRCONFIG.reg=PORT_WRCONFIG_HWSEL|PORT_WRCONFIG_PMUXEN|  |PORT_WRCONFIG_PINMASK( g_APinDescription[ulPin].ulPin >> 16 ) ;
+				PORT->Group[g_APinDescription[ulPin].ulPort]->WRCONFIG.reg=PORT_WRCONFIG_HWSEL | PORT_WRCONFIG_WRPMUX | PORT_WRCONFIG_PMUXEN |  | PORT_WRCONFIG_PINMASK( g_APinDescription[ulPin].ulPin >> 16 ) ;
 			}
 			PORT_WRCONFIG_PMUX()
 			PORT_WRCONFIG_WRPINCFG

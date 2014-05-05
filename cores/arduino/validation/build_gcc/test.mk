@@ -110,9 +110,9 @@ LIB_PATH+=-L=/lib/thumb2
 # C source files and objects
 #-------------------------------------------------------------------------------
 C_SRC=
-#C_SRC+=$(wildcard $(PROJECT_BASE_PATH)/*.c)
-#C_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.c)
-#C_SRC+=$(wildcard $(VARIANT_PATH)/*.c)
+C_SRC+=$(wildcard $(PROJECT_BASE_PATH)/*.c)
+C_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.c)
+C_SRC+=$(wildcard $(VARIANT_PATH)/*.c)
 
 C_OBJ_TEMP = $(patsubst %.c, %.o, $(notdir $(C_SRC)))
 
@@ -205,6 +205,7 @@ clean:
 	@echo ------------------------------------------------------------------------------------
 	@echo --- Cleaning test files for $(VARIANT)
 	-@$(RM) $(OUTPUT_PATH) 1>NUL 2>&1
+#	-@$(RM) $(OUTPUT_PATH)
 	@echo ------------------------------------------------------------------------------------
 
 #	-$(RM) $(OUTPUT_PATH)/test.o

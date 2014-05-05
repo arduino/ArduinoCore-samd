@@ -16,7 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "Arduino.h"
+//#include "Arduino.h"
+#include "variant.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,7 +27,7 @@ extern "C" {
  * System Core Clock is at 1MHz at Reset.
  * It is switched to 48MHz in the Reset Handler (startup.c)
  */
-extern uint32_t SystemCoreClock=1000000ul ;
+uint32_t SystemCoreClock=1000000ul ;
 
 //void __libc_init_array(void);
 
@@ -53,7 +54,7 @@ void init( void )
 //  __libc_init_array();
 
   // Setup PORT for Digital I/O
-	PM->APBBMASK.bit.PORT=1 ;
+	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
 
 	// Setup all pins (digital and analog) in INPUT mode (default is nothing)
 	for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )

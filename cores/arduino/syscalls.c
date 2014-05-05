@@ -93,17 +93,20 @@ extern int _read(int file, char *ptr, int len)
 // todo
 extern int _write( int file, char *ptr, int len )
 {
-    for ( ; len >= 0 ; len--, ptr++ )
-    {
-		// Check if the transmitter is ready
-//		  while ((UART->UART_SR & UART_SR_TXRDY) != UART_SR_TXRDY)
-			;
+  int iIndex=0 ;
 
-		  // Send character
-//		  UART->UART_THR = *ptr;
+	for ( ; len >= 0 ; len--, ptr++, iIndex++ )
+	{
+		// Check if the transmitter is ready
+//    while ((UART->UART_SR & UART_SR_TXRDY) != UART_SR_TXRDY)
+    {
     }
 
-    return iIndex ;
+    // Send character
+//    UART->UART_THR = *ptr;
+  }
+
+  return iIndex ;
 }
 
 extern void _exit( int status )
