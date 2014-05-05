@@ -184,15 +184,15 @@ create_output:
 
 $(addprefix $(OUTPUT_PATH)/,$(C_OBJ)): $(OUTPUT_PATH)/%.o: %.c
 	@echo Current folder is $(shell cd) - $@ $^
-#	@"$(CC)" -c $(CFLAGS) $< -o $@
+	@"$(CC)" -c $(CFLAGS) $< -o $@
 #	"$(CC)" -v -c $(CFLAGS) $< -o $@
-	"$(CC)" -c $(CFLAGS) $< -o $@
+#	"$(CC)" -c $(CFLAGS) $< -o $@
 
 $(addprefix $(OUTPUT_PATH)/,$(CPP_OBJ)): $(OUTPUT_PATH)/%.o: %.cpp
 	@echo Current folder is $(shell cd) - $@ $^
-#	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
+	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
 #	"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
-	"$(CXX)" -c $(CPPFLAGS) $< -o $@
+#	"$(CXX)" -c $(CPPFLAGS) $< -o $@
 
 $(OUTPUT_BIN): $(addprefix $(OUTPUT_PATH)/, $(C_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(A_OBJ))
 	@"$(CC)" $(LIB_PATH) $(LDFLAGS) -T"$(VARIANT_PATH)/linker_scripts/gcc/flash.ld" -Wl,-Map,$(OUTPUT_PATH)/$@.map -o $(OUTPUT_PATH)/$@.elf $^ $(LIBS)
@@ -204,6 +204,7 @@ $(OUTPUT_BIN): $(addprefix $(OUTPUT_PATH)/, $(C_OBJ)) $(addprefix $(OUTPUT_PATH)
 clean:
 	@echo ------------------------------------------------------------------------------------
 	@echo --- Cleaning test files for $(VARIANT)
+	@$(RM) --version
 	-@$(RM) $(OUTPUT_PATH) 1>NUL 2>&1
 #	-@$(RM) $(OUTPUT_PATH)
 	@echo ------------------------------------------------------------------------------------
