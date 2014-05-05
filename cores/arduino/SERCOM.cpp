@@ -4,8 +4,6 @@
 SERCOM::SERCOM(Sercom* sercom)
 {
 	this->sercom = sercom;
-	sercomUart = sercom->UART;
-	sercomSpi = sercom->SPI;
 }
 
 /* 	=========================
@@ -17,13 +15,13 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 	resetUART();
 	
 	//Setting the CTRLA register
-	sercom->USART.CTRLA.reg =	SERCOM_UART_CTRLA_MODE(mode) |
+	sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
 								SERCOM_USART_CTRLA_SAMPR(sampleRate);
 
 	//Setting the Interrupt register
-	sercom->USART.ITENSET.reg =	SERCOM_USART_INTENSET_DRE |  //Data Register Empty
-								SERCOM_USART_INTENSET_RXC |  //Received complete
-								SERCOM_USART_INTENSET_ERROR; //All others errors
+	sercom->USART.INTENSET.reg =	SERCOM_USART_INTENSET_DRE |  //Data Register Empty
+									SERCOM_USART_INTENSET_RXC |  //Received complete
+									SERCOM_USART_INTENSET_ERROR; //All others errors
 	
 	if(mode == UART_INT_CLOCK)
 	{
@@ -40,27 +38,27 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 		sercom->USART.BAUD.reg = 65535 * ( 1 - sampleRateValue * (baudrate / SERCOM_FREQ_REF));
 	}
 }
-void initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
+void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
 {
 	//Setting the CTRLA register
-	sercom->USART.CTRLA.reg |=	SERCOM_UART_CTRLA_FORM( (parityMode == NO_PARITY ? 0 : 1) ) |
-								dataOrder << SERCOM_UART_CTRLA_DORD_Pos;
+	sercom->USART.CTRLA.reg |=	SERCOM_USART_CTRLA_FORM( (parityMode == SERCOM_NO_PARITY ? 0 : 1) ) |
+								dataOrder << SERCOM_USART_CTRLA_DORD_Pos;
 
 	//Setting the CTRLB register
-	sercom->USART.CTRLB.reg |=	SERCOM_UART_CTRLB_CHSIZE(charSize) |
-								nbStopBits << SERCOM_UART_CTRLB_SBMODE_Pos |
-								(parityMode == NO_PARITY ? 0 : parityMode) << SERCOM_UART_CTRLB_PMODE_Pos; //If no parity use default value
+	sercom->USART.CTRLB.reg |=	SERCOM_USART_CTRLB_CHSIZE(charSize) |
+								nbStopBits << SERCOM_USART_CTRLB_SBMODE_Pos |
+								(parityMode == SERCOM_NO_PARITY ? 0 : parityMode) << SERCOM_USART_CTRLB_PMODE_Pos; //If no parity use default value
 }
 
-void initPads(SercomUartTXPad txPad, SercomRXPad rxPad)
+void SERCOM::initPads(SercomUartTXPad txPad, SercomRXPad rxPad)
 {
 	//Setting the CTRLA register
-	sercom->USART.CTRLA.reg |=	SERCOM_UART_CTRLA_TXPO(txPad) |
-								SERCOM_UART_CTRLA_RXPO(rxPad);
+	sercom->USART.CTRLA.reg |=	SERCOM_USART_CTRLA_TXPO(txPad) |
+								SERCOM_USART_CTRLA_RXPO(rxPad);
 
 	//Setting the CTRLB register (Enabling Transceiver and Receiver)
-	sercom->USART.CTRLB.reg |=	SERCOM_UART_CTRLB_TXEN |
-								SERCOM_UART_CTRLB_RXEN;
+	sercom->USART.CTRLB.reg |=	SERCOM_USART_CTRLB_TXEN |
+								SERCOM_USART_CTRLB_RXEN;
 }
 
 void SERCOM::resetUART()
@@ -69,7 +67,7 @@ void SERCOM::resetUART()
 	sercom->USART.CTRLA.bit.SWRST = 0x1u;
 	
 	//Wait for both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
-	while(sercom->USART.CTRLA.bit.SWRST || sercom->USART.SYNCBUSY.SWRST);
+	while(sercom->USART.CTRLA.bit.SWRST || sercom->USART.SYNCBUSY.bit.SWRST);
 }
 
 void SERCOM::enableUART()
@@ -186,7 +184,7 @@ void SERCOM::resetSPI()
 	sercom->SPI.CTRLA.bit.SWRST = 0x1u;
 
 	//Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
-	while(sercom->SPI.CTRLA.bit.SWRST || sercom->SPI.SYNCBUSY.SWRST);
+	while(sercom->SPI.CTRLA.bit.SWRST || sercom->SPI.SYNCBUSY.bit.SWRST);
 }
 	
 void SERCOM::enableSPI()
@@ -220,13 +218,13 @@ void SERCOM::setDataOrderSPI(SercomDataOrder dataOrder)
 void SERCOM::setBaudrateSPI(uint8_t divider)
 {
 	//Can't divide by 0
-	if(baudrate == 0)
+	if(divider == 0)
 		return;
 		
 	//Register enable-protected
 	disableSPI();
 	
-	sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(SERCOM_FREQ_REF / baudrate);
+	sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(SERCOM_FREQ_REF / divider);
 	
 	enableSPI();
 }
@@ -304,7 +302,7 @@ void SERCOM::resetWIRE()
 	sercom->I2CM.CTRLA.bit.SWRST = 0x1ul;
 
 	//Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
-	while(sercom->I2CM.CTRLA.bit.SWRST || sercom->I2CM.SYNCBUSY.SWRST);
+	while(sercom->I2CM.CTRLA.bit.SWRST || sercom->I2CM.SYNCBUSY.bit.SWRST);
 }
 
 void SERCOM::enableWIRE()
@@ -351,7 +349,7 @@ void SERCOM::initMasterWIRE(uint32_t baudrate)
 	sercom->I2CM.CTRLB.bit.QCEN = 0x1ul;
 	
 	//Setting bus idle mode
-	sercom->I2CM.STATUS.bit.BUSSTATE = IDLE_STATE;
+	sercom->I2CM.STATUS.bit.BUSSTATE = WIRE_IDLE_STATE;
 	
 	//Setting all interrupts
 	sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB |
@@ -367,7 +365,12 @@ void SERCOM::initMasterWIRE(uint32_t baudrate)
 
 void SERCOM::prepareStopBitWIRE()
 {
-	sercom->I2CM.CTRLB.bit.CMD = ACT_STOP;
+	sercom->I2CM.CTRLB.bit.CMD = WIRE_MASTER_ACT_STOP;
+}
+
+void SERCOM::prepareAckBitWIRE()
+{
+	sercom->I2CM.CTRLB.bit.CMD = WIRE_MASTER_ACT_READ;
 }
 
 bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
@@ -434,7 +437,7 @@ bool SERCOM::isSlaveWIRE()
 
 bool SERCOM::isBusIdleWIRE()
 {
-	return sercom->I2CM.STATE.bit.BUSSTATE == IDLE_STATE;
+	return sercom->I2CM.STATUS.bit.BUSSTATE == WIRE_IDLE_STATE;
 }
 
 bool SERCOM::isDataReadyWIRE()
@@ -464,10 +467,16 @@ bool SERCOM::isMasterReadOperationWIRE()
 
 int SERCOM::availableWIRE()
 {
-	return rxBuffer.available();
+	if(isMasterWIRE())
+		return sercom->I2CM.INTFLAG.bit.SB;
+	else
+		return sercom->I2CS.INTFLAG.bit.DRDY;
 }
 
 uint8_t SERCOM::readDataWIRE()
 {
-	return sercom->I2CM.DATA.reg;
+	if(isMasterWIRE())
+		return sercom->I2CM.DATA.reg;
+	else
+		return sercom->I2CS.DATA.reg;
 }

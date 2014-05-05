@@ -53,6 +53,8 @@ size_t SERCOM::resquestFrom(uint8_t address, size_t quantity, bool stopBit)
 		//Prepare stop bit ? user want stop bit ?
 		if(quantity - read == 1 && stopBit)
 			sercom->prepareStopBitWIRE();
+		else
+			sercom->prepareAckBitWIRE();
 			
 		rxBuffer.store_char(sercom->readDataWIRE());
 	}

@@ -13,9 +13,9 @@ void SERCOMUart::begin(uint16_t baudrate)
 
 void SERCOMUart::begin(uint16_t baudrate, uint8_t config)
 {
-	sercom->init(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
+	sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
 	sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
-	sercom->initPads(PAD_0, PAD_2);
+	sercom->initPads(UART_TX_PAD_0, SERCOM_RX_PAD_2);
 	
 	sercom->enableUART();
 }
@@ -35,12 +35,12 @@ void SERCOMUart::IrqHandler()
 {
 	if(sercom->availableDataUART())
 	{
-		rxBuffer.store_char(sercom->readDataUART())
+		rxBuffer.store_char(sercom->readDataUART());
 	}
 	
 	if(sercom->isDataRegisterEmptyUART())
 	{
-		writeDataUART(txBuffer.read_char());
+		sercom->writeDataUART(txBuffer.read_char());
 	}
 	
 	if(	sercom->isBufferOverflowErrorUART() ||
@@ -75,52 +75,52 @@ size_t SERCOMUart::write(uint8_t data)
 	return 1;
 }
 
-SercomNumberStopBit extractNbStopBit(uint8_t config)
+SercomNumberStopBit SERCOMUart::extractNbStopBit(uint8_t config)
 {
-	switch(config & STOP_BITE_MASK)
+	switch(config & HARDSER_STOP_BIT_MASK)
 	{
-		case STOP_BITE_1:	
+		case HARDSER_STOP_BIT_1:	
 		default:
-			return STOP_BIT_1;
+			return SERCOM_STOP_BIT_1;
 
-		case STOP_BITE_2:	
-			return STOP_BITS_2
+		case HARDSER_STOP_BIT_2:	
+			return SERCOM_STOP_BITS_2;
 	}
 }
 
-SercomCharSize extractCharSize(uint8_t config)
+SercomUartCharSize SERCOMUart::extractCharSize(uint8_t config)
 {
-	switch(config & DATA_MASK)
+	switch(config & HARDSER_DATA_MASK)
 	{
-		case DATA_5:
-			return 5_BITS;
+		case HARDSER_DATA_5:
+			return UART_CHAR_SIZE_5_BITS;
 
-		case DATA_6:
-			return 6_BITS;
+		case HARDSER_DATA_6:
+			return UART_CHAR_SIZE_6_BITS;
 
-		case DATA_7:
-			return 7_BITS;
+		case HARDSER_DATA_7:
+			return UART_CHAR_SIZE_7_BITS;
 
-		case DATA_8:
+		case HARDSER_DATA_8:
 		default:
-			return 8_BITS;
+			return UART_CHAR_SIZE_8_BITS;
 
 	}
 }
 
-SercomParityMode extractParity(uint8_t config)
+SercomParityMode SERCOMUart::extractParity(uint8_t config)
 {
-	switch(config & PARITY_MASK)
+	switch(config & HARDSER_PARITY_MASK)
 	{
-		case PARITY_NONE:
+		case HARDSER_PARITY_NONE:
 		default:
-			return NO_PARITY;
+			return SERCOM_NO_PARITY;
 
-		case PARITY_EVEN:
-			return EVEN_PARITY;
+		case HARDSER_PARITY_EVEN:
+			return SERCOM_EVEN_PARITY;
 
-		case PARITY_ODD:
-			return ODD_PARITY;
+		case HARDSER_PARITY_ODD:
+			return SERCOM_ODD_PARITY;
 	}
 }
 
