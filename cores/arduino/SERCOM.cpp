@@ -20,7 +20,11 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 	sercom->USART.CTRLA.reg =	SERCOM_UART_CTRLA_MODE(mode) |
 								SERCOM_USART_CTRLA_SAMPR(sampleRate);
 
-	//
+	//Setting the Interrupt register
+	sercom->USART.ITENSET.reg =	SERCOM_USART_INTENSET_DRE |  //Data Register Empty
+								SERCOM_USART_INTENSET_RXC |  //Received complete
+								SERCOM_USART_INTENSET_ERROR; //All others errors
+	
 	if(mode == UART_INT_CLOCK)
 	{
 		uint32_t sampleRateValue;	
@@ -178,7 +182,7 @@ void SERCOM::initClock(SercomSpiClockMode clockMode, uint32_t baudrate)
 
 void SERCOM::resetSPI()
 {
-	//Set the Software bit to 1
+	//Setting the Software bit to 1
 	sercom->SPI.CTRLA.bit.SWRST = 0x1u;
 
 	//Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
@@ -187,7 +191,7 @@ void SERCOM::resetSPI()
 	
 void SERCOM::enableSPI()
 {
-	//Set the enable bit to 1
+	//Setting the enable bit to 1
 	sercom->SPI.CTRLA.bit.ENABLE = 0x1ul;
 	
 	//Waiting then enable bit from SYNCBUSY is equal to 0;
@@ -196,7 +200,7 @@ void SERCOM::enableSPI()
 	
 void SERCOM::disableSPI()
 {
-	//Set the enable bit to 0
+	//Setting the enable bit to 0
 	sercom->SPI.CTRLA.bit.ENABLE = 0x0ul;
 	
 	//Waiting then enable bit from SYNCBUSY is equal to 0;
@@ -296,7 +300,7 @@ void SERCOM::resetWIRE()
 {
 	//I2CM OR I2CS, no matter SWRST is the same bit.
 
-	//Set the Software bit to 1
+	//Setting the Software bit to 1
 	sercom->I2CM.CTRLA.bit.SWRST = 0x1ul;
 
 	//Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
@@ -307,7 +311,7 @@ void SERCOM::enableWIRE()
 {
 	//I2CM OR I2CS, no matter ENABLE is the same bit.
 	
-	//Set the enable bit to 1
+	//Setting the enable bit to 1
 	sercom->I2CM.CTRLA.bit.ENABLE = 0x1ul;
 	
 	//Waiting the enable bit from SYNCBUSY is equal to 0;
@@ -318,7 +322,7 @@ void SERCOM::initSlaveWIRE(uint8_t address)
 {
 	resetWIRE();
 	
-	//Set slave mode
+	//Setting slave mode
 	sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION;
 	
 	//Enable Quick Command
@@ -326,6 +330,10 @@ void SERCOM::initSlaveWIRE(uint8_t address)
 	
 	sercom->I2CS.ADDR.reg = SERCOM_I2CS_ADDR_ADDR(address & 0x7Ful) | // 0x7F, select only 7 bits
 							SERCOM_I2CS_ADDR_ADDRMASK(0x3FFul);		// 0x3FF all bits set
+	
+	//Setting the interrupt register
+	sercom->I2CS.INTENSET.reg = SERCOM_I2CS_INTENSET_AMATCH | //Address Match
+								SERCOM_I2CS_INTENSET_DRDY; //Data Ready
 							
 	//Waiting the SYSOP bit from SYNCBUSY is equal to 0;
 	while(sercom->I2CM.SYNCBUSY.bit.SYSOP);
@@ -335,17 +343,17 @@ void SERCOM::initMasterWIRE(uint32_t baudrate)
 {
 	resetWIRE();
 	
-	//Set master mode and set SCL Clock Stretch mode (stretch after ACK bit)
+	//Setting master mode and SCL Clock Stretch mode (stretch after ACK bit)
 	sercom->I2CM.CTRLA.reg = 	SERCOM_I2CM_CTRLA_MODE(I2C_MASTER_OPERATION) |
 								SERCOM_I2CM_CTRLA_SCLSM;
 								
 	//Enable Quick Command
 	sercom->I2CM.CTRLB.bit.QCEN = 0x1ul;
 	
-	//Set bus idle mode
+	//Setting bus idle mode
 	sercom->I2CM.STATUS.bit.BUSSTATE = IDLE_STATE;
 	
-	//Set all interrupts
+	//Setting all interrupts
 	sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB |
 								SERCOM_I2CM_INTENSET_SB |
 								SERCOM_I2CM_INTENSET_ERROR;
