@@ -101,43 +101,41 @@ typedef enum _EAnalogChannel
 
 #define ADC_CHANNEL_NUMBER_NONE 0xffffffff
 
-// Definitions for PWM channels
-typedef enum _EPWMChannel
-{
-  NOT_ON_PWM=-1,
- // PWM_CH0=0, // todo
- // PWM_CH1,
- // PWM_CH2,
- // PWM_CH3,
- // PWM_CH4,
- // PWM_CH5,
- // PWM_CH6,
- // PWM_CH7
-} EPWMChannel ;
-
 // Definitions for TC channels
 typedef enum _ETCChannel
 {
   NOT_ON_TIMER=-1,
- // TC0_CHA0=0, // todo
- // TC0_CHB0,
- // TC0_CHA1,
- // TC0_CHB1,
- // TC0_CHA2,
- // TC0_CHB2,
- // TC1_CHA3,
- // TC1_CHB3,
- // TC1_CHA4,
- // TC1_CHB4,
- // TC1_CHA5,
- // TC1_CHB5,
- // TC2_CHA6,
- // TC2_CHB6,
- // TC2_CHA7,
- // TC2_CHB7,
- // TC2_CHA8,
- // TC2_CHB8
+	TC3_CH0,
+	TC3_CH1,
+	TCC0_CH0,
+	TCC0_CH1,
+	TCC0_CH4,
+	TCC0_CH5,
+	TCC0_CH6,
+	TCC0_CH7,
+	TCC1_CH0,
+	TCC1_CH1,
+	TCC2_CH0,
+	TCC2_CH1
 } ETCChannel ;
+
+// Definitions for PWM channels
+typedef enum _EPWMChannel
+{
+  NOT_ON_PWM=-1,
+	PWM3_CH0=TC3_CH0,
+	PWM3_CH1=TC3_CH1,
+	PWM0_CH0=TCC0_CH0,
+	PWM0_CH1=TCC0_CH1,
+	PWM0_CH4=TCC0_CH4,
+	PWM0_CH5=TCC0_CH5,
+	PWM0_CH6=TCC0_CH6,
+	PWM0_CH7=TCC0_CH7,
+	PWM1_CH0=TCC1_CH0,
+	PWM1_CH1=TCC1_CH1,
+	PWM2_CH0=TCC2_CH0,
+	PWM2_CH1=TCC2_CH1
+} EPWMChannel ;
 
 typedef enum _EPortType
 {
@@ -153,8 +151,7 @@ typedef enum _EPortType
 
 typedef enum _EPioType
 {
-  PIO_NOT_A_PIN,  /* Not under control of a peripheral. */
-  PIO_DIGITAL,    /* The pin is controlled by PORT. */
+  PIO_NOT_A_PIN=-1,  /* Not under control of a peripheral. */
   PIO_EXTINT,     /* The pin is controlled by the associated signal of peripheral A. */
   PIO_ANALOG,     /* The pin is controlled by the associated signal of peripheral B. */
   PIO_SERCOM,     /* The pin is controlled by the associated signal of peripheral C. */
@@ -163,10 +160,13 @@ typedef enum _EPioType
   PIO_TIMER_ALT,  /* The pin is controlled by the associated signal of peripheral F. */
   PIO_COM,        /* The pin is controlled by the associated signal of peripheral G. */
   PIO_AC_CLK,     /* The pin is controlled by the associated signal of peripheral H. */
+  PIO_PWM=PIO_TIMER,
+  PIO_PWM_ALT=PIO_TIMER_ALT,
 
-  PIO_INPUT,      /* The pin is controlled by PORT and is an input. */
-  PIO_OUTPUT_0,   /* The pin is controlled by PORT and is an output with a default level of 0. */
-  PIO_OUTPUT_1    /* The pin is controlled by PORT and is an output with a default level of 1. */
+  PIO_DIGITAL,    /* The pin is controlled by PORT. */
+  PIO_INPUT,        /* The pin is controlled by PORT and is an input. */
+  PIO_INPUT_PULLUP, /* The pin is controlled by PORT and is an input with internal pull-up resistor enabled. */
+  PIO_OUTPUT,       /* The pin is controlled by PORT and is an output. */
 } EPioType ;
 
 /**
@@ -204,6 +204,7 @@ extern const PinDescription g_APinDescription[] ;
 #include "WMath.h"
 #include "HardwareSerial.h"
 #include "wiring_pulse.h"
+#include "delay.h"
 
 #endif // __cplusplus
 

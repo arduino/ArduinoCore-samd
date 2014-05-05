@@ -28,7 +28,7 @@ extern "C" {
  */
 extern uint32_t SystemCoreClock=1000000ul ;
 
-void __libc_init_array(void);
+//void __libc_init_array(void);
 
 /*
  * Arduino Zero board initialization
@@ -40,6 +40,8 @@ void __libc_init_array(void);
  */
 void init( void )
 {
+  uint32_t ul ;
+
   // Set Systick to 1ms interval, common to all Cortex-M variants
   if ( SysTick_Config( SystemCoreClock / 1000 ) )
   {
@@ -52,6 +54,12 @@ void init( void )
 
   // Setup PORT for Digital I/O
 	PM->APBBMASK.bit.PORT=1 ;
+
+	// Setup all pins (digital and analog) in INPUT mode (default is nothing)
+	for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
+	{
+	  pinMode( ul, INPUT ) ;
+	}
 
   // Initialize Serial port U(S)ART pins
 	// Todo

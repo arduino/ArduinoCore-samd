@@ -8,7 +8,7 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
@@ -50,17 +50,17 @@ int RingBuffer::read_char()
 {
 	if(_iTail == _iHead)
 		return -1;
-	
+
 	int value = _aucBuffer[_iTail];
 	_iTail = nextIndex(_iTail);
-	
+
 	return value;
 }
 
 int RingBuffer::available()
 {
 	int delta = _iHead - _iTail;
-	
+
 	if(delta < 0)
 		return SERIAL_BUFFER_SIZE + delta;
 	else
@@ -71,7 +71,7 @@ int RingBuffer::peek()
 {
 	if(_iTail == _iHead)
 		return -1;
-		
+
 	return _aucBuffer[_iTail];
 }
 
@@ -80,7 +80,7 @@ int RingBuffer::nextIndex(int index)
 	return (uint32_t)(index + 1) % SERIAL_BUFFER_SIZE;
 }
 
-int RingBuffer::isFull()
+bool RingBuffer::isFull()
 {
 	return (nextIndex(_iTail) == _iHead);
 }
