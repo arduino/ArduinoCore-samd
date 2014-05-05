@@ -32,8 +32,8 @@ typedef enum
 
 typedef enum
 {
-	1_STOP_BIT = 0,
-	2_STOP_BITS
+	STOP_BIT_1 = 0,
+	STOP_BITS_2
 } SercomNumberStopBit;
 
 typedef enum
@@ -44,11 +44,11 @@ typedef enum
 
 typedef enum
 {
-	8_BITS = 0,
-	9_BITS,
-	5_BITS = 0x5u,
-	6_BITS,
-	7_BITS
+	BITS_8 = 0,
+	BITS_9,
+	BITS_5 = 0x5u,
+	BITS_6,
+	BITS_7
 } SercomUartCharSize;
 
 typedef enum
@@ -59,7 +59,7 @@ typedef enum
 	PAD_3
 } SercomRXPad;
 
-Vtypedef enum
+typedef enum
 {
 	PAD_0 = 0,	//Only for Intern Clock
 	PAD_1 = 0,	//Only for Extern Clock
@@ -92,8 +92,8 @@ typedef enum
 
 typedef enum
 {
-	8_BITS = 0,
-	9_BITS = 1
+	BITS_8 = 0,
+	BITS_9 = 1
 } SercomSpiCharSize;
 
 typedef enum

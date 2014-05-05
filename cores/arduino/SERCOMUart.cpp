@@ -81,10 +81,10 @@ SercomNumberStopBit extractNbStopBit(uint8_t config)
 	{
 		case STOP_BITE_1:	
 		default:
-			return 1_STOP_BIT;
+			return STOP_BIT_1;
 
 		case STOP_BITE_2:	
-			return 2_STOP_BITS;
+			return STOP_BITS_2
 	}
 }
 
