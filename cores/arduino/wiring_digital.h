@@ -8,7 +8,7 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
@@ -22,6 +22,23 @@
 #ifdef __cplusplus
  extern "C" {
 #endif
+
+#define INPUT           (0x0)
+#define OUTPUT          (0x1)
+#define INPUT_PULLUP    (0x2)
+
+#define LOW             (0x0)
+#define HIGH            (0x1)
+
+#include "WVariant.h"
+
+/**
+ * \brief Configures the specified pin to belong to a device peripheral or to behave either as a an input or an output. See the description of board for details.
+ *
+ * \param ulPin The number of the pin whose mode you wish to set
+ * \param ulPeripheral See WVariant.h for type decription
+ */
+extern int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral ) ;
 
 /**
  * \brief Configures the specified pin to behave either as an input or an output. See the description of digital pins for details.

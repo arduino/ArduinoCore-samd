@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -23,15 +23,16 @@
 extern "C"{
 #endif // __cplusplus
 
-#define HIGH 0x1
-#define LOW  0x0
+// moved to wiring_digital.h
+//#define LOW             (0x0)
+//#define HIGH            (0x1)
 
-#define INPUT 0x0
-#define OUTPUT 0x1
-#define INPUT_PULLUP 0x2
+//#define INPUT           (0x0)
+//#define OUTPUT          (0x1)
+//#define INPUT_PULLUP    (0x2)
 
-#define true 0x1
-#define false 0x0
+#define true            (0x1)
+#define false           (0x0)
 
 #define PI 3.1415926535897932384626433832795
 #define HALF_PI 1.5707963267948966192313216916398

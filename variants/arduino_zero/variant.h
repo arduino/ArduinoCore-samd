@@ -33,9 +33,10 @@
  *        Headers
  *----------------------------------------------------------------------------*/
 
-#include "Arduino.h"
+#include "WVariant.h"
+
 #ifdef __cplusplus
-//#include "USARTClass.h"
+//#include "SERCOMUsart.h"
 #endif
 
 #ifdef __cplusplus
