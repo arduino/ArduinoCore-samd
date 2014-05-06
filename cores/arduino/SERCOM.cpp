@@ -35,7 +35,7 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 			sampleRateValue = 3;
 		
 		//Asynchronous arithmetic mode
-		sercom->USART.BAUD.reg = 65535 * ( 1 - sampleRateValue * (baudrate / SERCOM_FREQ_REF));
+		sercom->USART.BAUD.reg = 65535 * ( 1 - sampleRateValue * division(baudrate,SERCOM_FREQ_REF));
 	}
 }
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
@@ -285,7 +285,42 @@ bool SERCOM::isReceiveCompleteSPI()
 
 uint8_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
 {
-	return SERCOM_FREQ_REF / (2 * baudrate) - 1;
+	return division(SERCOM_FREQ_REF, (2 * baudrate)) - 1;
+}
+
+
+uint32_t SERCOM::division(uint32_t dividend, uint32_t divisor)
+{
+	// division WITHOUT division operator
+	
+    uint32_t denom = divisor;
+    uint32_t current = 1;
+    uint32_t answer = 0;
+
+    if ( denom > dividend) 
+        return 0;
+
+    if ( denom == dividend)
+        return 1;
+
+    while (denom <= dividend) {
+        denom <<= 1;
+        current <<= 1;
+    }
+
+    denom >>= 1;
+    current >>= 1;
+
+    while (current!=0) {
+        if ( dividend >= denom) {
+            dividend -= denom;
+            answer |= current;
+        }
+        current >>= 1;
+        denom >>= 1;
+    }
+	
+    return answer;
 }
 
 
