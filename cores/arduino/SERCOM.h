@@ -25,15 +25,15 @@ typedef enum
 
 typedef enum
 {
-	EVEN_PARITY = 0,
-	ODD_PARITY,
-	NO_PARITY
+	SERCOM_EVEN_PARITY = 0,
+	SERCOM_ODD_PARITY,
+	SERCOM_NO_PARITY
 } SercomParityMode;
 
 typedef enum
 {
-	1_STOP_BIT = 0,
-	2_STOP_BITS
+	SERCOM_STOP_BIT_1 = 0,
+	SERCOM_STOP_BITS_2
 } SercomNumberStopBit;
 
 typedef enum
@@ -44,27 +44,27 @@ typedef enum
 
 typedef enum
 {
-	8_BITS = 0,
-	9_BITS,
-	5_BITS = 0x5u,
-	6_BITS,
-	7_BITS
+	UART_CHAR_SIZE_8_BITS = 0,
+	UART_CHAR_SIZE_9_BITS,
+	UART_CHAR_SIZE_5_BITS = 0x5u,
+	UART_CHAR_SIZE_6_BITS,
+	UART_CHAR_SIZE_7_BITS
 } SercomUartCharSize;
 
 typedef enum
 {
-	PAD_0 = 0,
-	PAD_1,
-	PAD_2,
-	PAD_3
+	SERCOM_RX_PAD_0 = 0,
+	SERCOM_RX_PAD_1,
+	SERCOM_RX_PAD_2,
+	SERCOM_RX_PAD_3
 } SercomRXPad;
 
-Vtypedef enum
+typedef enum
 {
-	PAD_0 = 0,	//Only for Intern Clock
-	PAD_1 = 0,	//Only for Extern Clock
-	PAD_2 = 1,  //Only for Intern Clock
-	PAD_3 = 1	//Only for Extern Clock
+	UART_TX_PAD_0 = 0,	//Only for Intern Clock
+	UART_TX_PAD_1 = 0,	//Only for Extern Clock
+	UART_TX_PAD_2 = 1,  //Only for Intern Clock
+	UART_TX_PAD_3 = 1	//Only for Extern Clock
 } SercomUartTXPad;
 
 typedef enum
@@ -84,23 +84,51 @@ typedef enum
 
 typedef enum
 {
-	PAD_0_SCK_1 = 0,
-	PAD_2_SCK_3,
-	PAD_3_SCK_1,
-	PAD_0_SCK_3
+	SPI_PAD_0_SCK_1 = 0,
+	SPI_PAD_2_SCK_3,
+	SPI_PAD_3_SCK_1,
+	SPI_PAD_0_SCK_3
 } SercomSpiTXPad;
 
 typedef enum
 {
-	8_BITS = 0,
-	9_BITS = 1
+	SPI_CHAR_SIZE_8_BITS = 0,
+	SPI_CHAR_SIZE_9_BITS = 1
 } SercomSpiCharSize;
 
+typedef enum
+{
+	WIRE_UNKNOWN_STATE = 0,
+	WIRE_IDLE_STATE,
+	WIRE_OWNER_STATE,
+	WIRE_BUSY_STATE
+} SercomWireBusState;
+
+typedef enum
+{
+	WIRE_WRITE_FLAG = 0,
+	WIRE_READ_FLAG
+} SercomWireReadWriteFlag;
+
+typedef enum
+{
+	WIRE_MASTER_ACT_NO_ACTION = 0,
+	WIRE_MASTER_ACT_REPEAT_START,
+	WIRE_MASTER_ACT_READ,
+	WIRE_MASTER_ACT_STOP
+} SercomMasterCommandWire;
+
+typedef enum
+{
+	WIRE_MASTER_ACK_ACTION = 0,
+	WIRE_MASTER_NACK_ACTION
+} SercomMasterAckActionWire;
+	
 class SERCOM
 {
 	public:
 		SERCOM(Sercom* sercom);
-	
+	    
 		/* ========== UART ========== */
 		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);
 		void initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits);
@@ -114,10 +142,10 @@ class SERCOM
 		bool isBufferOverflowErrorUART();
 		bool isFrameErrorUART();
 		bool isParityErrorUART();
-		bool isDataRegisterEmptyUART()
+		bool isDataRegisterEmptyUART();
 		uint8_t readDataUART();
 		int writeDataUART(uint8_t data);
-
+        
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder);
 		void initClock(SercomSpiClockMode clockMode, uint32_t baudrate);
@@ -135,10 +163,33 @@ class SERCOM
 		bool isTransmitCompleteSPI();
 		bool isReceiveCompleteSPI();
 		
-
+		
+		/* ========== WIRE ========== */
+		void initSlaveWIRE(uint8_t address);
+		void initMasterWIRE(uint32_t baudrate);
+		
+		void resetWIRE();
+		void enableWIRE();
+		void prepareStopBitWIRE();
+		void prepareAckBitWIRE();
+		bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag);
+		bool sendDataMasterWIRE(uint8_t data);
+		bool sendDataSlaveWIRE(uint8_t data);
+		bool isMasterWIRE();
+		bool isSlaveWIRE();
+		bool isBusIdleWIRE();
+		bool isDataReadyWIRE();
+		bool isStopDetectedWIRE();
+		bool isRestartDetectedWIRE();
+		bool isAddressMatch();
+		bool isMasterReadOperationWIRE();
+		int availableWIRE();
+		uint8_t readDataWIRE();
+		
 	private:
 		Sercom* sercom;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
+		uint32_t division(uint32_t dividend, uint32_t divisor);
 };
 
 #endif

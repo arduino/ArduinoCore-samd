@@ -24,139 +24,58 @@ extern "C" {
 
 #include "Wire.h"
 
-static inline bool TWI_FailedAcknowledge(Twi *pTwi) {
-	return pTwi->TWI_SR & TWI_SR_NACK;
-}
-
-static inline bool TWI_WaitTransferComplete(Twi *_twi, uint32_t _timeout) {
-	while (!TWI_TransferComplete(_twi)) {
-		if (TWI_FailedAcknowledge(_twi))
-			return false;
-		if (--_timeout == 0)
-			return false;
-	}
-	return true;
-}
-
-static inline bool TWI_WaitByteSent(Twi *_twi, uint32_t _timeout) {
-	while (!TWI_ByteSent(_twi)) {
-		if (TWI_FailedAcknowledge(_twi))
-			return false;
-		if (--_timeout == 0)
-			return false;
-	}
-	return true;
-}
-
-static inline bool TWI_WaitByteReceived(Twi *_twi, uint32_t _timeout) {
-	while (!TWI_ByteReceived(_twi)) {
-		if (TWI_FailedAcknowledge(_twi))
-			return false;
-		if (--_timeout == 0)
-			return false;
-	}
-	return true;
-}
-
-static inline bool TWI_STATUS_SVREAD(uint32_t status) {
-	return (status & TWI_SR_SVREAD) == TWI_SR_SVREAD;
-}
-
-static inline bool TWI_STATUS_SVACC(uint32_t status) {
-	return (status & TWI_SR_SVACC) == TWI_SR_SVACC;
-}
-
-static inline bool TWI_STATUS_GACC(uint32_t status) {
-	return (status & TWI_SR_GACC) == TWI_SR_GACC;
-}
-
-static inline bool TWI_STATUS_EOSACC(uint32_t status) {
-	return (status & TWI_SR_EOSACC) == TWI_SR_EOSACC;
-}
-
-static inline bool TWI_STATUS_NACK(uint32_t status) {
-	return (status & TWI_SR_NACK) == TWI_SR_NACK;
-}
-
-TwoWire::TwoWire(Twi *_twi, void(*_beginCb)(void)) :
-	twi(_twi), rxBufferIndex(0), rxBufferLength(0), txAddress(0),
-			txBufferLength(0), srvBufferIndex(0), srvBufferLength(0), status(
-					UNINITIALIZED), onBeginCallback(_beginCb) {
-	// Empty
+TwoWire::TwoWire(SERCOM * sercom)
+{
+	this->sercom = sercom;
+	transmissionBegun = false;
 }
 
 void TwoWire::begin(void) {
-	if (onBeginCallback)
-		onBeginCallback();
-
-	// Disable PDC channel
-	twi->TWI_PTCR = UART_PTCR_RXTDIS | UART_PTCR_TXTDIS;
-
-	TWI_ConfigureMaster(twi, TWI_CLOCK, VARIANT_MCK);
-	status = MASTER_IDLE;
+	//Master Mode
+	sercom->initMasterWIRE(TWI_CLOCK);
+	sercom->enableWIRE();
 }
 
 void TwoWire::begin(uint8_t address) {
-	if (onBeginCallback)
-		onBeginCallback();
-
-	// Disable PDC channel
-	twi->TWI_PTCR = UART_PTCR_RXTDIS | UART_PTCR_TXTDIS;
-
-	TWI_ConfigureSlave(twi, address);
-	status = SLAVE_IDLE;
-	TWI_EnableIt(twi, TWI_IER_SVACC);
-	//| TWI_IER_RXRDY | TWI_IER_TXRDY	| TWI_IER_TXCOMP);
+	//Slave mode
+	sercom->initSlaveWIRE(address);
+	sercom->enableWIRE();
 }
 
-void TwoWire::begin(int address) {
-	begin((uint8_t) address);
+size_t SERCOM::resquestFrom(uint8_t address, size_t quantity, bool stopBit)
+{
+	//Quantity > 0 AND startTransmission worked ?
+	if(quantity == 0 || !sercom->startTransmissionWIRE(address, READ_FLAG))
+		return 0;
+		
+	for(size_t readed = 0; read < quantity; ++readed)
+	{
+		//Prepare stop bit ? user want stop bit ?
+		if(quantity - read == 1 && stopBit)
+			sercom->prepareStopBitWIRE();
+		else
+			sercom->prepareAckBitWIRE();
+			
+		rxBuffer.store_char(sercom->readDataWIRE());
+	}
+	
+	return quantity;
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity, uint8_t sendStop) {
-	if (quantity > BUFFER_LENGTH)
-		quantity = BUFFER_LENGTH;
-
-	// perform blocking read into buffer
-	int readed = 0;
-	TWI_StartRead(twi, address, 0, 0);
-	do {
-		// Stop condition must be set during the reception of last byte
-		if (readed + 1 == quantity)
-			TWI_SendSTOPCondition( twi);
-
-		TWI_WaitByteReceived(twi, RECV_TIMEOUT);
-		rxBuffer[readed++] = TWI_ReadByte(twi);
-	} while (readed < quantity);
-	TWI_WaitTransferComplete(twi, RECV_TIMEOUT);
-
-	// set rx buffer iterator vars
-	rxBufferIndex = 0;
-	rxBufferLength = readed;
-
-	return readed;
-}
-
-uint8_t TwoWire::requestFrom(uint8_t address, uint8_t quantity) {
-	return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) true);
-}
-
-uint8_t TwoWire::requestFrom(int address, int quantity) {
-	return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) true);
-}
-
-uint8_t TwoWire::requestFrom(int address, int quantity, int sendStop) {
-	return requestFrom((uint8_t) address, (uint8_t) quantity, (uint8_t) sendStop);
+size_t SERCOM::resquestFrom(uint8_t address, size_t quantity)
+{
+	return requestFrom(address, quantity, true);
 }
 
 void TwoWire::beginTransmission(uint8_t address) {
-	status = MASTER_SEND;
-
-	// save address of target and empty buffer
+	// save address of target and clear buffer
 	txAddress = address;
-	txBufferLength = 0;
+	txBuffer.clear();
+	
+	transmissionBegun = true;
 }
 
+/*
 void TwoWire::beginTransmission(int address) {
 	beginTransmission((uint8_t) address);
 }
@@ -174,7 +93,8 @@ void TwoWire::beginTransmission(int address) {
 //	no call to endTransmission(true) is made. Some I2C
 //	devices will behave oddly if they do not see a STOP.
 //
-uint8_t TwoWire::endTransmission(uint8_t sendStop) {
+uint8_t TwoWire::endTransmission(uint8_t sendStop)
+{
 	// transmit buffer (blocking)
 	TWI_StartWrite(twi, txAddress, 0, 0, txBuffer[0]);
 	TWI_WaitByteSent(twi, XMIT_TIMEOUT);
@@ -192,76 +112,149 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop) {
 	status = MASTER_IDLE;
 	return sent;
 }
+*/
 
-//	This provides backwards compatibility with the original
-//	definition, and expected behaviour, of endTransmission
-//
-uint8_t TwoWire::endTransmission(void)
+// Errors:
+//	0 : Success
+//	1 : Data too long
+//	2 : NACK on transmit of address
+//	3 : NACK on transmit of data
+//	4 : Other error
+uint8_t TwoWire::endTransmission(bool stopBit)
+{
+	transmissionBegun = false;
+	
+	//Check if there are data to send
+	if(!txBuffer.available())
+		return 4;
+		
+	//Start I2C transmission
+	if(!sercom->startTransmissionWIRE(txAddress, WRITE_FLAG))
+		return 2;	//Address error
+	
+	//Send all buffer
+	while(txBuffer.available())
+	{
+		//If is the last data, send STOP bit after it.
+		if(txBuffer.available() == 1)
+			sercom->prepareStopBitWIRE();
+		
+		//Trying to send data
+		if(!sercom->sendDataMasterWIRE(txBuffer.read_char()))
+			return 3;	//Nack or error
+	}
+	
+	return 0;
+}
+
+uint8_t TwoWire::endTransmission()
 {
 	return endTransmission(true);
 }
 
-size_t TwoWire::write(uint8_t data) {
-	if (status == MASTER_SEND) {
-		if (txBufferLength >= BUFFER_LENGTH)
+size_t TwoWire::write(uint8_t data) 
+{
+	if(sercom->isMasterWIRE())
+	{
+		//No writing, without begun transmission or a full buffer
+		if(!transmissionBegun || txBuffer.isFull())
 			return 0;
-		txBuffer[txBufferLength++] = data;
+			
+		txBuffer.store_char(data);
 		return 1;
-	} else {
-		if (srvBufferLength >= BUFFER_LENGTH)
-			return 0;
-		srvBuffer[srvBufferLength++] = data;
-		return 1;
+	}
+	else
+	{
+		sercom->sendDataSlaveWIRE(data);
 	}
 }
 
-size_t TwoWire::write(const uint8_t *data, size_t quantity) {
-	if (status == MASTER_SEND) {
-		for (size_t i = 0; i < quantity; ++i) {
-			if (txBufferLength >= BUFFER_LENGTH)
-				return i;
-			txBuffer[txBufferLength++] = data[i];
-		}
-	} else {
-		for (size_t i = 0; i < quantity; ++i) {
-			if (srvBufferLength >= BUFFER_LENGTH)
-				return i;
-			srvBuffer[srvBufferLength++] = data[i];
-		}
+size_t TwoWire::write(const uint8_t *data, size_t quantity)
+{
+	//Try to store all data
+	for(size_t i = 0; i < quantity; ++i)
+	{
+		//Return the number of data stored, when the buffer is full (if write return 0)
+		if(!write(data[i])
+			return i;
 	}
+	
+	//All data stored
 	return quantity;
 }
 
-int TwoWire::available(void) {
-	return rxBufferLength - rxBufferIndex;
+int TwoWire::available(void)
+{
+	return rxBuffer.available();
 }
 
-int TwoWire::read(void) {
-	if (rxBufferIndex < rxBufferLength)
-		return rxBuffer[rxBufferIndex++];
-	return -1;
+int TwoWire::read(void)
+{
+	return rxBuffer.read_char();
 }
 
-int TwoWire::peek(void) {
-	if (rxBufferIndex < rxBufferLength)
-		return rxBuffer[rxBufferIndex];
-	return -1;
+int TwoWire::peek(void)
+{
+	return rxBuffer.peek();
 }
 
-void TwoWire::flush(void) {
+void TwoWire::flush(void)
+{
 	// Do nothing, use endTransmission(..) to force
 	// data transfer.
 }
 
-void TwoWire::onReceive(void(*function)(int)) {
+void TwoWire::onReceive(void(*function)(int))
+{
 	onReceiveCallback = function;
 }
 
-void TwoWire::onRequest(void(*function)(void)) {
+void TwoWire::onRequest(void(*function)(void))
+{
 	onRequestCallback = function;
 }
 
-void TwoWire::onService(void) {
+
+void TwoWire::onService(void)
+{
+	if(sercom->isSlaveWIRE())
+	{
+		//Received data
+		if(sercom->isDataReadyWIRE())
+		{
+			//Store data
+			rxBuffer.store_char(sercom->readDataWIRE());
+			
+			//Stop or Restart detected
+			if(sercom->isStopDetectedWIRE() || sercom->isRestartDetectedWIRE())
+			{
+				//Calling onReceiveCallback, if exists
+				if(onReceiveCallback)
+				{
+					onReceiveCallback(available());
+				}
+			}
+		}
+		
+		//Address Match
+		if(sercom->isAddressMatch())
+		{
+			//Is a request ?
+			if(sercom->isMasterReadOperationWIRE())
+			{
+				//Calling onRequestCallback, if exists
+				if(onRequestCallback)
+				{
+					onRequestCallback();
+				}
+			}
+		}
+	}
+}
+
+/*
+void TwoWire::onService(void)
+{
 	// Retrieve interrupt status
 	uint32_t sr = TWI_GetStatus(twi);
 
@@ -328,6 +321,7 @@ void TwoWire::onService(void) {
 		}
 	}
 }
+*/
 
 #if WIRE_INTERFACES_COUNT > 0
 static void Wire_Init(void) {

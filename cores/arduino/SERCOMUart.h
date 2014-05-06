@@ -1,11 +1,14 @@
 #ifndef _SERCOM_UART_CLASS
 #define _SERCOM_UART_CLASS
 
+#include "HardwareSerial.h"
 #include "SERCOM.h"
 #include "RingBuffer.h"
 
+#include <cstddef>
 
-class SERCOMUart
+
+class SERCOMUart : public HardwareSerial
 {
 	public:
 		SERCOMUart(SERCOM *sercom);
@@ -28,8 +31,8 @@ class SERCOMUart
 		RingBuffer txBuffer;
 
 		SercomNumberStopBit extractNbStopBit(uint8_t config);
-		SercomCharSize extractCharSize(uint8_t config);
-		SercomParityMode extractParity(uint8_t config)
+		SercomUartCharSize extractCharSize(uint8_t config);
+		SercomParityMode extractParity(uint8_t config);
 };
 
 
