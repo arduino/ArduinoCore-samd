@@ -30,6 +30,7 @@
 #include <stdarg.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+//#include <unistd.h>
 
 /*----------------------------------------------------------------------------
  *        Exported functions
@@ -37,10 +38,13 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-extern caddr_t _sbrk( int incr ) ;
+/*
+*/
+extern void _exit( int status ) ;
 
 extern int link( char *cOld, char *cNew ) ;
+
+extern caddr_t _sbrk( int incr ) ;
 
 extern int _close( int file ) ;
 
@@ -53,8 +57,6 @@ extern int _lseek( int file, int ptr, int dir ) ;
 extern int _read(int file, char *ptr, int len) ;
 
 extern int _write( int file, char *ptr, int len ) ;
-
-extern void _exit( int status ) ;
 
 extern void _kill( int pid, int sig ) ;
 

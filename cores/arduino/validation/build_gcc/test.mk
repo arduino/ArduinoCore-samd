@@ -43,6 +43,9 @@ HARDWARE_PATH=../../../../../..
 ARCH_PATH=$(HARDWARE_PATH)/arduino/samd
 ARDUINO_CORE_PATH=$(ARCH_PATH)/cores/arduino
 ARDUINO_USB_PATH=$(ARDUINO_CORE_PATH)/USB
+LIBRARIES_PATH = $(ARCH_PATH)/libraries
+SPI_PATH = $(LIBRARIES_PATH)/SPI
+WIRE_PATH = $(LIBRARIES_PATH)/Wire
 VARIANT_PATH = $(ARCH_PATH)/variants/$(VARIANT)
 TOOLS_PATH = $(HARDWARE_PATH)/tools
 CMSIS_ROOT_PATH=$(TOOLS_PATH)/CMSIS
@@ -62,7 +65,7 @@ OUTPUT_PATH = debug_$(VARIANT)
 # Files
 #-------------------------------------------------------------------------------
 
-vpath %.cpp $(PROJECT_BASE_PATH) $(ARDUINO_CORE_PATH) $(VARIANT_PATH)
+vpath %.cpp $(PROJECT_BASE_PATH) $(ARDUINO_CORE_PATH) $(VARIANT_PATH) $(SPI_PATH) $(WIRE_PATH)
 vpath %.c $(ARDUINO_CORE_PATH) $(VARIANT_PATH)
 
 #VPATH+=$(PROJECT_BASE_PATH)
@@ -72,7 +75,8 @@ INCLUDES += -I$(ARDUINO_USB_PATH)
 INCLUDES += -I$(VARIANT_PATH)
 INCLUDES += -I$(CMSIS_ARM_PATH)
 INCLUDES += -I$(CMSIS_ATMEL_PATH)
-#INCLUDES += -I$(CMSIS_DEVICE_PATH)
+INCLUDES += -I$(SPI_PATH)
+INCLUDES += -I$(WIRE_PATH)
 
 #-------------------------------------------------------------------------------
 ifdef DEBUG
@@ -101,6 +105,7 @@ endif
 
 OUTPUT_BIN=test_$(TOOLCHAIN)_$(LIBS_POSTFIX)
 LIBS=-Wl,--start-group -lgcc -lc -lstdc++ -Wl,--end-group
+#LIBS=--specs=nano.specs -Wl,--start-group -lc lnosys -Wl,--end-group
 
 LIB_PATH =-L$(PROJECT_BASE_PATH)/..
 LIB_PATH+=-L=/lib/thumb2

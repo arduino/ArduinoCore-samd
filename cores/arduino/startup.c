@@ -29,18 +29,49 @@ extern uint32_t __bss_end__ ;
 extern uint32_t __StackTop;
 
 extern int main( void ) ;
-
-//void __libc_init_array(void);
+extern void __libc_init_array(void);
 
 /* Default empty handler */
 void Dummy_Handler(void);
 
 /* Cortex-M0+ core handlers */
+#if defined DEBUG
+void NMI_Handler( void )
+{
+  while ( 1 )
+  {
+  }
+}
+
+void HardFault_Handler( void )
+{
+  while ( 1 )
+  {
+  }
+}
+
+void SVC_Handler( void )
+{
+  while ( 1 )
+  {
+  }
+}
+
+void PendSV_Handler( void )
+{
+  while ( 1 )
+  {
+  }
+}
+
+void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+#else
 void NMI_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void HardFault_Handler       ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SVC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void PendSV_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+#endif //DEBUG
 
 /* Peripherals handlers */
 void PM_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -73,7 +104,7 @@ void PTC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler
 void I2S_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 
 /* Exception Table */
-__attribute__ ((section(".vectors")))
+__attribute__ ((section(".isr_vector")))
 const DeviceVectors exception_table=
 {
   /* Configure Initial Stack Pointer, using linker-generated symbols */
@@ -161,7 +192,7 @@ void SystemInit( void )
    */
   SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP( 0x6u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
                          SYSCTRL_XOSC32K_XTALEN | SYSCTRL_XOSC32K_EN32K ;
-  SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_ENABLE ; /* separate call, as described in chapter 15.6.3 */
+  SYSCTRL->XOSC32K.bit.ENABLE = 1 ; /* separate call, as described in chapter 15.6.3 */
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSC32KRDY) == 0 )
   {
@@ -268,6 +299,7 @@ void SystemInit( void )
     /* Wait for synchronization */
   }
 
+#if 0
   /*
    * 6) Put OSC8M as source for Generic Clock Generator 3
    */
@@ -287,15 +319,16 @@ void SystemInit( void )
   {
     /* Wait for synchronization */
   }
+#endif
 
   /*
    * Now that all system clocks are configured, we can set CPU and APBx BUS clocks.
    * There values are normally the one present after Reset.
    */
-  PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
-  PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;
-  PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val ;
-  PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
+  //PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
+  //PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;
+  //PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val ;
+  //PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
 
   SystemCoreClock=VARIANT_MCK ;
 }
@@ -330,7 +363,7 @@ void Reset_Handler( void )
   }
 
   /* Initialize the C library */
-//	__libc_init_array();
+  __libc_init_array();
 
   SystemInit() ;
 

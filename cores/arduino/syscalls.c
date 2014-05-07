@@ -21,15 +21,10 @@
   *
   */
 
-#include "syscalls.h"
+#include <errno.h>
 
-#include <stdio.h>
-#include <stdarg.h>
+#include "syscalls.h"
 #include "sam.h"
-#if defined (  __GNUC__  ) /* GCC CS3 */
-  #include <sys/types.h>
-  #include <sys/stat.h>
-#endif
 
 #undef errno
 extern int errno ;
@@ -38,24 +33,24 @@ extern int __ram_end__ ;
 
 extern caddr_t _sbrk( int incr )
 {
-	static unsigned char *heap = NULL ;
-	unsigned char *prev_heap ;
-	int ramend = (int)&__ram_end__ ;
+  static unsigned char *heap = NULL ;
+  unsigned char *prev_heap ;
+  int ramend = (int)&__ram_end__ ;
 
-	if ( heap == NULL )
-	{
-		heap = (unsigned char *)&__end__ ;
-	}
-	prev_heap = heap ;
+  if ( heap == NULL )
+  {
+    heap = (unsigned char *)&__end__ ;
+  }
+  prev_heap = heap ;
 
-	if ( ((int)prev_heap + incr) > ramend )
-	{
-		return (caddr_t) -1 ;
-	}
+  if ( ((int)prev_heap + incr) > ramend )
+  {
+    return (caddr_t) -1 ;
+  }
 
-	heap += incr ;
+  heap += incr ;
 
-	return (caddr_t) prev_heap ;
+  return (caddr_t) prev_heap ;
 }
 
 extern int link( char *cOld, char *cNew )
@@ -95,15 +90,25 @@ extern int _write( int file, char *ptr, int len )
 {
   int iIndex=0 ;
 
-	for ( ; len >= 0 ; len--, ptr++, iIndex++ )
-	{
-		// Check if the transmitter is ready
-//    while ((UART->UART_SR & UART_SR_TXRDY) != UART_SR_TXRDY)
-    {
-    }
+  switch ( file )
+  {
+    case 1 /*STDOUT_FILENO*/:
+      for ( ; len >= 0 ; len--, ptr++, iIndex++ )
+      {
+        // Check if the transmitter is ready
+//        while ((UART->UART_SR & UART_SR_TXRDY) != UART_SR_TXRDY)
+        {
+        }
 
-    // Send character
-//    UART->UART_THR = *ptr;
+        // Send character
+//        UART->UART_THR = *ptr;
+      }
+    break;
+
+    default:
+      errno = EBADF ;
+      iIndex = -1 ;
+    break;
   }
 
   return iIndex ;

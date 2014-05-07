@@ -46,11 +46,13 @@ CFLAGS += -Wpacked -Wredundant-decls -Wnested-externs -Winline -Wlong-long
 CFLAGS += -Wunreachable-code
 CFLAGS += -Wcast-align
 
+# -flto
 CFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m0plus -mthumb -mlong-calls -ffunction-sections -nostdlib -std=c99
 CFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(DEVICE) -D$(VARIANT)
 
 # To reduce application size use only integer printf function.
 CFLAGS += -Dprintf=iprintf
+# -u _scanf_float -u _printf_float
 
 
 
@@ -66,7 +68,7 @@ CPPFLAGS += -Wsign-compare -Waggregate-return -Wmissing-declarations
 CPPFLAGS += -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations
 CPPFLAGS += -Wpacked -Wredundant-decls -Winline -Wlong-long
 
-#-fno-rtti -fno-exceptions
+#-fno-rtti -fno-exceptions -flto
 CPPFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m0plus -mthumb -mlong-calls -ffunction-sections -fdata-sections -std=c++98
 CPPFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(DEVICE)
 
@@ -85,5 +87,6 @@ ASFLAGS = -mcpu=cortex-m0plus -mthumb -Wall -g $(OPTIMIZATION) $(INCLUDES)
 # ---------------------------------------------------------------------------------------
 # LD Flags
 
+#--nostartfiles  -flto
 LDFLAGS= -mcpu=cortex-m0plus -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
 
