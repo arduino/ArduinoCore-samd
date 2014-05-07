@@ -13,14 +13,20 @@
 
 #include "variant.h"
 #include "SERCOM.h"
+#include "wiring_constants.h"
 
 #include <stdio.h>
 
+#define SPI_MODE0 0x02
+#define SPI_MODE1 0x00
+#define SPI_MODE2 0x03
+#define SPI_MODE3 0x01
+
 class SPIClass {
   public:
-	SPIClass(SERCOM *sercom);
+	SPIClass(SERCOM *s);
 
-	byte transfer(uint8_t _data);
+	byte transfer(uint8_t data);
 
 	// SPI Configuration methods
 	void attachInterrupt();

@@ -21,7 +21,7 @@
 #ifndef TwoWire_h
 #define TwoWire_h
 
-#include <include/twi.h>
+//#include <include/twi.h>
 
 #include "Stream.h"
 #include "variant.h"
@@ -33,7 +33,7 @@
 
 class TwoWire : public Stream {
 public:
-	TwoWire(SERCOM *sercom);
+	TwoWire(SERCOM *s);
 	void begin();
 	void begin(uint8_t);
 	

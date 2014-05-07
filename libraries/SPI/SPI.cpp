@@ -10,22 +10,22 @@
 
 #include "SPI.h"
 
-SPIClass::SPIClass(SERCOM *sercom)
+SPIClass::SPIClass(SERCOM *s)
 {
-	this->sercom = sercom;
+	sercom = s;
 }
 
 void SPIClass::begin() {
 	// Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
-	sercom->initSPI(PAD_0_SCK_1, PAD_2, 8_BITS, MSB_FIRST);
-	sercom->initClock(MODE_0, 4000000);
+	sercom->initSPI(SPI_PAD_0_SCK_1, SERCOM_RX_PAD_2, SPI_CHAR_SIZE_8_BITS, MSB_FIRST);
+	sercom->initClock(SERCOM_SPI_MODE_0, 4000000);
 }
 
 void SPIClass::end() {
 	sercom->resetSPI();
 }
 
-void setBitOrder(BitOrder order)
+void SPIClass::setBitOrder(BitOrder order)
 {
 	if(order == LSBFIRST)
 		sercom->setDataOrderSPI(LSB_FIRST);
@@ -33,24 +33,24 @@ void setBitOrder(BitOrder order)
 		sercom->setDataOrderSPI(MSB_FIRST);
 }
 
-void setDataMode(uint8_t mode)
+void SPIClass::setDataMode(uint8_t mode)
 {
 	switch(mode)
 	{
 		case SPI_MODE0:
-			sercom->setClockModeSPI(MODE_0);
+			sercom->setClockModeSPI(SERCOM_SPI_MODE_0);
 			break;
 			
 		case SPI_MODE1:
-			sercom->setClockModeSPI(MODE_1);
+			sercom->setClockModeSPI(SERCOM_SPI_MODE_1);
 			break;
 			
 		case SPI_MODE2:
-			sercom->setClockModeSPI(MODE_2);
+			sercom->setClockModeSPI(SERCOM_SPI_MODE_2);
 			break;
 			
 		case SPI_MODE3:
-			sercom->setClockModeSPI(MODE_3);
+			sercom->setClockModeSPI(SERCOM_SPI_MODE_3);
 			break;
 		
 		default:
@@ -58,12 +58,12 @@ void setDataMode(uint8_t mode)
 	}
 }
 
-void setClockDivider(uint8_t div)
+void SPIClass::setClockDivider(uint8_t div)
 {
 	sercom->setBaudrateSPI(div);
 }
 
-byte SPIClass::transfer(uint8_t _data)
+byte SPIClass::transfer(uint8_t data)
 {
 	//Can writing new data?
 	while(!sercom->isDataRegisterEmptySPI());

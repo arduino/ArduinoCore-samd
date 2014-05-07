@@ -24,9 +24,9 @@ extern "C" {
 
 #include "Wire.h"
 
-TwoWire::TwoWire(SERCOM * sercom)
+TwoWire::TwoWire(SERCOM * s)
 {
-	this->sercom = sercom;
+	this->sercom = s;
 	transmissionBegun = false;
 }
 
