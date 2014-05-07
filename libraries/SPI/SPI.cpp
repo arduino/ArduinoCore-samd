@@ -87,5 +87,5 @@ void SPIClass::detachInterrupt() {
 }
 
 #if SPI_INTERFACES_COUNT > 0
-SPIClass SPI(SERCOM::sercom1);
+SPIClass SPI(SERCOM::sercom4);
 #endif
