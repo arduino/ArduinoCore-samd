@@ -12,8 +12,8 @@ class SERCOMUart : public HardwareSerial
 {
 	public:
 		SERCOMUart(SERCOM *sercom);
-		void begin(uint16_t baudRate);
-		void begin(uint16_t baudrate, uint8_t config);
+		void begin(unsigned long baudRate);
+		void begin(unsigned long baudrate, uint8_t config);
 		void end();
 		int available();
 		int peek();

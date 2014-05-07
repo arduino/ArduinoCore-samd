@@ -128,6 +128,14 @@ class SERCOM
 {
 	public:
 		SERCOM(Sercom* sercom);
+		
+		/* ========== SERCOM OBJECT ========== */
+		static SERCOM * sercom0;
+		static SERCOM * sercom1;
+		static SERCOM * sercom2;
+		static SERCOM * sercom3;
+		static SERCOM * sercom4;
+		static SERCOM * sercom5;
 	    
 		/* ========== UART ========== */
 		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);

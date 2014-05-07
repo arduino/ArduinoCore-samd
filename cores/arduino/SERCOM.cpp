@@ -515,3 +515,14 @@ uint8_t SERCOM::readDataWIRE()
 	else
 		return sercom->I2CS.DATA.reg;
 }
+
+/*	=========================
+ *	===== SERCOM DEFINITION
+ *	=========================
+*/
+SERCOM * SERCOM::sercom0 = new SERCOM(SERCOM0);
+SERCOM * SERCOM::sercom1 = new SERCOM(SERCOM1);
+SERCOM * SERCOM::sercom2 = new SERCOM(SERCOM2);
+SERCOM * SERCOM::sercom3 = new SERCOM(SERCOM3);
+SERCOM * SERCOM::sercom4 = new SERCOM(SERCOM4);
+SERCOM * SERCOM::sercom5 = new SERCOM(SERCOM5);

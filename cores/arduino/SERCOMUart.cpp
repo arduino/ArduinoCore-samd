@@ -6,12 +6,12 @@ SERCOMUart::SERCOMUart(SERCOM *sercom)
 	this->sercom = sercom;
 }
 
-void SERCOMUart::begin(uint16_t baudrate)
+void SERCOMUart::begin(unsigned long baudrate)
 {
 	begin(baudrate, SERIAL_8N1);
 }
 
-void SERCOMUart::begin(uint16_t baudrate, uint8_t config)
+void SERCOMUart::begin(unsigned long baudrate, uint8_t config)
 {
 	sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
 	sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
@@ -124,3 +124,4 @@ SercomParityMode SERCOMUart::extractParity(uint8_t config)
 	}
 }
 
+SERCOMUart Serial = SERCOMUart(SERCOM::sercom0);

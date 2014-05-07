@@ -42,16 +42,16 @@ void TwoWire::begin(uint8_t address) {
 	sercom->enableWIRE();
 }
 
-size_t SERCOM::resquestFrom(uint8_t address, size_t quantity, bool stopBit)
+uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 {
 	//Quantity > 0 AND startTransmission worked ?
-	if(quantity == 0 || !sercom->startTransmissionWIRE(address, READ_FLAG))
+	if(quantity == 0 || !sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
 		return 0;
 		
-	for(size_t readed = 0; read < quantity; ++readed)
+	for(size_t readed = 0; readed < quantity; ++readed)
 	{
 		//Prepare stop bit ? user want stop bit ?
-		if(quantity - read == 1 && stopBit)
+		if(quantity - readed == 1 && stopBit)
 			sercom->prepareStopBitWIRE();
 		else
 			sercom->prepareAckBitWIRE();
@@ -62,7 +62,7 @@ size_t SERCOM::resquestFrom(uint8_t address, size_t quantity, bool stopBit)
 	return quantity;
 }
 
-size_t SERCOM::resquestFrom(uint8_t address, size_t quantity)
+uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
 {
 	return requestFrom(address, quantity, true);
 }
@@ -129,7 +129,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
 		return 4;
 		
 	//Start I2C transmission
-	if(!sercom->startTransmissionWIRE(txAddress, WRITE_FLAG))
+	if(!sercom->startTransmissionWIRE(txAddress, WIRE_WRITE_FLAG))
 		return 2;	//Address error
 	
 	//Send all buffer
@@ -165,8 +165,11 @@ size_t TwoWire::write(uint8_t data)
 	}
 	else
 	{
-		sercom->sendDataSlaveWIRE(data);
+		if(sercom->sendDataSlaveWIRE(data))
+			return 1;
 	}
+	
+	return 0;
 }
 
 size_t TwoWire::write(const uint8_t *data, size_t quantity)
@@ -175,7 +178,7 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity)
 	for(size_t i = 0; i < quantity; ++i)
 	{
 		//Return the number of data stored, when the buffer is full (if write return 0)
-		if(!write(data[i])
+		if(!write(data[i]))
 			return i;
 	}
 	
@@ -324,7 +327,7 @@ void TwoWire::onService(void)
 */
 
 #if WIRE_INTERFACES_COUNT > 0
-static void Wire_Init(void) {
+/*static void Wire_Init(void) {
 	pmc_enable_periph_clk(WIRE_INTERFACE_ID);
 	PIO_Configure(
 			g_APinDescription[PIN_WIRE_SDA].pPort,
@@ -341,38 +344,13 @@ static void Wire_Init(void) {
 	NVIC_ClearPendingIRQ(WIRE_ISR_ID);
 	NVIC_SetPriority(WIRE_ISR_ID, 0);
 	NVIC_EnableIRQ(WIRE_ISR_ID);
-}
+}*/
 
-TwoWire Wire = TwoWire(WIRE_INTERFACE, Wire_Init);
+
+TwoWire Wire = TwoWire(SERCOM::sercom3);
 
 void WIRE_ISR_HANDLER(void) {
 	Wire.onService();
 }
-#endif
 
-#if WIRE_INTERFACES_COUNT > 1
-static void Wire1_Init(void) {
-	pmc_enable_periph_clk(WIRE1_INTERFACE_ID);
-	PIO_Configure(
-			g_APinDescription[PIN_WIRE1_SDA].pPort,
-			g_APinDescription[PIN_WIRE1_SDA].ulPinType,
-			g_APinDescription[PIN_WIRE1_SDA].ulPin,
-			g_APinDescription[PIN_WIRE1_SDA].ulPinConfiguration);
-	PIO_Configure(
-			g_APinDescription[PIN_WIRE1_SCL].pPort,
-			g_APinDescription[PIN_WIRE1_SCL].ulPinType,
-			g_APinDescription[PIN_WIRE1_SCL].ulPin,
-			g_APinDescription[PIN_WIRE1_SCL].ulPinConfiguration);
-
-	NVIC_DisableIRQ(WIRE1_ISR_ID);
-	NVIC_ClearPendingIRQ(WIRE1_ISR_ID);
-	NVIC_SetPriority(WIRE1_ISR_ID, 0);
-	NVIC_EnableIRQ(WIRE1_ISR_ID);
-}
-
-TwoWire Wire1 = TwoWire(WIRE1_INTERFACE, Wire1_Init);
-
-void WIRE1_ISR_HANDLER(void) {
-	Wire1.onService();
-}
 #endif

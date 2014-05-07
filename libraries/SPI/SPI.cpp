@@ -17,7 +17,7 @@ SPIClass::SPIClass(SERCOM *s)
 
 void SPIClass::begin() {
 	// Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
-	sercom->initSPI(SPI_PAD_0_SCK_1, SERCOM_RX_PAD_2, SPI_CHAR_SIZE_8_BITS, MSB_FIRST);
+	sercom->initSPI(SPI_PAD_2_SCK_3, SERCOM_RX_PAD_0, SPI_CHAR_SIZE_8_BITS, MSB_FIRST);
 	sercom->initClock(SERCOM_SPI_MODE_0, 4000000);
 }
 
@@ -87,23 +87,5 @@ void SPIClass::detachInterrupt() {
 }
 
 #if SPI_INTERFACES_COUNT > 0
-static void SPI_0_Init(void) {
-	PIO_Configure(
-			g_APinDescription[PIN_SPI_MOSI].pPort,
-			g_APinDescription[PIN_SPI_MOSI].ulPinType,
-			g_APinDescription[PIN_SPI_MOSI].ulPin,
-			g_APinDescription[PIN_SPI_MOSI].ulPinConfiguration);
-	PIO_Configure(
-			g_APinDescription[PIN_SPI_MISO].pPort,
-			g_APinDescription[PIN_SPI_MISO].ulPinType,
-			g_APinDescription[PIN_SPI_MISO].ulPin,
-			g_APinDescription[PIN_SPI_MISO].ulPinConfiguration);
-	PIO_Configure(
-			g_APinDescription[PIN_SPI_SCK].pPort,
-			g_APinDescription[PIN_SPI_SCK].ulPinType,
-			g_APinDescription[PIN_SPI_SCK].ulPin,
-			g_APinDescription[PIN_SPI_SCK].ulPinConfiguration);
-}
-
-SPIClass SPI(SPI_INTERFACE, SPI_INTERFACE_ID, SPI_0_Init);
+SPIClass SPI(SERCOM::sercom1);
 #endif
