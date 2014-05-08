@@ -43,22 +43,6 @@ uint32_t micros( void )
   // a runtime multiplication and shift, saving a few cycles
 }
 
-// original function:
-// uint32_t micros( void )
-// {
-//     uint32_t ticks ;
-//     uint32_t count ;
-//
-//     SysTick->CTRL;
-//     do {
-//         ticks = SysTick->VAL;
-//         count = GetTickCount();
-//     } while (SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk);
-//
-//     return count * 1000 + (SysTick->LOAD + 1 - ticks) / (SystemCoreClock/1000000) ;
-// }
-
-
 void delay( uint32_t ms )
 {
   if ( ms == 0 )
@@ -72,6 +56,12 @@ void delay( uint32_t ms )
   {
     yield() ;
   } while ( _ulTickCount - start < ms ) ;
+}
+
+void SysTick_Handler( void )
+{
+  // Increment tick count each ms
+  _ulTickCount++ ;
 }
 
 #ifdef __cplusplus
