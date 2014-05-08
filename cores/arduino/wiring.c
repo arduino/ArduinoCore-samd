@@ -45,17 +45,29 @@ void init( void )
   uint32_t ul ;
 
   // Set Systick to 1ms interval, common to all Cortex-M variants
- // if ( SysTick_Config( SystemCoreClock / 1000 ) )
- // {
- //   // Capture error
- //   while ( 1 ) ;
- // }
+  if ( SysTick_Config( SystemCoreClock / 1000 ) )
+  {
+    // Capture error
+    while ( 1 ) ;
+  }
 
-  // Setup PORT for Digital I/O
+  // Clock PORT for Digital I/O
 	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
 
+  // Clock EIC for I/O interrupts
+	PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
+
+  // Clock SERCOM for Serial
+	PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5 ;
+
+  // Clock TC/TCC for Pulse and Analog
+	PM->APBCMASK.reg |= PM_APBCMASK_TCC0 | PM_APBCMASK_TCC1 | PM_APBCMASK_TCC2 | PM_APBCMASK_TC3 | PM_APBCMASK_TC4 | PM_APBCMASK_TC5 | PM_APBCMASK_TC6 | PM_APBCMASK_TC7 ;
+
+  // Clock ADC/DAC for Analog
+	PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
+
 	// Setup all pins (digital and analog) in INPUT mode (default is nothing)
-	for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
+//	for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
 	{
 //	  pinMode( ul, INPUT ) ;
 	}
