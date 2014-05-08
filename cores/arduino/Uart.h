@@ -34,6 +34,7 @@ class SERCOMUart : public HardwareSerial
 		SercomUartCharSize extractCharSize(uint8_t config);
 		SercomParityMode extractParity(uint8_t config);
 };
+extern SERCOMUart Serial;
 
 
 #endif
