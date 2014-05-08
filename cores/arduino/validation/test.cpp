@@ -22,12 +22,25 @@ void setup( void )
 {
   // Initialize the digital pin as an output.
   // Pin PIN_LED has a LED connected on most Arduino boards:
-  pinMode( PIN_LED, OUTPUT ) ;
-  digitalWrite( PIN_LED, LOW ) ;
+  //pinMode( PIN_LED, OUTPUT ) ;
+  //digitalWrite( PIN_LED, LOW ) ;
 
   // Initialize the PIN_LED2 digital pin as an output.
   pinMode( PIN_LED2, OUTPUT ) ;
   digitalWrite( PIN_LED2, HIGH ) ;
+
+  // Initialize the PIN_LED2 digital pin as an output.
+  pinMode( PIN_LED3, OUTPUT ) ;
+  digitalWrite( PIN_LED3, LOW ) ;
+
+//**********************************************
+// Clock output on pin 4 for measure
+
+  pinPeripheral( 4, PIO_AC_CLK ) ; // Clock Gen 0
+  pinPeripheral( 5, PIO_AC_CLK ) ; // Clock Gen 1
+  pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3
+
+//**********************************************
 
 /*
   Serial1.begin( 115200 ) ;
@@ -36,14 +49,16 @@ void setup( void )
 
 static void led_step1( void )
 {
-  digitalWrite( PIN_LED, LOW ) ;  // set the LED on
+//  digitalWrite( PIN_LED, LOW ) ;  // set the LED on
   digitalWrite( PIN_LED2, LOW ) ;   // set the red LED off
+  digitalWrite( PIN_LED3, HIGH ) ;   // set the red LED off
 }
 
 static void led_step2( void )
 {
-  digitalWrite( PIN_LED, HIGH ) ;   // set the LED off
+//  digitalWrite( PIN_LED, HIGH ) ;   // set the LED off
   digitalWrite( PIN_LED2, HIGH ) ;  // set the red LED on
+  digitalWrite( PIN_LED3, LOW ) ;  // set the red LED on
 }
 
 void loop( void )
