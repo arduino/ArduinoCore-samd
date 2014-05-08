@@ -21,17 +21,6 @@
 #include "Arduino.h"
 
 /*
- * Cortex-M3 Systick IT handler
- */
-/*
-extern void SysTick_Handler( void )
-{
-  // Increment tick count each ms
-  TimeTick_Increment() ;
-}
-*/
-
-/*
  * \brief Main entry point of Arduino application
  */
 int main( void )

@@ -52,10 +52,10 @@ void init( void )
   }
 
   // Clock PORT for Digital I/O
-	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
-
-  // Clock EIC for I/O interrupts
-	PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
+//	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
+//
+//  // Clock EIC for I/O interrupts
+//	PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
 
   // Clock SERCOM for Serial
 	PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5 ;
