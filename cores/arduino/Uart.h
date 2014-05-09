@@ -8,10 +8,10 @@
 #include <cstddef>
 
 
-class SERCOMUart : public HardwareSerial
+class Uart : public HardwareSerial
 {
 	public:
-		SERCOMUart(SERCOM *sercom);
+		Uart(SERCOM *sercom);
 		void begin(unsigned long baudRate);
 		void begin(unsigned long baudrate, uint8_t config);
 		void end();
@@ -34,7 +34,7 @@ class SERCOMUart : public HardwareSerial
 		SercomUartCharSize extractCharSize(uint8_t config);
 		SercomParityMode extractParity(uint8_t config);
 };
-extern SERCOMUart Serial;
+extern Uart Serial;
 
 
 #endif
