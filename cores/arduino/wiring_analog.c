@@ -242,12 +242,29 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 
 	if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM) {
 	 
+	 if (g_APinDescription[ulPin].ulPinType == PIO_TIMER)
+	 {
 		 // Set selected Pin as TC/TCC Waveform out (PMUX : E ) 
 		 if(g_APinDescription[ulPin].ulPin <= 15)
+		 {
 			PORT->Group[g_APinDescription[ulPin].ulPort].WRCONFIG.reg = (uint32_t)(PORT_WRCONFIG_WRPINCFG |PORT_WRCONFIG_WRPMUX| 1 << (g_APinDescription[ulPin].ulPin)|(PORT_WRCONFIG_PMUXEN)|(0x4 << PORT_WRCONFIG_PMUX_Pos) );
-		else
+		 } else {
 		    PORT->Group[g_APinDescription[ulPin].ulPort].WRCONFIG.reg = (uint32_t)(PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_WRPMUX| PORT_WRCONFIG_HWSEL| 1 << (g_APinDescription[ulPin].ulPin - 16)|(PORT_WRCONFIG_PMUXEN)|(0x4 << PORT_WRCONFIG_PMUX_Pos) );
-			
+		 }
+	 }
+	 
+	 if (g_APinDescription[ulPin].ulPinType == PIO_TIMER_ALT)
+	 {
+		  // Set selected Pin as TC/TCC Waveform out (PMUX : F )
+		  if(g_APinDescription[ulPin].ulPin <= 15)
+		  {
+			PORT->Group[g_APinDescription[ulPin].ulPort].WRCONFIG.reg = (uint32_t)(PORT_WRCONFIG_WRPINCFG |PORT_WRCONFIG_WRPMUX| 1 << (g_APinDescription[ulPin].ulPin)|(PORT_WRCONFIG_PMUXEN)|(0x5 << PORT_WRCONFIG_PMUX_Pos) );
+		  } else {
+			PORT->Group[g_APinDescription[ulPin].ulPort].WRCONFIG.reg = (uint32_t)(PORT_WRCONFIG_WRPINCFG | PORT_WRCONFIG_WRPMUX| PORT_WRCONFIG_HWSEL| 1 << (g_APinDescription[ulPin].ulPin - 16)|(PORT_WRCONFIG_PMUXEN)|(0x5 << PORT_WRCONFIG_PMUX_Pos) );
+		  }
+	  }
+	 
+	 
 		switch (g_APinDescription[ulPin].ulTCChannel) 
 		{
 			case  TC3_CH0 :

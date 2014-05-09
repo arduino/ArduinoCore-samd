@@ -26,14 +26,14 @@
     <BootSegment>2</BootSegment>
     <eraseonlaunchrule>1</eraseonlaunchrule>
     <AsfFrameworkConfig>
-      <framework-data xmlns="">
+      <framework-data>
         <options />
         <configurations />
         <files />
         <documentation help="" />
         <offline-documentation help="" />
         <dependencies>
-          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.17.0" />
+          <content-extension eid="atmel.asf" uuidref="Atmel.ASF" version="3.6.0" />
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
@@ -53,13 +53,14 @@
     <com_atmel_avrdbg_tool_edbg>
       <ToolOptions>
         <InterfaceProperties>
+          <JtagEnableExtResetOnStartSession>false</JtagEnableExtResetOnStartSession>
           <SwdClock>4000000</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
-      <ToolNumber>ATML2320021800000010</ToolNumber>
-      <ToolName>EDBG</ToolName>
+      <ToolNumber>ATML2320021800000009</ToolNumber>
+      <ToolName>XPRO-EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
@@ -131,89 +132,87 @@
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <ToolchainSettings>
       <ArmGccCpp>
-        <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
-        <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
-        <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
-        <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
-        <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
-        <armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <armgcc.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-          </ListValues>
-        </armgcc.compiler.symbols.DefSymbols>
-        <armgcc.compiler.directories.DefaultIncludePath>False</armgcc.compiler.directories.DefaultIncludePath>
-        <armgcc.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
-            <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
-            <Value>../../..</Value>
-            <Value>../../../USB</Value>
-            <Value>../../../../../variants/arduino_zero</Value>
-            <Value>../../../../../libraries/SPI</Value>
-            <Value>../../../../../libraries/Wire</Value>
-          </ListValues>
-        </armgcc.compiler.directories.IncludePaths>
-        <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
-        <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <armgcc.compiler.optimization.PrepareDataForGarbageCollection>True</armgcc.compiler.optimization.PrepareDataForGarbageCollection>
-        <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
-        <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-        <armgcc.compiler.miscellaneous.OtherFlags>-std=c99</armgcc.compiler.miscellaneous.OtherFlags>
-        <armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
-        <armgcccpp.compiler.symbols.DefSymbols>
-          <ListValues>
-            <Value>DEBUG</Value>
-            <Value>USB_VID=0x2341</Value>
-            <Value>USB_PID=0x004d</Value>
-          </ListValues>
-        </armgcccpp.compiler.symbols.DefSymbols>
-        <armgcccpp.compiler.directories.DefaultIncludePath>False</armgcccpp.compiler.directories.DefaultIncludePath>
-        <armgcccpp.compiler.directories.IncludePaths>
-          <ListValues>
-            <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
-            <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
-            <Value>../../..</Value>
-            <Value>../../../USB</Value>
-            <Value>../../../../../variants/arduino_zero</Value>
-            <Value>../../../../../libraries/SPI</Value>
-            <Value>../../../../../libraries/Wire</Value>
-          </ListValues>
-        </armgcccpp.compiler.directories.IncludePaths>
-        <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
-        <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>
-        <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
-        <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-        <armgcccpp.compiler.miscellaneous.OtherFlags>-std=c++98</armgcccpp.compiler.miscellaneous.OtherFlags>
-        <armgcccpp.linker.general.UseNewlibNano>True</armgcccpp.linker.general.UseNewlibNano>
-        <armgcccpp.linker.libraries.Libraries>
-          <ListValues>
-            <Value>libm</Value>
-          </ListValues>
-        </armgcccpp.linker.libraries.Libraries>
-        <armgcccpp.linker.libraries.LibrarySearchPaths>
-          <ListValues>
-            <Value>../../../../../variants/arduino_zero/linker_scripts/gcc</Value>
-          </ListValues>
-        </armgcccpp.linker.libraries.LibrarySearchPaths>
-        <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-        <armgcccpp.linker.memorysettings.ExternalRAM />
-        <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
-        <armgcccpp.assembler.general.IncludePaths>
-          <ListValues>
-            <Value>../../..</Value>
-          </ListValues>
-        </armgcccpp.assembler.general.IncludePaths>
-        <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
-        <armgcccpp.preprocessingassembler.general.DefaultIncludePath>False</armgcccpp.preprocessingassembler.general.DefaultIncludePath>
-        <armgcccpp.preprocessingassembler.general.IncludePaths>
-          <ListValues>
-            <Value>../../..</Value>
-          </ListValues>
-        </armgcccpp.preprocessingassembler.general.IncludePaths>
-        <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
-      </ArmGccCpp>
+  <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
+  <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
+  <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
+  <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
+  <armgcc.common.outputfiles.srec>True</armgcc.common.outputfiles.srec>
+  <armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <armgcc.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+    </ListValues>
+  </armgcc.compiler.symbols.DefSymbols>
+  <armgcc.compiler.directories.DefaultIncludePath>False</armgcc.compiler.directories.DefaultIncludePath>
+  <armgcc.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
+      <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
+      <Value>../../..</Value>
+      <Value>../../../USB</Value>
+      <Value>../../../../../variants/arduino_zero</Value>
+      <Value>../../../../../libraries/SPI</Value>
+      <Value>../../../../../libraries/Wire</Value>
+    </ListValues>
+  </armgcc.compiler.directories.IncludePaths>
+  <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <armgcc.compiler.optimization.PrepareDataForGarbageCollection>True</armgcc.compiler.optimization.PrepareDataForGarbageCollection>
+  <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
+  <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
+  <armgcc.compiler.miscellaneous.OtherFlags>-std=c99</armgcc.compiler.miscellaneous.OtherFlags>
+  <armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
+  <armgcccpp.compiler.symbols.DefSymbols>
+    <ListValues>
+      <Value>DEBUG</Value>
+      <Value>USB_VID=0x2341</Value>
+      <Value>USB_PID=0x004d</Value>
+    </ListValues>
+  </armgcccpp.compiler.symbols.DefSymbols>
+  <armgcccpp.compiler.directories.DefaultIncludePath>False</armgcccpp.compiler.directories.DefaultIncludePath>
+  <armgcccpp.compiler.directories.IncludePaths>
+    <ListValues>
+      <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
+      <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
+      <Value>../../..</Value>
+      <Value>../../../USB</Value>
+      <Value>../../../../../variants/arduino_zero</Value>
+      <Value>../../../../../libraries/SPI</Value>
+      <Value>../../../../../libraries/Wire</Value>
+    </ListValues>
+  </armgcccpp.compiler.directories.IncludePaths>
+  <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
+  <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
+  <armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>
+  <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
+  <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
+  <armgcccpp.compiler.miscellaneous.OtherFlags>-std=c++98</armgcccpp.compiler.miscellaneous.OtherFlags>
+  <armgcccpp.linker.libraries.Libraries>
+    <ListValues>
+      <Value>libm</Value>
+    </ListValues>
+  </armgcccpp.linker.libraries.Libraries>
+  <armgcccpp.linker.libraries.LibrarySearchPaths>
+    <ListValues>
+      <Value>../../../../../variants/arduino_zero/linker_scripts/gcc</Value>
+    </ListValues>
+  </armgcccpp.linker.libraries.LibrarySearchPaths>
+  <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+  <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+  <armgcccpp.linker.memorysettings.ExternalRAM />
+  <armgcccpp.assembler.general.IncludePaths>
+    <ListValues>
+      <Value>../../..</Value>
+    </ListValues>
+  </armgcccpp.assembler.general.IncludePaths>
+  <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
+  <armgcccpp.preprocessingassembler.general.DefaultIncludePath>False</armgcccpp.preprocessingassembler.general.DefaultIncludePath>
+  <armgcccpp.preprocessingassembler.general.IncludePaths>
+    <ListValues>
+      <Value>../../..</Value>
+    </ListValues>
+  </armgcccpp.preprocessingassembler.general.IncludePaths>
+  <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
+</ArmGccCpp>
     </ToolchainSettings>
   </PropertyGroup>
   <ItemGroup>
@@ -391,6 +390,10 @@
       <SubType>compile</SubType>
       <Link>core\wiring.h</Link>
     </Compile>
+    <Compile Include="..\..\wiring_analog.c">
+      <SubType>compile</SubType>
+      <Link>core\wiring_analog.c</Link>
+    </Compile>
     <Compile Include="..\..\wiring_analog.h">
       <SubType>compile</SubType>
       <Link>core\wiring_analog.h</Link>
@@ -460,10 +463,6 @@
     <None Include="..\..\WInterrupts.c.disabled">
       <SubType>compile</SubType>
       <Link>core\WInterrupts.c.disabled</Link>
-    </None>
-    <None Include="..\..\wiring_analog.c.disabled">
-      <SubType>compile</SubType>
-      <Link>core\wiring_analog.c.disabled</Link>
     </None>
     <None Include="..\..\wiring_digital.c.old">
       <SubType>compile</SubType>
