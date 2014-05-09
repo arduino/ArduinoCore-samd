@@ -8,6 +8,9 @@ GNU Make from http://gnuwin32.sourceforge.net/packages/make.htm
   Binaries http://gnuwin32.sourceforge.net/downlinks/make-bin-zip.php
 	Dependencies http://gnuwin32.sourceforge.net/downlinks/make-dep-zip.php
 
+GNU rm from http://gnuwin32.sourceforge.net/packages/coreutils.htm
+  Binaries http://gnuwin32.sourceforge.net/downlinks/coreutils-bin-zip.php
+
 *MacOS*
 
 *Linux*
@@ -21,29 +24,7 @@ ARM_GCC_TOOLCHAIN=C:\GNU Tools ARM Embedded_4.8 2013q4\bin
 
 Add to PATH the path were Make has been installed
 
-3- Compile libarduino (Arduino API)
-
-Go to hardware/arduino/samd/cores/arduino/build_gcc
-
-run the command: 'make'
-
-This will compile the libarduino library and deliver to main Arduino folder the files:
-
-hardware/arduino/samd/cores/arduino/libarduino_arduino_zero_gcc_dbg.a
-hardware/arduino/samd/cores/arduino/libarduino_arduino_zero_gcc_dbg.a.txt (result of nm)
-
-4- Compile libvariant (variant specific library, use Arduino API and libsam)
-
-Go to hardware/sam/variants/arduino_zero/build_gcc
-
-run the command: 'make'
-
-This will compile the libvariant library and deliver to main Arduino folder the files:
-
-hardware/arduino/samd/cores/arduino/libvariant_arduino_zero_gcc_dbg.a
-hardware/arduino/samd/cores/arduino/libvariant_arduino_zero_gcc_dbg.a.txt (result of nm)
-
-5- Compile test application
+3- Compile test application
 
 Go to hardware/arduino/samd/cores/arduino/validation/build_gcc
 

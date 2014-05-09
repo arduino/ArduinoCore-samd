@@ -22,27 +22,27 @@
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | Digital Low      |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 0          | 0 -> RX          |  PA10  |                 | EIC/EXTINT[10] ADC/AIN[18] *SERCOM0/PAD[2] TCC1/WO[0] TCC0/WO[2]
- * | 1          | 1 <- TX          |  PA11  |                 | EIC/EXTINT[11] ADC/AIN[19] *SERCOM0/PAD[3] SERCOM2/PAD[3] TCC1/WO[1] TCC0/WO[3]
- * | 2          | ~2               |  PA08  |                 | EIC/NMI ADC/AIN[16] SERCOM0/PAD[0] SERCOM2/PAD[0] *TCC0/WO[0] TCC1/WO[2]
- * | 3          | ~3               |  PA09  |                 | EIC/EXTINT[9] ADC/AIN[17] SERCOM0/PAD[1] SERCOM2/PAD[1] *TCC0/WO[1] TCC1/WO[3]
+ * | 0          | 0 -> RX          |  PA10  |                 | EIC/EXTINT[10] ADC/AIN[18] PTC/X[2] *SERCOM0/PAD[2] TCC1/WO[0] TCC0/WO[2]
+ * | 1          | 1 <- TX          |  PA11  |                 | EIC/EXTINT[11] ADC/AIN[19] PTC/X[3] *SERCOM0/PAD[3] SERCOM2/PAD[3] TCC1/WO[1] TCC0/WO[3]
+ * | 2          | ~2               |  PA08  |                 | EIC/NMI ADC/AIN[16] PTC/X[0] SERCOM0/PAD[0] SERCOM2/PAD[0] *TCC0/WO[0] TCC1/WO[2]
+ * | 3          | ~3               |  PA09  |                 | EIC/EXTINT[9] ADC/AIN[17] PTC/X[1] SERCOM0/PAD[1] SERCOM2/PAD[1] *TCC0/WO[1] TCC1/WO[3]
  * | 4          | ~4               |  PA14  |                 | EIC/EXTINT[14] SERCOM2/PAD[2] SERCOM4/PAD[2] TC3/WO[0] *TCC0/WO[4]
  * | 5          | ~5               |  PA15  |                 | EIC/EXTINT[15] SERCOM2/PAD[3] SERCOM4/PAD[3] TC3/WO[1] *TCC0/WO[5]
- * | 6          | ~6               |  PA20  |                 | EIC/EXTINT[4] SERCOM5/PAD[2] SERCOM3/PAD[2] TC7/WO[0] *TCC0/WO[6]
- * | 7          | ~7               |  PA21  |                 | EIC/EXTINT[5] SERCOM5/PAD[3] SERCOM3/PAD[3] TC7/WO[1] *TCC0/WO[7]
+ * | 6          | ~6               |  PA20  |                 | EIC/EXTINT[4] PTC/X[8] SERCOM5/PAD[2] SERCOM3/PAD[2] TC7/WO[0] *TCC0/WO[6]
+ * | 7          | ~7               |  PA21  |                 | EIC/EXTINT[5] PTC/X[9] SERCOM5/PAD[3] SERCOM3/PAD[3] TC7/WO[1] *TCC0/WO[7]
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | Digital High     |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 8          | ~8               |  PA06  |                 | EIC/EXTINT[6] ADC/AIN[6] AC/AIN[2] SERCOM0/PAD[2] *TCC1/WO[0]
- * | 9          | ~9               |  PA07  |                 | EIC/EXTINT[7] ADC/AIN[7] AC/AIN[3] SERCOM0/PAD[3] *TCC1/WO[1]
- * | 10         | ~10              |  PA18  |                 | EIC/EXTINT[2] SERCOM1/PAD[2] SERCOM3/PAD[2] *TC3/WO[0] TCC0/WO[2]
- * | 11         | ~11              |  PA16  |                 | EIC/EXTINT[0] SERCOM1/PAD[0] SERCOM3/PAD[0] *TCC2/WO[0] TCC0/WO[6]
- * | 12         | ~12              |  PA19  |                 | EIC/EXTINT[3] SERCOM1/PAD[3] SERCOM3/PAD[3] *TC3/WO[1] TCC0/WO[3]
- * | 13         | ~13              |  PA17  | LED             | EIC/EXTINT[1] SERCOM1/PAD[1] SERCOM3/PAD[1] *TCC2/WO[1] TCC0/WO[7]
+ * | 8          | ~8               |  PA06  |                 | EIC/EXTINT[6] PTC/Y[4] ADC/AIN[6] AC/AIN[2] SERCOM0/PAD[2] *TCC1/WO[0]
+ * | 9          | ~9               |  PA07  |                 | EIC/EXTINT[7] PTC/Y[5] DC/AIN[7] AC/AIN[3] SERCOM0/PAD[3] *TCC1/WO[1]
+ * | 10         | ~10              |  PA18  |                 | EIC/EXTINT[2] PTC/X[6] SERCOM1/PAD[2] SERCOM3/PAD[2] *TC3/WO[0] TCC0/WO[2]
+ * | 11         | ~11              |  PA16  |                 | EIC/EXTINT[0] PTC/X[4] SERCOM1/PAD[0] SERCOM3/PAD[0] *TCC2/WO[0] TCC0/WO[6]
+ * | 12         | ~12              |  PA19  |                 | EIC/EXTINT[3] PTC/X[7] SERCOM1/PAD[3] SERCOM3/PAD[3] *TC3/WO[1] TCC0/WO[3]
+ * | 13         | ~13              |  PA17  | LED             | EIC/EXTINT[1] PTC/X[5] SERCOM1/PAD[1] SERCOM3/PAD[1] *TCC2/WO[1] TCC0/WO[7]
  * | 14         | GND              |        |                 |
- * | 15         | AREF             |  PA03  |                 | *DAC/VREFP
- * | 16         | SDA              |  PA22  |                 | EIC/EXTINT[6] *SERCOM3/PAD[0] SERCOM5/PAD[0] TC4/WO[0] TCC0/WO[4]
- * | 17         | SCL              |  PA23  |                 | EIC/EXTINT[7] *SERCOM3/PAD[1] SERCOM5/PAD[1] TC4/WO[1] TCC0/WO[5]
+ * | 15         | AREF             |  PA03  |                 | *DAC/VREFP PTC/Y[1]
+ * | 16         | SDA              |  PA22  |                 | EIC/EXTINT[6] PTC/X[10] *SERCOM3/PAD[0] SERCOM5/PAD[0] TC4/WO[0] TCC0/WO[4]
+ * | 17         | SCL              |  PA23  |                 | EIC/EXTINT[7] PTC/X[11] *SERCOM3/PAD[1] SERCOM5/PAD[1] TC4/WO[1] TCC0/WO[5]
  * +------------+------------------+--------+-----------------+------------------------------
  * |            |SPI (Legacy ICSP) |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
@@ -55,12 +55,12 @@
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | Analog Connector |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 24         | A0               |  PA02  |                 | EIC/EXTINT[2] *DAC/VOUT
- * | 25         | A1               |  PB08  |                 | EIC/EXTINT[8] *ADC/AIN[2] SERCOM4/PAD[0] TC4/WO[0]
- * | 26         | A2               |  PB09  |                 | EIC/EXTINT[9] *ADC/AIN[3] SERCOM4/PAD[1] TC4/WO[1]
- * | 27         | A3               |  PA04  |                 | EIC/EXTINT[4] *ADC/AIN[4] AC/AIN[0] SERCOM0/PAD[0] TCC0/WO[0]
- * | 28         | A4               |  PA05  |                 | EIC/EXTINT[5] *ADC/AIN[5] AC/AIN[1] SERCOM0/PAD[1] TCC0/WO[1]
- * | 29         | A5               |  PB02  |                 | EIC/EXTINT[2] *ADC/AIN[10] SERCOM5/PAD[0] TC6/WO[0]
+ * | 24         | A0               |  PA02  |                 | EIC/EXTINT[2] PTC/Y[0] *DAC/VOUT
+ * | 25         | A1               |  PB08  |                 | EIC/EXTINT[8] *ADC/AIN[2] PTC/Y[14] SERCOM4/PAD[0] TC4/WO[0]
+ * | 26         | A2               |  PB09  |                 | EIC/EXTINT[9] *ADC/AIN[3] PTC/Y[15] SERCOM4/PAD[1] TC4/WO[1]
+ * | 27         | A3               |  PA04  |                 | EIC/EXTINT[4] *ADC/AIN[4] AC/AIN[0] PTC/Y[2] SERCOM0/PAD[0] TCC0/WO[0]
+ * | 28         | A4               |  PA05  |                 | EIC/EXTINT[5] *ADC/AIN[5] AC/AIN[1] PTC/Y[5] SERCOM0/PAD[1] TCC0/WO[1]
+ * | 29         | A5               |  PB02  |                 | EIC/EXTINT[2] *ADC/AIN[10] PTC/Y[8] SERCOM5/PAD[0] TC6/WO[0]
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | LEDs             |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
