@@ -66,13 +66,23 @@ int Uart::read()
 	return rxBuffer.read_char();
 }
 
-size_t Uart::write(uint8_t data)
+size_t Uart::write(const uint8_t data)
 {
-	if(txBuffer.isFull())
-		return 0;
-		
-	txBuffer.store_char(data);
+	sercom->writeDataUART(data);
 	return 1;
+}
+
+size_t Uart::write(const char * data)
+{
+	size_t writed = 0;
+	
+	while(*data != '\0')
+	{
+		writed += write(*data);
+		++data;
+	}
+	
+	return writed;
 }
 
 SercomNumberStopBit Uart::extractNbStopBit(uint8_t config)
@@ -125,3 +135,8 @@ SercomParityMode Uart::extractParity(uint8_t config)
 }
 
 Uart Serial = Uart(SERCOM::sercom0);
+
+void SERCOM0_Handler()
+{
+	Serial.IrqHandler();
+}

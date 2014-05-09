@@ -19,7 +19,8 @@ class Uart : public HardwareSerial
 		int peek();
 		int read();
 		void flush();
-		size_t write(const uint8_t c);
+		size_t write(const uint8_t data);
+		size_t write(const char * data);
 
 		void IrqHandler();
 

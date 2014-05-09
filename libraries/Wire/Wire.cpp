@@ -347,9 +347,9 @@ void TwoWire::onService(void)
 }*/
 
 
-TwoWire Wire = TwoWire(SERCOM::sercom3);
+TwoWire Wire(SERCOM::sercom3);
 
-void WIRE_ISR_HANDLER(void) {
+void SERCOM3_Handler(void) {
 	Wire.onService();
 }
 
