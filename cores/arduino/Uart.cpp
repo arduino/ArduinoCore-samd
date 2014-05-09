@@ -4,6 +4,8 @@
 Uart::Uart(SERCOM *sercom)
 {
 	this->sercom = sercom;
+	pinPeripheral(0, PIO_SERCOM);
+	pinPeripheral(1, PIO_SERCOM);
 }
 
 void Uart::begin(unsigned long baudrate)
@@ -15,7 +17,8 @@ void Uart::begin(unsigned long baudrate, uint8_t config)
 {
 	sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
 	sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
-	sercom->initPads(UART_TX_PAD_0, SERCOM_RX_PAD_2);
+	sercom->initPads(UART_TX_PAD_2, SERCOM_RX_PAD_3);
+	
 	
 	sercom->enableUART();
 }
@@ -36,11 +39,6 @@ void Uart::IrqHandler()
 	if(sercom->availableDataUART())
 	{
 		rxBuffer.store_char(sercom->readDataUART());
-	}
-	
-	if(sercom->isDataRegisterEmptyUART())
-	{
-		sercom->writeDataUART(txBuffer.read_char());
 	}
 	
 	if(	sercom->isBufferOverflowErrorUART() ||
@@ -137,6 +135,10 @@ SercomParityMode Uart::extractParity(uint8_t config)
 Uart Serial = Uart(SERCOM::sercom0);
 
 void SERCOM0_Handler()
+{
+	Serial.IrqHandler();
+}
+void SERCOM5_Handler()
 {
 	Serial.IrqHandler();
 }

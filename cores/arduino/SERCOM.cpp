@@ -1,5 +1,12 @@
 #include "SERCOM.h"
 
+// Constants for Clock multiplexers
+#define GENERIC_CLOCK_SERCOM0	(0x14ul)
+#define GENERIC_CLOCK_SERCOM1	(0x15ul)
+#define GENERIC_CLOCK_SERCOM2	(0x16ul)
+#define GENERIC_CLOCK_SERCOM3	(0x17ul)
+#define GENERIC_CLOCK_SERCOM4	(0x18ul)
+#define GENERIC_CLOCK_SERCOM5	(0x19ul)
 
 SERCOM::SERCOM(Sercom* s)
 {
@@ -10,27 +17,23 @@ SERCOM::SERCOM(Sercom* s)
  *	===== Sercom UART
  *	=========================
 */
-// Constants for Clock multiplexers
-#define GENERIC_CLOCK_SERCOM0	(0x14ul)
-#define GENERIC_CLOCK_SERCOM1	(0x15ul)
-#define GENERIC_CLOCK_SERCOM2	(0x16ul)
-#define GENERIC_CLOCK_SERCOM3	(0x17ul)
-#define GENERIC_CLOCK_SERCOM4	(0x18ul)
-#define GENERIC_CLOCK_SERCOM5	(0x19ul)
 
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
-{
+{		
 	resetUART();
 	initClock();
+	
 	
 	//Setting the CTRLA register
 	sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
 								SERCOM_USART_CTRLA_SAMPR(sampleRate);
 
 	//Setting the Interrupt register
-	sercom->USART.INTENSET.reg =	SERCOM_USART_INTENSET_DRE |  //Data Register Empty
-									SERCOM_USART_INTENSET_RXC |  //Received complete
+	sercom->USART.INTENSET.reg =	SERCOM_USART_INTENSET_RXC |  //Received complete
 									SERCOM_USART_INTENSET_ERROR; //All others errors
+									
+	NVIC_EnableIRQ(SERCOM0_IRQn);
+	NVIC_SetPriority (SERCOM0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority for Systick Interrupt */
 	
 	if(mode == UART_INT_CLOCK)
 	{
@@ -45,11 +48,11 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 		
 		//Asynchronous arithmetic mode
 		//sercom->USART.BAUD.reg = 65535 * ( 1 - sampleRateValue * division(baudrate,SERCOM_FREQ_REF));
-		int tmpBaud = (baudrate / SERCOM_FREQ_REF);
+		uint16_t tmpBaud = (baudrate / SERCOM_FREQ_REF);
 		tmpBaud = ( 1 - sampleRateValue * tmpBaud);
 		tmpBaud = (65535ul) * tmpBaud;
 		
-		tmpBaud = 40369;
+		tmpBaud = 63019;
 		sercom->USART.BAUD.reg = tmpBaud;
 	}
 }
@@ -338,47 +341,6 @@ uint32_t SERCOM::division(uint32_t dividend, uint32_t divisor)
     //return answer;
 }
 
-void SERCOM::initClock()
-{
-	uint8_t clockId;
-	
-	if(sercom == SERCOM0)
-	{
-		clockId = GENERIC_CLOCK_SERCOM0;
-	}
-	else if(sercom == SERCOM1)
-	{
-		clockId = GENERIC_CLOCK_SERCOM1;
-	}
-	else if(sercom == SERCOM2)
-	{
-		clockId = GENERIC_CLOCK_SERCOM2;
-	}
-	else if(sercom == SERCOM3)
-	{
-		clockId = GENERIC_CLOCK_SERCOM3;
-	}
-	else if(sercom == SERCOM4)
-	{
-		clockId = GENERIC_CLOCK_SERCOM4;
-	}
-	else if(sercom == SERCOM5)
-	{
-		clockId = GENERIC_CLOCK_SERCOM5;
-	}
-	
-	//Setting clock
-	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOM0)
-	                    GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-	                    GCLK_CLKCTRL_CLKEN ;
-						
-
-	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
-	{
-		/* Wait for synchronization */
-	}
-}
-
 
 /*	=========================
  *	===== Sercom WIRE
@@ -570,6 +532,48 @@ uint8_t SERCOM::readDataWIRE()
 		return sercom->I2CM.DATA.reg;
 	else
 		return sercom->I2CS.DATA.reg;
+}
+
+
+void SERCOM::initClock()
+{
+	uint8_t clockId;
+	
+	if(sercom == SERCOM0)
+	{
+		clockId = GENERIC_CLOCK_SERCOM0;
+	}
+	else if(sercom == SERCOM1)
+	{
+		clockId = GENERIC_CLOCK_SERCOM1;
+	}
+	else if(sercom == SERCOM2)
+	{
+		clockId = GENERIC_CLOCK_SERCOM2;
+	}
+	else if(sercom == SERCOM3)
+	{
+		clockId = GENERIC_CLOCK_SERCOM3;
+	}
+	else if(sercom == SERCOM4)
+	{
+		clockId = GENERIC_CLOCK_SERCOM4;
+	}
+	else if(sercom == SERCOM5)
+	{
+		clockId = GENERIC_CLOCK_SERCOM5;
+	}
+	
+	//Setting clock
+	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
+	GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+	GCLK_CLKCTRL_CLKEN ;
+	
+
+	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+	{
+		/* Wait for synchronization */
+	}
 }
 
 /*	=========================

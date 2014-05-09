@@ -61,10 +61,10 @@ typedef enum
 
 typedef enum
 {
-	UART_TX_PAD_0 = 0,	//Only for Intern Clock
-	UART_TX_PAD_1 = 0,	//Only for Extern Clock
-	UART_TX_PAD_2 = 1,  //Only for Intern Clock
-	UART_TX_PAD_3 = 1	//Only for Extern Clock
+	UART_TX_PAD_0 = 0x0ul,	//Only for UART
+	UART_TX_PAD_2 = 0x1ul,  //Only for UART
+	//UART_TX_PAD_1 = 0x0ul,	//DON'T USE
+	//UART_TX_PAD_3 = 0x1ul	//DON'T USE
 } SercomUartTXPad;
 
 typedef enum

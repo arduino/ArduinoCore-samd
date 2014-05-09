@@ -1,6 +1,8 @@
 #ifndef _SERCOM_UART_CLASS
 #define _SERCOM_UART_CLASS
 
+#include "wiring_digital.h"
+
 #include "HardwareSerial.h"
 #include "SERCOM.h"
 #include "RingBuffer.h"
@@ -29,7 +31,6 @@ class Uart : public HardwareSerial
 	private:
 		SERCOM *sercom;
 		RingBuffer rxBuffer;
-		RingBuffer txBuffer;
 
 		SercomNumberStopBit extractNbStopBit(uint8_t config);
 		SercomUartCharSize extractCharSize(uint8_t config);
