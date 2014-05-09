@@ -127,7 +127,7 @@ typedef enum
 class SERCOM
 {
 	public:
-		SERCOM(Sercom* sercom);
+		SERCOM(Sercom* s);
 		
 		/* ========== SERCOM OBJECT ========== */
 		static SERCOM * sercom0;
@@ -156,7 +156,7 @@ class SERCOM
         
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder);
-		void initClock(SercomSpiClockMode clockMode, uint32_t baudrate);
+		void initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate);
 		
 		void resetSPI();
 		void enableSPI();
@@ -198,6 +198,7 @@ class SERCOM
 		Sercom* sercom;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 		uint32_t division(uint32_t dividend, uint32_t divisor);
+		void initClock();
 };
 
 #endif
