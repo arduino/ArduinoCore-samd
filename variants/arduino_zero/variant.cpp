@@ -73,12 +73,17 @@
  * | 33         |                  |  PA24  | USB_NEGATIVE    | USB/DM
  * | 34         |                  |  PA25  | USB_POSITIVE    | USB/DP
  * +------------+------------------+--------+-----------------+------------------------------
+ * | 35         | CDC_UART TX      |  PB22  |                 | *SERCOM5/PAD[2]
+ * | 36         | CDC_UART RX      |  PB23  |                 | *SERCOM5/PAD[3]
+ * +------------+------------------+--------+-----------------+------------------------------
  * |            |32.768KHz Crystal |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
  * |            |                  |  PA00  | XIN32           | EXTINT[0] SERCOM1/PAD[0] TCC2/WO[0]
  * |            |                  |  PA01  | XOUT32          | EXTINT[1] SERCOM1/PAD[1] TCC2/WO[1]
  * +------------+------------------+--------+-----------------+------------------------------
  */
+PB22_S5_CDC_TX
+PB23_S5_CDC_RX
 
 #include "variant.h"
 
@@ -89,9 +94,9 @@ const PinDescription g_APinDescription[]=
 {
   // 0 .. 19 - Digital pins
   // ----------------------
-  // 0/1 - SERCOM/UART (Serial)
-  { PORTA, 10, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // RX: SERCOM0/PAD[2]
-  { PORTA, 11, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // TX: SERCOM0/PAD[3]
+  // 0/1 - SERCOM/UART (Serial1)
+  { PORTA, 10, PIO_SERCOM, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // RX: SERCOM0/PAD[2]
+  { PORTA, 11, PIO_SERCOM, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // TX: SERCOM0/PAD[3]
 
 	// 2..12
 	{ PORTA,  8, PIO_TIMER, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, PWM0_CH0, TCC0_CH0 }, // TCC0/WO[0]
@@ -148,4 +153,9 @@ const PinDescription g_APinDescription[]=
 	{ PORTA, 24, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // USB/DM
 	{ PORTA, 25, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // USB/DP
 
+  // 35 .. 36 - EDBG
+  // ----------------------
+  // 35/36 - SERCOM/UART (Serial)
+  { PORTB, 22, PIO_SERCOM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // TX: SERCOM5/PAD[2]
+  { PORTB, 23, PIO_SERCOM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // RX: SERCOM5/PAD[3]
 } ;
