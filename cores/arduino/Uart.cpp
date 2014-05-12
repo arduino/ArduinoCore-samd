@@ -1,5 +1,6 @@
 #include "Uart.h"
-
+#include "WVariant.h"
+#include "wiring_digital.h"
 
 Uart::Uart(SERCOM *s, uint8_t pinRX, uint8_t pinTX)
 {

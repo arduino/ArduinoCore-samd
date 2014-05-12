@@ -536,35 +536,35 @@ void SERCOM::initClock()
 
 void SERCOM::initNVIC()
 {
-		IRQn_Type nvicID;
+		IRQn_Type Id;
 		
 		if(sercom == SERCOM0)
 		{
-			nvicID = SERCOM0_IRQn;
+			Id = SERCOM0_IRQn;
 		}
 		else if(sercom == SERCOM1)
 		{
-			nvicID = SERCOM1_IRQn;
+			Id = SERCOM1_IRQn;
 		}
 		else if(sercom == SERCOM2)
 		{
-			nvicID = SERCOM2_IRQn;
+			Id = SERCOM2_IRQn;
 		}
 		else if(sercom == SERCOM3)
 		{
-			nvicID = SERCOM3_IRQn;
+			Id = SERCOM3_IRQn;
 		}
 		else if(sercom == SERCOM4)
 		{
-			nvicID = SERCOM4_IRQn;
+			Id = SERCOM4_IRQn;
 		}
 		else if(sercom == SERCOM5)
 		{
-			nvicID = SERCOM5_IRQn;
+			Id = SERCOM5_IRQn;
 		}
 		
-	NVIC_EnableIRQ(nvicID);
-	NVIC_SetPriority (nvicID, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority for Systick Interrupt */
+	NVIC_EnableIRQ(Id);
+	NVIC_SetPriority (Id, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
 }
 
 /*	=========================

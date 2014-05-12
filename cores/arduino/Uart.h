@@ -1,8 +1,6 @@
 #ifndef _SERCOM_UART_CLASS
 #define _SERCOM_UART_CLASS
 
-#include "wiring_digital.h"
-
 #include "HardwareSerial.h"
 #include "SERCOM.h"
 #include "RingBuffer.h"
@@ -36,6 +34,7 @@ class Uart : public HardwareSerial
 		SercomUartCharSize extractCharSize(uint8_t config);
 		SercomParityMode extractParity(uint8_t config);
 };
+
 extern Uart Serial;
 extern Uart Serial5;
 

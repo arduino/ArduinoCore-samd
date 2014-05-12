@@ -45,9 +45,7 @@ void setup( void )
 
 //**********************************************
 
-/*
-  Serial1.begin( 115200 ) ;
-*/
+  Serial.begin( 115200 ) ;
 }
 
 static void led_step1( void )
@@ -81,7 +79,8 @@ void loop( void )
 
   // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pin !!!!
   pin_value=digitalRead( 2 ) ;
-  Serial.write( "pin 2 value is %s\n", (pin_value == LOW)?"LOW":"HIGH" ) ;
+  Serial.write( "pin 2 value is " ) ;
+  Serial.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
   delay( 1000 ) ;              // wait for a second
 
 
