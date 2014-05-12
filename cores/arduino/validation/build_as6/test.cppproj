@@ -223,18 +223,18 @@
     <Folder Include="variant" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\libraries\SPI\SPI.cpp">
+    <Compile Include="..\..\..\..\libraries\SPI\SPI.cpp">
       <SubType>compile</SubType>
       <Link>SPI\SPI.cpp</Link>
-    </None>
+    </Compile>
     <Compile Include="..\..\..\..\libraries\SPI\SPI.h">
       <SubType>compile</SubType>
       <Link>SPI\SPI.h</Link>
     </Compile>
-    <None Include="..\..\..\..\libraries\Wire\Wire.cpp">
+    <Compile Include="..\..\..\..\libraries\Wire\Wire.cpp">
       <SubType>compile</SubType>
       <Link>Wire\Wire.cpp</Link>
-    </None>
+    </Compile>
     <Compile Include="..\..\..\..\libraries\Wire\Wire.h">
       <SubType>compile</SubType>
       <Link>Wire\Wire.h</Link>
