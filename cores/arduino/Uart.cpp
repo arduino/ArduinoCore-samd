@@ -1,16 +1,24 @@
 #include "Uart.h"
 
 
-Uart::Uart(SERCOM *sercom)
+Uart::Uart(SERCOM *s, uint8_t pinRX, uint8_t pinTX)
 {
-	this->sercom = sercom;
-	pinPeripheral(0, PIO_SERCOM);
-	pinPeripheral(1, PIO_SERCOM);
+	sercom = s;
+	if(sercom == SERCOM::sercom0)
+	{
+		pinPeripheral(pinRX, g_APinDescription[pinRX].ulPinType);
+		pinPeripheral(pinTX, g_APinDescription[pinTX].ulPinType);	
+	}
+	else if(sercom == SERCOM::sercom5)
+	{
+		pinPeripheral(pinRX, g_APinDescription[pinRX].ulPinType);
+		pinPeripheral(pinTX, g_APinDescription[pinTX].ulPinType);
+	}
 }
 
 void Uart::begin(unsigned long baudrate)
 {
-	begin(baudrate, SERIAL_8N1);
+	begin(baudrate, (uint8_t)SERIAL_8N1);
 }
 
 void Uart::begin(unsigned long baudrate, uint8_t config)
@@ -132,7 +140,8 @@ SercomParityMode Uart::extractParity(uint8_t config)
 	}
 }
 
-Uart Serial = Uart(SERCOM::sercom0);
+Uart Serial = Uart(SERCOM::sercom0, 0, 1);
+Uart Serial5 = Uart(SERCOM::sercom5, 36, 35);
 
 void SERCOM0_Handler()
 {
@@ -140,5 +149,5 @@ void SERCOM0_Handler()
 }
 void SERCOM5_Handler()
 {
-	Serial.IrqHandler();
+	Serial5.IrqHandler();
 }

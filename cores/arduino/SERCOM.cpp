@@ -17,12 +17,11 @@ SERCOM::SERCOM(Sercom* s)
  *	===== Sercom UART
  *	=========================
 */
-
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {		
 	resetUART();
 	initClock();
-	
+	initNVIC();
 	
 	//Setting the CTRLA register
 	sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
@@ -32,12 +31,10 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 	sercom->USART.INTENSET.reg =	SERCOM_USART_INTENSET_RXC |  //Received complete
 									SERCOM_USART_INTENSET_ERROR; //All others errors
 									
-	NVIC_EnableIRQ(SERCOM0_IRQn);
-	NVIC_SetPriority (SERCOM0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority for Systick Interrupt */
 	
 	if(mode == UART_INT_CLOCK)
 	{
-		uint32_t sampleRateValue;	
+		uint16_t sampleRateValue;	
 		
 		if(sampleRate == SAMPLE_RATE_x16)
 			sampleRateValue = 16;
@@ -47,13 +44,9 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 			sampleRateValue = 3;
 		
 		//Asynchronous arithmetic mode
-		//sercom->USART.BAUD.reg = 65535 * ( 1 - sampleRateValue * division(baudrate,SERCOM_FREQ_REF));
-		uint16_t tmpBaud = (baudrate / SERCOM_FREQ_REF);
-		tmpBaud = ( 1 - sampleRateValue * tmpBaud);
-		tmpBaud = (65535ul) * tmpBaud;
+		//65535 * ( 1 - sampleRateValue * baudrate / SERCOM_FREQ_REF);
+		sercom->USART.BAUD.reg = 65535.0 * ( 1.0 - (float)(sampleRateValue) * (float)(baudrate) / (float)(SERCOM_FREQ_REF));
 		
-		tmpBaud = 63019;
-		sercom->USART.BAUD.reg = tmpBaud;
 	}
 }
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
@@ -303,42 +296,7 @@ bool SERCOM::isReceiveCompleteSPI()
 
 uint8_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
 {
-	return division(SERCOM_FREQ_REF, (2 * baudrate)) - 1;
-}
-
-
-uint32_t SERCOM::division(uint32_t dividend, uint32_t divisor)
-{
-	//// division WITHOUT division operator
-	//
-    //uint32_t denom = divisor;
-    //uint32_t current = 1;
-    //uint32_t answer = 0;
-//
-    //if ( denom > dividend) 
-        //return 0;
-//
-    //if ( denom == dividend)
-        //return 1;
-//
-    //while (denom <= dividend) {
-        //denom <<= 1;
-        //current <<= 1;
-    //}
-//
-    //denom >>= 1;
-    //current >>= 1;
-//
-    //while (current!=0) {
-        //if ( dividend >= denom) {
-            //dividend -= denom;
-            //answer |= current;
-        //}
-        //current >>= 1;
-        //denom >>= 1;
-    //}
-	//
-    //return answer;
+	return SERCOM_FREQ_REF / (2 * baudrate) - 1;
 }
 
 
@@ -537,7 +495,7 @@ uint8_t SERCOM::readDataWIRE()
 
 void SERCOM::initClock()
 {
-	uint8_t clockId;
+	uint8_t clockId = 0;
 	
 	if(sercom == SERCOM0)
 	{
@@ -574,6 +532,39 @@ void SERCOM::initClock()
 	{
 		/* Wait for synchronization */
 	}
+}
+
+void SERCOM::initNVIC()
+{
+		IRQn_Type nvicID;
+		
+		if(sercom == SERCOM0)
+		{
+			nvicID = SERCOM0_IRQn;
+		}
+		else if(sercom == SERCOM1)
+		{
+			nvicID = SERCOM1_IRQn;
+		}
+		else if(sercom == SERCOM2)
+		{
+			nvicID = SERCOM2_IRQn;
+		}
+		else if(sercom == SERCOM3)
+		{
+			nvicID = SERCOM3_IRQn;
+		}
+		else if(sercom == SERCOM4)
+		{
+			nvicID = SERCOM4_IRQn;
+		}
+		else if(sercom == SERCOM5)
+		{
+			nvicID = SERCOM5_IRQn;
+		}
+		
+	NVIC_EnableIRQ(nvicID);
+	NVIC_SetPriority (nvicID, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority for Systick Interrupt */
 }
 
 /*	=========================
