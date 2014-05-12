@@ -58,28 +58,28 @@ void init( void )
 //	PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
 
   // Clock SERCOM for Serial
-	PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5 ;
+  PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5 ;
 
   // Clock TC/TCC for Pulse and Analog
-	PM->APBCMASK.reg |= PM_APBCMASK_TCC0 | PM_APBCMASK_TCC1 | PM_APBCMASK_TCC2 | PM_APBCMASK_TC3 | PM_APBCMASK_TC4 | PM_APBCMASK_TC5 | PM_APBCMASK_TC6 | PM_APBCMASK_TC7 ;
+  PM->APBCMASK.reg |= PM_APBCMASK_TCC0 | PM_APBCMASK_TCC1 | PM_APBCMASK_TCC2 | PM_APBCMASK_TC3 | PM_APBCMASK_TC4 | PM_APBCMASK_TC5 | PM_APBCMASK_TC6 | PM_APBCMASK_TC7 ;
 
   // Clock ADC/DAC for Analog
-	PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
+  PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
 
-	// Setup all pins (digital and analog) in INPUT mode (default is nothing)
+  // Setup all pins (digital and analog) in INPUT mode (default is nothing)
 //	for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
-	{
+  {
 //	  pinMode( ul, INPUT ) ;
-	}
+  }
 
   // Initialize Serial port U(S)ART pins
-	// Todo
+  // Todo
 
   // Initialize USB pins
-	// Todo
+  // Todo
 
   // Initialize Analog Controller
-	// Todo
+  // Todo
 }
 
 #ifdef __cplusplus

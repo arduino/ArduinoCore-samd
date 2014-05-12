@@ -33,6 +33,9 @@ void setup( void )
   pinMode( PIN_LED3, OUTPUT ) ;
   digitalWrite( PIN_LED3, LOW ) ;
 
+  // Initialize the PIN 2 digital pin as an input.
+  pinMode( 2, INPUT ) ;
+
 //**********************************************
 // Clock output on pin 4 for measure
 
@@ -63,27 +66,38 @@ static void led_step2( void )
 
 void loop( void )
 {
+  volatile int pin_value=0 ;
+
+  // Test digitalWrite
   led_step1() ;
   delay( 1000 ) ;              // wait for a second
   led_step2() ;
   delay( 1000 ) ;              // wait for a second
 
+  // Test Serial output
 /*
-  Serial1.write( '-' ) ;   // send a char
-  Serial1.write( "test1\n" ) ;   // send a string
-  Serial1.write( "test2" ) ;   // send another string
+  Serial.write( '-' ) ;   // send a char
+  Serial.write( "test1\n" ) ;   // send a string
+  Serial.write( "test2" ) ;   // send another string
 */
 
+  // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pinZZ !!!!
+  pin_value=digitalRead( 2 ) ;
+//  Serial.write( "pin 2 value is %s\n", (pin_value == LOW)?"LOW":"HIGH" ) ;
+  delay( 1000 ) ;              // wait for a second
+
+
 /*
-  Serial1.print("Analog pins: ");
+  Serial.print("Analog pins: ");
 
   for ( int i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
     int a = analogRead(i);
-    Serial1.print(a, DEC);
-    Serial1.print(" ");
+    Serial.print(a, DEC);
+    Serial.print(" ");
   }
-  Serial1.println();
+  Serial.println();
   delay(100);
 */
+
 }
