@@ -61,10 +61,10 @@ typedef enum
 
 typedef enum
 {
-	UART_TX_PAD_0 = 0,	//Only for Intern Clock
-	UART_TX_PAD_1 = 0,	//Only for Extern Clock
-	UART_TX_PAD_2 = 1,  //Only for Intern Clock
-	UART_TX_PAD_3 = 1	//Only for Extern Clock
+	UART_TX_PAD_0 = 0x0ul,	//Only for UART
+	UART_TX_PAD_2 = 0x1ul,  //Only for UART
+	//UART_TX_PAD_1 = 0x0ul,	//DON'T USE
+	//UART_TX_PAD_3 = 0x1ul	//DON'T USE
 } SercomUartTXPad;
 
 typedef enum
@@ -76,10 +76,10 @@ typedef enum
 
 typedef enum
 {
-	SPI_MODE_0 = 0,	// CPOL : 0  | CPHA : 0
-	SPI_MODE_1,		// CPOL : 0  | CPHA : 1
-	SPI_MODE_2,		// CPOL : 1  | CPHA : 0
-	SPI_MODE_3		// CPOL : 1  | CPHA : 1
+	SERCOM_SPI_MODE_0 = 0,	// CPOL : 0  | CPHA : 0
+	SERCOM_SPI_MODE_1,		// CPOL : 0  | CPHA : 1
+	SERCOM_SPI_MODE_2,		// CPOL : 1  | CPHA : 0
+	SERCOM_SPI_MODE_3		// CPOL : 1  | CPHA : 1
 } SercomSpiClockMode;
 
 typedef enum
@@ -127,7 +127,15 @@ typedef enum
 class SERCOM
 {
 	public:
-		SERCOM(Sercom* sercom);
+		SERCOM(Sercom* s);
+		
+		/* ========== SERCOM OBJECT ========== */
+		static SERCOM * sercom0;
+		static SERCOM * sercom1;
+		static SERCOM * sercom2;
+		static SERCOM * sercom3;
+		static SERCOM * sercom4;
+		static SERCOM * sercom5;
 	    
 		/* ========== UART ========== */
 		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);
@@ -148,7 +156,7 @@ class SERCOM
         
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder);
-		void initClock(SercomSpiClockMode clockMode, uint32_t baudrate);
+		void initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate);
 		
 		void resetSPI();
 		void enableSPI();
@@ -190,6 +198,7 @@ class SERCOM
 		Sercom* sercom;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 		uint32_t division(uint32_t dividend, uint32_t divisor);
+		void initClock();
 };
 
 #endif

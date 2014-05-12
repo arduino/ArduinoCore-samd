@@ -1,46 +1,44 @@
-#include "SERCOMUart.h"
+#include "Uart.h"
 
 
-SERCOMUart::SERCOMUart(SERCOM *sercom)
+Uart::Uart(SERCOM *sercom)
 {
 	this->sercom = sercom;
+	pinPeripheral(0, PIO_SERCOM);
+	pinPeripheral(1, PIO_SERCOM);
 }
 
-void SERCOMUart::begin(uint16_t baudrate)
+void Uart::begin(unsigned long baudrate)
 {
 	begin(baudrate, SERIAL_8N1);
 }
 
-void SERCOMUart::begin(uint16_t baudrate, uint8_t config)
+void Uart::begin(unsigned long baudrate, uint8_t config)
 {
 	sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
 	sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
-	sercom->initPads(UART_TX_PAD_0, SERCOM_RX_PAD_2);
+	sercom->initPads(UART_TX_PAD_2, SERCOM_RX_PAD_3);
+	
 	
 	sercom->enableUART();
 }
 
-void SERCOMUart::end()
+void Uart::end()
 {
 	sercom->resetUART();
 	rxBuffer.clear();
 }
 
-void SERCOMUart::flush()
+void Uart::flush()
 {
 	sercom->flushUART();
 }
 
-void SERCOMUart::IrqHandler()
+void Uart::IrqHandler()
 {
 	if(sercom->availableDataUART())
 	{
 		rxBuffer.store_char(sercom->readDataUART());
-	}
-	
-	if(sercom->isDataRegisterEmptyUART())
-	{
-		sercom->writeDataUART(txBuffer.read_char());
 	}
 	
 	if(	sercom->isBufferOverflowErrorUART() ||
@@ -51,31 +49,41 @@ void SERCOMUart::IrqHandler()
 	}
 }
 
-int SERCOMUart::available()
+int Uart::available()
 {
 	return rxBuffer.available();
 }
 
-int SERCOMUart::peek()
+int Uart::peek()
 {
 	return rxBuffer.peek();
 }
 
-int SERCOMUart::read()
+int Uart::read()
 {
 	return rxBuffer.read_char();
 }
 
-size_t SERCOMUart::write(uint8_t data)
+size_t Uart::write(const uint8_t data)
 {
-	if(txBuffer.isFull())
-		return 0;
-		
-	txBuffer.store_char(data);
+	sercom->writeDataUART(data);
 	return 1;
 }
 
-SercomNumberStopBit SERCOMUart::extractNbStopBit(uint8_t config)
+size_t Uart::write(const char * data)
+{
+	size_t writed = 0;
+	
+	while(*data != '\0')
+	{
+		writed += write(*data);
+		++data;
+	}
+	
+	return writed;
+}
+
+SercomNumberStopBit Uart::extractNbStopBit(uint8_t config)
 {
 	switch(config & HARDSER_STOP_BIT_MASK)
 	{
@@ -88,7 +96,7 @@ SercomNumberStopBit SERCOMUart::extractNbStopBit(uint8_t config)
 	}
 }
 
-SercomUartCharSize SERCOMUart::extractCharSize(uint8_t config)
+SercomUartCharSize Uart::extractCharSize(uint8_t config)
 {
 	switch(config & HARDSER_DATA_MASK)
 	{
@@ -108,7 +116,7 @@ SercomUartCharSize SERCOMUart::extractCharSize(uint8_t config)
 	}
 }
 
-SercomParityMode SERCOMUart::extractParity(uint8_t config)
+SercomParityMode Uart::extractParity(uint8_t config)
 {
 	switch(config & HARDSER_PARITY_MASK)
 	{
@@ -124,3 +132,13 @@ SercomParityMode SERCOMUart::extractParity(uint8_t config)
 	}
 }
 
+Uart Serial = Uart(SERCOM::sercom0);
+
+void SERCOM0_Handler()
+{
+	Serial.IrqHandler();
+}
+void SERCOM5_Handler()
+{
+	Serial.IrqHandler();
+}

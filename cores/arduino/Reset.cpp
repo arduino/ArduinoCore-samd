@@ -29,7 +29,7 @@ static void banzai() {
 	__disable_irq();
 
   // Reset the device
-	// todo
+	NVIC_SystemReset() ;
 
 	while (true);
 }

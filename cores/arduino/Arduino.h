@@ -82,6 +82,7 @@ typedef void (*voidFuncPtr)( void ) ;
 #include "HardwareSerial.h"
 #include "wiring_pulse.h"
 #include "delay.h"
+#include "Uart.h"
 
 #endif // __cplusplus
 
