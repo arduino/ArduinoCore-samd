@@ -50,8 +50,8 @@ extern "C"{
 void yield( void ) ;
 
 /* sketch */
-extern void setup( void ) ;
-extern void loop( void ) ;
+void setup( void ) ;
+void loop( void ) ;
 
 #define NOT_AN_INTERRUPT -1
 
