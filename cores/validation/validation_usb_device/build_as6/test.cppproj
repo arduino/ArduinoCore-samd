@@ -79,9 +79,11 @@
           <ListValues>
             <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
             <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
-            <Value>../../..</Value>
-            <Value>../../../USB</Value>
+            <Value>../../../../arduino</Value>
+            <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
+            <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
         <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
@@ -96,9 +98,11 @@
           <ListValues>
             <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
             <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
-            <Value>../../..</Value>
-            <Value>../../../USB</Value>
+            <Value>../../../../arduino</Value>
+            <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
+            <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcccpp.compiler.directories.IncludePaths>
         <armgcccpp.compiler.optimization.level>Optimize for size (-Os)</armgcccpp.compiler.optimization.level>
@@ -120,9 +124,11 @@
           <ListValues>
             <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
             <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
-            <Value>../../..</Value>
-            <Value>../../../USB</Value>
+            <Value>../../../../arduino</Value>
+            <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
+            <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcccpp.preprocessingassembler.general.IncludePaths>
       </ArmGccCpp>
@@ -147,9 +153,11 @@
           <ListValues>
             <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
             <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
-            <Value>../../..</Value>
-            <Value>../../../USB</Value>
+            <Value>../../../../arduino</Value>
+            <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
+            <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
         <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -171,9 +179,11 @@
           <ListValues>
             <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
             <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
-            <Value>../../..</Value>
-            <Value>../../../USB</Value>
+            <Value>../../../../arduino</Value>
+            <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
+            <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcccpp.compiler.directories.IncludePaths>
         <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
@@ -198,14 +208,14 @@
         <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
         <armgcccpp.assembler.general.IncludePaths>
           <ListValues>
-            <Value>../../..</Value>
+            <Value>../../../arduino</Value>
           </ListValues>
         </armgcccpp.assembler.general.IncludePaths>
         <armgcccpp.assembler.debugging.DebugLevel>Default (-g)</armgcccpp.assembler.debugging.DebugLevel>
         <armgcccpp.preprocessingassembler.general.DefaultIncludePath>False</armgcccpp.preprocessingassembler.general.DefaultIncludePath>
         <armgcccpp.preprocessingassembler.general.IncludePaths>
           <ListValues>
-            <Value>../../..</Value>
+            <Value>../../../arduino</Value>
           </ListValues>
         </armgcccpp.preprocessingassembler.general.IncludePaths>
         <armgcccpp.preprocessingassembler.debugging.DebugLevel>Default (-Wa,-g)</armgcccpp.preprocessingassembler.debugging.DebugLevel>
@@ -214,7 +224,6 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="core" />
-    <Folder Include="core\validation_usb_device" />
     <Folder Include="core\USB" />
     <Folder Include="variant" />
   </ItemGroup>
@@ -231,268 +240,249 @@
       <SubType>compile</SubType>
       <Link>variant\variant.h</Link>
     </Compile>
-    <Compile Include="..\..\Arduino.h">
+    <Compile Include="..\..\..\arduino\Arduino.h">
       <SubType>compile</SubType>
       <Link>core\Arduino.h</Link>
     </Compile>
-    <Compile Include="..\..\binary.h">
+    <Compile Include="..\..\..\arduino\binary.h">
       <SubType>compile</SubType>
       <Link>core\binary.h</Link>
     </Compile>
-    <Compile Include="..\..\Client.h">
+    <Compile Include="..\..\..\arduino\Client.h">
       <SubType>compile</SubType>
       <Link>core\Client.h</Link>
     </Compile>
-    <Compile Include="..\..\delay.c">
+    <Compile Include="..\..\..\arduino\delay.c">
       <SubType>compile</SubType>
       <Link>core\delay.c</Link>
     </Compile>
-    <Compile Include="..\..\delay.h">
+    <Compile Include="..\..\..\arduino\delay.h">
       <SubType>compile</SubType>
       <Link>core\delay.h</Link>
     </Compile>
-    <Compile Include="..\..\HardwareSerial.h">
+    <Compile Include="..\..\..\arduino\HardwareSerial.h">
       <SubType>compile</SubType>
       <Link>core\HardwareSerial.h</Link>
     </Compile>
-    <Compile Include="..\..\hooks.c">
+    <Compile Include="..\..\..\arduino\hooks.c">
       <SubType>compile</SubType>
       <Link>core\hooks.c</Link>
     </Compile>
-    <Compile Include="..\..\IPAddress.cpp">
+    <Compile Include="..\..\..\arduino\IPAddress.cpp">
       <SubType>compile</SubType>
       <Link>core\IPAddress.cpp</Link>
     </Compile>
-    <Compile Include="..\..\IPAddress.h">
+    <Compile Include="..\..\..\arduino\IPAddress.h">
       <SubType>compile</SubType>
       <Link>core\IPAddress.h</Link>
     </Compile>
-    <Compile Include="..\..\itoa.c">
+    <Compile Include="..\..\..\arduino\itoa.c">
       <SubType>compile</SubType>
       <Link>core\itoa.c</Link>
     </Compile>
-    <Compile Include="..\..\itoa.h">
+    <Compile Include="..\..\..\arduino\itoa.h">
       <SubType>compile</SubType>
       <Link>core\itoa.h</Link>
     </Compile>
-    <Compile Include="..\..\Print.cpp">
+    <Compile Include="..\..\..\arduino\main.cpp">
+      <SubType>compile</SubType>
+      <Link>core\main.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\Print.cpp">
       <SubType>compile</SubType>
       <Link>core\Print.cpp</Link>
     </Compile>
-    <Compile Include="..\..\Print.h">
+    <Compile Include="..\..\..\arduino\Print.h">
       <SubType>compile</SubType>
       <Link>core\Print.h</Link>
     </Compile>
-    <Compile Include="..\..\Printable.h">
+    <Compile Include="..\..\..\arduino\Printable.h">
       <SubType>compile</SubType>
       <Link>core\Printable.h</Link>
     </Compile>
-    <Compile Include="..\..\Reset.cpp">
+    <Compile Include="..\..\..\arduino\Reset.cpp">
       <SubType>compile</SubType>
       <Link>core\Reset.cpp</Link>
     </Compile>
-    <Compile Include="..\..\Reset.h">
+    <Compile Include="..\..\..\arduino\Reset.h">
       <SubType>compile</SubType>
       <Link>core\Reset.h</Link>
     </Compile>
-    <Compile Include="..\..\RingBuffer.cpp">
+    <Compile Include="..\..\..\arduino\RingBuffer.cpp">
       <SubType>compile</SubType>
       <Link>core\RingBuffer.cpp</Link>
     </Compile>
-    <Compile Include="..\..\RingBuffer.h">
+    <Compile Include="..\..\..\arduino\RingBuffer.h">
       <SubType>compile</SubType>
       <Link>core\RingBuffer.h</Link>
     </Compile>
-    <Compile Include="..\..\SERCOM.cpp">
+    <Compile Include="..\..\..\arduino\SERCOM.cpp">
       <SubType>compile</SubType>
       <Link>core\SERCOM.cpp</Link>
     </Compile>
-    <Compile Include="..\..\SERCOM.h">
+    <Compile Include="..\..\..\arduino\SERCOM.h">
       <SubType>compile</SubType>
       <Link>core\SERCOM.h</Link>
     </Compile>
-    <Compile Include="..\..\Server.h">
+    <Compile Include="..\..\..\arduino\Server.h">
       <SubType>compile</SubType>
       <Link>core\Server.h</Link>
     </Compile>
-    <Compile Include="..\..\startup.c">
+    <Compile Include="..\..\..\arduino\startup.c">
       <SubType>compile</SubType>
       <Link>core\startup.c</Link>
     </Compile>
-    <Compile Include="..\..\Stream.cpp">
+    <Compile Include="..\..\..\arduino\Stream.cpp">
       <SubType>compile</SubType>
       <Link>core\Stream.cpp</Link>
     </Compile>
-    <Compile Include="..\..\Stream.h">
+    <Compile Include="..\..\..\arduino\Stream.h">
       <SubType>compile</SubType>
       <Link>core\Stream.h</Link>
     </Compile>
-    <Compile Include="..\..\syscalls.c">
+    <Compile Include="..\..\..\arduino\syscalls.c">
       <SubType>compile</SubType>
       <Link>core\syscalls.c</Link>
     </Compile>
-    <Compile Include="..\..\syscalls.h">
+    <Compile Include="..\..\..\arduino\syscalls.h">
       <SubType>compile</SubType>
       <Link>core\syscalls.h</Link>
     </Compile>
-    <Compile Include="..\..\Tone.h">
+    <Compile Include="..\..\..\arduino\Tone.h">
       <SubType>compile</SubType>
       <Link>core\Tone.h</Link>
     </Compile>
-    <Compile Include="..\..\Udp.h">
-      <SubType>compile</SubType>
-      <Link>core\Udp.h</Link>
-    </Compile>
-    <Compile Include="..\..\WCharacter.h">
-      <SubType>compile</SubType>
-      <Link>core\WCharacter.h</Link>
-    </Compile>
-    <Compile Include="..\..\WInterrupts.h">
-      <SubType>compile</SubType>
-      <Link>core\WInterrupts.h</Link>
-    </Compile>
-    <Compile Include="..\..\wiring.c">
-      <SubType>compile</SubType>
-      <Link>core\wiring.c</Link>
-    </Compile>
-    <Compile Include="..\..\wiring.h">
-      <SubType>compile</SubType>
-      <Link>core\wiring.h</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_analog.h">
-      <SubType>compile</SubType>
-      <Link>core\wiring_analog.h</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_constants.h">
-      <SubType>compile</SubType>
-      <Link>core\wiring_constants.h</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_digital.c">
-      <SubType>compile</SubType>
-      <Link>core\wiring_digital.c</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_digital.h">
-      <SubType>compile</SubType>
-      <Link>core\wiring_digital.h</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_private.h">
-      <SubType>compile</SubType>
-      <Link>core\wiring_private.h</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_pulse.h">
-      <SubType>compile</SubType>
-      <Link>core\wiring_pulse.h</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_shift.c">
-      <SubType>compile</SubType>
-      <Link>core\wiring_shift.c</Link>
-    </Compile>
-    <Compile Include="..\..\wiring_shift.h">
-      <SubType>compile</SubType>
-      <Link>core\wiring_shift.h</Link>
-    </Compile>
-    <Compile Include="..\..\WMath.cpp">
-      <SubType>compile</SubType>
-      <Link>core\WMath.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\WMath.h">
-      <SubType>compile</SubType>
-      <Link>core\WMath.h</Link>
-    </Compile>
-    <Compile Include="..\..\WString.cpp">
-      <SubType>compile</SubType>
-      <Link>core\WString.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\WString.h">
-      <SubType>compile</SubType>
-      <Link>core\WString.h</Link>
-    </Compile>
-    <Compile Include="..\..\WVariant.h">
-      <SubType>compile</SubType>
-      <Link>core\WVariant.h</Link>
-    </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\Uart.cpp">
+    <Compile Include="..\..\..\arduino\Uart.cpp">
       <SubType>compile</SubType>
       <Link>core\Uart.cpp</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\Uart.h">
+    <Compile Include="..\..\..\arduino\Uart.h">
       <SubType>compile</SubType>
       <Link>core\Uart.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\CDC.cpp">
+    <Compile Include="..\..\..\arduino\Udp.h">
+      <SubType>compile</SubType>
+      <Link>core\Udp.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\USB\CDC.cpp">
       <SubType>compile</SubType>
       <Link>core\USB\CDC.cpp</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\HID.cpp">
+    <Compile Include="..\..\..\arduino\USB\HID.cpp">
       <SubType>compile</SubType>
       <Link>core\USB\HID.cpp</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\samd21_device.c">
+    <Compile Include="..\..\..\arduino\USB\samd21_device.c">
       <SubType>compile</SubType>
       <Link>core\USB\samd21_device.c</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\samd21_device.h">
+    <Compile Include="..\..\..\arduino\USB\samd21_device.h">
       <SubType>compile</SubType>
       <Link>core\USB\samd21_device.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\samd21_host.h">
+    <Compile Include="..\..\..\arduino\USB\samd21_host.c">
+      <SubType>compile</SubType>
+      <Link>core\USB\samd21_host.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\USB\samd21_host.h">
       <SubType>compile</SubType>
       <Link>core\USB\samd21_host.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\USBAPI.h">
+    <Compile Include="..\..\..\arduino\USB\USBAPI.h">
       <SubType>compile</SubType>
       <Link>core\USB\USBAPI.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\USBCore.cpp">
+    <Compile Include="..\..\..\arduino\USB\USBCore.cpp">
       <SubType>compile</SubType>
       <Link>core\USB\USBCore.cpp</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\USBCore.h">
+    <Compile Include="..\..\..\arduino\USB\USBCore.h">
       <SubType>compile</SubType>
       <Link>core\USB\USBCore.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\USBDesc.h">
+    <Compile Include="..\..\..\arduino\USB\USBDesc.h">
       <SubType>compile</SubType>
       <Link>core\USB\USBDesc.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\USB_device.h">
+    <Compile Include="..\..\..\arduino\USB\USB_device.h">
       <SubType>compile</SubType>
       <Link>core\USB\USB_device.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\USB_host.h">
+    <Compile Include="..\..\..\arduino\USB\USB_host.h">
       <SubType>compile</SubType>
       <Link>core\USB\USB_host.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\validation_usb_device\test_usb_device.cpp">
+    <Compile Include="..\..\..\arduino\WCharacter.h">
       <SubType>compile</SubType>
-      <Link>core\validation_usb_device\test_usb_device.cpp</Link>
+      <Link>core\WCharacter.h</Link>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\HOWTO - compiling a project.txt">
+    <Compile Include="..\..\..\arduino\WInterrupts.h">
       <SubType>compile</SubType>
-      <Link>core\HOWTO - compiling a project.txt</Link>
-    </None>
-    <None Include="..\..\Tone.cpp.disabled">
+      <Link>core\WInterrupts.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring.c">
       <SubType>compile</SubType>
-      <Link>core\Tone.cpp.disabled</Link>
-    </None>
-    <None Include="..\..\WInterrupts.c.disabled">
+      <Link>core\wiring.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring.h">
       <SubType>compile</SubType>
-      <Link>core\WInterrupts.c.disabled</Link>
-    </None>
-    <None Include="..\..\wiring_analog.c.disabled">
+      <Link>core\wiring.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_analog.h">
       <SubType>compile</SubType>
-      <Link>core\wiring_analog.c.disabled</Link>
-    </None>
-    <None Include="..\..\wiring_digital.c.old">
+      <Link>core\wiring_analog.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_constants.h">
       <SubType>compile</SubType>
-      <Link>core\wiring_digital.c.old</Link>
-    </None>
-    <None Include="..\..\wiring_pulse.cpp.disabled">
+      <Link>core\wiring_constants.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_digital.c">
       <SubType>compile</SubType>
-      <Link>core\wiring_pulse.cpp.disabled</Link>
-    </None>
+      <Link>core\wiring_digital.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_digital.h">
+      <SubType>compile</SubType>
+      <Link>core\wiring_digital.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_private.h">
+      <SubType>compile</SubType>
+      <Link>core\wiring_private.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_pulse.h">
+      <SubType>compile</SubType>
+      <Link>core\wiring_pulse.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_shift.c">
+      <SubType>compile</SubType>
+      <Link>core\wiring_shift.c</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_shift.h">
+      <SubType>compile</SubType>
+      <Link>core\wiring_shift.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\WMath.cpp">
+      <SubType>compile</SubType>
+      <Link>core\WMath.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\WMath.h">
+      <SubType>compile</SubType>
+      <Link>core\WMath.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\WString.cpp">
+      <SubType>compile</SubType>
+      <Link>core\WString.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\WString.h">
+      <SubType>compile</SubType>
+      <Link>core\WString.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\WVariant.h">
+      <SubType>compile</SubType>
+      <Link>core\WVariant.h</Link>
+    </Compile>
+    <Compile Include="test_usb_device.cpp">
+      <SubType>compile</SubType>
+    </Compile>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>

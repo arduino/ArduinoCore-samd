@@ -75,15 +75,13 @@ void loop( void )
   delay( 1000 ) ;              // wait for a second
 
   // Test Serial output
-/*
   Serial.write( '-' ) ;   // send a char
   Serial.write( "test1\n" ) ;   // send a string
   Serial.write( "test2" ) ;   // send another string
-*/
 
   // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pin !!!!
   pin_value=digitalRead( 2 ) ;
-//  Serial.write( "pin 2 value is %s\n", (pin_value == LOW)?"LOW":"HIGH" ) ;
+  Serial.write( "pin 2 value is %s\n", (pin_value == LOW)?"LOW":"HIGH" ) ;
   delay( 1000 ) ;              // wait for a second
 
 
