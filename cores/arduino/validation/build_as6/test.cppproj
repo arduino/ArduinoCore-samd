@@ -58,7 +58,7 @@
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
-      <ToolNumber>ATML2320021800000010</ToolNumber>
+      <ToolNumber>ATML2320021800000012</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
   </PropertyGroup>
@@ -335,14 +335,6 @@
       <SubType>compile</SubType>
       <Link>core\SERCOM.h</Link>
     </Compile>
-    <Compile Include="..\..\SERCOMUart.cpp">
-      <SubType>compile</SubType>
-      <Link>core\SERCOMUart.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\SERCOMUart.h">
-      <SubType>compile</SubType>
-      <Link>core\SERCOMUart.h</Link>
-    </Compile>
     <Compile Include="..\..\Server.h">
       <SubType>compile</SubType>
       <Link>core\Server.h</Link>
@@ -370,6 +362,14 @@
     <Compile Include="..\..\Tone.h">
       <SubType>compile</SubType>
       <Link>core\Tone.h</Link>
+    </Compile>
+    <Compile Include="..\..\Uart.cpp">
+      <SubType>compile</SubType>
+      <Link>core\Uart.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\Uart.h">
+      <SubType>compile</SubType>
+      <Link>core\Uart.h</Link>
     </Compile>
     <Compile Include="..\..\Udp.h">
       <SubType>compile</SubType>
@@ -447,32 +447,6 @@
       <SubType>compile</SubType>
       <Link>test.cpp</Link>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\HOWTO - compiling a project.txt">
-      <SubType>compile</SubType>
-      <Link>core\HOWTO - compiling a project.txt</Link>
-    </None>
-    <None Include="..\..\Tone.cpp.disabled">
-      <SubType>compile</SubType>
-      <Link>core\Tone.cpp.disabled</Link>
-    </None>
-    <None Include="..\..\WInterrupts.c.disabled">
-      <SubType>compile</SubType>
-      <Link>core\WInterrupts.c.disabled</Link>
-    </None>
-    <None Include="..\..\wiring_analog.c.disabled">
-      <SubType>compile</SubType>
-      <Link>core\wiring_analog.c.disabled</Link>
-    </None>
-    <None Include="..\..\wiring_digital.c.old">
-      <SubType>compile</SubType>
-      <Link>core\wiring_digital.c.old</Link>
-    </None>
-    <None Include="..\..\wiring_pulse.cpp.disabled">
-      <SubType>compile</SubType>
-      <Link>core\wiring_pulse.cpp.disabled</Link>
-    </None>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
