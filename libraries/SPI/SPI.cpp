@@ -18,7 +18,7 @@ SPIClass::SPIClass(SERCOM *s)
 void SPIClass::begin() {
 	// Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
 	sercom->initSPI(SPI_PAD_2_SCK_3, SERCOM_RX_PAD_0, SPI_CHAR_SIZE_8_BITS, MSB_FIRST);
-	sercom->initClock(SERCOM_SPI_MODE_0, 4000000);
+	sercom->initSPIClock(SERCOM_SPI_MODE_0, 4000000);
 }
 
 void SPIClass::end() {
@@ -86,6 +86,4 @@ void SPIClass::detachInterrupt() {
 	// Should be disableInterrupt()
 }
 
-#if SPI_INTERFACES_COUNT > 0
 SPIClass SPI(SERCOM::sercom4);
-#endif

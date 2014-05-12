@@ -13,7 +13,7 @@
 class Uart : public HardwareSerial
 {
 	public:
-		Uart(SERCOM *sercom);
+		Uart(SERCOM *s, uint8_t pinRX, uint8_t pinTX);
 		void begin(unsigned long baudRate);
 		void begin(unsigned long baudrate, uint8_t config);
 		void end();
@@ -37,6 +37,7 @@ class Uart : public HardwareSerial
 		SercomParityMode extractParity(uint8_t config);
 };
 extern Uart Serial;
+extern Uart Serial5;
 
 
 #endif
