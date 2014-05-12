@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2011 Arduino.  All right reserved.
+#  Copyright (c) 2014 Arduino.  All right reserved.
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -8,7 +8,7 @@
 #
 #  This library is distributed in the hope that it will be useful,
 #  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #  See the GNU Lesser General Public License for more details.
 #
 #  You should have received a copy of the GNU Lesser General Public
@@ -16,26 +16,18 @@
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
-# Tool suffix when cross-compiling
-#CROSS_COMPILE = ../../../../tools/CodeSourcery_arm/bin/arm-none-eabi-
-#CROSS_COMPILE = C:/CodeSourcery_2011.03-42/bin/arm-none-eabi-
-CROSS_COMPILE = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-
-
 # Compilation tools
-AR = $(CROSS_COMPILE)ar
-CC = $(CROSS_COMPILE)gcc
-CXX = $(CROSS_COMPILE)g++
-AS = $(CROSS_COMPILE)as
-GDB = $(CROSS_COMPILE)gdb
-SIZE = $(CROSS_COMPILE)size
-NM = $(CROSS_COMPILE)nm
-OBJCOPY = $(CROSS_COMPILE)objcopy
+AR = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-ar
+CC = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-gcc
+#CXX = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-g++
+CXX = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-gcc
+AS = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-as
+GDB = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-gdb
+SIZE = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-size
+NM = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-nm
+OBJCOPY = $(ARM_GCC_TOOLCHAIN)/arm-none-eabi-objcopy
 
-ifeq ($(OS),Windows_NT)
-RM=cs-rm -Rf
-else
 RM=rm -Rf
-endif
 
 SEP=\\
 
@@ -54,11 +46,13 @@ CFLAGS += -Wpacked -Wredundant-decls -Wnested-externs -Winline -Wlong-long
 CFLAGS += -Wunreachable-code
 CFLAGS += -Wcast-align
 
-CFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m3 -mthumb -mlong-calls -ffunction-sections -nostdlib -std=c99
-CFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(CHIP) -D$(VARIANT)
+CFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m0plus -mthumb -mlong-calls -ffunction-sections -nostdlib -std=c99
+CFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(DEVICE) -D$(VARIANT)
 
 # To reduce application size use only integer printf function.
 CFLAGS += -Dprintf=iprintf
+
+
 
 # ---------------------------------------------------------------------------------------
 # CPP Flags
@@ -73,13 +67,23 @@ CPPFLAGS += -Wformat -Wmissing-format-attribute -Wno-deprecated-declarations
 CPPFLAGS += -Wpacked -Wredundant-decls -Winline -Wlong-long
 
 #-fno-rtti -fno-exceptions
-CPPFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m3 -mthumb -mlong-calls -ffunction-sections -std=c++98
-CPPFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(CHIP)
+CPPFLAGS += --param max-inline-insns-single=500 -mcpu=cortex-m0plus -mthumb -mlong-calls -ffunction-sections -fdata-sections -std=c++98
+CPPFLAGS += $(OPTIMIZATION) $(INCLUDES) -D$(DEVICE) -D$(VARIANT)
 
 # To reduce application size use only integer printf function.
 CPPFLAGS += -Dprintf=iprintf
 
+
+
 # ---------------------------------------------------------------------------------------
 # ASM Flags
 
-ASFLAGS = -mcpu=cortex-m3 -mthumb -Wall -g $(OPTIMIZATION) $(INCLUDES)
+ASFLAGS = -mcpu=cortex-m0plus -mthumb -Wall -g $(OPTIMIZATION) $(INCLUDES)
+
+
+
+# ---------------------------------------------------------------------------------------
+# LD Flags
+
+LDFLAGS= -mcpu=cortex-m0plus -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
+

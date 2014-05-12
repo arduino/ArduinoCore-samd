@@ -287,8 +287,8 @@ _Pragma("pack()")
 #define D_CONFIG(_totalLength,_interfaces) \
 	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_SELF_POWERED, USB_CONFIG_POWER_MA(500) }
 
-#define D_OTHERCONFIG(_totalLength,_interfaces) \
-	{ 9, 7, _totalLength,_interfaces, 1, 0, USB_CONFIG_SELF_POWERED, USB_CONFIG_POWER_MA(500) }
+//#define D_OTHERCONFIG(_totalLength,_interfaces) 
+//	{ 9, 7, _totalLength,_interfaces, 1, 0, USB_CONFIG_SELF_POWERED, USB_CONFIG_POWER_MA(500) }
 
 #define D_INTERFACE(_n,_numEndpoints,_class,_subClass,_protocol) \
 	{ 9, 4, _n, 0, _numEndpoints, _class,_subClass, _protocol, 0 }
@@ -296,8 +296,8 @@ _Pragma("pack()")
 #define D_ENDPOINT(_addr,_attr,_packetSize, _interval) \
 	{ 7, 5, _addr,_attr,_packetSize, _interval }
 
-#define D_QUALIFIER(_class,_subClass,_proto,_packetSize0,_configs) \
-	{ 10, 6, 0x200, _class,_subClass,_proto,_packetSize0,_configs }
+//#define D_QUALIFIER(_class,_subClass,_proto,_packetSize0,_configs) 
+//	{ 10, 6, 0x200, _class,_subClass,_proto,_packetSize0,_configs }
 
 #define D_IAD(_firstInterface, _count, _class, _subClass, _protocol) \
 	{ 8, 11, _firstInterface, _count, _class, _subClass, _protocol, 0 }

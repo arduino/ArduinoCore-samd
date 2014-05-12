@@ -14,11 +14,19 @@
 ** SOFTWARE.
 */
 
-#include "Arduino.h"
-
 #ifdef HID_ENABLED
 
+#include "USBAPI.h"
+#include "Reset.h"
+#include "USBCore.h"
+#include "USBDesc.h"
+#include "sam.h"
+#include "USB_device.h"
+
 //#define RAWHID_ENABLED
+#ifdef __cplusplus
+extern "C"{
+#endif // __cplusplus
 
 //	Singletons for mouse and keyboard
 
@@ -196,6 +204,9 @@ bool WEAK HID_Setup(Setup& setup)
 	}
 	return false;
 }
+#ifdef __cplusplus
+}
+#endif
 
 //================================================================================
 //================================================================================

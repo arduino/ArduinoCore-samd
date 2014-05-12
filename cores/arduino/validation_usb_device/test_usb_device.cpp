@@ -16,23 +16,50 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "variant.h"
-#include <stdio.h>
+#define ARDUINO_MAIN
+#include "Arduino.h" 
 
-void setup() {
-	Serial.begin(57600);
+
+
+
+void setup(void) {
+	Serial.begin(115200);
+	
+#ifdef HID_ENABLED
 	Mouse.begin();
+#endif
 }
 
-void loop() {
+void loop(void) {
+
+#ifdef HID_ENABLED
 	Mouse.move(1, 0, 0);
+#endif
 
-	if (Serial.available() > 0)
-	{
-		char inChar = Serial.read();
-		Serial.print(inChar);
-		Serial1.print(inChar);
-	}
+//	if (Serial.available() > 0)
+//	{
+//		char inChar = Serial.read();
+//		Serial.print(inChar);
+//		Serial1.print(inChar);
+//	}
 
-	delay(10);
+//	delay(10);
 }
+
+int main(void)
+{
+	//JCB init();   not compile at this time
+    //JCB already in Reset_Handler  SystemInit();
+
+	USBDevice.attach();
+	
+	setup();
+    
+	for (;;) {
+		loop();
+		if (serialEventRun) serialEventRun();
+	}
+        
+	return 0;
+}
+ 

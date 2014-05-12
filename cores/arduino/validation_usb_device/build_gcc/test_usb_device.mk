@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2011 Arduino.  All right reserved.
+#  Copyright (c) 2014 Arduino.  All right reserved.
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,69 +16,44 @@
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
-# Makefile for compiling libArduino
-.SUFFIXES: .o .a .c .s
+# Makefile for compiling usb device
+.SUFFIXES: .o .a .c .cpp .s
 
 # putting default variant
 ifeq ("$(VARIANT)", "")
-#VARIANT=sam3s_ek
-#VARIANT=sam3u_ek
-VARIANT=arduino_due_x
+VARIANT=arduino_zero
 endif
 
-ifeq ("$(VARIANT)", "sam3s_ek")
-CHIP=__SAM3S4C__
-VARIANT_PATH = ../../../../atmel/sam/variants/$(VARIANT)
-else ifeq ("$(VARIANT)", "sam3u_ek")
-CHIP=__SAM3U4E__
-VARIANT_PATH = ../../../../atmel/sam/variants/$(VARIANT)
-else ifeq ("$(VARIANT)", "sam3x_ek")
-CHIP=__SAM3X8H__
-VARIANT_PATH = ../../../../atmel/sam/variants/$(VARIANT)
-else ifeq ("$(VARIANT)", "arduino_due_u")
-CHIP=__SAM3U4E__
-VARIANT_PATH = ../../../../variants/$(VARIANT)
-else ifeq ("$(VARIANT)", "arduino_due_x")
-CHIP=__SAM3X8E__
-VARIANT_PATH = ../../../../variants/$(VARIANT)
+ifeq ("$(VARIANT)", "arduino_zero")
+DEVICE=__SAMD21G18A__
 endif
 
-TOOLCHAIN=gcc
+ifeq ($(DEVICE), __SAMD21G18A__)
+DEVICE_NAME=samd21g18
+DEVICE_SERIE=samd21
+else ifeq ($(DEVICE), __SAMD21J18A__)
+DEVICE_NAME=samd21j18
+DEVICE_SERIE=samd21
+endif
 
 #-------------------------------------------------------------------------------
 # Path
 #-------------------------------------------------------------------------------
-
-# Libraries
-PROJECT_BASE_PATH = ./..
-SYSTEM_PATH = ../../../../system
-
-ifeq ($(CHIP), __SAM3S4C__)
-CHIP_NAME=sam3s4c
-CHIP_SERIE=sam3s
-else ifeq ($(CHIP), __SAM3U4E__)
-CHIP_NAME=sam3u4e
-CHIP_SERIE=sam3u
-else ifeq ($(CHIP), __SAM3N4C__)
-CHIP_NAME=sam3n4c
-CHIP_SERIE=sam3n
-else ifeq ($(CHIP), __SAM3X8H__)
-CHIP_NAME=sam3x8h
-CHIP_SERIE=sam3xa
-else ifeq ($(CHIP), __SAM3X8E__)
-CHIP_NAME=sam3x8e
-CHIP_SERIE=sam3xa
-else
-endif
-
-CMSIS_ROOT_PATH = $(SYSTEM_PATH)/CMSIS
+HARDWARE_PATH=../../../../../..
+ARCH_PATH=$(HARDWARE_PATH)/arduino/samd
+ARDUINO_CORE_PATH=$(ARCH_PATH)/cores/arduino
+ARDUINO_USB_PATH=$(ARDUINO_CORE_PATH)/USB
+VARIANT_PATH = $(ARCH_PATH)/variants/$(VARIANT)
+TOOLS_PATH = $(HARDWARE_PATH)/tools
+CMSIS_ROOT_PATH=$(TOOLS_PATH)/CMSIS
 CMSIS_ARM_PATH=$(CMSIS_ROOT_PATH)/CMSIS/Include
 CMSIS_ATMEL_PATH=$(CMSIS_ROOT_PATH)/Device/ATMEL
-CMSIS_CHIP_PATH=$(CMSIS_ROOT_PATH)/Device/ATMEL/$(CHIP_SERIE)
+#CMSIS_DEVICE_PATH=$(CMSIS_ROOT_PATH)/Device/ATMEL/$(DEVICE_SERIE)
 
-ARDUINO_CORE_PATH=$(PROJECT_BASE_PATH)/..
-ARDUINO_USB_PATH=$(PROJECT_BASE_PATH)/../USB
-ARDUINO_USB_HOST_PATH=$(PROJECT_BASE_PATH)/../../../system/USBHost
+PROJECT_BASE_PATH = ..
+
+TOOLCHAIN=gcc
+
 
 # Output directories
 OUTPUT_PATH = debug_$(VARIANT)
@@ -87,21 +62,17 @@ OUTPUT_PATH = debug_$(VARIANT)
 # Files
 #-------------------------------------------------------------------------------
 
-vpath %.h $(PROJECT_BASE_PATH)/.. $(VARIANT_PATH) $(SYSTEM_PATH) $(CMSIS_ARM_PATH)
-vpath %.cpp $(PROJECT_BASE_PATH)
+vpath %.cpp $(PROJECT_BASE_PATH) $(ARDUINO_CORE_PATH) $(VARIANT_PATH) $(ARDUINO_USB_PATH)
+vpath %.c $(PROJECT_BASE_PATH) $(ARDUINO_CORE_PATH) $(VARIANT_PATH) $(ARDUINO_USB_PATH)
 
-VPATH+=$(PROJECT_BASE_PATH)
+#VPATH+=$(PROJECT_BASE_PATH)
 
-INCLUDES = -I$(PROJECT_BASE_PATH)/..
+INCLUDES = -I$(ARDUINO_CORE_PATH)
+INCLUDES += -I$(ARDUINO_USB_PATH)
 INCLUDES += -I$(VARIANT_PATH)
-#INCLUDES += -I$(VARIANT_PATH)/..
-#INCLUDES += -I$(SYSTEM_PATH)
-INCLUDES += -I$(SYSTEM_PATH)/libsam
 INCLUDES += -I$(CMSIS_ARM_PATH)
 INCLUDES += -I$(CMSIS_ATMEL_PATH)
-INCLUDES += -I$(CMSIS_CHIP_PATH)
-INCLUDES += -I$(ARDUINO_USB_PATH)
-INCLUDES += -I$(ARDUINO_USB_HOST_PATH)
+#INCLUDES += -I$(CMSIS_DEVICE_PATH)
 
 #-------------------------------------------------------------------------------
 ifdef DEBUG
@@ -116,6 +87,9 @@ endif
 
 include $(TOOLCHAIN).mk
 
+CFLAGS += -DUSB_VID=0x2341 -DUSB_PID=0x004d
+CPPFLAGS += -DUSB_VID=0x2341 -DUSB_PID=0x004d
+
 #-------------------------------------------------------------------------------
 ifdef DEBUG
 OUTPUT_OBJ=debug
@@ -125,19 +99,44 @@ OUTPUT_OBJ=release
 LIBS_POSTFIX=rel
 endif
 
-OUTPUT_BIN=test_$(TOOLCHAIN)_$(LIBS_POSTFIX)
-LIBS=-Wl,--start-group -lgcc -lc -lstdc++ -lsam_$(CHIP_NAME)_$(TOOLCHAIN)_$(LIBS_POSTFIX) -larduino_$(VARIANT)_$(TOOLCHAIN)_$(LIBS_POSTFIX) -lvariant_$(VARIANT)_$(TOOLCHAIN)_$(LIBS_POSTFIX) -Wl,--end-group
+OUTPUT_BIN=test_usb_device_$(TOOLCHAIN)_$(LIBS_POSTFIX)
+LIBS=-Wl,--start-group -lgcc -lc -lstdc++ -Wl,--end-group
 
 LIB_PATH =-L$(PROJECT_BASE_PATH)/..
 LIB_PATH+=-L=/lib/thumb2
 #LIB_PATH+=-L=/../lib/gcc/arm-none-eabi/4.5.2/thumb2
 
-LDFLAGS= -mcpu=cortex-m3 -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
+#-------------------------------------------------------------------------------
+# C source files and objects
+#-------------------------------------------------------------------------------
+#C_SRC=$(wildcard $(PROJECT_BASE_PATH)/*.c)
+#C_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.c)
+#C_SRC+=$(wildcard $(VARIANT_PATH)/*.c)
+#C_SRC=$(wildcard $(ARDUINO_USB_PATH)/*.c)
+
+C_SRC=$(ARDUINO_USB_PATH)/samd21_device.c
+C_SRC+=$(ARDUINO_CORE_PATH)/startup.c
+C_SRC+=$(ARDUINO_CORE_PATH)/syscalls.c
+
+C_OBJ_TEMP = $(patsubst %.c, %.o, $(notdir $(C_SRC)))
+
+# during development, remove some files
+C_OBJ_FILTER=
+
+C_OBJ=$(filter-out $(C_OBJ_FILTER), $(C_OBJ_TEMP))
 
 #-------------------------------------------------------------------------------
 # CPP source files and objects
 #-------------------------------------------------------------------------------
 CPP_SRC=$(wildcard $(PROJECT_BASE_PATH)/*.cpp)
+#CPP_SRC+=$(wildcard $(ARDUINO_CORE_PATH)/*.cpp)
+#CPP_SRC+=$(wildcard $(VARIANT_PATH)/*.cpp)
+#CPP_SRC+=$(wildcard $(ARDUINO_USB_PATH)/*.cpp)
+
+CPP_SRC+=$(ARDUINO_USB_PATH)/USBCore.cpp
+CPP_SRC+=$(ARDUINO_USB_PATH)/CDC.cpp
+CPP_SRC+=$(ARDUINO_USB_PATH)/HID.cpp
+#CPP_SRC+=$(VARIANT_PATH)/variant.cpp   ##//JCB needed, but not compile
 
 CPP_OBJ_TEMP = $(patsubst %.cpp, %.o, $(notdir $(CPP_SRC)))
 
@@ -151,48 +150,72 @@ CPP_OBJ=$(filter-out $(CPP_OBJ_FILTER), $(CPP_OBJ_TEMP))
 #-------------------------------------------------------------------------------
 all: test
 
-test: create_output libsam_$(CHIP_NAME)_$(TOOLCHAIN)_$(LIBS_POSTFIX).a libarduino_$(VARIANT)_$(TOOLCHAIN)_$(LIBS_POSTFIX).a libvariant_$(VARIANT)_$(TOOLCHAIN)_$(LIBS_POSTFIX).a $(OUTPUT_BIN)
+test: create_output $(OUTPUT_BIN)
 
 
 .PHONY: create_output
 create_output:
+	@echo ------------------------------------------------------------------------------------
 	@echo --- Preparing $(VARIANT) files in $(OUTPUT_PATH) $(OUTPUT_BIN)
-#	@echo -------------------------
-#	@echo *$(INCLUDES)
-#	@echo -------------------------
-#	@echo *$(C_SRC)
-#	@echo -------------------------
-#	@echo *$(C_OBJ)
-#	@echo -------------------------
-#	@echo *$(addprefix $(OUTPUT_PATH)/, $(C_OBJ))
-#	@echo -------------------------
-#	@echo *$(CPP_SRC)
-#	@echo -------------------------
-#	@echo *$(CPP_OBJ)
-#	@echo -------------------------
-#	@echo *$(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ))
-#	@echo -------------------------
-#	@echo *$(A_SRC)
-#	@echo -------------------------
+	@echo -
+	@echo -
+	@echo INCLUDES -------------------------
+	@echo $(INCLUDES)
+	@echo -
+	@echo -
+	@echo C_SRC -------------------------
+	@echo $(C_SRC)
+	@echo -
+	@echo -
+	@echo C_OBJ -------------------------
+	@echo $(C_OBJ)
+	@echo -
+	@echo -
+	@echo C_OBJ prefix -------------------------
+	@echo $(addprefix $(OUTPUT_PATH)/, $(C_OBJ))
+	@echo -
+	@echo -
+	@echo CPP_SRC -------------------------
+	@echo $(CPP_SRC)
+	@echo -
+	@echo -
+	@echo CPP_OBJ -------------------------
+	@echo $(CPP_OBJ)
+	@echo -
+	@echo -
+	@echo CPP_OBJ prefix -------------------------
+	@echo $(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ))
+#	@echo A_SRC -------------------------
+#	@echo $(A_SRC)
+	@echo -------------------------
 
 	-@mkdir $(OUTPUT_PATH) 1>NUL 2>&1
+	@echo ------------------------------------------------------------------------------------
+
+$(addprefix $(OUTPUT_PATH)/,$(C_OBJ)): $(OUTPUT_PATH)/%.o: %.c
+	@echo Current folder is $(shell cd) - $@ $^
+#	@"$(CC)" -c $(CFLAGS) $< -o $@
+#	"$(CC)" -v -c $(CFLAGS) $< -o $@
+	"$(CC)" -c $(CFLAGS) $< -o $@ 
 
 $(addprefix $(OUTPUT_PATH)/,$(CPP_OBJ)): $(OUTPUT_PATH)/%.o: %.cpp
-#	@"$(CC)" -c $(CPPFLAGS) $< -o $@
-	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
-#	@"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
+	@echo Current folder is $(shell cd) - $@ $^
+#	@"$(CXX)" -c $(CPPFLAGS) $< -o $@
+#	"$(CXX)" -v -c $(CPPFLAGS) $< -o $@
+	"$(CXX)" -c $(CPPFLAGS) $< -o $@
 
 $(OUTPUT_BIN): $(addprefix $(OUTPUT_PATH)/, $(C_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(CPP_OBJ)) $(addprefix $(OUTPUT_PATH)/, $(A_OBJ))
 	@"$(CC)" $(LIB_PATH) $(LDFLAGS) -T"$(VARIANT_PATH)/linker_scripts/gcc/flash.ld" -Wl,-Map,$(OUTPUT_PATH)/$@.map -o $(OUTPUT_PATH)/$@.elf $^ $(LIBS)
-#	@"$(CC)" $(LIB_PATH) $(LDFLAGS) -T"$(VARIANT_PATH)/linker_scripts/gcc/sram.ld" -Wl,-Map,$(OUTPUT_PATH)/$@.map -o $(OUTPUT_PATH)/$@.elf $^ $(LIBS)
 	@"$(NM)" $(OUTPUT_PATH)/$@.elf >$(OUTPUT_PATH)/$@.elf.txt
 	@"$(OBJCOPY)" -O binary $(OUTPUT_PATH)/$@.elf $(OUTPUT_PATH)/$@.bin
 	$(SIZE) $^ $(OUTPUT_PATH)/$@.elf
 
 .PHONY: clean
 clean:
-	@echo --- Cleaning test files
+	@echo ------------------------------------------------------------------------------------
+	@echo --- Cleaning test files for $(VARIANT)
 	-@$(RM) $(OUTPUT_PATH) 1>NUL 2>&1
+	@echo ------------------------------------------------------------------------------------
 
 #	-$(RM) $(OUTPUT_PATH)/test.o
 #	-$(RM) $(OUTPUT_PATH)/$(OUTPUT_BIN).elf
@@ -202,17 +225,4 @@ clean:
 
 debug: test
 	@"$(GDB)" -x "$(VARIANT_PATH)/debug_scripts/gcc/$(VARIANT)_flash.gdb" -ex "reset" -readnow -se $(OUTPUT_PATH)/$(OUTPUT_BIN).elf
-#	@"$(GDB)" -w -x "$(VARIANT_PATH)/debug_scripts/gcc/$(VARIANT)_sram.gdb" -ex "reset" -readnow -se $(OUTPUT_PATH)/$(OUTPUT_BIN).elf
-
-libsam_$(CHIP_NAME)_$(TOOLCHAIN)_$(LIBS_POSTFIX).a:
-	@echo Building $@
-	@$(MAKE) -C $(SYSTEM_PATH)/libsam/build_gcc -f Makefile $@
-
-libarduino_$(VARIANT)_$(TOOLCHAIN)_$(LIBS_POSTFIX).a:
-	@echo Building $@
-	$(MAKE) -C $(ARDUINO_CORE_PATH)/build_gcc -f Makefile $(VARIANT)
-
-libvariant_$(VARIANT)_$(TOOLCHAIN)_$(LIBS_POSTFIX).a:
-	@echo Building $@
-	$(MAKE) -C $(VARIANT_PATH)/build_gcc -f Makefile $(VARIANT)
 

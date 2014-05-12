@@ -1,5 +1,5 @@
 #
-#  Copyright (c) 2011 Arduino.  All right reserved.
+#  Copyright (c) 2014 Arduino.  All right reserved.
 #
 #  This library is free software; you can redistribute it and/or
 #  modify it under the terms of the GNU Lesser General Public
@@ -16,26 +16,37 @@
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #
 
-SUBMAKE_OPTIONS=--no-builtin-rules --no-builtin-variables
+SUBMAKE_OPTIONS=--no-builtin-rules --no-builtin-variables --no-print-directory
 
 #-------------------------------------------------------------------------------
 # Rules
 #-------------------------------------------------------------------------------
 
-all: test_usb_device
+all: clean test
+
+test: test_usb_device
+
+debug: debug_test_usb_device
+
+clean: clean_test_usb_device
 
 .PHONY: test_usb_device
-test:
+test_usb_device:
+	@echo ------------------------------------------------------------------------------------
 	@echo --- Making test_usb_device
-	@$(MAKE) DEBUG=1 $(SUBMAKE_OPTIONS) -f test_usb_device.mk
+	@$(MAKE) DEBUG=1 VARIANT=arduino_zero $(SUBMAKE_OPTIONS) -f test_usb_device.mk test
+	@echo ------------------------------------------------------------------------------------
 
 .PHONY: clean
-clean:
+clean_test_usb_device:
+	@echo ------------------------------------------------------------------------------------
 	@echo --- Cleaning test_usb_device
-	@$(MAKE) DEBUG=1 $(SUBMAKE_OPTIONS) -f test_usb_device.mk $@
+	@$(MAKE) DEBUG=1 VARIANT=arduino_zero $(SUBMAKE_OPTIONS) -f test_usb_device.mk clean
+	@echo ------------------------------------------------------------------------------------
 
 .PHONY: debug
-debug:
+debug_test_usb_device:
+	@echo ------------------------------------------------------------------------------------
 	@echo --- Debugging test_usb_device
-	@$(MAKE) DEBUG=1 $(SUBMAKE_OPTIONS) -f test_usb_device.mk $@
-
+	@$(MAKE) DEBUG=1 VARIANT=arduino_zero $(SUBMAKE_OPTIONS) -f test_usb_device.mk debug
+	@echo ------------------------------------------------------------------------------------
