@@ -62,6 +62,29 @@ static void led_step2( void )
   digitalWrite( PIN_LED3, LOW ) ;  // set the red LED on
 }
 
+static void analog_write_step (void)
+{
+	// test PWM generation on all PWM pins (duty cycle from 0x00 to 0xFF)
+	for( uint8_t duty_cycle = 0x00;duty_cycle<=0xFF;duty_cycle++)
+	{
+		analogWrite(13,duty_cycle);
+		analogWrite(12,duty_cycle);
+		analogWrite(11,duty_cycle);
+		analogWrite(10,duty_cycle);
+		analogWrite(9,duty_cycle);
+		analogWrite(8,duty_cycle);
+		analogWrite(7,duty_cycle);
+		analogWrite(6,duty_cycle);
+		analogWrite(5,duty_cycle);
+		analogWrite(4,duty_cycle);
+		analogWrite(3,duty_cycle);
+		analogWrite(2,duty_cycle);
+		delay( 10 ) ;
+	}
+
+
+}
+
 void loop( void )
 {
   volatile int pin_value=0 ;
@@ -83,6 +106,7 @@ void loop( void )
   Serial.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
   delay( 1000 ) ;              // wait for a second
 
+  analog_write_step();
 
 /*
   Serial.print("Analog pins: ");
