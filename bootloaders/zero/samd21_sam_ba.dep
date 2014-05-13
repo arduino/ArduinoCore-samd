@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+
+<project>
+  <fileVersion>2</fileVersion>
+  <fileChecksum>3935831470</fileChecksum>
+  <configuration>
+    <name>Debug</name>
+    <outputs>
+      <file>$PROJ_DIR$\drivers\uart_driver.c</file>
+      <file>$PROJ_DIR$\utils\preprocessor\mrecursion.h</file>
+      <file>$PROJ_DIR$\drivers\cdc_enumerate.c</file>
+      <file>$PROJ_DIR$\utils\interrupt\interrupt_sam_nvic.c</file>
+      <file>$PROJ_DIR$\utils\preprocessor\mrepeat.h</file>
+      <file>$PROJ_DIR$\utils\preprocessor\preprocessor.h</file>
+      <file>$PROJ_DIR$\utils\preprocessor\stringz.h</file>
+      <file>$PROJ_DIR$\utils\preprocessor\tpaste.h</file>
+      <file>$PROJ_DIR$\utils\compiler.h</file>
+      <file>$PROJ_DIR$\utils\interrupt.h</file>
+      <file>$PROJ_DIR$\utils\status_codes.h</file>
+      <file>$PROJ_DIR$\main.c</file>
+      <file>$PROJ_DIR$\sam_ba_monitor.c</file>
+      <file>$PROJ_DIR$\startup_samd21.c</file>
+      <file>$PROJ_DIR$\usart_sam_ba.c</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\nvmctrl.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\mtb.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\i2s.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\dmac.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\adc.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\dac.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\system_samd21.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\ac.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\dsu.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\eic.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\evsys.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\gclk.h</file>
+      <file>$TOOLKIT_DIR$\CMSIS\Include\core_cmFunc.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\intrinsics.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\cmsis_iar.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\samd21j18a.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdint.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\xencoding_limits.h</file>
+      <file>$TOOLKIT_DIR$\CMSIS\Include\core_cmInstr.h</file>
+      <file>$TOOLKIT_DIR$\CMSIS\Include\core_cm0plus.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\ycheck.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Threads.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\ystdio.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\iosamd21.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Config_Normal.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\yvals.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Defaults.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdio.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\ysizet.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\startup_samd21.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\sam_ba_monitor.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\usart_sam_ba.pbi</file>
+      <file>$PROJ_DIR$\Debug\Exe\samd21_sam_ba.out</file>
+      <file>$PROJ_DIR$\Debug\Obj\startup_samd21.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\sam_ba_monitor.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\usart_sam_ba.o</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\port.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\rtc.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\sercom.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\sysctrl.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\tc.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\tcc.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\usb.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\wdt.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\ac.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\adc.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\dac.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\dmac.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\dsu.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\eic.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.o</file>
+      <file>$PROJ_DIR$\Debug\Obj\samd21_sam_ba.pbd</file>
+      <file>$PROJ_DIR$\Debug\Exe\samd21_sam_ba.hex</file>
+      <file>$PROJ_DIR$\usart_sam_ba.h</file>
+      <file>$PROJ_DIR$\main.h</file>
+      <file>$PROJ_DIR$\drivers\cdc_enumerate.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\main.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\cdc_enumerate.o</file>
+      <file>$PROJ_DIR$\utils\interrupt\interrupt_sam_nvic.h</file>
+      <file>$PROJ_DIR$\sam_ba_monitor.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdlib.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\pac.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\uart_driver.o</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\component\pm.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stdbool.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\evsys.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\gclk.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\i2s.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\mtb.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\nvmctrl.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\pac0.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\pac1.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\pac2.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\pm.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\port.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\rtc.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\sercom0.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\sercom1.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\sercom2.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\sercom3.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\sercom4.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\sercom5.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\sysctrl.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tc3.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tc4.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tc5.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tc6.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tc7.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tcc0.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tcc1.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\tcc2.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\usb.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\instance\wdt.h</file>
+      <file>$TOOLKIT_DIR$\inc\Atmel\samd21\pio\samd21j18a.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\stddef.h</file>
+      <file>$TOOLKIT_DIR$\inc\c\DLib_Product_string.h</file>
+      <file>$PROJ_DIR$\drivers\uart_driver.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\cdc_enumerate.pbi</file>
+      <file>$TOOLKIT_DIR$\inc\c\string.h</file>
+      <file>$PROJ_DIR$\Debug\Obj\uart_driver.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\interrupt_sam_nvic.pbi</file>
+      <file>$PROJ_DIR$\Debug\Obj\interrupt_sam_nvic.o</file>
+      <file>$PROJ_DIR$\samd21_sam_ba.icf</file>
+      <file>$TOOLKIT_DIR$\lib\dl6M_tln.a</file>
+      <file>$PROJ_DIR$\Debug\List\samd21_sam_ba.map</file>
+      <file>$TOOLKIT_DIR$\lib\m6M_tl.a</file>
+      <file>$TOOLKIT_DIR$\lib\shb_l.a</file>
+      <file>$TOOLKIT_DIR$\lib\rt6M_tl.a</file>
+    </outputs>
+    <file>
+      <name>$PROJ_DIR$\drivers\uart_driver.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 115</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 78</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 112 43 35 41 42 40 39 32 36 44 37 38 30 31 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 80</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 112 43 35 41 42 40 39 32 36 44 37 38 30 31 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 80</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\drivers\cdc_enumerate.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 113</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 73</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 71 38 30 31 35 41 42 40 39 32 36 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 80 8 110 44 10 5 7 6 4 1 43 37 76 9 74 114 111</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 71 38 30 31 35 41 42 40 39 32 36 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 80 8 110 44 10 5 7 6 4 1 43 37 76 9 74 114 111</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\utils\interrupt\interrupt_sam_nvic.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 116</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 117</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 74 8 28 35 110 41 42 40 39 32 36 44 10 31 5 7 6 4 1 38 30 34 33 29 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 43 37 80 76 9</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 74 8 28 35 110 41 42 40 39 32 36 44 10 31 5 7 6 4 1 38 30 34 33 29 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 43 37 80 76 9</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>[ROOT_NODE]</name>
+      <outputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 48 120</file>
+        </tool>
+      </outputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\main.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 72</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 66</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 43 35 41 42 40 39 32 36 44 37 38 30 31 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 8 110 10 5 7 6 4 1 80 76 9 74 75 69 70 71</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 43 35 41 42 40 39 32 36 44 37 38 30 31 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 8 110 10 5 7 6 4 1 80 76 9 74 75 69 70 71</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\sam_ba_monitor.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 50</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 46</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 38 30 31 35 41 42 40 39 32 36 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 114 44 111 75 69 80 112 43 37 8 110 10 5 7 6 4 1 76 9 74 71</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 38 30 31 35 41 42 40 39 32 36 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 114 44 111 75 69 80 112 43 37 8 110 10 5 7 6 4 1 76 9 74 71</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\startup_samd21.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 49</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 45</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ICCARM</name>
+          <file> 38 30 31 35 41 42 40 39 32 36 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\usart_sam_ba.c</name>
+      <outputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 47</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 51</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>BICOMP</name>
+          <file> 69 31 35 41 42 40 39 32 36 80 70 112 43 44 37 38 30 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 8 110 10 5 7 6 4 1 76 9 74</file>
+        </tool>
+        <tool>
+          <name>ICCARM</name>
+          <file> 69 31 35 41 42 40 39 32 36 80 70 112 43 44 37 38 30 34 33 29 28 27 21 22 19 20 18 23 24 25 26 17 16 15 77 79 52 53 54 55 56 57 58 59 60 61 62 63 64 65 81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99 100 101 102 103 104 105 106 107 108 109 8 110 10 5 7 6 4 1 76 9 74</file>
+        </tool>
+      </inputs>
+    </file>
+    <file>
+      <name>$PROJ_DIR$\Debug\Exe\samd21_sam_ba.out</name>
+      <outputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 120</file>
+        </tool>
+        <tool>
+          <name>OBJCOPY</name>
+          <file> 68</file>
+        </tool>
+      </outputs>
+      <inputs>
+        <tool>
+          <name>ILINK</name>
+          <file> 118 73 117 66 46 45 78 51 122 123 121 119</file>
+        </tool>
+      </inputs>
+    </file>
+  </configuration>
+  <configuration>
+    <name>Release</name>
+    <outputs/>
+    <forcedrebuild>
+      <name>[MULTI_TOOL]</name>
+      <tool>ILINK</tool>
+    </forcedrebuild>
+  </configuration>
+</project>
+
+
