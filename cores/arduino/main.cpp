@@ -25,21 +25,21 @@
  */
 int main( void )
 {
-	init();
+  init();
 
-	delay(1);
+  delay(1);
 
-//#if defined(USBCON)
-//	USBDevice.attach();
-//#endif
+#if defined(USBCON)
+//  USBDevice.attach();
+#endif
 
-	setup();
+  setup();
 
-	for (;;)
-	{
-		loop();
-		if (serialEventRun) serialEventRun();
-	}
+  for (;;)
+  {
+    loop();
+    if (serialEventRun) serialEventRun();
+  }
 
-	return 0;
+  return 0;
 }

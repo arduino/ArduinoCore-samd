@@ -50,8 +50,8 @@ extern "C"{
 void yield( void ) ;
 
 /* sketch */
-extern void setup( void ) ;
-extern void loop( void ) ;
+void setup( void ) ;
+void loop( void ) ;
 
 #define NOT_AN_INTERRUPT -1
 
@@ -74,15 +74,18 @@ typedef void (*voidFuncPtr)( void ) ;
 
 #ifdef __cplusplus
 } // extern "C"
+#endif // __cplusplus
 
-#include "WCharacter.h"
-#include "WString.h"
-#include "Tone.h"
-#include "WMath.h"
-#include "HardwareSerial.h"
-#include "wiring_pulse.h"
-#include "delay.h"
-
+// The following headers are for C++ only compilation
+#ifdef __cplusplus
+  #include "WCharacter.h"
+  #include "WString.h"
+  #include "Tone.h"
+  #include "WMath.h"
+  #include "HardwareSerial.h"
+  #include "wiring_pulse.h"
+  #include "delay.h"
+  #include "Uart.h"
 #endif // __cplusplus
 
 // Include board variant

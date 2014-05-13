@@ -16,42 +16,33 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <Arduino.h>
-#include "Reset.h"
+#define ARDUINO_MAIN
+#include "Arduino.h" 
 
-#ifdef __cplusplus
-extern "C" {
+
+
+
+void setup(void) {
+	Serial.begin(115200);
+	
+#ifdef HID_ENABLED
+	Mouse.begin();
+#endif
+}
+
+void loop(void) {
+
+#ifdef HID_ENABLED
+	Mouse.move(1, 0, 0);
 #endif
 
-__attribute__ ((long_call, section (".ramfunc")))
-static void banzai() {
-	// Disable all interrupts
-	__disable_irq();
+//	if (Serial.available() > 0)
+//	{
+//		char inChar = Serial.read();
+//		Serial.print(inChar);
+//		Serial1.print(inChar);
+//	}
 
-  // Reset the device
-	NVIC_SystemReset() ;
-
-	while (true);
+//	delay(10);
 }
-
-static int ticks = -1;
-
-void initiateReset(int _ticks) {
-	ticks = _ticks;
-}
-
-void cancelReset() {
-	ticks = -1;
-}
-
-void tickReset() {
-	if (ticks == -1)
-		return;
-	ticks--;
-	if (ticks == 0)
-		banzai();
-}
-
-#ifdef __cplusplus
-}
-#endif
+ 

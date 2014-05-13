@@ -13,16 +13,40 @@
 ** ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
 ** SOFTWARE.
 */
-
-#include "Arduino.h"
-#include "USBAPI.h"
-#include "Reset.h"
+#include <stdlib.h>
 #include <stdio.h>
+#include <stdint.h>
+// Include Atmel headers
+#include "sam.h"
+#include "wiring_constants.h"
+#include "USBCore.h"
+#include "USB_device.h"   // needed for USB PID define
+#include "USBDesc.h"
+#include "USBAPI.h"
 
-//#define TRACE_CORE(x)	x
-#define TRACE_CORE(x)
+#define TRACE_CORE(x)	x
+//#define TRACE_CORE(x)
 
-static const uint32_t EndPoints[] =
+// USB Device
+#define USB_VID            0x2341 // arduino LLC vid
+#define USB_PID_LEONARDO   0x0034
+#define USB_PID_MICRO      0x0035
+#define USB_PID_DUE        0x003E
+#define USB_PID_ZERO       0x004D
+
+
+#define EP_TYPE_CONTROL          0
+#ifdef CDC_ENABLED
+#define EP_TYPE_INTERRUPT_IN     1       // CDC_ENDPOINT_ACM
+#define EP_TYPE_BULK_OUT         2       // CDC_ENDPOINT_OUT
+#define EP_TYPE_BULK_IN          3       // CDC_ENDPOINT_IN
+#endif
+#ifdef HID_ENABLED
+#define EP_TYPE_INTERRUPT_IN_HID 4       // HID_ENDPOINT_INT
+#endif
+
+
+static const uint8_t EndPoints[] =
 {
 	EP_TYPE_CONTROL,
 
@@ -90,18 +114,18 @@ const DeviceDescriptor USB_DeviceDescriptor =
 const DeviceDescriptor USB_DeviceDescriptorA =
 	D_DEVICE(DEVICE_CLASS,0x00,0x00,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,0,1);
 
-const DeviceDescriptor USB_DeviceQualifier =
-	D_QUALIFIER(0x00,0x00,0x00,64,1);
-
-//! 7.1.20 Test Mode Support
-static const unsigned char test_packet_buffer[] = {
-    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,                // JKJKJKJK * 9
-    0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,                     // JJKKJJKK * 8
-    0xEE,0xEE,0xEE,0xEE,0xEE,0xEE,0xEE,0xEE,                     // JJJJKKKK * 8
-    0xFE,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, // JJJJJJJKKKKKKK * 8
-    0x7F,0xBF,0xDF,0xEF,0xF7,0xFB,0xFD,                          // JJJJJJJK * 8
-    0xFC,0x7E,0xBF,0xDF,0xEF,0xF7,0xFB,0xFD,0x7E                 // {JKKKKKKK * 10}, JK
-};
+//const DeviceDescriptor USB_DeviceQualifier =
+//	D_QUALIFIER(0x00,0x00,0x00,64,1);
+//
+////! 7.1.20 Test Mode Support
+//static const unsigned char test_packet_buffer[] = {
+//    0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,                // JKJKJKJK * 9
+//    0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,0xAA,                     // JJKKJJKK * 8
+//    0xEE,0xEE,0xEE,0xEE,0xEE,0xEE,0xEE,0xEE,                     // JJJJKKKK * 8
+//    0xFE,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF, // JJJJJJJKKKKKKK * 8
+//    0x7F,0xBF,0xDF,0xEF,0xF7,0xFB,0xFD,                          // JJJJJJJK * 8
+//    0xFC,0x7E,0xBF,0xDF,0xEF,0xF7,0xFB,0xFD,0x7E                 // {JKKKKKKK * 10}, JK
+//};
 
 //==================================================================
 //==================================================================
@@ -115,23 +139,23 @@ uint32_t _cdcComposite = 0;
 //==================================================================
 
 #define USB_RECV_TIMEOUT
-class LockEP
-{
-	irqflags_t flags;
-public:
-	LockEP(uint32_t ep) : flags(cpu_irq_save())
-	{
-	}
-	~LockEP()
-	{
-		cpu_irq_restore(flags);
-	}
-};
+//class LockEP
+//{
+//	irqflags_t flags;
+//public:
+//	LockEP(uint32_t ep) : flags(cpu_irq_save())
+//	{
+//	}
+//	~LockEP()
+//	{
+//		cpu_irq_restore(flags);
+//	}
+//};
 
 //	Number of bytes, assumes a rx endpoint
 uint32_t USBD_Available(uint32_t ep)
 {
-	LockEP lock(ep);
+//	LockEP lock(ep);
 	return UDD_FifoByteCount(ep & 0xF);
 }
 
@@ -142,7 +166,7 @@ uint32_t USBD_Recv(uint32_t ep, void* d, uint32_t len)
 	if (!_usbConfiguration || len < 0)
 		return -1;
 
-	LockEP lock(ep);
+//	LockEP lock(ep);
 	uint32_t n = UDD_FifoByteCount(ep & 0xF);
 	len = min(n,len);
 	n = len;
@@ -263,7 +287,7 @@ static bool USB_SendStringDescriptor(const uint8_t *string, int wLength) {
 //	TODO
 int USBD_RecvControl(void* d, uint32_t len)
 {
-	UDD_WaitOUT();
+//	UDD_WaitOUT();
 	UDD_Recv(EP0, (uint8_t*)d, len);
 	UDD_ClearOUT();
 
@@ -312,23 +336,23 @@ int USBD_SendInterfaces(void)
 	return interfaces;
 }
 
-int USBD_SendOtherInterfaces(void)
-{
-	int total = 0;
-	uint8_t interfaces = 0;
-
-#ifdef CDC_ENABLED
-	total = CDC_GetOtherInterface(&interfaces);
-#endif
-
-#ifdef HID_ENABLED
-	total += HID_GetInterface(&interfaces);
-#endif
-
-	total = total; // Get rid of compiler warning
-	TRACE_CORE(printf("=> USBD_SendInterfaces, total=%d interfaces=%d\r\n", total, interfaces);)
-	return interfaces;
-}
+//int USBD_SendOtherInterfaces(void)
+//{
+//	int total = 0;
+//	uint8_t interfaces = 0;
+//
+//#ifdef CDC_ENABLED
+//	total = CDC_GetOtherInterface(&interfaces);
+//#endif
+//
+//#ifdef HID_ENABLED
+//	total += HID_GetInterface(&interfaces);
+//#endif
+//
+//	total = total; // Get rid of compiler warning
+//	TRACE_CORE(printf("=> USBD_SendInterfaces, total=%d interfaces=%d\r\n", total, interfaces);)
+//	return interfaces;
+//}
 
 //	Construct a dynamic configuration descriptor
 //	This really needs dynamic endpoint allocation etc
@@ -342,9 +366,9 @@ static bool USBD_SendConfiguration(int maxlen)
 	//TRACE_CORE(printf("=> USBD_SendConfiguration _cmark2=%d\r\n", _cmark);)
 	//TRACE_CORE(printf("=> USBD_SendConfiguration sizeof=%d\r\n", sizeof(ConfigDescriptor));)
 
-_Pragma("pack(1)")
-	ConfigDescriptor config = D_CONFIG(_cmark + sizeof(ConfigDescriptor),interfaces);
-_Pragma("pack()")
+//JCB _Pragma("pack(1)")
+	ConfigDescriptor config = D_CONFIG((uint16_t)(_cmark + sizeof(ConfigDescriptor)),(uint8_t)interfaces);
+//JCB  _Pragma("pack()")
 	//TRACE_CORE(printf("=> USBD_SendConfiguration clen=%d\r\n", config.clen);)
 
 	//TRACE_CORE(printf("=> USBD_SendConfiguration maxlen=%d\r\n", maxlen);)
@@ -356,28 +380,28 @@ _Pragma("pack()")
 	return true;
 }
 
-static bool USBD_SendOtherConfiguration(int maxlen)
-{
-	//	Count and measure interfaces
-	USBD_InitControl(0);
-	//TRACE_CORE(printf("=> USBD_SendConfiguration _cmark1=%d\r\n", _cmark);)
-	int interfaces = USBD_SendOtherInterfaces();
-	//TRACE_CORE(printf("=> USBD_SendConfiguration _cmark2=%d\r\n", _cmark);)
-	//TRACE_CORE(printf("=> USBD_SendConfiguration sizeof=%d\r\n", sizeof(ConfigDescriptor));)
-
-_Pragma("pack(1)")
-	ConfigDescriptor config = D_OTHERCONFIG(_cmark + sizeof(ConfigDescriptor),interfaces);
-_Pragma("pack()")
-	//TRACE_CORE(printf("=> USBD_SendConfiguration clen=%d\r\n", config.clen);)
-
-	//TRACE_CORE(printf("=> USBD_SendConfiguration maxlen=%d\r\n", maxlen);)
-
-	//	Now send them
-	USBD_InitControl(maxlen);
-	USBD_SendControl(0,&config,sizeof(ConfigDescriptor));
-	USBD_SendOtherInterfaces();
-	return true;
-}
+//static bool USBD_SendOtherConfiguration(int maxlen)
+//{
+//	//	Count and measure interfaces
+//	USBD_InitControl(0);
+//	//TRACE_CORE(printf("=> USBD_SendConfiguration _cmark1=%d\r\n", _cmark);)
+//	int interfaces = USBD_SendOtherInterfaces();
+//	//TRACE_CORE(printf("=> USBD_SendConfiguration _cmark2=%d\r\n", _cmark);)
+//	//TRACE_CORE(printf("=> USBD_SendConfiguration sizeof=%d\r\n", sizeof(ConfigDescriptor));)
+//
+//_Pragma("pack(1)")
+//	ConfigDescriptor config = D_OTHERCONFIG(_cmark + sizeof(ConfigDescriptor),interfaces);
+//_Pragma("pack()")
+//	//TRACE_CORE(printf("=> USBD_SendConfiguration clen=%d\r\n", config.clen);)
+//
+//	//TRACE_CORE(printf("=> USBD_SendConfiguration maxlen=%d\r\n", maxlen);)
+//
+//	//	Now send them
+//	USBD_InitControl(maxlen);
+//	USBD_SendControl(0,&config,sizeof(ConfigDescriptor));
+//	USBD_SendOtherInterfaces();
+//	return true;
+//}
 
 static bool USBD_SendDescriptor(Setup& setup)
 {
@@ -431,22 +455,22 @@ static bool USBD_SendDescriptor(Setup& setup)
 			desc_length = setup.wLength;
 		}
 	}
-	else if (USB_DEVICE_QUALIFIER == t)
-	{
-		// Device qualifier descriptor requested
-		desc_addr = (const uint8_t*)&USB_DeviceQualifier;
-        if( *desc_addr > setup.wLength ) {
-            desc_length = setup.wLength;
-        }
-    }
-    else if (USB_OTHER_SPEED_CONFIGURATION == t)
-    {
-		// Other configuration descriptor requested
-		return USBD_SendOtherConfiguration(setup.wLength);
-    }
+//	else if (USB_DEVICE_QUALIFIER == t)
+//	{
+//		// Device qualifier descriptor requested
+//		desc_addr = (const uint8_t*)&USB_DeviceQualifier;
+//        if( *desc_addr > setup.wLength ) {
+//            desc_length = setup.wLength;
+//        }
+//    }
+//    else if (USB_OTHER_SPEED_CONFIGURATION == t)
+//    {
+//		// Other configuration descriptor requested
+//		return USBD_SendOtherConfiguration(setup.wLength);
+//    }
     else
     {
-        //printf("Device ERROR");
+        TRACE_CORE(printf("Device ERROR");)
     }
 
 	if (desc_addr == 0)
@@ -466,131 +490,26 @@ static bool USBD_SendDescriptor(Setup& setup)
 }
 
 
-static void USB_SendZlp( void )
-{
-    while( UOTGHS_DEVEPTISR_TXINI != (UOTGHS->UOTGHS_DEVEPTISR[0] & UOTGHS_DEVEPTISR_TXINI ) )
-    {
-        if((UOTGHS->UOTGHS_DEVISR & UOTGHS_DEVISR_SUSP) == UOTGHS_DEVISR_SUSP)
-        {
-            return;
-        }
-    }
-    UOTGHS->UOTGHS_DEVEPTICR[0] = UOTGHS_DEVEPTICR_TXINIC;
-}
-
-
-static void Test_Mode_Support( uint8_t wIndex )
-{
-    uint8_t i;
-	uint8_t *ptr_dest = (uint8_t *) &udd_get_endpoint_fifo_access8(2);
-
-	switch( wIndex )
-	{
-		case 4:
-			//Test mode Test_Packet:
-			//Upon command, a port must repetitively transmit the following test packet until
-			//the exit action is taken. This enables the testing of rise and fall times, eye
-			//patterns, jitter, and any other dynamic waveform specifications.
-			//The test packet is made up by concatenating the following strings.
-			//(Note: For J/K NRZI data, and for NRZ data, the bit on the left is the first one
-			//transmitted. "S" indicates that a bit stuff occurs, which inserts an "extra" NRZI data bit.
-			//"* N" is used to indicate N occurrences of a string of bits or symbols.)
-			//A port in Test_Packet mode must send this packet repetitively. The inter-packet timing
-			//must be no less than the minimum allowable inter-packet gap as defined in Section 7.1.18 and
-			//no greater than 125 us.
-
-			// Send ZLP
-			USB_SendZlp();
-
-			UOTGHS->UOTGHS_DEVDMA[0].UOTGHS_DEVDMACONTROL = 0; // raz
-			UOTGHS->UOTGHS_DEVDMA[1].UOTGHS_DEVDMACONTROL = 0; // raz
-
-			// Configure endpoint 2, 64 bytes, direction IN, type BULK, 1 bank
-			UOTGHS->UOTGHS_DEVEPTCFG[2] = UOTGHS_DEVEPTCFG_EPSIZE_64_BYTE
-												 | UOTGHS_DEVEPTCFG_EPDIR_IN
-												 | UOTGHS_DEVEPTCFG_EPTYPE_BLK
-												 | UOTGHS_DEVEPTCFG_EPBK_1_BANK;
-			// Check if the configuration is ok
-			UOTGHS->UOTGHS_DEVEPTCFG[2] |= UOTGHS_DEVEPTCFG_ALLOC;
-			while((UOTGHS->UOTGHS_DEVEPTISR[2]&UOTGHS_DEVEPTISR_CFGOK)==0) {}
-			UOTGHS->UOTGHS_DEVEPT |= UOTGHS_DEVEPT_EPEN2;
-			// Write FIFO
-			for( i=0; i<sizeof(test_packet_buffer); i++)
-			{
-				ptr_dest[i] = test_packet_buffer[i];;
-			}
-			// Tst PACKET
-			UOTGHS->UOTGHS_DEVCTRL |= UOTGHS_DEVCTRL_TSTPCKT;
-			// Send packet
-			UOTGHS->UOTGHS_DEVEPTICR[2] = UOTGHS_DEVEPTICR_TXINIC;
-			UOTGHS->UOTGHS_DEVEPTIDR[2] = UOTGHS_DEVEPTIDR_FIFOCONC;
-			for(;;);
-//      break;
-
-		case 1:
-			//Test mode Test_J:
-			//Upon command, a port's transceiver must enter the high-speed J state and remain in that
-			//state until the exit action is taken. This enables the testing of the high output drive
-			//level on the D+ line.
-			// Send a ZLP
-			USB_SendZlp();
-			UOTGHS->UOTGHS_DEVCTRL |= UOTGHS_DEVCTRL_TSTJ;
-			for(;;);
-//      break;
-
-		case 2:
-			//Test mode Test_K:
-			//Upon command, a port's transceiver must enter the high-speed K state and remain in
-			//that state until the exit action is taken. This enables the testing of the high output drive
-			//level on the D- line.
-			// Send a ZLP
-			USB_SendZlp();
-			UOTGHS->UOTGHS_DEVCTRL |= UOTGHS_DEVCTRL_TSTK;
-			for(;;);
-//		break;
-
-		case 3:
-			//Test mode Test_SE0_NAK:
-			//Upon command, a port's transceiver must enter the high-speed receive mode
-			//and remain in that mode until the exit action is taken. This enables the testing
-			//of output impedance, low level output voltage, and loading characteristics.
-			//In addition, while in this mode, upstream facing ports (and only upstream facing ports)
-			//must respond to any IN token packet with a NAK handshake (only if the packet CRC is
-			//determined to be correct) within the normal allowed device response time. This enables testing of
-			//the device squelch level circuitry and, additionally, provides a general purpose stimulus/response
-			//test for basic functional testing.
-
-			// Send a ZLP
-			USB_SendZlp();
-			UOTGHS->UOTGHS_DEVIDR = UOTGHS_DEVIDR_SUSPEC
-							   | UOTGHS_DEVIDR_MSOFEC
-							   | UOTGHS_DEVIDR_SOFEC
-							   | UOTGHS_DEVIDR_EORSTEC
-							   | UOTGHS_DEVIDR_WAKEUPEC
-							   | UOTGHS_DEVIDR_EORSMEC
-							   | UOTGHS_DEVIDR_UPRSMEC
-							   | UOTGHS_DEVIDR_PEP_0
-							   | UOTGHS_DEVIDR_PEP_1
-							   | UOTGHS_DEVIDR_PEP_2
-							   | UOTGHS_DEVIDR_PEP_3
-							   | UOTGHS_DEVIDR_PEP_4
-							   | UOTGHS_DEVIDR_PEP_5
-							   | UOTGHS_DEVIDR_PEP_6
-							   | UOTGHS_DEVIDR_DMA_1
-							   | UOTGHS_DEVIDR_DMA_2
-							   | UOTGHS_DEVIDR_DMA_3
-							   | UOTGHS_DEVIDR_DMA_4
-							   | UOTGHS_DEVIDR_DMA_5
-							   | UOTGHS_DEVIDR_DMA_6;
-			for(;;);
-//		break;
-	}
-}
+//static void USB_SendZlp( void )
+//{
+//    //while( UOTGHS_DEVEPTISR_TXINI != (UOTGHS->UOTGHS_DEVEPTISR[0] & UOTGHS_DEVEPTISR_TXINI ) )
+//    while (!(USB->DEVICE.DeviceEndpoint[EP0].EPSTATUS.reg &  USB_DEVICE_EPSTATUSCLR_BK1RDY))
+//    {
+//        //if((UOTGHS->UOTGHS_DEVISR & UOTGHS_DEVISR_SUSP) == UOTGHS_DEVISR_SUSP)
+//        if((USB->DEVICE.INTFLAG.reg & USB_DEVICE_INTFLAG_SUSPEND) == USB_DEVICE_INTFLAG_SUSPEND)
+//        {
+//            return;
+//        }
+//    }
+//    //UOTGHS->UOTGHS_DEVEPTICR[0] = UOTGHS_DEVEPTICR_TXINIC;
+//    USB->DEVICE.DeviceEndpoint[EP0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK1RDY;
+//}
+//
 
 
 //unsigned int iii=0;
 //	Endpoint 0 interrupt
-static void USB_ISR(void)
+void USB_Handler(void)
 {
 //    printf("ISR=0x%X\n\r", UOTGHS->UOTGHS_DEVISR); // jcb
 //    if( iii++ > 1500 ) while(1); // jcb
@@ -601,12 +520,12 @@ static void USB_ISR(void)
 
 		// Reset USB address to 0
 		udd_configure_address(0);
-		udd_enable_address();
+		//udd_enable_address();
 
 		// Configure EP 0
         UDD_InitEP(0, EP_TYPE_CONTROL);
 		udd_enable_setup_received_interrupt(0);
-		udd_enable_endpoint_interrupt(0);
+	//	udd_enable_endpoint_interrupt(0);
 
         _usbConfiguration = 0;
 		udd_ack_reset();
@@ -645,7 +564,7 @@ static void USB_ISR(void)
 		if (requestType & REQUEST_DEVICETOHOST)
 		{
 			TRACE_CORE(puts(">>> EP0 Int: IN Request\r\n");)
-			UDD_WaitIN();
+//JCB			UDD_WaitIN();
 		}
 		else
 		{
@@ -719,26 +638,26 @@ static void USB_ISR(void)
                     //USBD_Halt(USBGenericRequest_GetEndpointNumber(pRequest));
 	    			UDD_Send8(EP0, 0);
                 }
-                if( setup.wValueL == 2) // TEST_MODE
-                {
-                    // 7.1.20 Test Mode Support, 9.4.9 SetFeature
-                    if( (setup.bmRequestType == 0 /*USBGenericRequest_DEVICE*/) &&
-                        ((setup.wIndex & 0x000F) == 0) )
-                    {
-                        // the lower byte of wIndex must be zero
-                        // the most significant byte of wIndex is used to specify the specific test mode
-
-                        UOTGHS->UOTGHS_DEVIDR &= ~UOTGHS_DEVIDR_SUSPEC;
-                        UOTGHS->UOTGHS_DEVCTRL |= UOTGHS_DEVCTRL_SPDCONF_HIGH_SPEED; // remove suspend ?
-
-                        Test_Mode_Support( (setup.wIndex & 0xFF00)>>8 );
-                    }
-                }
+//                if( setup.wValueL == 2) // TEST_MODE
+//                {
+//                    // 7.1.20 Test Mode Support, 9.4.9 SetFeature
+//                    if( (setup.bmRequestType == 0 /*USBGenericRequest_DEVICE*/) &&
+//                        ((setup.wIndex & 0x000F) == 0) )
+//                    {
+//                        // the lower byte of wIndex must be zero
+//                        // the most significant byte of wIndex is used to specify the specific test mode
+//
+//                        UOTGHS->UOTGHS_DEVIDR &= ~UOTGHS_DEVIDR_SUSPEC;
+//                        UOTGHS->UOTGHS_DEVCTRL |= UOTGHS_DEVCTRL_SPDCONF_HIGH_SPEED; // remove suspend ?
+//
+//                        Test_Mode_Support( (setup.wIndex & 0xFF00)>>8 );
+//                    }
+//                }
 			}
 			else if (SET_ADDRESS == r)
 			{
 				TRACE_CORE(puts(">>> EP0 Int: SET_ADDRESS\r\n");)
-				UDD_WaitIN();
+//JCB				UDD_WaitIN();
 				UDD_SetAddress(setup.wValueL);
 			}
 			else if (GET_DESCRIPTOR == r)
@@ -768,7 +687,7 @@ static void USB_ISR(void)
 #ifdef CDC_ENABLED
 					// Enable interrupt for CDC reception from host (OUT packet)
 					udd_enable_out_received_interrupt(CDC_RX);
-					udd_enable_endpoint_interrupt(CDC_RX);
+			//		udd_enable_endpoint_interrupt(CDC_RX);
 #endif
 				}
 				else
@@ -792,7 +711,7 @@ static void USB_ISR(void)
 		{
 			TRACE_CORE(puts(">>> EP0 Int: ClassInterfaceRequest\r\n");)
 
-			UDD_WaitIN(); // Workaround: need tempo here, else CDC serial won't open correctly
+//JCB			UDD_WaitIN(); // Workaround: need tempo here, else CDC serial won't open correctly
 
 			USBD_InitControl(setup.wLength); // Max length of transfer
 			ok = USBD_ClassInterfaceRequest(setup);
@@ -806,7 +725,7 @@ static void USB_ISR(void)
 		else
 		{
 			TRACE_CORE(puts(">>> EP0 Int: Stall\r\n");)
-			UDD_Stall();
+			UDD_Stall(0);
 		}
 	}
 }
@@ -823,7 +742,7 @@ uint32_t USBD_Connected(void)
 {
 	uint8_t f = UDD_GetFrameNumber();
 
-	delay(3);
+//delay(3); //JCB
 
 	return f != UDD_GetFrameNumber();
 }
@@ -836,12 +755,14 @@ USBDevice_ USBDevice;
 
 USBDevice_::USBDevice_()
 {
-	UDD_SetStack(&USB_ISR);
+	//UDD_SetStack(&USB_ISR);
 
-	if (UDD_Init() == 0UL)
-	{
-		_usbInitialized=1UL;
-	}
+//	if (UDD_Init() == 0UL)
+//	{
+//		_usbInitialized=1UL;
+//	}
+	UDD_Init();
+	_usbInitialized=1UL;
 }
 
 bool USBDevice_::attach(void)
@@ -858,7 +779,7 @@ bool USBDevice_::attach(void)
   }
 }
 
-bool USBDevice_::detach(void)
+bool USBDevice_::detach()
 {
 	if (_usbInitialized != 0UL)
 	{

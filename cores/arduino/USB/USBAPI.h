@@ -19,8 +19,20 @@
 #ifndef __USBAPI__
 #define __USBAPI__
 
+
+/* Define attribute */
+#if defined   ( __CC_ARM   ) /* Keil uVision 4 */
+    #define WEAK (__attribute__ ((weak)))
+#elif defined ( __ICCARM__ ) /* IAR Ewarm 5.41+ */
+    #define WEAK __weak
+#elif defined (  __GNUC__  ) /* GCC CS */
+    #define WEAK __attribute__ ((weak))
+#endif
+
+
 #if defined __cplusplus
 
+#include "Stream.h"
 #include "RingBuffer.h"
 
 //================================================================================
@@ -49,7 +61,7 @@ private:
 	RingBuffer *_cdc_rx_buffer;
 public:
 	void begin(uint32_t baud_count);
-	void begin(uint32_t baud_count, uint8_t config);
+	void begin(unsigned long, uint8_t);
 	void end(void);
 
 	virtual int available(void);
@@ -189,7 +201,7 @@ bool	MSC_Data(uint8_t rx,uint8_t tx);
 
 //================================================================================
 //================================================================================
-//	CSC 'Driver'
+//	CDC 'Driver'
 
 int		CDC_GetInterface(uint8_t* interfaceNum);
 int		CDC_GetOtherInterface(uint8_t* interfaceNum);
@@ -217,5 +229,5 @@ uint32_t USBD_Recv(uint32_t ep);							// non-blocking
 void USBD_Flush(uint32_t ep);
 uint32_t USBD_Connected(void);
 
-#endif
-#endif
+#endif  // __cplusplus
+#endif  // __USBAPI__

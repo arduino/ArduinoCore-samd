@@ -18,7 +18,7 @@
 #define __USBDESC_H__
 
 #define CDC_ENABLED
-#define HID_ENABLED
+//#define HID_ENABLED
 
 #ifdef CDC_ENABLED
 #define CDC_INTERFACE_COUNT	2

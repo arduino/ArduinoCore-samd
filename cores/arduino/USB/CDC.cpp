@@ -14,9 +14,21 @@
 ** SOFTWARE.
 */
 
-#include "Arduino.h"
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+
+// Include Atmel headers
+#include "sam.h"
+#include "wiring_constants.h"
+#include "USBCore.h"
+#include "USB_device.h"
+#include "USBDesc.h"
 #include "USBAPI.h"
+//#include "samd21_device.h"
+
 #include "Reset.h"
+
 
 #ifdef CDC_ENABLED
 
@@ -159,15 +171,15 @@ void Serial_::end(void)
 
 void Serial_::accept(void)
 {
-	static uint32_t guard = 0;
+//	static uint32_t guard = 0;
 
 	// synchronized access to guard
-	do {
-		if (__LDREXW(&guard) != 0) {
-			__CLREX();
-			return;  // busy
-		}
-	} while (__STREXW(1, &guard) != 0); // retry until write succeed
+//JCB	do {
+//		if (__LDREXW(&guard) != 0) {
+//			__CLREX();
+//			return;  // busy
+//		}
+//	} while (__STREXW(1, &guard) != 0); // retry until write succeed
 
 	ring_buffer *buffer = &cdc_rx_buffer;
 	uint32_t i = (uint32_t)(buffer->head+1) % CDC_SERIAL_BUFFER_SIZE;
@@ -179,7 +191,8 @@ void Serial_::accept(void)
 	while (i != buffer->tail) {
 		uint32_t c;
 		if (!USBD_Available(CDC_RX)) {
-			udd_ack_fifocon(CDC_RX);
+            UDD_ReleaseRX(CDC_RX);
+			//JCB udd_ack_fifocon(CDC_RX);
 			break;
 		}
 		c = USBD_Recv(CDC_RX);
@@ -191,7 +204,7 @@ void Serial_::accept(void)
 	}
 
 	// release the guard
-	guard = 0;
+//	guard = 0;
 }
 
 int Serial_::available(void)
@@ -280,8 +293,8 @@ size_t Serial_::write(uint8_t c) {
 Serial_::operator bool()
 {
 	// this is here to avoid spurious opening after upload
-	if (millis() < 500)
-		return false;
+//	if (millis() < 500)
+//		return false;
 
 	bool result = false;
 
@@ -290,7 +303,7 @@ Serial_::operator bool()
 		result = true;
 	}
 
-	delay(10);
+//	delay(10);
 	return result;
 }
 

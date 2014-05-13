@@ -33,6 +33,9 @@ void setup( void )
   pinMode( PIN_LED3, OUTPUT ) ;
   digitalWrite( PIN_LED3, LOW ) ;
 
+  // Initialize the PIN 2 digital pin as an input.
+  pinMode( 2, INPUT ) ;
+
 //**********************************************
 // Clock output on pin 4 for measure
 
@@ -42,9 +45,7 @@ void setup( void )
 
 //**********************************************
 
-/*
-  Serial1.begin( 115200 ) ;
-*/
+  Serial.begin( 115200 ) ;
 }
 
 static void led_step1( void )
@@ -86,10 +87,14 @@ static void analog_write_step (void)
 
 void loop( void )
 {
+  volatile int pin_value=0 ;
+
+  // Test digitalWrite
   led_step1() ;
   delay( 1000 ) ;              // wait for a second
   led_step2() ;
   delay( 1000 ) ;              // wait for a second
+<<<<<<< HEAD:hardware/arduino/samd/cores/arduino/validation/test.cpp
   
   analog_write_step();
 	
@@ -98,17 +103,32 @@ void loop( void )
   Serial1.write( "test1\n" ) ;   // send a string
   Serial1.write( "test2" ) ;   // send another string
 */
+=======
+
+  // Test Serial output
+  Serial.write( '-' ) ;   // send a char
+  Serial.write( "test1\n" ) ;   // send a string
+  Serial.write( "test2" ) ;   // send another string
+
+  // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pin !!!!
+  pin_value=digitalRead( 2 ) ;
+  Serial.write( "pin 2 value is " ) ;
+  Serial.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
+  delay( 1000 ) ;              // wait for a second
+
+>>>>>>> d072378eda9c37582c45f00acb3fb623efcabf6d:hardware/arduino/samd/cores/validation/validation_core/test.cpp
 
 /*
-  Serial1.print("Analog pins: ");
+  Serial.print("Analog pins: ");
 
   for ( int i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
     int a = analogRead(i);
-    Serial1.print(a, DEC);
-    Serial1.print(" ");
+    Serial.print(a, DEC);
+    Serial.print(" ");
   }
-  Serial1.println();
+  Serial.println();
   delay(100);
 */
+
 }
