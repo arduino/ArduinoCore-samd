@@ -48,8 +48,8 @@
  * +------------+------------------+--------+-----------------+------------------------------
  * | 18         | 1                |  PA12  | MISO            | EIC/EXTINT[12] SERCOM2/PAD[0] *SERCOM4/PAD[0] TCC2/WO[0] TCC0/WO[6]
  * | 19         | 2                |        | 5V0             |
- * | 20         | 3                |  PB11  | SCK             | EIC/EXTINT[11] *SERCOM4/PAD[3] TC5/WO[1] TCC0/WO[5]
- * | 21         | 4                |  PB10  | MOSI            | EIC/EXTINT[10] *SERCOM4/PAD[2] TC5/WO[0] TCC0/WO[4]
+ * | 20         | 3                |  PB11  | SCK             | EIC/EXTINT[11]                *SERCOM4/PAD[3] TC5/WO[1] TCC0/WO[5]
+ * | 21         | 4                |  PB10  | MOSI            | EIC/EXTINT[10]                *SERCOM4/PAD[2] TC5/WO[0] TCC0/WO[4]
  * | 22         | 5                |        | RESET           |
  * | 23         | 6                |        | GND             |
  * +------------+------------------+--------+-----------------+------------------------------
@@ -138,10 +138,10 @@ const PinDescription g_APinDescription[]=
   { PORTA, 23, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SCL: SERCOM3/PAD[1]
 
 	// 18..23 SPI (ICSP:MISO,SCK,MOSI)
-  { PORTA, 12, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // MISO: SERCOM4/PAD[0]
+  { PORTA, 12, PIO_SERCOM_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // MISO: SERCOM4/PAD[0]
   { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // 5V0
-  { PORTB, 11, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SCK: SERCOM4/PAD[3]
-  { PORTB, 10, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // MOSI: SERCOM4/PAD[2]
+  { PORTB, 11, PIO_SERCOM_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // SCK: SERCOM4/PAD[3]
+  { PORTB, 10, PIO_SERCOM_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // MOSI: SERCOM4/PAD[2]
   { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // RESET
   { NOT_A_PORT, 0, PIO_NOT_A_PIN, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER }, // GND
 
