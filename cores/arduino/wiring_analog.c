@@ -265,70 +265,70 @@ void analogWrite(uint32_t ulPin, uint32_t ulValue) {
 	  }
 	 
 	 
-		switch (g_APinDescription[ulPin].ulTCChannel) 
+		switch (g_APinDescription[ulPin].ulPWMChannel) 
 		{
-			case  TC3_CH0 :
+			case  PWM3_CH0 :
 			TCx = TC3;
 			Channelx = 0;
 			isTC = 1;
 			break;
 		
-			case  TC3_CH1:
+			case  PWM3_CH1:
 			TCx = TC3 ;
 			Channelx = 1;
 			isTC = 1;
 			break;
 	
-			case  TCC0_CH0 :
+			case  PWM0_CH0 :
 			TCCx = TCC0;
 			Channelx = 0;
 			break;
 			
-			case  TCC0_CH1 :
+			case  PWM0_CH1 :
 			TCCx = TCC0;
 			Channelx = 1;
 			break;
 			
-			case  TCC0_CH4 :
+			case  PWM0_CH4 :
 			TCCx = TCC0;
 			//Channelx = 4;
 			Channelx = 0;
 			break;
 			
-			case  TCC0_CH5 :
+			case  PWM0_CH5 :
 			TCCx = TCC0;
 			//Channelx = 5;
 			Channelx = 1;
 			break;
 			
-			case  TCC0_CH6 :
+			case  PWM0_CH6 :
 			TCCx = TCC0;
 			//Channelx = 6;
 			Channelx = 2;
 			break;
 			
-			case  TCC0_CH7 :
+			case  PWM0_CH7 :
 			TCCx = TCC0;
 			//Channelx = 7;
 			Channelx = 3;
 			break;
 			
-			case  TCC1_CH0 :
+			case  PWM1_CH0 :
 			TCCx = TCC1;
 			Channelx = 0;
 			break;
 			
-			case  TCC1_CH1 :
+			case  PWM1_CH1 :
 			TCCx = TCC1;
 			Channelx = 1;
 			break;
 			
-			case  TCC2_CH0 :
+			case  PWM2_CH0 :
 			TCCx = TCC2;
 			Channelx = 0;
 			break;
 			
-			case  TCC2_CH1 :
+			case  PWM2_CH1 :
 			TCCx = TCC2;
 			Channelx = 1;
 			break;
