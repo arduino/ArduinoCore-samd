@@ -12,3 +12,8 @@ SAM_BA_BOTH_INTERFACES for enabling both the interfaces
 SAM_BA_INTERFACE value should be modified in
 Project Options -> C/C++ Compiler -> Preprocessor -> Defined symbols
 Project Options -> Assembler -> Preprocessor -> Defined symbols
+
+3- Start application check
+
+Bootloader checks for the state of BOOT_LOAD_PIN (configurable by the user from main.h). If BOOT_LOAD_PIN is pulled low, bootloader execution is resumed.
+Else, the first location of application is fetched and checked. If it is empty (0xFFFFFFFF), then bootloader execution is resumed. Else it jumps to application and starts execution from there.
