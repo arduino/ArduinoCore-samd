@@ -198,7 +198,7 @@ class SERCOM
 		Sercom* sercom;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 		uint32_t division(uint32_t dividend, uint32_t divisor);
-		void initClock();
+		void initClockNvic();
 		void initNVIC();
 };
 

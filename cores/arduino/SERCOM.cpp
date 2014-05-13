@@ -20,8 +20,7 @@ SERCOM::SERCOM(Sercom* s)
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {		
 	resetUART();
-	initClock();
-	initNVIC();
+	initClockNvic();
 	
 	//Setting the CTRLA register
 	sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
@@ -154,6 +153,7 @@ int SERCOM::writeDataUART(uint8_t data)
 void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder)
 {
 	resetSPI();
+	initClockNvic();
 	
 	//Setting the CTRLA register
 	sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE(SPI_MASTER_OPERATION) |
@@ -493,34 +493,45 @@ uint8_t SERCOM::readDataWIRE()
 }
 
 
-void SERCOM::initClock()
+void SERCOM::initClockNvic()
 {
 	uint8_t clockId = 0;
+	IRQn_Type Id;
 	
 	if(sercom == SERCOM0)
 	{
 		clockId = GENERIC_CLOCK_SERCOM0;
+		Id = SERCOM0_IRQn;
 	}
 	else if(sercom == SERCOM1)
 	{
 		clockId = GENERIC_CLOCK_SERCOM1;
+		Id = SERCOM1_IRQn;
 	}
 	else if(sercom == SERCOM2)
 	{
 		clockId = GENERIC_CLOCK_SERCOM2;
+		Id = SERCOM2_IRQn;
 	}
 	else if(sercom == SERCOM3)
 	{
 		clockId = GENERIC_CLOCK_SERCOM3;
+		Id = SERCOM3_IRQn;
 	}
 	else if(sercom == SERCOM4)
 	{
 		clockId = GENERIC_CLOCK_SERCOM4;
+		Id = SERCOM4_IRQn;
 	}
 	else if(sercom == SERCOM5)
 	{
 		clockId = GENERIC_CLOCK_SERCOM5;
+		Id = SERCOM5_IRQn;
 	}
+	
+	//Setting NVIC
+	NVIC_EnableIRQ(Id);
+	NVIC_SetPriority (Id, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
 	
 	//Setting clock
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
@@ -532,39 +543,6 @@ void SERCOM::initClock()
 	{
 		/* Wait for synchronization */
 	}
-}
-
-void SERCOM::initNVIC()
-{
-		IRQn_Type Id;
-		
-		if(sercom == SERCOM0)
-		{
-			Id = SERCOM0_IRQn;
-		}
-		else if(sercom == SERCOM1)
-		{
-			Id = SERCOM1_IRQn;
-		}
-		else if(sercom == SERCOM2)
-		{
-			Id = SERCOM2_IRQn;
-		}
-		else if(sercom == SERCOM3)
-		{
-			Id = SERCOM3_IRQn;
-		}
-		else if(sercom == SERCOM4)
-		{
-			Id = SERCOM4_IRQn;
-		}
-		else if(sercom == SERCOM5)
-		{
-			Id = SERCOM5_IRQn;
-		}
-		
-	NVIC_EnableIRQ(Id);
-	NVIC_SetPriority (Id, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
 }
 
 /*	=========================
