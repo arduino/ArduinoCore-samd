@@ -62,7 +62,7 @@ extern "C"{
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
 #define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
-#define digitalPinToTimer(P)       (  )
+#define digitalPinToTimer(P)       ( )
 //#define analogInPinToBit(P)        ( )
 #define portOutputRegister(port)   ( &(port->OUT) )
 #define portInputRegister(port)    ( &(port->IN) )
@@ -70,7 +70,7 @@ extern "C"{
 #define digitalPinHasPWM(P)        ( g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER )
 
 // Interrupts
-#define digitalPinToInterrupt(p)  ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+#define digitalPinToInterrupt(p)  (-1) // ((p) < NUM_DIGITAL_PINS ? (p) : -1)
 
 // LEDs
 #define PIN_LED_13           (13u)
