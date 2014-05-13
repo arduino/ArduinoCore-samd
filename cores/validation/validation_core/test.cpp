@@ -94,16 +94,6 @@ void loop( void )
   delay( 1000 ) ;              // wait for a second
   led_step2() ;
   delay( 1000 ) ;              // wait for a second
-<<<<<<< HEAD:hardware/arduino/samd/cores/arduino/validation/test.cpp
-  
-  analog_write_step();
-	
-/*
-  Serial1.write( '-' ) ;   // send a char
-  Serial1.write( "test1\n" ) ;   // send a string
-  Serial1.write( "test2" ) ;   // send another string
-*/
-=======
 
   // Test Serial output
   Serial.write( '-' ) ;   // send a char
@@ -116,7 +106,7 @@ void loop( void )
   Serial.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
   delay( 1000 ) ;              // wait for a second
 
->>>>>>> d072378eda9c37582c45f00acb3fb623efcabf6d:hardware/arduino/samd/cores/validation/validation_core/test.cpp
+  analog_write_step();
 
 /*
   Serial.print("Analog pins: ");
