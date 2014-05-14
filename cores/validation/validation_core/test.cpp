@@ -29,7 +29,7 @@ void setup( void )
   pinMode( PIN_LED2, OUTPUT ) ;
   digitalWrite( PIN_LED2, HIGH ) ;
 
-  // Initialize the PIN_LED2 digital pin as an output.
+  // Initialize the PIN_LED3 digital pin as an output.
   pinMode( PIN_LED3, OUTPUT ) ;
   digitalWrite( PIN_LED3, LOW ) ;
 
@@ -95,16 +95,15 @@ void loop( void )
   analogWrite(  4, duty_cycle ) ;
   analogWrite(  3, duty_cycle ) ;
 
-/*
   Serial5.print("Analog pins: ");
 
   for ( int i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
+/*
     int a = analogRead(i);
     Serial5.print(a, DEC);
     Serial5.print(" ");
+*/
   }
   Serial5.println();
-  delay(100);
-*/
 }
