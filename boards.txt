@@ -2,7 +2,7 @@
 arduino_zero_dbg.name=Arduino Zero (Programming Port)
 arduino_zero_dbg.vid.0=0x03eb
 arduino_zero_dbg.pid.0=0x2111
-arduino_zero_dbg.upload.tool=bossac
+arduino_zero_dbg.upload.tool=openocd
 arduino_zero_dbg.upload.protocol=sam-ba
 arduino_zero_dbg.upload.maximum_size=262144
 arduino_zero_dbg.upload.use_1200bps_touch=false
@@ -23,7 +23,7 @@ arduino_zero_dbg.build.pid=0x2111
 arduino_zero.name=Arduino Zero (Native USB Port)
 arduino_zero.vid.0=0x2341
 arduino_zero.pid.0=0x004d
-arduino_zero.upload.tool=bossac
+arduino_zero.upload.tool=openocd
 arduino_zero.upload.protocol=sam-ba
 arduino_zero.upload.maximum_size=262144
 arduino_zero.upload.use_1200bps_touch=false
