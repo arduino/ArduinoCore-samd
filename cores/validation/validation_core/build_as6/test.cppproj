@@ -385,6 +385,10 @@
       <SubType>compile</SubType>
       <Link>core\WCharacter.h</Link>
     </Compile>
+    <Compile Include="..\..\..\arduino\WInterrupts.c">
+      <SubType>compile</SubType>
+      <Link>core\WInterrupts.c</Link>
+    </Compile>
     <Compile Include="..\..\..\arduino\WInterrupts.h">
       <SubType>compile</SubType>
       <Link>core\WInterrupts.h</Link>
