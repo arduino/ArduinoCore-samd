@@ -44,8 +44,7 @@ void setup( void )
   pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3
 
 //**********************************************
-
-  Serial.begin( 115200 ) ;
+  Serial5.begin( 115200 ) ; // Output to EDBG Virtual COM Port
 }
 
 static void led_step1( void )
@@ -62,63 +61,50 @@ static void led_step2( void )
   digitalWrite( PIN_LED3, LOW ) ;  // set the red LED on
 }
 
-static void analog_write_step( void )
-{
-  uint8_t duty_cycle ;
-
-	// test PWM generation on all PWM pins (duty cycle from 0x00 to 0xFF)
-	for( duty_cycle = 0x00 ; duty_cycle <= 0xFF ; duty_cycle++ )
-	{
-		analogWrite( 13, duty_cycle ) ;
-		analogWrite( 12, duty_cycle ) ;
-		analogWrite( 11, duty_cycle ) ;
-		analogWrite( 10 ,duty_cycle ) ;
-		analogWrite(  9, duty_cycle ) ;
-		analogWrite(  8, duty_cycle ) ;
-		analogWrite(  7, duty_cycle ) ;
-		analogWrite(  6, duty_cycle ) ;
-		analogWrite(  5, duty_cycle ) ;
-		analogWrite(  4, duty_cycle ) ;
-		analogWrite(  3, duty_cycle ) ;
-//    analogWrite(  2, duty_cycle ) ;
-
-		delay( 10 ) ;
-	}
-}
-
 void loop( void )
 {
   volatile int pin_value=0 ;
+  static volatile uint8_t duty_cycle=0 ;
 
   // Test digitalWrite
   led_step1() ;
-  delay( 1000 ) ;              // wait for a second
+  delay( 500 ) ;              // wait for a second
   led_step2() ;
-  delay( 1000 ) ;              // wait for a second
+  delay( 500 ) ;              // wait for a second
 
   // Test Serial output
-  Serial.write( '-' ) ;   // send a char
-  Serial.write( "test1\n" ) ;   // send a string
-  Serial.write( "test2" ) ;   // send another string
+  Serial5.write( '-' ) ;   // send a char
+  Serial5.write( "test1\n" ) ;   // send a string
+  Serial5.write( "test2" ) ;   // send another string
 
   // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pin !!!!
   pin_value=digitalRead( 2 ) ;
-  Serial.write( "pin 2 value is " ) ;
-  Serial.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
-  delay( 1000 ) ;              // wait for a second
+  Serial5.write( "pin 2 value is " ) ;
+  Serial5.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
 
-  analog_write_step();
+  duty_cycle+=8 ;//=(uint8_t)(millis() & 0xff) ;
+  analogWrite( 13, duty_cycle ) ;
+  analogWrite( 12, duty_cycle ) ;
+  analogWrite( 11, duty_cycle ) ;
+  analogWrite( 10 ,duty_cycle ) ;
+  analogWrite(  9, duty_cycle ) ;
+  analogWrite(  8, duty_cycle ) ;
+  analogWrite(  7, duty_cycle ) ;
+  analogWrite(  6, duty_cycle ) ;
+  analogWrite(  5, duty_cycle ) ;
+  analogWrite(  4, duty_cycle ) ;
+  analogWrite(  3, duty_cycle ) ;
 
 /*
-  Serial.print("Analog pins: ");
+  Serial5.print("Analog pins: ");
 
   for ( int i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
     int a = analogRead(i);
-    Serial.print(a, DEC);
-    Serial.print(" ");
+    Serial5.print(a, DEC);
+    Serial5.print(" ");
   }
-  Serial.println();
+  Serial5.println();
   delay(100);
 */
 }

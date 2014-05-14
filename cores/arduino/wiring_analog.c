@@ -26,13 +26,13 @@ extern "C" {
 uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t ulValue = 0 ;
+/*
   uint32_t ulChannel ;
 
   ulChannel = g_APinDescription[ulPin].ulADCChannelNumber ;
 
   static uint32_t latestSelectedChannel = -1;
 
-/*
   switch ( g_APinDescription[ulPin].ulAnalogChannel )
   {
     // Handling ADC 12 bits channels
@@ -61,7 +61,7 @@ uint32_t analogRead( uint32_t ulPin )
 void analogWrite( uint32_t ulPin, uint32_t ulValue )
  {
    uint32_t attr = g_APinDescription[ulPin].ulPinAttribute ;
-   uint32_t pwm_name = g_APinDescription[ulPin].ulTCChannel ;
+//   uint32_t pwm_name = g_APinDescription[ulPin].ulTCChannel ;
    uint8_t isTC = 0 ;
    uint8_t Channelx ;
    Tc* TCx ;
@@ -122,6 +122,19 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       pinPeripheral( ulPin, g_APinDescription[ulPin].ulPinType ) ;
     }
 
+    Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) ;
+    if ( GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
+    {
+      isTC = 1 ;
+      TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
+    }
+    else
+    {
+      isTC = 0 ;
+      TCCx = (Tcc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
+    }
+
+/*
     switch ( g_APinDescription[ulPin].ulPWMChannel )
     {
       case PWM3_CH0 :
@@ -190,36 +203,45 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       Channelx = 1;
       break;
     }
+*/
 
-    // --Set PORT
+    // Enable clocks according to TCCx instance to use
+    switch ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) )
+    {
+      case 0: // TCC0
+        //Enable GCLK for TCC0 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( 0x1A )) ;
+      break ;
 
+      case 1: // TCC1
+        //Enable GCLK for TCC1 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( 0x1A )) ;
+      break ;
+
+      case 2: // TCC2
+        //Enable GCLK for TCC2 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( 0x1B )) ;
+      break ;
+
+      case 3: // TC3
+        //Enable GCLK for TC3 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( 0x1B ));
+      break ;
+
+      case 4: // TC4
+        //Enable GCLK for TC4 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( 0x1C ));
+      break ;
+
+      case 5: // TC5
+        //Enable GCLK for TC5 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( 0x1C )) ;
+      break ;
+    }
+
+    // Set PORT
     if ( isTC )
     {
-      // -- Enable clocks according to TCCx instance to use
-      switch ( (uint32_t)TCx )
-      {
-        case (uint32_t)TC3 :
-          //Enable TCx Bus clock (Timer counter control clock)
-          PM->APBCMASK.reg |= PM_APBCMASK_TC3;
-          //Enable GCLK for TC3 (timer counter input clock)
-          GCLK->CLKCTRL.reg = (uint16_t) ((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | ( 0x1B << GCLK_CLKCTRL_ID_Pos)));
-        break ;
-
-        case (uint32_t) TC4 :
-          //Enable TCx Bus clock (Timer counter control clock)
-          PM->APBCMASK.reg |= PM_APBCMASK_TC4;
-          //Enable GCLK for TC4 (timer counter input clock)
-          GCLK->CLKCTRL.reg = (uint16_t) ((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | ( 0x1C << GCLK_CLKCTRL_ID_Pos)));
-        break ;
-
-        case (uint32_t) TC5 :
-          //Enable TCx Bus clock (Timer counter control clock)
-          PM->APBCMASK.reg |= PM_APBCMASK_TC5;
-          //Enable GCLK for TC5 (timer counter input clock)
-          GCLK->CLKCTRL.reg = (uint16_t) ((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | ( 0x1C << GCLK_CLKCTRL_ID_Pos)));
-        break ;
-      }
-
       // -- Configure TC
       //DISABLE TCx
       TCx->COUNT8.CTRLA.reg &=~(TC_CTRLA_ENABLE);
@@ -233,35 +255,9 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       TCx->COUNT8.PER.reg = 0xFF;
       // Enable TCx
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_ENABLE;
-
     }
     else
     {
-       // -- Enable clocks according to TCCx instance to use
-       switch ( (uint32_t) TCCx )
-       {
-        case (uint32_t) TCC0 :
-          //Enable TCC0 Bus clock (Timer counter control clock)
-          PM->APBCMASK.reg |= PM_APBCMASK_TCC0;
-          //Enable GCLK for TCC0 (timer counter input clock)
-          GCLK->CLKCTRL.reg = (uint16_t) ((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | ( 0x1A << GCLK_CLKCTRL_ID_Pos)));
-        break;
-
-        case (uint32_t) TCC1 :
-          //Enable TCC1 Bus clock (Timer counter control clock)
-          PM->APBCMASK.reg |= PM_APBCMASK_TCC1;
-          //Enable GCLK for TCC1 (timer counter input clock)
-          GCLK->CLKCTRL.reg = (uint16_t) ((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | ( 0x1A << GCLK_CLKCTRL_ID_Pos)));
-        break;
-
-        case (uint32_t) TCC2 :
-          //Enable TCC2 Bus clock (Timer counter control clock)
-          PM->APBCMASK.reg |= PM_APBCMASK_TCC2;
-          //Enable GCLK for TCC2 (timer counter input clock)
-          GCLK->CLKCTRL.reg = (uint16_t) ((GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | ( 0x1B << GCLK_CLKCTRL_ID_Pos)));
-        break;
-      }
-
       // -- Configure TCC
 
       //DISABLE TCCx
