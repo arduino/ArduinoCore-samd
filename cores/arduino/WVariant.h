@@ -32,19 +32,25 @@ typedef enum _EAnalogChannel
 typedef enum _ETCChannel
 {
   NOT_ON_TIMER=-1,
-	TC3_CH0,
-	TC3_CH1,
-	TCC0_CH0,
-	TCC0_CH1,
-	TCC0_CH4,
-	TCC0_CH5,
-	TCC0_CH6,
-	TCC0_CH7,
-	TCC1_CH0,
-	TCC1_CH1,
-	TCC2_CH0,
-	TCC2_CH1
+	TC3_CH0 = (3<<8)|(0),
+	TC3_CH1 = (3<<8)|(1),
+	TCC0_CH0 = (0<<8)|(0),
+	TCC0_CH1 = (0<<8)|(1),
+	TCC0_CH4 = (0<<8)|(4),
+	TCC0_CH5 = (0<<8)|(5),
+	TCC0_CH6 = (0<<8)|(6),
+	TCC0_CH7 = (0<<8)|(7),
+	TCC1_CH0 = (1<<8)|(0),
+	TCC1_CH1 = (1<<8)|(1),
+	TCC2_CH0 = (2<<8)|(0),
+	TCC2_CH1 = (2<<8)|(1)
 } ETCChannel ;
+
+extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
+
+#define GetTCNumber( x ) ( (x) >> 8 )
+#define GetTCChannelNumber( x ) ( (x) && 0xff )
+#define GetTC( x ) ( g_apTCInstances[(x) >> 8] )
 
 // Definitions for PWM channels
 typedef enum _EPWMChannel

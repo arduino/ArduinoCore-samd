@@ -197,6 +197,7 @@ SERCOM sercom3(SERCOM3);
 SERCOM sercom4(SERCOM4);
 SERCOM sercom5(SERCOM5);
 
-
 Uart Serial(&sercom0, 0, 1);
 Uart Serial5(&sercom5, 36, 35);
+
+const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 } ;
