@@ -266,9 +266,9 @@ void SERCOM::writeDataSPI(uint8_t data)
 	sercom->SPI.DATA.bit.DATA = data;
 }
 
-uint8_t SERCOM::readDataSPI()
+uint16_t SERCOM::readDataSPI()
 {
-	return sercom->SPI.DATA.bit.DATA;
+	return sercom->SPI.DATA.reg;
 }
 
 bool SERCOM::isBufferOverflowErrorSPI()
