@@ -128,14 +128,6 @@ class SERCOM
 {
 	public:
 		SERCOM(Sercom* s);
-		
-		/* ========== SERCOM OBJECT ========== */
-		static SERCOM * sercom0;
-		static SERCOM * sercom1;
-		static SERCOM * sercom2;
-		static SERCOM * sercom3;
-		static SERCOM * sercom4;
-		static SERCOM * sercom5;
 	    
 		/* ========== UART ========== */
 		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);
@@ -198,8 +190,7 @@ class SERCOM
 		Sercom* sercom;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 		uint32_t division(uint32_t dividend, uint32_t divisor);
-		void initClock();
-		void initNVIC();
+		void initClockNVIC();
 };
 
 #endif

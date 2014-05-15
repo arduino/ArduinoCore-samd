@@ -5,16 +5,8 @@
 Uart::Uart(SERCOM *s, uint8_t pinRX, uint8_t pinTX)
 {
 	sercom = s;
-	if(sercom == SERCOM::sercom0)
-	{
-		pinPeripheral(pinRX, g_APinDescription[pinRX].ulPinType);
-		pinPeripheral(pinTX, g_APinDescription[pinTX].ulPinType);	
-	}
-	else if(sercom == SERCOM::sercom5)
-	{
-		pinPeripheral(pinRX, g_APinDescription[pinRX].ulPinType);
-		pinPeripheral(pinTX, g_APinDescription[pinTX].ulPinType);
-	}
+	pinPeripheral(pinRX, g_APinDescription[pinRX].ulPinType);
+	pinPeripheral(pinTX, g_APinDescription[pinTX].ulPinType);
 }
 
 void Uart::begin(unsigned long baudrate)
@@ -140,9 +132,6 @@ SercomParityMode Uart::extractParity(uint8_t config)
 			return SERCOM_ODD_PARITY;
 	}
 }
-
-Uart Serial = Uart(SERCOM::sercom0, 0, 1);
-Uart Serial5 = Uart(SERCOM::sercom5, 36, 35);
 
 void SERCOM0_Handler()
 {

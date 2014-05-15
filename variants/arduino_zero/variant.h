@@ -36,8 +36,9 @@
 #include "WVariant.h"
 
 #ifdef __cplusplus
-//#include "SERCOMUsart.h"
-#endif
+#include "SERCOM.h"
+#include "Uart.h"
+#endif // __cplusplus
 
 #ifdef __cplusplus
 extern "C"{
@@ -97,11 +98,13 @@ extern "C"{
 #define PIN_SPI_MOSI         (21u)
 #define PIN_SPI_MISO         (18u)
 #define PIN_SPI_SCK          (20u)
+
 /*
 #define BOARD_SPI_SS0        (10u)
 #define BOARD_SPI_SS1        (4u)
 #define BOARD_SPI_SS2        (52u)
 #define BOARD_SPI_SS3        PIN_SPI_SS3
+
 #define BOARD_SPI_DEFAULT_SS BOARD_SPI_SS3
 
 #define BOARD_PIN_TO_SPI_PIN(x) \
@@ -113,14 +116,14 @@ extern "C"{
 	(x==BOARD_SPI_SS1 ? 1 : \
 	(x==BOARD_SPI_SS2 ? 2 : 3)))
 
-static const uint8_t SS   = BOARD_SPI_SS0;
 static const uint8_t SS1  = BOARD_SPI_SS1;
 static const uint8_t SS2  = BOARD_SPI_SS2;
-static const uint8_t SS3  = BOARD_SPI_SS3;
+static const uint8_t SS3  = BOARD_SPI_SS3;*/
+static const uint8_t SS	  = 14;	//GND
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
-*/
+
 
 /*
  * Wire Interfaces
@@ -203,10 +206,19 @@ static const uint8_t A5  = 25 ;
 
 #ifdef __cplusplus
 
-//extern UARTClass Serial;
-//extern USARTClass Serial1;
-//extern USARTClass Serial2;
-//extern USARTClass Serial3;
+/*	=========================
+ *	===== SERCOM DEFINITION
+ *	=========================
+*/
+extern SERCOM sercom0;
+extern SERCOM sercom1;
+extern SERCOM sercom2;
+extern SERCOM sercom3;
+extern SERCOM sercom4;
+extern SERCOM sercom5;
+
+extern Uart Serial;
+extern Uart Serial5;
 
 #endif
 
