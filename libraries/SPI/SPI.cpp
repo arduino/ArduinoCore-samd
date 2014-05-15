@@ -9,16 +9,24 @@
  */
 
 #include "SPI.h"
+#include "wiring_digital.h"
+
 
 SPIClass::SPIClass(SERCOM *s)
 {
 	sercom = s;
+	
+	pinPeripheral(18, g_APinDescription[18].ulPinType);
+	pinPeripheral(20, g_APinDescription[20].ulPinType);
+	pinPeripheral(21, g_APinDescription[21].ulPinType);
 }
 
 void SPIClass::begin() {
 	// Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
 	sercom->initSPI(SPI_PAD_2_SCK_3, SERCOM_RX_PAD_0, SPI_CHAR_SIZE_8_BITS, MSB_FIRST);
 	sercom->initSPIClock(SERCOM_SPI_MODE_0, 4000000);
+	
+	sercom->enableSPI();
 }
 
 void SPIClass::end() {
@@ -86,4 +94,4 @@ void SPIClass::detachInterrupt() {
 	// Should be disableInterrupt()
 }
 
-SPIClass SPI(SERCOM::sercom4);
+SPIClass SPI(&sercom4);

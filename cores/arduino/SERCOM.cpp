@@ -20,8 +20,7 @@ SERCOM::SERCOM(Sercom* s)
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {		
 	resetUART();
-	initClock();
-	initNVIC();
+	initClockNVIC();
 	
 	//Setting the CTRLA register
 	sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
@@ -154,6 +153,7 @@ int SERCOM::writeDataUART(uint8_t data)
 void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder)
 {
 	resetSPI();
+	initClockNVIC();
 	
 	//Setting the CTRLA register
 	sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE(SPI_MASTER_OPERATION) |
@@ -191,7 +191,7 @@ void SERCOM::initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate)
 
 void SERCOM::resetSPI()
 {
-	//Setting the Software bit to 1
+	//Setting the Software Reset bit to 1
 	sercom->SPI.CTRLA.bit.SWRST = 0x1u;
 
 	//Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
@@ -493,87 +493,54 @@ uint8_t SERCOM::readDataWIRE()
 }
 
 
-void SERCOM::initClock()
+void SERCOM::initClockNVIC()
 {
 	uint8_t clockId = 0;
+	IRQn_Type IdNvic;
 	
 	if(sercom == SERCOM0)
 	{
 		clockId = GENERIC_CLOCK_SERCOM0;
+		IdNvic = SERCOM0_IRQn;
 	}
 	else if(sercom == SERCOM1)
 	{
 		clockId = GENERIC_CLOCK_SERCOM1;
+		IdNvic = SERCOM1_IRQn;
 	}
 	else if(sercom == SERCOM2)
 	{
 		clockId = GENERIC_CLOCK_SERCOM2;
+		IdNvic = SERCOM2_IRQn;
 	}
 	else if(sercom == SERCOM3)
 	{
 		clockId = GENERIC_CLOCK_SERCOM3;
+		IdNvic = SERCOM3_IRQn;
 	}
 	else if(sercom == SERCOM4)
 	{
 		clockId = GENERIC_CLOCK_SERCOM4;
+		IdNvic = SERCOM4_IRQn;
 	}
 	else if(sercom == SERCOM5)
 	{
 		clockId = GENERIC_CLOCK_SERCOM5;
+		IdNvic = SERCOM5_IRQn;
 	}
+	
+	//Setting NVIC
+	NVIC_EnableIRQ(IdNvic);
+	NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
 	
 	//Setting clock
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
-	GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-	GCLK_CLKCTRL_CLKEN ;
+						GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+						GCLK_CLKCTRL_CLKEN ;
 	
-
 	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
 	{
 		/* Wait for synchronization */
 	}
+	
 }
-
-void SERCOM::initNVIC()
-{
-		IRQn_Type Id;
-		
-		if(sercom == SERCOM0)
-		{
-			Id = SERCOM0_IRQn;
-		}
-		else if(sercom == SERCOM1)
-		{
-			Id = SERCOM1_IRQn;
-		}
-		else if(sercom == SERCOM2)
-		{
-			Id = SERCOM2_IRQn;
-		}
-		else if(sercom == SERCOM3)
-		{
-			Id = SERCOM3_IRQn;
-		}
-		else if(sercom == SERCOM4)
-		{
-			Id = SERCOM4_IRQn;
-		}
-		else if(sercom == SERCOM5)
-		{
-			Id = SERCOM5_IRQn;
-		}
-		
-	NVIC_EnableIRQ(Id);
-	NVIC_SetPriority (Id, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
-}
-
-/*	=========================
- *	===== SERCOM DEFINITION
- *	=========================
-*/
-SERCOM * SERCOM::sercom0 = new SERCOM(SERCOM0);
-SERCOM * SERCOM::sercom1 = new SERCOM(SERCOM1);
-SERCOM * SERCOM::sercom2 = new SERCOM(SERCOM2);
-SERCOM * SERCOM::sercom3 = new SERCOM(SERCOM3);
-SERCOM * SERCOM::sercom4 = new SERCOM(SERCOM4);
-SERCOM * SERCOM::sercom5 = new SERCOM(SERCOM5);
