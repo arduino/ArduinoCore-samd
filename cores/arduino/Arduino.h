@@ -53,23 +53,6 @@ void yield( void ) ;
 void setup( void ) ;
 void loop( void ) ;
 
-#define NOT_AN_INTERRUPT -1
-
-typedef enum _EExt_Interrupts
-{
-  EXTERNAL_INT_0=0,
-  EXTERNAL_INT_1=1,
-  EXTERNAL_INT_2=2,
-  EXTERNAL_INT_3=3,
-  EXTERNAL_INT_4=4,
-  EXTERNAL_INT_5=5,
-  EXTERNAL_INT_6=6,
-  EXTERNAL_INT_7=7,
-  EXTERNAL_NUM_INTERRUPTS
-} EExt_Interrupts ;
-
-typedef void (*voidFuncPtr)( void ) ;
-
 #include "WVariant.h"
 
 #ifdef __cplusplus

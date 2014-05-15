@@ -49,14 +49,15 @@ enum BitOrder {
 	MSBFIRST = 1
 };
 
-//      LOW 0
-//      HIGH 1
-#define CHANGE 2
-#define FALLING 3
-#define RISING 4
-
-#define DEFAULT 1
-#define EXTERNAL 0
+// moved to WInterrupts.h
+////      LOW 0
+////      HIGH 1
+//#define CHANGE 2
+//#define FALLING 3
+//#define RISING 4
+//
+//#define DEFAULT 1
+//#define EXTERNAL 0
 
 // undefine stdlib's abs if encountered
 
@@ -98,7 +99,6 @@ typedef unsigned int word;
 // TODO: to be checked
 typedef uint8_t boolean ;
 typedef uint8_t byte ;
-
 
 #ifdef __cplusplus
 } // extern "C"
