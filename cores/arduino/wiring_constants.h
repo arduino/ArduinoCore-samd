@@ -49,19 +49,22 @@ enum BitOrder {
 	MSBFIRST = 1
 };
 
-//      LOW 0
-//      HIGH 1
-#define CHANGE 2
-#define FALLING 3
-#define RISING 4
-
-#define DEFAULT 1
-#define EXTERNAL 0
+// moved to WInterrupts.h
+////      LOW 0
+////      HIGH 1
+//#define CHANGE 2
+//#define FALLING 3
+//#define RISING 4
+//
+//#define DEFAULT 1
+//#define EXTERNAL 0
 
 // undefine stdlib's abs if encountered
-#ifdef abs
-#undef abs
-#endif // abs
+
+//#ifdef abs
+//#undef abs
+//#endif // abs
+
 
 #ifndef min
 #define min(a,b) ((a)<(b)?(a):(b))
@@ -71,7 +74,7 @@ enum BitOrder {
 #define max(a,b) ((a)>(b)?(a):(b))
 #endif // max
 
-#define abs(x) ((x)>0?(x):-(x))
+//#define abs(x) ((x)>0?(x):-(x))
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 #define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
 #define radians(deg) ((deg)*DEG_TO_RAD)
@@ -96,7 +99,6 @@ typedef unsigned int word;
 // TODO: to be checked
 typedef uint8_t boolean ;
 typedef uint8_t byte ;
-
 
 #ifdef __cplusplus
 } // extern "C"

@@ -71,7 +71,7 @@ extern "C"{
 #define digitalPinHasPWM(P)        ( g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER )
 
 // Interrupts
-#define digitalPinToInterrupt(p)  (-1) // ((p) < NUM_DIGITAL_PINS ? (p) : -1)
+#define digitalPinToInterrupt(P)   ( g_APinDescription[P].ulExtInt )
 
 // LEDs
 #define PIN_LED_13           (13u)

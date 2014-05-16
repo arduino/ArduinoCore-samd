@@ -78,6 +78,29 @@ typedef enum _EPortType
 	PORTC=2,
 } EPortType ;
 
+typedef enum _EExt_Interrupts
+{
+  EXTERNAL_INT_0 = 0, // Available on pin 11
+  EXTERNAL_INT_1, // Available on pin 13
+  EXTERNAL_INT_2, // Available on pins 10, A0, A5
+  EXTERNAL_INT_3, // Available on pin 12
+  EXTERNAL_INT_4, // Available on pin 6, 8, A3
+  EXTERNAL_INT_5, // Available on pin 7, 9, A4
+  EXTERNAL_INT_6, // Available on pin 16
+  EXTERNAL_INT_7, // Available on pin 17
+  EXTERNAL_INT_8, // Available on pin A1
+  EXTERNAL_INT_9, // Available on pin 3, A2
+  EXTERNAL_INT_10, // Available on pin 0, 21
+  EXTERNAL_INT_11, // Available on pin 1, 20
+  EXTERNAL_INT_12, // Available on pin 18
+  EXTERNAL_INT_13, // Available on pin EDBG_GPIO0 (43)
+  EXTERNAL_INT_14, // Available on pin 4
+  EXTERNAL_INT_15, // Available on pin 5
+  EXTERNAL_INT_NMI, // Available on pin 2
+  EXTERNAL_NUM_INTERRUPTS,
+  NOT_AN_INTERRUPT = -1,
+  EXTERNAL_INT_NONE = NOT_AN_INTERRUPT,
+} EExt_Interrupts ;
 
 //A    B                 C       D          E      F   G   H
 //EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC/TCC TCC COM AC/GCLK
@@ -111,6 +134,7 @@ typedef enum _EPioType
 #define PIN_ATTR_DIGITAL       (1UL<<2)
 #define PIN_ATTR_PWM           (1UL<<3)
 #define PIN_ATTR_TIMER         (1UL<<4)
+#define PIN_ATTR_EXTINT        (1UL<<5)
 
 /* Types used for the table below */
 typedef struct _PinDescription
@@ -122,10 +146,50 @@ typedef struct _PinDescription
   EAnalogChannel ulADCChannelNumber ; /* ADC Channel number in the SAM device */
   EPWMChannel ulPWMChannel ;
   ETCChannel ulTCChannel ;
+  EExt_Interrupts ulExtInt ;
 } PinDescription ;
 
-/* Pins table to be instanciated into variant.cpp */
+/* Pins table to be instantiated into variant.cpp */
 extern const PinDescription g_APinDescription[] ;
+
+/* Generic Clock Multiplexer IDs */
+#define GCM_DFLL48M_REF           (0x00U)
+#define GCM_FDPLL96M_INPUT        (0x01U)
+#define GCM_FDPLL96M_32K          (0x02U)
+#define GCM_WDT                   (0x03U)
+#define GCM_RTC                   (0x04U)
+#define GCM_EIC                   (0x05U)
+#define GCM_USB                   (0x06U)
+#define GCM_EVSYS_CHANNEL_0       (0x07U)
+#define GCM_EVSYS_CHANNEL_1       (0x08U)
+#define GCM_EVSYS_CHANNEL_2       (0x09U)
+#define GCM_EVSYS_CHANNEL_3       (0x0AU)
+#define GCM_EVSYS_CHANNEL_4       (0x0BU)
+#define GCM_EVSYS_CHANNEL_5       (0x0CU)
+#define GCM_EVSYS_CHANNEL_6       (0x0DU)
+#define GCM_EVSYS_CHANNEL_7       (0x0EU)
+#define GCM_EVSYS_CHANNEL_8       (0x0FU)
+#define GCM_EVSYS_CHANNEL_9       (0x10U)
+#define GCM_EVSYS_CHANNEL_10      (0x11U)
+#define GCM_EVSYS_CHANNEL_11      (0x12U)
+#define GCM_SERCOMx_SLOW          (0x13U)
+#define GCM_SERCOM0_CORE          (0x14U)
+#define GCM_SERCOM1_CORE          (0x15U)
+#define GCM_SERCOM2_CORE          (0x16U)
+#define GCM_SERCOM3_CORE          (0x17U)
+#define GCM_SERCOM4_CORE          (0x18U)
+#define GCM_SERCOM5_CORE          (0x19U)
+#define GCM_TCC0_TCC1             (0x1AU)
+#define GCM_TCC2_TC3              (0x1BU)
+#define GCM_TC4_TC5               (0x1CU)
+#define GCM_TC6_TC7               (0x1DU)
+#define GCM_ADC                   (0x1EU)
+#define GCM_AC_DIG                (0x1FU)
+#define GCM_AC_ANA                (0x20U)
+#define GCM_DAC                   (0x21U)
+#define GCM_PTC                   (0x22U)
+#define GCM_I2S_0                 (0x23U)
+#define GCM_I2S_1                 (0x24U)
 
 #ifdef __cplusplus
 } // extern "C"

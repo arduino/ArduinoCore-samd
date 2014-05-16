@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -17,6 +17,18 @@
 */
 
 #include "Arduino.h"
+
+static void Interrupt_Pin3( void ) ; // Ext Int Callback in LOW mode
+static void Interrupt_Pin4( void ) ; // Ext Int Callback in HIGH mode
+static void Interrupt_Pin5( void ) ; // Ext Int Callback in FALLING mode
+static void Interrupt_Pin6( void ) ; // Ext Int Callback in RISING mode
+static void Interrupt_Pin7( void ) ; // Ext Int Callback in CHANGE mode
+
+static uint32_t ul_Interrupt_Pin3 = 0 ;
+static uint32_t ul_Interrupt_Pin4 = 0 ;
+static uint32_t ul_Interrupt_Pin5 = 0 ;
+static uint32_t ul_Interrupt_Pin6 = 0 ;
+static uint32_t ul_Interrupt_Pin7 = 0 ;
 
 void setup( void )
 {
@@ -45,6 +57,13 @@ void setup( void )
 
 //**********************************************
   Serial5.begin( 115200 ) ; // Output to EDBG Virtual COM Port
+
+  // Test External Interrupt
+  attachInterrupt( 3, Interrupt_Pin3, LOW ) ;
+  attachInterrupt( 4, Interrupt_Pin4, HIGH ) ;
+  attachInterrupt( 5, Interrupt_Pin5, FALLING ) ;
+  attachInterrupt( 6, Interrupt_Pin6, RISING ) ;
+  attachInterrupt( 7, Interrupt_Pin7, CHANGE) ;
 }
 
 static void led_step1( void )
@@ -93,11 +112,10 @@ void loop( void )
   analogWrite(  6, duty_cycle ) ;
   analogWrite(  5, duty_cycle ) ;
   analogWrite(  4, duty_cycle ) ;
-  analogWrite(  3, duty_cycle ) ;
 
   Serial5.print("Analog pins: ");
 
-  for ( int i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
+  for ( uint32_t i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
 /*
     int a = analogRead(i);
@@ -106,4 +124,65 @@ void loop( void )
 */
   }
   Serial5.println();
+
+  Serial5.println("External interrupt pins:");
+  if ( ul_Interrupt_Pin3 == 1 )
+  {
+    Serial5.println( "Pin 3 triggered (LOW)" ) ;
+    ul_Interrupt_Pin3 = 0 ;
+  }
+
+  if ( ul_Interrupt_Pin4 == 1 )
+  {
+    Serial5.println( "Pin 4 triggered (HIGH)" ) ;
+    ul_Interrupt_Pin4 = 0 ;
+  }
+
+  if ( ul_Interrupt_Pin5 == 1 )
+  {
+    Serial5.println( "Pin 5 triggered (FALLING)" ) ;
+    ul_Interrupt_Pin5 = 0 ;
+  }
+
+  if ( ul_Interrupt_Pin6 == 1 )
+  {
+    Serial5.println( "Pin 6 triggered (RISING)" ) ;
+    ul_Interrupt_Pin6 = 0 ;
+  }
+
+  if ( ul_Interrupt_Pin7 == 1 )
+  {
+    Serial5.println( "Pin 3 triggered (CHANGE)" ) ;
+    ul_Interrupt_Pin7 = 0 ;
+  }
+}
+
+// Ext Int Callback in LOW mode
+static void Interrupt_Pin3( void )
+{
+  ul_Interrupt_Pin3 = 1 ;
+}
+
+// Ext Int Callback in HIGH mode
+static void Interrupt_Pin4( void )
+{
+  ul_Interrupt_Pin4 = 1 ;
+}
+
+// Ext Int Callback in CHANGE mode
+static void Interrupt_Pin5( void )
+{
+  ul_Interrupt_Pin5 = 1 ;
+}
+
+// Ext Int Callback in FALLING mode
+static void Interrupt_Pin6( void )
+{
+  ul_Interrupt_Pin6 = 1 ;
+}
+
+// Ext Int Callback in RISING mode
+static void Interrupt_Pin7( void )
+{
+  ul_Interrupt_Pin7 = 1 ;
 }

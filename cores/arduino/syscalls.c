@@ -26,6 +26,10 @@
 #include "syscalls.h"
 #include "sam.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #undef errno
 extern int errno ;
 extern int __end__ ;
@@ -130,3 +134,7 @@ extern int _getpid ( void )
 {
     return -1 ;
 }
+
+#ifdef __cplusplus
+}
+#endif
