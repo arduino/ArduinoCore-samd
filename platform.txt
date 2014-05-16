@@ -55,7 +55,6 @@ recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -m
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} "{build.path}/{archive_file}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-#recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} -mcpu={build.mcu} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" -o "{build.path}/{build.project_name}.elf" "-L{build.path}" -lm -lgcc -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols -Wl,--start-group "{build.path}/syscalls_sam3.c.o" {object_files} "{build.variant.path}/{build.variant_system_lib}" "{build.path}/{archive_file}" -Wl,--end-group
 recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} -mcpu={build.mcu} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" -o "{build.path}/{build.project_name}.elf" --specs=nano.specs "-L{build.path}" -Wl,--start-group -lm -lgcc -Wl,--end-group -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--entry=Reset_Handler -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols -Wl,--start-group {object_files} "{build.path}/{archive_file}" -Wl,--end-group
 
 ## Create eeprom
@@ -73,10 +72,13 @@ recipe.size.regex=\.text\s+([0-9]+).*
 # -------------------
 
 tools.openocd.cmd=bin/openocd
-tools.openocd.cmd.windows=openocd.exe
+tools.openocd.cmd.windows=bin/openocd-0.8.0.exe
 tools.openocd.path={runtime.ide.path}/hardware/tools/openocd-0.8.0
 
 tools.openocd.upload.params.verbose=
 tools.openocd.upload.params.quiet=
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f board/atmel_samd21_xplained_pro.cfg -c "program {build.path}/{build.project_name}.elf verify reset"
+#tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f board/atmel_samd21_xplained_pro.cfg -c "program {build.path}/{build.project_name}.elf verify reset"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f {build.variant.path}/{build.variant}/{build.openocdscript} -c "program {build.path}/{build.project_name}.elf verify reset"
+#tools.openocd.upload.pattern.windows="{path}/{cmd}" {upload.verbose} -s "{path}/scripts/" -f board/atmel_samd21_xplained_pro.cfg -c "program {build.path}/{build.project_name}.elf verify reset"
+tools.openocd.upload.pattern.windows="{path}/{cmd}" -s "{path}/scripts/" -f "../../../arduino/samd/variants/{build.variant}/{build.openocdscript}" -c "program {build.path}/{build.project_name}.elf verify reset"
 
