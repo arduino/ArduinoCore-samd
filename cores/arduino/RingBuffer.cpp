@@ -82,5 +82,5 @@ int RingBuffer::nextIndex(int index)
 
 bool RingBuffer::isFull()
 {
-	return (nextIndex(_iTail) == _iHead);
+	return (nextIndex(_iHead) == _iTail);
 }

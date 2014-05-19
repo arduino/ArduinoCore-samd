@@ -92,13 +92,13 @@ typedef enum
 
 typedef enum
 {
-	SPI_CHAR_SIZE_8_BITS = 0,
-	SPI_CHAR_SIZE_9_BITS = 1
+	SPI_CHAR_SIZE_8_BITS = 0x0ul,
+	SPI_CHAR_SIZE_9_BITS
 } SercomSpiCharSize;
 
 typedef enum
 {
-	WIRE_UNKNOWN_STATE = 0,
+	WIRE_UNKNOWN_STATE = 0x0ul,
 	WIRE_IDLE_STATE,
 	WIRE_OWNER_STATE,
 	WIRE_BUSY_STATE
@@ -106,7 +106,7 @@ typedef enum
 
 typedef enum
 {
-	WIRE_WRITE_FLAG = 0,
+	WIRE_WRITE_FLAG = 0x0ul,
 	WIRE_READ_FLAG
 } SercomWireReadWriteFlag;
 
@@ -123,74 +123,76 @@ typedef enum
 	WIRE_MASTER_ACK_ACTION = 0,
 	WIRE_MASTER_NACK_ACTION
 } SercomMasterAckActionWire;
-	
+
 class SERCOM
 {
 	public:
-		SERCOM(Sercom* s);
-	    
+		SERCOM(Sercom* s) ;
+
 		/* ========== UART ========== */
-		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0);
-		void initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits);
-		void initPads(SercomUartTXPad txPad, SercomRXPad rxPad);
-		
-		void resetUART();
-		void enableUART();
-		void flushUART();
-		void clearStatusUART();
-		bool availableDataUART();
-		bool isBufferOverflowErrorUART();
-		bool isFrameErrorUART();
-		bool isParityErrorUART();
-		bool isDataRegisterEmptyUART();
-		uint8_t readDataUART();
-		int writeDataUART(uint8_t data);
-        
+		void initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate=0) ;
+		void initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits) ;
+		void initPads(SercomUartTXPad txPad, SercomRXPad rxPad) ;
+
+		void resetUART( void ) ;
+		void enableUART( void ) ;
+		void flushUART( void ) ;
+		void clearStatusUART( void ) ;
+		bool availableDataUART( void ) ;
+		bool isBufferOverflowErrorUART( void ) ;
+		bool isFrameErrorUART( void ) ;
+		bool isParityErrorUART( void ) ;
+		bool isDataRegisterEmptyUART( void ) ;
+		uint8_t readDataUART( void ) ;
+		int writeDataUART(uint8_t data) ;
+
 		/* ========== SPI ========== */
-		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder);
-		void initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate);
-		
-		void resetSPI();
-		void enableSPI();
-		void disableSPI();
-		void setDataOrderSPI(SercomDataOrder dataOrder);
-		void setBaudrateSPI(uint8_t divider);
-		void setClockModeSPI(SercomSpiClockMode clockMode);
-		void writeDataSPI(uint8_t data);
-		uint16_t readDataSPI();
-		bool isBufferOverflowErrorSPI();
-		bool isDataRegisterEmptySPI();
-		bool isTransmitCompleteSPI();
-		bool isReceiveCompleteSPI();
-		
-		
+		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder) ;
+		void initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate) ;
+
+		void resetSPI( void ) ;
+		void enableSPI( void ) ;
+		void disableSPI( void ) ;
+		void setDataOrderSPI(SercomDataOrder dataOrder) ;
+		void setBaudrateSPI(uint8_t divider) ;
+		void setClockModeSPI(SercomSpiClockMode clockMode) ;
+		void writeDataSPI(uint8_t data) ;
+		uint16_t readDataSPI( void ) ;
+		bool isBufferOverflowErrorSPI( void ) ;
+		bool isDataRegisterEmptySPI( void ) ;
+		bool isTransmitCompleteSPI( void ) ;
+		bool isReceiveCompleteSPI( void ) ;
+
 		/* ========== WIRE ========== */
-		void initSlaveWIRE(uint8_t address);
-		void initMasterWIRE(uint32_t baudrate);
-		
-		void resetWIRE();
-		void enableWIRE();
-		void prepareStopBitWIRE();
-		void prepareAckBitWIRE();
-		bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag);
-		bool sendDataMasterWIRE(uint8_t data);
-		bool sendDataSlaveWIRE(uint8_t data);
-		bool isMasterWIRE();
-		bool isSlaveWIRE();
-		bool isBusIdleWIRE();
-		bool isDataReadyWIRE();
-		bool isStopDetectedWIRE();
-		bool isRestartDetectedWIRE();
-		bool isAddressMatch();
-		bool isMasterReadOperationWIRE();
-		int availableWIRE();
-		uint8_t readDataWIRE();
-		
+		void initSlaveWIRE(uint8_t address) ;
+		void initMasterWIRE(uint32_t baudrate) ;
+
+		void resetWIRE( void ) ;
+		void enableWIRE( void ) ;
+    void disableWIRE( void );
+    void sendNackBitWIRE( void ) ;
+    void sendAckBitWIRE( void ) ;
+    void sendStopBitWIRE( void ) ;
+		bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag) ;
+		bool sendDataMasterWIRE(uint8_t data) ;
+		bool sendDataSlaveWIRE(uint8_t data) ;
+		bool isMasterWIRE( void ) ;
+		bool isSlaveWIRE( void ) ;
+		bool isBusIdleWIRE( void ) ;
+		bool isDataReadyWIRE( void ) ;
+		bool isStopDetectedWIRE( void ) ;
+		bool isRestartDetectedWIRE( void ) ;
+		bool isAddressMatch( void ) ;
+		bool isMasterReadOperationWIRE( void ) ;
+    bool isRXNackReceivedWIRE( void ) ;
+		int availableWIRE( void ) ;
+		uint8_t readDataWIRE( void ) ;
+
 	private:
 		Sercom* sercom;
-		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
-		uint32_t division(uint32_t dividend, uint32_t divisor);
-		void initClockNVIC();
+		uint8_t calculateBaudrateSynchronous(uint32_t baudrate) ;
+		uint32_t division(uint32_t dividend, uint32_t divisor) ;
+		void initClockNVIC( void ) ;
 };
 
 #endif

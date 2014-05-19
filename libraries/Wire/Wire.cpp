@@ -45,21 +45,30 @@ void TwoWire::begin(uint8_t address) {
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 {
 	//Quantity > 0 AND startTransmission worked ?
-	if(quantity == 0 || !sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
-		return 0;
-		
-	for(size_t readed = 0; readed < quantity; ++readed)
+	if( quantity == 0 || !sercom->startTransmissionWIRE( address, WIRE_READ_FLAG ) )
+  {
+		return 0 ;
+  }
+
+  size_t read ;
+  // 'Quantity' bytes read ? receive buffer is full ?
+	for( read = 0; read <= quantity && !rxBuffer.isFull(); ++read )
 	{
-		//Prepare stop bit ? user want stop bit ?
-		if(quantity - readed == 1 && stopBit)
-			sercom->prepareStopBitWIRE();
-		else
-			sercom->prepareAckBitWIRE();
-			
-		rxBuffer.store_char(sercom->readDataWIRE());
+		rxBuffer.store_char( sercom->readDataWIRE() );
 	}
-	
-	return quantity;
+
+	// Send NACK to stop slave
+	sercom->sendNackBitWIRE();
+
+	// Setting back to default acknowledge  action
+	sercom->sendAckBitWIRE();
+
+  // Stop clock... A little bit violent but the only method for the moment
+  sercom->disableWIRE();
+  sercom->enableWIRE();
+
+  // Return the number of bytes read - 1 (begun to 0)
+	return read - 1 ;
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
@@ -71,7 +80,7 @@ void TwoWire::beginTransmission(uint8_t address) {
 	// save address of target and clear buffer
 	txAddress = address;
 	txBuffer.clear();
-	
+
 	transmissionBegun = true;
 }
 
@@ -122,28 +131,34 @@ uint8_t TwoWire::endTransmission(uint8_t sendStop)
 //	4 : Other error
 uint8_t TwoWire::endTransmission(bool stopBit)
 {
-	transmissionBegun = false;
-	
-	//Check if there are data to send
-	if(!txBuffer.available())
-		return 4;
-		
-	//Start I2C transmission
-	if(!sercom->startTransmissionWIRE(txAddress, WIRE_WRITE_FLAG))
-		return 2;	//Address error
-	
-	//Send all buffer
-	while(txBuffer.available())
+	transmissionBegun = false ;
+
+	// Check if there are data to send
+	if ( txBuffer.available() == 0)
+  {
+		return 4 ;
+  }
+
+	// Start I2C transmission
+	if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
+  {
+    sercom->sendStopBitWIRE();
+		return 2 ;	// Address error
+  }
+
+	// Send all buffer
+	while( txBuffer.available() )
 	{
-		//If is the last data, send STOP bit after it.
-		if(txBuffer.available() == 1)
-			sercom->prepareStopBitWIRE();
-		
-		//Trying to send data
-		if(!sercom->sendDataMasterWIRE(txBuffer.read_char()))
-			return 3;	//Nack or error
+		// Trying to send data
+		if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
+    {
+      sercom->sendStopBitWIRE();
+			return 3 ;	// Nack or error
+    }
 	}
-	
+
+  // No data send Stop bit
+  sercom->sendStopBitWIRE();
 	return 0;
 }
 
@@ -152,23 +167,26 @@ uint8_t TwoWire::endTransmission()
 	return endTransmission(true);
 }
 
-size_t TwoWire::write(uint8_t data) 
+size_t TwoWire::write(uint8_t ucData)
 {
 	if(sercom->isMasterWIRE())
 	{
-		//No writing, without begun transmission or a full buffer
-		if(!transmissionBegun || txBuffer.isFull())
-			return 0;
-			
-		txBuffer.store_char(data);
-		return 1;
+		// No writing, without begun transmission or a full buffer
+		if ( !transmissionBegun || txBuffer.isFull() )
+    {
+      return 0 ;
+    }
+
+		txBuffer.store_char( ucData ) ;
+
+		return 1 ;
 	}
 	else
 	{
-		if(sercom->sendDataSlaveWIRE(data))
+		if(sercom->sendDataSlaveWIRE( ucData ))
 			return 1;
 	}
-	
+
 	return 0;
 }
 
@@ -181,7 +199,7 @@ size_t TwoWire::write(const uint8_t *data, size_t quantity)
 		if(!write(data[i]))
 			return i;
 	}
-	
+
 	//All data stored
 	return quantity;
 }
@@ -220,14 +238,18 @@ void TwoWire::onRequest(void(*function)(void))
 
 void TwoWire::onService(void)
 {
-	if(sercom->isSlaveWIRE())
+/*  if ( ( INTFLAG & SERCOM_I2CM_INTFLAG_MB) == SERCOM_I2CM_INTFLAG_MB )
+  {
+  }*/
+
+	if ( sercom->isSlaveWIRE() )
 	{
 		//Received data
 		if(sercom->isDataReadyWIRE())
 		{
 			//Store data
 			rxBuffer.store_char(sercom->readDataWIRE());
-			
+
 			//Stop or Restart detected
 			if(sercom->isStopDetectedWIRE() || sercom->isRestartDetectedWIRE())
 			{
@@ -238,7 +260,7 @@ void TwoWire::onService(void)
 				}
 			}
 		}
-		
+
 		//Address Match
 		if(sercom->isAddressMatch())
 		{
@@ -347,7 +369,7 @@ void TwoWire::onService(void)
 }*/
 
 
-TwoWire Wire(SERCOM::sercom3);
+TwoWire Wire(&sercom3);
 
 void SERCOM3_Handler(void) {
 	Wire.onService();

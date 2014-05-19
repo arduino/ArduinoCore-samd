@@ -31,22 +31,24 @@
 
 #define BUFFER_LENGTH 32
 
-class TwoWire : public Stream {
+
+class TwoWire : public Stream
+{
 	public:
 		TwoWire(SERCOM *s);
 		void begin();
 		void begin(uint8_t);
-	
+
 		void beginTransmission(uint8_t);
 		uint8_t endTransmission(bool stopBit);
 		uint8_t endTransmission(void);
-	
+
 		uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit);
 		uint8_t requestFrom(uint8_t address, size_t quantity);
-	
+
 		size_t write(uint8_t data);
 		size_t write(const uint8_t * data, size_t quantity);
-	
+
 		virtual int available(void);
 		virtual int read(void);
 		virtual int peek(void);
@@ -61,14 +63,14 @@ class TwoWire : public Stream {
 	private:
 		SERCOM * sercom;
 		bool transmissionBegun;
-	
+
 		// RX Buffer
 		RingBuffer rxBuffer;
-	
+
 		//TX buffer
 		RingBuffer txBuffer;
 		uint8_t txAddress;
-	
+
 
 		// Service buffer
 		//uint8_t srvBuffer[BUFFER_LENGTH];
@@ -80,7 +82,8 @@ class TwoWire : public Stream {
 		void (*onReceiveCallback)(int);
 
 		// TWI state
-		//enum TwoWireStatus {
+		//enum TwoWireStatus
+    //{
 		//	UNINITIALIZED,
 		//	MASTER_IDLE,
 		//	MASTER_SEND,
