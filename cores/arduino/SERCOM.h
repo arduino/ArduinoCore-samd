@@ -170,9 +170,9 @@ class SERCOM
 		void resetWIRE( void ) ;
 		void enableWIRE( void ) ;
     void disableWIRE( void );
-    void sendNackBitWIRE( void ) ;
-    void sendAckBitWIRE( void ) ;
-    void sendStopBitWIRE( void ) ;
+    void prepareNackBitWIRE( void ) ;
+    void prepareAckBitWIRE( void ) ;
+    void prepareCommandBitsWire(SercomMasterCommandWire cmd);
 		bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag) ;
 		bool sendDataMasterWIRE(uint8_t data) ;
 		bool sendDataSlaveWIRE(uint8_t data) ;

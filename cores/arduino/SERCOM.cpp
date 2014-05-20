@@ -1,12 +1,5 @@
 #include "SERCOM.h"
-
-// Constants for Clock multiplexers
-#define GENERIC_CLOCK_SERCOM0	(0x14ul)
-#define GENERIC_CLOCK_SERCOM1	(0x15ul)
-#define GENERIC_CLOCK_SERCOM2	(0x16ul)
-#define GENERIC_CLOCK_SERCOM3	(0x17ul)
-#define GENERIC_CLOCK_SERCOM4	(0x18ul)
-#define GENERIC_CLOCK_SERCOM5	(0x19ul)
+#include "variant.h"
 
 SERCOM::SERCOM(Sercom* s)
 {
@@ -319,7 +312,7 @@ void SERCOM::resetWIRE()
 	//I2CM OR I2CS, no matter SWRST is the same bit.
 
 	//Setting the Software bit to 1
-	sercom->I2CM.CTRLA.bit.SWRST = 0x1ul;
+	sercom->I2CM.CTRLA.bit.SWRST = 1;
 
 	//Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
 	while(sercom->I2CM.CTRLA.bit.SWRST || sercom->I2CM.SYNCBUSY.bit.SWRST);
@@ -330,11 +323,19 @@ void SERCOM::enableWIRE()
   // I2C Master and Slave modes share the ENABLE bit function.
 
   // Enable the I²C master mode
-  sercom->I2CM.CTRLA.bit.ENABLE = 0x1ul ;
+  sercom->I2CM.CTRLA.bit.ENABLE = 1 ;
 
-  while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0x0ul )
+  while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
   {
     // Waiting the enable bit from SYNCBUSY is equal to 0;
+  }
+
+  // Setting bus idle mode
+  sercom->I2CM.STATUS.bit.BUSSTATE = 1 ;
+
+  while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
+  {
+    // Wait the SYSOP bit from SYNCBUSY coming back to 0
   }
 }
 
@@ -343,9 +344,9 @@ void SERCOM::disableWIRE()
   // I2C Master and Slave modes share the ENABLE bit function.
 
   // Enable the I²C master mode
-  sercom->I2CM.CTRLA.bit.ENABLE = 0x0ul ;
+  sercom->I2CM.CTRLA.bit.ENABLE = 0 ;
 
-  while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0x0ul )
+  while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
   {
     // Waiting the enable bit from SYNCBUSY is equal to 0;
   }
@@ -384,43 +385,35 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
   resetWIRE() ;
 
   // Set master mode and enable SCL Clock Stretch mode (stretch after ACK bit)
-  sercom->I2CM.CTRLA.reg =  SERCOM_I2CM_CTRLA_MODE( I2C_MASTER_OPERATION ) |
-                            SERCOM_I2CM_CTRLA_SCLSM |
-                            SERCOM_I2CM_CTRLA_INACTOUT( 3 ) ; // 205µs of Inactive TimeOut
+  sercom->I2CM.CTRLA.reg =  SERCOM_I2CM_CTRLA_MODE( I2C_MASTER_OPERATION )/* |
+                            SERCOM_I2CM_CTRLA_SCLSM*/ ;
 
   // Enable Smart mode and Quick Command
-  sercom->I2CM.CTRLB.reg =  SERCOM_I2CM_CTRLB_SMEN | SERCOM_I2CM_CTRLB_QCEN ;
+  //sercom->I2CM.CTRLB.reg =  SERCOM_I2CM_CTRLB_SMEN /*| SERCOM_I2CM_CTRLB_QCEN*/ ;
 
-  // Setting bus idle mode
-  sercom->I2CM.STATUS.bit.BUSSTATE = WIRE_IDLE_STATE ;
-
-  while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
-  {
-    // Wait the SYSOP bit from SYNCBUSY coming back to 0
-  }
 
   // Enable all interrupts
-  // sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
+//  sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
 
   // Synchronous arithmetic baudrate
   sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 1 ;
 }
 
-void SERCOM::sendNackBitWIRE( void )
+void SERCOM::prepareNackBitWIRE( void )
 {
   // Send a NACK
-  sercom->I2CM.CTRLB.bit.ACKACT = 0x1ul;
+  sercom->I2CM.CTRLB.bit.ACKACT = 1;
 }
 
-void SERCOM::sendAckBitWIRE( void )
+void SERCOM::prepareAckBitWIRE( void )
 {
   // Send an ACK
-  sercom->I2CM.CTRLB.bit.ACKACT = 0x0ul;
+  sercom->I2CM.CTRLB.bit.ACKACT = 0;
 }
 
-void SERCOM::sendStopBitWIRE( void )
+void SERCOM::prepareCommandBitsWire(SercomMasterCommandWire cmd)
 {
-  sercom->I2CM.CTRLB.bit.CMD = WIRE_MASTER_ACT_STOP;
+  sercom->I2CM.CTRLB.bit.CMD = cmd;
 
   while(sercom->I2CM.SYNCBUSY.bit.SYSOP)
   {
@@ -557,15 +550,12 @@ uint8_t SERCOM::readDataWIRE( void )
 {
   if(isMasterWIRE())
   {
-    while( sercom->I2CM.INTFLAG.bit.SB == 0x0ul || sercom->I2CM.SYNCBUSY.bit.SYSOP == 0x1ul)
+    while( sercom->I2CM.INTFLAG.bit.SB == 0 || sercom->I2CM.STATUS.bit.CLKHOLD == 0 )
     {
-      // Waiting complete receive & synchronization finished
+      // Waiting complete receive, Clock holding & synchronization finished
     }
 
-	// Clear the Slave on Bus flag
-	sercom->I2CM.INTFLAG.bit.SB = 0x1;
-
-    return sercom->I2CM.DATA.reg ;
+    return sercom->I2CM.DATA.bit.DATA ;
   }
   else
   {
@@ -581,32 +571,32 @@ void SERCOM::initClockNVIC( void )
 
 	if(sercom == SERCOM0)
 	{
-		clockId = GENERIC_CLOCK_SERCOM0;
+		clockId = GCM_SERCOM0_CORE;
 		IdNvic = SERCOM0_IRQn;
 	}
 	else if(sercom == SERCOM1)
 	{
-		clockId = GENERIC_CLOCK_SERCOM1;
+		clockId = GCM_SERCOM1_CORE;
 		IdNvic = SERCOM1_IRQn;
 	}
 	else if(sercom == SERCOM2)
 	{
-		clockId = GENERIC_CLOCK_SERCOM2;
+		clockId = GCM_SERCOM2_CORE;
 		IdNvic = SERCOM2_IRQn;
 	}
 	else if(sercom == SERCOM3)
 	{
-		clockId = GENERIC_CLOCK_SERCOM3;
+		clockId = GCM_SERCOM3_CORE;
 		IdNvic = SERCOM3_IRQn;
 	}
 	else if(sercom == SERCOM4)
 	{
-		clockId = GENERIC_CLOCK_SERCOM4;
+		clockId = GCM_SERCOM4_CORE;
 		IdNvic = SERCOM4_IRQn;
 	}
 	else if(sercom == SERCOM5)
 	{
-		clockId = GENERIC_CLOCK_SERCOM5;
+		clockId = GCM_SERCOM5_CORE;
 		IdNvic = SERCOM5_IRQn;
 	}
 

@@ -1,6 +1,7 @@
 /*
- * TwoWire.h - TWI/I2C library for Arduino Due
- * Copyright (c) 2011 Cristian Maglie <c.maglie@bug.st>.
+ * TwoWire.h - TWI/I2C library for Arduino Zero
+ * based on Copyright (c) 2011 Cristian Maglie <c.maglie@bug.st>.
+ * Copyright (c) 2014 Arduino.
  * All rights reserved.
  *
  * This library is free software; you can redistribute it and/or
@@ -23,6 +24,8 @@ extern "C" {
 }
 
 #include "Wire.h"
+#include "variant.h"
+#include "wiring_digital.h"
 
 TwoWire::TwoWire(SERCOM * s)
 {
@@ -34,6 +37,9 @@ void TwoWire::begin(void) {
 	//Master Mode
 	sercom->initMasterWIRE(TWI_CLOCK);
 	sercom->enableWIRE();
+
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
 }
 
 void TwoWire::begin(uint8_t address) {
@@ -43,32 +49,31 @@ void TwoWire::begin(uint8_t address) {
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
-{
-	//Quantity > 0 AND startTransmission worked ?
-	if( quantity == 0 || !sercom->startTransmissionWIRE( address, WIRE_READ_FLAG ) )
+{ 
+  size_t toRead = quantity;
+
+  if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
   {
-		return 0 ;
+    // Connected to slave
+    while(toRead--)
+    {
+      if( toRead == 0)
+      {
+        sercom->prepareNackBitWIRE();
+      }
+      else
+      {
+        sercom->prepareAckBitWIRE();
+        sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ);
+      }
+
+      rxBuffer.store_char( sercom->readDataWIRE() );
+    }
   }
+  
+  sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
-  size_t read ;
-  // 'Quantity' bytes read ? receive buffer is full ?
-	for( read = 0; read <= quantity && !rxBuffer.isFull(); ++read )
-	{
-		rxBuffer.store_char( sercom->readDataWIRE() );
-	}
-
-	// Send NACK to stop slave
-	sercom->sendNackBitWIRE();
-
-	// Setting back to default acknowledge  action
-	sercom->sendAckBitWIRE();
-
-  // Stop clock... A little bit violent but the only method for the moment
-  sercom->disableWIRE();
-  sercom->enableWIRE();
-
-  // Return the number of bytes read - 1 (begun to 0)
-	return read - 1 ;
+  return quantity - toRead;
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
@@ -83,45 +88,6 @@ void TwoWire::beginTransmission(uint8_t address) {
 
 	transmissionBegun = true;
 }
-
-/*
-void TwoWire::beginTransmission(int address) {
-	beginTransmission((uint8_t) address);
-}
-
-//
-//	Originally, 'endTransmission' was an f(void) function.
-//	It has been modified to take one parameter indicating
-//	whether or not a STOP should be performed on the bus.
-//	Calling endTransmission(false) allows a sketch to
-//	perform a repeated start.
-//
-//	WARNING: Nothing in the library keeps track of whether
-//	the bus tenure has been properly ended with a STOP. It
-//	is very possible to leave the bus in a hung state if
-//	no call to endTransmission(true) is made. Some I2C
-//	devices will behave oddly if they do not see a STOP.
-//
-uint8_t TwoWire::endTransmission(uint8_t sendStop)
-{
-	// transmit buffer (blocking)
-	TWI_StartWrite(twi, txAddress, 0, 0, txBuffer[0]);
-	TWI_WaitByteSent(twi, XMIT_TIMEOUT);
-	int sent = 1;
-	while (sent < txBufferLength) {
-		TWI_WriteByte(twi, txBuffer[sent++]);
-		TWI_WaitByteSent(twi, XMIT_TIMEOUT);
-	}
-	TWI_Stop( twi);
-	TWI_WaitTransferComplete(twi, XMIT_TIMEOUT);
-
-	// empty buffer
-	txBufferLength = 0;
-
-	status = MASTER_IDLE;
-	return sent;
-}
-*/
 
 // Errors:
 //	0 : Success
@@ -142,23 +108,28 @@ uint8_t TwoWire::endTransmission(bool stopBit)
 	// Start I2C transmission
 	if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
   {
-    sercom->sendStopBitWIRE();
+    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 		return 2 ;	// Address error
   }
 
 	// Send all buffer
 	while( txBuffer.available() )
 	{
+
 		// Trying to send data
 		if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
     {
-      sercom->sendStopBitWIRE();
+      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 			return 3 ;	// Nack or error
+    }
+
+    
+    if(txBuffer.available() == 0)
+    {
+      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
     }
 	}
 
-  // No data send Stop bit
-  sercom->sendStopBitWIRE();
 	return 0;
 }
 
@@ -184,7 +155,9 @@ size_t TwoWire::write(uint8_t ucData)
 	else
 	{
 		if(sercom->sendDataSlaveWIRE( ucData ))
+    {
 			return 1;
+    }
 	}
 
 	return 0;
@@ -238,10 +211,6 @@ void TwoWire::onRequest(void(*function)(void))
 
 void TwoWire::onService(void)
 {
-/*  if ( ( INTFLAG & SERCOM_I2CM_INTFLAG_MB) == SERCOM_I2CM_INTFLAG_MB )
-  {
-  }*/
-
 	if ( sercom->isSlaveWIRE() )
 	{
 		//Received data
