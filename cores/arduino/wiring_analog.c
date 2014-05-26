@@ -23,35 +23,51 @@
 extern "C" {
 #endif
 
+void analogReference( eAnalogReference ulMode )
+{
+  switch(ulMode)
+  {
+    case INTERNAL:
+      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;
+      break;
+
+    case AR_DEFAULT:
+    default:
+      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+      break;
+  }
+}
 uint32_t analogRead( uint32_t ulPin )
 {
-  uint32_t ulValue = 0 ;
-/*
-  uint32_t ulChannel ;
+  uint32_t valueRead = 0;
+  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
 
-  ulChannel = g_APinDescription[ulPin].ulADCChannelNumber ;
+  ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber;
 
-  static uint32_t latestSelectedChannel = -1;
+  // Start conversion
+  ADC->SWTRIG.bit.START = 1;
 
-  switch ( g_APinDescription[ulPin].ulAnalogChannel )
+  while( ADC->INTFLAG.bit.RESRDY == 0 || ADC->STATUS.bit.SYNCBUSY == 1 )
   {
-    // Handling ADC 12 bits channels
-    case ADC0 :
-    case ADC1 :
-    case ADC2 :
-    case ADC3 :
-    case ADC4 :
-    case ADC5 :
-    break;
-    // Compiler could yell because we don't handle DAC pin
-    default :
-      ulValue=0;
-    break;
+    // Waiting for a complete conversion and complete synchronization
   }
-*/
 
-  return ulValue;
- }
+  // Store the value
+  valueRead = ADC->RESULT.reg;
+
+  // Clear the Data Ready flag
+  ADC->INTFLAG.bit.RESRDY = 1;
+
+  // Flush the ADC for further conversions
+  //ADC->SWTRIG.bit.FLUSH = 1;
+
+  while( ADC->STATUS.bit.SYNCBUSY == 1 || ADC->SWTRIG.bit.FLUSH == 1 )
+  {
+    // Waiting for synchronization
+  }
+
+  return valueRead;
+}
 
 
 // Right now, PWM output only works on the pins with

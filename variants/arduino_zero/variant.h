@@ -153,12 +153,12 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 /*
  * Analog pins
  */
-static const uint8_t A0  = 20 ;
-static const uint8_t A1  = 21 ;
-static const uint8_t A2  = 22 ;
-static const uint8_t A3  = 23 ;
-static const uint8_t A4  = 24 ;
-static const uint8_t A5  = 25 ;
+static const uint8_t A0  = 24 ;
+static const uint8_t A1  = 25 ;
+static const uint8_t A2  = 26 ;
+static const uint8_t A3  = 27 ;
+static const uint8_t A4  = 28 ;
+static const uint8_t A5  = 29 ;
 #define ADC_RESOLUTION		12
 
 /*

@@ -30,6 +30,11 @@ static uint32_t ul_Interrupt_Pin5 = 0 ;
 static uint32_t ul_Interrupt_Pin6 = 0 ;
 static uint32_t ul_Interrupt_Pin7 = 0 ;
 
+int temps = 0;
+int valX = 0;
+int valY = 0;
+
+
 void setup( void )
 {
   // Initialize the digital pin as an output.
@@ -113,15 +118,15 @@ void loop( void )
   analogWrite(  5, duty_cycle ) ;
   analogWrite(  4, duty_cycle ) ;
 
-  Serial5.print("Analog pins: ");
+  Serial5.print("\r\nAnalog pins: ");
 
-  for ( uint32_t i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
+  for ( uint32_t i = A0 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
-/*
+
     int a = analogRead(i);
     Serial5.print(a, DEC);
     Serial5.print(" ");
-*/
+
   }
   Serial5.println();
 
