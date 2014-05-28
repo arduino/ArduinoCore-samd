@@ -2,13 +2,14 @@
 #include <Wire.h>
 #include <LiquidCrystal_I2C.h>
 
-LiquidCrystal_I2C lcd(0x20,16,2);  // set the LCD address to 0x20(Cooperate with 3 short circuit caps) for a 16 chars and 2 line display
 
 const uint8_t addressTemp = 0x4Ful;
 const uint8_t addressLCD = 0x20ul;
 const uint8_t addressRTC = 0x68ul;
 uint16_t valueTemp = 0;
 uint8_t a, b;
+
+LiquidCrystal_I2C lcd(addressLCD,16,2);  // set the LCD address to 0x20(Cooperate with 3 short circuit caps) for a 16 chars and 2 line display
 
 struct timeRTC
 {
@@ -63,6 +64,8 @@ void setup()
   lcd.init();
   lcd.backlight();
   lcd.home();
+
+  pinMode(2, INPUT_PULLUP);
 }
 
 void LCDSpecialPrint(uint8_t value)
