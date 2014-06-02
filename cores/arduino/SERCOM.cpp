@@ -448,7 +448,7 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
     }
 
     // Clean the 'Slave on Bus' flag, for further usage.
-    sercom->I2CM.INTFLAG.bit.SB = 0x1ul;
+    //sercom->I2CM.INTFLAG.bit.SB = 0x1ul;
   }
 
 
@@ -550,9 +550,9 @@ uint8_t SERCOM::readDataWIRE( void )
 {
   if(isMasterWIRE())
   {
-    while( sercom->I2CM.INTFLAG.bit.SB == 0 || sercom->I2CM.STATUS.bit.CLKHOLD == 0 )
+    while( sercom->I2CM.INTFLAG.bit.SB == 0 )
     {
-      // Waiting complete receive, Clock holding & synchronization finished
+      // Waiting complete receive
     }
 
     return sercom->I2CM.DATA.bit.DATA ;

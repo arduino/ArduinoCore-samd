@@ -51,7 +51,7 @@ int RingBuffer::read_char()
 	if(_iTail == _iHead)
 		return -1;
 
-	int value = _aucBuffer[_iTail];
+	uint8_t value = _aucBuffer[_iTail];
 	_iTail = nextIndex(_iTail);
 
 	return value;
