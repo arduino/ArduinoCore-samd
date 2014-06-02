@@ -56,9 +56,9 @@ void setup( void )
 //**********************************************
 // Clock output on pin 4 for measure
 
-  pinPeripheral( 4, PIO_AC_CLK ) ; // Clock Gen 0
+ /* pinPeripheral( 4, PIO_AC_CLK ) ; // Clock Gen 0
   pinPeripheral( 5, PIO_AC_CLK ) ; // Clock Gen 1
-  pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3
+  pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3*/
 
 //**********************************************
   Serial5.begin( 115200 ) ; // Output to EDBG Virtual COM Port
@@ -113,10 +113,6 @@ void loop( void )
   analogWrite( 10 ,duty_cycle ) ;
   analogWrite(  9, duty_cycle ) ;
   analogWrite(  8, duty_cycle ) ;
-  analogWrite(  7, duty_cycle ) ;
-  analogWrite(  6, duty_cycle ) ;
-  analogWrite(  5, duty_cycle ) ;
-  analogWrite(  4, duty_cycle ) ;
 
   Serial5.print("\r\nAnalog pins: ");
 
@@ -157,7 +153,7 @@ void loop( void )
 
   if ( ul_Interrupt_Pin7 == 1 )
   {
-    Serial5.println( "Pin 3 triggered (CHANGE)" ) ;
+    Serial5.println( "Pin 7 triggered (CHANGE)" ) ;
     ul_Interrupt_Pin7 = 0 ;
   }
 }
