@@ -38,7 +38,8 @@ uint8_t bcdToDec(byte val)
 void updateTime()
 {
     Wire.beginTransmission(addressRTC);
-      Wire.write((uint8_t)0x3F);
+    //Wire.write((uint8_t)0x3F);
+    Wire.write((uint8_t)0x00);
     Wire.endTransmission();
 
     delay(10);
@@ -93,9 +94,13 @@ void loop()
   a = Wire.read();
   b = Wire.read();
 
-  valueTemp = b << 7;
-  valueTemp |= a;
+  valueTemp = a << 7;
+  valueTemp |= b;
   valueTemp >>= 7;
+  
+  Serial5.print(a);
+  Serial5.print(" | ");
+  Serial5.print(b);
   
   updateTime();
   lcd.setCursor(0, 0);
@@ -109,6 +114,7 @@ void loop()
   LCDSpecialPrint(timeRtc.dayMonth);
   lcd.print("/");
   LCDSpecialPrint(timeRtc.year);
+  lcd.print(" ");
 
   lcd.setCursor(0, 1);
   lcd.print("    ");
