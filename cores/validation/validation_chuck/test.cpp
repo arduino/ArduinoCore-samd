@@ -10,7 +10,9 @@ void setup()
   
   Wire.begin(); // join i2c bus as master
   Wire.beginTransmission(0x52);// transmit to device 0x52
-    Wire.write((uint8_t)0x40);// sends memory address
+    Wire.write((uint8_t)0xF0);// sends sent a zero.
+    Wire.write((uint8_t)0x55);// sends sent a zero.
+    Wire.write((uint8_t)0xFB);// sends sent a zero.
     Wire.write((uint8_t)0x00);// sends sent a zero.
   Wire.endTransmission();// stop transmitting
 
