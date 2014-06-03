@@ -25,14 +25,18 @@ extern "C" {
 
 void analogReference( eAnalogReference ulMode )
 {
+
+  // ATTENTION : On this board the default is note 5volts or 3.3volts BUT 1volt
+
   switch(ulMode)
   {
+    case AR_DEFAULT:
     case INTERNAL:
+    default:
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;
       break;
 
-    case AR_DEFAULT:
-    default:
+    case EXTERNAL:
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
       break;
   }
@@ -75,60 +79,67 @@ uint32_t analogRead( uint32_t ulPin )
 // pins_*.c file.  For the rest of the pins, we default
 // to digital output.
 void analogWrite( uint32_t ulPin, uint32_t ulValue )
- {
-   uint32_t attr = g_APinDescription[ulPin].ulPinAttribute ;
+{
+  uint32_t attr = g_APinDescription[ulPin].ulPinAttribute ;
 //   uint32_t pwm_name = g_APinDescription[ulPin].ulTCChannel ;
-   uint8_t isTC = 0 ;
-   uint8_t Channelx ;
-   Tc* TCx ;
-   Tcc* TCCx ;
+  uint8_t isTC = 0 ;
+  uint8_t Channelx ;
+  Tc* TCx ;
+  Tcc* TCCx ;
 
-   if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
-   {
-    // EAnalogChannel channel = g_APinDescription[ulPin].ulADCChannelNumber;
-    // if (channel == DA0 || channel == DA1) {
-      // uint32_t chDACC = ((channel == DA0) ? 0 : 1);
-      // if (dacc_get_channel_status(DACC_INTERFACE) == 0) {
-        // /* Enable clock for DACC_INTERFACE */
-        // pmc_enable_periph_clk(DACC_INTERFACE_ID);
+  if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
+  {
+    if ( ulPin != 24 )  // Only 1 DAC on A0 (PA02)
+    {
+      return;
+    }
 
-        // /* Reset DACC registers */
-        // dacc_reset(DACC_INTERFACE);
+    DAC->DATA.reg = ulValue & 0x3FF;  // Dac on 10 bits.
 
-        // /* Half word transfer mode */
-        // dacc_set_transfer_mode(DACC_INTERFACE, 0);
+   // EAnalogChannel channel = g_APinDescription[ulPin].ulADCChannelNumber;
+   // if (channel == DA0 || channel == DA1) {
+     // uint32_t chDACC = ((channel == DA0) ? 0 : 1);
+     // if (dacc_get_channel_status(DACC_INTERFACE) == 0) {
+       // /* Enable clock for DACC_INTERFACE */
+       // pmc_enable_periph_clk(DACC_INTERFACE_ID);
 
-        // /* Power save:
-         // * sleep mode  - 0 (disabled)
-         // * fast wakeup - 0 (disabled)
-         // */
-        // dacc_set_power_save(DACC_INTERFACE, 0, 0);
-        // /* Timing:
-         // * refresh        - 0x08 (1024*8 dacc clocks)
-         // * max speed mode -    0 (disabled)
-         // * startup time   - 0x10 (1024 dacc clocks)
-         // */
-        // dacc_set_timing(DACC_INTERFACE, 0x08, 0, 0x10);
+       // /* Reset DACC registers */
+       // dacc_reset(DACC_INTERFACE);
 
-        // /* Set up analog current */
-        // dacc_set_analog_control(DACC_INTERFACE, DACC_ACR_IBCTLCH0(0x02) |
-                      // DACC_ACR_IBCTLCH1(0x02) |
-                      // DACC_ACR_IBCTLDACCORE(0x01));
-      // }
+       // /* Half word transfer mode */
+       // dacc_set_transfer_mode(DACC_INTERFACE, 0);
 
-      // /* Disable TAG and select output channel chDACC */
-      // dacc_set_channel_selection(DACC_INTERFACE, chDACC);
+       // /* Power save:
+        // * sleep mode  - 0 (disabled)
+        // * fast wakeup - 0 (disabled)
+        // */
+       // dacc_set_power_save(DACC_INTERFACE, 0, 0);
+       // /* Timing:
+        // * refresh        - 0x08 (1024*8 dacc clocks)
+        // * max speed mode -    0 (disabled)
+        // * startup time   - 0x10 (1024 dacc clocks)
+        // */
+       // dacc_set_timing(DACC_INTERFACE, 0x08, 0, 0x10);
 
-      // if ((dacc_get_channel_status(DACC_INTERFACE) & (1 << chDACC)) == 0) {
-        // dacc_enable_channel(DACC_INTERFACE, chDACC);
-      // }
+       // /* Set up analog current */
+       // dacc_set_analog_control(DACC_INTERFACE, DACC_ACR_IBCTLCH0(0x02) |
+                     // DACC_ACR_IBCTLCH1(0x02) |
+                     // DACC_ACR_IBCTLDACCORE(0x01));
+     // }
 
-      // // Write user value
-      // ulValue = mapResolution(ulValue, _writeResolution, DACC_RESOLUTION);
-      // dacc_write_conversion_data(DACC_INTERFACE, ulValue);
-      // while ((dacc_get_interrupt_status(DACC_INTERFACE) & DACC_ISR_EOC) == 0);
-      // return;
-    // }
+     // /* Disable TAG and select output channel chDACC */
+     // dacc_set_channel_selection(DACC_INTERFACE, chDACC);
+
+     // if ((dacc_get_channel_status(DACC_INTERFACE) & (1 << chDACC)) == 0) {
+       // dacc_enable_channel(DACC_INTERFACE, chDACC);
+     // }
+
+     // // Write user value
+     // ulValue = mapResolution(ulValue, _writeResolution, DACC_RESOLUTION);
+     // dacc_write_conversion_data(DACC_INTERFACE, ulValue);
+     // while ((dacc_get_interrupt_status(DACC_INTERFACE) & DACC_ISR_EOC) == 0);
+     // return;
+   // }
   }
 
   if ( (attr & PIN_ATTR_PWM) == PIN_ATTR_PWM )

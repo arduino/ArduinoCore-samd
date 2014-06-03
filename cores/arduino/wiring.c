@@ -97,7 +97,7 @@ void init( void )
   // Todo
 
   // Initialize Analog Controller
-  //Setting clock
+  // Setting clock
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_ADC ) | // Generic Clock ADC
                       GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
                       GCLK_CLKCTRL_CLKEN ;
@@ -118,6 +118,26 @@ void init( void )
   {
     // Waiting for synchroinization
   }
+
+  // Initialize DAC
+  // Setting clock
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_DAC ) | // Generic Clock ADC
+                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+                      GCLK_CLKCTRL_CLKEN ;
+
+
+  DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
+                   DAC_CTRLB_EOEN;  // External Output Enable (Vout)
+  DAC->DATA.reg = 0x3FFul;
+
+  // Enable DAC
+  DAC->CTRLA.bit.ENABLE = 1;
+
+  while(DAC->STATUS.bit.SYNCBUSY != 0)
+  {
+    // Waiting for synchronization
+  }
+
 }
 
 #ifdef __cplusplus

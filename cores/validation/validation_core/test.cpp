@@ -89,6 +89,7 @@ void loop( void )
 {
   volatile int pin_value=0 ;
   static volatile uint8_t duty_cycle=0 ;
+  static volatile uint16_t dac_value=0 ;
 
   // Test digitalWrite
   led_step1() ;
@@ -113,6 +114,11 @@ void loop( void )
   analogWrite( 10 ,duty_cycle ) ;
   analogWrite(  9, duty_cycle ) ;
   analogWrite(  8, duty_cycle ) ;
+
+  dac_value += 64;
+  analogWrite(A0, dac_value);
+
+
 
   Serial5.print("\r\nAnalog pins: ");
 
