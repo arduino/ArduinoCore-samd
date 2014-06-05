@@ -12,7 +12,6 @@
 #define _SPI_H_INCLUDED
 
 #include "variant.h"
-#include "SERCOM.h"
 #include "wiring_constants.h"
 
 #define SPI_MODE0 0x02
@@ -22,7 +21,7 @@
 
 class SPIClass {
   public:
-	SPIClass(SERCOM *s);
+	SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI);
 
 	byte transfer(uint8_t data);
 
@@ -34,15 +33,18 @@ class SPIClass {
 	void end();
 	
 	void setBitOrder(BitOrder order);
-	void setDataMode(uint8_t mode);
-	void setClockDivider(uint8_t div);
+	void setDataMode(uint8_t uc_mode);
+	void setClockDivider(uint8_t uc_div);
 
   private:
-	SERCOM *sercom;
+	SERCOM *_p_sercom;
+	uint8_t _uc_pinMiso;
+	uint8_t _uc_pinMosi;
+	uint8_t _uc_pinSCK;
 };
 
 #if SPI_INTERFACES_COUNT > 0
-extern SPIClass SPI;
+  extern SPIClass SPI;
 #endif
 
 #endif

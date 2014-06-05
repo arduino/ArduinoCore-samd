@@ -32,6 +32,7 @@ extern "C" {
  */
 uint32_t SystemCoreClock=1000000ul ;
 
+/*
 void calibrateADC()
 {
   volatile uint32_t valeur = 0;
@@ -48,7 +49,7 @@ void calibrateADC()
   }
 
   valeur = valeur/5;
-}
+}*/
 
 /*
  * Arduino Zero board initialization

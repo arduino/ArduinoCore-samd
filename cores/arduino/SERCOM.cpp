@@ -158,14 +158,16 @@ void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize ch
 	initClockNVIC();
 
 	//Setting the CTRLA register
-	sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE(SPI_MASTER_OPERATION) |
-							SERCOM_SPI_CTRLA_DOPO(mosi) |
-							SERCOM_SPI_CTRLA_DIPO(miso) |
-							dataOrder << SERCOM_SPI_CTRLA_DORD_Pos;
+	sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE_SPI_MASTER |
+							            SERCOM_SPI_CTRLA_DOPO(mosi) |
+							            SERCOM_SPI_CTRLA_DIPO(miso) |
+							            dataOrder << SERCOM_SPI_CTRLA_DORD_Pos;
 
 	//Setting the CTRLB register
 	sercom->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_CHSIZE(charSize) |
-							(0x1ul) << SERCOM_SPI_CTRLB_RXEN_Pos;	//Active the SPI receiver.
+							            SERCOM_SPI_CTRLB_RXEN;	//Active the SPI receiver.
+
+
 }
 
 void SERCOM::initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate)
@@ -184,8 +186,8 @@ void SERCOM::initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate)
 		cpol = 1;
 
 	//Setting the CTRLA register
-	sercom->SPI.CTRLA.reg |=	cpha << SERCOM_SPI_CTRLA_CPHA_Pos |
-								cpol << SERCOM_SPI_CTRLA_CPOL_Pos;
+	sercom->SPI.CTRLA.reg |=	( cpha << SERCOM_SPI_CTRLA_CPHA_Pos ) |
+								            ( cpol << SERCOM_SPI_CTRLA_CPOL_Pos );
 
 	//Synchronous arithmetic
 	sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(baudrate);
@@ -194,7 +196,7 @@ void SERCOM::initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate)
 void SERCOM::resetSPI()
 {
 	//Setting the Software Reset bit to 1
-	sercom->SPI.CTRLA.bit.SWRST = 0x1u;
+	sercom->SPI.CTRLA.bit.SWRST = 1;
 
 	//Wait both bits Software Reset from CTRLA and SYNCBUSY are equal to 0
 	while(sercom->SPI.CTRLA.bit.SWRST || sercom->SPI.SYNCBUSY.bit.SWRST);
@@ -203,19 +205,23 @@ void SERCOM::resetSPI()
 void SERCOM::enableSPI()
 {
 	//Setting the enable bit to 1
-	sercom->SPI.CTRLA.bit.ENABLE = 0x1ul;
+	sercom->SPI.CTRLA.bit.ENABLE = 1;
 
-	//Waiting then enable bit from SYNCBUSY is equal to 0;
-	while(sercom->SPI.SYNCBUSY.bit.ENABLE);
+	while(sercom->SPI.SYNCBUSY.bit.ENABLE)
+  {
+    //Waiting then enable bit from SYNCBUSY is equal to 0;
+  }
 }
 
 void SERCOM::disableSPI()
 {
 	//Setting the enable bit to 0
-	sercom->SPI.CTRLA.bit.ENABLE = 0x0ul;
+	sercom->SPI.CTRLA.bit.ENABLE = 0;
 
-	//Waiting then enable bit from SYNCBUSY is equal to 0;
-	while(sercom->SPI.SYNCBUSY.bit.ENABLE);
+	while(sercom->SPI.SYNCBUSY.bit.ENABLE)
+  {
+    //Waiting then enable bit from SYNCBUSY is equal to 0;
+  }
 }
 
 void SERCOM::setDataOrderSPI(SercomDataOrder dataOrder)
@@ -237,7 +243,7 @@ void SERCOM::setBaudrateSPI(uint8_t divider)
 	//Register enable-protected
 	disableSPI();
 
-	sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(SERCOM_FREQ_REF / divider);
+	sercom->SPI.BAUD.reg = calculateBaudrateSynchronous( SERCOM_FREQ_REF / divider );
 
 	enableSPI();
 }
@@ -265,12 +271,27 @@ void SERCOM::setClockModeSPI(SercomSpiClockMode clockMode)
 }
 void SERCOM::writeDataSPI(uint8_t data)
 {
-	sercom->SPI.DATA.bit.DATA = data;
+  while( sercom->SPI.INTFLAG.bit.DRE == 0 )
+  {
+    // Waiting Data Registry Empty
+  }
+
+	sercom->SPI.DATA.bit.DATA = data; // Writing data into Data register
+
+  while( sercom->SPI.INTFLAG.bit.TXC == 0 || sercom->SPI.INTFLAG.bit.DRE == 0 )
+  {
+    // Waiting Complete Transmission
+  }
 }
 
 uint16_t SERCOM::readDataSPI()
 {
-	return sercom->SPI.DATA.reg;
+  while( sercom->SPI.INTFLAG.bit.DRE == 0 || sercom->SPI.INTFLAG.bit.RXC == 0 )
+  {
+    // Waiting Complete Reception
+  }
+
+	return sercom->SPI.DATA.bit.DATA;  // Reading data
 }
 
 bool SERCOM::isBufferOverflowErrorSPI()
@@ -284,17 +305,17 @@ bool SERCOM::isDataRegisterEmptySPI()
 	return sercom->SPI.INTFLAG.bit.DRE;
 }
 
-bool SERCOM::isTransmitCompleteSPI()
-{
-	//TXC : Transmit complete
-	return sercom->SPI.INTFLAG.bit.TXC;
-}
-
-bool SERCOM::isReceiveCompleteSPI()
-{
-	//RXC : Receive complete
-	return sercom->SPI.INTFLAG.bit.RXC;
-}
+//bool SERCOM::isTransmitCompleteSPI()
+//{
+//	//TXC : Transmit complete
+//	return sercom->SPI.INTFLAG.bit.TXC;
+//}
+//
+//bool SERCOM::isReceiveCompleteSPI()
+//{
+//	//RXC : Receive complete
+//	return sercom->SPI.INTFLAG.bit.RXC;
+//}
 
 uint8_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
 {
@@ -600,14 +621,14 @@ void SERCOM::initClockNVIC( void )
 		IdNvic = SERCOM5_IRQn;
 	}
 
-	//Setting NVIC
+	// Setting NVIC
 	NVIC_EnableIRQ(IdNvic);
 	NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
 
 	//Setting clock
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
-						GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-						GCLK_CLKCTRL_CLKEN ;
+						          GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+						          GCLK_CLKCTRL_CLKEN ;
 
 	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
 	{
