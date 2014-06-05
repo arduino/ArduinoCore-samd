@@ -30,6 +30,8 @@ void setup() {
   WiFi = WiFiClass();
   client = WiFiClient();
 
+  delay(500); // Waiting for initialization
+
 //  SPI.begin();
   //Initialize Serial5 and wait for port to open:
   Serial5.begin(9600); 
