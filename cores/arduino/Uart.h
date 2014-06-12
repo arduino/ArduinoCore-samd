@@ -11,7 +11,7 @@
 class Uart : public HardwareSerial
 {
 	public:
-		Uart(SERCOM *s, uint8_t pinRX, uint8_t pinTX);
+		Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX);
 		void begin(unsigned long baudRate);
 		void begin(unsigned long baudrate, uint8_t config);
 		void end();
@@ -29,6 +29,9 @@ class Uart : public HardwareSerial
 	private:
 		SERCOM *sercom;
 		RingBuffer rxBuffer;
+    
+    uint8_t uc_pinRX;
+    uint8_t uc_pinTX;
 
 		SercomNumberStopBit extractNbStopBit(uint8_t config);
 		SercomUartCharSize extractCharSize(uint8_t config);

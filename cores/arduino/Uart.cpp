@@ -2,11 +2,11 @@
 #include "WVariant.h"
 #include "wiring_digital.h"
 
-Uart::Uart(SERCOM *s, uint8_t pinRX, uint8_t pinTX)
+Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX)
 {
-	sercom = s;
-	pinPeripheral(pinRX, g_APinDescription[pinRX].ulPinType);
-	pinPeripheral(pinTX, g_APinDescription[pinTX].ulPinType);
+	sercom = _s;
+	uc_pinRX = _pinRX;
+	uc_pinTX = _pinTX;
 }
 
 void Uart::begin(unsigned long baudrate)
@@ -16,6 +16,9 @@ void Uart::begin(unsigned long baudrate)
 
 void Uart::begin(unsigned long baudrate, uint8_t config)
 {
+  pinPeripheral(uc_pinRX, g_APinDescription[uc_pinRX].ulPinType);
+  pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
+
 	sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
 	sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
 	sercom->initPads(UART_TX_PAD_2, SERCOM_RX_PAD_3);
