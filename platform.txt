@@ -76,13 +76,10 @@ recipe.size.regex=\.text\s+([0-9]+).*
 # -------------------
 
 tools.openocd.cmd=bin/openocd
-tools.openocd.cmd.windows=bin/openocd-0.8.0.exe
-tools.openocd.path={runtime.ide.path}/hardware/tools/openocd-0.8.0
+tools.openocd.cmd.windows=bin/openocd.exe
+tools.openocd.path={runtime.ide.path}/hardware/tools/OpenOCD-0.9.0-dev-arduino
 
 tools.openocd.upload.params.verbose=
 tools.openocd.upload.params.quiet=
-#tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f board/atmel_samd21_xplained_pro.cfg -c "program {build.path}/{build.project_name}.elf verify reset"
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f ../../../../../arduino/samd/variants/{build.variant}/{build.openocdscript} -c "program {build.path}/{build.project_name}.elf verify reset"
-#tools.openocd.upload.pattern.windows="{path}/{cmd}" {upload.verbose} -s "{path}/scripts/" -f board/atmel_samd21_xplained_pro.cfg -c "program {build.path}/{build.project_name}.elf verify reset"
-tools.openocd.upload.pattern.windows="{path}/{cmd}" -s "{path}/scripts/" -f "../../../arduino/samd/variants/{build.variant}/{build.openocdscript}" -c "program {build.path}/{build.project_name}.elf verify reset"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f ../../../../../arduino/samd/variants/{build.variant}/{build.openocdscript} -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
 
