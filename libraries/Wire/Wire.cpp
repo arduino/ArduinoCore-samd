@@ -50,18 +50,28 @@ void TwoWire::begin(uint8_t address) {
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 { 
-  size_t toRead = quantity + 1;
+  if(quantity == 0)
+  {
+    return 0;
+  }
+
+
+  size_t byteRead = 0;
 
   if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
   {
+  
+    // Read first data
+    rxBuffer.store_char(sercom->readDataWIRE());
+
     // Connected to slave
-    while(toRead--)
-    //for(toRead = quantity; toRead >= 0; --toRead)
+    //while(toRead--)
+    for(byteRead = 0; byteRead < quantity; ++byteRead)
     {
-      if( toRead == 0)  // Stop transmission
+      if( byteRead == quantity - 1)  // Stop transmission
       {
         sercom->prepareNackBitWIRE(); // Prepare NACK to stop slave transmission
-        sercom->readDataWIRE(); // Clear data register to send NACK
+        //sercom->readDataWIRE(); // Clear data register to send NACK
         sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP); // Send Stop 
       }
       else // Continue transmission
@@ -73,7 +83,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     }
   }
 
-  return quantity - toRead;
+  return byteRead;
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)

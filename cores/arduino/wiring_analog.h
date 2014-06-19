@@ -31,7 +31,10 @@ extern "C" {
 typedef enum _eAnalogReference
 {
   AR_DEFAULT,
+  INTERNAL,
+  EXTERNAL
 } eAnalogReference ;
+
 
 /*
  * \brief Configures the reference voltage used for analog input (i.e. the value used as the top of the input range).

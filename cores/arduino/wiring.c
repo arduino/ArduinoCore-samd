@@ -33,6 +33,25 @@ extern "C" {
 uint32_t SystemCoreClock=1000000ul ;
 
 /*
+void calibrateADC()
+{
+  volatile uint32_t valeur = 0;
+
+  for(int i = 0; i < 5; ++i)
+  {
+    ADC->SWTRIG.bit.START = 1;
+    while( ADC->INTFLAG.bit.RESRDY == 0 || ADC->STATUS.bit.SYNCBUSY == 1 )
+    {
+      // Waiting for a complete conversion and complete synchronization
+    }
+
+    valeur += ADC->RESULT.bit.RESULT;
+  }
+
+  valeur = valeur/5;
+}*/
+
+/*
  * Arduino Zero board initialization
  *
  * Good to know:
@@ -79,10 +98,49 @@ void init( void )
   // Todo
 
   // Initialize Analog Controller
-  // Todo
+  // Setting clock
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_ADC ) | // Generic Clock ADC
+                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+                      GCLK_CLKCTRL_CLKEN ;
+
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV128 |     // Divide Clock by 512.
+                   ADC_CTRLB_RESSEL_10BIT;        // Result on 10 bits
+
+  ADC->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
+
+  // Averaging (see table 31-2 p.816 datasheet)
+  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_2 |    // 2 samples
+                     ADC_AVGCTRL_ADJRES(0x01ul);  // Adjusting result by 1
+  
+  ADC->REFCTRL.reg = ADC_REFCTRL_REFSEL_AREFA; // RReference AREFA (pin AREF) [default]
+
+  ADC->CTRLA.bit.ENABLE = 1; // Enable ADC
+  while( ADC->STATUS.bit.SYNCBUSY == 1 )
+  {
+    // Waiting for synchroinization
+  }
+
+  // Initialize DAC
+  // Setting clock
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_DAC ) | // Generic Clock ADC
+                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+                      GCLK_CLKCTRL_CLKEN ;
+
+
+  DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
+                   DAC_CTRLB_EOEN;  // External Output Enable (Vout)
+  DAC->DATA.reg = 0x3FFul;
+
+  // Enable DAC
+  DAC->CTRLA.bit.ENABLE = 1;
+
+  while(DAC->STATUS.bit.SYNCBUSY != 0)
+  {
+    // Waiting for synchronization
+  }
+
 }
 
 #ifdef __cplusplus
 }
 #endif
-

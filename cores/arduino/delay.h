@@ -64,13 +64,18 @@ static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unu
 static inline void delayMicroseconds(uint32_t usec){
     if (usec == 0) return;
     uint32_t n = usec * (VARIANT_MCK / 3000000);
-
+#if 0
     __asm__ volatile(
         "L_%=_delayMicroseconds:"       "\n\t"
-        "subs   %0, #1"                 "\n\t"
+        "subs   %0, %0, #1"                 "\n\t"
         "bne    L_%=_delayMicroseconds" "\n"
         : "+r" (n) :
     );
+#else
+  for ( ; n != 0 ; n-- )
+  {
+  }
+#endif
 }
 
 /*

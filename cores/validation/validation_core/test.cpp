@@ -30,6 +30,11 @@ static uint32_t ul_Interrupt_Pin5 = 0 ;
 static uint32_t ul_Interrupt_Pin6 = 0 ;
 static uint32_t ul_Interrupt_Pin7 = 0 ;
 
+int temps = 0;
+int valX = 0;
+int valY = 0;
+
+
 void setup( void )
 {
   // Initialize the digital pin as an output.
@@ -51,9 +56,9 @@ void setup( void )
 //**********************************************
 // Clock output on pin 4 for measure
 
-  pinPeripheral( 4, PIO_AC_CLK ) ; // Clock Gen 0
+ /* pinPeripheral( 4, PIO_AC_CLK ) ; // Clock Gen 0
   pinPeripheral( 5, PIO_AC_CLK ) ; // Clock Gen 1
-  pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3
+  pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3*/
 
 //**********************************************
   Serial5.begin( 115200 ) ; // Output to EDBG Virtual COM Port
@@ -84,6 +89,7 @@ void loop( void )
 {
   volatile int pin_value=0 ;
   static volatile uint8_t duty_cycle=0 ;
+  static volatile uint16_t dac_value=0 ;
 
   // Test digitalWrite
   led_step1() ;
@@ -108,20 +114,21 @@ void loop( void )
   analogWrite( 10 ,duty_cycle ) ;
   analogWrite(  9, duty_cycle ) ;
   analogWrite(  8, duty_cycle ) ;
-  analogWrite(  7, duty_cycle ) ;
-  analogWrite(  6, duty_cycle ) ;
-  analogWrite(  5, duty_cycle ) ;
-  analogWrite(  4, duty_cycle ) ;
 
-  Serial5.print("Analog pins: ");
+  dac_value += 64;
+  analogWrite(A0, dac_value);
 
-  for ( uint32_t i = A1 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
+
+
+  Serial5.print("\r\nAnalog pins: ");
+
+  for ( uint32_t i = A0 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
-/*
+
     int a = analogRead(i);
     Serial5.print(a, DEC);
     Serial5.print(" ");
-*/
+
   }
   Serial5.println();
 
@@ -152,7 +159,7 @@ void loop( void )
 
   if ( ul_Interrupt_Pin7 == 1 )
   {
-    Serial5.println( "Pin 3 triggered (CHANGE)" ) ;
+    Serial5.println( "Pin 7 triggered (CHANGE)" ) ;
     ul_Interrupt_Pin7 = 0 ;
   }
 }

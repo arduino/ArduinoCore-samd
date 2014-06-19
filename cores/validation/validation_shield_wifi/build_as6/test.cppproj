@@ -37,7 +37,7 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.samice</avrtool>
+    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_samice>
       <ToolOptions>
@@ -54,6 +54,7 @@
     <com_atmel_avrdbg_tool_edbg>
       <ToolOptions>
         <InterfaceProperties>
+          <SwdClock>4000000</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
@@ -146,6 +147,8 @@
         <armgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
+            <Value>F_CPU=48000000</Value>
+            <Value>ARDUINO=156</Value>
           </ListValues>
         </armgcc.compiler.symbols.DefSymbols>
         <armgcc.compiler.directories.DefaultIncludePath>False</armgcc.compiler.directories.DefaultIncludePath>
@@ -158,6 +161,7 @@
             <Value>../../../../../variants/arduino_zero</Value>
             <Value>../../../../../libraries/SPI</Value>
             <Value>../../../../../libraries/Wire</Value>
+            <Value>../../../../../../../../libraries/WiFi/src</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
         <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -172,6 +176,8 @@
             <Value>DEBUG</Value>
             <Value>USB_VID=0x2341</Value>
             <Value>USB_PID=0x004d</Value>
+            <Value>F_CPU=48000000</Value>
+            <Value>ARDUINO=156</Value>
           </ListValues>
         </armgcccpp.compiler.symbols.DefSymbols>
         <armgcccpp.compiler.directories.DefaultIncludePath>False</armgcccpp.compiler.directories.DefaultIncludePath>
@@ -184,6 +190,7 @@
             <Value>../../../../../variants/arduino_zero</Value>
             <Value>../../../../../libraries/SPI</Value>
             <Value>../../../../../libraries/Wire</Value>
+            <Value>../../../../../../../../libraries/WiFi/src</Value>
           </ListValues>
         </armgcccpp.compiler.directories.IncludePaths>
         <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
@@ -224,26 +231,16 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="core" />
+    <Folder Include="WiFi" />
+    <Folder Include="WiFi\utility" />
     <Folder Include="Wire" />
     <Folder Include="SPI" />
     <Folder Include="variant" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\libraries\SPI\SPI.cpp">
+    <Compile Include="..\test.cpp">
       <SubType>compile</SubType>
-      <Link>SPI\SPI.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\libraries\SPI\SPI.h">
-      <SubType>compile</SubType>
-      <Link>SPI\SPI.h</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\libraries\Wire\Wire.cpp">
-      <SubType>compile</SubType>
-      <Link>Wire\Wire.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\libraries\Wire\Wire.h">
-      <SubType>compile</SubType>
-      <Link>Wire\Wire.h</Link>
+      <Link>test.cpp</Link>
     </Compile>
     <Compile Include="..\..\..\..\variants\arduino_zero\pins_arduino.h">
       <SubType>compile</SubType>
@@ -457,9 +454,93 @@
       <SubType>compile</SubType>
       <Link>core\WVariant.h</Link>
     </Compile>
-    <Compile Include="..\test.cpp">
+    <Compile Include="..\..\..\..\libraries\SPI\SPI.cpp">
       <SubType>compile</SubType>
-      <Link>test.cpp</Link>
+      <Link>SPI\SPI.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\libraries\SPI\SPI.h">
+      <SubType>compile</SubType>
+      <Link>SPI\SPI.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\libraries\Wire\Wire.cpp">
+      <SubType>compile</SubType>
+      <Link>Wire\Wire.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\libraries\Wire\Wire.h">
+      <SubType>compile</SubType>
+      <Link>Wire\Wire.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\debug.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\debug.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\server_drv.cpp">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\server_drv.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\server_drv.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\server_drv.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\spi_drv.cpp">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\spi_drv.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\spi_drv.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\spi_drv.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\wifi_drv.cpp">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\wifi_drv.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\wifi_drv.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\wifi_drv.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\wifi_spi.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\wifi_spi.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\wl_definitions.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\wl_definitions.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\utility\wl_types.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\utility\wl_types.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFi.cpp">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFi.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFi.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFi.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFiClient.cpp">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFiClient.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFiClient.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFiClient.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFiServer.cpp">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFiServer.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFiServer.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFiServer.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFiUdp.cpp">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFiUdp.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\..\..\..\libraries\WiFi\src\WiFiUdp.h">
+      <SubType>compile</SubType>
+      <Link>WiFi\WiFiUdp.h</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
