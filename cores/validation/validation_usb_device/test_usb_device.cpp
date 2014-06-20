@@ -19,47 +19,63 @@
 #define ARDUINO_MAIN
 #include "Arduino.h" 
 
+#ifdef HID_ENABLED
+	const int buttonPin = 4;          // input pin for pushbutton
+	int previousButtonState = HIGH;   // for checking the state of a pushButton
+	int counter = 0;                  // button push counter
+#endif
 
-
-
-void setup(void) {
-	Serial.begin(115200);
+void setup(void)
+{	
+	USBDevice.init();
 	
+    USBDevice.attach();
+
 #ifdef HID_ENABLED
 	Mouse.begin();
+
+	// make the pushButton pin an input:
+	pinMode(buttonPin, INPUT);
+	// initialize control over the keyboard:
+	Keyboard.begin();
+#endif
+
+#ifdef CDC_ENABLED
+	SerialUSB.begin(115200);
 #endif
 }
 
-void loop(void) {
 
+void loop(void)
+{
 #ifdef HID_ENABLED
 	Mouse.move(1, 0, 0);
+
+	// read the pushbutton:
+	int buttonState = digitalRead(buttonPin);
+	// if the button state has changed, and it's currently pressed:
+	if ((buttonState != previousButtonState) && (buttonState == HIGH))
+	{
+		// increment the button counter
+		counter++;
+		// type out a message
+		Keyboard.print("You pressed the button ");
+		Keyboard.print(counter);
+		Keyboard.println(" times.");
+	}
+	// save the current button state for comparison next time:
+	previousButtonState = buttonState;
 #endif
 
-//	if (Serial.available() > 0)
-//	{
-//		char inChar = Serial.read();
-//		Serial.print(inChar);
-//		Serial1.print(inChar);
-//	}
-
-//	delay(10);
-}
-
-int main(void)
-{
-	//JCB init();   not compile at this time
-    //JCB already in Reset_Handler  SystemInit();
-
-	USBDevice.attach();
-	
-	setup();
-    
-	for (;;) {
-		loop();
-		if (serialEventRun) serialEventRun();
+#ifdef CDC_ENABLED
+	if (SerialUSB.available() > 0)
+	{
+		char inChar;
+		while( -1 == (inChar = SerialUSB.read()));
+		SerialUSB.print(inChar);
 	}
-        
-	return 0;
+
+	delay(10);
+#endif
 }
- 
+

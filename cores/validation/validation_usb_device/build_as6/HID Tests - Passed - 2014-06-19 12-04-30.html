@@ -1,0 +1,223 @@
+<HTML><HEAD>
+	<META http-equiv="X-UA-Compatible" content="IE=edge" />
+	<STYLE type='text/css'>
+		BODY { background-color: #DFDFDF; }
+		.dm_display
+		{
+		    color: Navy;
+		    font-family: monospace;
+		    background-color: White;
+		    border-width: 3px;
+		    border-style: outset;
+		}
+
+		#suite-output
+		{
+		    background-color: #FFFFDD;
+		    border: ridge 3px #FFFFDD;
+		    border-collapse: collapse;
+		    padding: 0;
+		    margin: 0;
+		    empty-cells: hide
+		}
+
+		#test-header
+		{
+		    font-weight: bold;
+		    font-size: large;
+		    border-top: ridge 2px #FFFFDD;
+		    border-bottom: ridge 2px #FFFFDD;
+		    padding: 0;
+		    margin: 0;
+		}
+
+		.test-pass, .test-fail
+		{
+		    float: right;
+		    border-left: ridge 2px #FFFDD;
+		    width: 6em;
+		}
+
+		.test-pass { background-color: #00FF00; }
+		.test-fail { background-color: #FF8888; }
+
+		.test-details
+		{
+		    clear: both;
+		    font-family: Monospace;
+		    padding: 0;
+		    margin: 0;
+		    empty-cells: hide;
+		}
+
+		.label
+		{
+		    float: left;
+		    width: 6em;
+		}
+
+		.content
+		{
+		    white-space: pre-wrap;
+		    margin-left: 6em;
+		}
+
+		.err_log, .warn_log
+		{
+		    color: Red;
+		}
+
+		.err_log { font-weight: bold; }
+	</STYLE>
+	<TITLE>HID Tests - 2014-06-19 12-04-30</TITLE>
+	<META name="Suite-Name" content="HID Tests.cvtests" />
+	<META name="Suite-Revision" content="4593" />
+	<META name="Suite-Revision-Date" content="2011-04-07 17:54:33 -0700 (Thu, 07 Apr 2011)" />
+	<META name="Test-Version" content="CVExe.exe ver 1.4.7.0" />
+	<META name="Test-Version" content="CommandVerifierLog.dll ver 1.4.8.0" />
+	<META name="Test-Version" content="TSMFCGuiDialogHelperDLL.dll ver 1.4.7.0" />
+	<META name="Test-Version" content="TestUtilities.dll ver 1.4.7.0" />
+	<META name="Test-Version" content="TestSuiteEngine.dll ver 1.4.7.0" />
+	<META name="Test-Version" content="EhciDevIOCTL.dll ver 1.4.9.7" />
+	<META name="Test-Version" content="EhciTestServices.dll ver 1.4.9.7" />
+	<META name="Test-Version" content="USBUtilities.dll ver 1.4.5.0" />
+	<META name="Test-Version" content="StackSwitcher.dll ver 1.4.5.1" />
+	<META name="Test-Version" content="USBCommandVerifier.dll ver 1.4.9.7" />
+	<META name="Test-Version" content="TParse.dll ver 1.4.5.0" />
+	<META name="Test-Version" content="HIDTests.dll ver 1.4.9.7" />
+	<META name="Device-Under-Test" content="VID=2341,PID=003B" />
+	<META name="Test-Pass" content="HID Class WhichSpecCompliant Test [Fails (0); Aborts (0); Warnings (0)]" />
+	<META name="Test-Pass" content="HID Class Descriptor Test (Configuration Index 0) - configured State [Fails (0); Aborts (0); Warnings (3)]" />
+	<META name="Test-Pass" content="HID Class Protocol Test (Configuration Index 0) [Fails (0); Aborts (0); Warnings (0)]" />
+	<META name="Test-Pass" content="HID Class GET/SET Idle Test (Configuration Index 0) [Fails (0); Aborts (0); Warnings (0)]" />
+	<META name="Test-Pass" content="HID Class Report Descriptor Test (Configuration Index 0) [Fails (0); Aborts (0); Warnings (0)]" />
+	<META name="Suite-Result" content="PASS [Fails (0); Aborts (0); Warnings (3)]" />
+	<META name="Log-Name" content="HID Tests - 2014-06-19 12-04-30.html" />
+	<META name="Test-Count" content="5" />
+</HEAD>
+<BODY><DIV id='suite-summary'>
+	<strong>TEST SUITE: </strong> HID Tests.cvtests<BR>
+	<strong>REVISION: </strong> 4593<BR>
+	<strong>REVISION DATE: </strong> 2011-04-07 17:54:33 -0700 (Thu, 07 Apr 2011)<BR>
+	<strong>WORKSTATION: </strong> RFOLT0694<BR>
+	<strong>DATE: </strong> Thursday, June 19, 2014<BR>
+	<strong>TIME: </strong> 12:04:41 PM<BR>
+	<strong>OPERATOR: </strong> jcbuda<BR>
+	<strong>NUMBER OF TESTS: </strong> 5<BR>
+	<strong>LOG NAME: </strong> HID Tests - 2014-06-19 12-04-30<BR>
+	<strong>RESULT: </strong> passed<BR>
+<HR>
+</DIV>
+<BR><BR>
+<DIV id='suite-output'>
+	<DIV id='test-header'>InitializeTestSuite</DIV>
+	<DIV class='test-details'>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Test log initialized.</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>User Input module initialized</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Microsoft Windows XP (Build 2600)</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Service Pack 3.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>CVExe.exe ver 1.4.7.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>CommandVerifierLog.dll ver 1.4.8.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>TSMFCGuiDialogHelperDLL.dll ver 1.4.7.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>TestUtilities.dll ver 1.4.7.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>TestSuiteEngine.dll ver 1.4.7.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>EhciDevIOCTL.dll ver 1.4.9.7</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>EhciTestServices.dll ver 1.4.9.7</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>USBUtilities.dll ver 1.4.5.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>StackSwitcher.dll ver 1.4.5.1</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>USBCommandVerifier.dll ver 1.4.9.7</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>TParse.dll ver 1.4.5.0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>HIDTests.dll ver 1.4.9.7</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Host selected: PCI bus 0, device 29, function 7</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>DUT selected: FS  Device (HID) addr=2:   VID=2341, PID=003b</DIV>
+
+	</DIV>
+	<DIV id='test-header'>Get Number Of Configurations</DIV>
+	<DIV id='test-header'>Get Number Of Other Speed Configurations</DIV>
+	<DIV id='test-header'><A name="anchor_4">Which Spec Compliant</A><DIV class='test-pass'>Passed</DIV></DIV>
+	<DIV class='test-details'>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Start time: Thu Jun 19 12:04:36 2014
+</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Interface 2 Alternate Setting 0 is draft 4 Compliant</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>
+Stop time: Thu Jun 19 12:04:37 2014</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Duration:  1 second.</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Stopping Test [ HID Class WhichSpecCompliant Test:
+     Number of: Fails (0); Aborts (0); Warnings (0) ]
+</DIV>
+
+	</DIV>
+	<DIV id='test-header'><A name="anchor_5">HID Class Descriptor Test</A><DIV class='test-pass'>Passed</DIV></DIV>
+	<DIV class='test-details'>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Start time: Thu Jun 19 12:04:37 2014
+</DIV>
+		<DIV class='warn_log'><DIV class='label'>WARNING</DIV><DIV class='content'>DeviceClass is NON ZERO</DIV></DIV>
+		<DIV class='warn_log'><DIV class='label'>WARNING</DIV><DIV class='content'>DeviceSubClass is NON ZERO</DIV></DIV>
+		<DIV class='warn_log'><DIV class='label'>WARNING</DIV><DIV class='content'>DeviceProtocol is NON ZERO</DIV></DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Testing HID descritpor for Interface 2</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>HID descriptor total length : 9</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>HID descriptor type : 21</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>HID specification version : 101</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>CountryCode : 0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Number of other descriptors present : 1</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>HID report descriptor length : 65</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>
+Stop time: Thu Jun 19 12:04:38 2014</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Duration:  1 second.</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Stopping Test [ HID Class Descriptor Test (Configuration Index 0) - configured State:
+     Number of: Fails (0); Aborts (0); Warnings (3) ]
+</DIV>
+
+	</DIV>
+	<DIV id='test-header'><A name="anchor_6">Protocol Test</A><DIV class='test-pass'>Passed</DIV></DIV>
+	<DIV class='test-details'>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Start time: Thu Jun 19 12:04:38 2014
+</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Starting GET/SET protocol tests for interface : 2</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>GET/SET protocol request is optional. Skipping tests</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>
+Stop time: Thu Jun 19 12:04:39 2014</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Duration:  1 second.</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Stopping Test [ HID Class Protocol Test (Configuration Index 0):
+     Number of: Fails (0); Aborts (0); Warnings (0) ]
+</DIV>
+
+	</DIV>
+	<DIV id='test-header'><A name="anchor_7">Idle Test</A><DIV class='test-pass'>Passed</DIV></DIV>
+	<DIV class='test-details'>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Start time: Thu Jun 19 12:04:39 2014
+</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>GET/SETIdle test for report ID 1. Setting idle rate to : 7f</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>GET/SETIdle test for report ID 1. Setting idle rate to : ff</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>GET/SETIdle test for report ID 1. Setting idle rate to : 0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>GET/SETIdle test for report ID 2. Setting idle rate to : 7f</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>GET/SETIdle test for report ID 2. Setting idle rate to : ff</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>GET/SETIdle test for report ID 2. Setting idle rate to : 0</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>
+Stop time: Thu Jun 19 12:04:40 2014</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Duration:  1 second.</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Stopping Test [ HID Class GET/SET Idle Test (Configuration Index 0):
+     Number of: Fails (0); Aborts (0); Warnings (0) ]
+</DIV>
+
+	</DIV>
+	<DIV id='test-header'><A name="anchor_8">Report Descriptor Test</A><DIV class='test-pass'>Passed</DIV></DIV>
+	<DIV class='test-details'>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Start time: Thu Jun 19 12:04:40 2014
+</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Report descriptor test passed. Proceeding to next descriptor</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>
+Stop time: Thu Jun 19 12:04:41 2014</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Duration:  1 second.</DIV>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Stopping Test [ HID Class Report Descriptor Test (Configuration Index 0):
+     Number of: Fails (0); Aborts (0); Warnings (0) ]
+</DIV>
+
+	</DIV>
+	<DIV id='test-header'>Summary</DIV>
+	<DIV class='test-details'>
+		<DIV class='label'>INFO</DIV><DIV class='content'>Summary Log Counts [ Fails (0); Aborts (0); Warnings (3) ]</DIV>
+
+	</DIV>
+</DIV>
+</BODY></HTML>

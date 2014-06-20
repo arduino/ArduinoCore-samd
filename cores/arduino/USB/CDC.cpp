@@ -19,20 +19,20 @@
 #include <stdint.h>
 
 // Include Atmel headers
+#include "arduino.h"
 #include "sam.h"
 #include "wiring_constants.h"
 #include "USBCore.h"
 #include "USB_device.h"
 #include "USBDesc.h"
 #include "USBAPI.h"
-//#include "samd21_device.h"
 
 #include "Reset.h"
 
 
 #ifdef CDC_ENABLED
 
-#define CDC_SERIAL_BUFFER_SIZE	512
+#define CDC_SERIAL_BUFFER_SIZE	64
 
 /* For information purpose only since RTS is not always handled by the terminal application */
 #define CDC_LINESTATE_DTR		0x01 // Data Terminal Ready
@@ -58,61 +58,44 @@ typedef struct
 	uint8_t		lineState;
 } LineInfo;
 
+_Pragma("pack(1)")
 static volatile LineInfo _usbLineInfo = { 
-    57600, // dWDTERate
+   115200, // dWDTERate
     0x00,  // bCharFormat
     0x00,  // bParityType
     0x08,  // bDataBits
     0x00   // lineState
 };
 
-_Pragma("pack(1)")
 static const CDCDescriptor _cdcInterface =
 {
-	D_IAD(0,2,CDC_COMMUNICATION_INTERFACE_CLASS,CDC_ABSTRACT_CONTROL_MODEL,1),
-
+#if (defined CDC_ENABLED) && defined(HID_ENABLED)
+	D_IAD(0, 2, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
+#endif
 	//	CDC communication interface
 	D_INTERFACE(CDC_ACM_INTERFACE,1,CDC_COMMUNICATION_INTERFACE_CLASS,CDC_ABSTRACT_CONTROL_MODEL,0),
-	D_CDCCS(CDC_HEADER,0x10,0x01),								// Header (1.10 bcd)
-	D_CDCCS(CDC_CALL_MANAGEMENT,1,1),							// Device handles call management (not)
+	D_CDCCS( CDC_HEADER, CDC_V1_10 & 0xFF, (CDC_V1_10>>8) & 0x0FF ),	// Header (1.10 bcd)
+	
 	D_CDCCS4(CDC_ABSTRACT_CONTROL_MANAGEMENT,6),				// SET_LINE_CODING, GET_LINE_CODING, SET_CONTROL_LINE_STATE supported
 	D_CDCCS(CDC_UNION,CDC_ACM_INTERFACE,CDC_DATA_INTERFACE),	// Communication interface is master, data interface is slave 0
+	D_CDCCS(CDC_CALL_MANAGEMENT,1,1),							// Device handles call management (not)
 	D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_ACM),USB_ENDPOINT_TYPE_INTERRUPT,0x10, 0x10),
 
 	//	CDC data interface
 	D_INTERFACE(CDC_DATA_INTERFACE,2,CDC_DATA_INTERFACE_CLASS,0,0),
-	D_ENDPOINT(USB_ENDPOINT_OUT(CDC_ENDPOINT_OUT),USB_ENDPOINT_TYPE_BULK,512,0),
-	D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_IN ),USB_ENDPOINT_TYPE_BULK,512,0)
-};
-static const CDCDescriptor _cdcOtherInterface =
-{
-	D_IAD(0,2,CDC_COMMUNICATION_INTERFACE_CLASS,CDC_ABSTRACT_CONTROL_MODEL,1),
-
-	//	CDC communication interface
-	D_INTERFACE(CDC_ACM_INTERFACE,1,CDC_COMMUNICATION_INTERFACE_CLASS,CDC_ABSTRACT_CONTROL_MODEL,0),
-	D_CDCCS(CDC_HEADER,0x10,0x01),								// Header (1.10 bcd)
-	D_CDCCS(CDC_CALL_MANAGEMENT,1,1),							// Device handles call management (not)
-	D_CDCCS4(CDC_ABSTRACT_CONTROL_MANAGEMENT,6),				// SET_LINE_CODING, GET_LINE_CODING, SET_CONTROL_LINE_STATE supported
-	D_CDCCS(CDC_UNION,CDC_ACM_INTERFACE,CDC_DATA_INTERFACE),	// Communication interface is master, data interface is slave 0
-	D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_ACM),USB_ENDPOINT_TYPE_INTERRUPT,0x10, 0x10),
-
-	//	CDC data interface
-	D_INTERFACE(CDC_DATA_INTERFACE,2,CDC_DATA_INTERFACE_CLASS,0,0),
-	D_ENDPOINT(USB_ENDPOINT_OUT(CDC_ENDPOINT_OUT),USB_ENDPOINT_TYPE_BULK,64,0),
-	D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_IN ),USB_ENDPOINT_TYPE_BULK,64,0)
+	D_ENDPOINT(USB_ENDPOINT_OUT(CDC_ENDPOINT_OUT),USB_ENDPOINT_TYPE_BULK,EPX_SIZE,0),
+	D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_IN ),USB_ENDPOINT_TYPE_BULK,EPX_SIZE,0)
 };
 _Pragma("pack()")
 
-int WEAK CDC_GetInterface(uint8_t* interfaceNum)
+const void* WEAK CDC_GetInterface(void)
 {
-	interfaceNum[0] += 2;	// uses 2
-	return USBD_SendControl(0,&_cdcInterface,sizeof(_cdcInterface));
+	return  &_cdcInterface;
 }
 
-int WEAK CDC_GetOtherInterface(uint8_t* interfaceNum)
+uint32_t WEAK CDC_GetInterfaceLength(void)
 {
-	interfaceNum[0] += 2;	// uses 2
-	return USBD_SendControl(0,&_cdcOtherInterface,sizeof(_cdcOtherInterface));
+    return sizeof( _cdcInterface );
 }
 
 bool WEAK CDC_Setup(Setup& setup)
@@ -134,7 +117,7 @@ bool WEAK CDC_Setup(Setup& setup)
 		if (CDC_SET_LINE_CODING == r)
 		{
 			USBD_RecvControl((void*)&_usbLineInfo,7);
-			return true;
+			return false;
 		}
 
 		if (CDC_SET_CONTROL_LINE_STATE == r)
@@ -150,13 +133,13 @@ bool WEAK CDC_Setup(Setup& setup)
 				else
 					cancelReset();
 			}
-			return true;
+			return false;
 		}
 	}
 	return false;
 }
 
-int _serialPeek = -1;
+uint32_t _serialPeek = -1;
 void Serial_::begin(uint32_t baud_count)
 {
 }
@@ -171,16 +154,6 @@ void Serial_::end(void)
 
 void Serial_::accept(void)
 {
-//	static uint32_t guard = 0;
-
-	// synchronized access to guard
-//JCB	do {
-//		if (__LDREXW(&guard) != 0) {
-//			__CLREX();
-//			return;  // busy
-//		}
-//	} while (__STREXW(1, &guard) != 0); // retry until write succeed
-
 	ring_buffer *buffer = &cdc_rx_buffer;
 	uint32_t i = (uint32_t)(buffer->head+1) % CDC_SERIAL_BUFFER_SIZE;
 
@@ -190,27 +163,22 @@ void Serial_::accept(void)
 	// and so we don't write the character or advance the head.
 	while (i != buffer->tail) {
 		uint32_t c;
-		if (!USBD_Available(CDC_RX)) {
-            UDD_ReleaseRX(CDC_RX);
-			//JCB udd_ack_fifocon(CDC_RX);
+		if (!USBD_Available(CDC_ENDPOINT_OUT)) {
+            UDD_ReleaseRX(CDC_ENDPOINT_OUT);
 			break;
 		}
-		c = USBD_Recv(CDC_RX);
-		// c = UDD_Recv8(CDC_RX & 0xF);
+		c = USBD_Recv(CDC_ENDPOINT_OUT);
 		buffer->buffer[buffer->head] = c;
 		buffer->head = i;
 
 		i = (i + 1) % CDC_SERIAL_BUFFER_SIZE;
 	}
-
-	// release the guard
-//	guard = 0;
 }
 
 int Serial_::available(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
-	return (unsigned int)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
+	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
 }
 
 int Serial_::peek(void)
@@ -239,8 +207,8 @@ int Serial_::read(void)
 	else
 	{
 		unsigned char c = buffer->buffer[buffer->tail];
-		buffer->tail = (unsigned int)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
-		if (USBD_Available(CDC_RX))
+		buffer->tail = (uint32_t)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
+		if (USBD_Available(CDC_ENDPOINT_OUT))
 			accept();
 		return c;
 	}
@@ -248,7 +216,7 @@ int Serial_::read(void)
 
 void Serial_::flush(void)
 {
-	USBD_Flush(CDC_TX);
+	USBD_Flush(CDC_ENDPOINT_IN);
 }
 
 size_t Serial_::write(const uint8_t *buffer, size_t size)
@@ -262,9 +230,9 @@ size_t Serial_::write(const uint8_t *buffer, size_t size)
 	// TODO - ZE - check behavior on different OSes and test what happens if an
 	// open connection isn't broken cleanly (cable is yanked out, host dies
 	// or locks up, or host virtual serial port hangs)
-	if (_usbLineInfo.lineState > 0)
+//	if (_usbLineInfo.lineState > 0)  // Problem with Windows(R)
 	{
-		int r = USBD_Send(CDC_TX, buffer, size);
+		uint32_t r = USBD_Send(CDC_ENDPOINT_IN, buffer, size);
 
 		if (r > 0)
 		{
@@ -293,8 +261,8 @@ size_t Serial_::write(uint8_t c) {
 Serial_::operator bool()
 {
 	// this is here to avoid spurious opening after upload
-//	if (millis() < 500)
-//		return false;
+	if (millis() < 500)
+		return false;
 
 	bool result = false;
 
@@ -303,7 +271,7 @@ Serial_::operator bool()
 		result = true;
 	}
 
-//	delay(10);
+	delay(10);
 	return result;
 }
 

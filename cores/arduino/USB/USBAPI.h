@@ -48,6 +48,7 @@ public:
 	bool attach();
 	bool detach();	// Serial port goes down too...
 	void poll();
+	void init();
 };
 extern USBDevice_ USBDevice;
 
@@ -185,8 +186,11 @@ typedef struct
 //================================================================================
 //	HID 'Driver'
 
-int		HID_GetInterface(uint8_t* interfaceNum);
-int		HID_GetDescriptor(int i);
+const void* WEAK HID_GetInterface(void);
+uint32_t WEAK HID_GetInterfaceLength(void);
+uint32_t HID_SizeReportDescriptor(void);
+
+uint32_t		HID_GetDescriptor(void);
 bool	HID_Setup(Setup& setup);
 void	HID_SendReport(uint8_t id, const void* data, uint32_t len);
 
@@ -194,8 +198,8 @@ void	HID_SendReport(uint8_t id, const void* data, uint32_t len);
 //================================================================================
 //	MSC 'Driver'
 
-int		MSC_GetInterface(uint8_t* interfaceNum);
-int		MSC_GetDescriptor(int i);
+uint32_t		MSC_GetInterface(uint8_t* interfaceNum);
+uint32_t		MSC_GetDescriptor(uint32_t i);
 bool	MSC_Setup(Setup& setup);
 bool	MSC_Data(uint8_t rx,uint8_t tx);
 
@@ -203,23 +207,19 @@ bool	MSC_Data(uint8_t rx,uint8_t tx);
 //================================================================================
 //	CDC 'Driver'
 
-int		CDC_GetInterface(uint8_t* interfaceNum);
-int		CDC_GetOtherInterface(uint8_t* interfaceNum);
-int		CDC_GetDescriptor(int i);
+const void* CDC_GetInterface(/*uint8_t* interfaceNum*/);
+uint32_t WEAK CDC_GetInterfaceLength(void);
+uint32_t		CDC_GetOtherInterface(uint8_t* interfaceNum);
+uint32_t		CDC_GetDescriptor(uint32_t i);
 bool	CDC_Setup(Setup& setup);
 
 //================================================================================
 //================================================================================
 
-#define TRANSFER_RELEASE	0x40
-#define TRANSFER_ZERO		0x20
-
-void USBD_InitControl(int end);
-int USBD_SendControl(uint8_t flags, const void* d, uint32_t len);
-int USBD_RecvControl(void* d, uint32_t len);
-int USBD_SendInterfaces(void);
+uint32_t USBD_SendControl(uint8_t flags, const void* d, uint32_t len);
+uint32_t USBD_RecvControl(void* d, uint32_t len);
+uint32_t USBD_SendInterfaces(void);
 bool USBD_ClassInterfaceRequest(Setup& setup);
-
 
 uint32_t USBD_Available(uint32_t ep);
 uint32_t USBD_SendSpace(uint32_t ep);

@@ -150,7 +150,7 @@ void UHD_Init(void)
 
 	// ID pin not used then force host mode
 	otg_disable_id_pin();
-	otg_force_host_mode();
+	udd_force_host_mode();
 
 	// Signal is active low (because all SAM3X Pins are high after startup)
 	// Hence VBOF must be low after connection request to power up the remote device

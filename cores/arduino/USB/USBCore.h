@@ -67,10 +67,10 @@
 
 //	Descriptors
 
-#define USB_DEVICE_DESC_SIZE 18
-#define USB_CONFIGUARTION_DESC_SIZE 9
-#define USB_INTERFACE_DESC_SIZE 9
-#define USB_ENDPOINT_DESC_SIZE 7
+// #define USB_DEVICE_DESC_SIZE			18
+// #define USB_CONFIGUARTION_DESC_SIZE		9
+// #define USB_INTERFACE_DESC_SIZE			9
+// #define USB_ENDPOINT_DESC_SIZE			7
 
 #define USB_DEVICE_DESCRIPTOR_TYPE             1
 #define USB_CONFIGURATION_DESCRIPTOR_TYPE      2
@@ -92,19 +92,6 @@
 
 // bMaxPower in Configuration Descriptor
 #define USB_CONFIG_POWER_MA(mA)                ((mA)/2)
-
-// bEndpointAddress in Endpoint Descriptor
-#define USB_ENDPOINT_DIRECTION_MASK            0x80
-#define USB_ENDPOINT_OUT(addr)                 ((addr) | 0x00)
-#define USB_ENDPOINT_IN(addr)                  ((addr) | 0x80)
-
-#define USB_ENDPOINT_TYPE_MASK                 0x03
-#define USB_ENDPOINT_TYPE_CONTROL              0x00
-#define USB_ENDPOINT_TYPE_ISOCHRONOUS          0x01
-#define USB_ENDPOINT_TYPE_BULK                 0x02
-#define USB_ENDPOINT_TYPE_INTERRUPT            0x03
-
-#define TOBYTES(x) ((x) & 0xFF),(((x) >> 8) & 0xFF)
 
 #define CDC_V1_10                               0x0110
 #define CDC_COMMUNICATION_INTERFACE_CLASS       0x02
@@ -235,15 +222,16 @@ typedef struct
 
 typedef struct
 {
+#if (defined CDC_ENABLED) && defined(HID_ENABLED)
 	//	IAD
 	IADDescriptor				iad;	// Only needed on compound device
-
+#endif
 	//	Control
 	InterfaceDescriptor			cif;
 	CDCCSInterfaceDescriptor	header;
-	CMFunctionalDescriptor		callManagement;			// Call Management
 	ACMFunctionalDescriptor		controlManagement;		// ACM
 	CDCCSInterfaceDescriptor	functionalDescriptor;	// CDC_UNION
+	CMFunctionalDescriptor		callManagement;			// Call Management
 	EndpointDescriptor			cifin;
 
 	//	Data
@@ -282,30 +270,41 @@ typedef struct
 _Pragma("pack()")
 
 #define D_DEVICE(_class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs) \
-	{ 18, 1, 0x200, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }
+	{ 18, 1, 0x110, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }
+/* Table 9-8. Standard Device Descriptor
+ * bLength, bDescriptorType, bcdUSB, bDeviceClass, bDeviceSubClass, bDeviceProtocol, bMaxPacketSize0,
+ *    idVendor, idProduct, bcdDevice, iManufacturer, iProduct, iSerialNumber, bNumConfigurations */
 
 #define D_CONFIG(_totalLength,_interfaces) \
 	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_SELF_POWERED, USB_CONFIG_POWER_MA(500) }
-
-//#define D_OTHERCONFIG(_totalLength,_interfaces) 
-//	{ 9, 7, _totalLength,_interfaces, 1, 0, USB_CONFIG_SELF_POWERED, USB_CONFIG_POWER_MA(500) }
-
+/* Table 9-10. Standard Configuration Descriptor
+ * bLength, bDescriptorType, wTotalLength, bNumInterfaces, bConfigurationValue, iConfiguration
+ * bmAttributes, bMaxPower */
+ 
 #define D_INTERFACE(_n,_numEndpoints,_class,_subClass,_protocol) \
 	{ 9, 4, _n, 0, _numEndpoints, _class,_subClass, _protocol, 0 }
-
+/* Table 9-12. Standard Interface Descriptor
+ * bLength, bDescriptorType, bInterfaceNumber, bAlternateSetting, bNumEndpoints, bInterfaceClass,
+ * bInterfaceSubClass, bInterfaceProtocol, iInterface */
+ 
 #define D_ENDPOINT(_addr,_attr,_packetSize, _interval) \
 	{ 7, 5, _addr,_attr,_packetSize, _interval }
-
-//#define D_QUALIFIER(_class,_subClass,_proto,_packetSize0,_configs) 
-//	{ 10, 6, 0x200, _class,_subClass,_proto,_packetSize0,_configs }
+/* Table 9-13. Standard Endpoint Descriptor
+ * bLength, bDescriptorType, bEndpointAddress, bmAttributes, wMaxPacketSize, bInterval */
 
 #define D_IAD(_firstInterface, _count, _class, _subClass, _protocol) \
 	{ 8, 11, _firstInterface, _count, _class, _subClass, _protocol, 0 }
-
+/* iadclasscode_r10.pdf, Table 9–Z. Standard Interface Association Descriptor
+ * bLength, bDescriptorType, bFirstInterface, bInterfaceCount, bFunctionClass, bFunctionSubClass, bFunctionProtocol, iFunction */
 #define D_HIDREPORT(_descriptorLength) \
 	{ 9, 0x21, 0x1, 0x1, 0, 1, 0x22, _descriptorLength, 0 }
+/* HID1_11.pdf  E.8 HID Descriptor (Mouse)
+ * bLength, bDescriptorType, bcdHID, bCountryCode, bNumDescriptors, bDescriptorType, wItemLength */
 
+// Functional Descriptor General Format
 #define D_CDCCS(_subtype,_d0,_d1)	{ 5, 0x24, _subtype, _d0, _d1 }
 #define D_CDCCS4(_subtype,_d0)		{ 4, 0x24, _subtype, _d0 }
+/* bFunctionLength, bDescriptorType, bDescriptorSubtype, function specific data0, functional specific data N-1
+ * CS_INTERFACE 24h */
 
 #endif

@@ -14,7 +14,6 @@
 ** SOFTWARE.
 */
 
-#ifdef HID_ENABLED
 
 #include "USBAPI.h"
 #include "Reset.h"
@@ -23,20 +22,17 @@
 #include "sam.h"
 #include "USB_device.h"
 
+
+#ifdef HID_ENABLED
+
 //#define RAWHID_ENABLED
-#ifdef __cplusplus
-extern "C"{
-#endif // __cplusplus
 
-//	Singletons for mouse and keyboard
-
+// Singletons for mouse and keyboard
 Mouse_ Mouse;
 Keyboard_ Keyboard;
 
 //================================================================================
 //================================================================================
-
-//	HID report descriptor
 
 #define LSB(_x) ((_x) & 0xFF)
 #define MSB(_x) ((_x) >> 8)
@@ -46,6 +42,8 @@ Keyboard_ Keyboard;
 #define RAWHID_TX_SIZE 64
 #define RAWHID_RX_SIZE 64
 
+//	HID report descriptor
+_Pragma("pack(1)")
 extern const uint8_t _hidReportDescriptor[] = {
 	//	Mouse
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)	// 54
@@ -129,7 +127,6 @@ extern const uint8_t _hidReportDescriptor[] = {
 #endif
 };
 
-_Pragma("pack(1)")
 extern const HIDDescriptor _hidInterface =
 {
 	D_INTERFACE(HID_INTERFACE,1,3,0,0),
@@ -147,26 +144,37 @@ uint8_t _hid_idle = 1;
 
 #define WEAK __attribute__ ((weak))
 
-int WEAK HID_GetInterface(uint8_t* interfaceNum)
+const void* WEAK HID_GetInterface(void)
 {
-	interfaceNum[0] += 1;	// uses 1
-	return USBD_SendControl(0,&_hidInterface,sizeof(_hidInterface));
+	return  &_hidInterface;
 }
 
-int WEAK HID_GetDescriptor(int i)
+uint32_t WEAK HID_GetInterfaceLength(void)
+{
+    return sizeof( _hidInterface );
+}
+
+uint32_t HID_SizeReportDescriptor(void)
+{
+	return sizeof(_hidReportDescriptor);
+}
+
+uint32_t WEAK HID_GetDescriptor(void)
 {
 	return USBD_SendControl(0,_hidReportDescriptor,sizeof(_hidReportDescriptor));
 }
 
 void WEAK HID_SendReport(uint8_t id, const void* data, uint32_t len)
 {
-	uint8_t p[64];
+	uint8_t p[8];
 	const uint8_t *d = reinterpret_cast<const uint8_t *>(data);
 
 	p[0] = id;
 	for (uint32_t i=0; i<len; i++)
+	{
 		p[i+1] = d[i];
-	USBD_Send(HID_TX, p, len+1);
+	}
+	USBD_Send(HID_ENDPOINT_INT, p, len+1);
 }
 
 bool WEAK HID_Setup(Setup& setup)
@@ -186,6 +194,12 @@ bool WEAK HID_Setup(Setup& setup)
 			//Send8(_hid_protocol);	// TODO
 			return true;
 		}
+		if (HID_GET_IDLE == r)
+		{
+			UDD_Send(0, &_hid_idle, 1);
+			UDD_ClearIN();
+			return true;
+		}
 	}
 
 	if (REQUEST_HOSTTODEVICE_CLASS_INTERFACE == requestType)
@@ -198,15 +212,12 @@ bool WEAK HID_Setup(Setup& setup)
 
 		if (HID_SET_IDLE == r)
 		{
-			_hid_idle = setup.wValueL;
+			_hid_idle = setup.wValueH;
 			return true;
 		}
 	}
 	return false;
 }
-#ifdef __cplusplus
-}
-#endif
 
 //================================================================================
 //================================================================================
@@ -422,8 +433,6 @@ extern const uint8_t _asciimap[128] =
 	0x35|SHIFT,    // ~
 	0				// DEL
 };
-
-uint8_t USBPutChar(uint8_t c);
 
 // press() adds the specified key (printing, non-printing, or modifier)
 // to the persistent key report and sends the report.  Because of the way
