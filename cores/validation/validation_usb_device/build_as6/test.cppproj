@@ -480,8 +480,9 @@
       <SubType>compile</SubType>
       <Link>core\WVariant.h</Link>
     </Compile>
-    <Compile Include="test_usb_device.cpp">
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_device\test_usb_device.cpp">
       <SubType>compile</SubType>
+      <Link>test_usb_device.cpp</Link>
     </Compile>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
