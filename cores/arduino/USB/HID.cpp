@@ -20,7 +20,7 @@
 #include "USBCore.h"
 #include "USBDesc.h"
 #include "sam.h"
-#include "USB_device.h"
+#include "USB/USB_device.h"
 
 
 #ifdef HID_ENABLED

@@ -35,7 +35,7 @@ extern "C" {
 #endif
 
 #include <stdint.h>
-#include "samd21_device.h"
+#include "USB/samd21_device.h"
 
 
 // bEndpointAddress in Endpoint Descriptor

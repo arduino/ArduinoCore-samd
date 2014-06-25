@@ -32,8 +32,8 @@
 #include <string.h>
 
 #include "variant.h"
-#include "USB_device.h"
-#include "samd21_device.h"
+#include "USB/USB_device.h"
+#include "USB/samd21_device.h"
 #include "sam.h"
 
 #ifdef __cplusplus
@@ -75,6 +75,7 @@ void UDD_Init(void)
 	uint32_t pad_transn;
     uint32_t pad_transp;
     uint32_t pad_trim;
+	uint32_t i;
 
 	/* Enable USB clock */
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
@@ -148,7 +149,7 @@ void UDD_Init(void)
 	USB->DEVICE.DESCADD.reg = (uint32_t)(&usb_endpoint_table[0]);
 	// For USB_SPEED_FULL 
 	udd_force_full_speed();
- 	for (uint32_t i = 0; i < sizeof(usb_endpoint_table); i++) {
+ 	for (i = 0; i < sizeof(usb_endpoint_table); i++) {
  		(*(uint32_t *)(&usb_endpoint_table[0]+i)) = 0;
  	}
 

@@ -21,7 +21,7 @@
 #include "sam.h"
 #include "wiring_constants.h"
 #include "USBCore.h"
-#include "USB_device.h"   // needed for USB PID define
+#include "USB/USB_device.h"   // needed for USB PID define
 #include "USBDesc.h"
 #include "USBAPI.h"
 

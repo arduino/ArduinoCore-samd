@@ -28,185 +28,330 @@
  */
 
 #include <stdio.h>
+// #include <stdint.h>
+// #include <string.h>
+// 
+// #include "variant.h"
+// #include "USB_host.h"
+// #include "USB/samd21_host.h"
+// #include "sam.h"
 
-#if SAM3XA_SERIES
+//#if SAM3XA_SERIES
+
+#ifdef HOST_DEFINED
 
 //#define TRACE_UOTGHS_HOST(x)	x
 #define TRACE_UOTGHS_HOST(x)
 
-extern void (*gpf_isr)(void);
+//extern void (*gpf_isr)(void);
 
 // Handle UOTGHS Host driver state
 static uhd_vbus_state_t uhd_state = UHD_STATE_NO_VBUS;
 
-/**
- * \brief Interrupt sub routine for USB Host state machine management.
- */
-static void UHD_ISR(void)
-{
-	// Manage dis/connection event
-	if (Is_uhd_disconnection() && Is_uhd_disconnection_int_enabled()) {
-		TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : Disconnection INT\r\n");)
-		uhd_ack_disconnection();
-		uhd_disable_disconnection_int();
-		// Stop reset signal, in case of disconnection during reset
-		uhd_stop_reset();
-		// Disable wakeup/resumes interrupts,
-		// in case of disconnection during suspend mode
-		//UOTGHS->UOTGHS_HSTIDR = UOTGHS_HSTIDR_HWUPIEC
-		//		| UOTGHS_HSTIDR_RSMEDIEC
-		//		| UOTGHS_HSTIDR_RXRSMIEC;
-		uhd_ack_connection();
-		uhd_enable_connection_int();
-		uhd_state = UHD_STATE_DISCONNECTED;
-		return;
-	}
-	if (Is_uhd_connection() && Is_uhd_connection_int_enabled()) {
-		TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : Connection INT\r\n");)
-		uhd_ack_connection();
-		uhd_disable_connection_int();
-		uhd_ack_disconnection();
-		uhd_enable_disconnection_int();
-		//uhd_enable_sof();
-		uhd_state = UHD_STATE_CONNECTED;
-		return;
-	}
+ __attribute__((__aligned__(4))) UsbHostDescriptor usb_pipe_table[USB_EPT_NUM];
 
-	// Manage Vbus error
-	if (Is_uhd_vbus_error_interrupt())
-	{
-		TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : VBUS error INT\r\n");)
-		uhd_ack_vbus_error_interrupt();
-		uhd_state = UHD_STATE_DISCONNECTED; //UHD_STATE_ERROR;
-		return;
-	}
 
-	// Check USB clock ready after asynchronous interrupt
-	while (!Is_otg_clock_usable())
-		;
-	otg_unfreeze_clock();
-
-	// Manage Vbus state change
-	if (Is_otg_vbus_transition())
-	{
-		otg_ack_vbus_transition();
-		if (Is_otg_vbus_high())
-		{
-			TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : VBUS transition INT : UHD_STATE_DISCONNECT\r\n");)
-			uhd_state = UHD_STATE_DISCONNECTED;
-		}
-		else
-		{
-			TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : VBUS transition INT : UHD_STATE_NO_VBUS\r\n");)
-			otg_freeze_clock();
-			uhd_state = UHD_STATE_NO_VBUS;
-		}
-		TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : VBUS transition INT : done.\r\n");)
-		return;
-	}
-
-	// Other errors
-	if (Is_uhd_errors_interrupt())
-	{
-		TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : Other error INT\r\n");)
-		uhd_ack_errors_interrupt();
-		return;
-	}
-}
+// NVM Software Calibration Area Mapping
+// USB TRANSN calibration value. Should be written to the USB PADCAL register.
+#define NVM_USB_PAD_TRANSN_POS  45
+#define NVM_USB_PAD_TRANSN_SIZE 5
+// USB TRANSP calibration value. Should be written to the USB PADCAL register.
+#define NVM_USB_PAD_TRANSP_POS  50
+#define NVM_USB_PAD_TRANSP_SIZE 5
+// USB TRIM calibration value. Should be written to the USB PADCAL register.
+#define NVM_USB_PAD_TRIM_POS  55
+#define NVM_USB_PAD_TRIM_SIZE 3
 
 /**
- * \brief Set the interrupt sub routines callback for USB interrupts.
- *
- * \param pf_isr the ISR address.
- */
-void UHD_SetStack(void (*pf_isr)(void))
-{
-	gpf_isr = pf_isr;
-}
-
-/**
- * \brief Initialize the UOTGHS host driver.
+ * \brief Initialize the SAMD21 host driver.
  */
 void UHD_Init(void)
 {
-	irqflags_t flags;
+	uint32_t pad_transn;
+    uint32_t pad_transp;
+    uint32_t pad_trim;
 
-	// To avoid USB interrupt before end of initialization
-	flags = cpu_irq_save();
+	/* Enable USB clock */
+	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
-	// Setup USB Host interrupt callback
-	UHD_SetStack(&UHD_ISR);
+	/* Set up the USB DP/DN pins */
+	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
+	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
+	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg |= MUX_PA24G_USB_DM << (4 * (PIN_PA24G_USB_DM & 0x01u));
+	PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].bit.PMUXEN = 1;
+	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25G_USB_DP & 0x01u)));
+	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
 
-	// Enables the USB Clock
-	pmc_enable_upll_clock();
-	pmc_switch_udpck_to_upllck(0); // div=0+1
-	pmc_enable_udpck();
-	pmc_enable_periph_clk(ID_UOTGHS);
+	/* ----------------------------------------------------------------------------------------------
+	 * Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
+	 */
+	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( 6 ) | // Generic Clock Multiplexer 6
+					GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+					GCLK_CLKCTRL_CLKEN ;
 
-	// Always authorize asynchronous USB interrupts to exit of sleep mode
-	// For SAM3 USB wake up device except BACKUP mode
-	NVIC_SetPriority((IRQn_Type) ID_UOTGHS, 0);
-	NVIC_EnableIRQ((IRQn_Type) ID_UOTGHS);
-
-	// ID pin not used then force host mode
-	otg_disable_id_pin();
-	udd_force_host_mode();
-
-	// Signal is active low (because all SAM3X Pins are high after startup)
-	// Hence VBOF must be low after connection request to power up the remote device
-	// uhd_set_vbof_active_low();
-
-	// According to the Arduino Due circuit the VBOF must be active high to power up the remote device
-	uhd_set_vbof_active_high();
-
-	otg_enable_pad();
-	otg_enable();
-
-	otg_unfreeze_clock();
-
-	// Check USB clock
-	while (!Is_otg_clock_usable())
-		;
-
-	// Clear all interrupts that may have been set by a previous host mode
-	UOTGHS->UOTGHS_HSTICR = UOTGHS_HSTICR_DCONNIC | UOTGHS_HSTICR_DDISCIC
-			| UOTGHS_HSTICR_HSOFIC  | UOTGHS_HSTICR_HWUPIC
-			| UOTGHS_HSTICR_RSMEDIC | UOTGHS_HSTICR_RSTIC
-			| UOTGHS_HSTICR_RXRSMIC;
-
-	otg_ack_vbus_transition();
-
-	// Enable Vbus change and error interrupts
-	// Disable automatic Vbus control after Vbus error
-	Set_bits(UOTGHS->UOTGHS_CTRL,
-		UOTGHS_CTRL_VBUSHWC | UOTGHS_CTRL_VBUSTE | UOTGHS_CTRL_VBERRE);
-
-	uhd_enable_vbus();
-
-	// Force Vbus interrupt when Vbus is always high
-	// This is possible due to a short timing between a Host mode stop/start.
-	if (Is_otg_vbus_high())
+	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
 	{
-		otg_raise_vbus_transition();
+	/* Wait for synchronization */
 	}
 
-	// Enable main control interrupt
-	// Connection, SOF and reset
-	UOTGHS->UOTGHS_HSTIER = UOTGHS_HSTICR_DCONNIC;
+	/* Reset */
+	USB->HOST.CTRLA.bit.SWRST = 1;
+	while (USB->HOST.SYNCBUSY.bit.SWRST) {
+		/* Sync wait */
+	}
 
-	otg_freeze_clock();
+	udd_enable();
+
+	/* Load Pad Calibration */
+	pad_transn =( *((uint32_t *)(NVMCTRL_OTP4)  // Non-Volatile Memory Controller
+	+ (NVM_USB_PAD_TRANSN_POS / 32))
+	>> (NVM_USB_PAD_TRANSN_POS % 32))
+	& ((1 << NVM_USB_PAD_TRANSN_SIZE) - 1);
+
+	if (pad_transn == 0x1F) {  // maximum value (31)
+		pad_transn = 5;
+	}
+
+	USB->HOST.PADCAL.bit.TRANSN = pad_transn;
+
+	pad_transp =( *((uint32_t *)(NVMCTRL_OTP4)
+	+ (NVM_USB_PAD_TRANSP_POS / 32))
+	>> (NVM_USB_PAD_TRANSP_POS % 32))
+	& ((1 << NVM_USB_PAD_TRANSP_SIZE) - 1);
+
+	if (pad_transp == 0x1F) {  // maximum value (31)
+		pad_transp = 29;
+	}
+
+	USB->HOST.PADCAL.bit.TRANSP = pad_transp;
+
+	pad_trim =( *((uint32_t *)(NVMCTRL_OTP4)
+	+ (NVM_USB_PAD_TRIM_POS / 32))
+	>> (NVM_USB_PAD_TRIM_POS % 32))
+	& ((1 << NVM_USB_PAD_TRIM_SIZE) - 1);
+
+	if (pad_trim == 0x7) {  // maximum value (7)
+		pad_trim = 3;
+	}
+
+	USB->HOST.PADCAL.bit.TRIM = pad_trim;
+
+	/* Set the configuration */
+	udd_force_host_mode();
+	udd_device_run_in_standby();
+    // Set address of USB SRAM
+	USB->HOST.DESCADD.reg = (uint32_t)(&usb_endpoint_table[0]);
+	// For USB_SPEED_FULL 
+	udd_force_full_speed();
+ 	for (uint32_t i = 0; i < sizeof(usb_endpoint_table); i++) {
+ 		(*(uint32_t *)(&usb_endpoint_table[0]+i)) = 0;
+ 	}
 
 	uhd_state = UHD_STATE_NO_VBUS;
 
-	cpu_irq_restore(flags);
+	USB->HOST.CTRLB.bit.VBUSOK = 1;
+
+	// Configure interrupts
+	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
+	NVIC_EnableIRQ((IRQn_Type) USB_IRQn);
 }
+
+// /**
+//  * \brief Initialize the UOTGHS host driver.
+//  */
+// void UHD_Init(void)
+// {
+// //	irqflags_t flags;
+// 
+// 	// To avoid USB interrupt before end of initialization
+// //	flags = cpu_irq_save();
+// 
+// 	// Setup USB Host interrupt callback
+// //	UHD_SetStack(&UHD_ISR);
+// 
+// 	// Enables the USB Clock
+// 	pmc_enable_upll_clock();
+// 	pmc_switch_udpck_to_upllck(0); // div=0+1
+// 	pmc_enable_udpck();
+// 	pmc_enable_periph_clk(ID_UOTGHS);
+// 
+// 	// Always authorize asynchronous USB interrupts to exit of sleep mode
+// 	// For SAM3 USB wake up device except BACKUP mode
+// 	NVIC_SetPriority((IRQn_Type) ID_UOTGHS, 0);
+// 	NVIC_EnableIRQ((IRQn_Type) ID_UOTGHS);
+// 
+// 	// ID pin not used then force host mode
+// 	otg_disable_id_pin();
+// 	udd_force_host_mode();
+// 
+// 	// Signal is active low (because all SAM3X Pins are high after startup)
+// 	// Hence VBOF must be low after connection request to power up the remote device
+// 	// uhd_set_vbof_active_low();
+// 
+// 	// According to the Arduino Due circuit the VBOF must be active high to power up the remote device
+// 	uhd_set_vbof_active_high();
+// 
+// 	otg_enable_pad();
+// 	otg_enable();
+// 
+// 	otg_unfreeze_clock();
+// 
+// 	// Check USB clock
+// 	while (!Is_otg_clock_usable())
+// 		;
+// 
+// 	// Clear all interrupts that may have been set by a previous host mode
+// 	UOTGHS->UOTGHS_HSTICR = UOTGHS_HSTICR_DCONNIC | UOTGHS_HSTICR_DDISCIC
+// 			| UOTGHS_HSTICR_HSOFIC  | UOTGHS_HSTICR_HWUPIC
+// 			| UOTGHS_HSTICR_RSMEDIC | UOTGHS_HSTICR_RSTIC
+// 			| UOTGHS_HSTICR_RXRSMIC;
+// 
+// 	otg_ack_vbus_transition();
+// 
+// 	// Enable Vbus change and error interrupts
+// 	// Disable automatic Vbus control after Vbus error
+// 	Set_bits(UOTGHS->UOTGHS_CTRL,
+// 		UOTGHS_CTRL_VBUSHWC | UOTGHS_CTRL_VBUSTE | UOTGHS_CTRL_VBERRE);
+// 
+// 	uhd_enable_vbus();
+// 
+// 	// Force Vbus interrupt when Vbus is always high
+// 	// This is possible due to a short timing between a Host mode stop/start.
+// 	if (Is_otg_vbus_high())
+// 	{
+// 		otg_raise_vbus_transition();
+// 	}
+// 
+// 	// Enable main control interrupt
+// 	// Connection, SOF and reset
+// 	UOTGHS->UOTGHS_HSTIER = UOTGHS_HSTICR_DCONNIC;
+// 
+// 	otg_freeze_clock();
+// 
+// 	uhd_state = UHD_STATE_NO_VBUS;
+// 
+// //	cpu_irq_restore(flags);
+// }
+
+
+/**
+ * \brief Interrupt sub routine for USB Host state machine management.
+ */
+//static void UHD_ISR(void)
+void USB_Handler(void)
+{
+	uint16_t flags;
+	uint8_t i;
+	uint8_t ept_int;
+
+	ept_int = udd_endpoint_interrupt();
+	
+	/* Not endpoint interrupt */
+	if (0 == ept_int)
+	{
+
+
+	}
+	else
+	{
+		/* host interrupts */
+
+		/* get interrupt flags */
+		flags = USB->HOST.INTFLAG.reg;
+
+		/* host SOF interrupt */
+		if (flags & USB_HOST_INTFLAG_HSOF) {
+			/* clear the flag */
+			USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_HSOF;
+			uhd_state = UHD_STATE_CONNECTED;
+			return;
+		}
+
+		/* host reset interrupt */
+		if (flags & USB_HOST_INTFLAG_RST) {
+			/* clear the flag */
+			USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_RST;
+			uhd_state = UHD_STATE_DISCONNECTED; //UHD_STATE_ERROR;
+			return;
+		}
+
+		/* host upstream resume interrupts */
+		if (flags & USB_HOST_INTFLAG_UPRSM) {
+			/* clear the flags */
+			USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_UPRSM;
+			uhd_state = UHD_STATE_DISCONNECTED; //UHD_STATE_ERROR;
+			return;
+		}
+
+		/* host downstream resume interrupts */
+		if (flags & USB_HOST_INTFLAG_DNRSM) {
+			/* clear the flags */
+			USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_DNRSM;
+			uhd_state = UHD_STATE_DISCONNECTED; //UHD_STATE_ERROR;
+			return;
+		}
+
+		/* host wakeup interrupts */
+		if (flags & USB_HOST_INTFLAG_WAKEUP) {
+			/* clear the flags */
+			USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_WAKEUP;
+			uhd_state = UHD_STATE_CONNECTED; //UHD_STATE_ERROR;
+			return;
+		}
+
+		/* host ram access interrupt  */
+		if (flags & USB_HOST_INTFLAG_RAMACER) {
+			/* clear the flag */
+			USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_RAMACER;
+			uhd_state = UHD_STATE_DISCONNECTED; //UHD_STATE_ERROR;
+			return;
+		}
+
+		/* host connect interrupt */
+		if (flags & USB_HOST_INTFLAG_DCONN) {
+			TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : Connection INT\r\n");)
+			/* clear the flag */
+			uhd_ack_connection();
+			uhd_disable_connection_int();
+			uhd_ack_disconnection();
+			uhd_enable_disconnection_int();
+			//uhd_enable_sof();
+			uhd_state = UHD_STATE_CONNECTED;
+			return;
+		}
+
+		/* host disconnect interrupt 	*/
+		if (flags & USB_HOST_INTFLAG_DDISC) {
+			TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : Disconnection INT\r\n");)
+			/* clear the flag */
+			uhd_ack_disconnection();
+			uhd_disable_disconnection_int();
+			// Stop reset signal, in case of disconnection during reset
+			uhd_stop_reset();
+			// Disable wakeup/resumes interrupts,
+			// in case of disconnection during suspend mode
+			//UOTGHS->UOTGHS_HSTIDR = UOTGHS_HSTIDR_HWUPIEC
+			//		| UOTGHS_HSTIDR_RSMEDIEC
+			//		| UOTGHS_HSTIDR_RXRSMIEC;
+			uhd_ack_connection();
+			uhd_enable_connection_int();
+			uhd_state = UHD_STATE_DISCONNECTED;
+			return;
+		}
+
+	}
+
+}
+
+
+
 
 /**
  * \brief Trigger a USB bus reset.
  */
 void UHD_BusReset(void)
 {
-	uhd_start_reset();
+	USB->HOST.CTRLB.bit.BUSRESET = 1;;
 }
 
 /**
@@ -219,23 +364,7 @@ uhd_vbus_state_t UHD_GetVBUSState(void)
 	return uhd_state;
 }
 
-/*uhd_speed_t uhd_get_speed(void)
-{
-	switch (uhd_get_speed_mode())
-	{
-		case UOTGHS_SR_SPEED_HIGH_SPEED:
-			return UHD_SPEED_HIGH;
 
-		case UOTGHS_SR_SPEED_FULL_SPEED:
-			return UHD_SPEED_FULL;
-
-		case UOTGHS_SR_SPEED_LOW_SPEED:
-			return UHD_SPEED_LOW;
-
-		default:
-			return UHD_SPEED_LOW;
-	}
-}*/
 
 /**
  * \brief Allocate FIFO for pipe 0.
@@ -248,39 +377,30 @@ uhd_vbus_state_t UHD_GetVBUSState(void)
  */
 uint32_t UHD_Pipe0_Alloc(uint32_t ul_add, uint32_t ul_ep_size)
 {
-	if (ul_ep_size < 8)
-	{
-		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP0_Alloc : incorrect pipe size!\r\n");)
-		return 1;
-	}
+	struct usb_host_pipe_config cfg;
 
-	if (Is_uhd_pipe_enabled(0))
+	if (ep_size < 8)
 	{
-		// Pipe is already allocated
 		return 0;
 	}
 
-	uhd_enable_pipe(0);
-	uhd_configure_pipe(0, 	// Pipe 0
-			0, 				// No frequency
-			0, 				// Enpoint 0
-			UOTGHS_HSTPIPCFG_PTYPE_CTRL,
-			UOTGHS_HSTPIPCFG_PTOKEN_SETUP,
-			ul_ep_size,
-			UOTGHS_HSTPIPCFG_PBK_1_BANK, 0);
+	/* set pipe config */
+	USB->HOST.HostPipe[0].PCFG.bit.BK = 0;
+	USB->HOST.HostPipe[0].PCFG.bit.PTYPE = USB_HOST_PIPE_TYPE_CONTROL;
+	USB->HOST.HostPipe[0].BINTERVAL.reg = 0;
+	USB->HOST.HostPipe[0].PCFG.bit.PTOKEN = USB_HOST_PIPE_TOKEN_SETUP;
 
-	uhd_allocate_memory(0);
+	memset((uint8_t *)&usb_pipe_table[pipe_num], 0, sizeof(usb_pipe_table[0]));
+	usb_pipe_table[pipe_num].HostDescBank[0].CTRL_PIPE.bit.PDADDR = 0;
+	usb_pipe_table[pipe_num].HostDescBank[0].CTRL_PIPE.bit.PEPNUM = 0;
+	usb_pipe_table[pipe_num].HostDescBank[0].PCKSIZE.bit.SIZE = 0x03;  // 64 bytes
 
-	if (!Is_uhd_pipe_configured(0))
-	{
-		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP0_Alloc : incorrect pipe settings!\r\n");)
-		uhd_disable_pipe(0);
-		return 1;
-	}
+	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_TRCPT_Msk;
+	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_TRFAIL | USB_HOST_PINTENSET_PERR;
+	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_TXSTP;
+	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_STALL;
 
-	uhd_configure_address(0, ul_add);
-
-	return 0;
+	return 1;
 }
 
 /**
@@ -301,38 +421,42 @@ uint32_t UHD_Pipe0_Alloc(uint32_t ul_add, uint32_t ul_ep_size)
  *
  * \return the newly allocated pipe number on success, 0 otherwise.
  */
+
+//		pipe = UHD_Pipe_Alloc(bAddress, epInfo[index].deviceEpNum, UOTGHS_HSTPIPCFG_PTYPE_BLK, UOTGHS_HSTPIPCFG_PTOKEN_IN, epInfo[index].maxPktSize, 0, UOTGHS_HSTPIPCFG_PBK_1_BANK);
+
 uint32_t UHD_Pipe_Alloc(uint32_t ul_dev_addr, uint32_t ul_dev_ep, uint32_t ul_type, uint32_t ul_dir, uint32_t ul_maxsize, uint32_t ul_interval, uint32_t ul_nb_bank)
+//bool uhd_ep_alloc(usb_add_t add, usb_ep_desc_t *ep_desc)
 {
-	uint32_t ul_pipe = 1;
+	/* set pipe config */
+	USB->HOST.HostPipe[ul_dev_ep].PCFG.bit.BK = ul_nb_bank;
+	USB->HOST.HostPipe[ul_dev_ep].PCFG.bit.PTYPE = ul_type;
+	USB->HOST.HostPipe[ul_dev_ep].BINTERVAL.reg = ul_interval;
 
-	for (ul_pipe = 1; ul_pipe < UOTGHS_EPT_NUM; ++ul_pipe)
+	if (ul_dir & USB_EP_DIR_IN)
 	{
-		if (Is_uhd_pipe_enabled(ul_pipe))
-		{
-			continue;
-		}
-
-		uhd_enable_pipe(ul_pipe);
-
-		uhd_configure_pipe(ul_pipe, ul_interval, ul_dev_ep, ul_type, ul_dir,
-				ul_maxsize, ul_nb_bank, UOTGHS_HSTPIPCFG_AUTOSW);
-
-		uhd_allocate_memory(ul_pipe);
-
-		if (!Is_uhd_pipe_configured(ul_pipe))
-		{
-			uhd_disable_pipe(ul_pipe);
-			return 0;
-		}
-
-		uhd_configure_address(ul_pipe, ul_dev_addr);
-
-		// Pipe is configured and allocated successfully
-		return ul_pipe;
+		USB->HOST.HostPipe[ul_dev_ep].PCFG.bit.PTOKEN = USB_HOST_PIPE_TOKEN_IN;
+		USB->HOST.HostPipe[ul_dev_ep].PSTATUSSET.reg = USB_HOST_PSTATUSSET_BK0RDY;
+	}
+	else
+	{
+		USB->HOST.HostPipe[ul_dev_ep].PCFG.bit.PTOKEN = USB_HOST_PIPE_TOKEN_OUT;
+		USB->HOST.HostPipe[ul_dev_ep].PSTATUSCLR.reg =  USB_HOST_PSTATUSCLR_BK0RDY;
 	}
 
-	return 0;
+	memset((uint8_t *)&usb_descriptor_table.usb_pipe_table[ul_dev_ep], 0, sizeof(usb_pipe_table[ul_dev_ep]));
+
+	usb_descriptor_table.usb_pipe_table[ul_dev_ep].HostDescBank[0].CTRL_PIPE.bit.PDADDR = ul_dev_addr;
+	usb_descriptor_table.usb_pipe_table[ul_dev_ep].HostDescBank[0].CTRL_PIPE.bit.PEPNUM = ul_dev_ep;
+	usb_descriptor_table.usb_pipe_table[ul_dev_ep].HostDescBank[0].PCKSIZE.bit.SIZE = 0x03;  // 64 bytes
+
+	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_TRCPT_Msk;
+	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_TRFAIL | USB_HOST_PINTENSET_PERR;
+//	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_TXSTP;
+	USB->HOST.HostPipe[pipe_num].PINTENSET.reg = USB_HOST_PINTENSET_STALL;
+
+	return 1;
 }
+
 
 /**
  * \brief Free a pipe.
@@ -345,6 +469,9 @@ void UHD_Pipe_Free(uint32_t ul_pipe)
 	uhd_disable_pipe(ul_pipe);
 	uhd_unallocate_memory(ul_pipe);
 	uhd_reset_pipe(ul_pipe);
+
+	// The Pipe is frozen and no additional requests will be sent to the device on this pipe address.
+	USB->HOST.HostPipe[pipe_num].PSTATUSSET.reg = USB_HOST_PSTATUSSET_PFREEZE;
 }
 
 /**
@@ -356,26 +483,26 @@ void UHD_Pipe_Free(uint32_t ul_pipe)
  *
  * \return number of data read.
  */
-uint32_t UHD_Pipe_Read(uint32_t ul_pipe, uint32_t ul_size, uint8_t* data)
+uint32_t UHD_Pipe_Read(uint32_t pipe_num, uint32_t buf_size, uint8_t* buf)
 {
-	uint8_t *ptr_ep_data = 0;
-	uint8_t nb_byte_received = 0;
-	uint32_t ul_nb_trans = 0;
-
-	// Get information to read data
-	nb_byte_received = uhd_byte_count(ul_pipe);
-
-	ptr_ep_data = (uint8_t *) & uhd_get_pipe_fifo_access(ul_pipe, 8);
-
-	// Copy data from pipe to payload buffer
-	while (ul_size && nb_byte_received) {
-		*data++ = *ptr_ep_data++;
-		ul_nb_trans++;
-		ul_size--;
-		nb_byte_received--;
+	if (USB->HOST.HostPipe[pipe_num].PCFG.bit.PTYPE == USB_HOST_PIPE_TYPE_DISABLE)
+	{
+		return 0;
 	}
 
-	return ul_nb_trans;
+	/* get pipe config from setting register */
+	usb_descriptor_table.usb_pipe_table[pipe_num].HostDescBank[0].ADDR.reg = (uint32_t)buf;
+	usb_descriptor_table.usb_pipe_table[pipe_num].HostDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
+	usb_descriptor_table.usb_pipe_table[pipe_num].HostDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = buf_size;
+	USB->HOST.HostPipe[pipe_num].PCFG.bit.PTOKEN = USB_HOST_PIPE_TOKEN_IN;
+
+	/* Start transfer */
+	USB->HOST.HostPipe[pipe_num].PSTATUSCLR.reg = USB_HOST_PSTATUSCLR_BK0RDY;
+
+	// Unfreeze pipe
+	USB->HOST.HostPipe[pipe_num].PSTATUSCLR.reg = USB_HOST_PSTATUSCLR_PFREEZE;
+
+	return buf_size;
 }
 
 /**
@@ -387,20 +514,36 @@ uint32_t UHD_Pipe_Read(uint32_t ul_pipe, uint32_t ul_size, uint8_t* data)
  */
 void UHD_Pipe_Write(uint32_t ul_pipe, uint32_t ul_size, uint8_t* data)
 {
-	volatile uint8_t *ptr_ep_data = 0;
-	uint32_t i = 0;
 
-	// Check pipe
-	if (!Is_uhd_pipe_enabled(ul_pipe))
+	if (USB->HOST.HostPipe[pipe_num].PCFG.bit.PTYPE == USB_HOST_PIPE_TYPE_DISABLE) 
 	{
-		// Endpoint not valid
-		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP_Send : pipe is not enabled!\r\n");)
-		return;
+		return 0;
 	}
 
-	ptr_ep_data = (volatile uint8_t *)&uhd_get_pipe_fifo_access(ul_pipe, 8);
-	for (i = 0; i < ul_size; ++i)
-		*ptr_ep_data++ = *data++;
+	/* get pipe config from setting register */
+	usb_descriptor_table.usb_pipe_table[pipe_num].HostDescBank[0].ADDR.reg = (uint32_t)buf;
+	usb_descriptor_table.usb_pipe_table[pipe_num].HostDescBank[0].PCKSIZE.bit.BYTE_COUNT = buf_size;
+	usb_descriptor_table.usb_pipe_table[pipe_num].HostDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
+	USB->HOST.HostPipe[pipe_num].PCFG.bit.PTOKEN = USB_HOST_PIPE_TOKEN_OUT;
+
+
+	return 1;
+
+
+// 	volatile uint8_t *ptr_ep_data = 0;
+// 	uint32_t i = 0;
+// 
+// 	// Check pipe
+// 	if (!Is_uhd_pipe_enabled(ul_pipe))
+// 	{
+// 		// Endpoint not valid
+// 		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP_Send : pipe is not enabled!\r\n");)
+// 		return;
+// 	}
+// 
+// 	ptr_ep_data = (volatile uint8_t *)&uhd_get_pipe_fifo_access(ul_pipe, 8);
+// 	for (i = 0; i < ul_size; ++i)
+// 		*ptr_ep_data++ = *data++;
 }
 
 /**
@@ -411,28 +554,34 @@ void UHD_Pipe_Write(uint32_t ul_pipe, uint32_t ul_size, uint8_t* data)
  */
 void UHD_Pipe_Send(uint32_t ul_pipe, uint32_t ul_token_type)
 {
-	// Check pipe
-	if (!Is_uhd_pipe_enabled(ul_pipe))
-	{
-		// Endpoint not valid
-		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP_Send : pipe %lu is not enabled!\r\n", ul_pipe);)
-		return;
-	}
+	/* Start transfer */
+	USB->HOST.HostPipe[pipe_num].PSTATUSSET.reg = USB_HOST_PSTATUSSET_BK0RDY;
 
-	// Set token type for zero length packet
-	// When actually using the FIFO, pipe token MUST be configured first
-	uhd_configure_pipe_token(ul_pipe, ul_token_type);
+	// Unfreeze pipe
+	USB->HOST.HostPipe[pipe_num].PSTATUSCLR.reg = USB_HOST_PSTATUSCLR_PFREEZE;
 
-	// Clear interrupt flags
-	uhd_ack_setup_ready(ul_pipe);
-	uhd_ack_in_received(ul_pipe);
-	uhd_ack_out_ready(ul_pipe);
-	uhd_ack_short_packet(ul_pipe);
-	uhd_ack_nak_received(ul_pipe);
-
-	// Send actual packet
-	uhd_ack_fifocon(ul_pipe);
-	uhd_unfreeze_pipe(ul_pipe);
+// 	// Check pipe
+// 	if (!Is_uhd_pipe_enabled(ul_pipe))
+// 	{
+// 		// Endpoint not valid
+// 		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP_Send : pipe %lu is not enabled!\r\n", ul_pipe);)
+// 		return;
+// 	}
+// 
+// 	// Set token type for zero length packet
+// 	// When actually using the FIFO, pipe token MUST be configured first
+// 	uhd_configure_pipe_token(ul_pipe, ul_token_type);
+// 
+// 	// Clear interrupt flags
+// 	uhd_ack_setup_ready(ul_pipe);
+// 	uhd_ack_in_received(ul_pipe);
+// 	uhd_ack_out_ready(ul_pipe);
+// 	uhd_ack_short_packet(ul_pipe);
+// 	uhd_ack_nak_received(ul_pipe);
+// 
+// 	// Send actual packet
+// 	uhd_ack_fifocon(ul_pipe);
+// 	uhd_unfreeze_pipe(ul_pipe);
 }
 
 /**
@@ -446,44 +595,64 @@ void UHD_Pipe_Send(uint32_t ul_pipe, uint32_t ul_token_type)
  */
 uint32_t UHD_Pipe_Is_Transfer_Complete(uint32_t ul_pipe, uint32_t ul_token_type)
 {
-	// Check for transfer completion depending on token type
-	switch (ul_token_type)
-	{
-		case UOTGHS_HSTPIPCFG_PTOKEN_SETUP:
-			if (Is_uhd_setup_ready(ul_pipe))
-			{
-				uhd_freeze_pipe(ul_pipe);
-				uhd_ack_setup_ready(ul_pipe);
-				return 1;
-			}
 
-		case UOTGHS_HSTPIPCFG_PTOKEN_IN:
-			if (Is_uhd_in_received(ul_pipe))
-			{
-				// In case of low USB speed and with a high CPU frequency,
-				// a ACK from host can be always running on USB line
-				// then wait end of ACK on IN pipe.
-				while(!Is_uhd_pipe_frozen(ul_pipe))
-					;
-
-				// IN packet received
-				uhd_ack_in_received(ul_pipe);
-
-				return 1;
-			}
-
-		case UOTGHS_HSTPIPCFG_PTOKEN_OUT:
-			if (Is_uhd_out_ready(ul_pipe))
-			{
-				// OUT packet sent
-				uhd_freeze_pipe(ul_pipe);
-				uhd_ack_out_ready(ul_pipe);
-
-				return 1;
-			}
+	// Freeze pipe
+	USB->HOST.HostPipe[pipe_num].PSTATUSSET.reg = USB_HOST_PSTATUSSET_PFREEZE;
+	switch(uhd_ctrl_request_phase) {
+		case UHD_CTRL_REQ_PHASE_DATA_IN:
+		_uhd_ctrl_phase_data_in(p_callback_para->transfered_size);
+		break;
+		case UHD_CTRL_REQ_PHASE_ZLP_IN:
+		_uhd_ctrl_request_end(UHD_TRANS_NOERROR);
+		break;
+		case UHD_CTRL_REQ_PHASE_DATA_OUT:
+		_uhd_ctrl_phase_data_out();
+		break;
+		case UHD_CTRL_REQ_PHASE_ZLP_OUT:
+		_uhd_ctrl_request_end(UHD_TRANS_NOERROR);
+		break;
 	}
 
+
+// 	// Check for transfer completion depending on token type
+// 	switch (ul_token_type)
+// 	{
+// 		case UOTGHS_HSTPIPCFG_PTOKEN_SETUP:
+// 			if (Is_uhd_setup_ready(ul_pipe))
+// 			{
+// 				uhd_freeze_pipe(ul_pipe);
+// 				uhd_ack_setup_ready(ul_pipe);
+// 				return 1;
+// 			}
+// 
+// 		case UOTGHS_HSTPIPCFG_PTOKEN_IN:
+// 			if (Is_uhd_in_received(ul_pipe))
+// 			{
+// 				// In case of low USB speed and with a high CPU frequency,
+// 				// a ACK from host can be always running on USB line
+// 				// then wait end of ACK on IN pipe.
+// 				while(!Is_uhd_pipe_frozen(ul_pipe))
+// 					;
+// 
+// 				// IN packet received
+// 				uhd_ack_in_received(ul_pipe);
+// 
+// 				return 1;
+// 			}
+// 
+// 		case UOTGHS_HSTPIPCFG_PTOKEN_OUT:
+// 			if (Is_uhd_out_ready(ul_pipe))
+// 			{
+// 				// OUT packet sent
+// 				uhd_freeze_pipe(ul_pipe);
+// 				uhd_ack_out_ready(ul_pipe);
+// 
+// 				return 1;
+// 			}
+// 	}
+// 
 	return 0;
 }
 
-#endif /* SAM3XA_SERIES */
+#endif /* SAM3XA_SERIES HOST_DEFINED */
+
