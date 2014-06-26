@@ -31,12 +31,12 @@ void analogReference( eAnalogReference ulMode )
   switch(ulMode)
   {
     case AR_DEFAULT:
-    case INTERNAL:
+    case AR_INTERNAL:
     default:
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;
       break;
 
-    case EXTERNAL:
+    case AR_EXTERNAL:
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
       break;
   }
