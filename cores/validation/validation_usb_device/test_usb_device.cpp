@@ -27,10 +27,6 @@
 
 void setup(void)
 {	
-	USBDevice.init();
-	
-    USBDevice.attach();
-
 #ifdef HID_ENABLED
 	Mouse.begin();
 

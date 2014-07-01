@@ -19,7 +19,7 @@
 #include <stdint.h>
 
 // Include Atmel headers
-#include "arduino.h"
+#include "Arduino.h"
 #include "sam.h"
 #include "wiring_constants.h"
 #include "USBCore.h"
