@@ -31,8 +31,8 @@ extern "C" {
 typedef enum _eAnalogReference
 {
   AR_DEFAULT,
-  INTERNAL,
-  EXTERNAL
+  AR_INTERNAL,
+  AR_EXTERNAL
 } eAnalogReference ;
 
 
