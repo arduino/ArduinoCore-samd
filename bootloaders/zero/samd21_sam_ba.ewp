@@ -99,7 +99,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>ATSAMD21J18A	Atmel ATSAMD21J18A</state>
+          <state>ATSAMD20G18	Atmel ATSAMD20G18</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -168,7 +168,7 @@
         <debug>1</debug>
         <option>
           <name>CCDefines</name>
-          <state>__ATSAMD21J18A__</state>
+          <state>__ATSAMD21G18A__</state>
           <state>SAM_BA_INTERFACE=SAM_BA_BOTH_INTERFACES</state>
         </option>
         <option>
@@ -596,7 +596,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -604,7 +604,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>samd21_sam_ba.hex</state>
+          <state>samd21_sam_ba.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -982,7 +982,7 @@
         <option>
           <name>Variant</name>
           <version>20</version>
-          <state>0</state>
+          <state>35</state>
         </option>
         <option>
           <name>GEndianMode</name>
@@ -1017,7 +1017,7 @@
         </option>
         <option>
           <name>OGCoreOrChip</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>GRuntimeLibSelect</name>
@@ -1039,7 +1039,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>6.30.1.53141</state>
+          <state>7.10.1.6733</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -1051,7 +1051,7 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>default	None</state>
+          <state>ATSAMD21G18A	Atmel ATSAMD21G18A</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
@@ -1059,7 +1059,7 @@
         </option>
         <option>
           <name>GEndianModeBE</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OGBufferedTerminalOutput</name>
@@ -1090,12 +1090,12 @@
         <option>
           <name>GFPUCoreSlave</name>
           <version>20</version>
-          <state>0</state>
+          <state>35</state>
         </option>
         <option>
           <name>GBECoreSlave</name>
           <version>20</version>
-          <state>0</state>
+          <state>35</state>
         </option>
         <option>
           <name>OGUseCmsis</name>
@@ -1121,6 +1121,8 @@
         <option>
           <name>CCDefines</name>
           <state>NDEBUG</state>
+          <state>__ATSAMD21G18A__</state>
+          <state>SAM_BA_INTERFACE=SAM_BA_BOTH_INTERFACES</state>
         </option>
         <option>
           <name>CCPreprocFile</name>
@@ -1233,7 +1235,7 @@
         </option>
         <option>
           <name>OutputFile</name>
-          <state></state>
+          <state>$FILE_BNAME$.o</state>
         </option>
         <option>
           <name>CCLibConfigHeader</name>
@@ -1249,7 +1251,14 @@
         </option>
         <option>
           <name>CCIncludePath2</name>
-          <state></state>
+          <state>$TOOLKIT_DIR$\inc\Atmel</state>
+          <state>$TOOLKIT_DIR$\inc\Atmel\samd21</state>
+          <state>$TOOLKIT_DIR$\CMSIS\Include</state>
+          <state>$PROJ_DIR$\</state>
+          <state>$PROJ_DIR$\drivers</state>
+          <state>$PROJ_DIR$\utils</state>
+          <state>$PROJ_DIR$\utils\interrupt</state>
+          <state>$PROJ_DIR$\utils\preprocessor</state>
         </option>
         <option>
           <name>CCStdIncCheck</name>
@@ -1278,7 +1287,7 @@
         </option>
         <option>
           <name>CCOptLevelSlave</name>
-          <state>1</state>
+          <state>3</state>
         </option>
         <option>
           <name>CompilerMisraRules98</name>
@@ -1533,15 +1542,15 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>0</state>
+          <state>2</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>c.srec</state>
+          <state>samd21_sam_ba.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -1549,7 +1558,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -1583,7 +1592,7 @@
         <debug>0</debug>
         <option>
           <name>IlinkOutputFile</name>
-          <state>c.out</state>
+          <state>samd21_sam_ba.out</state>
         </option>
         <option>
           <name>IlinkLibIOConfig</name>
@@ -1631,7 +1640,7 @@
         </option>
         <option>
           <name>IlinkMapFile</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkLogFile</name>
@@ -1655,11 +1664,11 @@
         </option>
         <option>
           <name>IlinkIcfOverride</name>
-          <state>0</state>
+          <state>1</state>
         </option>
         <option>
           <name>IlinkIcfFile</name>
-          <state>$TOOLKIT_DIR$\CONFIG\generic.icf</state>
+          <state>$PROJ_DIR$\samd21_sam_ba.icf</state>
         </option>
         <option>
           <name>IlinkIcfFileSlave</name>
@@ -1719,7 +1728,7 @@
         </option>
         <option>
           <name>IlinkProgramEntryLabel</name>
-          <state></state>
+          <state>__iar_program_start</state>
         </option>
         <option>
           <name>DoFill</name>
