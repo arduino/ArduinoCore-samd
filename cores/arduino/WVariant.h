@@ -32,18 +32,20 @@ typedef enum _EAnalogChannel
 typedef enum _ETCChannel
 {
   NOT_ON_TIMER=-1,
-	TC3_CH0 = (3<<8)|(0),
-	TC3_CH1 = (3<<8)|(1),
-	TCC0_CH0 = (0<<8)|(0),
-	TCC0_CH1 = (0<<8)|(1),
-	TCC0_CH4 = (0<<8)|(4),
-	TCC0_CH5 = (0<<8)|(5),
-	TCC0_CH6 = (0<<8)|(6),
-	TCC0_CH7 = (0<<8)|(7),
-	TCC1_CH0 = (1<<8)|(0),
-	TCC1_CH1 = (1<<8)|(1),
-	TCC2_CH0 = (2<<8)|(0),
-	TCC2_CH1 = (2<<8)|(1)
+  TC3_CH0 = (3<<8)|(0),
+  TC3_CH1 = (3<<8)|(1),
+  TCC0_CH0 = (0<<8)|(0),
+  TCC0_CH1 = (0<<8)|(1),
+  TCC0_CH2 = (0<<8)|(2),
+  TCC0_CH3 = (0<<8)|(3),
+  TCC0_CH4 = (0<<8)|(4),
+  TCC0_CH5 = (0<<8)|(5),
+  TCC0_CH6 = (0<<8)|(6),
+  TCC0_CH7 = (0<<8)|(7),
+  TCC1_CH0 = (1<<8)|(0),
+  TCC1_CH1 = (1<<8)|(1),
+  TCC2_CH0 = (2<<8)|(0),
+  TCC2_CH1 = (2<<8)|(1)
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -56,26 +58,30 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 typedef enum _EPWMChannel
 {
   NOT_ON_PWM=-1,
-	PWM3_CH0=TC3_CH0,
-	PWM3_CH1=TC3_CH1,
-	PWM0_CH0=TCC0_CH0,
-	PWM0_CH1=TCC0_CH1,
-	PWM0_CH4=TCC0_CH4,
-	PWM0_CH5=TCC0_CH5,
-	PWM0_CH6=TCC0_CH6,
-	PWM0_CH7=TCC0_CH7,
-	PWM1_CH0=TCC1_CH0,
-	PWM1_CH1=TCC1_CH1,
-	PWM2_CH0=TCC2_CH0,
-	PWM2_CH1=TCC2_CH1
+  PWM3_CH0=TC3_CH0,
+  PWM3_CH1=TC3_CH1,
+  PWM0_CH0=TCC0_CH0,
+  PWM0_CH1=TCC0_CH1,
+  PWM0_CH2=TCC0_CH2,
+  PWM0_CH3=TCC0_CH3,
+  PWM0_CH4=TCC0_CH4,
+  PWM0_CH5=TCC0_CH5,
+  PWM0_CH6=TCC0_CH6,
+  PWM0_CH7=TCC0_CH7,
+  PWM1_CH0=TCC1_CH0,
+  PWM1_CH1=TCC1_CH1,
+  PWM2_CH0=TCC2_CH0,
+  PWM2_CH1=TCC2_CH1,
+  PWM7_CH0=TC7_CH0,
+  PWM7_CH1=TC7_CH1
 } EPWMChannel ;
 
 typedef enum _EPortType
 {
-	NOT_A_PORT=-1,
-	PORTA=0,
-	PORTB=1,
-	PORTC=2,
+  NOT_A_PORT=-1,
+  PORTA=0,
+  PORTB=1,
+  PORTC=2,
 } EPortType ;
 
 typedef enum _EExt_Interrupts
