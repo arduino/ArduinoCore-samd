@@ -1,12 +1,30 @@
 /*
- 
- This example connects to an unencrypted Wifi network. 
+  Copyright (c) 2014 Arduino.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
+/*
+
+ This example connects to an unencrypted Wifi network.
  Then it prints the  MAC address of the Wifi shield,
  the IP address obtained, and other network details.
 
  Circuit:
  * WiFi shield attached
- 
+
  created 13 July 2010
  by dlf (Metodo2 srl)
  modified 31 May 2012
@@ -20,7 +38,7 @@ void printCurrentNet();
 void printWifiData();
 void httpRequest();
 
-char ssid[] = "AVRGUEST";     //  your network SSID (name) 
+char ssid[] = "AVRGUEST";     //  your network SSID (name)
 char pass[] = "MicroController";  // your network password
 int status = WL_IDLE_STATUS;     // the Wifi radio's status
 
@@ -34,29 +52,29 @@ void setup() {
 
 //  SPI.begin();
   //Initialize Serial5 and wait for port to open:
-  Serial5.begin(9600); 
+  Serial5.begin(9600);
   while (!Serial5) {
     ; // wait for Serial5 port to connect. Needed for Leonardo only
   }
-  
+
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {
-    Serial5.println("WiFi shield not present"); 
+    Serial5.println("WiFi shield not present");
     // don't continue:
     while(true);
-  } 
-  
+  }
+
  // attempt to connect to Wifi network:
-  while ( status != WL_CONNECTED) { 
+  while ( status != WL_CONNECTED) {
     Serial5.print("Attempting to connect to WPA SSID: ");
     Serial5.println(ssid);
-    // Connect to WPA/WPA2 network:    
+    // Connect to WPA/WPA2 network:
     status = WiFi.begin(ssid, pass);
 
     // wait 10 seconds for connection:
     delay(10000);
   }
-   
+
   // you're connected now, so print out the data:
   Serial5.print("You're connected to the network");
   printCurrentNet();
@@ -85,9 +103,9 @@ void printWifiData() {
     Serial5.print("IP Address: ");
   Serial5.println(ip);
   Serial5.println(ip);
-  
+
   // print your MAC address:
-  byte mac[6];  
+  byte mac[6];
   WiFi.macAddress(mac);
   Serial5.print("MAC address: ");
   Serial5.print(mac[5],HEX);
@@ -101,7 +119,7 @@ void printWifiData() {
   Serial5.print(mac[1],HEX);
   Serial5.print(":");
   Serial5.println(mac[0],HEX);
- 
+
 }
 
 void printCurrentNet() {
@@ -111,7 +129,7 @@ void printCurrentNet() {
 
   // print the MAC address of the router you're attached to:
   byte bssid[6];
-  WiFi.BSSID(bssid);    
+  WiFi.BSSID(bssid);
   Serial5.print("BSSID: ");
   Serial5.print(bssid[5],HEX);
   Serial5.print(":");

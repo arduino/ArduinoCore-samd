@@ -1,36 +1,25 @@
-/* ----------------------------------------------------------------------------
- *         SAM Software Package License
- * ----------------------------------------------------------------------------
- * Copyright (c) 2011-2012, Atmel Corporation
- *
- * All rights reserved.
- *
- * Redistribution and use in source and binary forms, with or without
- * modification, are permitted provided that the following condition is met:
- *
- * - Redistributions of source code must retain the above copyright notice,
- * this list of conditions and the disclaimer below.
- *
- * Atmel's name may not be used to endorse or promote products derived from
- * this software without specific prior written permission.
- *
- * DISCLAIMER: THIS SOFTWARE IS PROVIDED BY ATMEL "AS IS" AND ANY EXPRESS OR
- * IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
- * MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT ARE
- * DISCLAIMED. IN NO EVENT SHALL ATMEL BE LIABLE FOR ANY DIRECT, INDIRECT,
- * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
- * LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA,
- * OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- * LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- * NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE,
- * EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
- * ----------------------------------------------------------------------------
- */
+/*
+  Copyright (c) 2014 Arduino.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include <stdio.h>
 // #include <stdint.h>
 // #include <string.h>
-// 
+//
 // #include "variant.h"
 // #include "USB_host.h"
 // #include "USB/samd21_host.h"
@@ -141,7 +130,7 @@ void UHD_Init(void)
 	udd_device_run_in_standby();
     // Set address of USB SRAM
 	USB->HOST.DESCADD.reg = (uint32_t)(&usb_endpoint_table[0]);
-	// For USB_SPEED_FULL 
+	// For USB_SPEED_FULL
 	udd_force_full_speed();
  	for (uint32_t i = 0; i < sizeof(usb_endpoint_table); i++) {
  		(*(uint32_t *)(&usb_endpoint_table[0]+i)) = 0;
@@ -162,74 +151,74 @@ void UHD_Init(void)
 // void UHD_Init(void)
 // {
 // //	irqflags_t flags;
-// 
+//
 // 	// To avoid USB interrupt before end of initialization
 // //	flags = cpu_irq_save();
-// 
+//
 // 	// Setup USB Host interrupt callback
 // //	UHD_SetStack(&UHD_ISR);
-// 
+//
 // 	// Enables the USB Clock
 // 	pmc_enable_upll_clock();
 // 	pmc_switch_udpck_to_upllck(0); // div=0+1
 // 	pmc_enable_udpck();
 // 	pmc_enable_periph_clk(ID_UOTGHS);
-// 
+//
 // 	// Always authorize asynchronous USB interrupts to exit of sleep mode
 // 	// For SAM3 USB wake up device except BACKUP mode
 // 	NVIC_SetPriority((IRQn_Type) ID_UOTGHS, 0);
 // 	NVIC_EnableIRQ((IRQn_Type) ID_UOTGHS);
-// 
+//
 // 	// ID pin not used then force host mode
 // 	otg_disable_id_pin();
 // 	udd_force_host_mode();
-// 
+//
 // 	// Signal is active low (because all SAM3X Pins are high after startup)
 // 	// Hence VBOF must be low after connection request to power up the remote device
 // 	// uhd_set_vbof_active_low();
-// 
+//
 // 	// According to the Arduino Due circuit the VBOF must be active high to power up the remote device
 // 	uhd_set_vbof_active_high();
-// 
+//
 // 	otg_enable_pad();
 // 	otg_enable();
-// 
+//
 // 	otg_unfreeze_clock();
-// 
+//
 // 	// Check USB clock
 // 	while (!Is_otg_clock_usable())
 // 		;
-// 
+//
 // 	// Clear all interrupts that may have been set by a previous host mode
 // 	UOTGHS->UOTGHS_HSTICR = UOTGHS_HSTICR_DCONNIC | UOTGHS_HSTICR_DDISCIC
 // 			| UOTGHS_HSTICR_HSOFIC  | UOTGHS_HSTICR_HWUPIC
 // 			| UOTGHS_HSTICR_RSMEDIC | UOTGHS_HSTICR_RSTIC
 // 			| UOTGHS_HSTICR_RXRSMIC;
-// 
+//
 // 	otg_ack_vbus_transition();
-// 
+//
 // 	// Enable Vbus change and error interrupts
 // 	// Disable automatic Vbus control after Vbus error
 // 	Set_bits(UOTGHS->UOTGHS_CTRL,
 // 		UOTGHS_CTRL_VBUSHWC | UOTGHS_CTRL_VBUSTE | UOTGHS_CTRL_VBERRE);
-// 
+//
 // 	uhd_enable_vbus();
-// 
+//
 // 	// Force Vbus interrupt when Vbus is always high
 // 	// This is possible due to a short timing between a Host mode stop/start.
 // 	if (Is_otg_vbus_high())
 // 	{
 // 		otg_raise_vbus_transition();
 // 	}
-// 
+//
 // 	// Enable main control interrupt
 // 	// Connection, SOF and reset
 // 	UOTGHS->UOTGHS_HSTIER = UOTGHS_HSTICR_DCONNIC;
-// 
+//
 // 	otg_freeze_clock();
-// 
+//
 // 	uhd_state = UHD_STATE_NO_VBUS;
-// 
+//
 // //	cpu_irq_restore(flags);
 // }
 
@@ -245,7 +234,7 @@ void USB_Handler(void)
 	uint8_t ept_int;
 
 	ept_int = udd_endpoint_interrupt();
-	
+
 	/* Not endpoint interrupt */
 	if (0 == ept_int)
 	{
@@ -515,7 +504,7 @@ uint32_t UHD_Pipe_Read(uint32_t pipe_num, uint32_t buf_size, uint8_t* buf)
 void UHD_Pipe_Write(uint32_t ul_pipe, uint32_t ul_size, uint8_t* data)
 {
 
-	if (USB->HOST.HostPipe[pipe_num].PCFG.bit.PTYPE == USB_HOST_PIPE_TYPE_DISABLE) 
+	if (USB->HOST.HostPipe[pipe_num].PCFG.bit.PTYPE == USB_HOST_PIPE_TYPE_DISABLE)
 	{
 		return 0;
 	}
@@ -532,7 +521,7 @@ void UHD_Pipe_Write(uint32_t ul_pipe, uint32_t ul_size, uint8_t* data)
 
 // 	volatile uint8_t *ptr_ep_data = 0;
 // 	uint32_t i = 0;
-// 
+//
 // 	// Check pipe
 // 	if (!Is_uhd_pipe_enabled(ul_pipe))
 // 	{
@@ -540,7 +529,7 @@ void UHD_Pipe_Write(uint32_t ul_pipe, uint32_t ul_size, uint8_t* data)
 // 		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP_Send : pipe is not enabled!\r\n");)
 // 		return;
 // 	}
-// 
+//
 // 	ptr_ep_data = (volatile uint8_t *)&uhd_get_pipe_fifo_access(ul_pipe, 8);
 // 	for (i = 0; i < ul_size; ++i)
 // 		*ptr_ep_data++ = *data++;
@@ -567,18 +556,18 @@ void UHD_Pipe_Send(uint32_t ul_pipe, uint32_t ul_token_type)
 // 		TRACE_UOTGHS_HOST(printf("/!\\ UHD_EP_Send : pipe %lu is not enabled!\r\n", ul_pipe);)
 // 		return;
 // 	}
-// 
+//
 // 	// Set token type for zero length packet
 // 	// When actually using the FIFO, pipe token MUST be configured first
 // 	uhd_configure_pipe_token(ul_pipe, ul_token_type);
-// 
+//
 // 	// Clear interrupt flags
 // 	uhd_ack_setup_ready(ul_pipe);
 // 	uhd_ack_in_received(ul_pipe);
 // 	uhd_ack_out_ready(ul_pipe);
 // 	uhd_ack_short_packet(ul_pipe);
 // 	uhd_ack_nak_received(ul_pipe);
-// 
+//
 // 	// Send actual packet
 // 	uhd_ack_fifocon(ul_pipe);
 // 	uhd_unfreeze_pipe(ul_pipe);
@@ -624,7 +613,7 @@ uint32_t UHD_Pipe_Is_Transfer_Complete(uint32_t ul_pipe, uint32_t ul_token_type)
 // 				uhd_ack_setup_ready(ul_pipe);
 // 				return 1;
 // 			}
-// 
+//
 // 		case UOTGHS_HSTPIPCFG_PTOKEN_IN:
 // 			if (Is_uhd_in_received(ul_pipe))
 // 			{
@@ -633,24 +622,24 @@ uint32_t UHD_Pipe_Is_Transfer_Complete(uint32_t ul_pipe, uint32_t ul_token_type)
 // 				// then wait end of ACK on IN pipe.
 // 				while(!Is_uhd_pipe_frozen(ul_pipe))
 // 					;
-// 
+//
 // 				// IN packet received
 // 				uhd_ack_in_received(ul_pipe);
-// 
+//
 // 				return 1;
 // 			}
-// 
+//
 // 		case UOTGHS_HSTPIPCFG_PTOKEN_OUT:
 // 			if (Is_uhd_out_ready(ul_pipe))
 // 			{
 // 				// OUT packet sent
 // 				uhd_freeze_pipe(ul_pipe);
 // 				uhd_ack_out_ready(ul_pipe);
-// 
+//
 // 				return 1;
 // 			}
 // 	}
-// 
+//
 	return 0;
 }
 

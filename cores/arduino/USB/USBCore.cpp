@@ -1,17 +1,19 @@
-// Copyright (c) 2010, Peter Barrett
 /*
-** Permission to use, copy, modify, and/or distribute this software for
-** any purpose with or without fee is hereby granted, provided that the
-** above copyright notice and this permission notice appear in all copies.
-**
-** THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
-** WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
-** WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR
-** BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
-** OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-** WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-** ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
-** SOFTWARE.
+  Copyright (c) 2014 Arduino.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <stdlib.h>
@@ -251,7 +253,7 @@ static bool USBD_SendConfiguration(uint32_t maxlen)
 	const uint8_t* interfaces;
 	uint32_t interfaces_length = 0;
 	uint8_t num_interfaces[1];
-	
+
 	num_interfaces[0] = 0;
 
 #if (defined CDC_ENABLED) && defined(HID_ENABLED)
@@ -314,7 +316,7 @@ _Pragma("pack()")
 	{
 		cache_buffer[i+sizeof(ConfigDescriptor)] = interfaces[i];
 	}
-#endif	
+#endif
 #endif
 
 	if (maxlen > sizeof(cache_buffer))
@@ -409,7 +411,7 @@ void EndpointHandler(uint8_t bEndpoint)
 	{
 		udd_ack_out_received(CDC_ENDPOINT_OUT);
 
-		// Handle received bytes		
+		// Handle received bytes
 		if (USBD_Available(CDC_ENDPOINT_OUT))
 		{
 			SerialUSB.accept();
@@ -420,7 +422,7 @@ void EndpointHandler(uint8_t bEndpoint)
 		udd_ack_in_received(CDC_ENDPOINT_IN);
 		/* Clear the transfer complete flag  */
 		udd_clear_transf_cplt(CDC_ENDPOINT_IN);
-		
+
 	}
 	if( bEndpoint == CDC_ENDPOINT_ACM )
 	{
@@ -443,7 +445,7 @@ void USB_Handler(void)
 	uint8_t ept_int;
 
 	ept_int = udd_endpoint_interrupt();
-	
+
 	/* Not endpoint interrupt */
 	if (0 == ept_int)
 	{
@@ -471,7 +473,7 @@ void USB_Handler(void)
 		}
 
 	}
-	else 
+	else
 	{
 		// Endpoint interrupt
 		flags = udd_read_endpoint_flag(0);
@@ -655,15 +657,15 @@ void USB_Handler(void)
             if ((ept_int & (1 << i)) != 0)
 			{
 				if( (udd_read_endpoint_flag(i) & USB_DEVICE_EPINTFLAG_TRCPT_Msk ) != 0 )
-				
+
 				{
 					EndpointHandler(i);
 				}
                 ept_int &= ~(1 << i);
-                
+
                 if (ept_int != 0)
 				{
-                
+
                     TRACE_CORE("\n\r  - ");
                 }
             }

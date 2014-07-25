@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2011 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -111,7 +111,7 @@ void init( void )
   // Averaging (see table 31-2 p.816 datasheet)
   ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_2 |    // 2 samples
                      ADC_AVGCTRL_ADJRES(0x01ul);  // Adjusting result by 1
-  
+
   ADC->REFCTRL.reg = ADC_REFCTRL_REFSEL_AREFA; // RReference AREFA (pin AREF) [default]
 
   ADC->CTRLA.bit.ENABLE = 1; // Enable ADC

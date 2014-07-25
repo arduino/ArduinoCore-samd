@@ -1,3 +1,21 @@
+/*
+  Copyright (c) 2014 Arduino.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #include <Arduino.h>
 #include <Wire.h>
 
@@ -7,7 +25,7 @@ void setup()
 {
   Serial5.begin( 115200 ) ;
   Serial5.println("nunchuk init");
-  
+
   Wire.begin(); // join i2c bus as master
   Wire.beginTransmission(0x52);// transmit to device 0x52
     Wire.write((uint8_t)0xF0);// sends sent a zero.
@@ -23,26 +41,26 @@ void setup()
 void loop()
 {
   Wire.requestFrom(0x52, 6);
-  
+
   uint8_t jX =   Wire.read();
   uint8_t jY =   Wire.read();
   uint8_t accX = Wire.read();
   uint8_t accY = Wire.read();
   uint8_t accZ = Wire.read();
   uint8_t misc = Wire.read();
-  
+
   Serial5.print("Joy : ");
   Serial5.print(jX);
   Serial5.print(", ");
   Serial5.print(jY);
-  
+
   Serial5.print("\tAcc : ");
   Serial5.print(accX);
   Serial5.print(", ");
   Serial5.print(accY);
   Serial5.print(", ");
   Serial5.print(accZ);
-  
+
   Serial5.print("\tBtn : ");
   Serial5.print(" [");
   Serial5.print(misc);
@@ -65,11 +83,11 @@ void loop()
     case 0x3ul:
       Serial5.println("No key");
       break;
-    
+
     default:
       break;
   }
-  
+
   Wire.beginTransmission(0x52);// transmit to device 0x52
   Wire.write((uint8_t)0x00);// sends sent a zero.
   Wire.endTransmission();// stop transmitting

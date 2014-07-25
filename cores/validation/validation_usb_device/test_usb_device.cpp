@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2012 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -17,7 +17,7 @@
 */
 
 #define ARDUINO_MAIN
-#include "Arduino.h" 
+#include "Arduino.h"
 
 #ifdef HID_ENABLED
 	const int buttonPin = 4;          // input pin for pushbutton
@@ -26,7 +26,7 @@
 #endif
 
 void setup(void)
-{	
+{
 #ifdef HID_ENABLED
 	Mouse.begin();
 

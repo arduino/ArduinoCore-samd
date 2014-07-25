@@ -1,6 +1,7 @@
 /*
- * Copyright (c) 2010 by Cristian Maglie <c.maglie@bug.st>
  * SPI Master library for arduino.
+ * Copyright (c) 2014 Arduino.
+ * based on Copyright (c) 2011 Cristian Maglie <c.maglie@bug.st>.
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -33,7 +34,7 @@ void SPIClass::begin()
 	// Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
 	_p_sercom->initSPI(SPI_PAD_2_SCK_3, SERCOM_RX_PAD_0, SPI_CHAR_SIZE_8_BITS, MSB_FIRST);
 	_p_sercom->initSPIClock(SERCOM_SPI_MODE_0, 4000000);
-	
+
 	_p_sercom->enableSPI();
 }
 
@@ -57,19 +58,19 @@ void SPIClass::setDataMode(uint8_t mode)
 		case SPI_MODE0:
 			_p_sercom->setClockModeSPI(SERCOM_SPI_MODE_0);
 			break;
-			
+
 		case SPI_MODE1:
 			_p_sercom->setClockModeSPI(SERCOM_SPI_MODE_1);
 			break;
-			
+
 		case SPI_MODE2:
 			_p_sercom->setClockModeSPI(SERCOM_SPI_MODE_2);
 			break;
-			
+
 		case SPI_MODE3:
 			_p_sercom->setClockModeSPI(SERCOM_SPI_MODE_3);
 			break;
-		
+
 		default:
 			break;
 	}
@@ -84,7 +85,7 @@ byte SPIClass::transfer(uint8_t data)
 {
 	//Writing the data
 	_p_sercom->writeDataSPI(data);
-	
+
 	//Read data
 	return _p_sercom->readDataSPI();
 }

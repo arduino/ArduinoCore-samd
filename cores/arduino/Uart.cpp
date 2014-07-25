@@ -1,3 +1,21 @@
+/*
+  Copyright (c) 2014 Arduino.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
+
 #include "Uart.h"
 #include "WVariant.h"
 #include "wiring_digital.h"
@@ -22,8 +40,8 @@ void Uart::begin(unsigned long baudrate, uint8_t config)
 	sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
 	sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
 	sercom->initPads(UART_TX_PAD_2, SERCOM_RX_PAD_3);
-	
-	
+
+
 	sercom->enableUART();
 }
 
@@ -44,7 +62,7 @@ void Uart::IrqHandler()
 	{
 		rxBuffer.store_char(sercom->readDataUART());
 	}
-	
+
 	if(	sercom->isBufferOverflowErrorUART() ||
 		sercom->isFrameErrorUART() ||
 		sercom->isParityErrorUART())
@@ -77,13 +95,13 @@ size_t Uart::write(const uint8_t data)
 size_t Uart::write(const char * data)
 {
 	size_t writed = 0;
-	
+
 	while(*data != '\0')
 	{
 		writed += write(*data);
 		++data;
 	}
-	
+
 	return writed;
 }
 
@@ -91,11 +109,11 @@ SercomNumberStopBit Uart::extractNbStopBit(uint8_t config)
 {
 	switch(config & HARDSER_STOP_BIT_MASK)
 	{
-		case HARDSER_STOP_BIT_1:	
+		case HARDSER_STOP_BIT_1:
 		default:
 			return SERCOM_STOP_BIT_1;
 
-		case HARDSER_STOP_BIT_2:	
+		case HARDSER_STOP_BIT_2:
 			return SERCOM_STOP_BITS_2;
 	}
 }
