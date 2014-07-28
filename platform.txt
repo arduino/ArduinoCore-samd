@@ -80,6 +80,9 @@ recipe.size.regex=\.text\s+([0-9]+).*
 # Uploader tools
 # -------------------
 
+#
+# BOSSA
+#
 tools.bossac.cmd=bossac
 tools.bossac.cmd.windows=bossac.exe
 tools.bossac.path={runtime.ide.path}/hardware/tools
@@ -88,11 +91,43 @@ tools.bossac.upload.params.verbose=-i -d
 tools.bossac.upload.params.quiet=
 tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.file} -U {upload.native_usb} -e -w -v -b "{build.path}/{build.project_name}.bin" -R
 
+#
+# OpenOCD sketch upload
+#
+
 tools.openocd.cmd=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 tools.openocd.path={runtime.ide.path}/hardware/tools/OpenOCD-0.9.0-dev-arduino
 
-tools.openocd.upload.params.verbose=
-tools.openocd.upload.params.quiet=
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f ../../../../../arduino/samd/variants/{build.variant}/{build.openocdscript} -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
+tools.openocd.upload.params.verbose=-d3
+tools.openocd.upload.params.quiet=-d0
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{{{path}/share/openocd/scripts/}}" -f "../../../../../arduino/samd/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
 
+tools.openocd.program.params.verbose=-d3
+tools.openocd.program.params.quiet=-d0
+tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -v
+
+tools.openocd.erase.params.verbose=-d3
+tools.openocd.erase.params.quiet=-d0
+tools.openocd.erase.pattern="{path}/{cmd}" {erase.verbose} -v
+
+tools.openocd.bootloader.params.verbose=-d3
+tools.openocd.bootloader.params.quiet=-d0
+#tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{{path}/share/openocd/scripts/}" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{runtime.platform.path}/bootloaders/{bootloader.file}} verify reset"
+tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "../../../../../arduino/samd/variants/{build.variant}/{build.openocdscript}" -c "program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset"
+
+#
+# OpenOCD burn bootloader
+#
+
+tools.edbg.program.params.verbose=-d3
+tools.edbg.program.params.quiet=-d0
+tools.edbg.program.pattern=
+
+tools.edbg.erase.params.verbose=-d3
+tools.edbg.erase.params.quiet=-d0
+tools.edbg.erase.pattern=
+
+tools.edbg.bootloader.params.verbose=-d3
+tools.edbg.bootloader.params.quiet=-d0
+tools.edbg.bootloader.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f ../../../../../arduino/samd/variants/{build.variant}/{build.openocdscript} -c "program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset"

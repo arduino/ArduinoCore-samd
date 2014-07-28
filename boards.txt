@@ -20,6 +20,8 @@ arduino_zero_dbg.build.variant=arduino_zero
 arduino_zero_dbg.build.variant_system_lib=
 arduino_zero_dbg.build.vid=0x03eb
 arduino_zero_dbg.build.pid=0x2111
+arduino_zero_dbg.bootloader.tool=openocd
+arduino_zero_dbg.bootloader.file=zero/Debug/Exe/samd21_sam_ba.out
 
 arduino_zero.name=Arduino Zero (Native USB Port)
 arduino_zero.vid.0=0x2341
@@ -59,7 +61,7 @@ arduino_zero_bl_dbg.build.board=SAM_ZERO
 arduino_zero_bl_dbg.build.core=arduino
 arduino_zero_bl_dbg.build.extra_flags=-D__SAMD21G18A__ -mthumb {build.usb_flags}
 arduino_zero_bl_dbg.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-arduino_zero_bl.build.openocdscript=openocd_scripts/arduino_zero.cfg
+arduino_zero_bl_dbg.build.openocdscript=openocd_scripts/arduino_zero.cfg
 arduino_zero_bl_dbg.build.variant=arduino_zero
 arduino_zero_bl_dbg.build.variant_system_lib=
 arduino_zero_bl_dbg.build.vid=0x03eb

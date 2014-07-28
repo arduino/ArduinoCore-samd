@@ -1,0 +1,6 @@
+edbg.name=Atmel EDBG
+edbg.communication=USB
+edbg.protocol=
+edbg.program.protocol=
+edbg.program.tool=openocd
+edbg.program.extra_params=
