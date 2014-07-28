@@ -50,8 +50,6 @@ typedef enum _EAnalogChannel
 typedef enum _ETCChannel
 {
   NOT_ON_TIMER=-1,
-  TC3_CH0 = (3<<8)|(0),
-  TC3_CH1 = (3<<8)|(1),
   TCC0_CH0 = (0<<8)|(0),
   TCC0_CH1 = (0<<8)|(1),
   TCC0_CH2 = (0<<8)|(2),
@@ -63,7 +61,11 @@ typedef enum _ETCChannel
   TCC1_CH0 = (1<<8)|(0),
   TCC1_CH1 = (1<<8)|(1),
   TCC2_CH0 = (2<<8)|(0),
-  TCC2_CH1 = (2<<8)|(1)
+  TCC2_CH1 = (2<<8)|(1),
+  TC3_CH0 = (3<<8)|(0),
+  TC3_CH1 = (3<<8)|(1),
+  TC7_CH0 = (7<<8)|(0),
+  TC7_CH1 = (7<<8)|(1)
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -76,8 +78,6 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 typedef enum _EPWMChannel
 {
   NOT_ON_PWM=-1,
-  PWM3_CH0=TC3_CH0,
-  PWM3_CH1=TC3_CH1,
   PWM0_CH0=TCC0_CH0,
   PWM0_CH1=TCC0_CH1,
   PWM0_CH2=TCC0_CH2,
@@ -90,6 +90,8 @@ typedef enum _EPWMChannel
   PWM1_CH1=TCC1_CH1,
   PWM2_CH0=TCC2_CH0,
   PWM2_CH1=TCC2_CH1,
+  PWM3_CH0=TC3_CH0,
+  PWM3_CH1=TC3_CH1,
   PWM7_CH0=TC7_CH0,
   PWM7_CH1=TC7_CH1
 } EPWMChannel ;
