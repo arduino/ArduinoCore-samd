@@ -44,13 +44,6 @@
 extern "C"{
 #endif // __cplusplus
 
-/**
- * Libc porting layers
- */
-#if defined (  __GNUC__  )
-#    include <syscalls.h> /** RedHat Newlib minimal stub */
-#endif
-
 /*----------------------------------------------------------------------------
  *        Pins
  *----------------------------------------------------------------------------*/

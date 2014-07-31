@@ -58,6 +58,7 @@ MEMORY
  *   __StackLimit
  *   __StackTop
  *   __stack
+ *   __ram_end__
  */
 ENTRY(Reset_Handler)
 
