@@ -24,6 +24,7 @@
 #include "USB/USB_device.h"   // needed for USB PID define
 #include "USBDesc.h"
 #include "USBAPI.h"
+#include "delay.h"
 
 //#define TRACE_CORE(x)	x
 #define TRACE_CORE(x)
@@ -118,7 +119,7 @@ uint32_t USBD_Recv(uint32_t ep, void* d, uint32_t len)
 		return -1;
 
 	uint32_t n = UDD_FifoByteCount(ep);
-	len = min(n,len);
+	len = (n<len) ? n:len;  // len = min(n,len);
 	n = len;
 	uint8_t* dst = (uint8_t*)d;
 	while (n--)
@@ -436,7 +437,7 @@ void EndpointHandler(uint8_t bEndpoint)
 }
 
 
-void USB_Handler(void)
+void USB_ISR(void)
 {
 	uint16_t flags;
 	uint8_t i;
@@ -688,7 +689,7 @@ uint32_t USBD_Connected(void)
 {
 	uint8_t f = UDD_GetFrameNumber();
 
-    //delay(3); JCB
+    delay(3);
 
 	return f != UDD_GetFrameNumber();
 }
@@ -701,6 +702,7 @@ USBDevice_ USBDevice;
 
 USBDevice_::USBDevice_()
 {
+	UDD_SetStack(&USB_ISR);
 }
 
 bool USBDevice_::attach()
@@ -744,3 +746,4 @@ void USBDevice_::init()
 	UDD_Init();
 	_usbInitialized=1UL;
 }
+

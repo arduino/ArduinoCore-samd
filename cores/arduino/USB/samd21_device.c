@@ -59,6 +59,15 @@ __attribute__((__aligned__(4)))   __attribute__((__section__(".bss_hram0"))) uin
  */
  __attribute__((__aligned__(4))) UsbDeviceDescriptor usb_endpoint_table[USB_EPT_NUM];
 
+
+extern void (*gpf_isr)(void);
+
+
+void UDD_SetStack(void (*pf_isr)(void))
+{
+	gpf_isr = pf_isr;
+}
+
 // NVM Software Calibration Area Mapping
 // USB TRANSN calibration value. Should be written to the USB PADCAL register.
 #define NVM_USB_PAD_TRANSN_POS  45

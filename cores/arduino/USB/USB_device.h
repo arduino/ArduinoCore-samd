@@ -65,6 +65,7 @@ extern void UDD_Detach(void);
 extern void UDD_SetAddress(uint32_t addr);
 extern void UDD_Stall(uint32_t ep);
 extern uint32_t UDD_GetFrameNumber(void);
+extern void UDD_SetStack(void (*pf_isr)(void)); 
 
 #ifdef __cplusplus
 }
