@@ -1,8 +1,5 @@
 /*
-  WString.h - String library for Wiring & Arduino
-  ...mostly rewritten by Paul Stoffregen...
-  Copyright (c) 2009-10 Hernando Barragan.  All right reserved.
-  Copyright 2011, Paul Stoffregen, paul@pjrc.com
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -11,8 +8,8 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
@@ -81,7 +78,7 @@ public:
 	inline unsigned int length(void) const {return len;}
 
 	// creates a copy of the assigned value.  if the value is null or
-	// invalid, or if the memory allocation fails, the string will be 
+	// invalid, or if the memory allocation fails, the string will be
 	// marked as invalid ("if (s)" will be false).
 	String & operator = (const String &rhs);
 	String & operator = (const char *cstr);
@@ -92,10 +89,10 @@ public:
 	#endif
 
 	// concatenate (works w/ built-in types)
-	
+
 	// returns true on success, false on failure (in which case, the string
-	// is left unchanged).  if the argument is null or invalid, the 
-	// concatenation is considered unsucessful.  
+	// is left unchanged).  if the argument is null or invalid, the
+	// concatenation is considered unsucessful.
 	unsigned char concat(const String &str);
 	unsigned char concat(const char *cstr);
 	unsigned char concat(char c);
@@ -107,7 +104,7 @@ public:
 	unsigned char concat(float num);
 	unsigned char concat(double num);
 	unsigned char concat(const __FlashStringHelper * str);
-	
+
 	// if there's not enough memory for the concatenated value, the string
 	// will be left unchanged (but this isn't signalled in any way)
 	String & operator += (const String &rhs)	{concat(rhs); return (*this);}

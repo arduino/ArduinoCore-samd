@@ -1,8 +1,5 @@
-/* Tone.cpp
-
-  A Tone Generator Library
-
-  Written by Brett Hagman
+/*
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -11,26 +8,13 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-Version Modified By Date     Comments
-------- ----------- -------- --------
-0001    B Hagman    09/08/02 Initial coding
-0002    B Hagman    09/08/18 Multiple pins
-0003    B Hagman    09/08/18 Moved initialization from constructor to begin()
-0004    B Hagman    09/09/26 Fixed problems with ATmega8
-0005    B Hagman    09/11/23 Scanned prescalars for best fit on 8 bit timers
-                    09/11/25 Changed pin toggle method to XOR
-                    09/11/25 Fixed timer0 from being excluded
-0006    D Mellis    09/12/29 Replaced objects with functions
-0007    M Sproul    10/08/29 Changed #ifdefs from cpu to register
-0008    S Kanemoto  12/06/22 Fixed for Leonardo by @maris_HY
-*************************************************/
+*/
 
 #include <avr/interrupt.h>
 #include <avr/pgmspace.h>
@@ -103,13 +87,13 @@ const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 2 /*, 1 */ };
 static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255 /*, 255 */ };
 
 #elif defined(__AVR_ATmega32U4__)
- 
+
 #define AVAILABLE_TONE_PINS 1
 #define USE_TIMER3
- 
+
 const uint8_t PROGMEM tone_pin_to_timer_PGM[] = { 3 /*, 1 */ };
 static uint8_t tone_pins[AVAILABLE_TONE_PINS] = { 255 /*, 255 */ };
- 
+
 #else
 
 #define AVAILABLE_TONE_PINS 1
@@ -127,13 +111,13 @@ static int8_t toneBegin(uint8_t _pin)
 {
   int8_t _timer = -1;
 
-  // if we're already using the pin, the timer should be configured.  
+  // if we're already using the pin, the timer should be configured.
   for (int i = 0; i < AVAILABLE_TONE_PINS; i++) {
     if (tone_pins[i] == _pin) {
       return pgm_read_byte(tone_pin_to_timer_PGM + i);
     }
   }
-  
+
   // search for an unused timer.
   for (int i = 0; i < AVAILABLE_TONE_PINS; i++) {
     if (tone_pins[i] == 255) {
@@ -142,7 +126,7 @@ static int8_t toneBegin(uint8_t _pin)
       break;
     }
   }
-  
+
   if (_timer != -1)
   {
     // Set timer specific stuff
@@ -251,7 +235,7 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
   {
     // Set the pinMode as OUTPUT
     pinMode(_pin, OUTPUT);
-    
+
     // if we are using an 8 bit timer, scan through prescalars to find the best fit
     if (_timer == 0 || _timer == 2)
     {
@@ -342,7 +326,7 @@ void tone(uint8_t _pin, unsigned int frequency, unsigned long duration)
 #endif
 
     }
-    
+
 
     // Calculate the toggle count
     if (duration > 0)
@@ -478,14 +462,14 @@ void disableTimer(uint8_t _timer)
 void noTone(uint8_t _pin)
 {
   int8_t _timer = -1;
-  
+
   for (int i = 0; i < AVAILABLE_TONE_PINS; i++) {
     if (tone_pins[i] == _pin) {
       _timer = pgm_read_byte(tone_pin_to_timer_PGM + i);
       tone_pins[i] = 255;
     }
   }
-  
+
   disableTimer(_timer);
 
   digitalWrite(_pin, 0);

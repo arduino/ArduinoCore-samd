@@ -1,5 +1,5 @@
 /*
- * TwoWire.h - TWI/I2C library for Arduino Zero
+ * TWI/I2C library for Arduino Zero
  * based on Copyright (c) 2011 Cristian Maglie <c.maglie@bug.st>.
  * Copyright (c) 2014 Arduino.
  * All rights reserved.
@@ -49,7 +49,7 @@ void TwoWire::begin(uint8_t address) {
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
-{ 
+{
   if(quantity == 0)
   {
     return 0;
@@ -60,7 +60,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
   if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
   {
-  
+
     // Read first data
     rxBuffer.store_char(sercom->readDataWIRE());
 
@@ -72,7 +72,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
       {
         sercom->prepareNackBitWIRE(); // Prepare NACK to stop slave transmission
         //sercom->readDataWIRE(); // Clear data register to send NACK
-        sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP); // Send Stop 
+        sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP); // Send Stop
       }
       else // Continue transmission
       {
@@ -133,7 +133,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
 			return 3 ;	// Nack or error
     }
 
-    
+
     if(txBuffer.available() == 0)
     {
       sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);

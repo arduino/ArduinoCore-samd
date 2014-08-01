@@ -1,17 +1,19 @@
-/* Copyright (c) 2011, Peter Barrett
-**
-** Permission to use, copy, modify, and/or distribute this software for
-** any purpose with or without fee is hereby granted, provided that the
-** above copyright notice and this permission notice appear in all copies.
-**
-** THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
-** WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
-** WARRANTIES OF MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR
-** BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES
-** OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,
-** WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,
-** ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS
-** SOFTWARE.
+/*
+  Copyright (c) 2014 Arduino.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
 #include <stdlib.h>
@@ -59,7 +61,7 @@ typedef struct
 } LineInfo;
 
 _Pragma("pack(1)")
-static volatile LineInfo _usbLineInfo = { 
+static volatile LineInfo _usbLineInfo = {
    115200, // dWDTERate
     0x00,  // bCharFormat
     0x00,  // bParityType
@@ -75,7 +77,7 @@ static const CDCDescriptor _cdcInterface =
 	//	CDC communication interface
 	D_INTERFACE(CDC_ACM_INTERFACE,1,CDC_COMMUNICATION_INTERFACE_CLASS,CDC_ABSTRACT_CONTROL_MODEL,0),
 	D_CDCCS( CDC_HEADER, CDC_V1_10 & 0xFF, (CDC_V1_10>>8) & 0x0FF ),	// Header (1.10 bcd)
-	
+
 	D_CDCCS4(CDC_ABSTRACT_CONTROL_MANAGEMENT,6),				// SET_LINE_CODING, GET_LINE_CODING, SET_CONTROL_LINE_STATE supported
 	D_CDCCS(CDC_UNION,CDC_ACM_INTERFACE,CDC_DATA_INTERFACE),	// Communication interface is master, data interface is slave 0
 	D_CDCCS(CDC_CALL_MANAGEMENT,1,1),							// Device handles call management (not)

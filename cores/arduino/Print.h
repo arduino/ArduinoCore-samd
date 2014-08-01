@@ -1,6 +1,5 @@
 /*
-  Print.h - Base class that provides print() and println()
-  Copyright (c) 2008 David A. Mellis.  All right reserved.
+  Copyright (c) 2014 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -9,8 +8,8 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
@@ -41,10 +40,10 @@ class Print
     void setWriteError(int err = 1) { write_error = err; }
   public:
     Print() : write_error(0) {}
-  
+
     int getWriteError() { return write_error; }
     void clearWriteError() { setWriteError(0); }
-  
+
     virtual size_t write(uint8_t) = 0;
     size_t write(const char *str) {
       if (str == NULL) return 0;
@@ -54,7 +53,7 @@ class Print
     size_t write(const char *buffer, size_t size) {
       return write((const uint8_t *)buffer, size);
     }
-    
+
     size_t print(const __FlashStringHelper *);
     size_t print(const String &);
     size_t print(const char[]);

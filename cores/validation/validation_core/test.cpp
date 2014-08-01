@@ -37,6 +37,8 @@ int valY = 0;
 
 void setup( void )
 {
+  char *pcBuff ;
+
   // Initialize the digital pin as an output.
   // Pin PIN_LED has an LED connected on most Arduino boards:
   //pinMode( PIN_LED, OUTPUT ) ;
@@ -69,6 +71,13 @@ void setup( void )
   attachInterrupt( 5, Interrupt_Pin5, FALLING ) ;
   attachInterrupt( 6, Interrupt_Pin6, RISING ) ;
   attachInterrupt( 7, Interrupt_Pin7, CHANGE) ;
+
+  pcBuff = (char *)malloc(50);
+  
+  strcpy(pcBuff, "CIAO");
+  Serial.println("----");
+  Serial.println(pcBuff);   // Outputs garbage instead of "CIAO"
+  Serial.println("----");  
 }
 
 static void led_step1( void )
