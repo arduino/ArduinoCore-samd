@@ -1,11 +1,10 @@
-
-# Arduino SAM Core and platform.
+# Arduino SAMD Core and platform.
 #
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino ARM Cortex-M0+ (32-bits) Boards
-version=1.5.6
+version=1.8.0
 
 # Compile variables
 # ----------------------
@@ -14,7 +13,6 @@ compiler.path={runtime.ide.path}/hardware/tools/gcc-arm-none-eabi-4.8.3-2014q1/b
 compiler.c.cmd=arm-none-eabi-gcc
 compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g -Os -w -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500 -Dprintf=iprintf
 #-std=gnu99
-#compiler.c.elf.cmd=arm-none-eabi-g++
 compiler.c.elf.cmd=arm-none-eabi-gcc
 compiler.c.elf.flags=-Os -Wl,--gc-sections -save-temps
 compiler.S.flags=-c -g -x assembler-with-cpp
@@ -63,12 +61,9 @@ recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DF_CPU=
 recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
 
 ## Create archives
-#recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{build.path}/lib{archive_file}" "{object_file}"
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{build.path}/libarduino_core.a" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-#recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}" {compiler.c.elf.flags} -save-temps -mcpu={build.mcu} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" {compiler.c.elf.extra_flags} -o "{build.path}/{build.project_name}.elf" --specs=nano.specs "-L{build.path}" -mthumb {compiler.ldflags} {object_files} -Wl,--start-group -lm -lgcc "{build.path}/{archive_file}" -Wl,--end-group
-#recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}"  "-L{build.path}" {compiler.c.elf.flags} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" {compiler.c.elf.extra_flags} -o "{build.path}/{build.project_name}.elf" --specs=nano.specs {compiler.ldflags} {object_files} -Wl,--start-group -lm -lgcc -l{archive_file} -Wl,--end-group
 recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}"  "-L{build.path}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" --specs=nano.specs --specs=nosys.specs {compiler.ldflags} -o "{build.path}/{build.project_name}.elf" {object_files} -Wl,--start-group -lm -larduino_core -Wl,--end-group
 
 ## Create eeprom
@@ -108,14 +103,13 @@ tools.openocd.upload.params.verbose=-d3
 tools.openocd.upload.params.quiet=-d0
 tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
 
-
 tools.openocd.program.params.verbose=-d3
 tools.openocd.program.params.quiet=-d0
-tools.openocd.program.pattern=
+tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
 
 tools.openocd.erase.params.verbose=-d3
 tools.openocd.erase.params.quiet=-d0
-tools.openocd.erase.pattern=
+tools.openocd.erase.pattern="{path}/{cmd}" {erase.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program erase"
 
 tools.openocd.bootloader.params.verbose=-d2
 tools.openocd.bootloader.params.quiet=-d0
