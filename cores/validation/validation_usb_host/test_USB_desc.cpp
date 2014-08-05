@@ -33,39 +33,39 @@ void PrintAllAddresses(UsbDeviceDefinition *pdev)
 {
     UsbDeviceAddress adr;
     adr.devAddress = pdev->address.devAddress;
-    Serial5.print("\r\nAddr:");
-    Serial5.print(adr.devAddress, HEX);
-    Serial5.print("(");
-    Serial5.print(adr.bmHub, HEX);
-    Serial5.print(".");
-    Serial5.print(adr.bmParent, HEX);
-    Serial5.print(".");
-    Serial5.print(adr.bmAddress, HEX);
-    Serial5.println(")");
+    SERIAL_PORT_MONITOR.print("\r\nAddr:");
+    SERIAL_PORT_MONITOR.print(adr.devAddress, HEX);
+    SERIAL_PORT_MONITOR.print("(");
+    SERIAL_PORT_MONITOR.print(adr.bmHub, HEX);
+    SERIAL_PORT_MONITOR.print(".");
+    SERIAL_PORT_MONITOR.print(adr.bmParent, HEX);
+    SERIAL_PORT_MONITOR.print(".");
+    SERIAL_PORT_MONITOR.print(adr.bmAddress, HEX);
+    SERIAL_PORT_MONITOR.println(")");
 }
 
 void PrintAddress(uint8_t addr)
 {
     UsbDeviceAddress adr;
     adr.devAddress = addr;
-    Serial5.print("\r\nADDR:\t");
-    Serial5.println(adr.devAddress,HEX);
-    Serial5.print("DEV:\t");
-    Serial5.println(adr.bmAddress,HEX);
-    Serial5.print("PRNT:\t");
-    Serial5.println(adr.bmParent,HEX);
-    Serial5.print("HUB:\t");
-    Serial5.println(adr.bmHub,HEX);
+    SERIAL_PORT_MONITOR.print("\r\nADDR:\t");
+    SERIAL_PORT_MONITOR.println(adr.devAddress,HEX);
+    SERIAL_PORT_MONITOR.print("DEV:\t");
+    SERIAL_PORT_MONITOR.println(adr.bmAddress,HEX);
+    SERIAL_PORT_MONITOR.print("PRNT:\t");
+    SERIAL_PORT_MONITOR.println(adr.bmParent,HEX);
+    SERIAL_PORT_MONITOR.print("HUB:\t");
+    SERIAL_PORT_MONITOR.println(adr.bmHub,HEX);
 }
 
 void setup()
 {
-  Serial5.begin( 115200 );
+  SERIAL_PORT_MONITOR.begin( 115200 );
   while (!Serial); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-  Serial5.println("Start USB Desc");
+  SERIAL_PORT_MONITOR.println("Start USB Desc");
 
   if (usb.Init() == -1)
-      Serial5.println("OSC did not start.");
+      SERIAL_PORT_MONITOR.println("OSC did not start.");
 
   delay( 20 );
 
@@ -85,7 +85,7 @@ void PrintDescriptors(uint8_t addr)
       printProgStr(Gen_Error_str);
       print_hex( rcode, 8 );
     }
-    Serial5.print("\r\n");
+    SERIAL_PORT_MONITOR.print("\r\n");
 
     for (int i=0; i<num_conf; i++)
     {
@@ -95,15 +95,15 @@ void PrintDescriptors(uint8_t addr)
           printProgStr(Gen_Error_str);
           print_hex(rcode, 8);
         }
-        Serial5.println("\r\n");
+        SERIAL_PORT_MONITOR.println("\r\n");
     }
 }
 
 void PrintAllDescriptors(UsbDeviceDefinition *pdev)
 {
-    Serial5.println("\r\n");
+    SERIAL_PORT_MONITOR.println("\r\n");
     print_hex(pdev->address.devAddress, 8);
-    Serial5.println("\r\n--");
+    SERIAL_PORT_MONITOR.println("\r\n--");
     PrintDescriptors( pdev->address.devAddress );
 }
 
@@ -171,37 +171,37 @@ void printhubdescr(uint8_t *descrptr, uint8_t addr)
 
     printProgStr(PSTR("\r\n\r\nHub Descriptor:\r\n"));
     printProgStr(PSTR("bDescLength:\t\t"));
-    Serial5.println(pHub->bDescLength, HEX);
+    SERIAL_PORT_MONITOR.println(pHub->bDescLength, HEX);
 
     printProgStr(PSTR("bDescriptorType:\t"));
-    Serial5.println(pHub->bDescriptorType, HEX);
+    SERIAL_PORT_MONITOR.println(pHub->bDescriptorType, HEX);
 
     printProgStr(PSTR("bNbrPorts:\t\t"));
-    Serial5.println(pHub->bNbrPorts, HEX);
+    SERIAL_PORT_MONITOR.println(pHub->bNbrPorts, HEX);
 
     printProgStr(PSTR("LogPwrSwitchMode:\t"));
-    Serial5.println(pHub->LogPwrSwitchMode, BIN);
+    SERIAL_PORT_MONITOR.println(pHub->LogPwrSwitchMode, BIN);
 
     printProgStr(PSTR("CompoundDevice:\t\t"));
-    Serial5.println(pHub->CompoundDevice, BIN);
+    SERIAL_PORT_MONITOR.println(pHub->CompoundDevice, BIN);
 
     printProgStr(PSTR("OverCurrentProtectMode:\t"));
-    Serial5.println(pHub->OverCurrentProtectMode, BIN);
+    SERIAL_PORT_MONITOR.println(pHub->OverCurrentProtectMode, BIN);
 
     printProgStr(PSTR("TTThinkTime:\t\t"));
-    Serial5.println(pHub->TTThinkTime, BIN);
+    SERIAL_PORT_MONITOR.println(pHub->TTThinkTime, BIN);
 
     printProgStr(PSTR("PortIndicatorsSupported:"));
-    Serial5.println(pHub->PortIndicatorsSupported, BIN);
+    SERIAL_PORT_MONITOR.println(pHub->PortIndicatorsSupported, BIN);
 
     printProgStr(PSTR("Reserved:\t\t"));
-    Serial5.println(pHub->Reserved, HEX);
+    SERIAL_PORT_MONITOR.println(pHub->Reserved, HEX);
 
     printProgStr(PSTR("bPwrOn2PwrGood:\t\t"));
-    Serial5.println(pHub->bPwrOn2PwrGood, HEX);
+    SERIAL_PORT_MONITOR.println(pHub->bPwrOn2PwrGood, HEX);
 
     printProgStr(PSTR("bHubContrCurrent:\t"));
-    Serial5.println(pHub->bHubContrCurrent, HEX);
+    SERIAL_PORT_MONITOR.println(pHub->bHubContrCurrent, HEX);
 
     for (uint8_t i=7; i<len; i++)
         print_hex(descrptr[i], 8);
@@ -271,7 +271,7 @@ void print_hex(int v, int num_places)
   }
   do {
     digit = ((v >> (num_nibbles-1) * 4)) & 0x0f;
-    Serial5.print(digit, HEX);
+    SERIAL_PORT_MONITOR.print(digit, HEX);
   }
   while(--num_nibbles);
 }
@@ -383,5 +383,5 @@ void printProgStr(const prog_char str[])
   char c;
   if(!str) return;
   while((c = pgm_read_byte(str++)))
-    Serial5.print(c);
+    SERIAL_PORT_MONITOR.print(c);
 }

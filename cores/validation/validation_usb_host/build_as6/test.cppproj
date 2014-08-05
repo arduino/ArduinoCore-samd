@@ -345,14 +345,6 @@
       <SubType>compile</SubType>
       <Link>core\Stream.h</Link>
     </Compile>
-    <None Include="..\..\..\arduino\syscalls.c">
-      <SubType>compile</SubType>
-      <Link>core\syscalls.c</Link>
-    </None>
-    <None Include="..\..\..\arduino\syscalls.h">
-      <SubType>compile</SubType>
-      <Link>core\syscalls.h</Link>
-    </None>
     <Compile Include="..\..\..\arduino\Tone.h">
       <SubType>compile</SubType>
       <Link>core\Tone.h</Link>

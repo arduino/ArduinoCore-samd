@@ -28,64 +28,64 @@ boolean rightButton = false;
 
 // This function intercepts mouse movements
 void mouseMoved() {
-  Serial5.print("Move: ");
-  Serial5.print(mouse.getXChange());
-  Serial5.print(", ");
-  Serial5.println(mouse.getYChange());
+  SERIAL_PORT_MONITOR.print("Move: ");
+  SERIAL_PORT_MONITOR.print(mouse.getXChange());
+  SERIAL_PORT_MONITOR.print(", ");
+  SERIAL_PORT_MONITOR.println(mouse.getYChange());
 }
 
 // This function intercepts mouse movements while a button is pressed
 void mouseDragged() {
-  Serial5.print("DRAG: ");
-  Serial5.print(mouse.getXChange());
-  Serial5.print(", ");
-  Serial5.println(mouse.getYChange());
+  SERIAL_PORT_MONITOR.print("DRAG: ");
+  SERIAL_PORT_MONITOR.print(mouse.getXChange());
+  SERIAL_PORT_MONITOR.print(", ");
+  SERIAL_PORT_MONITOR.println(mouse.getYChange());
 }
 
 // This function intercepts mouse button press
 void mousePressed() {
-  Serial5.print("Pressed: ");
+  SERIAL_PORT_MONITOR.print("Pressed: ");
   if (mouse.getButton(LEFT_BUTTON)) {
-    Serial5.print("L");
+    SERIAL_PORT_MONITOR.print("L");
     leftButton = true;
   }
   if (mouse.getButton(MIDDLE_BUTTON)) {
-    Serial5.print("M");
+    SERIAL_PORT_MONITOR.print("M");
     middleButton = true;
   }
   if (mouse.getButton(RIGHT_BUTTON)) {
-    Serial5.print("R");
-    Serial5.println();
+    SERIAL_PORT_MONITOR.print("R");
+    SERIAL_PORT_MONITOR.println();
     rightButton = true;
   }
 }
 
 // This function intercepts mouse button release
 void mouseReleased() {
-  Serial5.print("Released: ");
+  SERIAL_PORT_MONITOR.print("Released: ");
   if (!mouse.getButton(LEFT_BUTTON) && leftButton == true) {
-    Serial5.print("L");
+    SERIAL_PORT_MONITOR.print("L");
     leftButton = false;
   }
   if (!mouse.getButton(MIDDLE_BUTTON) && middleButton == true) {
-    Serial5.print("M");
+    SERIAL_PORT_MONITOR.print("M");
     middleButton = false;
   }
   if (!mouse.getButton(RIGHT_BUTTON) && rightButton == true) {
-    Serial5.print("R");
+    SERIAL_PORT_MONITOR.print("R");
     rightButton = false;
   }
-  Serial5.println();
+  SERIAL_PORT_MONITOR.println();
 }
 
 void setup()
 {
-  Serial5.begin( 115200 );
-  while (!Serial5); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-  Serial5.println("Mouse Controller Program started");
+  SERIAL_PORT_MONITOR.begin( 115200 );
+  while (!SERIAL_PORT_MONITOR); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+  SERIAL_PORT_MONITOR.println("Mouse Controller Program started");
 
   if (usb.Init() == -1)
-      Serial5.println("OSC did not start.");
+      SERIAL_PORT_MONITOR.println("OSC did not start.");
 
   delay( 20 );
 }

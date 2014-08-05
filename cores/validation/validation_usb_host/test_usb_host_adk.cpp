@@ -33,12 +33,12 @@ ADK adk(&usb,"Arduino SA",
 
 void setup(void)
 {
-  Serial5.begin( 115200 );
-  while (!Serial5); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-  Serial5.println("\r\nADK demo start");
+  SERIAL_PORT_MONITOR.begin( 115200 );
+  while (!SERIAL_PORT_MONITOR); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
+  SERIAL_PORT_MONITOR.println("\r\nADK demo start");
 
   if (usb.Init() == -1)
-	Serial5.println("OSC did not start.");
+	SERIAL_PORT_MONITOR.println("OSC did not start.");
 
   delay(20);
 }
@@ -65,11 +65,11 @@ void loop(void)
 	adk.RcvData((uint8_t *)&nbread, buf);
 	if (nbread > 0)
 	{
-		Serial5.print("RCV: ");
+		SERIAL_PORT_MONITOR.print("RCV: ");
 		for (uint32_t i = 0; i < nbread; ++i)
 		{
-			Serial5.print((char)buf[i]);
+			SERIAL_PORT_MONITOR.print((char)buf[i]);
 		}
-		Serial5.print("\r\n");
+		SERIAL_PORT_MONITOR.print("\r\n");
 	}	
 }
