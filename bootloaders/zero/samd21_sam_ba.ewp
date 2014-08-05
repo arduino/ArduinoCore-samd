@@ -87,7 +87,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>7.10.1.6733</state>
+          <state>7.10.3.6927</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -99,11 +99,11 @@
         </option>
         <option>
           <name>OGChipSelectEditMenu</name>
-          <state>ATSAMD20G18	Atmel ATSAMD20G18</state>
+          <state>ATSAMD21G18A	Atmel ATSAMD21G18A</state>
         </option>
         <option>
           <name>GenLowLevelInterface</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>GEndianModeBE</name>
@@ -163,7 +163,7 @@
       <name>ICCARM</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>30</version>
+        <version>31</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>1</debug>
         <option>
@@ -411,6 +411,10 @@
           <version>0</version>
           <state>0</state>
         </option>
+        <option>
+          <name>CCGuardCalls</name>
+          <state>1</state>
+        </option>
       </data>
     </settings>
     <settings>
@@ -596,7 +600,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>2</state>
+          <state>1</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -604,7 +608,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>samd21_sam_ba.bin</state>
+          <state>samd21_sam_ba.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -612,7 +616,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>1</state>
+          <state>0</state>
         </option>
       </data>
     </settings>
@@ -1039,7 +1043,7 @@
         </option>
         <option>
           <name>OGLastSavedByProductVersion</name>
-          <state>7.10.1.6733</state>
+          <state>7.10.3.6927</state>
         </option>
         <option>
           <name>GeneralEnableMisra</name>
@@ -1115,7 +1119,7 @@
       <name>ICCARM</name>
       <archiveVersion>2</archiveVersion>
       <data>
-        <version>30</version>
+        <version>31</version>
         <wantNonLocal>1</wantNonLocal>
         <debug>0</debug>
         <option>
@@ -1364,6 +1368,10 @@
           <version>0</version>
           <state>0</state>
         </option>
+        <option>
+          <name>CCGuardCalls</name>
+          <state>1</state>
+        </option>
       </data>
     </settings>
     <settings>
@@ -1542,7 +1550,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>2</state>
+          <state>1</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -1550,7 +1558,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>samd21_sam_ba.bin</state>
+          <state>samd21_sam_ba.hex</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -1558,7 +1566,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>1</state>
+          <state>0</state>
         </option>
       </data>
     </settings>

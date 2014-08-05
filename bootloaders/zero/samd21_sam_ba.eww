@@ -4,7 +4,19 @@
   <project>
     <path>$WS_DIR$\samd21_sam_ba.ewp</path>
   </project>
-  <batchBuild/>
+  <batchBuild>
+    <batchDefinition>
+      <name>all</name>
+      <member>
+        <project>samd21_sam_ba</project>
+        <configuration>Debug</configuration>
+      </member>
+      <member>
+        <project>samd21_sam_ba</project>
+        <configuration>Release</configuration>
+      </member>
+    </batchDefinition>
+  </batchBuild>
 </workspace>
 
 
