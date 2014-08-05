@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V7.10.1.6676/W32 for ARM                 15/Jul/2014  16:53:12
+# IAR ELF Linker V7.10.3.6832/W32 for ARM                 05/Aug/2014  11:15:31
 # Copyright 2007-2014 IAR Systems AB.
 #
 #    Output file  =  
@@ -31,7 +31,7 @@
 #        2014\ArduinoZero\hardware\arduino\samd\bootloaders\zero\Debug\List\samd21_sam_ba.map"
 #        --config "E:\Arduino
 #        2014\ArduinoZero\hardware\arduino\samd\bootloaders\zero\samd21_sam_ba.icf"
-#        --semihosting --entry __iar_program_start --vfe
+#        --entry __iar_program_start --vfe
 #
 ###############################################################################
 
@@ -58,7 +58,7 @@ __SystemLibrary = DLib
     .intvec          const    0x00000000    0xb0  startup_samd21.o [1]
                             - 0x000000b0    0xb0
 
-"P1":                                     0x1c20
+"P1":                                     0x1c18
   .text              ro code  0x000000b0   0xa84  cdc_enumerate.o [1]
   .text              ro code  0x00000b34    0x14  memset.o [3]
   .text              ro code  0x00000b48     0xc  memcpy.o [3]
@@ -77,25 +77,25 @@ __SystemLibrary = DLib
   .text              ro code  0x00001b80    0x1a  cmain.o [4]
   .text              ro code  0x00001b9a     0x8  exit.o [3]
   .text              ro code  0x00001ba4     0xa  cexit.o [4]
-  .text              ro code  0x00001bb0    0x14  exit.o [5]
-  .iar.init_table    const    0x00001bc4    0x24  - Linker created -
-  .rodata            const    0x00001be8    0x1c  sam_ba_monitor.o [1]
-  .rodata            const    0x00001c04    0x1c  sam_ba_monitor.o [1]
-  .rodata            const    0x00001c20    0x18  uart_driver.o [1]
-  .rodata            const    0x00001c38    0x14  cdc_enumerate.o [1]
-  .rodata            const    0x00001c4c     0xc  sam_ba_monitor.o [1]
-  .rodata            const    0x00001c58     0xc  sam_ba_monitor.o [1]
-  .rodata            const    0x00001c64     0x4  cdc_enumerate.o [1]
+  .text              ro code  0x00001bb0     0xc  XXexit.o [4]
+  .iar.init_table    const    0x00001bbc    0x24  - Linker created -
+  .rodata            const    0x00001be0    0x1c  sam_ba_monitor.o [1]
+  .rodata            const    0x00001bfc    0x1c  sam_ba_monitor.o [1]
+  .rodata            const    0x00001c18    0x18  uart_driver.o [1]
+  .rodata            const    0x00001c30    0x14  cdc_enumerate.o [1]
+  .rodata            const    0x00001c44     0xc  sam_ba_monitor.o [1]
+  .rodata            const    0x00001c50     0xc  sam_ba_monitor.o [1]
+  .rodata            const    0x00001c5c     0x4  cdc_enumerate.o [1]
+  .rodata            const    0x00001c60     0x4  main.o [1]
+  .rodata            const    0x00001c64     0x4  main.o [1]
   .rodata            const    0x00001c68     0x4  main.o [1]
   .rodata            const    0x00001c6c     0x4  main.o [1]
-  .rodata            const    0x00001c70     0x4  main.o [1]
-  .rodata            const    0x00001c74     0x4  main.o [1]
-  .rodata            const    0x00001c78     0x4  sam_ba_monitor.o [1]
-  .rodata            const    0x00001c7c     0x4  usart_sam_ba.o [1]
-  .rodata            const    0x00001c80     0x0  zero_init3.o [4]
-  .rodata            const    0x00001c80     0x0  copy_init3.o [4]
-  Initializer bytes  ro data  0x00001c80    0x50  <for P2 s0>
-                            - 0x00001cd0  0x1c20
+  .rodata            const    0x00001c70     0x4  sam_ba_monitor.o [1]
+  .rodata            const    0x00001c74     0x4  usart_sam_ba.o [1]
+  .rodata            const    0x00001c78     0x0  zero_init3.o [4]
+  .rodata            const    0x00001c78     0x0  copy_init3.o [4]
+  Initializer bytes  ro data  0x00001c78    0x50  <for P2 s0>
+                            - 0x00001cc8  0x1c18
 
 "P2", part 1 of 3:                          0x50
   P2 s0                       0x20000000    0x50  <Init block>
@@ -160,7 +160,7 @@ Zero (__iar_zero_init3)
 
 Copy (__iar_copy_init3)
     1 source range, total size 0x50 (103% of destination):
-          0x00001c80   0x50
+          0x00001c78   0x50
     1 destination range, total size 0x4d:
           0x20000000   0x4d
 
@@ -197,6 +197,7 @@ dl6M_tln.a: [3]
 rt6M_tl.a: [4]
     ABImemcpy.o                92
     ABImemset.o                84
+    XXexit.o                   12
     cexit.o                    10
     cmain.o                    26
     copy_init3.o               48
@@ -205,17 +206,12 @@ rt6M_tl.a: [4]
     strlen.o                   16
     zero_init3.o               42
     -----------------------------------------------
-    Total:                    370
-
-shb_l.a: [5]
-    exit.o                     20
-    -----------------------------------------------
-    Total:                     20
+    Total:                    382
 
     Gaps                        6
     Linker created                      39      512
 ---------------------------------------------------
-    Grand Total:            6 932      444    1 116
+    Grand Total:            6 924      444    1 116
 
 
 *******************************************************************************
@@ -250,10 +246,10 @@ PM_Handler              0x00001b51    0x4  Code  Wk  startup_samd21.o [1]
 PTC_Handler             0x00001b51    0x4  Code  Wk  startup_samd21.o [1]
 PendSV_Handler          0x00001b51    0x4  Code  Wk  startup_samd21.o [1]
 RTC_Handler             0x00001b51    0x4  Code  Wk  startup_samd21.o [1]
-Region$$Table$$Base     0x00001bc4          --   Gb  - Linker created -
-Region$$Table$$Limit    0x00001be8          --   Gb  - Linker created -
+Region$$Table$$Base     0x00001bbc          --   Gb  - Linker created -
+Region$$Table$$Limit    0x00001be0          --   Gb  - Linker created -
 Reset_Handler           0x00001b6d    0x8  Code  Gb  startup_samd21.o [1]
-RomBOOT_Version         0x00001c78    0x4  Data  Gb  sam_ba_monitor.o [1]
+RomBOOT_Version         0x00001c70    0x4  Data  Gb  sam_ba_monitor.o [1]
 SERCOM0_Handler         0x00001b51    0x4  Code  Wk  startup_samd21.o [1]
 SERCOM1_Handler         0x00001b51    0x4  Code  Wk  startup_samd21.o [1]
 SERCOM2_Handler         0x00001b51    0x4  Code  Wk  startup_samd21.o [1]
@@ -282,7 +278,7 @@ __aeabi_memcpy4         0x00000bd1         Code  Gb  ABImemcpy.o [4]
 __aeabi_memcpy8         0x00000bd1         Code  Gb  ABImemcpy.o [4]
 __aeabi_memset          0x00000b55         Code  Gb  ABImemset.o [4]
 __cmain                 0x00001b81         Code  Gb  cmain.o [4]
-__exit                  0x00001bb1   0x14  Code  Gb  exit.o [5]
+__exit                  0x00001bb1         Code  Gb  XXexit.o [4]
 __iar_Memset4_word      0x00000b75         Code  Gb  ABImemset.o [4]
 __iar_Memset_word       0x00000b61         Code  Gb  ABImemset.o [4]
 __iar_copy_init3        0x00001acd   0x30  Code  Gb  copy_init3.o [4]
@@ -312,7 +308,7 @@ check_start_application
 command                 0x20000255    0x1  Data  Gb  sam_ba_monitor.o [1]
 current_number          0x2000022c    0x4  Data  Gb  sam_ba_monitor.o [1]
 data                    0x200001d0   0x40  Data  Gb  sam_ba_monitor.o [1]
-devDescriptor           0x00001c38   0x14  Data  Gb  cdc_enumerate.o [1]
+devDescriptor           0x00001c30   0x14  Data  Gb  cdc_enumerate.o [1]
 error_timeout           0x2000025d    0x1  Data  Gb  usart_sam_ba.o [1]
 exit                    0x00001b9b    0x8  Code  Gb  exit.o [3]
 g_interrupt_enabled     0x2000004c    0x1  Data  Gb  interrupt_sam_nvic.o [1]
@@ -348,7 +344,7 @@ u32tmp                  0x20000240    0x4  Data  Gb  sam_ba_monitor.o [1]
 uart_basic_init         0x00001217   0x6c  Code  Gb  uart_driver.o [1]
 uart_drv_error_flag     0x20000257    0x1  Data  Gb  uart_driver.o [1]
 uart_get_sercom_index   0x000011e9   0x2e  Code  Gb  uart_driver.o [1]
-uart_if                 0x00001be8   0x1c  Data  Gb  sam_ba_monitor.o [1]
+uart_if                 0x00001be0   0x1c  Data  Gb  sam_ba_monitor.o [1]
 uart_read_byte          0x00001297   0x3e  Code  Gb  uart_driver.o [1]
 uart_write_byte         0x00001283   0x14  Code  Gb  uart_driver.o [1]
 udd_ep_in_cache_buffer  0x20000150   0x80  Data  Gb  cdc_enumerate.o [1]
@@ -365,16 +361,15 @@ usart_putdata_xmd       0x00001031   0xd8  Code  Gb  usart_sam_ba.o [1]
 usart_sharp_received    0x00000e2d   0x1a  Code  Gb  usart_sam_ba.o [1]
 usb_endpoint_table      0x20000050   0x80  Data  Gb  cdc_enumerate.o [1]
 usb_init                0x00000a5d   0x1a  Code  Gb  cdc_enumerate.o [1]
-usbcdc_if               0x00001c04   0x1c  Data  Gb  sam_ba_monitor.o [1]
+usbcdc_if               0x00001bfc   0x1c  Data  Gb  sam_ba_monitor.o [1]
 
 
 [1] = E:\Arduino 2014\ArduinoZero\hardware\arduino\samd\bootloaders\zero\Debug\Obj
 [2] = command line
 [3] = dl6M_tln.a
 [4] = rt6M_tl.a
-[5] = shb_l.a
 
-  6 932 bytes of readonly  code memory
+  6 924 bytes of readonly  code memory
     444 bytes of readonly  data memory
   1 116 bytes of readwrite data memory
 

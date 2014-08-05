@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V7.10.1.6676/W32 for ARM                 15/Jul/2014  15:52:18
+# IAR ELF Linker V7.10.3.6832/W32 for ARM                 05/Aug/2014  11:16:16
 # Copyright 2007-2014 IAR Systems AB.
 #
 #    Output file  =  
@@ -179,7 +179,7 @@ Entry                      Address   Size  Type      Object
 ?main                   0x00001445         Code  Gb  cmain.o [4]
 AC_Handler              0x00001419    0x2  Code  Wk  startup_samd21.o [1]
 ADC_Handler             0x00001419    0x2  Code  Wk  startup_samd21.o [1]
-AT91F_CDC_Enumerate     0x0000039d  0x2e4  Code  Lc  cdc_enumerate.o [1]
+AT91F_CDC_Enumerate     0x0000039d  0x2e2  Code  Lc  cdc_enumerate.o [1]
 AT91F_CDC_Open          0x000001a1   0x20  Code  Gb  cdc_enumerate.o [1]
 AT91F_InitUSB           0x000000b1   0xea  Code  Gb  cdc_enumerate.o [1]
 AT91F_USB_SendZlp       0x00000327   0x28  Code  Gb  cdc_enumerate.o [1]
