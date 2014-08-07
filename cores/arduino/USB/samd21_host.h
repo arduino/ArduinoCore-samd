@@ -28,16 +28,22 @@ extern __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table
 #define  USB_EP_DIR_IN        0x80
 #define  USB_EP_DIR_OUT       0x00
 
-#define USB_HOST_PCFG_PTYPE_DIS     USB_HOST_PCFG_PTYPE(0x0) // Pipe is disabled
-#define USB_HOST_PCFG_PTYPE_CTRL    USB_HOST_PCFG_PTYPE(0x1) // Pipe is enabled and configured as CONTROL
-#define USB_HOST_PCFG_PTYPE_ISO     USB_HOST_PCFG_PTYPE(0x2) // Pipe is enabled and configured as ISO
-#define USB_HOST_PCFG_PTYPE_BULK    USB_HOST_PCFG_PTYPE(0x3) // Pipe is enabled and configured as BULK
-#define USB_HOST_PCFG_PTYPE_INT     USB_HOST_PCFG_PTYPE(0x4) // Pipe is enabled and configured as INTERRUPT
-#define USB_HOST_PCFG_PTYPE_EXT     USB_HOST_PCFG_PTYPE(0x5) // Pipe is enabled and configured as EXTENDED
+#define USB_HOST_PTYPE_DIS     USB_HOST_PCFG_PTYPE(0x0) // Pipe is disabled
+#define USB_HOST_PTYPE_CTRL    USB_HOST_PCFG_PTYPE(0x1) // Pipe is enabled and configured as CONTROL
+#define USB_HOST_PTYPE_ISO     USB_HOST_PCFG_PTYPE(0x2) // Pipe is enabled and configured as ISO
+#define USB_HOST_PTYPE_BULK    USB_HOST_PCFG_PTYPE(0x3) // Pipe is enabled and configured as BULK
+#define USB_HOST_PTYPE_INT     USB_HOST_PCFG_PTYPE(0x4) // Pipe is enabled and configured as INTERRUPT
+#define USB_HOST_PTYPE_EXT     USB_HOST_PCFG_PTYPE(0x5) // Pipe is enabled and configured as EXTENDED
+
+#define USB_HOST_NB_BK_1		1
 
 #define USB_HOST_PCFG_PTOKEN_SETUP  USB_HOST_PCFG_PTOKEN(0x0)
 #define USB_HOST_PCFG_PTOKEN_IN     USB_HOST_PCFG_PTOKEN(0x1)
 #define USB_HOST_PCFG_PTOKEN_OUT    USB_HOST_PCFG_PTOKEN(0x2)
+
+#define USB_ERRORFLOW	      USB_HOST_STATUS_BK_ERRORFLOW
+#define USB_ERRORTIMEOUT      USB_HOST_STATUS_PIPE_TOUTER
+#define USB_ERROR_DATATOGGLE  USB_HOST_STATUS_PIPE_DTGLER
 
 #define USB_PCKSIZE_SIZE_8_BYTES        0
 #define USB_PCKSIZE_SIZE_16_BYTES       1
@@ -49,7 +55,9 @@ extern __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table
 #define USB_PCKSIZE_SIZE_1023_BYTES_FS  7   
 #define USB_PCKSIZE_SIZE_1024_BYTES_HS  7  
 
-// USB device connection/disconnection monitoring
+#define USB_HOST_DTGL(p)               (USB->HOST.HostPipe[p].PSTATUS.reg & USB_HOST_PSTATUS_DTGL)>>USB_HOST_PSTATUS_DTGL_Pos
+
+// USB host connection/disconnection monitoring
 #define uhd_enable_connection_int()           USB->HOST.INTENSET.reg = USB_HOST_INTENSET_DCONN
 #define uhd_disable_connection_int()          USB->HOST.INTENCLR.reg = USB_HOST_INTENCLR_DCONN
 #define uhd_ack_connection()                  USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_DCONN
@@ -58,10 +66,13 @@ extern __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table
 #define uhd_disable_disconnection_int()       USB->HOST.INTENCLR.reg = USB_HOST_INTENCLR_DDISC
 #define uhd_ack_disconnection()               USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_DDISC
 
-// Initiates a reset event
-#define uhd_start_reset()                            USB->HOST.CTRLA.bit.SWRST = 1;
-#define Is_uhd_starting_reset()                      (USB->HOST.CTRLA & USB_CTRLA_SWRST)
-#define uhd_stop_reset()                             (USB->DEVICE.STATUS.reg & USB_DEVICE_STATUS_LINESTATE_0_Val)
+// Initiates a USB register reset
+#define uhd_start_USB_reg_reset()             USB->HOST.CTRLA.bit.SWRST = 1;
+
+// Bus Reset
+#define Is_uhd_starting_reset()             (USB->HOST.CTRLB.bit.BUSRESET == 1)
+#define UHD_BusReset()                      USB->HOST.CTRLB.bit.BUSRESET = 1
+#define uhd_stop_reset()                    // nothing to do
 
 #define uhd_ack_reset_sent()                         USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_RST
 #define Is_uhd_reset_sent()                          (USB->HOST.INTFLAG.reg & USB_HOST_INTFLAG_RST)
@@ -92,8 +103,8 @@ extern __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table
 #define Is_uhd_in_received(p)                    ( (USB->HOST.HostPipe[p].PINTFLAG.reg&USB_HOST_PINTFLAG_TRCPT0) == USB_HOST_PINTFLAG_TRCPT0   )
 #define uhd_ack_out_ready(p)                     USB->HOST.HostPipe[p].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT0
 #define Is_uhd_out_ready(p)                      ((USB->HOST.HostPipe[p].PINTFLAG.reg&USB_HOST_PINTFLAG_TRCPT0) == USB_HOST_PINTFLAG_TRCPT0)
-#define uhd_ack_nak_received(p)                  usb_pipe_table[p].HostDescBank[1].STATUS_BK.reg &= ~USB_DEVICE_STATUS_BK_ERRORFLOW
-#define Is_uhd_nak_received(p)                   (usb_pipe_table[p].HostDescBank[1].STATUS_BK.reg & USB_DEVICE_STATUS_BK_ERRORFLOW)
+#define uhd_ack_nak_received(p)                  usb_pipe_table[p].HostDescBank[1].STATUS_BK.reg &= ~USB_HOST_STATUS_BK_ERRORFLOW
+#define Is_uhd_nak_received(p)                   (usb_pipe_table[p].HostDescBank[1].STATUS_BK.reg & USB_HOST_STATUS_BK_ERRORFLOW)
 
 // Endpoint Interrupt Summary
 #define uhd_endpoint_interrupt()            USB->HOST.PINTSMRY.reg

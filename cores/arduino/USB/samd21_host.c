@@ -68,6 +68,8 @@ void UHD_Init(void)
 	uint32_t pad_trim;
 	uint32_t i;
 
+	UHD_SetStack(&UHD_Handler);
+
 	/* Enable USB clock */
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
@@ -278,14 +280,6 @@ void UHD_Handler(void)
 }
 
 
-/**
- * \brief Trigger a USB bus reset.
- */
-void UHD_BusReset(void)
-{
-   USB->HOST.CTRLB.bit.BUSRESET = 1;
-}
-
 
 /**
  * \brief Get VBUS state.
@@ -307,10 +301,8 @@ uhd_vbus_state_t UHD_GetVBUSState(void)
  * \retval 0 success.
  * \retval 1 error.
  */
-uint32_t UHD_Pipe0_Alloc(uint32_t ul_add)
+uint32_t UHD_Pipe0_Alloc(uint32_t ul_add, uint32_t ul_ep_size)
 {
-	uint32_t ul_ep_size;
-
 	if( USB->HOST.STATUS.reg & USB_HOST_STATUS_SPEED(1) )
 		ul_ep_size = USB_PCKSIZE_SIZE_8_BYTES;  // Low Speed
 	else
@@ -318,7 +310,7 @@ uint32_t UHD_Pipe0_Alloc(uint32_t ul_add)
 
 	USB->HOST.HostPipe[0].PCFG.bit.PTYPE = 1; //USB_HOST_PCFG_PTYPE_CTRL;
 	usb_pipe_table[0].HostDescBank[0].CTRL_PIPE.bit.PEPNUM = 0;
-	usb_pipe_table[0].HostDescBank[0].PCKSIZE.bit.SIZE     = ul_ep_size;
+	usb_pipe_table[0].HostDescBank[0].PCKSIZE.bit.SIZE = ul_ep_size;
 
 	return 0;
 }
@@ -405,7 +397,7 @@ void UHD_Pipe_Free(uint32_t ul_pipe)
  */
 uint32_t UHD_Pipe_Read(uint32_t pipe_num, uint32_t buf_size, uint8_t *buf)
 {
-   if (USB->HOST.HostPipe[pipe_num].PCFG.bit.PTYPE == USB_HOST_PCFG_PTYPE_DIS)
+   if (USB->HOST.HostPipe[pipe_num].PCFG.bit.PTYPE == USB_HOST_PTYPE_DIS)
    {
       return 0;
    }

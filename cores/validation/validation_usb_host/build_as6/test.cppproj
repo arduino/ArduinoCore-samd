@@ -449,10 +449,10 @@
       <SubType>compile</SubType>
       <Link>core\WVariant.h</Link>
     </Compile>
-    <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_adk.cpp">
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_adk.cpp">
       <SubType>compile</SubType>
       <Link>core\main\test_usb_host_adk.cpp</Link>
-    </None>
+    </Compile>
     <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_KeyboardController.cpp">
       <SubType>compile</SubType>
       <Link>core\main\test_usb_host_KeyboardController.cpp</Link>
@@ -469,10 +469,10 @@
       <SubType>compile</SubType>
       <Link>core\main\pgmstrings.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_USB_desc.cpp">
+    <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_USB_desc.cpp">
       <SubType>compile</SubType>
       <Link>core\main\test_USB_desc.cpp</Link>
-    </Compile>
+    </None>
     <Compile Include="C:\jcb\support\arduino\ArduinoZero\libraries\USBHost\src\address.h">
       <SubType>compile</SubType>
       <Link>core\host_example\address.h</Link>
