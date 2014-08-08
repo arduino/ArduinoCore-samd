@@ -50,7 +50,8 @@ define symbol __ICFEDIT_intvec_start__ = 0x00000000;
 define symbol __ICFEDIT_region_RAM_start__ = 0x20000000;
 define symbol __ICFEDIT_region_RAM_end__   = 0x20007FFF;
 define symbol __ICFEDIT_region_ROM_start__ = 0x00000000;
-define symbol __ICFEDIT_region_ROM_end__   = 0x0003FFFF;
+define symbol __ICFEDIT_region_ROM_end__   = 0x00001fff;
+//define symbol __ICFEDIT_region_ROM_end__   = 0x0003FFFF;
 /*-Sizes-*/
 if (!isdefinedsymbol(__ICFEDIT_size_cstack__)) {
 define symbol __ICFEDIT_size_cstack__ = 0x200;

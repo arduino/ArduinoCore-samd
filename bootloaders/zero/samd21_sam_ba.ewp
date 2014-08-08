@@ -600,7 +600,7 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
@@ -608,7 +608,7 @@
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>samd21_sam_ba.hex</state>
+          <state>samd21_sam_ba.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -616,7 +616,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -802,7 +802,7 @@
         </option>
         <option>
           <name>FillerEnd</name>
-          <state>0x0</state>
+          <state>0x1fff</state>
         </option>
         <option>
           <name>CrcSize</name>
@@ -1550,15 +1550,15 @@
         <option>
           <name>OOCOutputFormat</name>
           <version>2</version>
-          <state>1</state>
+          <state>2</state>
         </option>
         <option>
           <name>OCOutputOverride</name>
-          <state>1</state>
+          <state>0</state>
         </option>
         <option>
           <name>OOCOutputFile</name>
-          <state>samd21_sam_ba.hex</state>
+          <state>samd21_sam_ba.bin</state>
         </option>
         <option>
           <name>OOCCommandLineProducer</name>
@@ -1566,7 +1566,7 @@
         </option>
         <option>
           <name>OOCObjCopyEnable</name>
-          <state>0</state>
+          <state>1</state>
         </option>
       </data>
     </settings>
@@ -1915,6 +1915,12 @@
     </file>
     <file>
       <name>$PROJ_DIR$\drivers\uart_driver.c</name>
+    </file>
+  </group>
+  <group>
+    <name>linker script</name>
+    <file>
+      <name>$PROJ_DIR$\samd21_sam_ba.icf</name>
     </file>
   </group>
   <group>

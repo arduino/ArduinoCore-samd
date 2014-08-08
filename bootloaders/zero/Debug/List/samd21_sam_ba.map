@@ -1,6 +1,6 @@
 ###############################################################################
 #
-# IAR ELF Linker V7.10.3.6832/W32 for ARM                 05/Aug/2014  11:15:31
+# IAR ELF Linker V7.10.3.6832/W32 for ARM                 07/Aug/2014  15:50:04
 # Copyright 2007-2014 IAR Systems AB.
 #
 #    Output file  =  
@@ -48,7 +48,7 @@ __SystemLibrary = DLib
 ***
 
 "A1":  place at 0x00000000 { ro section .intvec };
-"P1":  place in [from 0x00000000 to 0x0003ffff] { ro };
+"P1":  place in [from 0x00000000 to 0x00001fff] { ro };
 "P2":  place in [from 0x20000000 to 0x20007fff] { rw, block CSTACK, block HEAP };
 
   Section            Kind        Address    Size  Object
