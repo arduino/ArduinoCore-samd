@@ -99,17 +99,17 @@ tools.openocd.cmd=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 tools.openocd.path={runtime.ide.path}/hardware/tools/OpenOCD-0.9.0-dev-arduino
 
-tools.openocd.upload.params.verbose=-d3
+tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.bin}} verify reset 0x2000"
 
-tools.openocd.program.params.verbose=-d3
+tools.openocd.program.params.verbose=-d2
 tools.openocd.program.params.quiet=-d0
 tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
 
 tools.openocd.erase.params.verbose=-d3
 tools.openocd.erase.params.quiet=-d0
-tools.openocd.erase.pattern="{path}/{cmd}" {erase.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program erase"
+tools.openocd.erase.pattern=
 
 tools.openocd.bootloader.params.verbose=-d2
 tools.openocd.bootloader.params.quiet=-d0
@@ -119,14 +119,14 @@ tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/
 # OpenOCD burn bootloader
 #
 
-tools.edbg.program.params.verbose=-d3
+tools.edbg.program.params.verbose=-d2
 tools.edbg.program.params.quiet=-d0
 tools.edbg.program.pattern=
 
-tools.edbg.erase.params.verbose=-d3
+tools.edbg.erase.params.verbose=-d2
 tools.edbg.erase.params.quiet=-d0
 tools.edbg.erase.pattern=
 
-tools.edbg.bootloader.params.verbose=-d3
+tools.edbg.bootloader.params.verbose=-d2
 tools.edbg.bootloader.params.quiet=-d0
-tools.edbg.bootloader.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset"
+tools.edbg.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset"
