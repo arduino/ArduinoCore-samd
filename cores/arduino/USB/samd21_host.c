@@ -455,7 +455,7 @@ void UHD_Pipe_Send(uint32_t ul_pipe, uint32_t ul_token_type)
 	}
 	else
 	{
-		uhd_ack_out_ready(ul_pipe);
+		USB->HOST.HostPipe[ul_pipe].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT0;
 		USB->HOST.HostPipe[ul_pipe].PSTATUSSET.reg = USB_HOST_PSTATUSSET_BK0RDY;
 	}
    

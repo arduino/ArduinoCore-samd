@@ -25,9 +25,14 @@ e-mail   :  support@circuitsathome.com
 #include "hid.h"
 #include "Arduino.h"
 
-#define ADK_VID   0x18D1
-#define ADK_PID   0x2D00
-#define ADB_PID   0x2D01
+// #define ADK_VID   0x18D1
+// #define ADK_PID   0x2D00
+// #define ADB_PID   0x2D01
+
+//JCB
+#define ADK_VID   0x04E8
+#define ADK_PID   0x685C
+#define ADB_PID   0x685D
 
 #define XOOM  //enables repeating getProto() and getConf() attempts
               //necessary for slow devices such as Motorola XOOM
@@ -35,9 +40,9 @@ e-mail   :  support@circuitsathome.com
 
 /* requests */
 
-#define ADK_GETPROTO      51  //check USB accessory protocol version
-#define ADK_SENDSTR       52  //send identifying string
-#define ADK_ACCSTART      53  //start device in accessory mode
+#define ADK_GETPROTO      51  //check USB accessory protocol version  0x33
+#define ADK_SENDSTR       52  //send identifying string               0x34
+#define ADK_ACCSTART      53  //start device in accessory mode        0x35
 
 #define bmREQ_ADK_GET     USB_SETUP_DEVICE_TO_HOST|USB_SETUP_TYPE_VENDOR|USB_SETUP_RECIPIENT_DEVICE
 #define bmREQ_ADK_SEND    USB_SETUP_HOST_TO_DEVICE|USB_SETUP_TYPE_VENDOR|USB_SETUP_RECIPIENT_DEVICE

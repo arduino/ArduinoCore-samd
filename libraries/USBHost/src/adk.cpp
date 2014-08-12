@@ -106,7 +106,8 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
 	// Restore p->epinfo
 	p->epinfo = oldep_ptr;
 
-        if(rcode) {
+	if(rcode) {
+        USBTRACE("\r\nGetDevDesc1 Error ");
 		goto FailGetDevDescr;
 	}
 
@@ -126,6 +127,7 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
 	// Assign new address to the device  SET_ADDRESS
 	rcode = pUsb->setAddr(0, 0, bAddress);
 	if(rcode) {
+        USBTRACE("\r\nsetAddr Error ");
 		p->lowspeed = false;
 		addrPool.FreeAddress(bAddress);
 		bAddress = 0;
@@ -147,6 +149,7 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
 	p->epinfo = oldep_ptr;
 	if (rcode)
 	{
+        USBTRACE("\r\nGetDevDesc2 Error ");
 		goto FailGetDevDescr;
 	}
 
@@ -175,7 +178,7 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
                 /* go through configurations, find first bulk-IN, bulk-OUT EP, fill epInfo and quit */
                 num_of_conf = udd->bNumConfigurations;
 
-                //USBTRACE2("\r\nNC:",num_of_conf);
+                USBTRACE2("\r\nNC:",num_of_conf);
 		for (uint32_t i = 0; i < num_of_conf; i++) {
 			ConfigDescParser<0, 0, 0, 0> confDescrParser(this);
 
@@ -236,9 +239,11 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
 
         //probe device - get accessory protocol revision
         {
-                uint32_t adkproto = -1;
+                uint32_t adkproto = 0;
                 delay(1);
-                rcode = getProto((uint8_t*) & adkproto);
+                //rcode = getProto((uint8_t*) & adkproto);  // ADK_GETPROTO  0x33
+				rcode = getProto((uint8_t*)buf);
+				
 #if defined(XOOM)
                 //added by Jaylen Scott Vanorden
                 if(rcode) {
@@ -250,15 +255,16 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
                 if(rcode) {
                         goto FailGetProto; //init fails
                 }
+				adkproto = buf[0] | (buf[1]<<8);
                 USBTRACE2("\r\nADK protocol rev. ", adkproto);
         }
 
         delay(100);
-
+static unsigned int volatile jcb;
         //sending ID strings
-	sendStr(ACCESSORY_STRING_MANUFACTURER, manufacturer);
+      jcb =   sendStr(ACCESSORY_STRING_MANUFACTURER, manufacturer);  // ADK_SENDSTR 0x34
         delay(10);
-        sendStr(ACCESSORY_STRING_MODEL, model);
+      jcb =  sendStr(ACCESSORY_STRING_MODEL, model);
         delay(10);
         sendStr(ACCESSORY_STRING_DESCRIPTION, description);
         delay(10);

@@ -25,8 +25,8 @@ extern "C" {
 
 extern __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table[USB_EPT_NUM];
 
-#define  USB_EP_DIR_IN        0x80
-#define  USB_EP_DIR_OUT       0x00
+#define  USB_EP_DIR_IN        0x80  // USB_SETUP_DEVICE_TO_HOST
+#define  USB_EP_DIR_OUT       0x00  // USB_SETUP_HOST_TO_DEVICE
 
 #define USB_HOST_PTYPE_DIS     USB_HOST_PCFG_PTYPE(0x0) // Pipe is disabled
 #define USB_HOST_PTYPE_CTRL    USB_HOST_PCFG_PTYPE(0x1) // Pipe is enabled and configured as CONTROL

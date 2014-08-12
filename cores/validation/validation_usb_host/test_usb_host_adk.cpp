@@ -26,9 +26,10 @@
 USBHost usb;
 ADK adk(&usb,"Arduino SA",
             "Arduino_Terminal",
-            "Arduino Due X",
+            "Arduino Terminal for Android",
             "1.0",
             "http://labs.arduino.cc/uploads/ADK/ArduinoTerminal/ThibaultTerminal_ICS_0001.apk",
+            //"http://www.circuitsathome.com",
             "1");
 
 void setup(void)
@@ -44,6 +45,43 @@ void setup(void)
 }
 
 #define RCVSIZE 128
+
+
+
+void loop1(void)
+{
+  uint8_t rcode;
+  uint8_t msg[64] = { 0x00 };
+  const char* recv = "Received: "; 
+
+   usb.Task();
+   
+   if( adk.isReady() == false ) {
+     return;
+   }
+   uint16_t len = 64;
+   
+   SERIAL_PORT_MONITOR.println("ADK Ready");
+   rcode = adk.RcvData((uint8_t *)&len, msg);
+   if( rcode & ( rcode != USB_ERRORFLOW )) {
+     SERIAL_PORT_MONITOR.print("Data rcv. :");
+     SERIAL_PORT_MONITOR.println(rcode, DEC );
+   } 
+   if(len > 0) {
+     SERIAL_PORT_MONITOR.println("Data Packet.");
+
+    for( uint8_t i = 0; i < len; i++ ) {
+      SERIAL_PORT_MONITOR.print((char)msg[i]);
+    }
+    /* sending back what was received */    
+    rcode = adk.SndData( strlen( recv ), (uint8_t *)recv );    
+    rcode = adk.SndData( strlen(( char * )msg ), msg );
+
+   }//if( len > 0 )...
+
+   delay( 1000 );       
+}
+
 
 void loop(void)
 {
@@ -73,3 +111,18 @@ void loop(void)
 		SERIAL_PORT_MONITOR.print("\r\n");
 	}	
 }
+
+
+// void loop2(void)
+// {
+//   uint8_t msg[3];
+//  
+// //	if (acc.isConnected()) {
+//                 SERIAL_PORT_MONITOR.print("Accessory connected. ");
+// 		int len = adk.RcvData(msg, (uint8_t)sizeof(msg));  //, 1);
+//                 SERIAL_PORT_MONITOR.print("Message length: ");
+//                 SERIAL_PORT_MONITOR.println(len, DEC);
+//         }
+//  
+// 	delay(100);
+// }

@@ -20,6 +20,7 @@ e-mail   :  support@circuitsathome.com
 #include "Arduino.h"
 #include "Usb.h"
 
+
 #ifdef ARDUINO_SAM_ZERO
 
 static uint32_t usb_error = 0;
@@ -142,6 +143,7 @@ uint32_t USBHost::ctrlReq(uint32_t addr, uint32_t ep, uint8_t bmReqType, uint8_t
 	if (rcode)
 	{
 		TRACE_USBHOST(printf("/!\\ USBHost::ctrlReq : EP0 allocation error: %lu\r\n", rcode);)
+		//USBTRACE2("\n\rUSBHost::ctrlReq : EP0 allocation error: ", rcode");
 		return rcode;
 	}
 
@@ -184,9 +186,10 @@ uint32_t USBHost::ctrlReq(uint32_t addr, uint32_t ep, uint8_t bmReqType, uint8_t
 						//continue;
 			}
 
-			if(rcode)
+			if(rcode) {
+				//USBTRACE2("\n\rUSBHost::ctrlReq : in transfer: ", rcode");
 				return rcode;
-
+			}
 			// Invoke callback function if inTransfer completed successfully and callback function pointer is specified
 			if(!rcode && p)
 				((USBReadParser*)p)->Parse(read, dataptr, total - left);
@@ -202,10 +205,7 @@ uint32_t USBHost::ctrlReq(uint32_t addr, uint32_t ep, uint8_t bmReqType, uint8_t
 	
 	// Status stage
 	UHD_Pipe_CountZero(pep->epAddr);
-	if(direction)
-	{
-		USB->HOST.HostPipe[pep->epAddr].PSTATUSSET.reg = USB_HOST_PSTATUSSET_DTGL;
-	}
+	USB->HOST.HostPipe[pep->epAddr].PSTATUSSET.reg = USB_HOST_PSTATUSSET_DTGL;
 	return dispatchPkt((direction) ? tokOUTHS : tokINHS, pep->epAddr, nak_limit); //GET if direction
 }
 
@@ -323,19 +323,23 @@ uint32_t USBHost::outTransfer(uint32_t addr, uint32_t ep, uint32_t nbytes, uint8
 
 	return OutTransfer(pep, nak_limit, nbytes, data);
 }
-
+volatile unsigned int jcb =0;
 uint32_t USBHost::OutTransfer(EpInfo *pep, uint32_t nak_limit, uint32_t nbytes, uint8_t *data) {
 	uint32_t rcode = 0, retry_count;
 	uint8_t *data_p = data; //local copy of the data pointer
 	uint32_t bytes_tosend, nak_count;
 	uint32_t bytes_left = nbytes;
+	uint8_t buf[64];
+	uint8_t i;
 
 	uint32_t maxpktsize = pep->maxPktSize;
-
 
     if(maxpktsize < 1 || maxpktsize > 64)
 		return USB_ERROR_INVALID_MAX_PKT_SIZE;
 
+	for( i=0; i<nbytes; i++) {
+		buf[i] = data[i];
+	}
 	unsigned long timeout = millis() + USB_XFER_TIMEOUT;
 
 	//set toggle value
@@ -348,7 +352,8 @@ uint32_t USBHost::OutTransfer(EpInfo *pep, uint32_t nak_limit, uint32_t nbytes, 
 		retry_count = 0;
 		nak_count = 0;
 		bytes_tosend = (bytes_left >= maxpktsize) ? maxpktsize : bytes_left;
-		UHD_Pipe_Write(pep->epAddr, bytes_tosend, data); //filling output FIFO
+		UHD_Pipe_Write(pep->epAddr, bytes_tosend, buf); //filling output FIFO
+
 		//set number of bytes
 		//dispatch packet
 		//wait for the completion IRQ
@@ -362,13 +367,13 @@ uint32_t USBHost::OutTransfer(EpInfo *pep, uint32_t nak_limit, uint32_t nbytes, 
 					nak_count++;
 					if(nak_limit && (nak_count == nak_limit))
 							goto breakout;
-					//return ( rcode);
+					return ( rcode);
 					break;
 				case USB_ERRORTIMEOUT:
 					retry_count++;
 					if(retry_count == USB_RETRY_LIMIT)
 							goto breakout;
-					//return ( rcode);
+					return ( rcode);
 					break;
 				case USB_ERROR_DATATOGGLE:
 					// yes, we flip it wrong here so that next time it is actually correct!
@@ -727,7 +732,7 @@ uint32_t USBHost::Configuring(uint32_t parent, uint32_t port, uint32_t lowspeed)
 
         p->lowspeed = lowspeed;
         // Get device descriptor
-        rcode = getDevDescr(0, 0, 8 /*sizeof (USB_DEVICE_DESCRIPTOR)*/, (uint8_t*)buf);
+        rcode = getDevDescr(0, 0, sizeof (USB_DEVICE_DESCRIPTOR), (uint8_t*)buf);
         // The first GetDescriptor give us the endpoint 0 max packet size.
         epInfo.maxPktSize = buf[7];
         // Restore p->epinfo
