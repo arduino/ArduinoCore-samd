@@ -76,7 +76,10 @@ void setup()
   while (!SERIAL_PORT_MONITOR); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
   SERIAL_PORT_MONITOR.println("Keyboard Controller Program started");
 
-  delay( 200 );
+  if (usb.Init() == -1)
+	  SERIAL_PORT_MONITOR.println("OSC did not start.");
+  
+  delay( 20 );
 }
 
 void loop()

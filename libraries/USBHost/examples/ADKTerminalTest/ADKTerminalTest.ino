@@ -26,7 +26,7 @@
 USBHost usb;
 ADK adk(&usb,"Arduino SA",
             "Arduino_Terminal",
-            "Arduino Due X",
+            "Arduino Terminal for Android",
             "1.0",
             "http://labs.arduino.cc/uploads/ADK/ArduinoTerminal/ThibaultTerminal_ICS_0001.apk",
             "1");
@@ -37,7 +37,10 @@ void setup(void)
   while (!SERIAL_PORT_MONITOR); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
   SERIAL_PORT_MONITOR.println("\r\nADK demo start");
 
-  delay(200);
+  if (usb.Init() == -1)
+	SERIAL_PORT_MONITOR.println("OSC did not start.");
+
+  delay(20);
 }
 
 #define RCVSIZE 128

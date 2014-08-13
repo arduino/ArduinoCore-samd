@@ -323,7 +323,7 @@ uint32_t USBHost::outTransfer(uint32_t addr, uint32_t ep, uint32_t nbytes, uint8
 
 	return OutTransfer(pep, nak_limit, nbytes, data);
 }
-volatile unsigned int jcb =0;
+
 uint32_t USBHost::OutTransfer(EpInfo *pep, uint32_t nak_limit, uint32_t nbytes, uint8_t *data) {
 	uint32_t rcode = 0, retry_count;
 	uint8_t *data_p = data; //local copy of the data pointer

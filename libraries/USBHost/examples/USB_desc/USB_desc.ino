@@ -67,7 +67,7 @@ void setup()
   if (usb.Init() == -1)
       SERIAL_PORT_MONITOR.println("OSC did not start.");
 
-  delay( 200 );
+  delay( 20 );
 
   next_time = millis() + 10000;
 }

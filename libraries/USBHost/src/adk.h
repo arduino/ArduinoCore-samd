@@ -29,7 +29,7 @@ e-mail   :  support@circuitsathome.com
 // #define ADK_PID   0x2D00
 // #define ADB_PID   0x2D01
 
-//JCB
+// JCB
 #define ADK_VID   0x04E8
 #define ADK_PID   0x685C
 #define ADB_PID   0x685D
