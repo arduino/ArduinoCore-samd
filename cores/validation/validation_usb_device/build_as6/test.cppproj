@@ -206,7 +206,7 @@
   </armgcccpp.linker.libraries.LibrarySearchPaths>
   <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
   <armgcccpp.linker.memorysettings.ExternalRAM />
-  <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.linker.miscellaneous.LinkerFlags>--specs=nosys.specs  -Tflash_with_bootloader.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
   <armgcccpp.assembler.general.IncludePaths>
     <ListValues>
       <Value>../../../arduino</Value>
@@ -226,9 +226,27 @@
   <ItemGroup>
     <Folder Include="core" />
     <Folder Include="core\USB" />
+    <Folder Include="Wire" />
+    <Folder Include="SPI" />
     <Folder Include="variant" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\..\libraries\SPI\SPI.cpp">
+      <SubType>compile</SubType>
+      <Link>SPI\SPI.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\libraries\SPI\SPI.h">
+      <SubType>compile</SubType>
+      <Link>SPI\SPI.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\libraries\Wire\Wire.cpp">
+      <SubType>compile</SubType>
+      <Link>Wire\Wire.cpp</Link>
+    </Compile>
+    <Compile Include="..\..\..\..\libraries\Wire\Wire.h">
+      <SubType>compile</SubType>
+      <Link>Wire\Wire.h</Link>
+    </Compile>
     <Compile Include="..\..\..\..\variants\arduino_zero\pins_arduino.h">
       <SubType>compile</SubType>
       <Link>variant\pins_arduino.h</Link>
@@ -341,14 +359,6 @@
       <SubType>compile</SubType>
       <Link>core\Stream.h</Link>
     </Compile>
-    <Compile Include="..\..\..\arduino\syscalls.c">
-      <SubType>compile</SubType>
-      <Link>core\syscalls.c</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\syscalls.h">
-      <SubType>compile</SubType>
-      <Link>core\syscalls.h</Link>
-    </Compile>
     <Compile Include="..\..\..\arduino\Tone.h">
       <SubType>compile</SubType>
       <Link>core\Tone.h</Link>
@@ -409,6 +419,10 @@
       <SubType>compile</SubType>
       <Link>core\WCharacter.h</Link>
     </Compile>
+    <Compile Include="..\..\..\arduino\WInterrupts.c">
+      <SubType>compile</SubType>
+      <Link>core\WInterrupts.c</Link>
+    </Compile>
     <Compile Include="..\..\..\arduino\WInterrupts.h">
       <SubType>compile</SubType>
       <Link>core\WInterrupts.h</Link>
@@ -420,6 +434,10 @@
     <Compile Include="..\..\..\arduino\wiring.h">
       <SubType>compile</SubType>
       <Link>core\wiring.h</Link>
+    </Compile>
+    <Compile Include="..\..\..\arduino\wiring_analog.c">
+      <SubType>compile</SubType>
+      <Link>core\wiring_analog.c</Link>
     </Compile>
     <Compile Include="..\..\..\arduino\wiring_analog.h">
       <SubType>compile</SubType>
@@ -473,7 +491,7 @@
       <SubType>compile</SubType>
       <Link>core\WVariant.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_device\test_usb_device.cpp">
+    <Compile Include="..\test_usb_device.cpp">
       <SubType>compile</SubType>
       <Link>test_usb_device.cpp</Link>
     </Compile>

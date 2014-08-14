@@ -37,12 +37,11 @@
         </dependencies>
       </framework-data>
     </AsfFrameworkConfig>
-    <avrtool>com.atmel.avrdbg.tool.samice</avrtool>
+    <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_samice>
       <ToolOptions>
         <InterfaceProperties>
-          <SwdClock>4000000</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
@@ -54,11 +53,12 @@
     <com_atmel_avrdbg_tool_edbg>
       <ToolOptions>
         <InterfaceProperties>
+          <SwdClock>4000000</SwdClock>
         </InterfaceProperties>
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
-      <ToolNumber>ATML2320021800000012</ToolNumber>
+      <ToolNumber>ATML2320021800000009</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
   </PropertyGroup>
@@ -205,7 +205,7 @@
         </armgcccpp.linker.libraries.LibrarySearchPaths>
         <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
         <armgcccpp.linker.memorysettings.ExternalRAM />
-        <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.linker.miscellaneous.LinkerFlags>--specs=nosys.specs  -Tflash_with_bootloader.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
         <armgcccpp.assembler.general.IncludePaths>
           <ListValues>
             <Value>../../../arduino</Value>
@@ -356,14 +356,6 @@
     <Compile Include="..\..\..\arduino\Stream.h">
       <SubType>compile</SubType>
       <Link>core\Stream.h</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\syscalls.c">
-      <SubType>compile</SubType>
-      <Link>core\syscalls.c</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\syscalls.h">
-      <SubType>compile</SubType>
-      <Link>core\syscalls.h</Link>
     </Compile>
     <Compile Include="..\..\..\arduino\Tone.h">
       <SubType>compile</SubType>
