@@ -58,10 +58,13 @@ void delay( uint32_t ms )
   } while ( _ulTickCount - start <= ms ) ;
 }
 
+#include "Reset.h" // for tickReset()
+
 void SysTick_Handler( void )
 {
   // Increment tick count each ms
   _ulTickCount++ ;
+  tickReset();
 }
 
 #ifdef __cplusplus
