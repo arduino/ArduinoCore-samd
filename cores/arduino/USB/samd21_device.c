@@ -238,11 +238,25 @@ void UDD_InitEP( uint32_t ul_ep_nb, uint32_t ul_ep_cfg )
 
 
 // Send packet.
-void UDD_ClearIN(void)
+void UDD_ReleaseIN(void)
 {
 	USB->DEVICE.DeviceEndpoint[EP0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK1RDY;
 }
 
+void UDD_ReleaseOUT(void)
+{
+	USB->DEVICE.DeviceEndpoint[EP0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
+}
+
+void UDD_WaitIN()
+{
+	while (!( USB->DEVICE.DeviceEndpoint[0].EPSTATUS.bit.BK1RDY )) {}
+}
+
+void UDD_WaitOUT()
+{
+	while (!( USB->DEVICE.DeviceEndpoint[0].EPSTATUS.bit.BK0RDY )) {}
+}
 
 
 uint32_t UDD_Send(uint32_t ep, const void* data, uint32_t len)
@@ -271,6 +285,24 @@ uint8_t UDD_Recv8(uint32_t ep)
 	while (!( USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT0 ));
 	/* Clear Transfer complete 0 flag */
 	USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT0 = 1;
+
+	return udd_ep_out_cache_buffer[ep][0];
+}
+
+uint8_t UDD_Recv_data(uint32_t ep, uint32_t len)
+{
+	TRACE_DEVICE(printf("=> UDD_Recvdata : ep=%d\r\n", (char)ep);)
+
+	usb_endpoint_table[ep].DeviceDescBank[0].ADDR.reg = (uint32_t)&udd_ep_out_cache_buffer[ep];
+	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = len;
+	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
+	USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
+	TRACE_DEVICE(printf("=> UDD_Recv8 : data=%lu\r\n", (unsigned long)data);)
+
+	/* Wait for transfer to complete */
+	while (!( USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT0 ));
+	/* Clear Transfer complete 0 flag */
+	//USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT0 = 1;
 
 	return udd_ep_out_cache_buffer[ep][0];
 }

@@ -205,9 +205,18 @@ static bool USB_SendStringDescriptor(const uint8_t *string, int wLength)
 
 uint32_t USBD_RecvControl(void* d, uint32_t len)
 {
-	udd_ack_out_received(0);
-
-	return len;
+	uint8_t *buffer;
+	uint8_t *data = (uint8_t *)d;
+	uint32_t read = UDD_Recv_data(EP0, len);
+	if (read > len)
+		read = len;
+	UDD_Recv(EP0, &buffer);
+	UDD_WaitOUT();
+	for (int i=0; i<read; i++) {
+		data[i] = buffer[i];
+	}
+	UDD_ReleaseOUT();
+	return read;
 }
 
 //	Handle CLASS_INTERFACE requests
@@ -631,7 +640,7 @@ void USB_Handler(void)
 			if (ok)
 			{
 				TRACE_CORE(puts(">>> EP0 Int: Send packet\r\n");)
-				UDD_ClearIN();
+				UDD_ReleaseIN();
 			}
 			else
 			{

@@ -198,7 +198,7 @@ bool WEAK HID_Setup(Setup& setup)
 		if (HID_GET_IDLE == r)
 		{
 			UDD_Send(0, &_hid_idle, 1);
-			UDD_ClearIN();
+			UDD_ReleaseIN();
 			return true;
 		}
 	}
