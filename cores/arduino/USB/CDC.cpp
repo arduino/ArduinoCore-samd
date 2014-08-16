@@ -119,21 +119,25 @@ bool WEAK CDC_Setup(Setup& setup)
 		if (CDC_SET_LINE_CODING == r)
 		{
 			USBD_RecvControl((void*)&_usbLineInfo,7);
-			return false;
 		}
 
 		if (CDC_SET_CONTROL_LINE_STATE == r)
 		{
 			_usbLineInfo.lineState = setup.wValueL;
+		}
+
+		if (CDC_SET_LINE_CODING == r || CDC_SET_CONTROL_LINE_STATE == r)
+		{
 			// auto-reset into the bootloader is triggered when the port, already
-			// open at 1200 bps, is closed.
-			if (1200 == _usbLineInfo.dwDTERate)
+			// open at 1200 bps, is closed. We check DTR state to determine if host 
+			// port is open (bit 0 of lineState).
+			if (1200 == _usbLineInfo.dwDTERate && (_usbLineInfo.lineState & 0x01) == 0)
 			{
-				// We check DTR state to determine if host port is open (bit 0 of lineState).
-				if ((_usbLineInfo.lineState & 0x01) == 0)
-					initiateReset(250);
-				else
-					cancelReset();
+				initiateReset(250);
+			}
+			else
+			{
+				cancelReset();
 			}
 			return false;
 		}
