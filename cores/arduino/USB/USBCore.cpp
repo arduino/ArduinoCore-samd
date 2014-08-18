@@ -32,21 +32,8 @@
 
 //==================================================================
 
-#define USB_PID_LEONARDO   0x0034
-#define USB_PID_MICRO      0x0035
 #define USB_PID_DUE        0x003E
-
-#if (defined CDC_ENABLED) && defined(HID_ENABLED)
-//#define USB_PID_ZERO       0x004B  // CDC and HID
-#define USB_PID_ZERO       0x003B  // CDC only
-#else
-#if (defined CDC_ENABLED)
-#define USB_PID_ZERO       0x003B  // CDC only  usbserial.name
-#else
-#define USB_PID_ZERO       0x0045  // HID only
-#endif
-#endif
-
+#define USB_PID_ZERO       0x004D
 
 // USB Device
 #define USB_VID            0x2341 // arduino LLC vid
@@ -68,6 +55,8 @@ const uint16_t STRING_LANGUAGE[2] = {
 // Use a hardcoded product name if none is provided
 #if USB_PID == USB_PID_DUE
 	#define USB_PRODUCT "Arduino Due"
+#elif USB_PID == USB_PID_ZERO
+	#define USB_PRODUCT "Arduino Zero"
 #else
 	#define USB_PRODUCT "USB IO Board"
 #endif

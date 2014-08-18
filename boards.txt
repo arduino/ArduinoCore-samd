@@ -17,8 +17,8 @@ arduino_zero_edbg.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 arduino_zero_edbg.build.openocdscript=openocd_scripts/arduino_zero.cfg
 arduino_zero_edbg.build.variant=arduino_zero
 arduino_zero_edbg.build.variant_system_lib=
-arduino_zero_edbg.build.vid=0x03eb
-arduino_zero_edbg.build.pid=0x2111
+arduino_zero_edbg.build.vid=0x2341
+arduino_zero_edbg.build.pid=0x004d
 arduino_zero_edbg.bootloader.tool=openocd
 arduino_zero_edbg.bootloader.file=zero/Release/Exe/samd21_sam_ba.bin
 
