@@ -85,11 +85,11 @@ recipe.size.regex=\.text\s+([0-9]+).*
 #
 tools.bossac.cmd=bossac
 tools.bossac.cmd.windows=bossac.exe
-tools.bossac.path={runtime.ide.path}/hardware/tools
+tools.bossac.path={runtime.ide.path}/hardware/tools/bossac-1.4-arduino
 
 tools.bossac.upload.params.verbose=-i -d
 tools.bossac.upload.params.quiet=
-tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.file} -U {upload.native_usb} -e -w -v -b "{build.path}/{build.project_name}.bin" -R
+tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.file} -U {upload.native_usb} -e -w -v "{build.path}/{build.project_name}.bin" -R
 
 #
 # OpenOCD sketch upload
