@@ -207,7 +207,7 @@ void UDD_InitEP( uint32_t ul_ep_nb, uint32_t ul_ep_cfg )
 		usb_endpoint_table[ul_ep_nb].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = 64;
 		usb_endpoint_table[ul_ep_nb].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
 		// NACK if not ready
-	    USB->DEVICE.DeviceEndpoint[ul_ep_nb].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
+		udd_OUT_transfer_allowed(ul_ep_nb);
 	}
 	else if( ul_ep_cfg == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)) )
 	{
@@ -218,14 +218,14 @@ void UDD_InitEP( uint32_t ul_ep_nb, uint32_t ul_ep_cfg )
 		/* Configure the data buffer */
 		usb_endpoint_table[ul_ep_nb].DeviceDescBank[1].ADDR.reg = (uint32_t)&udd_ep_in_cache_buffer[ul_ep_nb];
 		// NACK if not ready
-		USB->DEVICE.DeviceEndpoint[ul_ep_nb].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
+		udd_IN_stop_transfer(ul_ep_nb);
 	}
 	else if( ul_ep_cfg == USB_ENDPOINT_TYPE_CONTROL )
 	{
 		/* Configure CONTROL endpoint */
 		USB->DEVICE.DeviceEndpoint[ul_ep_nb].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE0(1) | USB_DEVICE_EPCFG_EPTYPE1(1);
-		USB->DEVICE.DeviceEndpoint[ul_ep_nb].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK0RDY;
-		USB->DEVICE.DeviceEndpoint[ul_ep_nb].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
+		udd_OUT_stop_transfer(ul_ep_nb);
+		udd_IN_stop_transfer(ul_ep_nb);
 
 		usb_endpoint_table[ul_ep_nb].DeviceDescBank[0].PCKSIZE.reg &= ~USB_DEVICE_PCKSIZE_AUTO_ZLP;
 		usb_endpoint_table[ul_ep_nb].DeviceDescBank[1].PCKSIZE.reg &= ~USB_DEVICE_PCKSIZE_AUTO_ZLP;
@@ -240,8 +240,8 @@ void UDD_InitEP( uint32_t ul_ep_nb, uint32_t ul_ep_cfg )
 		usb_endpoint_table[ul_ep_nb].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
 
 		// NACK if not ready
-		USB->DEVICE.DeviceEndpoint[ul_ep_nb].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK0RDY;
-		USB->DEVICE.DeviceEndpoint[ul_ep_nb].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
+		udd_OUT_stop_transfer(ul_ep_nb);
+		udd_IN_stop_transfer(ul_ep_nb);
 	}
 }
 
@@ -249,7 +249,7 @@ void UDD_InitEP( uint32_t ul_ep_nb, uint32_t ul_ep_cfg )
 // Send packet.
 void UDD_ClearIN(void)
 {
-	USB->DEVICE.DeviceEndpoint[EP0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK1RDY;
+	udd_IN_transfer_allowed(EP0);
 }
 
 
@@ -273,13 +273,13 @@ uint8_t UDD_Recv8(uint32_t ep)
     usb_endpoint_table[ep].DeviceDescBank[0].ADDR.reg = (uint32_t)&udd_ep_out_cache_buffer[ep];
 	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = 8;
 	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
-	USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
+	udd_OUT_transfer_allowed(ep);
 	TRACE_DEVICE(printf("=> UDD_Recv8 : data=%lu\r\n", (unsigned long)data);)
 
 	/* Wait for transfer to complete */
-	while (!( USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT0 ));
+	while (!udd_is_OUT_transf_cplt(ep));
 	/* Clear Transfer complete 0 flag */
-	USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT0 = 1;
+	udd_clear_OUT_transf_cplt(ep);
 
 	return udd_ep_out_cache_buffer[ep][0];
 }
@@ -305,15 +305,19 @@ uint32_t UDD_FifoByteCount(uint32_t ep)
 void UDD_ReleaseRX(uint32_t ep)
 {
 	TRACE_DEVICE(puts("=> UDD_ReleaseRX\r\n");)
-	USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
-    USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
+	// The RAM Buffer is empty: we can receive data
+	udd_OUT_transfer_allowed(ep);
+	/* Clear Transfer complete 0 flag */
+	udd_clear_OUT_transf_cplt(ep);
 }
 
 void UDD_ReleaseTX(uint32_t ep)
 {
 	TRACE_DEVICE(printf("=> UDD_ReleaseTX ep=%lu\r\n", (unsigned long)ep);)
-    USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK1RDY;
-    USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
+	// The RAM Buffer is full: we can send data
+    udd_IN_transfer_allowed(ep);
+ 	/* Clear the transfer complete flag  */
+    udd_clear_IN_transf_cplt(ep);
 }
 
 void UDD_SetAddress(uint32_t addr)
@@ -323,12 +327,12 @@ void UDD_SetAddress(uint32_t addr)
 	/* Set the byte count as zero */
 	usb_endpoint_table[0].DeviceDescBank[1].PCKSIZE.bit.BYTE_COUNT = 0;
  	/* Clear the transfer complete flag  */
- 	USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1 = 1;
+    udd_clear_IN_transf_cplt(0);
 	/* Set the bank as ready */
-	USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
+	udd_IN_transfer_allowed(0);
 
 	/* Wait for transfer to complete */
-	while (!( USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT1 )) {}
+	while (!udd_is_IN_transf_cplt(EP0)) {}
 
 	udd_configure_address(addr);
 }

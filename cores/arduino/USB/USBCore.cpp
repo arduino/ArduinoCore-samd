@@ -156,12 +156,12 @@ uint32_t USBD_Send(uint32_t ep, const void* d, uint32_t len)
 	UDD_Send(ep, data, len);
 
 	/* Clear the transfer complete flag  */
-	udd_clear_transf_cplt(ep);
+	udd_clear_IN_transf_cplt(ep);
 	/* Set the bank as ready */
-	udd_bk_rdy(ep);
+	udd_IN_transfer_allowed(ep);
 
 	/* Wait for transfer to complete */
-	while (! udd_is_transf_cplt(ep));  // need fire exit.
+	while (! udd_is_IN_transf_cplt(ep));  // need fire exit.
 	return r;
 }
 
@@ -206,7 +206,7 @@ static bool USB_SendStringDescriptor(const uint8_t *string, int wLength)
 
 uint32_t USBD_RecvControl(void* d, uint32_t len)
 {
-	udd_ack_out_received(0);
+	udd_OUT_transfer_allowed(0);
 
 	return len;
 }
@@ -410,7 +410,7 @@ void EndpointHandler(uint8_t bEndpoint)
 #ifdef CDC_ENABLED
 	if( bEndpoint == CDC_ENDPOINT_OUT )
 	{
-		udd_ack_out_received(CDC_ENDPOINT_OUT);
+		udd_OUT_transfer_allowed(CDC_ENDPOINT_OUT);
 
 		// Handle received bytes
 		if (USBD_Available(CDC_ENDPOINT_OUT))
@@ -420,16 +420,16 @@ void EndpointHandler(uint8_t bEndpoint)
 	}
 	if( bEndpoint == CDC_ENDPOINT_IN )
 	{
-		udd_ack_in_received(CDC_ENDPOINT_IN);
+		udd_IN_stop_transfer(CDC_ENDPOINT_IN);
 		/* Clear the transfer complete flag  */
-		udd_clear_transf_cplt(CDC_ENDPOINT_IN);
+		udd_clear_IN_transf_cplt(CDC_ENDPOINT_IN);
 
 	}
 	if( bEndpoint == CDC_ENDPOINT_ACM )
 	{
-		udd_ack_in_received(CDC_ENDPOINT_ACM);
+		udd_IN_stop_transfer(CDC_ENDPOINT_ACM);
 		/* Clear the transfer complete flag  */
-		udd_clear_transf_cplt(CDC_ENDPOINT_ACM);
+		udd_clear_IN_transf_cplt(CDC_ENDPOINT_ACM);
 	}
 #endif
 
@@ -490,7 +490,7 @@ void USB_ISR(void)
 			UDD_Recv(EP0, (uint8_t**)&pSetupData);
 
 			/* Clear the Bank 0 ready flag on Control OUT */
-			udd_ack_out_received(0);
+			udd_OUT_transfer_allowed(0);
 
 			bool ok = true;
 			if (REQUEST_STANDARD == (pSetupData->bmRequestType & REQUEST_TYPE))
@@ -600,8 +600,8 @@ void USB_ISR(void)
 
 #ifdef CDC_ENABLED
 						// Enable interrupt for CDC reception from host (OUT packet)
-						udd_ept_enable_it_transf_cplt_in(CDC_ENDPOINT_ACM);
-						udd_ept_enable_it_transf_cplt_out(CDC_ENDPOINT_OUT);
+						udd_ept_enable_it_IN_transf_cplt(CDC_ENDPOINT_ACM);
+						udd_ept_enable_it_OUT_transf_cplt(CDC_ENDPOINT_OUT);
 #endif
 						send_zlp();
 					}
