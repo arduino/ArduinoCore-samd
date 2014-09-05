@@ -26,7 +26,7 @@
 #include "Stream.h"
 #include "variant.h"
 
-#include "sercom.h"
+#include "SERCOM.h"
 #include "RingBuffer.h"
 
 #define BUFFER_LENGTH 32
