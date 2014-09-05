@@ -43,6 +43,25 @@ void SPIClass::end()
 	_p_sercom->resetSPI();
 }
 
+
+void SPIClass::usingInterrupt(uint8_t interruptNumber)
+{
+	// XXX: TODO
+}
+
+void SPIClass::beginTransaction(SPISettings settings)
+{
+	// XXX: TODO
+	setBitOrder(settings.bitOrder);
+	setClockDivider(settings.clockDiv);
+	setDataMode(settings.dataMode);
+}
+
+void SPIClass::endTransaction(void)
+{
+	// XXX: TODO
+}
+
 void SPIClass::setBitOrder(BitOrder order)
 {
 	if(order == LSBFIRST)
