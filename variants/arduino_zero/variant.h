@@ -58,9 +58,9 @@ extern "C"{
 #define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
 #define digitalPinToTimer(P)       ( )
 //#define analogInPinToBit(P)        ( )
-#define portOutputRegister(port)   ( &(port->OUT) )
-#define portInputRegister(port)    ( &(port->IN) )
-//#define portModeRegister(P)        (  )
+#define portOutputRegister(port)   ( &(port->OUT.reg) )
+#define portInputRegister(port)    ( &(port->IN.reg) )
+#define portModeRegister(port)     ( &(port->DIR.reg) )
 #define digitalPinHasPWM(P)        ( g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER )
 
 // Interrupts
