@@ -11,8 +11,7 @@
 #ifndef _SPI_H_INCLUDED
 #define _SPI_H_INCLUDED
 
-#include "variant.h"
-#include "wiring_constants.h"
+#include <Arduino.h>
 
 #define SPI_MODE0 0x02
 #define SPI_MODE1 0x00
