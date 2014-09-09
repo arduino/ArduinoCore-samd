@@ -50,22 +50,29 @@ extern "C" {
 // configures the USB device address and enable it.
 #define udd_configure_address(address)            USB->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | address
 
+// Clear BK0RDY for know that the BANK0 ram buffer (udd_g_ep_table[ep].DeviceDescBank[0]) is empty and can receive data 
+#define udd_OUT_transfer_allowed(ep)              USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY
+// Set BK1RDY for know that the BANK1 ram buffer (udd_g_ep_table[ep].DeviceDescBank[1]) is full and can send data
+#define udd_IN_transfer_allowed(ep)               USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK1RDY
+
+// Stop OUT transfer
+#define udd_OUT_stop_transfer(ep)                 USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK0RDY
+// Stop IN transfer
+#define udd_IN_stop_transfer(ep)                  USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY
+
+#define udd_read_endpoint_flag(ep)                USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg
+// Is transfer completed ?
+#define udd_is_IN_transf_cplt(ep)                 (USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT1)
+#define udd_is_OUT_transf_cplt(ep)                (USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT0)
+// Clear the transfer complete flag
+#define udd_clear_IN_transf_cplt(ep)              USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1
+#define udd_clear_OUT_transf_cplt(ep)             USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0
+// Enable interrupt transfer complete
+#define udd_ept_enable_it_IN_transf_cplt(ep)      USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT1
+#define udd_ept_enable_it_OUT_transf_cplt(ep)     USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT0
+
 // Enables SETUP received interrupt
 #define udd_enable_setup_received_interrupt(ep)   USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTFLAG_RXSTP
-// ACKs OUT received
-#define udd_ack_out_received(ep)                  USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY
-// ACKs OUT received
-#define udd_ack_in_received(ep)                   USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY
-// Is transfert completed ?
-#define udd_is_transf_cplt(ep)                   (USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT1)
-// Clear the transfer complete flag
-#define udd_clear_transf_cplt(ep)                 USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT1 = 1
-// Set the bank as ready
-#define udd_bk_rdy(ep)                            USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.bit.BK1RDY = 1
-#define udd_read_endpoint_flag(ep)                USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg
-// Enable interrupt transfer complete
-#define udd_ept_enable_it_transf_cplt_in(ep)      USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT1
-#define udd_ept_enable_it_transf_cplt_out(ep)     USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT0
 // Clear the stall flag
 #define udd_clear_stall_request(ep)			      USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL1
 // Remove stall
