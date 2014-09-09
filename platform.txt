@@ -101,7 +101,7 @@ tools.openocd.path={runtime.ide.path}/hardware/tools/OpenOCD-0.9.0-dev-arduino
 
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.bin}} verify reset 0x2000"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.bin}} verify reset 0x00002000"
 
 tools.openocd.program.params.verbose=-d2
 tools.openocd.program.params.quiet=-d0
