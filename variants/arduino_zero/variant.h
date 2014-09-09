@@ -41,7 +41,8 @@
 #endif // __cplusplus
 
 #ifdef __cplusplus
-extern "C"{
+extern "C"
+{
 #endif // __cplusplus
 
 /*----------------------------------------------------------------------------
@@ -50,8 +51,8 @@ extern "C"{
 
 // Number of pins defined in PinDescription array
 #define PINS_COUNT           (34u)
-#define NUM_DIGITAL_PINS     (19u)
-#define NUM_ANALOG_INPUTS    (5u)
+#define NUM_DIGITAL_PINS     (14u)
+#define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
@@ -68,98 +69,65 @@ extern "C"{
 
 // LEDs
 #define PIN_LED_13           (13u)
-#define PIN_LED_RXL          (30u)
-#define PIN_LED_TXL          (31u)
+#define PIN_LED_RXL          (25u)
+#define PIN_LED_TXL          (26u)
 #define PIN_LED              PIN_LED_13
 #define PIN_LED2             PIN_LED_RXL
 #define PIN_LED3             PIN_LED_TXL
 #define LED_BUILTIN          PIN_LED_13
 
 /*
+ * Analog pins
+ */
+#define PIN_A0               (14ul)
+#define PIN_A1               (15ul)
+#define PIN_A2               (16ul)
+#define PIN_A3               (17ul)
+#define PIN_A4               (18ul)
+#define PIN_A5               (19ul)
+
+static const uint8_t A0  = PIN_A0 ;
+static const uint8_t A1  = PIN_A1 ;
+static const uint8_t A2  = PIN_A2 ;
+static const uint8_t A3  = PIN_A3 ;
+static const uint8_t A4  = PIN_A4 ;
+static const uint8_t A5  = PIN_A5 ;
+#define ADC_RESOLUTION		12
+
+/*
  * SPI Interfaces
  */
 #define SPI_INTERFACES_COUNT 1
-/*
-#define SPI_INTERFACE        SPI0
-#define SPI_INTERFACE_ID     ID_SPI0
-#define SPI_CHANNELS_NUM 4
-#define PIN_SPI_SS0          (77u)
-#define PIN_SPI_SS1          (87u)
-#define PIN_SPI_SS2          (86u)
-#define PIN_SPI_SS3          (78u)
-*/
-#define PIN_SPI_MOSI         (21u)
-#define PIN_SPI_MISO         (18u)
-#define PIN_SPI_SCK          (20u)
 
-/*
-#define BOARD_SPI_SS0        (10u)
-#define BOARD_SPI_SS1        (4u)
-#define BOARD_SPI_SS2        (52u)
-#define BOARD_SPI_SS3        PIN_SPI_SS3
+#define PIN_SPI_MISO         (22u)
+#define PIN_SPI_MOSI         (23u)
+#define PIN_SPI_SCK          (24u)
 
-#define BOARD_SPI_DEFAULT_SS BOARD_SPI_SS3
-
-#define BOARD_PIN_TO_SPI_PIN(x) \
-	(x==BOARD_SPI_SS0 ? PIN_SPI_SS0 : \
-	(x==BOARD_SPI_SS1 ? PIN_SPI_SS1 : \
-	(x==BOARD_SPI_SS2 ? PIN_SPI_SS2 : PIN_SPI_SS3 )))
-#define BOARD_PIN_TO_SPI_CHANNEL(x) \
-	(x==BOARD_SPI_SS0 ? 0 : \
-	(x==BOARD_SPI_SS1 ? 1 : \
-	(x==BOARD_SPI_SS2 ? 2 : 3)))
-
-static const uint8_t SS1  = BOARD_SPI_SS1;
-static const uint8_t SS2  = BOARD_SPI_SS2;
-static const uint8_t SS3  = BOARD_SPI_SS3;*/
-static const uint8_t SS	  = 14;	//GND
-static const uint8_t MOSI = PIN_SPI_MOSI;
-static const uint8_t MISO = PIN_SPI_MISO;
-static const uint8_t SCK  = PIN_SPI_SCK;
-
+static const uint8_t SS	  = PIN_A2 ;	// SERCOM4 last PAD is present on A2 but HW SS isn't used. Set here only for reference.
+static const uint8_t MOSI = PIN_SPI_MOSI ;
+static const uint8_t MISO = PIN_SPI_MISO ;
+static const uint8_t SCK  = PIN_SPI_SCK ;
 
 /*
  * Wire Interfaces
  */
 #define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE_SDA         (16u)
-#define PIN_WIRE_SCL         (17u)
+#define PIN_WIRE_SDA         (20u)
+#define PIN_WIRE_SCL         (21u)
 /*
-#define WIRE_INTERFACE       TWI1
-#define WIRE_INTERFACE_ID    ID_TWI1
-#define WIRE_ISR_HANDLER     TWI1_Handler
-#define WIRE_ISR_ID          TWI1_IRQn
+#define WIRE_INTERFACE       SERCOM3
+#define WIRE_INTERFACE_ID
+#define WIRE_ISR_HANDLER     SERCOM3_Handler
+#define WIRE_ISR_ID          SERCOM3_IRQn
 */
-
-/*
- * UART/USART Interfaces
- */
-// Serial
-//#define PINS_UART            (81u)
-
-/*
- * USB Interfaces
- */
-//#define PINS_USB             (85u)
-
-/*
- * Analog pins
- */
-static const uint8_t A0  = 24 ;
-static const uint8_t A1  = 25 ;
-static const uint8_t A2  = 26 ;
-static const uint8_t A3  = 27 ;
-static const uint8_t A4  = 28 ;
-static const uint8_t A5  = 29 ;
-#define ADC_RESOLUTION		12
 
 /*
  * DAC
  */
 /*
 #define DACC_INTERFACE		   DACC
-#define DACC_INTERFACE_ID	   ID_DACC
+#define DACC_INTERFACE_ID
 #define DACC_RESOLUTION		   12
 #define DACC_ISR_HANDLER     DACC_Handler
 #define DACC_ISR_ID          DACC_IRQn
@@ -211,7 +179,7 @@ extern SERCOM sercom4;
 extern SERCOM sercom5;
 
 extern Uart Serial;
-extern Uart Serial5;
+extern Uart Serial1;
 
 #endif
 
@@ -233,12 +201,8 @@ extern Uart Serial5;
 #define SERIAL_PORT_MONITOR         Serial
 #define SERIAL_PORT_USBVIRTUAL      SerialUSB
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
-#define SERIAL_PORT_HARDWARE_OPEN1  Serial2
-#define SERIAL_PORT_HARDWARE_OPEN2  Serial3
 #define SERIAL_PORT_HARDWARE        Serial
 #define SERIAL_PORT_HARDWARE1       Serial1
-#define SERIAL_PORT_HARDWARE2       Serial2
-#define SERIAL_PORT_HARDWARE3       Serial3
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */
 
