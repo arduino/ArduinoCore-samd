@@ -63,7 +63,7 @@ void setup( void )
   pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3*/
 
 //**********************************************
-  Serial5.begin( 115200 ) ; // Output to EDBG Virtual COM Port
+  Serial.begin( 115200 ) ; // Output to EDBG Virtual COM Port
 
   // Test External Interrupt
   attachInterrupt( 3, Interrupt_Pin3, LOW ) ;
@@ -107,14 +107,14 @@ void loop( void )
   delay( 500 ) ;              // wait for a second
 
   // Test Serial output
-  Serial5.write( '-' ) ;   // send a char
-  Serial5.write( "test1\n" ) ;   // send a string
-  Serial5.write( "test2" ) ;   // send another string
+  Serial.write( '-' ) ;   // send a char
+  Serial.write( "test1\n" ) ;   // send a string
+  Serial.write( "test2" ) ;   // send another string
 
   // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pin !!!!
   pin_value=digitalRead( 2 ) ;
-  Serial5.write( "pin 2 value is " ) ;
-  Serial5.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
+  Serial.write( "pin 2 value is " ) ;
+  Serial.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
 
   duty_cycle+=8 ;//=(uint8_t)(millis() & 0xff) ;
   analogWrite( 13, duty_cycle ) ;
@@ -127,48 +127,46 @@ void loop( void )
   dac_value += 64;
   analogWrite(A0, dac_value);
 
-
-
-  Serial5.print("\r\nAnalog pins: ");
+  Serial.print("\r\nAnalog pins: ");
 
   for ( uint32_t i = A0 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
 
     int a = analogRead(i);
-    Serial5.print(a, DEC);
-    Serial5.print(" ");
+    Serial.print(a, DEC);
+    Serial.print(" ");
 
   }
-  Serial5.println();
+  Serial.println();
 
-  Serial5.println("External interrupt pins:");
+  Serial.println("External interrupt pins:");
   if ( ul_Interrupt_Pin3 == 1 )
   {
-    Serial5.println( "Pin 3 triggered (LOW)" ) ;
+    Serial.println( "Pin 3 triggered (LOW)" ) ;
     ul_Interrupt_Pin3 = 0 ;
   }
 
   if ( ul_Interrupt_Pin4 == 1 )
   {
-    Serial5.println( "Pin 4 triggered (HIGH)" ) ;
+    Serial.println( "Pin 4 triggered (HIGH)" ) ;
     ul_Interrupt_Pin4 = 0 ;
   }
 
   if ( ul_Interrupt_Pin5 == 1 )
   {
-    Serial5.println( "Pin 5 triggered (FALLING)" ) ;
+    Serial.println( "Pin 5 triggered (FALLING)" ) ;
     ul_Interrupt_Pin5 = 0 ;
   }
 
   if ( ul_Interrupt_Pin6 == 1 )
   {
-    Serial5.println( "Pin 6 triggered (RISING)" ) ;
+    Serial.println( "Pin 6 triggered (RISING)" ) ;
     ul_Interrupt_Pin6 = 0 ;
   }
 
   if ( ul_Interrupt_Pin7 == 1 )
   {
-    Serial5.println( "Pin 7 triggered (CHANGE)" ) ;
+    Serial.println( "Pin 7 triggered (CHANGE)" ) ;
     ul_Interrupt_Pin7 = 0 ;
   }
 }
