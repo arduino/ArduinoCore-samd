@@ -25,8 +25,8 @@ uint8_t a, b;
 
 void setup()
 {
-  Serial5.begin( 115200 );
-  Serial5.println("Wire init");
+  SERIAL_PORT_MONITOR.begin( 115200 );
+  SERIAL_PORT_MONITOR.println("Wire init");
   Wire.begin();
 }
 
@@ -39,8 +39,8 @@ void loop()
   delay(100);
 
   Wire.requestFrom(addressTemp, 2);
-  Serial5.print((char)13);
-  Serial5.print("Temperature : ");
+  SERIAL_PORT_MONITOR.print((char)13);
+  SERIAL_PORT_MONITOR.print("Temperature : ");
 
   a = Wire.read();
   b = Wire.read();
@@ -49,5 +49,5 @@ void loop()
   temp |= a;
   temp >>= 7;
 
-  Serial5.print(temp);
+  SERIAL_PORT_MONITOR.print(temp);
 }

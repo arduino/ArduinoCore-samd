@@ -28,14 +28,14 @@ void setup( void )
     pinMode( i, OUTPUT ) ;
   }
 
-  Serial5.begin( 115200 ) ; // Output to EDBG Virtual COM Port
-  Serial5.println( "test") ;
-  Serial5.println( brightness ) ;
+  SERIAL_PORT_MONITOR.begin( 115200 ) ; // Output to EDBG Virtual COM Port
+  SERIAL_PORT_MONITOR.println( "test") ;
+  SERIAL_PORT_MONITOR.println( brightness ) ;
 }
 
 void loop( void )
 {
-  Serial5.println( brightness ) ;
+  SERIAL_PORT_MONITOR.println( brightness ) ;
 
   for ( int i=2 ; i < 14 ; i++ )
   {

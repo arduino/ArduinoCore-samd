@@ -76,8 +76,8 @@ void updateTime()
 
 void setup()
 {
-  Serial5.begin( 115200 );
-  Serial5.println("Wire init");
+  SERIAL_PORT_MONITOR.begin( 115200 );
+  SERIAL_PORT_MONITOR.println("Wire init");
   Wire.begin();
 
   lcd.init();
@@ -106,8 +106,8 @@ void loop()
   delay(10);
 
   Wire.requestFrom(addressTemp, 2);
-  Serial5.print((char)13);  // Erase current line
-  Serial5.print("Temperature : ");
+  SERIAL_PORT_MONITOR.print((char)13);  // Erase current line
+  SERIAL_PORT_MONITOR.print("Temperature : ");
 
   a = Wire.read();
   b = Wire.read();
@@ -116,9 +116,9 @@ void loop()
   valueTemp |= b;
   valueTemp >>= 7;
 
-  Serial5.print(a);
-  Serial5.print(" | ");
-  Serial5.print(b);
+  SERIAL_PORT_MONITOR.print(a);
+  SERIAL_PORT_MONITOR.print(" | ");
+  SERIAL_PORT_MONITOR.print(b);
 
   updateTime();
   lcd.setCursor(0, 0);

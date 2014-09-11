@@ -23,7 +23,7 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 
 void setup()
 {
-  Serial5.begin( 9600 ) ;
+  SERIAL_PORT_MONITOR.begin( 9600 ) ;
 
   lcd.init();
 

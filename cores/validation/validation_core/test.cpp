@@ -63,7 +63,7 @@ void setup( void )
   pinPeripheral( 13, PIO_AC_CLK ) ; // Clock Gen 3*/
 
 //**********************************************
-  Serial.begin( 115200 ) ; // Output to EDBG Virtual COM Port
+  SERIAL_PORT_MONITOR.begin( 115200 ) ; // Output to EDBG Virtual COM Port
 
   // Test External Interrupt
   attachInterrupt( 3, Interrupt_Pin3, LOW ) ;
@@ -73,11 +73,11 @@ void setup( void )
   attachInterrupt( 7, Interrupt_Pin7, CHANGE) ;
 
   pcBuff = (char *)malloc(50);
-  
+
   strcpy(pcBuff, "CIAO");
-  Serial.println("----");
-  Serial.println(pcBuff);   // Outputs garbage instead of "CIAO"
-  Serial.println("----");  
+  SERIAL_PORT_MONITOR.println("----");
+  SERIAL_PORT_MONITOR.println(pcBuff);   // Outputs garbage instead of "CIAO"
+  SERIAL_PORT_MONITOR.println("----");
 }
 
 static void led_step1( void )
@@ -106,15 +106,15 @@ void loop( void )
   led_step2() ;
   delay( 500 ) ;              // wait for a second
 
-  // Test Serial output
-  Serial.write( '-' ) ;   // send a char
-  Serial.write( "test1\n" ) ;   // send a string
-  Serial.write( "test2" ) ;   // send another string
+  // Test SERIAL_PORT_MONITOR output
+  SERIAL_PORT_MONITOR.write( '-' ) ;   // send a char
+  SERIAL_PORT_MONITOR.write( "test1\n" ) ;   // send a string
+  SERIAL_PORT_MONITOR.write( "test2" ) ;   // send another string
 
   // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pin !!!!
   pin_value=digitalRead( 2 ) ;
-  Serial.write( "pin 2 value is " ) ;
-  Serial.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
+  SERIAL_PORT_MONITOR.write( "pin 2 value is " ) ;
+  SERIAL_PORT_MONITOR.write( (pin_value == LOW)?"LOW\n":"HIGH\n" ) ;
 
   duty_cycle+=8 ;//=(uint8_t)(millis() & 0xff) ;
   analogWrite( 13, duty_cycle ) ;
@@ -127,46 +127,46 @@ void loop( void )
   dac_value += 64;
   analogWrite(A0, dac_value);
 
-  Serial.print("\r\nAnalog pins: ");
+  SERIAL_PORT_MONITOR.print("\r\nAnalog pins: ");
 
   for ( uint32_t i = A0 ; i <= A0+NUM_ANALOG_INPUTS ; i++ )
   {
 
     int a = analogRead(i);
-    Serial.print(a, DEC);
-    Serial.print(" ");
+    SERIAL_PORT_MONITOR.print(a, DEC);
+    SERIAL_PORT_MONITOR.print(" ");
 
   }
-  Serial.println();
+  SERIAL_PORT_MONITOR.println();
 
-  Serial.println("External interrupt pins:");
+  SERIAL_PORT_MONITOR.println("External interrupt pins:");
   if ( ul_Interrupt_Pin3 == 1 )
   {
-    Serial.println( "Pin 3 triggered (LOW)" ) ;
+    SERIAL_PORT_MONITOR.println( "Pin 3 triggered (LOW)" ) ;
     ul_Interrupt_Pin3 = 0 ;
   }
 
   if ( ul_Interrupt_Pin4 == 1 )
   {
-    Serial.println( "Pin 4 triggered (HIGH)" ) ;
+    SERIAL_PORT_MONITOR.println( "Pin 4 triggered (HIGH)" ) ;
     ul_Interrupt_Pin4 = 0 ;
   }
 
   if ( ul_Interrupt_Pin5 == 1 )
   {
-    Serial.println( "Pin 5 triggered (FALLING)" ) ;
+    SERIAL_PORT_MONITOR.println( "Pin 5 triggered (FALLING)" ) ;
     ul_Interrupt_Pin5 = 0 ;
   }
 
   if ( ul_Interrupt_Pin6 == 1 )
   {
-    Serial.println( "Pin 6 triggered (RISING)" ) ;
+    SERIAL_PORT_MONITOR.println( "Pin 6 triggered (RISING)" ) ;
     ul_Interrupt_Pin6 = 0 ;
   }
 
   if ( ul_Interrupt_Pin7 == 1 )
   {
-    Serial.println( "Pin 7 triggered (CHANGE)" ) ;
+    SERIAL_PORT_MONITOR.println( "Pin 7 triggered (CHANGE)" ) ;
     ul_Interrupt_Pin7 = 0 ;
   }
 }

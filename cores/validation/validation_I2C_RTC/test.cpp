@@ -34,8 +34,8 @@ uint8_t bcdToDec(byte val)
 
 void setup()
 {
-  Serial5.begin(9600);
-  Serial5.println("Wire init");
+  SERIAL_PORT_MONITOR.begin(9600);
+  SERIAL_PORT_MONITOR.println("Wire init");
   Wire.begin();
 
   // Setting the date
@@ -68,10 +68,10 @@ void loop()
   Wire.requestFrom(address, 7);
 /*  while(Wire.available())
   {
-    Serial5.print(bcdToDec(Wire.read()));
-    Serial5.print(" ");
+    SERIAL_PORT_MONITOR.print(bcdToDec(Wire.read()));
+    SERIAL_PORT_MONITOR.print(" ");
   }
-  Serial5.println();*/
+  SERIAL_PORT_MONITOR.println();*/
 
 
    int second     = bcdToDec(Wire.read() & 0x7f);
@@ -82,19 +82,19 @@ void loop()
    int month      = bcdToDec(Wire.read());
    int year       = bcdToDec(Wire.read());
 
-   Serial5.print(hour, DEC);
-   Serial5.print(":");
-   Serial5.print(minute, DEC);
-   Serial5.print(":");
-   Serial5.print(second, DEC);
-   Serial5.print("  ");
-   Serial5.print(month, DEC);
-   Serial5.print("/");
-   Serial5.print(dayOfMonth, DEC);
-   Serial5.print("/");
-   Serial5.print(year,DEC);
-   Serial5.print("  ");
-   Serial5.println();
+   SERIAL_PORT_MONITOR.print(hour, DEC);
+   SERIAL_PORT_MONITOR.print(":");
+   SERIAL_PORT_MONITOR.print(minute, DEC);
+   SERIAL_PORT_MONITOR.print(":");
+   SERIAL_PORT_MONITOR.print(second, DEC);
+   SERIAL_PORT_MONITOR.print("  ");
+   SERIAL_PORT_MONITOR.print(month, DEC);
+   SERIAL_PORT_MONITOR.print("/");
+   SERIAL_PORT_MONITOR.print(dayOfMonth, DEC);
+   SERIAL_PORT_MONITOR.print("/");
+   SERIAL_PORT_MONITOR.print(year,DEC);
+   SERIAL_PORT_MONITOR.print("  ");
+   SERIAL_PORT_MONITOR.println();
 
   delay(990);
 }
