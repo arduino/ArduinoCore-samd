@@ -93,4 +93,16 @@ void SPIClass::transfer(void *buf, size_t count)
   extern SPIClass SPI;
 #endif
 
+// For compatibility with sketches designed for AVR @ 16 MHz
+// New programs should use SPI.beginTransaction to set the SPI clock
+#if F_CPU == 48000000
+  #define SPI_CLOCK_DIV2   6
+  #define SPI_CLOCK_DIV4   12
+  #define SPI_CLOCK_DIV8   24
+  #define SPI_CLOCK_DIV16  48
+  #define SPI_CLOCK_DIV32  96
+  #define SPI_CLOCK_DIV64  192
+  #define SPI_CLOCK_DIV128 255
+#endif
+
 #endif
