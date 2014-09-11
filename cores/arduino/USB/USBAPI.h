@@ -19,6 +19,13 @@
 #ifndef __USBAPI__
 #define __USBAPI__
 
+#define HSTPIPCFG_PTYPE_BLK 1
+#define HSTPIPCFG_PTOKEN_IN 2
+#define HSTPIPCFG_PTOKEN_OUT 3
+#define HSTPIPCFG_PBK_1_BANK 4
+#define HSTPIPCFG_PTYPE_INTRPT 5
+
+
 
 /* Define attribute */
 #if defined   ( __CC_ARM   ) /* Keil uVision 4 */

@@ -91,12 +91,6 @@ void init( void )
 	  pinMode( ul, INPUT ) ;
   }
 
-  // Initialize Serial port U(S)ART pins
-  // Todo
-
-  // Initialize USB pins
-  // Todo
-
   // Initialize Analog Controller
   // Setting clock
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_ADC ) | // Generic Clock ADC

@@ -113,7 +113,7 @@ uint32_t USBD_Recv(uint32_t ep, void* d, uint32_t len)
 	n = len;
 	uint8_t* dst = (uint8_t*)d;
 	while (n--)
-		*dst++ = UDD_Recv8(ep);
+		*dst++ = UDD_Recv_data(ep, 8);
 	if (len && !UDD_FifoByteCount(ep)) // release empty buffer
 		UDD_ReleaseRX(ep);
 
@@ -144,12 +144,12 @@ uint32_t USBD_Send(uint32_t ep, const void* d, uint32_t len)
 	UDD_Send(ep, data, len);
 
 	/* Clear the transfer complete flag  */
-	udd_clear_transf_cplt(ep);
+	udd_clear_IN_transf_cplt(ep);
 	/* Set the bank as ready */
-	udd_bk_rdy(ep);
+	udd_IN_transfer_allowed(ep);
 
 	/* Wait for transfer to complete */
-	while (! udd_is_transf_cplt(ep));  // need fire exit.
+	while (! udd_is_IN_transf_cplt(ep));  // need fire exit.
 	return r;
 }
 
@@ -200,11 +200,11 @@ uint32_t USBD_RecvControl(void* d, uint32_t len)
 	if (read > len)
 		read = len;
 	UDD_Recv(EP0, &buffer);
-	UDD_WaitOUT();
+	while (!udd_is_OUT_transf_cplt(EP0));
 	for (int i=0; i<read; i++) {
 		data[i] = buffer[i];
 	}
-	UDD_ReleaseOUT();
+	udd_OUT_transfer_allowed(EP0);
 	return read;
 }
 
@@ -407,7 +407,7 @@ void EndpointHandler(uint8_t bEndpoint)
 #ifdef CDC_ENABLED
 	if( bEndpoint == CDC_ENDPOINT_OUT )
 	{
-		udd_ack_out_received(CDC_ENDPOINT_OUT);
+		udd_OUT_transfer_allowed(CDC_ENDPOINT_OUT);
 
 		// Handle received bytes
 		if (USBD_Available(CDC_ENDPOINT_OUT))
@@ -417,16 +417,16 @@ void EndpointHandler(uint8_t bEndpoint)
 	}
 	if( bEndpoint == CDC_ENDPOINT_IN )
 	{
-		udd_ack_in_received(CDC_ENDPOINT_IN);
+		udd_IN_stop_transfer(CDC_ENDPOINT_IN);
 		/* Clear the transfer complete flag  */
-		udd_clear_transf_cplt(CDC_ENDPOINT_IN);
+		udd_clear_IN_transf_cplt(CDC_ENDPOINT_IN);
 
 	}
 	if( bEndpoint == CDC_ENDPOINT_ACM )
 	{
-		udd_ack_in_received(CDC_ENDPOINT_ACM);
+		udd_IN_stop_transfer(CDC_ENDPOINT_ACM);
 		/* Clear the transfer complete flag  */
-		udd_clear_transf_cplt(CDC_ENDPOINT_ACM);
+		udd_clear_IN_transf_cplt(CDC_ENDPOINT_ACM);
 	}
 #endif
 
@@ -436,7 +436,7 @@ void EndpointHandler(uint8_t bEndpoint)
 }
 
 
-void USB_Handler(void)
+void USB_ISR(void)
 {
 	uint16_t flags;
 	uint8_t i;
@@ -487,7 +487,7 @@ void USB_Handler(void)
 			UDD_Recv(EP0, (uint8_t**)&pSetupData);
 
 			/* Clear the Bank 0 ready flag on Control OUT */
-			udd_ack_out_received(0);
+			udd_OUT_transfer_allowed(0);
 
 			bool ok = true;
 			if (REQUEST_STANDARD == (pSetupData->bmRequestType & REQUEST_TYPE))
@@ -597,8 +597,8 @@ void USB_Handler(void)
 
 #ifdef CDC_ENABLED
 						// Enable interrupt for CDC reception from host (OUT packet)
-						udd_ept_enable_it_transf_cplt_in(CDC_ENDPOINT_ACM);
-						udd_ept_enable_it_transf_cplt_out(CDC_ENDPOINT_OUT);
+						udd_ept_enable_it_IN_transf_cplt(CDC_ENDPOINT_ACM);
+						udd_ept_enable_it_OUT_transf_cplt(CDC_ENDPOINT_OUT);
 #endif
 						send_zlp();
 					}
@@ -629,7 +629,7 @@ void USB_Handler(void)
 			if (ok)
 			{
 				TRACE_CORE(puts(">>> EP0 Int: Send packet\r\n");)
-				UDD_ReleaseIN();
+				UDD_ClearIN();
 			}
 			else
 			{
@@ -688,7 +688,7 @@ uint32_t USBD_Connected(void)
 {
 	uint8_t f = UDD_GetFrameNumber();
 
-    //delay(3); JCB
+    //delay(3);
 
 	return f != UDD_GetFrameNumber();
 }
@@ -701,6 +701,7 @@ USBDevice_ USBDevice;
 
 USBDevice_::USBDevice_()
 {
+	UDD_SetStack(&USB_ISR);
 }
 
 bool USBDevice_::attach()

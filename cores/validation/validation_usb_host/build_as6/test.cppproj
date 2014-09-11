@@ -83,6 +83,7 @@
             <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
             <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/USBHost/src</Value>
             <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
@@ -102,6 +103,7 @@
             <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
             <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/USBHost/src</Value>
             <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcccpp.compiler.directories.IncludePaths>
@@ -128,6 +130,7 @@
             <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
             <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/USBHost/src</Value>
             <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcccpp.preprocessingassembler.general.IncludePaths>
@@ -146,6 +149,8 @@
         <armgcc.compiler.symbols.DefSymbols>
           <ListValues>
             <Value>DEBUG</Value>
+            <Value>MAX_DEVICES_ALLOWED=8</Value>
+            <Value>DEBUG_USB_HOST</Value>
           </ListValues>
         </armgcc.compiler.symbols.DefSymbols>
         <armgcc.compiler.directories.DefaultIncludePath>False</armgcc.compiler.directories.DefaultIncludePath>
@@ -155,9 +160,10 @@
             <Value>../../../../../../../tools/CMSIS/CMSIS/Include</Value>
             <Value>../../../../arduino</Value>
             <Value>../../../../arduino/USB</Value>
-            <Value>../../../../../variants/arduino_zero</Value>
             <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/USBHost/src</Value>
             <Value>../../../../../libraries/Wire</Value>
+            <Value>../../../../../variants/arduino_zero</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
         <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
@@ -172,7 +178,8 @@
             <Value>DEBUG</Value>
             <Value>USB_VID=0x2341</Value>
             <Value>USB_PID=0x004d</Value>
-            <Value>USBCON</Value>
+            <Value>ARDUINO_SAM_ZERO</Value>
+            <Value>DEBUG_USB_HOST</Value>
           </ListValues>
         </armgcccpp.compiler.symbols.DefSymbols>
         <armgcccpp.compiler.directories.DefaultIncludePath>False</armgcccpp.compiler.directories.DefaultIncludePath>
@@ -184,7 +191,9 @@
             <Value>../../../../arduino/USB</Value>
             <Value>../../../../../variants/arduino_zero</Value>
             <Value>../../../../../libraries/SPI</Value>
+            <Value>../../../../../libraries/USBHost/src</Value>
             <Value>../../../../../libraries/Wire</Value>
+            <Value>../../../../../../../../libraries/USBHost/src</Value>
           </ListValues>
         </armgcccpp.compiler.directories.IncludePaths>
         <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
@@ -206,7 +215,7 @@
         </armgcccpp.linker.libraries.LibrarySearchPaths>
         <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
         <armgcccpp.linker.memorysettings.ExternalRAM />
-        <armgcccpp.linker.miscellaneous.LinkerFlags>--specs=nosys.specs  -Tflash_with_bootloader.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
         <armgcccpp.assembler.general.IncludePaths>
           <ListValues>
             <Value>../../../arduino</Value>
@@ -225,28 +234,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Folder Include="core" />
+    <Folder Include="core\host_example" />
+    <Folder Include="core\main\" />
     <Folder Include="core\USB" />
-    <Folder Include="Wire" />
-    <Folder Include="SPI" />
     <Folder Include="variant" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\libraries\SPI\SPI.cpp">
-      <SubType>compile</SubType>
-      <Link>SPI\SPI.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\libraries\SPI\SPI.h">
-      <SubType>compile</SubType>
-      <Link>SPI\SPI.h</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\libraries\Wire\Wire.cpp">
-      <SubType>compile</SubType>
-      <Link>Wire\Wire.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\..\..\libraries\Wire\Wire.h">
-      <SubType>compile</SubType>
-      <Link>Wire\Wire.h</Link>
-    </Compile>
     <Compile Include="..\..\..\..\variants\arduino_zero\pins_arduino.h">
       <SubType>compile</SubType>
       <Link>variant\pins_arduino.h</Link>
@@ -375,57 +368,29 @@
       <SubType>compile</SubType>
       <Link>core\Udp.h</Link>
     </Compile>
-    <Compile Include="..\..\..\arduino\USB\CDC.cpp">
+    <Compile Include="..\..\..\arduino\USB\samd21_host.c">
       <SubType>compile</SubType>
-      <Link>core\USB\CDC.cpp</Link>
+      <Link>core\USB\samd21_host.c</Link>
     </Compile>
-    <Compile Include="..\..\..\arduino\USB\HID.cpp">
+    <Compile Include="..\..\..\arduino\USB\samd21_host.h">
       <SubType>compile</SubType>
-      <Link>core\USB\HID.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\USB\samd21_device.c">
-      <SubType>compile</SubType>
-      <Link>core\USB\samd21_device.c</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\USB\samd21_device.h">
-      <SubType>compile</SubType>
-      <Link>core\USB\samd21_device.h</Link>
+      <Link>core\USB\samd21_host.h</Link>
     </Compile>
     <Compile Include="..\..\..\arduino\USB\USBAPI.h">
       <SubType>compile</SubType>
       <Link>core\USB\USBAPI.h</Link>
     </Compile>
-    <Compile Include="..\..\..\arduino\USB\USBCore.cpp">
-      <SubType>compile</SubType>
-      <Link>core\USB\USBCore.cpp</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\USB\USBCore.h">
-      <SubType>compile</SubType>
-      <Link>core\USB\USBCore.h</Link>
-    </Compile>
     <Compile Include="..\..\..\arduino\USB\USBDesc.h">
       <SubType>compile</SubType>
       <Link>core\USB\USBDesc.h</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\USB\USB_device.h">
-      <SubType>compile</SubType>
-      <Link>core\USB\USB_device.h</Link>
     </Compile>
     <Compile Include="..\..\..\arduino\USB\USB_host.h">
       <SubType>compile</SubType>
       <Link>core\USB\USB_host.h</Link>
     </Compile>
-    <Compile Include="..\..\..\arduino\USB\USB_interrupt.c">
-      <SubType>compile</SubType>
-      <Link>core\USB\USB_interrupt.c</Link>
-    </Compile>
     <Compile Include="..\..\..\arduino\WCharacter.h">
       <SubType>compile</SubType>
       <Link>core\WCharacter.h</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\WInterrupts.c">
-      <SubType>compile</SubType>
-      <Link>core\WInterrupts.c</Link>
     </Compile>
     <Compile Include="..\..\..\arduino\WInterrupts.h">
       <SubType>compile</SubType>
@@ -438,10 +403,6 @@
     <Compile Include="..\..\..\arduino\wiring.h">
       <SubType>compile</SubType>
       <Link>core\wiring.h</Link>
-    </Compile>
-    <Compile Include="..\..\..\arduino\wiring_analog.c">
-      <SubType>compile</SubType>
-      <Link>core\wiring_analog.c</Link>
     </Compile>
     <Compile Include="..\..\..\arduino\wiring_analog.h">
       <SubType>compile</SubType>
@@ -495,10 +456,154 @@
       <SubType>compile</SubType>
       <Link>core\WVariant.h</Link>
     </Compile>
-    <Compile Include="..\test_usb_device.cpp">
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_adk.cpp">
       <SubType>compile</SubType>
-      <Link>test_usb_device.cpp</Link>
+      <Link>core\main\test_usb_host_adk.cpp</Link>
     </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\address.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\address.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\adk.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\adk.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\adk.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\adk.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\confdescparser.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\confdescparser.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hexdump.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hexdump.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hid.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hid.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hid.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hid.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hidboot.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hidboot.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hidboot.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hidboot.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hidescriptorparser.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hidescriptorparser.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hidescriptorparser.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hidescriptorparser.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hiduniversal.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hiduniversal.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hiduniversal.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hiduniversal.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\hidusagestr.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\hidusagestr.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\KeyboardController.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\KeyboardController.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\KeyboardController.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\KeyboardController.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\macros.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\macros.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\message.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\message.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\message.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\message.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\MouseController.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\MouseController.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\MouseController.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\MouseController.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\parsetools.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\parsetools.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\parsetools.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\parsetools.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\printhex.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\printhex.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\sink_parser.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\sink_parser.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\Usb.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\Usb.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\Usb.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\Usb.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\UsbCore.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\UsbCore.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\usbhub.cpp">
+      <SubType>compile</SubType>
+      <Link>core\host_example\usbhub.cpp</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\usbhub.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\usbhub.h</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\usb_ch9.h">
+      <SubType>compile</SubType>
+      <Link>core\host_example\usb_ch9.h</Link>
+    </Compile>
+    <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_KeyboardController.cpp">
+      <SubType>compile</SubType>
+      <Link>core\main\test_usb_host_KeyboardController.cpp</Link>
+    </None>
+    <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_MouseController.cpp">
+      <SubType>compile</SubType>
+      <Link>core\main\test_usb_host_MouseController.cpp</Link>
+    </None>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\arduino\USB\USB_interrupt.c">
+      <SubType>compile</SubType>
+      <Link>core\USB\USB_interrupt.c</Link>
+    </Compile>
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\pgmstrings.h">
+      <SubType>compile</SubType>
+      <Link>core\main\pgmstrings.h</Link>
+    </Compile>
+    <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_USB_desc.cpp">
+      <SubType>compile</SubType>
+      <Link>core\main\test_USB_desc.cpp</Link>
+    </None>
   </ItemGroup>
   <Import Project="$(AVRSTUDIO_EXE_PATH)\\Vs\\Compiler.targets" />
 </Project>
