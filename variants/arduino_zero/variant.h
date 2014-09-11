@@ -95,6 +95,17 @@ static const uint8_t A5  = PIN_A5 ;
 #define ADC_RESOLUTION		12
 
 /*
+ * Serial interfaces
+ */
+// Serial (EDBG)
+#define PIN_SERIAL_RX (31ul)
+#define PIN_SERIAL_TX (30ul)
+
+// Serial1
+#define PIN_SERIAL1_RX (0ul)
+#define PIN_SERIAL1_TX (1ul)
+
+/*
  * SPI Interfaces
  */
 #define SPI_INTERFACES_COUNT 1
@@ -198,11 +209,11 @@ extern Uart Serial1;
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_MONITOR         Serial
 #define SERIAL_PORT_USBVIRTUAL      SerialUSB
-#define SERIAL_PORT_HARDWARE_OPEN   Serial1
 #define SERIAL_PORT_HARDWARE        Serial
 #define SERIAL_PORT_HARDWARE1       Serial1
+#define SERIAL_PORT_MONITOR         SERIAL_PORT_HARDWARE
+#define SERIAL_PORT_HARDWARE_OPEN   SERIAL_PORT_HARDWARE1
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */
 
