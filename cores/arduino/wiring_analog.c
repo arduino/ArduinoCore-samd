@@ -23,12 +23,41 @@
 extern "C" {
 #endif
 
+static int _readResolution = 10;
+static int _writeResolution = 8;
+
+void analogReadResolution( int res )
+{
+	_readResolution = res ;
+}
+
+void analogWriteResolution( int res )
+{
+	_writeResolution = res ;
+}
+
+static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to )
+{
+	if ( from == to )
+  {
+		return value ;
+  }
+
+	if ( from > to )
+  {
+		return value >> (from-to) ;
+  }
+	else
+  {
+		return value << (to-from) ;
+  }
+}
+
 void analogReference( eAnalogReference ulMode )
 {
+  // ATTENTION : On this board the default is not 5volts or 3.3volts BUT 1volt
 
-  // ATTENTION : On this board the default is note 5volts or 3.3volts BUT 1volt
-
-  switch(ulMode)
+  switch ( ulMode )
   {
     case AR_DEFAULT:
     case AR_INTERNAL:
@@ -41,6 +70,7 @@ void analogReference( eAnalogReference ulMode )
       break;
   }
 }
+
 uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t valueRead = 0;
@@ -95,51 +125,6 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     }
 
     DAC->DATA.reg = ulValue & 0x3FF;  // Dac on 10 bits.
-
-   // EAnalogChannel channel = g_APinDescription[ulPin].ulADCChannelNumber;
-   // if (channel == DA0 || channel == DA1) {
-     // uint32_t chDACC = ((channel == DA0) ? 0 : 1);
-     // if (dacc_get_channel_status(DACC_INTERFACE) == 0) {
-       // /* Enable clock for DACC_INTERFACE */
-       // pmc_enable_periph_clk(DACC_INTERFACE_ID);
-
-       // /* Reset DACC registers */
-       // dacc_reset(DACC_INTERFACE);
-
-       // /* Half word transfer mode */
-       // dacc_set_transfer_mode(DACC_INTERFACE, 0);
-
-       // /* Power save:
-        // * sleep mode  - 0 (disabled)
-        // * fast wakeup - 0 (disabled)
-        // */
-       // dacc_set_power_save(DACC_INTERFACE, 0, 0);
-       // /* Timing:
-        // * refresh        - 0x08 (1024*8 dacc clocks)
-        // * max speed mode -    0 (disabled)
-        // * startup time   - 0x10 (1024 dacc clocks)
-        // */
-       // dacc_set_timing(DACC_INTERFACE, 0x08, 0, 0x10);
-
-       // /* Set up analog current */
-       // dacc_set_analog_control(DACC_INTERFACE, DACC_ACR_IBCTLCH0(0x02) |
-                     // DACC_ACR_IBCTLCH1(0x02) |
-                     // DACC_ACR_IBCTLDACCORE(0x01));
-     // }
-
-     // /* Disable TAG and select output channel chDACC */
-     // dacc_set_channel_selection(DACC_INTERFACE, chDACC);
-
-     // if ((dacc_get_channel_status(DACC_INTERFACE) & (1 << chDACC)) == 0) {
-       // dacc_enable_channel(DACC_INTERFACE, chDACC);
-     // }
-
-     // // Write user value
-     // ulValue = mapResolution(ulValue, _writeResolution, DACC_RESOLUTION);
-     // dacc_write_conversion_data(DACC_INTERFACE, ulValue);
-     // while ((dacc_get_interrupt_status(DACC_INTERFACE) & DACC_ISR_EOC) == 0);
-     // return;
-   // }
   }
 
   if ( (attr & PIN_ATTR_PWM) == PIN_ATTR_PWM )
@@ -150,7 +135,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     }
 
     Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) ;
-    if ( GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
+    if ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
     {
       isTC = 1 ;
       TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
@@ -160,77 +145,6 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       isTC = 0 ;
       TCCx = (Tcc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
     }
-
-/*
-    switch ( g_APinDescription[ulPin].ulPWMChannel )
-    {
-      case PWM3_CH0 :
-        TCx = TC3 ;
-        Channelx = 0 ;
-        isTC = 1 ;
-      break;
-
-      case  PWM3_CH1:
-      TCx = TC3 ;
-      Channelx = 1;
-      isTC = 1;
-      break;
-
-      case  PWM0_CH0 :
-      TCCx = TCC0;
-      Channelx = 0;
-      break;
-
-      case  PWM0_CH1 :
-      TCCx = TCC0;
-      Channelx = 1;
-      break;
-
-      case  PWM0_CH4 :
-      TCCx = TCC0;
-      //Channelx = 4;
-      Channelx = 0;
-      break;
-
-      case  PWM0_CH5 :
-      TCCx = TCC0;
-      //Channelx = 5;
-      Channelx = 1;
-      break;
-
-      case  PWM0_CH6 :
-      TCCx = TCC0;
-      //Channelx = 6;
-      Channelx = 2;
-      break;
-
-      case  PWM0_CH7 :
-      TCCx = TCC0;
-      //Channelx = 7;
-      Channelx = 3;
-      break;
-
-      case  PWM1_CH0 :
-      TCCx = TCC1;
-      Channelx = 0;
-      break;
-
-      case  PWM1_CH1 :
-      TCCx = TCC1;
-      Channelx = 1;
-      break;
-
-      case  PWM2_CH0 :
-      TCCx = TCC2;
-      Channelx = 0;
-      break;
-
-      case  PWM2_CH1 :
-      TCCx = TCC2;
-      Channelx = 1;
-      break;
-    }
-*/
 
     // Enable clocks according to TCCx instance to use
     switch ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) )
@@ -263,6 +177,16 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       case 5: // TC5
         //Enable GCLK for TC5 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 )) ;
+      break ;
+
+      case 6: // TC6
+        //Enable GCLK for TC6 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC6_TC7 ));
+      break ;
+
+      case 7: // TC7
+        //Enable GCLK for TC7 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC6_TC7 )) ;
       break ;
     }
 
@@ -305,7 +229,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
   // -- Defaults to digital write
   pinMode( ulPin, OUTPUT ) ;
 
-  //ulValue = mapResolution(ulValue, _writeResolution, 8);
+  ulValue = mapResolution(ulValue, _writeResolution, 8);
 
   if ( ulValue < 128 )
   {

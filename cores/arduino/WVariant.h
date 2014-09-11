@@ -23,7 +23,7 @@
 #include "sam.h"
 
 #ifdef __cplusplus
-extern "C"{
+extern "C" {
 #endif // __cplusplus
 
 /* Definitions and types for pins */
@@ -62,10 +62,8 @@ typedef enum _ETCChannel
   TCC1_CH1 = (1<<8)|(1),
   TCC2_CH0 = (2<<8)|(0),
   TCC2_CH1 = (2<<8)|(1),
-  TC3_CH0 = (3<<8)|(0),
-  TC3_CH1 = (3<<8)|(1),
-  TC7_CH0 = (7<<8)|(0),
-  TC7_CH1 = (7<<8)|(1)
+  TC3_CH0  = (3<<8)|(0),
+  TC3_CH1  = (3<<8)|(1),
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -92,8 +90,6 @@ typedef enum _EPWMChannel
   PWM2_CH1=TCC2_CH1,
   PWM3_CH0=TC3_CH0,
   PWM3_CH1=TC3_CH1,
-  PWM7_CH0=TC7_CH0,
-  PWM7_CH1=TC7_CH1
 } EPWMChannel ;
 
 typedef enum _EPortType
@@ -133,19 +129,19 @@ typedef enum _EExt_Interrupts
 
 typedef enum _EPioType
 {
-  PIO_NOT_A_PIN=-1,  /* Not under control of a peripheral. */
-  PIO_EXTINT,     /* The pin is controlled by the associated signal of peripheral A. */
-  PIO_ANALOG,     /* The pin is controlled by the associated signal of peripheral B. */
-  PIO_SERCOM,     /* The pin is controlled by the associated signal of peripheral C. */
-  PIO_SERCOM_ALT, /* The pin is controlled by the associated signal of peripheral D. */
-  PIO_TIMER,      /* The pin is controlled by the associated signal of peripheral E. */
-  PIO_TIMER_ALT,  /* The pin is controlled by the associated signal of peripheral F. */
-  PIO_COM,        /* The pin is controlled by the associated signal of peripheral G. */
-  PIO_AC_CLK,     /* The pin is controlled by the associated signal of peripheral H. */
-  PIO_DIGITAL,    /* The pin is controlled by PORT. */
-  PIO_INPUT,        /* The pin is controlled by PORT and is an input. */
-  PIO_INPUT_PULLUP, /* The pin is controlled by PORT and is an input with internal pull-up resistor enabled. */
-  PIO_OUTPUT,       /* The pin is controlled by PORT and is an output. */
+  PIO_NOT_A_PIN=-1,     /* Not under control of a peripheral. */
+  PIO_EXTINT=0,         /* The pin is controlled by the associated signal of peripheral A. */
+  PIO_ANALOG,           /* The pin is controlled by the associated signal of peripheral B. */
+  PIO_SERCOM,           /* The pin is controlled by the associated signal of peripheral C. */
+  PIO_SERCOM_ALT,       /* The pin is controlled by the associated signal of peripheral D. */
+  PIO_TIMER,            /* The pin is controlled by the associated signal of peripheral E. */
+  PIO_TIMER_ALT,        /* The pin is controlled by the associated signal of peripheral F. */
+  PIO_COM,              /* The pin is controlled by the associated signal of peripheral G. */
+  PIO_AC_CLK,           /* The pin is controlled by the associated signal of peripheral H. */
+  PIO_DIGITAL,          /* The pin is controlled by PORT. */
+  PIO_INPUT,            /* The pin is controlled by PORT and is an input. */
+  PIO_INPUT_PULLUP,     /* The pin is controlled by PORT and is an input with internal pull-up resistor enabled. */
+  PIO_OUTPUT,           /* The pin is controlled by PORT and is an output. */
 
   PIO_PWM=PIO_TIMER,
   PIO_PWM_ALT=PIO_TIMER_ALT,
@@ -165,13 +161,13 @@ typedef enum _EPioType
 /* Types used for the table below */
 typedef struct _PinDescription
 {
-  EPortType ulPort ;
-  uint32_t ulPin ;
-  EPioType ulPinType ;
-  uint32_t ulPinAttribute ;
-  EAnalogChannel ulADCChannelNumber ; /* ADC Channel number in the SAM device */
-  EPWMChannel ulPWMChannel ;
-  ETCChannel ulTCChannel ;
+  EPortType       ulPort ;
+  uint32_t        ulPin ;
+  EPioType        ulPinType ;
+  uint32_t        ulPinAttribute ;
+  EAnalogChannel  ulADCChannelNumber ; /* ADC Channel number in the SAM device */
+  EPWMChannel     ulPWMChannel ;
+  ETCChannel      ulTCChannel ;
   EExt_Interrupts ulExtInt ;
 } PinDescription ;
 

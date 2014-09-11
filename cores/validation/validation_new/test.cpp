@@ -17,37 +17,42 @@
 */
 
 #include "Arduino.h"
-#include <Wire.h>
 
-const uint8_t addressTemp = 0x4Ful;
-uint16_t temp = 0;
-uint8_t a, b;
-
-void setup()
+class Base
 {
-  SERIAL_PORT_MONITOR.begin( 115200 );
-  SERIAL_PORT_MONITOR.println("Wire init");
-  Wire.begin();
+	public:
+	virtual void f() = 0;
+	virtual ~Base() {}
+};
+
+class Derived : public Base
+{
+	public:
+	virtual void f() {};
+	virtual ~Derived() {}
+};
+
+
+void setup() {
+	// This will cause "pure virtual function call" error
+	// __cxa_pure_virtual
+	Derived *a = new Derived();
+	a->f();
 }
 
-void loop()
-{
-  Wire.beginTransmission(addressTemp);
-  Wire.write((uint8_t) 0x00);
-  Wire.endTransmission();
+struct X {
+	X() {
+		Serial.print("Hello!");
+	};
+};
 
-  delay(100);
+void foo() {
+	// This will cause delayed static member initialization
+	// __cxa_guard_acquire
+	// __cxa_guard_release
+	static X a;
+}
 
-  Wire.requestFrom(addressTemp, 2);
-  SERIAL_PORT_MONITOR.print((char)13);
-  SERIAL_PORT_MONITOR.print("Temperature : ");
-
-  a = Wire.read();
-  b = Wire.read();
-
-  temp = b << 7;
-  temp |= a;
-  temp >>= 7;
-
-  SERIAL_PORT_MONITOR.print(temp);
+void loop() {
+	foo();
 }

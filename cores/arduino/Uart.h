@@ -57,7 +57,7 @@ class Uart : public HardwareSerial
 };
 
 extern Uart Serial;
-extern Uart Serial5;
+extern Uart Serial1;
 
 
 #endif

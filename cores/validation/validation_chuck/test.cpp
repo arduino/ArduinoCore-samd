@@ -23,8 +23,8 @@ uint8_t accx,accy,zbut,cbut ;
 
 void setup()
 {
-  Serial5.begin( 115200 ) ;
-  Serial5.println("nunchuk init");
+  SERIAL_PORT_MONITOR.begin( 115200 ) ;
+  SERIAL_PORT_MONITOR.println("nunchuk init");
 
   Wire.begin(); // join i2c bus as master
   Wire.beginTransmission(0x52);// transmit to device 0x52
@@ -34,7 +34,7 @@ void setup()
     Wire.write((uint8_t)0x00);// sends sent a zero.
   Wire.endTransmission();// stop transmitting
 
-  Serial5.println( "WiiChukDemo ready" ) ;
+  SERIAL_PORT_MONITOR.println( "WiiChukDemo ready" ) ;
   delay(100);
 }
 
@@ -49,39 +49,39 @@ void loop()
   uint8_t accZ = Wire.read();
   uint8_t misc = Wire.read();
 
-  Serial5.print("Joy : ");
-  Serial5.print(jX);
-  Serial5.print(", ");
-  Serial5.print(jY);
+  SERIAL_PORT_MONITOR.print("Joy : ");
+  SERIAL_PORT_MONITOR.print(jX);
+  SERIAL_PORT_MONITOR.print(", ");
+  SERIAL_PORT_MONITOR.print(jY);
 
-  Serial5.print("\tAcc : ");
-  Serial5.print(accX);
-  Serial5.print(", ");
-  Serial5.print(accY);
-  Serial5.print(", ");
-  Serial5.print(accZ);
+  SERIAL_PORT_MONITOR.print("\tAcc : ");
+  SERIAL_PORT_MONITOR.print(accX);
+  SERIAL_PORT_MONITOR.print(", ");
+  SERIAL_PORT_MONITOR.print(accY);
+  SERIAL_PORT_MONITOR.print(", ");
+  SERIAL_PORT_MONITOR.print(accZ);
 
-  Serial5.print("\tBtn : ");
-  Serial5.print(" [");
-  Serial5.print(misc);
-  Serial5.print("] ");
+  SERIAL_PORT_MONITOR.print("\tBtn : ");
+  SERIAL_PORT_MONITOR.print(" [");
+  SERIAL_PORT_MONITOR.print(misc);
+  SERIAL_PORT_MONITOR.print("] ");
 
   switch(misc & 0x3ul)
   {
     case 0x0ul:
-      Serial5.println("Z");
+      SERIAL_PORT_MONITOR.println("Z");
       break;
 
     case 0x1ul:
-      Serial5.println("C");
+      SERIAL_PORT_MONITOR.println("C");
       break;
 
     case 0x2ul:
-      Serial5.println("C + Z");
+      SERIAL_PORT_MONITOR.println("C + Z");
       break;
 
     case 0x3ul:
-      Serial5.println("No key");
+      SERIAL_PORT_MONITOR.println("No key");
       break;
 
     default:

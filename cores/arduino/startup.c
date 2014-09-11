@@ -315,7 +315,7 @@ void SystemInit( void )
   /* ----------------------------------------------------------------------------------------------
    * 6) Modify PRESCaler value of OSC8M to have 8MHz
    */
-  SYSCTRL->OSC8M.bit.PRESC = SYSCTRL_OSC8M_PRESC_0_Val ;
+  SYSCTRL->OSC8M.bit.PRESC = SYSCTRL_OSC8M_PRESC_1_Val ;
   SYSCTRL->OSC8M.bit.ONDEMAND = 0 ;
 
   /* ----------------------------------------------------------------------------------------------
