@@ -168,6 +168,13 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define TC_RESOLUTION		8
 */
 
+/*
+ * USB
+ */
+#define PIN_USB_HOST_ENABLE (27ul)
+#define PIN_USB_DM          (28ul)
+#define PIN_USB_DP          (29ul)
+
 #ifdef __cplusplus
 }
 #endif
