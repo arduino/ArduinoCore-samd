@@ -40,10 +40,10 @@
  * | 12         | ~12              |  PA19  |                 | EIC/EXTINT[3] PTC/X[7] SERCOM1/PAD[3] SERCOM3/PAD[3] TC3/WO[1] *TCC0/WO[3]
  * | 13         | ~13              |  PA17  | LED             | EIC/EXTINT[1] PTC/X[5] SERCOM1/PAD[1] SERCOM3/PAD[1] *TCC2/WO[1] TCC0/WO[7]
  * +------------+------------------+--------+-----------------+------------------------------
- * |            |Wire              |        |                 |
+ * |            |                  |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 14         | GND              |        |                 |
- * | 15         | AREF             |  PA03  |                 | *DAC/VREFP PTC/Y[1]
+ * |            | GND              |        |                 |
+ * | 42         | AREF             |  PA03  |                 | *DAC/VREFP PTC/Y[1]
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | Wire             |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
@@ -53,49 +53,49 @@
  * |            |SPI (Legacy ICSP) |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
  * | 18         | 1                |  PA12  | MISO            | EIC/EXTINT[12] SERCOM2/PAD[0] *SERCOM4/PAD[0] TCC2/WO[0] TCC0/WO[6]
- * | 19         | 2                |        | 5V0             |
+ * |            | 2                |        | 5V0             |
  * | 20         | 3                |  PB11  | SCK             | EIC/EXTINT[11]                *SERCOM4/PAD[3] TC5/WO[1] TCC0/WO[5]
  * | 21         | 4                |  PB10  | MOSI            | EIC/EXTINT[10]                *SERCOM4/PAD[2] TC5/WO[0] TCC0/WO[4]
- * | 22         | 5                |        | RESET           |
- * | 23         | 6                |        | GND             |
+ * |            | 5                |        | RESET           |
+ * |            | 6                |        | GND             |
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | Analog Connector |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 24         | A0               |  PA02  |                 | EIC/EXTINT[2] *ADC/AIN[0] PTC/Y[0] DAC/VOUT
- * | 25         | A1               |  PB08  |                 | EIC/EXTINT[8] *ADC/AIN[2] PTC/Y[14] SERCOM4/PAD[0] TC4/WO[0]
- * | 26         | A2               |  PB09  |                 | EIC/EXTINT[9] *ADC/AIN[3] PTC/Y[15] SERCOM4/PAD[1] TC4/WO[1]
- * | 27         | A3               |  PA04  |                 | EIC/EXTINT[4] *ADC/AIN[4] AC/AIN[0] PTC/Y[2] SERCOM0/PAD[0] TCC0/WO[0]
- * | 28         | A4               |  PA05  |                 | EIC/EXTINT[5] *ADC/AIN[5] AC/AIN[1] PTC/Y[5] SERCOM0/PAD[1] TCC0/WO[1]
- * | 29         | A5               |  PB02  |                 | EIC/EXTINT[2] *ADC/AIN[10] PTC/Y[8] SERCOM5/PAD[0]
+ * | 14         | A0               |  PA02  |                 | EIC/EXTINT[2] *ADC/AIN[0] PTC/Y[0] DAC/VOUT
+ * | 15         | A1               |  PB08  |                 | EIC/EXTINT[8] *ADC/AIN[2] PTC/Y[14] SERCOM4/PAD[0] TC4/WO[0]
+ * | 16         | A2               |  PB09  |                 | EIC/EXTINT[9] *ADC/AIN[3] PTC/Y[15] SERCOM4/PAD[1] TC4/WO[1]
+ * | 17         | A3               |  PA04  |                 | EIC/EXTINT[4] *ADC/AIN[4] AC/AIN[0] PTC/Y[2] SERCOM0/PAD[0] TCC0/WO[0]
+ * | 18         | A4               |  PA05  |                 | EIC/EXTINT[5] *ADC/AIN[5] AC/AIN[1] PTC/Y[5] SERCOM0/PAD[1] TCC0/WO[1]
+ * | 19         | A5               |  PB02  |                 | EIC/EXTINT[2] *ADC/AIN[10] PTC/Y[8] SERCOM5/PAD[0]
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | LEDs             |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 30         |                  |  PB03  | RX              |
- * | 31         |                  |  PA27  | TX              |
+ * | 25         |                  |  PB03  | RX              |
+ * | 26         |                  |  PA27  | TX              |
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | USB              |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 32         |                  |  PA28  | USB HOST ENABLE |
- * | 33         |                  |  PA24  | USB_NEGATIVE    | USB/DM
- * | 34         |                  |  PA25  | USB_POSITIVE    | USB/DP
+ * | 27         |                  |  PA28  | USB_HOST_ENABLE |
+ * | 28         |                  |  PA24  | USB_NEGATIVE    | USB/DM
+ * | 29         |                  |  PA25  | USB_POSITIVE    | USB/DP
  * +------------+------------------+--------+-----------------+------------------------------
  * |            | EDBG             |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
- * | 35         |                  |  PB22  | EDBG_UART TX    | SERCOM5/PAD[2]
- * | 36         |                  |  PB23  | EDBG_UART RX    | SERCOM5/PAD[3]
+ * | 30         |                  |  PB22  | EDBG_UART TX    | SERCOM5/PAD[2]
+ * | 31         |                  |  PB23  | EDBG_UART RX    | SERCOM5/PAD[3]
  * +------------+------------------+--------+-----------------+------------------------------
- * | 37         |                  |  PA22  | EDBG_SDA        | SERCOM3/PAD[0]
- * | 38         |                  |  PA23  | EDBG_SCL        | SERCOM3/PAD[1]
+ * | 32         |                  |  PA22  | EDBG_SDA        | SERCOM3/PAD[0]
+ * | 33         |                  |  PA23  | EDBG_SCL        | SERCOM3/PAD[1]
  * +------------+------------------+--------+-----------------+------------------------------
- * | 39         |                  |  PA19  | EDBG_MISO       | SERCOM1/PAD[3]
- * | 40         |                  |  PA16  | EDBG_MOSI       | SERCOM1/PAD[0]
- * | 41         |                  |  PA18  | EDBG_SS         | SERCOM1/PAD[2]
- * | 42         |                  |  PA17  | EDBG_SCK        | SERCOM1/PAD[1]
+ * | 34         |                  |  PA19  | EDBG_MISO       | SERCOM1/PAD[3]
+ * | 35         |                  |  PA16  | EDBG_MOSI       | SERCOM1/PAD[0]
+ * | 36         |                  |  PA18  | EDBG_SS         | SERCOM1/PAD[2]
+ * | 37         |                  |  PA17  | EDBG_SCK        | SERCOM1/PAD[1]
  * +------------+------------------+--------+-----------------+------------------------------
- * | 43         |                  |  PA13  | EDBG_GPIO0      | EIC/EXTINT[13] *TCC2/WO[1] TCC0/WO[7]
- * | 44         |                  |  PA21  | EDBG_GPIO1      | Pin 7
- * | 45         |                  |  PA06  | EDBG_GPIO2      | Pin 8
- * | 46         |                  |  PA07  | EDBG_GPIO3      | Pin 9
+ * | 38         |                  |  PA13  | EDBG_GPIO0      | EIC/EXTINT[13] *TCC2/WO[1] TCC0/WO[7]
+ * | 39         |                  |  PA21  | EDBG_GPIO1      | Pin 7
+ * | 40         |                  |  PA06  | EDBG_GPIO2      | Pin 8
+ * | 41         |                  |  PA07  | EDBG_GPIO3      | Pin 9
  * +------------+------------------+--------+-----------------+------------------------------
  * |            |32.768KHz Crystal |        |                 |
  * +------------+------------------+--------+-----------------+------------------------------
@@ -163,7 +163,7 @@ const PinDescription g_APinDescription[]=
 
   // 27..29 - USB
   // --------------------
-  { PORTA, 28, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB/SOF
+  { PORTA, 28, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB Host enable
   { PORTA, 24, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB/DM
   { PORTA, 25, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB/DP
 
