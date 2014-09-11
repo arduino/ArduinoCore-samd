@@ -318,6 +318,7 @@ class SPIClass {
 	SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI);
 
 	byte transfer(uint8_t data);
+	inline void transfer(void *buf, size_t count);
 
 	// Transaction Functions
 	void usingInterrupt(uint8_t interruptNumber);
@@ -341,6 +342,14 @@ class SPIClass {
 	uint8_t _uc_pinMosi;
 	uint8_t _uc_pinSCK;
 };
+
+void SPIClass::transfer(void *buf, size_t count)
+{
+	// TODO: Optimize for faster block-transfer
+	uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
+	for (size_t i=0; i<count; i++)
+		buffer[i] = transfer(buffer[i]);
+}
 
 #if SPI_INTERFACES_COUNT > 0
   extern SPIClass SPI;
