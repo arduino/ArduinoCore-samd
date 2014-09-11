@@ -294,7 +294,7 @@ void UDD_Stall(uint32_t ep)
 	uint8_t ep_num = ep;
 
 	// Stall endpoint
-	USB->DEVICE.DeviceEndpoint[ep_num].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
+	USB->DEVICE.DeviceEndpoint[ep_num].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ(2);
 }
 
 uint32_t UDD_FifoByteCount(uint32_t ep)

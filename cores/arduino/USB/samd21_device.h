@@ -62,21 +62,21 @@ extern "C" {
 
 #define udd_read_endpoint_flag(ep)                USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg
 // Is transfer completed ?
-#define udd_is_IN_transf_cplt(ep)                 (USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT1)
-#define udd_is_OUT_transf_cplt(ep)                (USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT0)
+#define udd_is_IN_transf_cplt(ep)                 (USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT(2))
+#define udd_is_OUT_transf_cplt(ep)                (USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT(1))
 // Clear the transfer complete flag
-#define udd_clear_IN_transf_cplt(ep)              USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1
-#define udd_clear_OUT_transf_cplt(ep)             USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0
+#define udd_clear_IN_transf_cplt(ep)              USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT(2)
+#define udd_clear_OUT_transf_cplt(ep)             USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT(1)
 // Enable interrupt transfer complete
-#define udd_ept_enable_it_IN_transf_cplt(ep)      USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT1
-#define udd_ept_enable_it_OUT_transf_cplt(ep)     USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT0
+#define udd_ept_enable_it_IN_transf_cplt(ep)      USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT(2)
+#define udd_ept_enable_it_OUT_transf_cplt(ep)     USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT(1)
 
 // Enables SETUP received interrupt
 #define udd_enable_setup_received_interrupt(ep)   USB->DEVICE.DeviceEndpoint[ep].EPINTENSET.reg = USB_DEVICE_EPINTFLAG_RXSTP
 // Clear the stall flag
-#define udd_clear_stall_request(ep)			      USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL1
+#define udd_clear_stall_request(ep)			      USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL(2)
 // Remove stall
-#define udd_remove_stall_request(ep)		      USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ1
+#define udd_remove_stall_request(ep)		      USB->DEVICE.DeviceEndpoint[ep].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ(2)
 
 // Endpoint Interrupt Summary
 #define udd_endpoint_interrupt()            USB->DEVICE.EPINTSMRY.reg

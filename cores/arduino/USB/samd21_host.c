@@ -74,12 +74,14 @@ void UHD_Init(void)
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
 	/* Set up the USB DP/DM pins */
-	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
-	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
-	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg |= MUX_PA24G_USB_DM << (4 * (PIN_PA24G_USB_DM & 0x01u));
-	PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].bit.PMUXEN = 1;
-	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25G_USB_DP & 0x01u)));
-	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
+	pinPeripheral( PIN_USB_DM, PIO_COM );
+	pinPeripheral( PIN_USB_DP, PIO_COM );
+// 	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
+// 	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
+// 	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg |= MUX_PA24G_USB_DM << (4 * (PIN_PA24G_USB_DM & 0x01u));
+// 	PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].bit.PMUXEN = 1;
+// 	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25G_USB_DP & 0x01u)));
+// 	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
 
 	/* ----------------------------------------------------------------------------------------------
 	* Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
@@ -155,9 +157,10 @@ void UHD_Init(void)
 	}
 
 	uhd_state = UHD_STATE_NO_VBUS;
+
 	// Put VBUS on USB port
-	pinMode( 32, OUTPUT );
-	digitalWrite( 32, HIGH );
+	pinMode( PIN_USB_HOST_ENABLE, OUTPUT );
+	digitalWrite( PIN_USB_HOST_ENABLE, HIGH );
 
 	uhd_enable_connection_int();
 
@@ -455,7 +458,7 @@ void UHD_Pipe_Send(uint32_t ul_pipe, uint32_t ul_token_type)
 	}
 	else
 	{
-		USB->HOST.HostPipe[ul_pipe].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT0;
+		USB->HOST.HostPipe[ul_pipe].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT(1);  // Transfer Complete 0
 		USB->HOST.HostPipe[ul_pipe].PSTATUSSET.reg = USB_HOST_PSTATUSSET_BK0RDY;
 	}
    
@@ -463,6 +466,9 @@ void UHD_Pipe_Send(uint32_t ul_pipe, uint32_t ul_token_type)
     uhd_unfreeze_pipe(ul_pipe);
 }
 
+#define USB_HOST_PINTFLAG_TRCPT_Pos 0            /**< \brief (USB_HOST_PINTFLAG) Transfer Complete 0/1 Interrupt Flag */
+#define USB_HOST_PINTFLAG_TRCPT_Msk (0x3u << USB_HOST_PINTFLAG_TRCPT_Pos)
+#define USB_HOST_PINTFLAG_TRCPT(value) ((USB_HOST_PINTFLAG_TRCPT_Msk & ((value) << USB_HOST_PINTFLAG_TRCPT_Pos)))
 
 /**
  * \brief Check for pipe transfer completion.

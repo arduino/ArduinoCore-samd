@@ -99,10 +99,10 @@ extern __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table
 #define uhd_byte_count(p)                        usb_pipe_table[p].HostDescBank[0].PCKSIZE.bit.BYTE_COUNT
 #define uhd_ack_setup_ready(p)                   USB->HOST.HostPipe[p].PINTFLAG.reg = USB_HOST_PINTFLAG_TXSTP
 #define Is_uhd_setup_ready(p)                    ((USB->HOST.HostPipe[p].PINTFLAG.reg&USB_HOST_PINTFLAG_TXSTP) == USB_HOST_PINTFLAG_TXSTP)
-#define uhd_ack_in_received(p)                   USB->HOST.HostPipe[p].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT0
-#define Is_uhd_in_received(p)                    ( (USB->HOST.HostPipe[p].PINTFLAG.reg&USB_HOST_PINTFLAG_TRCPT0) == USB_HOST_PINTFLAG_TRCPT0   )
-#define uhd_ack_out_ready(p)                     USB->HOST.HostPipe[p].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT0
-#define Is_uhd_out_ready(p)                      ((USB->HOST.HostPipe[p].PINTFLAG.reg&USB_HOST_PINTFLAG_TRCPT0) == USB_HOST_PINTFLAG_TRCPT0)
+#define uhd_ack_in_received(p)                   USB->HOST.HostPipe[p].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT(1)
+#define Is_uhd_in_received(p)                    ((USB->HOST.HostPipe[p].PINTFLAG.reg&USB_HOST_PINTFLAG_TRCPT(1)) == USB_HOST_PINTFLAG_TRCPT(1))
+#define uhd_ack_out_ready(p)                     USB->HOST.HostPipe[p].PINTFLAG.reg = USB_HOST_PINTFLAG_TRCPT(1)
+#define Is_uhd_out_ready(p)                      ((USB->HOST.HostPipe[p].PINTFLAG.reg&USB_HOST_PINTFLAG_TRCPT(1)) == USB_HOST_PINTFLAG_TRCPT(1))
 #define uhd_ack_nak_received(p)                  usb_pipe_table[p].HostDescBank[1].STATUS_BK.reg &= ~USB_HOST_STATUS_BK_ERRORFLOW
 #define Is_uhd_nak_received(p)                   (usb_pipe_table[p].HostDescBank[1].STATUS_BK.reg & USB_HOST_STATUS_BK_ERRORFLOW)
 

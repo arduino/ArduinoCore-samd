@@ -150,6 +150,7 @@
           <ListValues>
             <Value>DEBUG</Value>
             <Value>MAX_DEVICES_ALLOWED=8</Value>
+            <Value>ARDUINO_SAMD_ZERO</Value>
             <Value>DEBUG_USB_HOST</Value>
           </ListValues>
         </armgcc.compiler.symbols.DefSymbols>
@@ -180,6 +181,7 @@
             <Value>USB_PID=0x004d</Value>
             <Value>ARDUINO_SAM_ZERO</Value>
             <Value>DEBUG_USB_HOST</Value>
+            <Value>ARDUINO_SAMD_ZERO</Value>
           </ListValues>
         </armgcccpp.compiler.symbols.DefSymbols>
         <armgcccpp.compiler.directories.DefaultIncludePath>False</armgcccpp.compiler.directories.DefaultIncludePath>
@@ -215,7 +217,7 @@
         </armgcccpp.linker.libraries.LibrarySearchPaths>
         <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
         <armgcccpp.linker.memorysettings.ExternalRAM />
-        <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.linker.miscellaneous.LinkerFlags>-Tflash_without_bootloader.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
         <armgcccpp.assembler.general.IncludePaths>
           <ListValues>
             <Value>../../../arduino</Value>
@@ -456,10 +458,10 @@
       <SubType>compile</SubType>
       <Link>core\WVariant.h</Link>
     </Compile>
-    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_adk.cpp">
+    <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_adk.cpp">
       <SubType>compile</SubType>
       <Link>core\main\test_usb_host_adk.cpp</Link>
-    </Compile>
+    </None>
     <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\libraries\USBHost\src\address.h">
       <SubType>compile</SubType>
       <Link>core\host_example\address.h</Link>
@@ -584,10 +586,10 @@
       <SubType>compile</SubType>
       <Link>core\host_example\usb_ch9.h</Link>
     </Compile>
-    <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_KeyboardController.cpp">
+    <Compile Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_KeyboardController.cpp">
       <SubType>compile</SubType>
       <Link>core\main\test_usb_host_KeyboardController.cpp</Link>
-    </None>
+    </Compile>
     <None Include="C:\jcb\support\arduino\ArduinoZero\hardware\arduino\samd\cores\validation\validation_usb_host\test_usb_host_MouseController.cpp">
       <SubType>compile</SubType>
       <Link>core\main\test_usb_host_MouseController.cpp</Link>

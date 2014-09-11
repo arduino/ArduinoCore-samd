@@ -637,7 +637,7 @@ void USB_ISR(void)
 				UDD_Stall(0);
 			}
 
-			if( flags & USB_DEVICE_EPINTFLAG_STALL1 )
+			if( flags & USB_DEVICE_EPINTFLAG_STALL(2) )
 			{
 				/* Clear the stall flag */
 				udd_clear_stall_request(0);
