@@ -23,12 +23,41 @@
 extern "C" {
 #endif
 
+static int _readResolution = 10;
+static int _writeResolution = 8;
+
+void analogReadResolution( int res )
+{
+	_readResolution = res ;
+}
+
+void analogWriteResolution( int res )
+{
+	_writeResolution = res ;
+}
+
+static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to )
+{
+	if ( from == to )
+  {
+		return value ;
+  }
+
+	if ( from > to )
+  {
+		return value >> (from-to) ;
+  }
+	else
+  {
+		return value << (to-from) ;
+  }
+}
+
 void analogReference( eAnalogReference ulMode )
 {
+  // ATTENTION : On this board the default is not 5volts or 3.3volts BUT 1volt
 
-  // ATTENTION : On this board the default is note 5volts or 3.3volts BUT 1volt
-
-  switch(ulMode)
+  switch ( ulMode )
   {
     case AR_DEFAULT:
     case AR_INTERNAL:
@@ -41,6 +70,7 @@ void analogReference( eAnalogReference ulMode )
       break;
   }
 }
+
 uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t valueRead = 0;
@@ -105,7 +135,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     }
 
     Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) ;
-    if ( GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
+    if ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
     {
       isTC = 1 ;
       TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
@@ -199,7 +229,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
   // -- Defaults to digital write
   pinMode( ulPin, OUTPUT ) ;
 
-  //ulValue = mapResolution(ulValue, _writeResolution, 8);
+  ulValue = mapResolution(ulValue, _writeResolution, 8);
 
   if ( ulValue < 128 )
   {

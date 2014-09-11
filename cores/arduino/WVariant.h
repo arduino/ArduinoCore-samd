@@ -64,8 +64,6 @@ typedef enum _ETCChannel
   TCC2_CH1 = (2<<8)|(1),
   TC3_CH0  = (3<<8)|(0),
   TC3_CH1  = (3<<8)|(1),
-  TC7_CH0  = (7<<8)|(0),
-  TC7_CH1  = (7<<8)|(1)
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -92,8 +90,6 @@ typedef enum _EPWMChannel
   PWM2_CH1=TCC2_CH1,
   PWM3_CH0=TC3_CH0,
   PWM3_CH1=TC3_CH1,
-  PWM7_CH0=TC7_CH0,
-  PWM7_CH1=TC7_CH1
 } EPWMChannel ;
 
 typedef enum _EPortType
