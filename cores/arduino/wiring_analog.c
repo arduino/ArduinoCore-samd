@@ -119,7 +119,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 
   if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
   {
-    if ( ulPin != 24 )  // Only 1 DAC on A0 (PA02)
+    if ( ulPin != PIN_A0 )  // Only 1 DAC on A0 (PA02)
     {
       return;
     }
