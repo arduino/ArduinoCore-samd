@@ -18,6 +18,7 @@
 
 #include "wiring_analog.h"
 #include "wiring_digital.h"
+#include "variant.h"
 
 #ifdef __cplusplus
 extern "C" {

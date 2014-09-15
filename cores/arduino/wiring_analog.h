@@ -19,7 +19,7 @@
 #ifndef _WIRING_ANALOG_
 #define _WIRING_ANALOG_
 
-#include <Arduino.h>
+#include <stdint.h>
 
 #ifdef __cplusplus
 extern "C" {
