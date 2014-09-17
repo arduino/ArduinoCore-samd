@@ -54,19 +54,23 @@ static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to
   }
 }
 
+/*
+ * Internal Reference is at 1.0v
+ * External Reference should be between 1v and VDDANA-0.6v=2.7v
+ *
+ * Warning : On Arduino Zero board the input/output voltage for SAMD21G18 is 3.3 volts maximum
+ */
 void analogReference( eAnalogReference ulMode )
 {
-  // ATTENTION : On this board the default is not 5volts or 3.3volts BUT 1volt
-
   switch ( ulMode )
   {
-    case AR_DEFAULT:
     case AR_INTERNAL:
-    default:
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;
       break;
 
+    case AR_DEFAULT:
     case AR_EXTERNAL:
+    default:
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
       break;
   }
@@ -75,6 +79,7 @@ void analogReference( eAnalogReference ulMode )
 uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t valueRead = 0;
+
   pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
 
   ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber;
