@@ -60,39 +60,42 @@ extern void delay( uint32_t dwMs ) ;
  *
  * \param dwUs the number of microseconds to pause (uint32_t)
  */
-static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
-static inline void delayMicroseconds(uint32_t usec){
-    if (usec == 0) return;
-    uint32_t n = usec * (VARIANT_MCK / 3000000);
-#if 0
-    __asm__ volatile(
-        "L_%=_delayMicroseconds:"       "\n\t"
-        "subs   %0, %0, #1"                 "\n\t"
-        "bne    L_%=_delayMicroseconds" "\n"
-        : "+r" (n) :
-    );
-#else
-  for ( ; n != 0 ; n-- )
+static __inline__ void delayMicroseconds( uint32_t ) __attribute__((always_inline, unused)) ;
+static __inline__ void delayMicroseconds( uint32_t ul_usec )
+{
+  if ( ul_usec == 0 )
   {
+    return ;
   }
-#endif
-}
+
+  uint32_t ul = ul_usec * (VARIANT_MCK / 3000000); // = ul_usec * 16 with VARIANT_MCK @ 48MHz
+
+/* following 'for' loop will generate this:
+ * loop:
+ * subs r3, #1 // 1 Core cycle
+ * bne.n loop // 1 or 2 Core cycles, depends on pipeline break (50/50?)
+
+  for ( ; ul != 0 ; ul-- )
+  {
+    __asm__ volatile("");
+  }
+*/
 
 /*
-__attribute__((naked)) static void delay_loop(unsigned n)
-{
-	__asm volatile ("1: subs r0, r0, #1");
-	__asm volatile (" bne 1b");
-	__asm volatile (" bx lr");
+ * __asm__ [__volatile__] ( AssemblerTemplate : [OutputOperands] [ : [InputOperands] [ : [Clobbers] ] ] )
+ *
+ * __asm__ documentation for GCC: https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html
+ * __volatile__ documentation for GCC: https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Volatile
+ *
+ */
+  __asm__ __volatile__( "1:      \n"
+                        "sub %0, #1              \n" /* substract 1 from %0 (ul) */
+                        "bne 1b   \n"
+                        : /* no outputs */
+                        : "r" (ul) /* 'ul' variable is '%0', '+' means R/W constraint on this variable/register, 'r' means 'register' (versus 'm' for 'memory' */
+                        : /* no clobber, ie nothing should be damaged by this asm code */
+                      ) ;
 }
-
-void delay_microseconds(unsigned n)
-{
-	// Bogus assumption:
-	// Assume 8 cycles/iteration and running at 80MHz
-	delay_loop(n * 10);
-}
-*/
 
 #ifdef __cplusplus
 }
