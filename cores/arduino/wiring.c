@@ -16,9 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-//#include "Arduino.h"
 #include "variant.h"
-//#include "wiring_constants.h"
+#include "wiring_analog.h"
 #include "wiring_digital.h"
 #include "wiring.h"
 
@@ -27,7 +26,7 @@ extern "C" {
 #endif
 
 /*
- * System Core Clock is at 1MHz at Reset.
+ * System Core Clock is at 1MHz (8MHz/8) at Reset.
  * It is switched to 48MHz in the Reset Handler (startup.c)
  */
 uint32_t SystemCoreClock=1000000ul ;
@@ -106,7 +105,7 @@ void init( void )
   ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_2 |    // 2 samples
                      ADC_AVGCTRL_ADJRES(0x01ul);  // Adjusting result by 1
 
-  ADC->REFCTRL.reg = ADC_REFCTRL_REFSEL_AREFA; // RReference AREFA (pin AREF) [default]
+  analogReference( AR_DEFAULT ) ; // Analog Reference is AREF pin (3.3v)
 
   ADC->CTRLA.bit.ENABLE = 1; // Enable ADC
   while( ADC->STATUS.bit.SYNCBUSY == 1 )
@@ -120,7 +119,7 @@ void init( void )
                       GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
                       GCLK_CLKCTRL_CLKEN ;
 
-
+/* temporary DAC disable
   DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
                    DAC_CTRLB_EOEN;  // External Output Enable (Vout)
   DAC->DATA.reg = 0x3FFul;
@@ -132,7 +131,7 @@ void init( void )
   {
     // Waiting for synchronization
   }
-
+*/
 }
 
 #ifdef __cplusplus
