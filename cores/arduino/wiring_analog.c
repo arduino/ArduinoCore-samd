@@ -80,6 +80,11 @@ uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t valueRead = 0;
 
+  if ( ulPin < A0 )
+  {
+    ulPin += A0 ;
+  }
+
   pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
 
   ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber;
