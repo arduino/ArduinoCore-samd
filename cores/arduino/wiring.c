@@ -93,46 +93,42 @@ void init( void )
 
   // Initialize Analog Controller
   // Setting clock
+  while(GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
+
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_ADC ) | // Generic Clock ADC
-                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+                      GCLK_CLKCTRL_GEN_GCLK0     | // Generic Clock Generator 0 is source
                       GCLK_CLKCTRL_CLKEN ;
 
-  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV128 |     // Divide Clock by 512.
-                   ADC_CTRLB_RESSEL_10BIT;        // Result on 10 bits
+  while( ADC->STATUS.bit.SYNCBUSY == 1 );          // Wait for synchronization of registers between the clock domains
+
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV512 |    // Divide Clock by 512.
+                   ADC_CTRLB_RESSEL_10BIT;         // 10 bits resolution as default
+
+  ADC->SAMPCTRL.reg = 0x3f;                        // Set max Sampling Time Length
+
+  while( ADC->STATUS.bit.SYNCBUSY == 1 );          // Wait for synchronization of registers between the clock domains
 
   ADC->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
 
   // Averaging (see table 31-2 p.816 datasheet)
-  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_2 |    // 2 samples
-                     ADC_AVGCTRL_ADJRES(0x01ul);  // Adjusting result by 1
+  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_64 |    // 64 samples
+                     ADC_AVGCTRL_ADJRES(0x04ul);   // Adjusting result by 4
 
-  ADC->REFCTRL.reg = ADC_REFCTRL_REFSEL_AREFA; // RReference AREFA (pin AREF) [default]
+  while( ADC->STATUS.bit.SYNCBUSY == 1 );          // Wait for synchronization of registers between the clock domains
 
-  ADC->CTRLA.bit.ENABLE = 1; // Enable ADC
-  while( ADC->STATUS.bit.SYNCBUSY == 1 )
-  {
-    // Waiting for synchroinization
-  }
+  ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
+  ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
 
   // Initialize DAC
   // Setting clock
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_DAC ) | // Generic Clock ADC
-                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+                      GCLK_CLKCTRL_GEN_GCLK0     | // Generic Clock Generator 0 is source
                       GCLK_CLKCTRL_CLKEN ;
 
-
+  while ( DAC->STATUS.bit.SYNCBUSY == 1 ); // Wait for synchronization of registers between the clock domains
   DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
-                   DAC_CTRLB_EOEN;  // External Output Enable (Vout)
-  DAC->DATA.reg = 0x3FFul;
-
-  // Enable DAC
-  DAC->CTRLA.bit.ENABLE = 1;
-
-  while(DAC->STATUS.bit.SYNCBUSY != 0)
-  {
-    // Waiting for synchronization
-  }
-
+                   DAC_CTRLB_EOEN ;        // External Output Enable (Vout)
 }
 
 #ifdef __cplusplus
