@@ -16,9 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-//#include "Arduino.h"
 #include "variant.h"
-//#include "wiring_constants.h"
+#include "wiring_analog.h"
 #include "wiring_digital.h"
 #include "wiring.h"
 
@@ -27,7 +26,7 @@ extern "C" {
 #endif
 
 /*
- * System Core Clock is at 1MHz at Reset.
+ * System Core Clock is at 1MHz (8MHz/8) at Reset.
  * It is switched to 48MHz in the Reset Handler (startup.c)
  */
 uint32_t SystemCoreClock=1000000ul ;
@@ -80,7 +79,7 @@ void init( void )
   PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5 ;
 
   // Clock TC/TCC for Pulse and Analog
-  PM->APBCMASK.reg |= PM_APBCMASK_TCC0 | PM_APBCMASK_TCC1 | PM_APBCMASK_TCC2 | PM_APBCMASK_TC3 | PM_APBCMASK_TC4 | PM_APBCMASK_TC5 | PM_APBCMASK_TC6 | PM_APBCMASK_TC7 ;
+  PM->APBCMASK.reg |= PM_APBCMASK_TCC0 | PM_APBCMASK_TCC1 | PM_APBCMASK_TCC2 | PM_APBCMASK_TC3 | PM_APBCMASK_TC4 | PM_APBCMASK_TC5 ;
 
   // Clock ADC/DAC for Analog
   PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
@@ -114,10 +113,7 @@ void init( void )
   ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_64 |    // 64 samples
                      ADC_AVGCTRL_ADJRES(0x04ul);   // Adjusting result by 4
 
-  while( ADC->STATUS.bit.SYNCBUSY == 1 );          // Wait for synchronization of registers between the clock domains
-
-  ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
-  ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
+  analogReference( AR_DEFAULT ) ; // Analog Reference is AREF pin (3.3v)
 
   // Initialize DAC
   // Setting clock

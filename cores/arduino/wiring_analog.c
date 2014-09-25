@@ -18,13 +18,14 @@
 
 #include "wiring_analog.h"
 #include "wiring_digital.h"
+#include "variant.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 static int _readResolution = 10;
-static int _writeResolution = 8;
+static int _writeResolution = 10;
 
 void analogReadResolution( int res )
 {
@@ -68,6 +69,12 @@ static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to
   }
 }
 
+/*
+ * Internal Reference is at 1.0v
+ * External Reference should be between 1v and VDDANA-0.6v=2.7v
+ *
+ * Warning : On Arduino Zero board the input/output voltage for SAMD21G18 is 3.3 volts maximum
+ */
 void analogReference( eAnalogReference ulMode )
 {
   while ( ADC->STATUS.bit.SYNCBUSY == 1 );
@@ -106,7 +113,12 @@ uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t valueRead = 0;
 
-  if (ulPin < A0) ulPin += A0;
+  if ( ulPin < A0 )
+  {
+    ulPin += A0 ;
+  }
+
+  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
 
   if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
   {
@@ -134,7 +146,7 @@ uint32_t analogRead( uint32_t ulPin )
 
   // Control A
   /*
-   * Bit 1 – ENABLE: Enable
+   * Bit 1 ENABLE: Enable
    *   0: The ADC is disabled.
    *   1: The ADC is enabled.
    * Due to synchronization, there is a delay from writing CTRLA.ENABLE until the peripheral is enabled/disabled. The

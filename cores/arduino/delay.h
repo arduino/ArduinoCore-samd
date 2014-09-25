@@ -60,39 +60,42 @@ extern void delay( uint32_t dwMs ) ;
  *
  * \param dwUs the number of microseconds to pause (uint32_t)
  */
-static inline void delayMicroseconds(uint32_t) __attribute__((always_inline, unused));
-static inline void delayMicroseconds(uint32_t usec){
-    if (usec == 0) return;
-    uint32_t n = usec * (VARIANT_MCK / 3000000);
-#if 0
-    __asm__ volatile(
-        "L_%=_delayMicroseconds:"       "\n\t"
-        "subs   %0, %0, #1"                 "\n\t"
-        "bne    L_%=_delayMicroseconds" "\n"
-        : "+r" (n) :
-    );
-#else
-  for ( ; n != 0 ; n-- )
+static __inline__ void delayMicroseconds( uint32_t ) __attribute__((always_inline, unused)) ;
+static __inline__ void delayMicroseconds( uint32_t usec )
+{
+  if ( usec == 0 )
   {
+    return ;
   }
-#endif
-}
 
-/*
-__attribute__((naked)) static void delay_loop(unsigned n)
-{
-	__asm volatile ("1: subs r0, r0, #1");
-	__asm volatile (" bne 1b");
-	__asm volatile (" bx lr");
-}
+  /*
+   *  The following loop:
+   *
+   *    for (; ul; ul--) {
+   *      __asm__ volatile("");
+   *    }
+   *
+   *  produce the following assembly code:
+   *
+   *    loop:
+   *      subs r3, #1        // 1 Core cycle
+   *      bne.n loop         // 1 Core cycle + 1 if branch is taken
+   */
 
-void delay_microseconds(unsigned n)
-{
-	// Bogus assumption:
-	// Assume 8 cycles/iteration and running at 80MHz
-	delay_loop(n * 10);
+  // VARIANT_MCK / 1000000 == cycles needed to delay 1uS
+  //                     3 == cycles used in a loop
+  uint32_t n = usec * (VARIANT_MCK / 1000000) / 3;
+  __asm__ __volatile__(
+    "1:              \n"
+    "   sub %0, #1   \n" // substract 1 from %0 (n)
+    "   bne 1b       \n" // if result is not 0 jump to 1
+    : "+r" (n)           // '%0' is n variable with RW constraints
+    :                    // no input
+    :                    // no clobber
+  );
+  // https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html
+  // https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html#Volatile
 }
-*/
 
 #ifdef __cplusplus
 }
