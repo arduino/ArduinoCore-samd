@@ -128,21 +128,10 @@ uint32_t analogRead( uint32_t ulPin )
     while ( DAC->STATUS.bit.SYNCBUSY == 1 );
   }
 
-  if (ulPin != TEMP)
-  {
-    pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
+  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
 
-    while ( ADC->STATUS.bit.SYNCBUSY == 1 );
-    ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber; // Selection for the positive ADC input
-  }
-  else
-  {
-    while ( ADC->STATUS.bit.SYNCBUSY == 1 );
-    ADC->INPUTCTRL.bit.MUXPOS = ulPin & 0x7F; // Selection for the positive ADC input
-    //ADC->INPUTCTRL.bit.MUXPOS = 0x18; // Selection for the positive ADC input
-
-    SYSCTRL->VREF.bit.TSEN = 0x1; // Temperature sensor is enabled and routed to an ADC input channel.
-  }
+  while ( ADC->STATUS.bit.SYNCBUSY == 1 );
+  ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber; // Selection for the positive ADC input
 
   // Control A
   /*
