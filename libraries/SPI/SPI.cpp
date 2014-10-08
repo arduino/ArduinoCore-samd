@@ -97,7 +97,11 @@ void SPIClass::setDataMode(uint8_t mode)
 
 void SPIClass::setClockDivider(uint8_t div)
 {
-	_p_sercom->setBaudrateSPI(div);
+  if (div < SPI_MIN_CLOCK_DIVIDER) {
+    _p_sercom->setBaudrateSPI(SPI_MIN_CLOCK_DIVIDER);
+  } else {
+    _p_sercom->setBaudrateSPI(div);
+  }
 }
 
 byte SPIClass::transfer(uint8_t data)

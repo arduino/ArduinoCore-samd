@@ -18,6 +18,16 @@
 #define SPI_MODE2 0x03
 #define SPI_MODE3 0x01
 
+#if defined(__SAMD21G18A__)
+  // Even if not specified on the datasheet, the SAMD21G18A MCU
+  // doesn't operate correctly with clock dividers lower than 4.
+  // This allows a theoretical maximum SPI clock speed of 12Mhz
+  #define SPI_MIN_CLOCK_DIVIDER 4
+  // Other SAMD21xxxxx MCU may be affected as well
+#else
+  #define SPI_MIN_CLOCK_DIVIDER 2
+#endif
+
 class SPISettings {
   public:
 	SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
@@ -36,8 +46,8 @@ class SPISettings {
 		uint8_t div;
 		if (clock < (F_CPU / 255)) {
 			div = 255;
-		} else if (clock >= (F_CPU / 2)) {
-			div = 2;
+		} else if (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER)) {
+			div = SPI_MIN_CLOCK_DIVIDER;
 		} else {
 			div = (F_CPU / (clock + 1)) + 1;
 		}
