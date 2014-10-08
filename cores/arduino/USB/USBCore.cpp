@@ -105,7 +105,7 @@ uint32_t USBD_Available(uint32_t ep)
 //	Return number of bytes read
 uint32_t USBD_Recv(uint32_t ep, void* d, uint32_t len)
 {
-	if (!_usbConfiguration || len < 0)
+	if (!_usbConfiguration)
 		return -1;
 
 	uint32_t n = UDD_FifoByteCount(ep);
@@ -201,7 +201,7 @@ uint32_t USBD_RecvControl(void* d, uint32_t len)
 		read = len;
 	UDD_Recv(EP0, &buffer);
 	while (!udd_is_OUT_transf_cplt(EP0));
-	for (int i=0; i<read; i++) {
+	for (uint32_t i=0; i<read; i++) {
 		data[i] = buffer[i];
 	}
 	udd_OUT_transfer_allowed(EP0);
