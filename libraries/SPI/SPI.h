@@ -30,73 +30,77 @@
 
 class SPISettings {
   public:
-	SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
-		if (__builtin_constant_p(clock)) {
-			init_AlwaysInline(clock, bitOrder, dataMode);
-		} else {
-			init_MightInline(clock, bitOrder, dataMode);
-		}
-	}
-	SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
-  private:
-	void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
-		init_AlwaysInline(clock, bitOrder, dataMode);
-	}
-	void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
-		uint8_t div;
-		if (clock < (F_CPU / 255)) {
-			div = 255;
-		} else if (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER)) {
-			div = SPI_MIN_CLOCK_DIVIDER;
-		} else {
-			div = (F_CPU / (clock + 1)) + 1;
-		}
-		this->clockDiv = div;
-		this->dataMode = dataMode;
-		this->bitOrder = bitOrder;
-	}
-	uint8_t clockDiv, dataMode;
-	BitOrder bitOrder;
-	friend class SPIClass;
+  SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
+    if (__builtin_constant_p(clock)) {
+      init_AlwaysInline(clock, bitOrder, dataMode);
+    } else {
+      init_MightInline(clock, bitOrder, dataMode);
+    }
+  }
 
+  SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
+
+  private:
+  void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
+    init_AlwaysInline(clock, bitOrder, dataMode);
+  }
+
+  void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
+    uint8_t div;
+    if (clock < (F_CPU / 255)) {
+      div = 255;
+    } else if (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER)) {
+      div = SPI_MIN_CLOCK_DIVIDER;
+    } else {
+      div = (F_CPU / (clock + 1)) + 1;
+    }
+    this->clockDiv = div;
+    this->dataMode = dataMode;
+    this->bitOrder = bitOrder;
+  }
+
+  uint8_t clockDiv, dataMode;
+  BitOrder bitOrder;
+
+  friend class SPIClass;
 };
 
 class SPIClass {
   public:
-	SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI);
+  SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI);
 
-	byte transfer(uint8_t data);
-	inline void transfer(void *buf, size_t count);
+  byte transfer(uint8_t data);
+  inline void transfer(void *buf, size_t count);
 
-	// Transaction Functions
-	void usingInterrupt(uint8_t interruptNumber);
-	void beginTransaction(SPISettings settings);
-	void endTransaction(void);
+  // Transaction Functions
+  void usingInterrupt(uint8_t interruptNumber);
+  void beginTransaction(SPISettings settings);
+  void endTransaction(void);
 
-	// SPI Configuration methods
-	void attachInterrupt();
-	void detachInterrupt();
+  // SPI Configuration methods
+  void attachInterrupt();
+  void detachInterrupt();
 
-	void begin();
-	void end();
-	
-	void setBitOrder(BitOrder order);
-	void setDataMode(uint8_t uc_mode);
-	void setClockDivider(uint8_t uc_div);
+  void begin();
+  void end();
+
+  void setBitOrder(BitOrder order);
+  void setDataMode(uint8_t uc_mode);
+  void setClockDivider(uint8_t uc_div);
 
   private:
-	SERCOM *_p_sercom;
-	uint8_t _uc_pinMiso;
-	uint8_t _uc_pinMosi;
-	uint8_t _uc_pinSCK;
+  SERCOM *_p_sercom;
+  uint8_t _uc_pinMiso;
+  uint8_t _uc_pinMosi;
+  uint8_t _uc_pinSCK;
 };
 
 void SPIClass::transfer(void *buf, size_t count)
 {
-	// TODO: Optimize for faster block-transfer
-	uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
-	for (size_t i=0; i<count; i++)
-		buffer[i] = transfer(buffer[i]);
+  // TODO: Optimize for faster block-transfer
+  uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
+  for (size_t i=0; i<count; i++)
+    buffer[i] = transfer(buffer[i]);
 }
 
 #if SPI_INTERFACES_COUNT > 0
