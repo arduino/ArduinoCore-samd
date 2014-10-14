@@ -633,7 +633,7 @@ void SERCOM::initClockNVIC( void )
 		clockId = GCM_SERCOM4_CORE;
 		IdNvic = SERCOM4_IRQn;
 	}
-	else if(sercom == SERCOM5)
+	else // if(sercom == SERCOM5)
 	{
 		clockId = GCM_SERCOM5_CORE;
 		IdNvic = SERCOM5_IRQn;

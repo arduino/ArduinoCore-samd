@@ -32,7 +32,10 @@ typedef enum _eAnalogReference
 {
   AR_DEFAULT,
   AR_INTERNAL,
-  AR_EXTERNAL
+  AR_EXTERNAL,
+  AR_INTERNAL1V0,
+  AR_INTERNAL1V65,
+  AR_INTERNAL2V23
 } eAnalogReference ;
 
 

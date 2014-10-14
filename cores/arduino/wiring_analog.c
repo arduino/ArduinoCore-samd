@@ -25,32 +25,59 @@ extern "C" {
 #endif
 
 static int _readResolution = 10;
-static int _writeResolution = 8;
+static int _writeResolution = 10;
+
+// Wait for synchronization of registers between the clock domains
+static __inline__ void syncADC() __attribute__((always_inline, unused));
+static void syncADC() {
+  while (ADC->STATUS.bit.SYNCBUSY == 1)
+    ;
+}
+
+// Wait for synchronization of registers between the clock domains
+static __inline__ void syncDAC() __attribute__((always_inline, unused));
+static void syncDAC() {
+  while (DAC->STATUS.bit.SYNCBUSY == 1)
+    ;
+}
 
 void analogReadResolution( int res )
 {
-	_readResolution = res ;
+  syncADC();
+  switch ( res )
+  {
+    case 12:
+      ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
+      break;
+    case 8:
+      ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
+      break;
+    default:
+      ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+      break;
+  }
+  _readResolution = res ;
 }
 
 void analogWriteResolution( int res )
 {
-	_writeResolution = res ;
+  _writeResolution = res ;
 }
 
 static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to )
 {
-	if ( from == to )
+  if ( from == to )
   {
-		return value ;
+    return value ;
   }
 
-	if ( from > to )
+  if ( from > to )
   {
-		return value >> (from-to) ;
+    return value >> (from-to) ;
   }
-	else
+  else
   {
-		return value << (to-from) ;
+    return value << (to-from) ;
   }
 }
 
@@ -62,16 +89,34 @@ static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to
  */
 void analogReference( eAnalogReference ulMode )
 {
+  syncADC();
   switch ( ulMode )
   {
     case AR_INTERNAL:
-      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;
+    case AR_INTERNAL2V23:
+      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
+      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
+      break;
+
+    case AR_EXTERNAL:
+      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
+      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+      break;
+
+    case AR_INTERNAL1V0:
+      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
+      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;   // 1.0V voltage reference
+      break;
+
+    case AR_INTERNAL1V65:
+      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
+      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
       break;
 
     case AR_DEFAULT:
-    case AR_EXTERNAL:
     default:
-      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
+      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
       break;
   }
 }
@@ -87,29 +132,52 @@ uint32_t analogRead( uint32_t ulPin )
 
   pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
 
-  ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber;
-
-  // Start conversion
-  ADC->SWTRIG.bit.START = 1;
-
-  while( ADC->INTFLAG.bit.RESRDY == 0 || ADC->STATUS.bit.SYNCBUSY == 1 )
+  if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
   {
-    // Waiting for a complete conversion and complete synchronization
+    syncDAC();
+    DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
+    //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
+    syncDAC();
   }
 
-  // Store the value
-  valueRead = ADC->RESULT.reg;
+  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
+
+  syncADC();
+  ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber; // Selection for the positive ADC input
+
+  // Control A
+  /*
+   * Bit 1 ENABLE: Enable
+   *   0: The ADC is disabled.
+   *   1: The ADC is enabled.
+   * Due to synchronization, there is a delay from writing CTRLA.ENABLE until the peripheral is enabled/disabled. The
+   * value written to CTRL.ENABLE will read back immediately and the Synchronization Busy bit in the Status register
+   * (STATUS.SYNCBUSY) will be set. STATUS.SYNCBUSY will be cleared when the operation is complete.
+   *
+   * Before enabling the ADC, the asynchronous clock source must be selected and enabled, and the ADC reference must be
+   * configured. The first conversion after the reference is changed must not be used.
+   */
+  syncADC();
+  ADC->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+
+  // Start conversion
+  syncADC();
+  ADC->SWTRIG.bit.START = 1;
 
   // Clear the Data Ready flag
   ADC->INTFLAG.bit.RESRDY = 1;
 
-  // Flush the ADC for further conversions
-  //ADC->SWTRIG.bit.FLUSH = 1;
+  // Start conversion again, since The first conversion after the reference is changed must not be used.
+  syncADC();
+  ADC->SWTRIG.bit.START = 1;
 
-  while( ADC->STATUS.bit.SYNCBUSY == 1 || ADC->SWTRIG.bit.FLUSH == 1 )
-  {
-    // Waiting for synchronization
-  }
+  // Store the value
+  while ( ADC->INTFLAG.bit.RESRDY == 0 );   // Waiting for conversion to complete
+  valueRead = ADC->RESULT.reg;
+
+  syncADC();
+  ADC->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
+  syncADC();
 
   return valueRead;
 }
@@ -135,7 +203,12 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       return;
     }
 
-    DAC->DATA.reg = ulValue & 0x3FF;  // Dac on 10 bits.
+    syncDAC();
+    DAC->DATA.reg = ulValue & 0x3FF;  // DAC on 10 bits.
+    syncDAC();
+    DAC->CTRLA.bit.ENABLE = 0x01;     //Enable ADC
+    syncDAC();
+    return ;
   }
 
   if ( (attr & PIN_ATTR_PWM) == PIN_ATTR_PWM )
