@@ -64,6 +64,7 @@ void setup( void )
 
 //**********************************************
   SERIAL_PORT_MONITOR.begin( 115200 ) ; // Output to EDBG Virtual COM Port
+  SERIAL_PORT_HARDWARE_OPEN.begin( 57600 ) ;
 
   // Test External Interrupt
   attachInterrupt( 3, Interrupt_Pin3, LOW ) ;
@@ -75,9 +76,16 @@ void setup( void )
   pcBuff = (char *)malloc(50);
 
   strcpy(pcBuff, "CIAO");
+  delayMicroseconds( 3 ) ;
   SERIAL_PORT_MONITOR.println("----");
   SERIAL_PORT_MONITOR.println(pcBuff);   // Outputs garbage instead of "CIAO"
   SERIAL_PORT_MONITOR.println("----");
+  delayMicroseconds( 50 ) ;
+  SERIAL_PORT_HARDWARE_OPEN.println("----");
+  delayMicroseconds( 15 ) ;
+  SERIAL_PORT_HARDWARE_OPEN.println(pcBuff);   // Outputs garbage instead of "CIAO"
+  delayMicroseconds( 11 ) ;
+  SERIAL_PORT_HARDWARE_OPEN.println("----");
 }
 
 static void led_step1( void )
@@ -110,6 +118,9 @@ void loop( void )
   SERIAL_PORT_MONITOR.write( '-' ) ;   // send a char
   SERIAL_PORT_MONITOR.write( "test1\n" ) ;   // send a string
   SERIAL_PORT_MONITOR.write( "test2" ) ;   // send another string
+  SERIAL_PORT_HARDWARE_OPEN.write( '-' ) ;   // send a char
+  SERIAL_PORT_HARDWARE_OPEN.write( "test1\n" ) ;   // send a string
+  SERIAL_PORT_HARDWARE_OPEN.write( "test2" ) ;   // send another string
 
   // Test digitalRead: connect pin 2 to either GND or 3.3V. !!!! NOT on 5V pin !!!!
   pin_value=digitalRead( 2 ) ;
