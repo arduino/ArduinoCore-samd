@@ -27,7 +27,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#include "iosamd21.h"
+#include "sam.h"
 #include <string.h>
 #include "sam_ba_monitor.h"
 #include "usart_sam_ba.h"

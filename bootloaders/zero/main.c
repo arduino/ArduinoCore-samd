@@ -73,7 +73,7 @@
 */
 
 #include <stdio.h>
-#include <iosamd21.h>
+#include <sam.h>
 #include "compiler.h"
 #include "sam_ba_monitor.h"
 #include "usart_sam_ba.h"
@@ -93,6 +93,10 @@ static volatile bool main_b_cdc_enable = false;
  */
 static void check_start_application(void)
 {
+        volatile PortGroup *led_port = (volatile PortGroup *)&PORT->Group[1];
+        led_port->DIRSET.reg = (1<<30);
+        led_port->OUTCLR.reg = (1<<30);
+  
 	uint32_t app_start_address;
 
 	/* Load the Reset Handler address of the application */
@@ -124,6 +128,8 @@ static void check_start_application(void)
 		return;
 	}
 
+        led_port->OUTSET.reg = (1<<30);
+        
 	/* Rebase the Stack Pointer */
 	__set_MSP(*(uint32_t *) APP_START_ADDRESS);
 

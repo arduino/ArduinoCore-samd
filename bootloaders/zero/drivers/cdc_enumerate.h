@@ -30,7 +30,7 @@
 #ifndef CDC_ENUMERATE_H
 #define CDC_ENUMERATE_H
 
-#include "iosamd21.h"
+#include "sam.h"
 #include "stdbool.h"
 
 #define USB_EP_OUT              2
