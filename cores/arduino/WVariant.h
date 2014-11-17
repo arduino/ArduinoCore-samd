@@ -54,10 +54,10 @@ typedef enum _ETCChannel
   TCC0_CH1 = (0<<8)|(1),
   TCC0_CH2 = (0<<8)|(2),
   TCC0_CH3 = (0<<8)|(3),
-  TCC0_CH4 = (0<<8)|(4),
-  TCC0_CH5 = (0<<8)|(5),
-  TCC0_CH6 = (0<<8)|(6),
-  TCC0_CH7 = (0<<8)|(7),
+  TCC0_CH4 = (0<<8)|(0), // Channel 4 is 0!
+  TCC0_CH5 = (0<<8)|(1), // Channel 5 is 1!
+  TCC0_CH6 = (0<<8)|(2), // Channel 6 is 2!
+  TCC0_CH7 = (0<<8)|(3), // Channel 7 is 3!
   TCC1_CH0 = (1<<8)|(0),
   TCC1_CH1 = (1<<8)|(1),
   TCC2_CH0 = (2<<8)|(0),
@@ -69,7 +69,7 @@ typedef enum _ETCChannel
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 
 #define GetTCNumber( x ) ( (x) >> 8 )
-#define GetTCChannelNumber( x ) ( (x) && 0xff )
+#define GetTCChannelNumber( x ) ( (x) & 0xff )
 #define GetTC( x ) ( g_apTCInstances[(x) >> 8] )
 
 // Definitions for PWM channels

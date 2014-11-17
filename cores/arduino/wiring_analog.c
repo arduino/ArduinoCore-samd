@@ -193,8 +193,8 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 //   uint32_t pwm_name = g_APinDescription[ulPin].ulTCChannel ;
   uint8_t isTC = 0 ;
   uint8_t Channelx ;
-  Tc* TCx ;
-  Tcc* TCCx ;
+  Tc* TCx = 0 ;
+  Tcc* TCCx = 0 ;
 
   if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
   {
@@ -234,43 +234,29 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     switch ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) )
     {
       case 0: // TCC0
-        //Enable GCLK for TCC0 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC0_TCC1 )) ;
-      break ;
-
       case 1: // TCC1
-        //Enable GCLK for TCC1 (timer counter input clock)
+        // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC0_TCC1 )) ;
+
+        while ( GCLK->STATUS.bit.SYNCBUSY == 1 ) ;
       break ;
 
       case 2: // TCC2
-        //Enable GCLK for TCC2 (timer counter input clock)
+      case 3: // TC3
+        // Enable GCLK for TCC2 and TC3 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC2_TC3 )) ;
       break ;
 
-      case 3: // TC3
-        //Enable GCLK for TC3 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC2_TC3 ));
-      break ;
-
       case 4: // TC4
-        //Enable GCLK for TC4 (timer counter input clock)
+      case 5: // TC5
+        // Enable GCLK for TC4 and TC5 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 ));
       break ;
 
-      case 5: // TC5
-        //Enable GCLK for TC5 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 )) ;
-      break ;
-
-      case 6: // TC6
-        //Enable GCLK for TC6 (timer counter input clock)
+      case 6: // TC6 (not available on Zero)
+      case 7: // TC7 (not available on Zero)
+        // Enable GCLK for TC6 and TC7 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC6_TC7 ));
-      break ;
-
-      case 7: // TC7
-        //Enable GCLK for TC7 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC6_TC7 )) ;
       break ;
     }
 
@@ -278,15 +264,15 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     if ( isTC )
     {
       // -- Configure TC
-      //DISABLE TCx
+      // DISABLE TCx
       TCx->COUNT8.CTRLA.reg &=~(TC_CTRLA_ENABLE);
-      //Set Timer counter Mode to 8 bits
+      // Set Timer counter Mode to 8 bits
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8;
-      //Set TCx as normal PWM
+      // Set TCx as normal PWM
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
-      //Set TCx in waveform mode Normal PWM
+      // Set TCx in waveform mode Normal PWM
       TCx->COUNT8.CC[Channelx].reg = (uint8_t) ulValue;
-      //Set PER to maximum counter value (resolution : 0xFF)
+      // Set PER to maximum counter value (resolution : 0xFF)
       TCx->COUNT8.PER.reg = 0xFF;
       // Enable TCx
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_ENABLE;
@@ -295,15 +281,15 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     {
       // -- Configure TCC
 
-      //DISABLE TCCx
+      // DISABLE TCCx
       TCCx->CTRLA.reg &=~(TCC_CTRLA_ENABLE);
-      //Set TCx as normal PWM
+      // Set TCx as normal PWM
       TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
-      //Set TCx in waveform mode Normal PWM
+      // Set TCx in waveform mode Normal PWM
       TCCx->CC[Channelx].reg = (uint32_t)ulValue;
-      //Set PER to maximum counter value (resolution : 0xFF)
+      // Set PER to maximum counter value (resolution : 0xFF)
       TCCx->PER.reg = 0xFF;
-      //ENABLE TCCx
+      // ENABLE TCCx
       TCCx->CTRLA.reg |= TCC_CTRLA_ENABLE ;
     }
 

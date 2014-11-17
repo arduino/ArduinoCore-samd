@@ -23,21 +23,24 @@ static int fadeAmount = 5;    // how many points to fade the LED by
 
 void setup( void )
 {
-  for ( int i=2 ; i < 14 ; i++ )
+  for ( int i=4 ; i < 14 ; i++ )
   {
     pinMode( i, OUTPUT ) ;
   }
 
+/*
   SERIAL_PORT_MONITOR.begin( 115200 ) ; // Output to EDBG Virtual COM Port
   SERIAL_PORT_MONITOR.println( "test") ;
   SERIAL_PORT_MONITOR.println( brightness ) ;
+*/
 }
 
 void loop( void )
 {
-  SERIAL_PORT_MONITOR.println( brightness ) ;
+  int i ;
+//  SERIAL_PORT_MONITOR.println( brightness ) ;
 
-  for ( int i=2 ; i < 14 ; i++ )
+  for ( i=4 ; i < 14 ; i++ )
   {
     analogWrite( i, brightness ) ;
   }
@@ -50,7 +53,7 @@ void loop( void )
   {
     fadeAmount = -fadeAmount ;
   }
-  
+
   // wait for 30 milliseconds to see the dimming effect
   delay( 30 ) ;
 }
