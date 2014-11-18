@@ -134,47 +134,6 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 
 #define PIN_WIRE_SDA         (20u)
 #define PIN_WIRE_SCL         (21u)
-/*
-#define WIRE_INTERFACE       SERCOM3
-#define WIRE_INTERFACE_ID
-#define WIRE_ISR_HANDLER     SERCOM3_Handler
-#define WIRE_ISR_ID          SERCOM3_IRQn
-*/
-
-/*
- * DAC
- */
-/*
-#define DACC_INTERFACE		   DACC
-#define DACC_INTERFACE_ID
-#define DACC_RESOLUTION		   12
-#define DACC_ISR_HANDLER     DACC_Handler
-#define DACC_ISR_ID          DACC_IRQn
-*/
-
-/*
- * PWM
- */
-/*
-#define PWM_INTERFACE		PWM
-#define PWM_INTERFACE_ID	ID_PWM
-#define PWM_FREQUENCY		1000
-#define PWM_MAX_DUTY_CYCLE	255
-#define PWM_MIN_DUTY_CYCLE	0
-#define PWM_RESOLUTION		8
-*/
-
-/*
- * TC
- */
-/*
-#define TC_INTERFACE        TC0
-#define TC_INTERFACE_ID     ID_TC0
-#define TC_FREQUENCY        1000
-#define TC_MAX_DUTY_CYCLE   255
-#define TC_MIN_DUTY_CYCLE   0
-#define TC_RESOLUTION		8
-*/
 
 /*
  * USB

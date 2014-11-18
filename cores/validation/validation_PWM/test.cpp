@@ -40,7 +40,7 @@ void loop( void )
   int i ;
 //  SERIAL_PORT_MONITOR.println( brightness ) ;
 
-  for ( i=4 ; i < 14 ; i++ )
+  for ( i=3 ; i < 14 ; i++ ) // D7 is digital only and will be refused
   {
     analogWrite( i, brightness ) ;
   }
