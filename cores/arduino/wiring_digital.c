@@ -25,6 +25,7 @@
 
 int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral )
 {
+  // Handle the case the pin isn't usable as PIO
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
     return -1 ;
@@ -121,11 +122,13 @@ int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral )
 
 void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
+  // Handle the case the pin isn't usable as PIO
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
     return ;
   }
 
+  // Set pin mode according to chapter '22.6.3 I/O Pin Configuration'
   switch ( ulMode )
   {
     case INPUT:
@@ -138,6 +141,18 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
       // Set pin to input mode with pull-up resistor enabled
       PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN) ;
       PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+
+      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.7 Data Output Value Set')
+      PORT->Group[g_APinDescription[ulPin].ulPort].OUTSET.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+    break ;
+
+    case INPUT_PULLDOWN:
+      // Set pin to input mode with pull-down resistor enabled
+      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN) ;
+      PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+
+      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.6 Data Output Value Clear')
+      PORT->Group[g_APinDescription[ulPin].ulPort].OUTCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
     break ;
 
     case OUTPUT:
@@ -154,7 +169,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
 void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
-  /* Handle the case the pin isn't usable as PIO */
+  // Handle the case the pin isn't usable as PIO
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
     return ;
@@ -182,7 +197,7 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 
 int digitalRead( uint32_t ulPin )
 {
-  /* Handle the case the pin isn't usable as PIO */
+  // Handle the case the pin isn't usable as PIO
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
     return LOW ;

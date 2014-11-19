@@ -26,6 +26,7 @@
 #define INPUT           (0x0ul)
 #define OUTPUT          (0x1ul)
 #define INPUT_PULLUP    (0x2ul)
+#define INPUT_PULLDOWN  (0x4ul)
 
 #define LOW             (0x0ul)
 #define HIGH            (0x1ul)
@@ -44,7 +45,7 @@ extern int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral ) ;
  * \brief Configures the specified pin to behave either as an input or an output. See the description of digital pins for details.
  *
  * \param ulPin The number of the pin whose mode you wish to set
- * \param ulMode Either INPUT or OUTPUT
+ * \param ulMode Can be INPUT, OUTPUT, INPUT_PULLUP or INPUT_PULLDOWN
  */
 extern void pinMode( uint32_t dwPin, uint32_t dwMode ) ;
 
