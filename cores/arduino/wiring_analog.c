@@ -194,11 +194,6 @@ uint32_t analogRead( uint32_t ulPin )
 void analogWrite( uint32_t ulPin, uint32_t ulValue )
 {
   uint32_t attr = g_APinDescription[ulPin].ulPinAttribute ;
-//   uint32_t pwm_name = g_APinDescription[ulPin].ulTCChannel ;
-  uint8_t isTC = 0 ;
-  uint8_t Channelx ;
-  Tc* TCx = 0 ;
-  Tcc* TCCx = 0 ;
 
   if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
   {
@@ -207,10 +202,12 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       return;
     }
 
+    ulValue = mapResolution(ulValue, _writeResolution, 10);
+
     syncDAC();
     DAC->DATA.reg = ulValue & 0x3FF;  // DAC on 10 bits.
     syncDAC();
-    DAC->CTRLA.bit.ENABLE = 0x01;     //Enable ADC
+    DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
     syncDAC();
     return ;
   }
@@ -222,15 +219,15 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       pinPeripheral( ulPin, g_APinDescription[ulPin].ulPinType ) ;
     }
 
-    Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) ;
+    Tc*  TCx  = 0 ;
+    Tcc* TCCx = 0 ;
+    uint8_t Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) ;
     if ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
     {
-      isTC = 1 ;
       TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
     }
     else
     {
-      isTC = 0 ;
       TCCx = (Tcc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
     }
 
@@ -264,12 +261,14 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       break ;
     }
 
+    ulValue = mapResolution(ulValue, _writeResolution, 8);
+
     // Set PORT
-    if ( isTC )
+    if ( TCx )
     {
       // -- Configure TC
-      // DISABLE TCx
-      TCx->COUNT8.CTRLA.reg &=~(TC_CTRLA_ENABLE);
+      // Disable TCx
+      TCx->COUNT8.CTRLA.reg &= ~TC_CTRLA_ENABLE;
       // Set Timer counter Mode to 8 bits
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8;
       // Set TCx as normal PWM
@@ -284,16 +283,15 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     else
     {
       // -- Configure TCC
-
-      // DISABLE TCCx
-      TCCx->CTRLA.reg &=~(TCC_CTRLA_ENABLE);
+      // Disable TCCx
+      TCCx->CTRLA.reg &= ~TCC_CTRLA_ENABLE;
       // Set TCx as normal PWM
       TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
       // Set TCx in waveform mode Normal PWM
       TCCx->CC[Channelx].reg = (uint32_t)ulValue;
       // Set PER to maximum counter value (resolution : 0xFF)
       TCCx->PER.reg = 0xFF;
-      // ENABLE TCCx
+      // Enable TCCx
       TCCx->CTRLA.reg |= TCC_CTRLA_ENABLE ;
     }
 
@@ -302,9 +300,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 
   // -- Defaults to digital write
   pinMode( ulPin, OUTPUT ) ;
-
   ulValue = mapResolution(ulValue, _writeResolution, 8);
-
   if ( ulValue < 128 )
   {
     digitalWrite( ulPin, LOW ) ;
