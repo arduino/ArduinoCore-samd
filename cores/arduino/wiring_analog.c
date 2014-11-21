@@ -25,7 +25,8 @@ extern "C" {
 #endif
 
 static int _readResolution = 10;
-static int _writeResolution = 10;
+static int _ADCResolution = 10;
+static int _writeResolution = 8;
 
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncADC() __attribute__((always_inline, unused));
@@ -43,20 +44,23 @@ static void syncDAC() {
 
 void analogReadResolution( int res )
 {
-  syncADC();
-  switch ( res )
-  {
-    case 12:
-      ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
-      break;
-    case 8:
-      ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
-      break;
-    default:
-      ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
-      break;
-  }
   _readResolution = res ;
+  syncADC();
+  if (res > 10)
+  {
+    ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
+    _ADCResolution = 12;
+  }
+  else if (res > 8)
+  {
+    ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+    _ADCResolution = 10;
+  }
+  else
+  {
+    ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
+    _ADCResolution = 8;
+  }
 }
 
 void analogWriteResolution( int res )
@@ -179,7 +183,7 @@ uint32_t analogRead( uint32_t ulPin )
   ADC->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
   syncADC();
 
-  return valueRead;
+  return mapResolution(valueRead, _ADCResolution, _readResolution);
 }
 
 
