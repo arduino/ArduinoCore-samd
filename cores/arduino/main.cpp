@@ -28,8 +28,8 @@ int main( void )
 
   delay(1);
 #if defined(USBCON)
-	USBDevice.init();
-	USBDevice.attach();
+  USBDevice.init();
+  USBDevice.attach();
 #endif
 
   setup();
