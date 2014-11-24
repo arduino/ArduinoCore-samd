@@ -47,7 +47,7 @@
 //#include <parts.h>
 #include <status_codes.h>
 #include <preprocessor.h>
-#include <iosamd21.h>
+#include <sam.h>
 
 #ifndef __ASSEMBLY__
 

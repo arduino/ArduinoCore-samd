@@ -32,7 +32,7 @@
 #include "main.h"
 #include "uart_driver.h"
 #include "compiler.h"
-#include "iosamd21.h"
+#include "sam.h"
 
 /* Local reference to current Usart instance in use with this driver */
 //struct usart_module usart_sam_ba;
