@@ -30,7 +30,7 @@
 #ifndef UART_DRIVER_H
 #define UART_DRIVER_H
 #include <stdio.h>
-#include "iosamd21.h"
+#include "sam.h"
 #include <stdbool.h>
 
 #define PINMUX_UNUSED          0xFFFFFFFF
