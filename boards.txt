@@ -21,7 +21,7 @@ arduino_zero_edbg.build.variant_system_lib=
 arduino_zero_edbg.build.vid=0x2341
 arduino_zero_edbg.build.pid=0x004d
 arduino_zero_edbg.bootloader.tool=openocd
-arduino_zero_edbg.bootloader.file=zero/Release/Exe/samd21_sam_ba.bin
+arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
 
 arduino_zero_native.name=Arduino Zero (Native USB Port)
 arduino_zero_native.vid.0=0x2341
