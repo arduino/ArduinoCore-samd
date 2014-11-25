@@ -260,10 +260,13 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       break ;
     }
 
+    ulValue = mapResolution(ulValue, _writeResolution, 8);
+
     // Set PORT
     if ( isTC )
     {
       // -- Configure TC
+
       // DISABLE TCx
       TCx->COUNT8.CTRLA.reg &=~(TC_CTRLA_ENABLE);
       // Set Timer counter Mode to 8 bits
