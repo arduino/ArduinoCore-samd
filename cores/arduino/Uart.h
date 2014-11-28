@@ -38,6 +38,7 @@ class Uart : public HardwareSerial
     int read();
     void flush();
     size_t write(const uint8_t data);
+    using Print::write; // pull in write(str) and write(buf, size) from Print
 
     void IrqHandler();
 
