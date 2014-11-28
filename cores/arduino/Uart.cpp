@@ -92,19 +92,6 @@ size_t Uart::write(const uint8_t data)
   return 1;
 }
 
-size_t Uart::write(const char * data)
-{
-  size_t writed = 0;
-
-  while(*data != '\0')
-  {
-    writed += write(*data);
-    ++data;
-  }
-
-  return writed;
-}
-
 SercomNumberStopBit Uart::extractNbStopBit(uint8_t config)
 {
   switch(config & HARDSER_STOP_BIT_MASK)

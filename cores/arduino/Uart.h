@@ -38,7 +38,6 @@ class Uart : public HardwareSerial
     int read();
     void flush();
     size_t write(const uint8_t data);
-    size_t write(const char * data);
 
     void IrqHandler();
 
