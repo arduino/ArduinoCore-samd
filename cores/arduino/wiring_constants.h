@@ -96,9 +96,8 @@ typedef unsigned int word;
 
 #define bit(b) (1UL << (b))
 
-// TODO: to be checked
-typedef uint8_t boolean ;
-typedef uint8_t byte ;
+typedef bool boolean;
+typedef uint8_t byte;
 
 #ifdef __cplusplus
 } // extern "C"
