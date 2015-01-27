@@ -20,10 +20,15 @@
 #ifndef Arduino_h
 #define Arduino_h
 
+#include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+
+typedef bool boolean;
+typedef uint8_t byte;
+typedef uint16_t word;
 
 // some libraries and sketches depend on this AVR stuff,
 // assuming Arduino.h or WProgram.h automatically includes it...
