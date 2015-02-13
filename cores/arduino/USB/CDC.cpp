@@ -160,25 +160,26 @@ void Serial_::end(void)
 
 void Serial_::accept(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
-	uint32_t i = (uint32_t)(buffer->head+1) % CDC_SERIAL_BUFFER_SIZE;
+	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
+	uint32_t len = USBD_Recv(CDC_ENDPOINT_OUT, (void*)&buffer, CDC_SERIAL_BUFFER_SIZE);
+
+	noInterrupts();
+	ring_buffer *ringBuffer = &cdc_rx_buffer;
+	uint32_t i = ringBuffer->head;
 
 	// if we should be storing the received character into the location
 	// just before the tail (meaning that the head would advance to the
 	// current location of the tail), we're about to overflow the buffer
 	// and so we don't write the character or advance the head.
-	while (i != buffer->tail) {
-		uint32_t c;
-		if (!USBD_Available(CDC_ENDPOINT_OUT)) {
-            UDD_ReleaseRX(CDC_ENDPOINT_OUT);
-			break;
-		}
-		c = USBD_Recv(CDC_ENDPOINT_OUT);
-		buffer->buffer[buffer->head] = c;
-		buffer->head = i;
-
+	uint32_t k = 0;
+	i = (i + 1) % CDC_SERIAL_BUFFER_SIZE;
+	while (i != ringBuffer->tail && len>0) {
+		len--;
+		ringBuffer->buffer[ringBuffer->head] = buffer[k++];
+		ringBuffer->head = i;
 		i = (i + 1) % CDC_SERIAL_BUFFER_SIZE;
 	}
+	interrupts();
 }
 
 int Serial_::available(void)

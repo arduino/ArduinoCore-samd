@@ -270,6 +270,7 @@ uint8_t UDD_Recv_data(uint32_t ep, uint32_t len)
 {
 	TRACE_DEVICE(printf("=> UDD_Recvdata : ep=%d\r\n", (char)ep);)
 
+	if (len>64) len=64;
 	usb_endpoint_table[ep].DeviceDescBank[0].ADDR.reg = (uint32_t)&udd_ep_out_cache_buffer[ep];
 	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = len;
 	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;

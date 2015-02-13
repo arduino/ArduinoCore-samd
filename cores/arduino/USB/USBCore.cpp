@@ -108,12 +108,17 @@ uint32_t USBD_Recv(uint32_t ep, void* d, uint32_t len)
 	if (!_usbConfiguration)
 		return -1;
 
-	uint32_t n = UDD_FifoByteCount(ep);
-	len = min(n,len);
-	n = len;
-	uint8_t* dst = (uint8_t*)d;
-	while (n--)
-		*dst++ = UDD_Recv_data(ep, 8);
+	uint8_t *buffer;
+	uint8_t *data = (uint8_t *)d;
+
+	len = min(UDD_FifoByteCount(ep), len);
+
+	UDD_Recv_data(ep, len);
+	UDD_Recv(ep, &buffer);
+	for (uint32_t i=0; i<len; i++) {
+		data[i] = buffer[i];
+	}
+
 	if (len && !UDD_FifoByteCount(ep)) // release empty buffer
 		UDD_ReleaseRX(ep);
 
