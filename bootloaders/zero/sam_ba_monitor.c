@@ -186,6 +186,21 @@ void sam_ba_monitor_run(void)
 	}
 }
 
+#if 0
+// Prints a 32-bit integer in hex.
+void printn(uint32_t n) {
+	char buff[8];
+	int i;
+	for (i=0; i<8; i++) {
+		int d = n & 0XF;
+		n = (n >> 4);
+
+		buff[7-i] = d > 9 ? 'A' + d - 10 : '0' + d;
+	}
+	ptr_monitor_if->putdata(buff, 8);
+}
+#endif
+
 void sam_ba_monitor_loop(void)
 {
 	length = ptr_monitor_if->getdata(data, SIZEBUFMAX);
