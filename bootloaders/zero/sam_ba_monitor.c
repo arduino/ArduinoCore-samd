@@ -36,6 +36,7 @@
 #include "cdc_enumerate.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
+const char RomBOOT_ExtendedCapabilities[] = "[Arduino:X]";
 
 /* Provides one common interface to handle both USART and USB-CDC */
 typedef struct
@@ -166,12 +167,18 @@ uint8_t command, *ptr_data, *ptr, data[SIZEBUFMAX];
 uint8_t j;
 uint32_t u32tmp;
 
+uint32_t PAGE_SIZE, PAGES, MAX_FLASH;
 
 /**
  * \brief This function starts the SAM-BA monitor.
  */
 void sam_ba_monitor_run(void)
 {
+	uint32_t pageSizes[] = { 8, 16, 32, 64, 128, 256, 512, 1024 };
+	PAGE_SIZE = pageSizes[NVMCTRL->PARAM.bit.PSZ];
+	PAGES = NVMCTRL->PARAM.bit.NVMP;
+	MAX_FLASH = PAGE_SIZE * PAGES;
+
 	ptr_data = NULL;
 	command = 'z';
 	while (1) {
@@ -277,6 +284,9 @@ void sam_ba_monitor_loop(void)
 				ptr_monitor_if->putdata((uint8_t *) RomBOOT_Version,
 						strlen(RomBOOT_Version));
 				ptr_monitor_if->putdata(" ", 1);
+				ptr_monitor_if->putdata((uint8_t *) RomBOOT_ExtendedCapabilities,
+						strlen(RomBOOT_ExtendedCapabilities));
+				ptr_monitor_if->putdata(" ", 1);
 				ptr = (uint8_t*) &(__DATE__);
 				i = 0;
 				while (*ptr++ != '\0')
@@ -289,6 +299,29 @@ void sam_ba_monitor_loop(void)
 					i++;
 				ptr_monitor_if->putdata((uint8_t *) &(__TIME__), i);
 				ptr_monitor_if->putdata("\n\r", 2);
+			}
+			else if (command == 'X')
+			{
+				// Syntax: X[ADDR]#
+				// Erase the flash memory starting from ADDR to the end of flash.
+
+				// Note: the flash memory is erased in ROWS, that is in block of 4 pages.
+				//       Even if the starting address is the last byte of a ROW the entire
+				//       ROW is erased anyway.
+
+				uint32_t dst_addr = current_number; // starting address
+
+				while (dst_addr < MAX_FLASH) {
+					// Execute "ER" Erase Row
+					NVMCTRL->ADDR.reg = dst_addr / 2;
+					NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
+					while (NVMCTRL->INTFLAG.bit.READY == 0)
+						;
+					dst_addr += PAGE_SIZE * 4; // Skip a ROW
+				}
+
+				// Notify command completed
+				ptr_monitor_if->putdata("X\n\r", 3);
 			}
 
 			command = 'z';
