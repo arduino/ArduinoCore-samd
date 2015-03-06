@@ -105,24 +105,27 @@ uint32_t USBD_Available(uint32_t ep)
 //	Return number of bytes read
 uint32_t USBD_Recv(uint32_t ep, void* d, uint32_t len)
 {
-	if (!_usbConfiguration)
-		return -1;
-
-	uint8_t *buffer;
+	uint8_t *tmpbuffer;
 	uint8_t *data = (uint8_t *)d;
 
-	len = min(UDD_FifoByteCount(ep), len);
+	if (!_usbConfiguration || len < 0)
+		return -1;
 
-	UDD_Recv_data(ep, len);
-	UDD_Recv(ep, &buffer);
-	for (uint32_t i=0; i<len; i++) {
-		data[i] = buffer[i];
+	uint32_t n = UDD_FifoByteCount(ep);
+	
+// 	len = min(n,len);
+// 	n = len;
+
+	UDD_Recv_data(ep, n);
+	UDD_Recv(ep, &tmpbuffer);
+	for (int i=0; i<n; i++) {
+		data[i] = tmpbuffer[i];
 	}
 
-	if (len && !UDD_FifoByteCount(ep)) // release empty buffer
-		UDD_ReleaseRX(ep);
+// 	if (n && !UDD_FifoByteCount(ep)) // release empty buffer
+// 		UDD_ReleaseRX(ep);
 
-	return len;
+	return n;
 }
 
 //	Recv 1 byte if ready
@@ -206,7 +209,7 @@ uint32_t USBD_RecvControl(void* d, uint32_t len)
 		read = len;
 	UDD_Recv(EP0, &buffer);
 	while (!udd_is_OUT_transf_cplt(EP0));
-	for (uint32_t i=0; i<read; i++) {
+	for (int i=0; i<read; i++) {
 		data[i] = buffer[i];
 	}
 	udd_OUT_transfer_allowed(EP0);

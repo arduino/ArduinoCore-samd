@@ -25,17 +25,11 @@
 #include "USB/samd21_device.h"
 #include "sam.h"
 
-#ifdef __cplusplus
-extern "C"{
-#endif // __cplusplus
-
-#ifdef SAMD_SERIES
-
 //#define TRACE_DEVICE(x)	x
 #define TRACE_DEVICE(x)
 
-__attribute__((__aligned__(4))) /*__attribute__((__section__(".bss_hram0")))*/ uint8_t udd_ep_out_cache_buffer[4][64];
-__attribute__((__aligned__(4))) /*__attribute__((__section__(".bss_hram0")))*/ uint8_t udd_ep_in_cache_buffer[4][128];
+__attribute__((__aligned__(4)))   __attribute__((__section__(".bss_hram0"))) uint8_t udd_ep_out_cache_buffer[4][64];
+__attribute__((__aligned__(4)))   __attribute__((__section__(".bss_hram0"))) uint8_t udd_ep_in_cache_buffer[4][128];
 
 /**
  * USB SRAM data containing pipe descriptor table
@@ -270,7 +264,6 @@ uint8_t UDD_Recv_data(uint32_t ep, uint32_t len)
 {
 	TRACE_DEVICE(printf("=> UDD_Recvdata : ep=%d\r\n", (char)ep);)
 
-	if (len>64) len=64;
 	usb_endpoint_table[ep].DeviceDescBank[0].ADDR.reg = (uint32_t)&udd_ep_out_cache_buffer[ep];
 	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = len;
 	usb_endpoint_table[ep].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
@@ -280,7 +273,7 @@ uint8_t UDD_Recv_data(uint32_t ep, uint32_t len)
 	/* Wait for transfer to complete */
 	while (!udd_is_OUT_transf_cplt(ep));
 	/* Clear Transfer complete 0 flag */
-	udd_clear_OUT_transf_cplt(ep);
+//	udd_clear_OUT_transf_cplt(ep);
 
 	return udd_ep_out_cache_buffer[ep][0];
 }
@@ -309,7 +302,7 @@ void UDD_ReleaseRX(uint32_t ep)
 	// The RAM Buffer is empty: we can receive data
 	udd_OUT_transfer_allowed(ep);
 	/* Clear Transfer complete 0 flag */
-	udd_clear_OUT_transf_cplt(ep);
+//	udd_clear_OUT_transf_cplt(ep);
 }
 
 void UDD_ReleaseTX(uint32_t ep)
@@ -318,7 +311,7 @@ void UDD_ReleaseTX(uint32_t ep)
 	// The RAM Buffer is full: we can send data
     udd_IN_transfer_allowed(ep);
  	/* Clear the transfer complete flag  */
-    udd_clear_IN_transf_cplt(ep);
+   // udd_clear_IN_transf_cplt(ep);
 }
 
 void UDD_SetAddress(uint32_t addr)
@@ -342,10 +335,3 @@ uint32_t UDD_GetFrameNumber(void)
 {
 	return udd_frame_number();
 }
-
-#ifdef __cplusplus
-}
-#endif
-
-#endif /* SAMD_SERIES */
-

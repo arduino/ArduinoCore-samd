@@ -34,7 +34,7 @@
 
 #ifdef CDC_ENABLED
 
-#define CDC_SERIAL_BUFFER_SIZE	64
+#define CDC_SERIAL_BUFFER_SIZE	512
 
 /* For information purpose only since RTS is not always handled by the terminal application */
 #define CDC_LINESTATE_DTR		0x01 // Data Terminal Ready
@@ -160,26 +160,39 @@ void Serial_::end(void)
 
 void Serial_::accept(void)
 {
+	volatile uint32_t len,k=0, size=0;
 	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
-	uint32_t len = USBD_Recv(CDC_ENDPOINT_OUT, (void*)&buffer, CDC_SERIAL_BUFFER_SIZE);
 
-	noInterrupts();
 	ring_buffer *ringBuffer = &cdc_rx_buffer;
-	uint32_t i = ringBuffer->head;
+	uint32_t i = (uint32_t)(ringBuffer->head+1) % CDC_SERIAL_BUFFER_SIZE;
+
+	size = 0;
+	do
+	{
+		len = USBD_Recv(CDC_ENDPOINT_OUT, (void*)&buffer+size, CDC_SERIAL_BUFFER_SIZE);
+		size += len;
+		if( size >= 512) break;
+	} while(len != 0 );
+
+	udd_clear_OUT_transf_cplt(CDC_ENDPOINT_OUT);
 
 	// if we should be storing the received character into the location
 	// just before the tail (meaning that the head would advance to the
 	// current location of the tail), we're about to overflow the buffer
 	// and so we don't write the character or advance the head.
-	uint32_t k = 0;
-	i = (i + 1) % CDC_SERIAL_BUFFER_SIZE;
-	while (i != ringBuffer->tail && len>0) {
-		len--;
-		ringBuffer->buffer[ringBuffer->head] = buffer[k++];
+	while (i != ringBuffer->tail) {
+		uint32_t c;
+		if (size == 0) {  // if (!USBD_Available(CDC_RX)) { udd_ack_fifocon(CDC_RX);
+			break;
+		}
+		size--;
+		c = buffer[k++];
+		// c = UDD_Recv8(CDC_RX & 0xF);
+		ringBuffer->buffer[ringBuffer->head] = c;
 		ringBuffer->head = i;
+
 		i = (i + 1) % CDC_SERIAL_BUFFER_SIZE;
 	}
-	interrupts();
 }
 
 int Serial_::available(void)
