@@ -109,9 +109,9 @@ void init( void )
 
   ADC->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
 
-  // Averaging (see table 31-2 p.816 datasheet)
-  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_64 |    // 64 samples
-                     ADC_AVGCTRL_ADJRES(0x04ul);   // Adjusting result by 4
+  // Averaging (see datasheet table in AVGCTRL register description)
+  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 |    // 1 sample only (no oversampling nor averaging)
+                     ADC_AVGCTRL_ADJRES(0x0ul);   // Adjusting result by 0
 
   analogReference( AR_DEFAULT ) ; // Analog Reference is AREF pin (3.3v)
 
