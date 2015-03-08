@@ -18,43 +18,32 @@
 
 #include "Arduino.h"
 
-static uint8_t brightness = 0;    // how bright the LED is
-static int fadeAmount = 5;    // how many points to fade the LED by
+volatile uint32_t t_start=0 ;
+volatile uint32_t t_end=0 ;
+volatile uint32_t t_delta=0 ;
+
+#define NUM_SAMPLES (256ul)
 
 void setup( void )
 {
-  for ( int i=3 ; i < 14 ; i++ )
-  {
-    pinMode( i, OUTPUT ) ;
-  }
+  int adc_value[NUM_SAMPLES] ;
 
-/*
   SERIAL_PORT_MONITOR.begin( 115200 ) ; // Output to EDBG Virtual COM Port
-  SERIAL_PORT_MONITOR.println( "test") ;
-  SERIAL_PORT_MONITOR.println( brightness ) ;
-*/
+
+  SERIAL_PORT_MONITOR.print( "Analog pins: \r\n" ) ;
+
+  t_start=millis() ;
+  for ( uint32_t i = 0 ; i < NUM_SAMPLES ; i++ )
+  {
+    adc_value[i] = analogRead( A1 ) ;
+  }
+  t_end=millis() ;
+  t_delta=t_end-t_start ;
+
+  SERIAL_PORT_MONITOR.print( t_delta, DEC ) ;
+  SERIAL_PORT_MONITOR.println() ;
 }
-/*
+
 void loop( void )
 {
-  int i ;
-//  SERIAL_PORT_MONITOR.println( brightness ) ;
-
-  for ( i=3 ; i < 14 ; i++ ) // D7 is digital only and will be refused
-  {
-    analogWrite( i, brightness ) ;
-  }
-
-  // change the brightness for next time through the loop:
-  brightness = brightness + fadeAmount ;
-
-  // reverse the direction of the fading at the ends of the fade:
-  if ( brightness == 0 || brightness == 255 )
-  {
-    fadeAmount = -fadeAmount ;
-  }
-
-  // wait for 30 milliseconds to see the dimming effect
-  delay( 30 ) ;
 }
-*/

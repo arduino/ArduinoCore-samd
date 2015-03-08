@@ -58,10 +58,25 @@
         <InterfaceName>SWD</InterfaceName>
       </ToolOptions>
       <ToolType>com.atmel.avrdbg.tool.edbg</ToolType>
-      <ToolNumber>ATML2320021800000007</ToolNumber>
+      <ToolNumber>ATML2320040200000367</ToolNumber>
       <ToolName>EDBG</ToolName>
     </com_atmel_avrdbg_tool_edbg>
     <preserveEEPROM>true</preserveEEPROM>
+    <AAFDebugger>
+      <AAFDebugFiles xmlns="">
+        <DebugFile>
+          <path>\Debug\test.lss</path>
+          <AAFSetting>
+            <Label>Lss Files</Label>
+            <Extention>.lss</Extention>
+            <Regex>^\s*(?&lt;address&gt;[a-f0-9]*):\s*.*$</Regex>
+            <DebugEnabled>true</DebugEnabled>
+            <RegexGroups>address</RegexGroups>
+            <DebuggerExpression>$pc</DebuggerExpression>
+          </AAFSetting>
+        </DebugFile>
+      </AAFDebugFiles>
+    </AAFDebugger>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <ToolchainSettings>
@@ -71,10 +86,10 @@
         <armgcc.common.outputfiles.eep>False</armgcc.common.outputfiles.eep>
         <armgcc.common.outputfiles.bin>True</armgcc.common.outputfiles.bin>
         <armgcc.common.outputfiles.srec>False</armgcc.common.outputfiles.srec>
-        <armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>False</armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
         <armgcc.compiler.symbols.DefSymbols>
           <ListValues>
-            <Value>F_CPU=48000000</Value>
+            <Value>F_CPU=48000000L</Value>
             <Value>NDEBUG</Value>
           </ListValues>
         </armgcc.compiler.symbols.DefSymbols>
@@ -90,14 +105,16 @@
             <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
         <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <armgcc.compiler.optimization.PrepareDataForGarbageCollection>False</armgcc.compiler.optimization.PrepareDataForGarbageCollection>
+        <armgcc.compiler.optimization.PrepareDataForGarbageCollection>True</armgcc.compiler.optimization.PrepareDataForGarbageCollection>
+        <armgcc.compiler.optimization.EnableLongCalls>False</armgcc.compiler.optimization.EnableLongCalls>
+        <armgcc.compiler.optimization.DebugLevel>Default (-g2)</armgcc.compiler.optimization.DebugLevel>
         <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-        <armgcc.compiler.miscellaneous.OtherFlags>False</armgcc.compiler.miscellaneous.OtherFlags>
-        <armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>False</armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
+        <armgcc.compiler.miscellaneous.OtherFlags>-march=armv6-m</armgcc.compiler.miscellaneous.OtherFlags>
         <armgcccpp.compiler.symbols.DefSymbols>
           <ListValues>
-            <Value>F_CPU=48000000</Value>
+            <Value>F_CPU=48000000L</Value>
             <Value>NDEBUG</Value>
           </ListValues>
         </armgcccpp.compiler.symbols.DefSymbols>
@@ -113,26 +130,27 @@
             <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcccpp.compiler.directories.IncludePaths>
+        <armgcccpp.compiler.optimization.level>Optimize for size (-Os)</armgcccpp.compiler.optimization.level>
         <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
-        <armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>False</armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>
+        <armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>
+        <armgcccpp.compiler.optimization.EnableLongCalls>False</armgcccpp.compiler.optimization.EnableLongCalls>
+        <armgcccpp.compiler.optimization.DebugLevel>Default (-g2)</armgcccpp.compiler.optimization.DebugLevel>
         <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-        <armgcccpp.linker.general.UseNewlibNano>False</armgcccpp.linker.general.UseNewlibNano>
+        <armgcccpp.compiler.miscellaneous.OtherFlags>-std=c++98 -march=armv6-m</armgcccpp.compiler.miscellaneous.OtherFlags>
         <armgcccpp.linker.libraries.Libraries>
           <ListValues>
             <Value>libm</Value>
           </ListValues>
         </armgcccpp.linker.libraries.Libraries>
-        <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
-        <armgcccpp.linker.memorysettings.ExternalRAM>False</armgcccpp.linker.memorysettings.ExternalRAM>
-        <armgcccpp.linker.miscellaneous.LinkerFlags>--specs=nosys.specs  -Tflash_without_bootloader.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
-        <armgcccpp.preprocessingassembler.general.DefaultIncludePath>False</armgcccpp.preprocessingassembler.general.DefaultIncludePath>
-        <armgcc.compiler.optimization.level>Optimize for size (-Os)</armgcc.compiler.optimization.level>
-        <armgcccpp.compiler.optimization.level>Optimize for size (-Os)</armgcccpp.compiler.optimization.level>
         <armgcccpp.linker.libraries.LibrarySearchPaths>
           <ListValues>
-            <Value>../cmsis/linkerScripts</Value>
+            <Value>../../../../../variants/arduino_zero/linker_scripts/gcc</Value>
           </ListValues>
         </armgcccpp.linker.libraries.LibrarySearchPaths>
+        <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
+        <armgcccpp.linker.memorysettings.ExternalRAM>False</armgcccpp.linker.memorysettings.ExternalRAM>
+        <armgcccpp.linker.miscellaneous.LinkerFlags>--specs=nosys.specs  -Tflash_without_bootloader.ld -march=armv6-m</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.preprocessingassembler.general.DefaultIncludePath>False</armgcccpp.preprocessingassembler.general.DefaultIncludePath>
         <armgcccpp.preprocessingassembler.general.IncludePaths>
           <ListValues>
             <Value>../../../../../../../tools/CMSIS/Device/ATMEL</Value>
@@ -158,7 +176,7 @@
         <armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>True</armgcc.compiler.general.ChangeDefaultCharTypeUnsigned>
         <armgcc.compiler.symbols.DefSymbols>
           <ListValues>
-            <Value>F_CPU=48000000</Value>
+            <Value>F_CPU=48000000L</Value>
             <Value>DEBUG</Value>
           </ListValues>
         </armgcc.compiler.symbols.DefSymbols>
@@ -174,15 +192,17 @@
             <Value>../../../../../libraries/Wire</Value>
           </ListValues>
         </armgcc.compiler.directories.IncludePaths>
+        <armgcc.compiler.optimization.level>Optimize (-O1)</armgcc.compiler.optimization.level>
         <armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcc.compiler.optimization.PrepareFunctionsForGarbageCollection>
         <armgcc.compiler.optimization.PrepareDataForGarbageCollection>True</armgcc.compiler.optimization.PrepareDataForGarbageCollection>
+        <armgcc.compiler.optimization.EnableLongCalls>False</armgcc.compiler.optimization.EnableLongCalls>
         <armgcc.compiler.optimization.DebugLevel>Maximum (-g3)</armgcc.compiler.optimization.DebugLevel>
         <armgcc.compiler.warnings.AllWarnings>True</armgcc.compiler.warnings.AllWarnings>
-        <armgcc.compiler.miscellaneous.OtherFlags>-std=c99 -fno-common</armgcc.compiler.miscellaneous.OtherFlags>
+        <armgcc.compiler.miscellaneous.OtherFlags>-march=armv6-m</armgcc.compiler.miscellaneous.OtherFlags>
         <armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>True</armgcccpp.compiler.general.ChangeDefaultCharTypeUnsigned>
         <armgcccpp.compiler.symbols.DefSymbols>
           <ListValues>
-            <Value>F_CPU=48000000</Value>
+            <Value>F_CPU=48000000L</Value>
             <Value>DEBUG</Value>
             <Value>USB_VID=0x2341</Value>
             <Value>USB_PID=0x004d</Value>
@@ -203,9 +223,10 @@
         <armgcccpp.compiler.optimization.level>Optimize (-O1)</armgcccpp.compiler.optimization.level>
         <armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareFunctionsForGarbageCollection>
         <armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>True</armgcccpp.compiler.optimization.PrepareDataForGarbageCollection>
+        <armgcccpp.compiler.optimization.EnableLongCalls>False</armgcccpp.compiler.optimization.EnableLongCalls>
         <armgcccpp.compiler.optimization.DebugLevel>Maximum (-g3)</armgcccpp.compiler.optimization.DebugLevel>
         <armgcccpp.compiler.warnings.AllWarnings>True</armgcccpp.compiler.warnings.AllWarnings>
-        <armgcccpp.compiler.miscellaneous.OtherFlags>-std=c++98 -fno-common</armgcccpp.compiler.miscellaneous.OtherFlags>
+        <armgcccpp.compiler.miscellaneous.OtherFlags>-std=c++98 -march=armv6-m</armgcccpp.compiler.miscellaneous.OtherFlags>
         <armgcccpp.linker.general.UseNewlibNano>True</armgcccpp.linker.general.UseNewlibNano>
         <armgcccpp.linker.libraries.Libraries>
           <ListValues>
@@ -219,7 +240,7 @@
         </armgcccpp.linker.libraries.LibrarySearchPaths>
         <armgcccpp.linker.optimization.GarbageCollectUnusedSections>True</armgcccpp.linker.optimization.GarbageCollectUnusedSections>
         <armgcccpp.linker.memorysettings.ExternalRAM />
-        <armgcccpp.linker.miscellaneous.LinkerFlags>--specs=nosys.specs  -Tflash_without_bootloader.ld</armgcccpp.linker.miscellaneous.LinkerFlags>
+        <armgcccpp.linker.miscellaneous.LinkerFlags>--specs=nosys.specs  -Tflash_without_bootloader.ld -march=armv6-m -save-temps</armgcccpp.linker.miscellaneous.LinkerFlags>
         <armgcccpp.assembler.general.IncludePaths>
           <ListValues>
             <Value>../../../arduino</Value>
