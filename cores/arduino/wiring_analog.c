@@ -144,8 +144,6 @@ uint32_t analogRead( uint32_t ulPin )
     syncDAC();
   }
 
-  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
-
   syncADC();
   ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber; // Selection for the positive ADC input
 
