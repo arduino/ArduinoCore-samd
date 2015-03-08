@@ -157,8 +157,7 @@ const DeviceVectors exception_table=
 } ;
 
 /**
- * \brief This is the code that gets called on processor reset.
- * It configures the needed clocks and according Flash Read Wait States.
+ * \brief SystemInit() configures the needed clocks and according Flash Read Wait States.
  * At reset:
  * - OSC8M clock source is enabled with a divider by 8 (1MHz).
  * - Generic Clock Generator 0 (GCLKMAIN) is using OSC8M as source.
