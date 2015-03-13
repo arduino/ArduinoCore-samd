@@ -93,7 +93,7 @@ void TCC1_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler
 void TCC2_Handler            ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC3_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC4_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void TC5_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC5_Handler             ( void ) __attribute__ ((weak));
 void TC6_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC7_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void ADC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));

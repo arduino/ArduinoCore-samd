@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2015 Arduino.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -19,5 +19,15 @@
 #ifndef _WIRING_TONE_
 #define _WIRING_TONE_
 
+#ifdef __cplusplus
+
+#include "Arduino.h"
+
+void tone(uint32_t _pin, uint32_t frequency, uint32_t duration = 0);
+void noTone(uint32_t _pin);
+
+void toneAccurateClock (uint32_t);
+
+#endif /*  __cplusplus */
 
 #endif /* _WIRING_TONE_ */
