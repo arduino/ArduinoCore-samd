@@ -27,10 +27,6 @@
 
 void setup(void)
 {
-  SERIAL_PORT_MONITOR.begin( 115200 );
-  while (!SERIAL_PORT_MONITOR); // Wait for serial port to connect - used on Leonardo, Teensy and other boards with built-in USB CDC serial connection
-  SERIAL_PORT_MONITOR.println("Start USB device test");
- 
 #ifdef HID_ENABLED
 	Mouse.begin();
 
@@ -41,11 +37,11 @@ void setup(void)
 #endif
 
 #ifdef CDC_ENABLED
-	SERIAL_PORT_USBVIRTUAL.begin(115200);
+	SerialUSB.begin(115200);
 #endif
 }
 
-char testchar[10];
+
 void loop(void)
 {
 #ifdef HID_ENABLED
@@ -68,14 +64,11 @@ void loop(void)
 #endif
 
 #ifdef CDC_ENABLED
-	if (SERIAL_PORT_USBVIRTUAL.available() > 0)
+	if (SerialUSB.available() > 0)
 	{
 		char inChar;
-		
-		//while( -1 == (inChar = SERIAL_PORT_USBVIRTUAL.read()));
-		inChar = SERIAL_PORT_USBVIRTUAL.read();
-		
-		SERIAL_PORT_USBVIRTUAL.print(inChar);
+		while( -1 == (inChar = SerialUSB.read()));
+		SerialUSB.print(inChar);
 	}
 
 	delay(10);
