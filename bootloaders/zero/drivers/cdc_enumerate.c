@@ -750,5 +750,16 @@ uint32_t cdc_read_buf_xmd(void* data, uint32_t length)
 		return 0;
 
 	/* Blocking read till specified number of bytes is received */
-	return USB_Read_blocking(&pCdc, (char *)data, length);
+	// XXX: USB_Read_blocking is not reliable
+	// return USB_Read_blocking(&pCdc, (char *)data, length);
+
+	char *dst = (char *)data;
+	uint32_t remaining = length;
+	while (remaining) {
+		uint32_t readed = USB_Read(&pCdc, (char *)dst, remaining);
+		remaining -= readed;
+		dst += readed;
+	}
+
+	return length;
 }
