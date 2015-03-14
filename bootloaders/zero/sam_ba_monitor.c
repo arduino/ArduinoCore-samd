@@ -36,7 +36,7 @@
 #include "cdc_enumerate.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
-const char RomBOOT_ExtendedCapabilities[] = "[Arduino:X]";
+const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XY]";
 
 /* Provides one common interface to handle both USART and USB-CDC */
 typedef struct
@@ -337,6 +337,61 @@ void sam_ba_monitor_loop(void)
 
 				// Notify command completed
 				ptr_monitor_if->putdata("X\n\r", 3);
+			}
+			else if (command == 'Y')
+			{
+				// This command writes the content of a buffer in SRAM into flash memory.
+
+				// Syntax: Y[ADDR],0#
+				// Set the starting address of the SRAM buffer.
+
+				// Syntax: Y[ROM_ADDR],[SIZE]#
+				// Write the first SIZE bytes from the SRAM buffer (previously set) into
+				// flash memory starting from address ROM_ADDR
+
+				static uint32_t *src_buff_addr = NULL;
+
+				if (current_number == 0) {
+					// Set buffer address
+					src_buff_addr = ptr_data;
+
+				} else {
+					// Write to flash
+					uint32_t size = current_number/4;
+					uint32_t *src_addr = src_buff_addr;
+					uint32_t *dst_addr = ptr_data;
+
+					// Set automatic page write
+					NVMCTRL->CTRLB.bit.MANW = 0;
+
+					// Do writes in pages
+					while (size) {
+						// Execute "PBC" Page Buffer Clear
+						NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
+						while (NVMCTRL->INTFLAG.bit.READY == 0)
+							;
+
+						// Fill page buffer
+						uint32_t i;
+						for (i=0; i<(PAGE_SIZE/4) && i<size; i++) {
+							dst_addr[i] = src_addr[i];
+						}
+
+						// Execute "WP" Write Page
+						//NVMCTRL->ADDR.reg = ((uint32_t)dst_addr) / 2;
+						NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
+						while (NVMCTRL->INTFLAG.bit.READY == 0)
+							;
+
+						// Advance to next page
+						dst_addr += i;
+						src_addr += i;
+						size     -= i;
+					}
+				}
+
+				// Notify command completed
+				ptr_monitor_if->putdata("Y\n\r", 3);
 			}
 
 			command = 'z';
