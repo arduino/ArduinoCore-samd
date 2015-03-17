@@ -4,10 +4,10 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino SAMD (32-bits ARM Cortex-M0+) Boards
-version=1.6.1
+version=1.6.2
 
 # Compile variables
-# ----------------------
+# -----------------
 
 compiler.path={runtime.ide.path}/hardware/tools/gcc-arm-none-eabi-4.8.3-2014q1/bin/
 compiler.c.cmd=arm-none-eabi-gcc
@@ -50,7 +50,7 @@ build.usb_manufacturer="Unknown"
 
 
 # Compile patterns
-# ---------------------
+# ----------------
 
 ## Compile c files
 recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.c.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
@@ -73,7 +73,7 @@ recipe.size.regex=\.text\s+([0-9]+).*
 
 
 # Uploader tools
-# -------------------
+# --------------
 
 #
 # BOSSA
