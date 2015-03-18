@@ -36,7 +36,7 @@
 #include "cdc_enumerate.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
-const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XY]";
+const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZ]";
 
 /* Provides one common interface to handle both USART and USB-CDC */
 typedef struct
@@ -186,9 +186,8 @@ void sam_ba_monitor_run(void)
 	}
 }
 
-#if 0
 // Prints a 32-bit integer in hex.
-void printn(uint32_t n) {
+void put_uint32(uint32_t n) {
 	char buff[8];
 	int i;
 	for (i=0; i<8; i++) {
@@ -199,7 +198,6 @@ void printn(uint32_t n) {
 	}
 	ptr_monitor_if->putdata(buff, 8);
 }
-#endif
 
 void sam_ba_monitor_loop(void)
 {
@@ -392,6 +390,27 @@ void sam_ba_monitor_loop(void)
 
 				// Notify command completed
 				ptr_monitor_if->putdata("Y\n\r", 3);
+			}
+			else if (command == 'Z')
+			{
+				// This command calculate CRC for a given area of memory.
+				// It's useful to quickly check if a transfer has been done
+				// successfully.
+
+				// Syntax: Z[START_ADDR],[SIZE]#
+				// Returns: Z[CRC]#
+
+				uint8_t *data = (uint8_t *)ptr_data;
+				uint32_t size = current_number;
+				uint16_t crc = 0;
+				uint32_t i = 0;
+				for (i=0; i<size; i++)
+					crc = add_crc(*data++, crc);
+
+				// Send response
+				ptr_monitor_if->putdata("Z", 1);
+				put_uint32(crc);
+				ptr_monitor_if->putdata("#\n\r", 3);
 			}
 
 			command = 'z';
