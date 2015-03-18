@@ -142,13 +142,13 @@ uint32_t usart_putdata_xmd(void const* data, uint32_t length); //Send given data
 uint32_t usart_getdata_xmd(void* data, uint32_t length); //Get data from comm. device using xmodem (if necessary)
 
 /**
- * \brief Gets data from usart line using Xmodem protocol
+ * \brief Compute the CRC
  *
- * \param data pointer
- * \param number of data to get
- * \return value read on usart line
+ * \param Char to add to CRC
+ * \param Previous CRC
+ * \return The new computed CRC
  */
-unsigned short add_crc(char ptr, unsigned short crc);
+unsigned short add_crc(char c, unsigned short crc);
 
 uint8_t getPacket(uint8_t *pData, uint8_t sno);
 

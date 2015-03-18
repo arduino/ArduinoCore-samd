@@ -36,6 +36,7 @@
 #include "cdc_enumerate.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
+const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZ]";
 
 /* Provides one common interface to handle both USART and USB-CDC */
 typedef struct
@@ -166,169 +167,288 @@ uint8_t command, *ptr_data, *ptr, data[SIZEBUFMAX];
 uint8_t j;
 uint32_t u32tmp;
 
+uint32_t PAGE_SIZE, PAGES, MAX_FLASH;
 
 /**
  * \brief This function starts the SAM-BA monitor.
  */
 void sam_ba_monitor_run(void)
 {
+	uint32_t pageSizes[] = { 8, 16, 32, 64, 128, 256, 512, 1024 };
+	PAGE_SIZE = pageSizes[NVMCTRL->PARAM.bit.PSZ];
+	PAGES = NVMCTRL->PARAM.bit.NVMP;
+	MAX_FLASH = PAGE_SIZE * PAGES;
+
 	ptr_data = NULL;
 	command = 'z';
-	
-	// Start waiting some cmd
-	while (1)
+	while (1) {
+		sam_ba_monitor_loop();
+	}
+}
+
+// Prints a 32-bit integer in hex.
+void put_uint32(uint32_t n) {
+	char buff[8];
+	int i;
+	for (i=0; i<8; i++) {
+		int d = n & 0XF;
+		n = (n >> 4);
+
+		buff[7-i] = d > 9 ? 'A' + d - 10 : '0' + d;
+	}
+	ptr_monitor_if->putdata(buff, 8);
+}
+
+void sam_ba_monitor_loop(void)
+{
+	length = ptr_monitor_if->getdata(data, SIZEBUFMAX);
+	ptr = data;
+	for (i = 0; i < length; i++, ptr++)
 	{
-		length = ptr_monitor_if->getdata(data, SIZEBUFMAX);
-		ptr = data;
-		for (i = 0; i < length; i++)
+		if (*ptr == 0xff) continue;
+
+		if (*ptr == '#')
 		{
-			if (*ptr != 0xff)
+			if (b_terminal_mode)
 			{
-				if (*ptr == '#')
+				ptr_monitor_if->putdata("\n\r", 2);
+			}
+			if (command == 'S')
+			{
+				//Check if some data are remaining in the "data" buffer
+				if(length>i)
 				{
-					if (b_terminal_mode)
-					{
-						ptr_monitor_if->putdata("\n\r", 2);
-					}
-					if (command == 'S')
-					{
-						//Check if some data are remaining in the "data" buffer
-						if(length>i)
-						{
-							//Move current indexes to next avail data (currently ptr points to "#")
-							ptr++;
-							i++;
-							//We need to add first the remaining data of the current buffer already read from usb
-							//read a maximum of "current_number" bytes
-							u32tmp=min((length-i),current_number);
-							memcpy(ptr_data, ptr, u32tmp);
-							i += u32tmp;
-							ptr += u32tmp;
-							j = u32tmp;
-						}
-						//update i with the data read from the buffer
-						i--;
-						ptr--;
-						//Do we expect more data ?
-						if(j<current_number)
-							ptr_monitor_if->getdata_xmd(ptr_data, current_number-j);
-						
-						__asm("nop");
-					}
-					else if (command == 'R')
-					{
-						ptr_monitor_if->putdata_xmd(ptr_data, current_number);
-					}
-					else if (command == 'O')
-					{
-						*ptr_data = (char) current_number;
-					}
-					else if (command == 'H')
-					{
-						*((uint16_t *) ptr_data) = (uint16_t) current_number;
-					}
-					else if (command == 'W')
-					{
-						*((int *) ptr_data) = current_number;
-					}
-					else if (command == 'o')
-					{
-						sam_ba_putdata_term(ptr_data, 1);
-					}
-					else if (command == 'h')
-					{
-						current_number = *((uint16_t *) ptr_data);
-						sam_ba_putdata_term((uint8_t*) &current_number, 2);
-					}
-					else if (command == 'w')
-					{
-						current_number = *((uint32_t *) ptr_data);
-						sam_ba_putdata_term((uint8_t*) &current_number, 4);
-					}
-					else if (command == 'G')
-					{
-						call_applet(current_number);
-						/* Rebase the Stack Pointer */
-						__set_MSP(sp);
-						cpu_irq_enable();
-						if (b_sam_ba_interface_usart) {
-							ptr_monitor_if->put_c(0x6);
-						}
-					}
-					else if (command == 'T')
-					{
-						b_terminal_mode = 1;
-						ptr_monitor_if->putdata("\n\r", 2);
-					}
-					else if (command == 'N')
-					{
-						if (b_terminal_mode == 0)
-						{
-							ptr_monitor_if->putdata("\n\r", 2);
-						}
-						b_terminal_mode = 0;
-					}
-					else if (command == 'V')
-					{
-						ptr_monitor_if->putdata("v", 1);
-						ptr_monitor_if->putdata((uint8_t *) RomBOOT_Version,
-								strlen(RomBOOT_Version));
-						ptr_monitor_if->putdata(" ", 1);
-						ptr = (uint8_t*) &(__DATE__);
-						i = 0;
-						while (*ptr++ != '\0')
-							i++;
-						ptr_monitor_if->putdata((uint8_t *) &(__DATE__), i);
-						ptr_monitor_if->putdata(" ", 1);
-						i = 0;
-						ptr = (uint8_t*) &(__TIME__);
-						while (*ptr++ != '\0')
-							i++;
-						ptr_monitor_if->putdata((uint8_t *) &(__TIME__), i);
-						ptr_monitor_if->putdata("\n\r", 2);
-					}
+					//Move current indexes to next avail data (currently ptr points to "#")
+					ptr++;
+					i++;
+					//We need to add first the remaining data of the current buffer already read from usb
+					//read a maximum of "current_number" bytes
+					u32tmp=min((length-i),current_number);
+					memcpy(ptr_data, ptr, u32tmp);
+					i += u32tmp;
+					ptr += u32tmp;
+					j = u32tmp;
+				}
+				//update i with the data read from the buffer
+				i--;
+				ptr--;
+				//Do we expect more data ?
+				if(j<current_number)
+					ptr_monitor_if->getdata_xmd(ptr_data, current_number-j);
+				
+				__asm("nop");
+			}
+			else if (command == 'R')
+			{
+				ptr_monitor_if->putdata_xmd(ptr_data, current_number);
+			}
+			else if (command == 'O')
+			{
+				*ptr_data = (char) current_number;
+			}
+			else if (command == 'H')
+			{
+				*((uint16_t *) ptr_data) = (uint16_t) current_number;
+			}
+			else if (command == 'W')
+			{
+				*((int *) ptr_data) = current_number;
+			}
+			else if (command == 'o')
+			{
+				sam_ba_putdata_term(ptr_data, 1);
+			}
+			else if (command == 'h')
+			{
+				current_number = *((uint16_t *) ptr_data);
+				sam_ba_putdata_term((uint8_t*) &current_number, 2);
+			}
+			else if (command == 'w')
+			{
+				current_number = *((uint32_t *) ptr_data);
+				sam_ba_putdata_term((uint8_t*) &current_number, 4);
+			}
+			else if (command == 'G')
+			{
+				call_applet(current_number);
+				/* Rebase the Stack Pointer */
+				__set_MSP(sp);
+				cpu_irq_enable();
+				if (b_sam_ba_interface_usart) {
+					ptr_monitor_if->put_c(0x6);
+				}
+			}
+			else if (command == 'T')
+			{
+				b_terminal_mode = 1;
+				ptr_monitor_if->putdata("\n\r", 2);
+			}
+			else if (command == 'N')
+			{
+				if (b_terminal_mode == 0)
+				{
+					ptr_monitor_if->putdata("\n\r", 2);
+				}
+				b_terminal_mode = 0;
+			}
+			else if (command == 'V')
+			{
+				ptr_monitor_if->putdata("v", 1);
+				ptr_monitor_if->putdata((uint8_t *) RomBOOT_Version,
+						strlen(RomBOOT_Version));
+				ptr_monitor_if->putdata(" ", 1);
+				ptr_monitor_if->putdata((uint8_t *) RomBOOT_ExtendedCapabilities,
+						strlen(RomBOOT_ExtendedCapabilities));
+				ptr_monitor_if->putdata(" ", 1);
+				ptr = (uint8_t*) &(__DATE__);
+				i = 0;
+				while (*ptr++ != '\0')
+					i++;
+				ptr_monitor_if->putdata((uint8_t *) &(__DATE__), i);
+				ptr_monitor_if->putdata(" ", 1);
+				i = 0;
+				ptr = (uint8_t*) &(__TIME__);
+				while (*ptr++ != '\0')
+					i++;
+				ptr_monitor_if->putdata((uint8_t *) &(__TIME__), i);
+				ptr_monitor_if->putdata("\n\r", 2);
+			}
+			else if (command == 'X')
+			{
+				// Syntax: X[ADDR]#
+				// Erase the flash memory starting from ADDR to the end of flash.
 
-					command = 'z';
-					current_number = 0;
+				// Note: the flash memory is erased in ROWS, that is in block of 4 pages.
+				//       Even if the starting address is the last byte of a ROW the entire
+				//       ROW is erased anyway.
 
-					if (b_terminal_mode)
-					{
-						ptr_monitor_if->putdata(">", 1);
+				uint32_t dst_addr = current_number; // starting address
+
+				while (dst_addr < MAX_FLASH) {
+					// Execute "ER" Erase Row
+					NVMCTRL->ADDR.reg = dst_addr / 2;
+					NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
+					while (NVMCTRL->INTFLAG.bit.READY == 0)
+						;
+					dst_addr += PAGE_SIZE * 4; // Skip a ROW
+				}
+
+				// Notify command completed
+				ptr_monitor_if->putdata("X\n\r", 3);
+			}
+			else if (command == 'Y')
+			{
+				// This command writes the content of a buffer in SRAM into flash memory.
+
+				// Syntax: Y[ADDR],0#
+				// Set the starting address of the SRAM buffer.
+
+				// Syntax: Y[ROM_ADDR],[SIZE]#
+				// Write the first SIZE bytes from the SRAM buffer (previously set) into
+				// flash memory starting from address ROM_ADDR
+
+				static uint32_t *src_buff_addr = NULL;
+
+				if (current_number == 0) {
+					// Set buffer address
+					src_buff_addr = ptr_data;
+
+				} else {
+					// Write to flash
+					uint32_t size = current_number/4;
+					uint32_t *src_addr = src_buff_addr;
+					uint32_t *dst_addr = ptr_data;
+
+					// Set automatic page write
+					NVMCTRL->CTRLB.bit.MANW = 0;
+
+					// Do writes in pages
+					while (size) {
+						// Execute "PBC" Page Buffer Clear
+						NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
+						while (NVMCTRL->INTFLAG.bit.READY == 0)
+							;
+
+						// Fill page buffer
+						uint32_t i;
+						for (i=0; i<(PAGE_SIZE/4) && i<size; i++) {
+							dst_addr[i] = src_addr[i];
+						}
+
+						// Execute "WP" Write Page
+						//NVMCTRL->ADDR.reg = ((uint32_t)dst_addr) / 2;
+						NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
+						while (NVMCTRL->INTFLAG.bit.READY == 0)
+							;
+
+						// Advance to next page
+						dst_addr += i;
+						src_addr += i;
+						size     -= i;
 					}
 				}
-				else
-				{
-					if (('0' <= *ptr) && (*ptr <= '9'))
-					{
-						current_number = (current_number << 4) | (*ptr - '0');
 
-					}
-					else if (('A' <= *ptr) && (*ptr <= 'F'))
-					{
-						current_number = (current_number << 4)
-								| (*ptr - 'A' + 0xa);
+				// Notify command completed
+				ptr_monitor_if->putdata("Y\n\r", 3);
+			}
+			else if (command == 'Z')
+			{
+				// This command calculate CRC for a given area of memory.
+				// It's useful to quickly check if a transfer has been done
+				// successfully.
 
-					}
-					else if (('a' <= *ptr) && (*ptr <= 'f'))
-					{
-						current_number = (current_number << 4)
-								| (*ptr - 'a' + 0xa);
+				// Syntax: Z[START_ADDR],[SIZE]#
+				// Returns: Z[CRC]#
 
-					}
-					else if (*ptr == ',')
-					{
-						ptr_data = (uint8_t *) current_number;
-						current_number = 0;
+				uint8_t *data = (uint8_t *)ptr_data;
+				uint32_t size = current_number;
+				uint16_t crc = 0;
+				uint32_t i = 0;
+				for (i=0; i<size; i++)
+					crc = add_crc(*data++, crc);
 
-					}
-					else
-					{
-						command = *ptr;
-						current_number = 0;
-					}
-				}
-				ptr++;
+				// Send response
+				ptr_monitor_if->putdata("Z", 1);
+				put_uint32(crc);
+				ptr_monitor_if->putdata("#\n\r", 3);
+			}
+
+			command = 'z';
+			current_number = 0;
+
+			if (b_terminal_mode)
+			{
+				ptr_monitor_if->putdata(">", 1);
+			}
+		}
+		else
+		{
+			if (('0' <= *ptr) && (*ptr <= '9'))
+			{
+				current_number = (current_number << 4) | (*ptr - '0');
+			}
+			else if (('A' <= *ptr) && (*ptr <= 'F'))
+			{
+				current_number = (current_number << 4) | (*ptr - 'A' + 0xa);
+			}
+			else if (('a' <= *ptr) && (*ptr <= 'f'))
+			{
+				current_number = (current_number << 4) | (*ptr - 'a' + 0xa);
+			}
+			else if (*ptr == ',')
+			{
+				ptr_data = (uint8_t *) current_number;
+				current_number = 0;
+			}
+			else
+			{
+				command = *ptr;
+				current_number = 0;
 			}
 		}
 	}
 }
+
+
+
+
