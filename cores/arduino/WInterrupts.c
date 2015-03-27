@@ -176,9 +176,6 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
         EIC->NMICTRL.reg= EIC_NMICTRL_NMISENSE_RISE ;
       break ;
     }
-
-    // Enable the interrupt
-    EIC->INTENSET.reg = EIC_INTENSET_EXTINT( 1 << digitalPinToInterrupt( ulPin ) ) ;
   }
 }
 
@@ -210,21 +207,8 @@ void EIC_Handler( void )
 {
   uint32_t ul ;
 
-  // Test NMI first
-  if ( (EIC->NMIFLAG.reg & EIC_NMIFLAG_NMI) == EIC_NMIFLAG_NMI )
-  {
-    // Call the callback function if assigned
-    if ( callbacksInt[EXTERNAL_INT_NMI]._callback != NULL )
-    {
-      callbacksInt[EXTERNAL_INT_NMI]._callback() ;
-    }
-
-    // Clear the interrupt
-    EIC->NMIFLAG.reg = EIC_NMIFLAG_NMI ;
-  }
-
   // Test the 16 normal interrupts
-  for ( ul = EXTERNAL_INT_0 ; ul < EXTERNAL_INT_NMI ; ul++ )
+  for ( ul = EXTERNAL_INT_0 ; ul <= EXTERNAL_INT_15 ; ul++ )
   {
     if ( (EIC->INTFLAG.reg & ( 1 << ul ) ) != 0 )
     {
@@ -238,6 +222,21 @@ void EIC_Handler( void )
       EIC->INTFLAG.reg = 1 << ul ;
     }
   }
+}
+
+/*
+ * External Non-Maskable Interrupt Controller NVIC Interrupt Handler
+ */
+void NMI_Handler( void )
+{
+  // Call the callback function if assigned
+  if ( callbacksInt[EXTERNAL_INT_NMI]._callback != NULL )
+  {
+    callbacksInt[EXTERNAL_INT_NMI]._callback() ;
+  }
+
+  // Clear the interrupt
+  EIC->NMIFLAG.reg = EIC_NMIFLAG_NMI ;
 }
 
 #ifdef __cplusplus
