@@ -1,5 +1,6 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Stream.h - base class for character-based streams.
+  Copyright (c) 2010 David A. Mellis.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -8,12 +9,14 @@
 
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-  See the GNU Lesser General Public License for more details.
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+  Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+  parsing functions based on TextFinder library by Michael Margolis
 */
 
 #ifndef Stream_h
@@ -94,6 +97,16 @@ class Stream : public Print
   // this allows format characters (typically commas) in values to be ignored
 
   float parseFloat(char skipChar);  // as above but the given skipChar is ignored
+
+  struct MultiTarget {
+    const char *str;  // string you're searching for
+    size_t len;       // length of string you're searching for
+    size_t index;     // index used by the search routine.
+  };
+
+  // This allows you to search for an arbitrary number of strings.
+  // Returns index of the target that is found first or -1 if timeout occurs.
+  int findMulti(struct MultiTarget *targets, int tCount);
 };
 
 #endif
