@@ -1,6 +1,6 @@
 /*
- * SPI Master library for arduino.
- * Copyright (c) 2014 Arduino.
+ * SPI Master library for Arduino.
+ * Copyright (c) 2015 Arduino LLC
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -13,8 +13,15 @@
 #include "assert.h"
 #include "variant.h"
 
+#define SPI_IMODE_NONE   0
+#define SPI_IMODE_EXTINT 1
+#define SPI_IMODE_GLOBAL 2
+
+const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
+
 SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI)
 {
+  initialized = false;
   assert(p_sercom != NULL);
   _p_sercom = p_sercom;
 
@@ -25,14 +32,32 @@ SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint
 
 void SPIClass::begin()
 {
+  init();
+
   // PIO init
   pinPeripheral(_uc_pinMiso, g_APinDescription[_uc_pinMiso].ulPinType);
   pinPeripheral(_uc_pinSCK, g_APinDescription[_uc_pinSCK].ulPinType);
   pinPeripheral(_uc_pinMosi, g_APinDescription[_uc_pinMosi].ulPinType);
 
-  // Default speed set to 4Mhz, SPI mode set to MODE 0 and Bit order set to MSB first.
-  _p_sercom->initSPI(SPI_PAD_2_SCK_3, SERCOM_RX_PAD_0, SPI_CHAR_SIZE_8_BITS, MSB_FIRST);
-  _p_sercom->initSPIClock(SERCOM_SPI_MODE_0, 4000000);
+  config(DEFAULT_SPI_SETTINGS);
+}
+
+void SPIClass::init()
+{
+  if (initialized)
+    return;
+  interruptMode = SPI_IMODE_NONE;
+  interruptSave = 0;
+  interruptMask = 0;
+  initialized = true;
+}
+
+void SPIClass::config(SPISettings settings)
+{
+  _p_sercom->disableSPI();
+
+  _p_sercom->initSPI(SPI_PAD_2_SCK_3, SERCOM_RX_PAD_0, SPI_CHAR_SIZE_8_BITS, settings.bitOrder);
+  _p_sercom->initSPIClock(settings.dataMode, settings.clockFreq);
 
   _p_sercom->enableSPI();
 }
@@ -40,25 +65,67 @@ void SPIClass::begin()
 void SPIClass::end()
 {
   _p_sercom->resetSPI();
+  initialized = false;
 }
 
-
-void SPIClass::usingInterrupt(uint8_t interruptNumber)
+#ifndef interruptsStatus
+#define interruptsStatus() __interruptsStatus()
+static inline unsigned char __interruptsStatus(void) __attribute__((always_inline, unused));
+static inline unsigned char __interruptsStatus(void)
 {
-  // XXX: TODO
+  // See http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0497a/CHDBIBGJ.html
+  return (__get_PRIMASK() ? 0 : 1);
+}
+#endif
+
+void SPIClass::usingInterrupt(int interruptNumber)
+{
+  if ((interruptNumber == NOT_AN_INTERRUPT) || (interruptNumber == EXTERNAL_INT_NMI))
+    return;
+
+  uint8_t irestore = interruptsStatus();
+  noInterrupts();
+
+  if (interruptNumber >= EXTERNAL_NUM_INTERRUPTS)
+    interruptMode = SPI_IMODE_GLOBAL;
+  else
+  {
+    interruptMode |= SPI_IMODE_EXTINT;
+    interruptMask |= (1 << interruptNumber);
+  }
+
+  if (irestore)
+    interrupts();
 }
 
 void SPIClass::beginTransaction(SPISettings settings)
 {
-  // XXX: TODO
-  setBitOrder(settings.bitOrder);
-  setClockDivider(settings.clockDiv);
-  setDataMode(settings.dataMode);
+  if (interruptMode != SPI_IMODE_NONE)
+  {
+    if (interruptMode & SPI_IMODE_GLOBAL)
+    {
+      interruptSave = interruptsStatus();
+      noInterrupts();
+    }
+    else if (interruptMode & SPI_IMODE_EXTINT)
+      EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(interruptMask);
+  }
+
+  config(settings);
 }
 
 void SPIClass::endTransaction(void)
 {
-  // XXX: TODO
+  if (interruptMode != SPI_IMODE_NONE)
+  {
+    if (interruptMode & SPI_IMODE_GLOBAL)
+    {
+      if (interruptSave)
+        interrupts();
+    }
+    else if (interruptMode & SPI_IMODE_EXTINT)
+      EIC->INTENSET.reg = EIC_INTENSET_EXTINT(interruptMask);
+  }
 }
 
 void SPIClass::setBitOrder(BitOrder order)
@@ -110,7 +177,7 @@ byte SPIClass::transfer(uint8_t data)
   _p_sercom->writeDataSPI(data);
 
   // Read data
-  return _p_sercom->readDataSPI();
+  return _p_sercom->readDataSPI() & 0xFF;
 }
 
 void SPIClass::attachInterrupt() {

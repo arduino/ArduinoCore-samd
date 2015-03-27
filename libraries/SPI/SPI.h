@@ -1,6 +1,7 @@
 /*
+ * SPI Master library for Arduino.
  * Copyright (c) 2010 by Cristian Maglie <c.maglie@bug.st>
- * SPI Master library for arduino.
+ * Copyright (c) 2015 Arduino LLC
  *
  * This file is free software; you can redistribute it and/or modify
  * it under the terms of either the GNU General Public License version 2
@@ -12,6 +13,13 @@
 #define _SPI_H_INCLUDED
 
 #include <Arduino.h>
+
+// SPI_HAS_TRANSACTION means SPI has
+//   - beginTransaction()
+//   - endTransaction()
+//   - usingInterrupt()
+//   - SPISetting(clock, bitOrder, dataMode)
+#define SPI_HAS_TRANSACTION 1
 
 #define SPI_MODE0 0x02
 #define SPI_MODE1 0x00
@@ -38,6 +46,7 @@ class SPISettings {
     }
   }
 
+  // Default speed set to 4MHz, SPI mode set to MODE 0 and Bit order set to MSB first.
   SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
 
   private:
@@ -46,21 +55,32 @@ class SPISettings {
   }
 
   void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
-    uint8_t div;
-    if (clock < (F_CPU / 255)) {
-      div = 255;
-    } else if (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER)) {
-      div = SPI_MIN_CLOCK_DIVIDER;
-    } else {
-      div = (F_CPU / (clock + 1)) + 1;
+    this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? F_CPU / SPI_MIN_CLOCK_DIVIDER : clock);
+
+    this->bitOrder = (bitOrder == MSBFIRST ? MSB_FIRST : LSB_FIRST);
+
+    switch (dataMode)
+    {
+      case SPI_MODE0:
+        this->dataMode = SERCOM_SPI_MODE_0;
+
+      case SPI_MODE1:
+        this->dataMode = SERCOM_SPI_MODE_1;
+
+      case SPI_MODE2:
+        this->dataMode = SERCOM_SPI_MODE_2;
+
+      case SPI_MODE3:
+        this->dataMode = SERCOM_SPI_MODE_3;
+
+      default:
+        this->dataMode = SERCOM_SPI_MODE_0;
     }
-    this->clockDiv = div;
-    this->dataMode = dataMode;
-    this->bitOrder = bitOrder;
   }
 
-  uint8_t clockDiv, dataMode;
-  BitOrder bitOrder;
+  uint32_t clockFreq;
+  SercomSpiClockMode dataMode;
+  SercomDataOrder bitOrder;
 
   friend class SPIClass;
 };
@@ -73,7 +93,7 @@ class SPIClass {
   inline void transfer(void *buf, size_t count);
 
   // Transaction Functions
-  void usingInterrupt(uint8_t interruptNumber);
+  void usingInterrupt(int interruptNumber);
   void beginTransaction(SPISettings settings);
   void endTransaction(void);
 
@@ -89,10 +109,17 @@ class SPIClass {
   void setClockDivider(uint8_t uc_div);
 
   private:
+  void init();
+  void config(SPISettings settings);
+
   SERCOM *_p_sercom;
   uint8_t _uc_pinMiso;
   uint8_t _uc_pinMosi;
   uint8_t _uc_pinSCK;
+  bool initialized;
+  uint8_t interruptMode;
+  char interruptSave;
+  uint32_t interruptMask;
 };
 
 void SPIClass::transfer(void *buf, size_t count)
