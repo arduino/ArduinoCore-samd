@@ -138,6 +138,7 @@ static void check_start_application(void)
 		return;
 	}
 
+#if defined(BOOT_LOAD_PIN)
 	volatile PortGroup *boot_port = (volatile PortGroup *)(&(PORT->Group[BOOT_LOAD_PIN / 32]));
 	volatile bool boot_en;
 
@@ -153,6 +154,7 @@ static void check_start_application(void)
 		/* Stay in bootloader */
 		return;
 	}
+#endif
 
 	led_port->OUTSET.reg = (1<<30);
 

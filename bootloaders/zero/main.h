@@ -29,10 +29,6 @@
 
 #pragma once
 
-#define CPU_FREQUENCY                     8000000
-
-#define APP_START_ADDRESS                 0x00002000
-
 /*
  * If BOOT_DOUBLE_TAP_ADDRESS is defined the bootloader is started by
  * quickly tapping two times on the reset button.
@@ -42,9 +38,16 @@
 #define BOOT_DOUBLE_TAP_ADDRESS           0x20007FFC
 #define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
 
-#define BOOT_LOAD_PIN                     PIN_PA21 //Pin 7
-//#define BOOT_LOAD_PIN                     PIN_PA15 //Pin 5
+/*
+ * If BOOT_LOAD_PIN is defined the bootloader is started if the selected
+ * pin is tied LOW.
+ */
+//#define BOOT_LOAD_PIN                     PIN_PA21 // Pin 7
+//#define BOOT_LOAD_PIN                     PIN_PA15 // Pin 5
 #define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
+
+#define CPU_FREQUENCY                     8000000
+#define APP_START_ADDRESS                 0x00002000
 #define FLASH_WAIT_STATES                 1
 
 #define BOOT_USART_MODULE                 SERCOM0
