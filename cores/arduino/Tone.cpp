@@ -21,7 +21,7 @@
 
 #define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.STATUS.bit.SYNCBUSY);
 
-uint32_t toneMaxFrequency = SystemCoreClock / 2;
+uint32_t toneMaxFrequency = F_CPU / 2;
 uint32_t lastOutputPin = 0xFFFFFFFF;
 
 volatile uint32_t *portToggleRegister;
