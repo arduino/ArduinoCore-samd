@@ -97,6 +97,32 @@ static void check_start_application(void)
         led_port->DIRSET.reg = (1<<30);
         led_port->OUTCLR.reg = (1<<30);
   
+#if defined(BOOT_DOUBLE_TAP_ADDRESS)
+	if (PM->RCAUSE.bit.POR)
+	{
+		/* On power-on initialize double-tap */
+		BOOT_DOUBLE_TAP_DATA = 0;
+	}
+	else
+	{
+		if (BOOT_DOUBLE_TAP_DATA == 0) {
+			/* First tap */
+			BOOT_DOUBLE_TAP_DATA = 1;
+
+			for (uint32_t i=0; i<50000; i++) /* 200ms */
+				/* force compiler to not optimize this... */
+				__asm__ __volatile__("");
+
+			/* Timeout happened, continue boot... */
+			BOOT_DOUBLE_TAP_DATA = 0;
+		} else {
+			/* Second tap, stay in bootloader */
+			BOOT_DOUBLE_TAP_DATA = 0;
+			return;
+		}
+	}
+#endif
+
 	uint32_t app_start_address;
 
 	/* Load the Reset Handler address of the application */
