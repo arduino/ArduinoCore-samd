@@ -93,10 +93,10 @@ static volatile bool main_b_cdc_enable = false;
  */
 static void check_start_application(void)
 {
-        volatile PortGroup *led_port = (volatile PortGroup *)&PORT->Group[1];
-        led_port->DIRSET.reg = (1<<30);
-        led_port->OUTCLR.reg = (1<<30);
-  
+	volatile PortGroup *led_port = (volatile PortGroup *)&PORT->Group[1];
+	led_port->DIRSET.reg = (1<<30);
+	led_port->OUTCLR.reg = (1<<30);
+
 #if defined(BOOT_DOUBLE_TAP_ADDRESS)
 	if (PM->RCAUSE.bit.POR)
 	{
@@ -154,8 +154,8 @@ static void check_start_application(void)
 		return;
 	}
 
-        led_port->OUTSET.reg = (1<<30);
-        
+	led_port->OUTSET.reg = (1<<30);
+
 	/* Rebase the Stack Pointer */
 	__set_MSP(*(uint32_t *) APP_START_ADDRESS);
 
@@ -255,7 +255,7 @@ void system_init()
 int main(void)
 {
 #if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES 
-        P_USB_CDC pCdc;
+	P_USB_CDC pCdc;
 #endif
 	DEBUG_PIN_HIGH;
 
@@ -272,13 +272,13 @@ int main(void)
 	usart_open();
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES        
+#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
 	pCdc = (P_USB_CDC)usb_init();
 #endif
 	DEBUG_PIN_LOW;
 	/* Wait for a complete enum on usb or a '#' char on serial line */
 	while (1) {
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES          
+#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
 		if (pCdc->IsConfigured(pCdc) != 0) {
 			main_b_cdc_enable = true;
 		}
@@ -293,7 +293,7 @@ int main(void)
 			}
 		}
 #endif
-#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES               
+#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
 		/* Check if a '#' has been received */
 		if (!main_b_cdc_enable && usart_sharp_received()) {
 			sam_ba_monitor_init(SAM_BA_INTERFACE_USART);

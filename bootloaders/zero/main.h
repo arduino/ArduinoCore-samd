@@ -27,9 +27,7 @@
  * ----------------------------------------------------------------------------
  */
 
-#ifndef _MAIN_H_
-#define _MAIN_H_
-
+#pragma once
 
 #define CPU_FREQUENCY                     8000000
 
@@ -59,5 +57,3 @@
 #define BOOT_USART_PAD1                   PINMUX_UNUSED
 #define BOOT_USART_PAD0                   PINMUX_UNUSED
 
-
-#endif // _MAIN_H_
