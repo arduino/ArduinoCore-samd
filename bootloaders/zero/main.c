@@ -98,6 +98,7 @@ static void check_start_application(void)
 	led_port->OUTCLR.reg = (1<<30);
 
 #if defined(BOOT_DOUBLE_TAP_ADDRESS)
+	#define DOUBLE_TAP_MAGIC 0x07738135
 	if (PM->RCAUSE.bit.POR)
 	{
 		/* On power-on initialize double-tap */
@@ -105,9 +106,10 @@ static void check_start_application(void)
 	}
 	else
 	{
-		if (BOOT_DOUBLE_TAP_DATA == 0) {
+		switch (BOOT_DOUBLE_TAP_DATA) {
+		case 0:
 			/* First tap */
-			BOOT_DOUBLE_TAP_DATA = 1;
+			BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
 
 			for (uint32_t i=0; i<50000; i++) /* 200ms */
 				/* force compiler to not optimize this... */
@@ -115,10 +117,14 @@ static void check_start_application(void)
 
 			/* Timeout happened, continue boot... */
 			BOOT_DOUBLE_TAP_DATA = 0;
-		} else {
+			break;
+		case DOUBLE_TAP_MAGIC:
 			/* Second tap, stay in bootloader */
 			BOOT_DOUBLE_TAP_DATA = 0;
 			return;
+		default:
+			/* Fallback... reset counter and continue boot */
+			BOOT_DOUBLE_TAP_DATA = 0;
 		}
 	}
 #endif
