@@ -115,18 +115,3 @@ tools.openocd.bootloader.params.verbose=-d2
 tools.openocd.bootloader.params.quiet=-d0
 tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
 
-#
-# OpenOCD burn bootloader
-#
-
-tools.edbg.program.params.verbose=-d2
-tools.edbg.program.params.quiet=-d0
-tools.edbg.program.pattern=
-
-tools.edbg.erase.params.verbose=-d2
-tools.edbg.erase.params.quiet=-d0
-tools.edbg.erase.pattern=
-
-tools.edbg.bootloader.params.verbose=-d2
-tools.edbg.bootloader.params.quiet=-d0
-tools.edbg.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset"
