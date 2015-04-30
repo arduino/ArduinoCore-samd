@@ -101,11 +101,11 @@ tools.openocd.path={runtime.ide.path}/hardware/tools/OpenOCD-0.9.0-dev-arduino
 
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.bin}} verify reset 0x00002000"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset 0x00002000; shutdown"
 
 tools.openocd.program.params.verbose=-d2
 tools.openocd.program.params.quiet=-d0
-tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{build.path}/{build.project_name}.elf}} verify reset"
+tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.elf}} verify reset; shutdown"
 
 tools.openocd.erase.params.verbose=-d3
 tools.openocd.erase.params.quiet=-d0
@@ -113,7 +113,7 @@ tools.openocd.erase.pattern=
 
 tools.openocd.bootloader.params.verbose=-d2
 tools.openocd.bootloader.params.quiet=-d0
-tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset"
+tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
 
 #
 # OpenOCD burn bootloader
