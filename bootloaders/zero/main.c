@@ -111,7 +111,7 @@ static void check_start_application(void)
 			/* First tap */
 			BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
 
-			for (uint32_t i=0; i<50000; i++) /* 200ms */
+			for (uint32_t i=0; i<125000; i++) /* 500ms */
 				/* force compiler to not optimize this... */
 				__asm__ __volatile__("");
 
