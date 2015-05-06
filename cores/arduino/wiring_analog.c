@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -57,7 +57,6 @@ static void syncTCC(Tcc* TCCx) {
 void analogReadResolution( int res )
 {
   _readResolution = res ;
-  syncADC();
   if (res > 10)
   {
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
@@ -73,6 +72,7 @@ void analogReadResolution( int res )
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
     _ADCResolution = 8;
   }
+  syncADC();
 }
 
 void analogWriteResolution( int res )
