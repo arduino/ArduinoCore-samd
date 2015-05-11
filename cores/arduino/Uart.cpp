@@ -20,11 +20,13 @@
 #include "WVariant.h"
 #include "wiring_digital.h"
 
-Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX)
+Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX)
 {
   sercom = _s;
   uc_pinRX = _pinRX;
   uc_pinTX = _pinTX;
+  uc_padRX=_padRX ;
+  uc_padTX=_padTX;
 }
 
 void Uart::begin(unsigned long baudrate)
@@ -39,8 +41,7 @@ void Uart::begin(unsigned long baudrate, uint8_t config)
 
   sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
   sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
-  sercom->initPads(UART_TX_PAD_2, SERCOM_RX_PAD_3);
-
+  sercom->initPads(uc_padTX, uc_padRX);
 
   sercom->enableUART();
 }
@@ -139,14 +140,4 @@ SercomParityMode Uart::extractParity(uint8_t config)
     case HARDSER_PARITY_ODD:
       return SERCOM_ODD_PARITY;
   }
-}
-
-void SERCOM0_Handler()
-{
-  Serial1.IrqHandler();
-}
-
-void SERCOM5_Handler()
-{
-  Serial.IrqHandler();
 }
