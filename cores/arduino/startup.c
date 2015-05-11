@@ -35,42 +35,20 @@ void Dummy_Handler(void);
 
 /* Cortex-M0+ core handlers */
 #if defined DEBUG
-void NMI_Handler( void )
-{
-  while ( 1 )
-  {
-  }
-}
-
 void HardFault_Handler( void )
 {
   while ( 1 )
   {
   }
 }
-
-void SVC_Handler( void )
-{
-  while ( 1 )
-  {
-  }
-}
-
-void PendSV_Handler( void )
-{
-  while ( 1 )
-  {
-  }
-}
-
-void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 #else
-void NMI_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void HardFault_Handler       ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+#endif //DEBUG
+
+void NMI_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SVC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void PendSV_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-#endif //DEBUG
 
 /* Peripherals handlers */
 void PM_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
