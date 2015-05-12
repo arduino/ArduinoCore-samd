@@ -37,6 +37,8 @@ void Dummy_Handler(void);
 #if defined DEBUG
 void HardFault_Handler( void )
 {
+  __BKPT( 3 ) ;
+
   while ( 1 )
   {
   }
@@ -386,6 +388,10 @@ void Reset_Handler( void )
  */
 void Dummy_Handler( void )
 {
+#if defined DEBUG
+  __BKPT( 3 ) ;
+#endif // DEBUG
+
   while ( 1 )
   {
   }
