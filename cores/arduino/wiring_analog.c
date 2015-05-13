@@ -42,6 +42,18 @@ static void syncDAC() {
     ;
 }
 
+// Wait for synchronization of registers between the clock domains
+static __inline__ void syncTC_8(Tc* TCx) __attribute__((always_inline, unused));
+static void syncTC_8(Tc* TCx) {
+  while (TCx->COUNT8.STATUS.bit.SYNCBUSY);
+}
+
+// Wait for synchronization of registers between the clock domains
+static __inline__ void syncTCC(Tcc* TCCx) __attribute__((always_inline, unused));
+static void syncTCC(Tcc* TCCx) {
+  while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK);
+}
+
 void analogReadResolution( int res )
 {
   _readResolution = res ;
@@ -236,8 +248,6 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       case 1: // TCC1
         // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC0_TCC1 )) ;
-
-        while ( GCLK->STATUS.bit.SYNCBUSY == 1 ) ;
       break ;
 
       case 2: // TCC2
@@ -259,6 +269,8 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       break ;
     }
 
+    while ( GCLK->STATUS.bit.SYNCBUSY == 1 ) ;
+
     ulValue = mapResolution(ulValue, _writeResolution, 8);
 
     // Set PORT
@@ -268,30 +280,39 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 
       // Disable TCx
       TCx->COUNT8.CTRLA.reg &= ~TC_CTRLA_ENABLE;
+      syncTC_8(TCx);
       // Set Timer counter Mode to 8 bits
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8;
       // Set TCx as normal PWM
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
       // Set TCx in waveform mode Normal PWM
       TCx->COUNT8.CC[Channelx].reg = (uint8_t) ulValue;
+      syncTC_8(TCx);
       // Set PER to maximum counter value (resolution : 0xFF)
       TCx->COUNT8.PER.reg = 0xFF;
+      syncTC_8(TCx);
       // Enable TCx
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_ENABLE;
+      syncTC_8(TCx);
     }
     else
     {
       // -- Configure TCC
       // Disable TCCx
       TCCx->CTRLA.reg &= ~TCC_CTRLA_ENABLE;
+      syncTCC(TCCx);
       // Set TCx as normal PWM
       TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
+      syncTCC(TCCx);
       // Set TCx in waveform mode Normal PWM
       TCCx->CC[Channelx].reg = (uint32_t)ulValue;
+      syncTCC(TCCx);
       // Set PER to maximum counter value (resolution : 0xFF)
       TCCx->PER.reg = 0xFF;
+      syncTCC(TCCx);
       // Enable TCCx
       TCCx->CTRLA.reg |= TCC_CTRLA_ENABLE ;
+      syncTCC(TCCx);
     }
 
     return ;
