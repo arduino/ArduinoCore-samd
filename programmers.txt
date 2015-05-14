@@ -4,4 +4,3 @@ edbg.protocol=
 edbg.program.protocol=
 edbg.program.tool=openocd
 edbg.program.extra_params=
-#edbg.build.ldscript=linker_scripts/gcc/flash_without_bootloader.ld
