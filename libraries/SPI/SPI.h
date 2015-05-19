@@ -62,19 +62,15 @@ class SPISettings {
     switch (dataMode)
     {
       case SPI_MODE0:
-        this->dataMode = SERCOM_SPI_MODE_0;
-
+        this->dataMode = SERCOM_SPI_MODE_0; break;
       case SPI_MODE1:
-        this->dataMode = SERCOM_SPI_MODE_1;
-
+        this->dataMode = SERCOM_SPI_MODE_1; break;
       case SPI_MODE2:
-        this->dataMode = SERCOM_SPI_MODE_2;
-
+        this->dataMode = SERCOM_SPI_MODE_2; break;
       case SPI_MODE3:
-        this->dataMode = SERCOM_SPI_MODE_3;
-
+        this->dataMode = SERCOM_SPI_MODE_3; break;
       default:
-        this->dataMode = SERCOM_SPI_MODE_0;
+        this->dataMode = SERCOM_SPI_MODE_0; break;
     }
   }
 
