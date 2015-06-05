@@ -25,11 +25,10 @@
 
 #include <cstddef>
 
-
 class Uart : public HardwareSerial
 {
   public:
-    Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX);
+    Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX);
     void begin(unsigned long baudRate);
     void begin(unsigned long baudrate, uint8_t config);
     void end();
@@ -50,14 +49,12 @@ class Uart : public HardwareSerial
 
     uint8_t uc_pinRX;
     uint8_t uc_pinTX;
+    SercomRXPad uc_padRX;
+    SercomUartTXPad uc_padTX;
 
     SercomNumberStopBit extractNbStopBit(uint8_t config);
     SercomUartCharSize extractCharSize(uint8_t config);
     SercomParityMode extractParity(uint8_t config);
 };
-
-extern Uart Serial;
-extern Uart Serial1;
-
 
 #endif
