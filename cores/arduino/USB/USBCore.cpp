@@ -33,7 +33,7 @@
 //==================================================================
 
 #define USB_PID_DUE        0x003E
-#define USB_PID_ZERO       0x004D
+#define USB_PID_ZERO       0x804D
 
 // USB Device
 #define USB_VID            0x2341 // arduino LLC vid
