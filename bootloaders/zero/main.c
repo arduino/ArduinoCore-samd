@@ -106,26 +106,22 @@ static void check_start_application(void)
 	}
 	else
 	{
-		switch (BOOT_DOUBLE_TAP_DATA) {
-		case 0:
-			/* First tap */
-			BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
-
-			for (uint32_t i=0; i<125000; i++) /* 500ms */
-				/* force compiler to not optimize this... */
-				__asm__ __volatile__("");
-
-			/* Timeout happened, continue boot... */
-			BOOT_DOUBLE_TAP_DATA = 0;
-			break;
-		case DOUBLE_TAP_MAGIC:
+		if (BOOT_DOUBLE_TAP_DATA == DOUBLE_TAP_MAGIC) {
 			/* Second tap, stay in bootloader */
 			BOOT_DOUBLE_TAP_DATA = 0;
 			return;
-		default:
-			/* Fallback... reset counter and continue boot */
-			BOOT_DOUBLE_TAP_DATA = 0;
 		}
+
+		/* First tap */
+		BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
+
+		/* Wait 0.5sec to see if the user tap reset again */
+		for (uint32_t i=0; i<125000; i++) /* 500ms */
+			/* force compiler to not optimize this... */
+			__asm__ __volatile__("");
+
+		/* Timeout happened, continue boot... */
+		BOOT_DOUBLE_TAP_DATA = 0;
 	}
 #endif
 

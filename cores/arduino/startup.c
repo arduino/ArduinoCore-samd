@@ -35,42 +35,22 @@ void Dummy_Handler(void);
 
 /* Cortex-M0+ core handlers */
 #if defined DEBUG
-void NMI_Handler( void )
-{
-  while ( 1 )
-  {
-  }
-}
-
 void HardFault_Handler( void )
 {
+  __BKPT( 3 ) ;
+
   while ( 1 )
   {
   }
 }
-
-void SVC_Handler( void )
-{
-  while ( 1 )
-  {
-  }
-}
-
-void PendSV_Handler( void )
-{
-  while ( 1 )
-  {
-  }
-}
-
-void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 #else
-void NMI_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void HardFault_Handler       ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+#endif //DEBUG
+
+void NMI_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SVC_Handler             ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void PendSV_Handler          ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SysTick_Handler         ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-#endif //DEBUG
 
 /* Peripherals handlers */
 void PM_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -343,6 +323,21 @@ void SystemInit( void )
   PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
 
   SystemCoreClock=VARIANT_MCK ;
+
+  /* ----------------------------------------------------------------------------------------------
+   * 8) Load ADC factory calibration values
+   */
+
+  // ADC Bias Calibration
+  uint32_t bias = (*((uint32_t *) ADC_FUSES_BIASCAL_ADDR) & ADC_FUSES_BIASCAL_Msk) >> ADC_FUSES_BIASCAL_Pos;
+
+  // ADC Linearity bits 4:0
+  uint32_t linearity = (*((uint32_t *) ADC_FUSES_LINEARITY_0_ADDR) & ADC_FUSES_LINEARITY_0_Msk) >> ADC_FUSES_LINEARITY_0_Pos;
+
+  // ADC Linearity bits 7:5
+  linearity |= ((*((uint32_t *) ADC_FUSES_LINEARITY_1_ADDR) & ADC_FUSES_LINEARITY_1_Msk) >> ADC_FUSES_LINEARITY_1_Pos) << 5;
+
+  ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
 }
 
 /**
@@ -393,6 +388,10 @@ void Reset_Handler( void )
  */
 void Dummy_Handler( void )
 {
+#if defined DEBUG
+  __BKPT( 3 ) ;
+#endif // DEBUG
+
   while ( 1 )
   {
   }
