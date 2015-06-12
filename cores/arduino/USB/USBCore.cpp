@@ -30,21 +30,8 @@
 //#define TRACE_CORE(x)	x
 #define TRACE_CORE(x)
 
-//==================================================================
-
-#define USB_PID_DUE        0x003E
-#define USB_PID_ZERO       0x804D
-
-// USB Device
-#define USB_VID            0x2341 // arduino LLC vid
-#undef USB_PID
-#define USB_PID            USB_PID_ZERO
-
-//==================================================================
-
 static char isRemoteWakeUpEnabled = 0;
 static char isEndpointHalt = 0;
-
 
 const uint16_t STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
@@ -52,23 +39,20 @@ const uint16_t STRING_LANGUAGE[2] = {
 };
 
 #ifndef USB_PRODUCT
-// Use a hardcoded product name if none is provided
-#if USB_PID == USB_PID_DUE
-	#define USB_PRODUCT "Arduino Due"
-#elif USB_PID == USB_PID_ZERO
-	#define USB_PRODUCT "Arduino Zero"
-#else
-	#define USB_PRODUCT "USB IO Board"
-#endif
+// If no product is provided, use USB IO Board
+#define USB_PRODUCT     "USB IO Board"
 #endif
 
 const uint8_t STRING_PRODUCT[] = USB_PRODUCT;
 
 #if USB_VID == 0x2341
-	#define USB_MANUFACTURER "Arduino LLC"
+#  if defined(USB_MANUFACTURER)
+#    undef USB_MANUFACTURER
+#  endif
+#  define USB_MANUFACTURER "Arduino LLC"
 #elif !defined(USB_MANUFACTURER)
-	// Fall through to unknown if no manufacturer name was provided in a macro
-	#define USB_MANUFACTURER "Unknown"
+// Fall through to unknown if no manufacturer name was provided in a macro
+#  define USB_MANUFACTURER "Unknown"
 #endif
 
 const uint8_t STRING_MANUFACTURER[12] = USB_MANUFACTURER;
