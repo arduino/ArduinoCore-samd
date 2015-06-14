@@ -1,5 +1,4 @@
 # Copyright (c) 2014-2015 Arduino LLC.  All right reserved.
-# Copyright (c) 2015 Amel-Tech (a division of Amel Srl). All right reserved.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -21,7 +20,6 @@ edbg.protocol=
 edbg.program.protocol=
 edbg.program.tool=openocd
 edbg.program.extra_params=
-#edbg.build.ldscript=linker_scripts/gcc/flash_without_bootloader.ld
 
 atmel_ice.name=Atmel-ICE
 atmel_ice.communication=USB

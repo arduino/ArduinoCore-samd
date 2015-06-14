@@ -1,7 +1,7 @@
 /*
   dtostrf - Emulation for dtostrf function from avr-libc
-  Copyright (c) 2014 Arduino.  All rights reserved.
-  Written by Cristian Maglie <c.maglie@bug.st>
+  Copyright (c) 2015 Arduino LLC.  All rights reserved.
+  Written by Cristian Maglie <c.maglie@arduino.cc>
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -17,6 +17,8 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
+
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
