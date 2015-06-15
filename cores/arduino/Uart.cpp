@@ -17,8 +17,8 @@
 */
 
 #include "Uart.h"
-#include "WVariant.h"
-#include "wiring_digital.h"
+#include "Arduino.h"
+#include "wiring_private.h"
 
 Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX)
 {
