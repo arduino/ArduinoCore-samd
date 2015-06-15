@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2015 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -35,23 +35,12 @@ static struct
 /* Configure I/O interrupt sources */
 static void __initialize()
 {
-#if 0
-  int i ;
-
-  for ( i = 0 ; i < EXTERNAL_NUM_INTERRUPTS ; i++ )
-  {
-    callbacksInt[i]._callback = NULL ;
-  }
-#else
   memset( callbacksInt, 0, sizeof( callbacksInt ) ) ;
-#endif
 
   NVIC_DisableIRQ( EIC_IRQn ) ;
   NVIC_ClearPendingIRQ( EIC_IRQn ) ;
   NVIC_SetPriority( EIC_IRQn, 0 ) ;
   NVIC_EnableIRQ( EIC_IRQn ) ;
-
-
 
   // Enable GCLK for IEC (External Interrupt Controller)
   GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_EIC )) ;
