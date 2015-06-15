@@ -22,9 +22,9 @@
 #include <string.h>
 
 #include "../Arduino.h"
+#include "../wiring_private.h"
 #include "USB_host.h"
 #include "samd21_host.h"
-#include "wiring_digital.h"
 
 #define HOST_DEFINED
 #ifdef HOST_DEFINED
