@@ -25,6 +25,4 @@
 void tone(uint32_t _pin, uint32_t frequency, uint32_t duration = 0);
 void noTone(uint32_t _pin);
 
-void toneAccurateClock (uint32_t);
-
 #endif
