@@ -16,9 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "wiring_analog.h"
-#include "wiring_digital.h"
-#include "variant.h"
+#include "Arduino.h"
 
 #ifdef __cplusplus
 extern "C" {

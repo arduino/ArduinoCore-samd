@@ -21,10 +21,9 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "variant.h"
+#include "../Arduino.h"
 #include "USB_host.h"
 #include "samd21_host.h"
-#include "sam.h"
 #include "wiring_digital.h"
 
 #define HOST_DEFINED

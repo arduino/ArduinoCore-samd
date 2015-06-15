@@ -9,9 +9,9 @@
  */
 
 #include "SPI.h"
-#include "wiring_digital.h"
-#include "assert.h"
-#include "variant.h"
+#include <Arduino.h>
+#include <wiring_private.h>
+#include <assert.h>
 
 #define SPI_IMODE_NONE   0
 #define SPI_IMODE_EXTINT 1
