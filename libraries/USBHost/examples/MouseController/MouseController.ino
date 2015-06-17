@@ -55,9 +55,9 @@ void mousePressed() {
   }
   if (mouse.getButton(RIGHT_BUTTON)) {
     SERIAL_PORT_MONITOR.print("R");
-    SERIAL_PORT_MONITOR.println();
     rightButton = true;
   }
+  SERIAL_PORT_MONITOR.println();
 }
 
 // This function intercepts mouse button release
