@@ -102,6 +102,10 @@ static const uint8_t A4  = PIN_A4 ;
 static const uint8_t A5  = PIN_A5 ;
 #define ADC_RESOLUTION		12
 
+// Other pins
+#define PIN_ATN              (38ul)
+static const uint8_t ATN = PIN_ATN;
+
 /*
  * Serial interfaces
  */
