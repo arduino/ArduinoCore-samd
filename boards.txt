@@ -63,3 +63,5 @@ arduino_zero_native.build.variant=arduino_zero
 arduino_zero_native.build.variant_system_lib=
 arduino_zero_native.build.vid=0x2341
 arduino_zero_native.build.pid=0x804d
+arduino_zero_native.bootloader.tool=openocd
+arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
