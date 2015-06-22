@@ -16,12 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdint.h>
-
-#include "sam.h"
-#include "wiring_constants.h"
+#include "../Arduino.h"
 #include "USBCore.h"
 #include "USB/USB_device.h"   // needed for USB PID define
 #include "USBDesc.h"
