@@ -10,7 +10,7 @@
       },
       "platforms": [
         {
-          "name": "Arduino SAMD core - Pull request build num. %%PR_NUMBER%%",
+          "name": "Arduino SAMD core - Pull request #%%PR_NUMBER%% (build %%BUILD_NUMBER%%)",
           "architecture": "samd",
           "version": "%%VERSION%%",
           "category": "Arduino",
