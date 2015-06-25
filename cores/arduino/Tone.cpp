@@ -34,6 +34,7 @@ volatile bool toneIsActive = false;
 #define TONE_TC_IRQn    TC5_IRQn
 #define TONE_TC_TOP     0xFFFF
 #define TONE_TC_CHANNEL 0
+void TC5_Handler (void) __attribute__ ((weak, alias("Tone_Handler")));
 
 static inline void resetTC (Tc* TCx)
 {
@@ -182,8 +183,6 @@ void Tone_Handler (void)
     toneIsActive = false;
   }
 }
-
-void TC5_Handler (void) __attribute__ ((weak, alias("Tone_Handler")));
 
 #ifdef __cplusplus
 }
