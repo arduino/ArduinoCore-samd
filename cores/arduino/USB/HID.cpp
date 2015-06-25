@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,13 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "USBAPI.h"
-#include "Reset.h"
-#include "USBCore.h"
-#include "USBDesc.h"
-#include "sam.h"
-#include "USB/USB_device.h"
-
+#include <Arduino.h>
 
 #ifdef HID_ENABLED
 
@@ -143,14 +137,12 @@ _Pragma("pack()")
 uint8_t _hid_protocol = 1;
 uint8_t _hid_idle = 1;
 
-#define WEAK __attribute__ ((weak))
-
-const void* WEAK HID_GetInterface(void)
+const void* HID_GetInterface(void)
 {
 	return  &_hidInterface;
 }
 
-uint32_t WEAK HID_GetInterfaceLength(void)
+uint32_t HID_GetInterfaceLength(void)
 {
     return sizeof( _hidInterface );
 }
@@ -160,12 +152,12 @@ uint32_t HID_SizeReportDescriptor(void)
 	return sizeof(_hidReportDescriptor);
 }
 
-uint32_t WEAK HID_GetDescriptor(void)
+uint32_t HID_GetDescriptor(void)
 {
-	return USBD_SendControl(0,_hidReportDescriptor,sizeof(_hidReportDescriptor));
+	return USBDevice.sendControl(_hidReportDescriptor, sizeof(_hidReportDescriptor));
 }
 
-void WEAK HID_SendReport(uint8_t id, const void* data, uint32_t len)
+void HID_SendReport(uint8_t id, const void* data, uint32_t len)
 {
 	uint8_t p[8];
 	const uint8_t *d = reinterpret_cast<const uint8_t *>(data);
@@ -175,10 +167,10 @@ void WEAK HID_SendReport(uint8_t id, const void* data, uint32_t len)
 	{
 		p[i+1] = d[i];
 	}
-	USBD_Send(HID_ENDPOINT_INT, p, len+1);
+	USBDevice.send(HID_ENDPOINT_INT, p, len+1);
 }
 
-bool WEAK HID_Setup(Setup& setup)
+bool HID_Setup(Setup& setup)
 {
 	uint8_t r = setup.bRequest;
 	uint8_t requestType = setup.bmRequestType;
@@ -197,8 +189,9 @@ bool WEAK HID_Setup(Setup& setup)
 		}
 		if (HID_GET_IDLE == r)
 		{
-			UDD_Send(0, &_hid_idle, 1);
-			UDD_ClearIN();
+			USBDevice.armSend(0, &_hid_idle, 1);
+			// RAM buffer is full, we can send data (IN)
+			USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
 			return true;
 		}
 	}
