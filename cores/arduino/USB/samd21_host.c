@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -22,9 +22,11 @@
 #include <string.h>
 
 #include "../Arduino.h"
-#include "../wiring_private.h"
+#include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
+#include "sam.h"
+#include "wiring_digital.h"
 
 #define HOST_DEFINED
 #ifdef HOST_DEFINED
@@ -150,7 +152,6 @@ void UHD_Init(void)
 	USB->HOST.DESCADD.reg = (uint32_t)(&usb_pipe_table[0]);
 	// For USB_SPEED_FULL
 	uhd_force_full_speed();
-	
 	memset(&usb_pipe_table[0], 0, sizeof(usb_pipe_table));
 
 	uhd_state = UHD_STATE_NO_VBUS;

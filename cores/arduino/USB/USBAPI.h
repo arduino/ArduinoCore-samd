@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2015 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,8 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef __USBAPI__
-#define __USBAPI__
+#pragma once
 
 #define HSTPIPCFG_PTYPE_BLK 1
 #define HSTPIPCFG_PTOKEN_IN 2
@@ -25,17 +24,8 @@
 #define HSTPIPCFG_PBK_1_BANK 4
 #define HSTPIPCFG_PTYPE_INTRPT 5
 
-
-
-/* Define attribute */
-#if defined   ( __CC_ARM   ) /* Keil uVision 4 */
-    #define WEAK (__attribute__ ((weak)))
-#elif defined ( __ICCARM__ ) /* IAR Ewarm 5.41+ */
-    #define WEAK __weak
-#elif defined (  __GNUC__  ) /* GCC CS */
-    #define WEAK __attribute__ ((weak))
-#endif
-
+#define EP0      0
+#define EPX_SIZE 64 // 64 for Full Speed, EPT size max is 1024
 
 #if defined __cplusplus
 
@@ -43,31 +33,81 @@
 #include "RingBuffer.h"
 
 //================================================================================
-//================================================================================
-//	USB
+// USB
 
-class USBDevice_
-{
+// Low level API
+typedef struct {
+	union {
+		uint8_t bmRequestType;
+		struct {
+			uint8_t direction : 5;
+			uint8_t type : 2;
+			uint8_t transferDirection : 1;
+		};
+	};
+	uint8_t bRequest;
+	uint8_t wValueL;
+	uint8_t wValueH;
+	uint16_t wIndex;
+	uint16_t wLength;
+} Setup;
+
+class USBDeviceClass {
 public:
-	USBDevice_();
-	bool configured();
+	USBDeviceClass() {};
 
-	bool attach();
-	bool detach();	// Serial port goes down too...
-	void poll();
+	// USB Device API
 	void init();
-};
-extern USBDevice_ USBDevice;
+	bool attach();
+	bool detach();
+	void setAddress(uint32_t addr);
 
-//================================================================================
+	bool configured();
+	bool connected();
+
+	// Setup API
+	bool handleClassInterfaceSetup(Setup &setup);
+	bool handleStandardSetup(Setup &setup);
+	bool sendDescriptor(Setup &setup);
+
+	// Control EndPoint API
+	uint32_t sendControl(const void *data, uint32_t len);
+	uint32_t recvControl(void *data, uint32_t len);
+	bool sendConfiguration(uint32_t maxlen);
+	bool sendStringDescriptor(const uint8_t *string, uint8_t maxlen);
+
+	// Generic EndPoint API
+	void initEP(uint32_t ep, uint32_t type);
+	void handleEndpoint(uint8_t ep);
+
+	uint32_t send(uint32_t ep, const void *data, uint32_t len);
+	void sendZlp(uint32_t ep);
+	uint32_t recv(uint32_t ep, void *data, uint32_t len);
+	uint32_t recv(uint32_t ep);
+	uint32_t available(uint32_t ep);
+	void flush(uint32_t ep);
+	void stall(uint32_t ep);
+
+	// private?
+	uint32_t armSend(uint32_t ep, const void *data, uint32_t len);
+	uint8_t armRecv(uint32_t ep, uint32_t len);
+	uint8_t armRecvCtrlOUT(uint32_t ep, uint32_t len);
+
+	void ISRHandler();
+
+private:
+	bool initialized;
+};
+
+extern USBDeviceClass USBDevice;
+
 //================================================================================
 //	Serial over CDC (Serial1 is the physical port)
 
 class Serial_ : public Stream
 {
-private:
-	RingBuffer *_cdc_rx_buffer;
 public:
+	Serial_(USBDeviceClass &_usb) : usb(_usb) { }
 	void begin(uint32_t baud_count);
 	void begin(unsigned long, uint8_t);
 	void end(void);
@@ -81,6 +121,9 @@ public:
 	virtual size_t write(const uint8_t *buffer, size_t size);
 	using Print::write; // pull in write(str) from Print
 	operator bool();
+private:
+	USBDeviceClass &usb;
+	RingBuffer *_cdc_rx_buffer;
 };
 extern Serial_ SerialUSB;
 
@@ -177,24 +220,10 @@ extern Keyboard_ Keyboard;
 
 //================================================================================
 //================================================================================
-//	Low level API
-
-typedef struct
-{
-	uint8_t bmRequestType;
-	uint8_t bRequest;
-	uint8_t wValueL;
-	uint8_t wValueH;
-	uint16_t wIndex;
-	uint16_t wLength;
-} Setup;
-
-//================================================================================
-//================================================================================
 //	HID 'Driver'
 
-const void* WEAK HID_GetInterface(void);
-uint32_t WEAK HID_GetInterfaceLength(void);
+const void* HID_GetInterface(void);
+uint32_t HID_GetInterfaceLength(void);
 uint32_t HID_SizeReportDescriptor(void);
 
 uint32_t		HID_GetDescriptor(void);
@@ -215,26 +244,9 @@ bool	MSC_Data(uint8_t rx,uint8_t tx);
 //	CDC 'Driver'
 
 const void* CDC_GetInterface(/*uint8_t* interfaceNum*/);
-uint32_t WEAK CDC_GetInterfaceLength(void);
+uint32_t CDC_GetInterfaceLength(void);
 uint32_t		CDC_GetOtherInterface(uint8_t* interfaceNum);
 uint32_t		CDC_GetDescriptor(uint32_t i);
 bool	CDC_Setup(Setup& setup);
 
-//================================================================================
-//================================================================================
-
-uint32_t USBD_SendControl(uint8_t flags, const void* d, uint32_t len);
-uint32_t USBD_RecvControl(void* d, uint32_t len);
-uint32_t USBD_SendInterfaces(void);
-bool USBD_ClassInterfaceRequest(Setup& setup);
-
-uint32_t USBD_Available(uint32_t ep);
-uint32_t USBD_SendSpace(uint32_t ep);
-uint32_t USBD_Send(uint32_t ep, const void* d, uint32_t len);
-uint32_t USBD_Recv(uint32_t ep, void* data, uint32_t len);		// non-blocking
-uint32_t USBD_Recv(uint32_t ep);							// non-blocking
-void USBD_Flush(uint32_t ep);
-uint32_t USBD_Connected(void);
-
 #endif  // __cplusplus
-#endif  // __USBAPI__

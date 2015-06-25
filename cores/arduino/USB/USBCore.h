@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -31,6 +31,16 @@
 #define GET_INTERFACE				10
 #define SET_INTERFACE				11
 
+// bEndpointAddress in Endpoint Descriptor
+#define USB_ENDPOINT_DIRECTION_MASK            0x80
+#define USB_ENDPOINT_OUT(addr)                 ((addr) | 0x00)
+#define USB_ENDPOINT_IN(addr)                  ((addr) | 0x80)
+
+#define USB_ENDPOINT_TYPE_MASK                 0x03
+#define USB_ENDPOINT_TYPE_CONTROL              0x00
+#define USB_ENDPOINT_TYPE_ISOCHRONOUS          0x01
+#define USB_ENDPOINT_TYPE_BULK                 0x02
+#define USB_ENDPOINT_TYPE_INTERRUPT            0x03
 
 // bmRequestType
 #define REQUEST_HOSTTODEVICE		0x00
