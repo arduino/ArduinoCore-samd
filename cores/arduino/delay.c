@@ -77,11 +77,14 @@ void delay( uint32_t ms )
 }
 
 #include "Reset.h" // for tickReset()
+void (*rtosSysTick_Handler)(void) = (0UL);
 
 void SysTick_Handler( void )
 {
   // Increment tick count each ms
   _ulTickCount++ ;
+  if(rtosSysTick_Handler)
+  	rtosSysTick_Handler();
   tickReset();
 }
 
