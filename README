@@ -1,3 +1,6 @@
 This is a fork from arduino/ArduinoCore-samd on GitHub.
-This will be used to add Arduino support to the MattairTech
-MT-D21E and probably also the MT-D11.
+This will be used to maintain Arduino support for the
+MattairTech MT-D21E and probably also the MT-D11.
+
+The resulting Arduino support package will be available
+at mattairtech.github.io

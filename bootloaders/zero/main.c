@@ -36,7 +36,7 @@
  * Supported communication interfaces :
  * --------------------
  *
- * SERCOM5 : RX:PB23 TX:PB22
+ * SERCOM5 : RX:PA11 TX:PA10
  * Baudrate : 115200 8N1
  *
  * USB : D-:PA24 D+:PA25
@@ -46,11 +46,11 @@
  * The following pins are used by the program :
  * PA25 : input/output
  * PA24 : input/output
- * PB23 : input
- * PB22 : output
- * PA15 : input
+ * PA11 : input
+ * PA10 : output
+ * PA27 : input
  *
- * The application board shall avoid driving the PA25,PA24,PB23,PB22 and PA15 signals
+ * The application board shall avoid driving the PA25,PA24,PA11,PA10 and PA27 signals
  * while the boot program is running (after a POR for example)
  *
  * Clock system
