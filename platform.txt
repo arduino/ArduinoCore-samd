@@ -27,6 +27,7 @@
 name=MattairTech SAMD Boards
 version=1.6.5-mt1
 
+
 # Compile variables
 # -----------------
 
