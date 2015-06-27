@@ -14,13 +14,18 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+/*
+ * Modified 23 June 2015 by Justin Mattair
+ *   for the MattairTech MT-D21E board (www.mattairtech.com)
+ */
+
 # Arduino SAMD Core and platform.
 #
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
-name=Arduino SAMD (32-bits ARM Cortex-M0+) Boards
-version=1.6.0
+name=MattairTech SAMD Boards
+version=1.6.5-mt1
 
 # Compile variables
 # -----------------
