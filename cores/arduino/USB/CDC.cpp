@@ -37,8 +37,9 @@ struct ring_buffer {
 	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
 	volatile uint32_t head;
 	volatile uint32_t tail;
+	volatile bool full;
 };
-ring_buffer cdc_rx_buffer = { { 0 }, 0, 0};
+ring_buffer cdc_rx_buffer = {{0}, 0, 0, false};
 
 typedef struct {
 	uint32_t dwDTERate;
@@ -160,19 +161,22 @@ void Serial_::accept(void)
 	// current location of the tail), we're about to overflow the buffer
 	// and so we don't write the character or advance the head.
 	uint32_t k = 0;
-	i = (i + 1) % CDC_SERIAL_BUFFER_SIZE;
-	while ((i != ringBuffer->tail) && (len > 0)) {
+	while (len > 0 && !ringBuffer->full) {
 		len--;
-		ringBuffer->buffer[ringBuffer->head] = buffer[k++];
-		ringBuffer->head = i;
-		i = (i + 1) % CDC_SERIAL_BUFFER_SIZE;
+		ringBuffer->buffer[i++] = buffer[k++];
+		i %= CDC_SERIAL_BUFFER_SIZE;
+		if (i == ringBuffer->tail)
+			ringBuffer->full = true;
 	}
+	ringBuffer->head = i;
 	interrupts();
 }
 
 int Serial_::available(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
+	if (buffer->full)
+		return CDC_SERIAL_BUFFER_SIZE;
 	if (buffer->head == buffer->tail) {
 		USB->DEVICE.DeviceEndpoint[2].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
 	}
@@ -182,13 +186,9 @@ int Serial_::available(void)
 int Serial_::peek(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
-
-	if (buffer->head == buffer->tail)
-	{
+	if (buffer->head == buffer->tail && !buffer->full) {
 		return -1;
-	}
-	else
-	{
+	} else {
 		return buffer->buffer[buffer->tail];
 	}
 }
@@ -203,12 +203,12 @@ int Serial_::read(void)
 	ring_buffer *buffer = &cdc_rx_buffer;
 
 	// if the head isn't ahead of the tail, we don't have any characters
-	if (buffer->head == buffer->tail)
+	if (buffer->head == buffer->tail && !buffer->full)
 	{
 		if (usb.available(CDC_ENDPOINT_OUT))
 			accept();
 	}
-	if (buffer->head == buffer->tail)
+	if (buffer->head == buffer->tail && !buffer->full)
 	{
 		return -1;
 	}
@@ -216,6 +216,7 @@ int Serial_::read(void)
 	{
 		unsigned char c = buffer->buffer[buffer->tail];
 		buffer->tail = (uint32_t)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
+		buffer->full = false;
 // 		if (usb.available(CDC_ENDPOINT_OUT))
 // 			accept();
 		return c;
