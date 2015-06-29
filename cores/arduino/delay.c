@@ -78,10 +78,10 @@ void delay( uint32_t ms )
 
 #include "Reset.h" // for tickReset()
 
-void SysTick_Handler( void )
+void SysTick_DefaultHandler(void)
 {
   // Increment tick count each ms
-  _ulTickCount++ ;
+  _ulTickCount++;
   tickReset();
 }
 
