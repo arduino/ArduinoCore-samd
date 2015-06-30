@@ -68,11 +68,11 @@ const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0x00, 0x00, 0x00, 64, USB
 volatile uint32_t _usbConfiguration = 0;
 volatile uint32_t _usbSetInterface = 0;
 
-static __attribute__((__aligned__(4))) /*__attribute__((__section__(".bss_hram0")))*/
+static __attribute__((__aligned__(8))) //__attribute__((__section__(".bss_hram0")))
 uint8_t udd_ep_out_cache_buffer[4][64];
 
-static __attribute__((__aligned__(4))) /*__attribute__((__section__(".bss_hram0")))*/
-uint8_t udd_ep_in_cache_buffer[4][128];
+static __attribute__((__aligned__(8))) //__attribute__((__section__(".bss_hram0")))
+uint8_t udd_ep_in_cache_buffer[4][64];
 
 //==================================================================
 
@@ -375,7 +375,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 {
 	if (config == (USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0)))
 	{
-		usbd.epBank1SetSize(ep, 8);
+		usbd.epBank1SetSize(ep, 64);
 		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
 		usbd.epBank1SetType(ep, 4); // INTERRUPT IN
 	}
@@ -580,7 +580,13 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 	if (!_usbConfiguration)
 		return -1;
 
-	armSend(ep, data, len);
+	//armSend(ep, data, len);
+
+	/* memcopy could be safer in multithreaded environment */
+	memcpy(&udd_ep_in_cache_buffer[ep], data, len);
+
+	usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+	usbd.epBank1SetByteCount(ep, len);
 
 	// Clear the transfer complete flag
 	usbd.epBank1AckTransferComplete(ep);
@@ -712,9 +718,9 @@ bool USBDeviceClass::handleStandardSetup(Setup &setup)
 			#endif
 
 			#if defined(CDC_ENABLED)
-			initEP(CDC_ENDPOINT_ACM, USB_ENDPOINT_TYPE_BULK      | USB_ENDPOINT_IN(0));
+			initEP(CDC_ENDPOINT_ACM, USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0));
 			initEP(CDC_ENDPOINT_OUT, USB_ENDPOINT_TYPE_BULK      | USB_ENDPOINT_OUT(0));
-			initEP(CDC_ENDPOINT_IN,  USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0));
+			initEP(CDC_ENDPOINT_IN,  USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0));
 			#endif
 			_usbConfiguration = setup.wValueL;
 
