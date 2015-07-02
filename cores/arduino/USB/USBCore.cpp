@@ -68,10 +68,10 @@ const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0x00, 0x00, 0x00, 64, USB
 volatile uint32_t _usbConfiguration = 0;
 volatile uint32_t _usbSetInterface = 0;
 
-static __attribute__((__aligned__(8))) //__attribute__((__section__(".bss_hram0")))
+static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
 uint8_t udd_ep_out_cache_buffer[4][64];
 
-static __attribute__((__aligned__(8))) //__attribute__((__section__(".bss_hram0")))
+static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
 uint8_t udd_ep_in_cache_buffer[4][64];
 
 //==================================================================
@@ -502,17 +502,19 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 	// NAK on endpoint OUT, the bank is full.
 	//usbd.epBank0SetReady(CDC_ENDPOINT_OUT);
 
-	uint8_t *buffer = udd_ep_out_cache_buffer[ep];
-	uint8_t *data = reinterpret_cast<uint8_t *>(_data);
-	for (uint32_t i=0; i<len; i++) {
-		data[i] = buffer[i];
-	}
+	memcpy(_data, udd_ep_out_cache_buffer[ep], len);
+
+	// uint8_t *buffer = udd_ep_out_cache_buffer[ep];
+	// uint8_t *data = reinterpret_cast<uint8_t *>(_data);
+	// for (uint32_t i=0; i<len; i++) {
+	// 	data[i] = buffer[i];
+	// }
 
 	// release empty buffer
 	if (len && !available(ep)) {
 		// The RAM Buffer is empty: we can receive data
 		usbd.epBank0ResetReady(ep);
-		
+
 		// Clear Transfer complete 0 flag
 		usbd.epBank0AckTransferComplete(ep);
 	}
@@ -553,9 +555,9 @@ uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep, uint32_t len)
 
 uint8_t USBDeviceClass::armRecv(uint32_t ep, uint32_t len)
 {
-	usbd.epBank0SetSize(ep, 64);
-	usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
-	usbd.epBank0SetMultiPacketSize(ep, 64); // XXX: Should be "len"?
+	//usbd.epBank0SetSize(ep, 64);
+	//usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
+	//usbd.epBank0SetMultiPacketSize(ep, 64); // XXX: Should be "len"?
 	uint16_t count = usbd.epBank0ByteCount(ep);
 	if (count >= 64) {
 		usbd.epBank0SetByteCount(ep, count - 64);
