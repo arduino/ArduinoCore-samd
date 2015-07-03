@@ -39,11 +39,11 @@
 #define CDC_DATA_INTERFACE	1	// CDC Data
 #define CDC_ENDPOINT_ACM	1
 #define CDC_ENDPOINT_OUT	2
-#define CDC_ENDPOINT_IN		2
+#define CDC_ENDPOINT_IN		3
 
 // HID
 #define HID_INTERFACE		2   // HID
-#define HID_ENDPOINT_INT	3
+#define HID_ENDPOINT_INT	4
 
 // Defined string description
 #define IMANUFACTURER	1

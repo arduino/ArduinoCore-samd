@@ -176,11 +176,9 @@ int Serial_::available(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
 	if (buffer->full) {
-		USB->DEVICE.DeviceEndpoint[2].EPINTENSET.reg = ~USB_DEVICE_EPINTENCLR_RXSTP;
 		return CDC_SERIAL_BUFFER_SIZE;
 	}
 	if (buffer->head == buffer->tail) {
-		USB->DEVICE.DeviceEndpoint[2].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_RXSTP;
 		USB->DEVICE.DeviceEndpoint[2].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
 	}
 	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
