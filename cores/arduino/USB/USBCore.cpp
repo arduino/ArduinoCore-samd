@@ -361,7 +361,7 @@ bool USBDeviceClass::handleClassInterfaceSetup(Setup& setup)
 	#if defined(HID_ENABLED)
 	if (HID_INTERFACE == i)
 	{
-		if (HID_Setup(setup) == true) {
+		if (HID_Setup(setup) == false) {
 			sendZlp(0);
 		}
 		return true;
