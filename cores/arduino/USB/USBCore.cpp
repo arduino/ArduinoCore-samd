@@ -579,27 +579,64 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep, uint32_t len)
 //	Blocking Send of data to an endpoint
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
+	uint32_t length = 0;
+
 	if (!_usbConfiguration)
 		return -1;
+	if (len > 16384)
+		return -1;
 
-	//armSend(ep, data, len);
+	if ((unsigned int)data > 0x20000000)
+	{
+		// Buffer in RAM
+		usbd.epBank1SetAddress(ep, (void *)data);
+		usbd.epBank1SetMultiPacketSize(ep, 0);
 
-	/* memcopy could be safer in multithreaded environment */
-	memcpy(&udd_ep_in_cache_buffer[ep], data, len);
+		usbd.epBank1SetByteCount(ep, len);
 
-	usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
-	usbd.epBank1SetByteCount(ep, len);
+		// Clear the transfer complete flag
+		usbd.epBank1AckTransferComplete(ep);
 
-	// Clear the transfer complete flag
-	usbd.epBank1AckTransferComplete(ep);
+		// RAM buffer is full, we can send data (IN)
+		usbd.epBank1SetReady(ep);
 
-	// RAM buffer is full, we can send data (IN)
-	usbd.epBank1SetReady(ep);
-
-	// Wait for transfer to complete
-	while (!usbd.epBank1IsTransferComplete(ep)) {
-		;  // need fire exit.
+		// Wait for transfer to complete
+		while (!usbd.epBank1IsTransferComplete(ep)) {
+			;  // need fire exit.
+		}
+		len = 0;
 	}
+	else
+	{
+		// Flash area
+		while (len != 0)
+		{
+			if (len >= 64) {
+				length = 64;
+			} else {
+				length = len;
+			}
+
+			/* memcopy could be safer in multi threaded environment */
+			memcpy(&udd_ep_in_cache_buffer[ep], data, length);
+
+			usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+			usbd.epBank1SetByteCount(ep, length);
+
+			// Clear the transfer complete flag
+			usbd.epBank1AckTransferComplete(ep);
+
+			// RAM buffer is full, we can send data (IN)
+			usbd.epBank1SetReady(ep);
+
+			// Wait for transfer to complete
+			while (!usbd.epBank1IsTransferComplete(ep)) {
+				;  // need fire exit.
+			}
+			len -= length;
+		}
+	}
+
 	return len;
 }
 
