@@ -242,11 +242,11 @@ size_t Serial_::write(const uint8_t *buffer, size_t size)
 	// TODO - ZE - check behavior on different OSes and test what happens if an
 	// open connection isn't broken cleanly (cable is yanked out, host dies
 	// or locks up, or host virtual serial port hangs)
-//	if (_usbLineInfo.lineState > 0)  // Problem with Windows(R)
+	if (_usbLineInfo.lineState > 0)  // Problem with Windows(R)
 	{
 		uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);
 
-		if (r > 0) {
+		if (r == 0) {
 			return r;
 		} else {
 			setWriteError();
