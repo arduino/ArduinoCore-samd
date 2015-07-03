@@ -190,8 +190,6 @@ bool HID_Setup(Setup& setup)
 		if (HID_GET_IDLE == r)
 		{
 			USBDevice.armSend(0, &_hid_idle, 1);
-			// RAM buffer is full, we can send data (IN)
-			USB->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = 1;
 			return true;
 		}
 	}
@@ -207,7 +205,7 @@ bool HID_Setup(Setup& setup)
 		if (HID_SET_IDLE == r)
 		{
 			_hid_idle = setup.wValueH;
-			return true;
+			return false;
 		}
 	}
 	return false;
