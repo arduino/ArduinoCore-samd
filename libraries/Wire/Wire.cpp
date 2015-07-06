@@ -47,6 +47,10 @@ void TwoWire::begin(uint8_t address) {
   sercom->enableWIRE();
 }
 
+void TwoWire::setClock(uint32_t frequency) {
+	// dummy funtion
+}
+
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 {
   if(quantity == 0)
