@@ -59,15 +59,15 @@ void Uart::flush()
 
 void Uart::IrqHandler()
 {
-  if(sercom->availableDataUART())
-  {
+  if (sercom->availableDataUART()) {
     rxBuffer.store_char(sercom->readDataUART());
   }
 
-  if(  sercom->isBufferOverflowErrorUART() ||
-    sercom->isFrameErrorUART() ||
-    sercom->isParityErrorUART())
-  {
+  if (sercom->isUARTError()) {
+    sercom->acknowledgeUARTError();
+    // TODO: if (sercom->isBufferOverflowErrorUART()) ....
+    // TODO: if (sercom->isFrameErrorUART()) ....
+    // TODO: if (sercom->isParityErrorUART()) ....
     sercom->clearStatusUART();
   }
 }

@@ -162,6 +162,8 @@ class SERCOM
 		bool isDataRegisterEmptyUART( void ) ;
 		uint8_t readDataUART( void ) ;
 		int writeDataUART(uint8_t data) ;
+		bool isUARTError() ;
+		void acknowledgeUARTError() ;
 
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder) ;

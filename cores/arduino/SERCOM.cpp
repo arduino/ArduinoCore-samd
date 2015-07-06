@@ -30,8 +30,8 @@ SERCOM::SERCOM(Sercom* s)
 */
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {
-  resetUART();
   initClockNVIC();
+  resetUART();
 
   //Setting the CTRLA register
   sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
@@ -125,6 +125,16 @@ bool SERCOM::availableDataUART()
 {
   //RXC : Receive Complete
   return sercom->USART.INTFLAG.bit.RXC;
+}
+
+bool SERCOM::isUARTError()
+{
+  return sercom->USART.INTFLAG.bit.ERROR;
+}
+
+void SERCOM::acknowledgeUARTError()
+{
+  sercom->USART.INTFLAG.bit.ERROR = 1;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()
