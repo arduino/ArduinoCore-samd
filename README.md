@@ -51,6 +51,8 @@ Pull Request on github.
 
 ## License and credits
 
+This core has been developed by Arduino LLC in collaboration with Atmel.
+
 ```
   Copyright (c) 2015 Arduino LLC.  All right reserved.
 
