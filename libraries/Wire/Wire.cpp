@@ -49,7 +49,7 @@ void TwoWire::begin(uint8_t address) {
 
 void TwoWire::setClock(uint32_t baudrate) {
   sercom->disableWIRE();
-  sercom->initMasterWIRE(frequency);
+  sercom->initMasterWIRE(baudrate);
   sercom->enableWIRE();
 }
 
