@@ -34,7 +34,7 @@ class TwoWire : public Stream
     TwoWire(SERCOM *s);
     void begin();
     void begin(uint8_t);
-    void setClock(uint32_t); // dummy function
+    void setClock(uint32_t);
 
     void beginTransmission(uint8_t);
     uint8_t endTransmission(bool stopBit);
