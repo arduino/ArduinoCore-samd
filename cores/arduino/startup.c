@@ -19,6 +19,8 @@
 #include "sam.h"
 #include "variant.h"
 
+#include <stdio.h>
+
 /**
  * \brief SystemInit() configures the needed clocks and according Flash Read Wait States.
  * At reset:
@@ -208,4 +210,3 @@ void SystemInit( void )
 
   ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
 }
-

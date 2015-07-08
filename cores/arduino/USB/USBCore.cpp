@@ -294,7 +294,7 @@ void USBDeviceClass::init()
 	while (GCLK->STATUS.bit.SYNCBUSY)
 		;
 
-	UHD_SetStack(&UDD_Handler);	
+	USB_SetHandler(&UDD_Handler);
 
 	// Reset USB Device
 	usbd.reset();

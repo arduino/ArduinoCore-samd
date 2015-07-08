@@ -63,7 +63,7 @@ void UHD_Init(void)
 	uint32_t pad_trim;
 	uint32_t i;
 
-	UHD_SetStack(&UHD_Handler);
+	USB_SetHandler(&UHD_Handler);
 
 	/* Enable USB clock */
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
