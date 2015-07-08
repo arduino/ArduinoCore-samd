@@ -29,6 +29,15 @@ USBDevice_SAMD21G18x usbd;
 static char isRemoteWakeUpEnabled = 0;
 static char isEndpointHalt = 0;
 
+extern void (*gpf_isr)(void);
+
+// USB_Handler ISR
+extern "C" void UDD_Handler(void) {
+	USBDevice.ISRHandler();
+}
+
+
+
 const uint16_t STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
 	0x0409	// English
@@ -285,6 +294,8 @@ void USBDeviceClass::init()
 	while (GCLK->STATUS.bit.SYNCBUSY)
 		;
 
+	UHD_SetStack(&UDD_Handler);	
+
 	// Reset USB Device
 	usbd.reset();
 
@@ -388,9 +399,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 		// Release OUT EP
 		usbd.epBank0SetMultiPacketSize(ep, 64);
 		usbd.epBank0SetByteCount(ep, 0);
-		
-		// The RAM Buffer is empty: we can receive data
-		//usbd.epBank0ResetReady(ep);
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{
@@ -405,12 +413,12 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	else if (config == USB_ENDPOINT_TYPE_CONTROL)
 	{
 		// XXX: Needed?
-		usbd.epBank0DisableAutoZLP(ep);
-		usbd.epBank1DisableAutoZLP(ep);
+// 		usbd.epBank0DisableAutoZLP(ep);
+// 		usbd.epBank1DisableAutoZLP(ep);
 
 		// Setup Control OUT
 		usbd.epBank0SetSize(ep, 64);
-		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[0]);
+		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
 		usbd.epBank0SetType(ep, 1); // CONTROL OUT / SETUP
 
 		// Setup Control IN
@@ -424,8 +432,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 
 		// NAK on endpoint OUT, the bank is full.
 		usbd.epBank0SetReady(ep);
-		// NAK on endpoint IN, the bank is not yet filled in.
-		//usbd.epBank1ResetReady(ep);
 	}
 }
 
@@ -461,7 +467,6 @@ bool USBDeviceClass::connected()
 uint32_t USBDeviceClass::recvControl(void *_data, uint32_t len)
 {
 	uint8_t *data = reinterpret_cast<uint8_t *>(_data);
-// NO RXOUT ???????
 
 	// The RAM Buffer is empty: we can receive data
 	usbd.epBank0ResetReady(0);
@@ -499,16 +504,7 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 
 	usbd.epBank0DisableTransferComplete(ep);
 
-	// NAK on endpoint OUT, the bank is full.
-	//usbd.epBank0SetReady(CDC_ENDPOINT_OUT);
-
 	memcpy(_data, udd_ep_out_cache_buffer[ep], len);
-
-	// uint8_t *buffer = udd_ep_out_cache_buffer[ep];
-	// uint8_t *data = reinterpret_cast<uint8_t *>(_data);
-	// for (uint32_t i=0; i<len; i++) {
-	// 	data[i] = buffer[i];
-	// }
 
 	// release empty buffer
 	if (len && !available(ep)) {
@@ -539,40 +535,23 @@ uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep, uint32_t len)
 	usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
 	usbd.epBank0SetMultiPacketSize(ep, 8);
 	usbd.epBank0SetByteCount(ep, 0);
-	//usbd.epBank0ResetReady(0);
-	//while (!usbd.epBank0IsTransferComplete(ep)) {}
-	//while (usbd.epBank0IsReady(ep)) {}
 
-	//usbd.epBank0SetByteCount(0, 0);
-	//usbd.epBank0SetMultiPacketSize(0, 8);
 	usbd.epBank0ResetReady(ep);
 
 	// Wait OUT
 	while (!usbd.epBank0IsReady(ep)) {}
-	while (!usbd.epBank0IsTransferComplete(ep)) {} // XXX: while(USB->DEVICE.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT == 0);
+	while (!usbd.epBank0IsTransferComplete(ep)) {}
 	return usbd.epBank0ByteCount(ep);
 }
 
 uint8_t USBDeviceClass::armRecv(uint32_t ep, uint32_t len)
 {
-	//usbd.epBank0SetSize(ep, 64);
-	//usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
-	//usbd.epBank0SetMultiPacketSize(ep, 64); // XXX: Should be "len"?
 	uint16_t count = usbd.epBank0ByteCount(ep);
 	if (count >= 64) {
 		usbd.epBank0SetByteCount(ep, count - 64);
 	} else {
 		usbd.epBank0SetByteCount(ep, 0);
 	}
-	// The RAM Buffer is empty: we can receive data
-	//usbd.epBank0ResetReady(ep);
-
-	// Wait for transfer to complete
-	//while (!usbd.epBank0IsTransferComplete(ep)) {}
-	//while (usbd.epBank0IsReady(ep)) {}
-	// NAK on endpoint OUT, the bank is full.
-	//usbd.epBank0ResetReady(ep);
-
 	return usbd.epBank0ByteCount(ep);
 }
 
@@ -837,8 +816,7 @@ void USBDeviceClass::ISRHandler()
 			stall(0);
 		}
 
-		// XXX: Should be really cleared?
-		if (usbd.epBank1IsStalled(0)) // XXX:(USB->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.STALL)
+		if (usbd.epBank1IsStalled(0))
 		{
 			usbd.epBank1AckStalled(0);
 
@@ -878,6 +856,6 @@ void USBDeviceClass::ISRHandler()
 USBDeviceClass USBDevice;
 
 // USB_Handler ISR
-extern "C" void USB_Handler(void) {
-	USBDevice.ISRHandler();
-}
+// extern "C" void USB_Handler(void) {
+// 	USBDevice.ISRHandler();
+// }
