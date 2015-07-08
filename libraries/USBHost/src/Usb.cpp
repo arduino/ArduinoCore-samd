@@ -21,7 +21,7 @@ e-mail   :  support@circuitsathome.com
 #include "Usb.h"
 
 
-#ifdef ARDUINO_SAMD_ZERO
+//#ifdef ARDUINO_SAMD_ZERO
 
 static uint32_t usb_error = 0;
 static uint32_t usb_task_state = USB_DETACHED_SUBSTATE_INITIALIZE;
@@ -854,4 +854,4 @@ uint32_t USBHost::setConf(uint32_t addr, uint32_t ep, uint32_t conf_value) {
         return ( ctrlReq(addr, ep, bmREQ_SET, USB_REQUEST_SET_CONFIGURATION, conf_value, 0x00, 0x0000, 0x0000, 0x0000, NULL, NULL));
 }
 
-#endif //ARDUINO_SAMD_ZERO
+//#endif //ARDUINO_SAMD_ZERO

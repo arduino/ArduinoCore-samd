@@ -34,8 +34,6 @@
 //#define TRACE_UOTGHS_HOST(x)	x
 #define TRACE_UOTGHS_HOST(x)
 
-//extern void (*gpf_isr)(void);
-
 // Handle UOTGHS Host driver state
 static uhd_vbus_state_t uhd_state = UHD_STATE_NO_VBUS;
 
@@ -43,10 +41,6 @@ __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table[USB_EP
 
 extern void (*gpf_isr)(void);
 
-void UHD_SetStack(void (*pf_isr)(void))
-{
-	gpf_isr = pf_isr;
-}
 
 // NVM Software Calibration Area Mapping
 // USB TRANSN calibration value. Should be written to the USB PADCAL register.
@@ -180,7 +174,6 @@ void UHD_Init(void)
 /**
  * \brief Interrupt sub routine for USB Host state machine management.
  */
-//static void UHD_ISR(void)
 void UHD_Handler(void)
 {
    uint16_t flags;
@@ -518,4 +511,13 @@ uint32_t UHD_Pipe_Is_Transfer_Complete(uint32_t ul_pipe, uint32_t ul_token_type)
 
    return 0;
 }
+
+
+
+
+// USB_Handler ISR
+// void USB_Handler(void) {
+// 	UHD_Handler();
+// }
+
 #endif //  HOST_DEFINED
