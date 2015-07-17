@@ -22,8 +22,6 @@ e-mail   :  support@circuitsathome.com
 
 #include <stdint.h>
 
-#define ARDUINO   101
-
 //#include "Arduino.h"
 #include "macros.h"
 // None of these should ever be included by a driver, or a user's sketch.

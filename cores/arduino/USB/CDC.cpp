@@ -135,12 +135,14 @@ bool CDC_Setup(Setup& setup)
 }
 
 uint32_t _serialPeek = -1;
-void Serial_::begin(uint32_t baud_count)
+void Serial_::begin(uint32_t /* baud_count */)
 {
+	// uart config is ignored in USB-CDC
 }
 
-void Serial_::begin(uint32_t baud_count, uint8_t config)
+void Serial_::begin(uint32_t /* baud_count */, uint8_t /* config */)
 {
+	// uart config is ignored in USB-CDC
 }
 
 void Serial_::end(void)

@@ -27,6 +27,7 @@
 #include "samd21_host.h"
 #include "sam.h"
 #include "wiring_digital.h"
+#include "wiring_private.h"
 
 #define HOST_DEFINED
 #ifdef HOST_DEFINED
@@ -295,8 +296,10 @@ uhd_vbus_state_t UHD_GetVBUSState(void)
  * \retval 0 success.
  * \retval 1 error.
  */
-uint32_t UHD_Pipe0_Alloc(uint32_t ul_add, uint32_t ul_ep_size)
+uint32_t UHD_Pipe0_Alloc(uint32_t ul_add , uint32_t ul_ep_size)
 {
+	(void)(ul_add); // Unused argument
+
 	if( USB->HOST.STATUS.reg & USB_HOST_STATUS_SPEED(1) )
 		ul_ep_size = USB_PCKSIZE_SIZE_8_BYTES;  // Low Speed
 	else
