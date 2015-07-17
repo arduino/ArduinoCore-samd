@@ -145,7 +145,7 @@ uint32_t analogRead( uint32_t ulPin )
     ulPin += A0 ;
   }
 
-  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
+  pinPeripheral(ulPin, PIO_ANALOG);
 
   if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
   {
