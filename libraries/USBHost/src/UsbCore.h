@@ -119,11 +119,11 @@ typedef MAX3421e<P20, P19> MAX3421E; // Balanduino
 class USBDeviceConfig {
 public:
 
-        virtual uint32_t Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
+        virtual uint32_t Init(uint32_t /* parent */, uint32_t /* port */, uint32_t /* lowspeed */) {
                 return 0;
         }
 
-        virtual uint32_t ConfigureDevice(uint32_t parent, uint32_t port, uint32_t lowspeed) {
+        virtual uint32_t ConfigureDevice(uint32_t /* parent */, uint32_t /* port */, uint32_t /* lowspeed */) {
                 return 0;
         }
 
@@ -139,15 +139,15 @@ public:
                 return 0;
         }
 
-        virtual void ResetHubPort(uint32_t port) {
+        virtual void ResetHubPort(uint32_t /* port */) {
                 return;
         } // Note used for hubs only!
 
-        virtual uint32_t VIDPIDOK(uint32_t vid, uint32_t pid) {
+        virtual uint32_t VIDPIDOK(uint32_t /* vid */, uint32_t /* pid */) {
                 return false;
         }
 
-        virtual uint32_t DEVCLASSOK(uint32_t klass) {
+        virtual uint32_t DEVCLASSOK(uint32_t /* klass */) {
                 return false;
         }
 };

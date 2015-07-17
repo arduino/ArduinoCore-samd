@@ -340,7 +340,7 @@ uint32_t USBHost::OutTransfer(EpInfo *pep, uint32_t nak_limit, uint32_t nbytes, 
 	for( i=0; i<nbytes; i++) {
 		buf[i] = data[i];
 	}
-	unsigned long timeout = millis() + USB_XFER_TIMEOUT;
+	//unsigned long timeout = millis() + USB_XFER_TIMEOUT;
 
 	//set toggle value
 	if(pep->bmSndToggle)

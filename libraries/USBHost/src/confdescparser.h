@@ -85,7 +85,7 @@ UseOr(false) {
 };
 
 template <const uint8_t CLASS_ID, const uint8_t SUBCLASS_ID, const uint8_t PROTOCOL_ID, const uint8_t MASK>
-void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::Parse(const uint32_t len, const uint8_t *pbuf, const uint32_t &offset) {
+void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::Parse(const uint32_t len, const uint8_t *pbuf, const uint32_t & /* offset */) {
 	uint32_t	cntdn = len;
 	uint8_t		*p = (uint8_t*)pbuf;
 

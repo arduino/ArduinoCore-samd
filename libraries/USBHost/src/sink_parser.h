@@ -33,7 +33,7 @@ public:
         void Initialize() {
         };
 
-        void Parse(const LEN_TYPE len, const uint8_t *pbuf, const OFFSET_TYPE &offset) {
+        void Parse(const LEN_TYPE /* len */, const uint8_t * /* pbuf */, const OFFSET_TYPE & /* offset */) {
         };
 };
 
