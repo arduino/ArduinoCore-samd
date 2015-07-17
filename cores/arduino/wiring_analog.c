@@ -223,9 +223,10 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 
   if ( (attr & PIN_ATTR_PWM) == PIN_ATTR_PWM )
   {
-    if ( (g_APinDescription[ulPin].ulPinType == PIO_TIMER) || g_APinDescription[ulPin].ulPinType == PIO_TIMER_ALT )
-    {
-      pinPeripheral( ulPin, g_APinDescription[ulPin].ulPinType ) ;
+    if (attr & PIN_ATTR_TIMER) {
+      pinPeripheral(ulPin, PIO_TIMER);
+    } else { // attr should have PIN_ATTR_TIMER_ALT bit set...
+      pinPeripheral(ulPin, PIO_TIMER_ALT);
     }
 
     Tc*  TCx  = 0 ;
