@@ -472,7 +472,7 @@ uint32_t USBDeviceClass::recvControl(void *_data, uint32_t len)
 	usbd.epBank0ResetReady(0);
 
 	//usbd.epBank0AckSetupReceived(0);
-	uint32_t read = armRecvCtrlOUT(0, len);
+	uint32_t read = armRecvCtrlOUT(0);
 	if (read > len)
 		read = len;
 	//while (!usbd.epBank0AckTransferComplete(0)) {}
@@ -500,7 +500,7 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 	if (available(ep) < len)
 		len = available(ep);
 
-	armRecv(ep, len);
+	armRecv(ep);
 
 	usbd.epBank0DisableTransferComplete(ep);
 
@@ -518,7 +518,7 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 	return len;
 }
 
-//	Recv 1 byte if ready
+// Recv 1 byte if ready
 uint32_t USBDeviceClass::recv(uint32_t ep)
 {
 	uint8_t c;
@@ -529,9 +529,9 @@ uint32_t USBDeviceClass::recv(uint32_t ep)
 	}
 }
 
-uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep, uint32_t len)
+uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep)
 {
-	/* get endpoint configuration from setting register */
+	// Get endpoint configuration from setting register
 	usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
 	usbd.epBank0SetMultiPacketSize(ep, 8);
 	usbd.epBank0SetByteCount(ep, 0);
@@ -544,7 +544,7 @@ uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep, uint32_t len)
 	return usbd.epBank0ByteCount(ep);
 }
 
-uint8_t USBDeviceClass::armRecv(uint32_t ep, uint32_t len)
+uint8_t USBDeviceClass::armRecv(uint32_t ep)
 {
 	uint16_t count = usbd.epBank0ByteCount(ep);
 	if (count >= 64) {
@@ -555,7 +555,7 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep, uint32_t len)
 	return usbd.epBank0ByteCount(ep);
 }
 
-//	Blocking Send of data to an endpoint
+// Blocking Send of data to an endpoint
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
 	uint32_t length = 0;
