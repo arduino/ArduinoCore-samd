@@ -21,18 +21,25 @@
 
 // CDC or HID can be enabled together.
 #define CDC_ENABLED
-#define HID_ENABLED
+#define PLUGGABLE_USB_ENABLED
+
+#ifdef CDC_ENABLED
+#define CDC_INTERFACE_COUNT 2
+#define CDC_ENPOINT_COUNT 3
+#endif
 
 // CDC
 #define CDC_ACM_INTERFACE	0	// CDC ACM
 #define CDC_DATA_INTERFACE	1	// CDC Data
+#define CDC_FIRST_ENDPOINT  1
 #define CDC_ENDPOINT_ACM	1
 #define CDC_ENDPOINT_OUT	2
 #define CDC_ENDPOINT_IN		3
 
-// HID
-#define HID_INTERFACE		2   // HID
-#define HID_ENDPOINT_INT	4
+#ifdef CDC_ENABLED
+#define CDC_RX CDC_ENDPOINT_OUT
+#define CDC_TX CDC_ENDPOINT_IN
+#endif
 
 // Defined string description
 #define IMANUFACTURER	1

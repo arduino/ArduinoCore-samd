@@ -58,10 +58,8 @@ static volatile LineInfo _usbLineInfo = {
 	0x00    // lineState
 };
 
-static const CDCDescriptor _cdcInterface = {
-	#if (defined CDC_ENABLED) && defined(HID_ENABLED)
+static CDCDescriptor _cdcInterface = {
 	D_IAD(0, 2, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
-	#endif
 
 	// CDC communication interface
 	D_INTERFACE(CDC_ACM_INTERFACE, 1, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
@@ -79,17 +77,23 @@ static const CDCDescriptor _cdcInterface = {
 };
 _Pragma("pack()")
 
-const void* CDC_GetInterface(void)
+const void* _CDC_GetInterface(void)
 {
 	return &_cdcInterface;
 }
 
-uint32_t CDC_GetInterfaceLength(void)
+uint32_t _CDC_GetInterfaceLength(void)
 {
 	return sizeof(_cdcInterface);
 }
 
-bool CDC_Setup(Setup& setup)
+int CDC_GetInterface(uint8_t* interfaceNum)
+{
+	interfaceNum[0] += 2;	// uses 2
+	return USBDevice.sendControl(&_cdcInterface,sizeof(_cdcInterface));
+}
+
+bool CDC_Setup(USBSetup& setup)
 {
 	uint8_t requestType = setup.bmRequestType;
 	uint8_t r = setup.bRequest;
@@ -181,7 +185,7 @@ int Serial_::available(void)
 		return CDC_SERIAL_BUFFER_SIZE;
 	}
 	if (buffer->head == buffer->tail) {
-		USB->DEVICE.DeviceEndpoint[2].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
+		USB->DEVICE.DeviceEndpoint[CDC_ENDPOINT_OUT].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
 	}
 	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
 }

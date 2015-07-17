@@ -19,10 +19,12 @@
 #include <Arduino.h>
 
 #include "SAMD21_USBDevice.h"
+#include "PluggableUSB.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
+#include <limits.h>
 
 USBDevice_SAMD21G18x usbd;
 
@@ -64,13 +66,8 @@ const uint8_t STRING_MANUFACTURER[] = USB_MANUFACTURER;
 
 
 //	DEVICE DESCRIPTOR
-#if (defined CDC_ENABLED) && defined(HID_ENABLED)
-const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0xEF, 0x02, 0x01, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, 0, 1);
-#elif defined(CDC_ENABLED)  // CDC only
-const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0x02, 0x00, 0x00, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, 0, 1);
-#else // HID only
+const DeviceDescriptor USB_DeviceDescriptorB = D_DEVICE(0xEF, 0x02, 0x01, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, 0, 1);
 const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0x00, 0x00, 0x00, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, 0, 1);
-#endif
 
 //==================================================================
 
@@ -107,79 +104,72 @@ bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
 	return USBDevice.sendControl((uint8_t*)buff, l*2);
 }
 
-// Construct a dynamic configuration descriptor
-// This really needs dynamic endpoint allocation etc
-bool USBDeviceClass::sendConfiguration(uint32_t maxlen)
+bool _dry_run = false;
+bool _pack_message = false;
+uint16_t _pack_size = 0;
+uint8_t _pack_buffer[256];
+
+void USBDeviceClass::packMessages(bool val)
 {
-	uint8_t cache_buffer[128];
-	uint8_t i;
-
-	const uint8_t* interfaces;
-	uint32_t interfaces_length = 0;
-	uint8_t num_interfaces[1];
-
-	num_interfaces[0] = 0;
-
-#if defined(CDC_ENABLED) && defined(HID_ENABLED)
-	num_interfaces[0] += 3;
-	interfaces = (const uint8_t*) CDC_GetInterface();
-	interfaces_length = CDC_GetInterfaceLength() + HID_GetInterfaceLength();
-	if (maxlen > CDC_GetInterfaceLength() + HID_GetInterfaceLength() + sizeof(ConfigDescriptor))
-	{
-		maxlen = CDC_GetInterfaceLength() + HID_GetInterfaceLength() + sizeof(ConfigDescriptor);
+	if (val) {
+		_pack_message = true;
+		_pack_size = 0;
+	} else {
+		_pack_message = false;
+		sendControl(_pack_buffer, _pack_size);
 	}
-#elif defined(CDC_ENABLED)
-	num_interfaces[0] += 2;
-	interfaces = (const uint8_t*) CDC_GetInterface();
-	interfaces_length += CDC_GetInterfaceLength();
-	if (maxlen > CDC_GetInterfaceLength() + sizeof(ConfigDescriptor))
-	{
-		maxlen = CDC_GetInterfaceLength() + sizeof(ConfigDescriptor);
-	}
-#elif defined(HID_ENABLED)
-	num_interfaces[0] += 1;
-	interfaces = (const uint8_t*) HID_GetInterface();
-	interfaces_length += HID_GetInterfaceLength();
-	if (maxlen > HID_GetInterfaceLength() + sizeof(ConfigDescriptor))
-	{
-		maxlen = HID_GetInterfaceLength() + sizeof(ConfigDescriptor);
-	}
-#endif
-
-_Pragma("pack(1)")
-	ConfigDescriptor config = D_CONFIG((uint16_t)(interfaces_length + sizeof(ConfigDescriptor)), num_interfaces[0]);
-_Pragma("pack()")
-
-	memcpy(cache_buffer, &config, sizeof(ConfigDescriptor));
-
-#if defined(CDC_ENABLED) && defined(HID_ENABLED)
-	for (i=0; i<CDC_GetInterfaceLength(); i++) {
-		cache_buffer[i + sizeof(ConfigDescriptor)] = interfaces[i];
-	}
-	interfaces = (const uint8_t*) HID_GetInterface();
-	for (i=0; i<HID_GetInterfaceLength(); i++) {
-		cache_buffer[i + sizeof(ConfigDescriptor) + CDC_GetInterfaceLength()] = interfaces[i];
-	}
-#elif defined(HID_ENABLED)
-	for (i=0; i<interfaces_length; i++) {
-		cache_buffer[i + sizeof(ConfigDescriptor)] = interfaces[i];
-	}
-#elif defined(CDC_ENABLED)
-	for (i=0; i<interfaces_length; i++) {
-		cache_buffer[i + sizeof(ConfigDescriptor)] = interfaces[i];
-	}
-#endif
-
-	if (maxlen > sizeof(cache_buffer)) {
-		 maxlen = sizeof(cache_buffer);
-	}
-	return sendControl(cache_buffer, maxlen);
 }
 
-bool USBDeviceClass::sendDescriptor(Setup &setup)
+uint8_t USBDeviceClass::SendInterfaces(uint32_t* total)
+{
+	uint8_t interfaces = 0;
+
+#if defined(CDC_ENABLED)
+	total[0] += CDC_GetInterface(&interfaces);
+#endif
+
+#ifdef PLUGGABLE_USB_ENABLED
+	total[0] += PUSB_GetInterface(&interfaces);
+#endif
+
+	return interfaces;
+}
+
+// Construct a dynamic configuration descriptor
+// This really needs dynamic endpoint allocation etc
+uint32_t USBDeviceClass::sendConfiguration(uint32_t maxlen)
+{
+	uint32_t total = 0;
+	// Count and measure interfaces
+	_dry_run = true;
+	uint8_t interfaces = SendInterfaces(&total);
+
+	_Pragma("pack(1)")
+	ConfigDescriptor config = D_CONFIG((uint16_t)(total + sizeof(ConfigDescriptor)), interfaces);
+	_Pragma("pack()")
+
+	//	Now send them
+	_dry_run = false;
+
+	if (maxlen == sizeof(ConfigDescriptor)) {
+		sendControl(&config, sizeof(ConfigDescriptor));
+		return true;
+	}
+
+	packMessages(true);
+	sendControl(&config, sizeof(ConfigDescriptor));
+	SendInterfaces(&total);
+	packMessages(false);
+
+	return true;
+}
+
+bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 {
 	uint8_t t = setup.wValueH;
 	uint8_t desc_length = 0;
+	bool _cdcComposite;
+	int ret;
 	const uint8_t *desc_addr = 0;
 
 	if (t == USB_CONFIGURATION_DESCRIPTOR_TYPE)
@@ -187,22 +177,20 @@ bool USBDeviceClass::sendDescriptor(Setup &setup)
 		return USBDevice.sendConfiguration(setup.wLength);
 	}
 
-#if defined(HID_ENABLED)
-	if (t == HID_REPORT_DESCRIPTOR_TYPE)
-	{
-		return HID_GetDescriptor();
-	}
-
-	if (t == HID_HID_DESCRIPTOR_TYPE)
-	{
-		uint8_t tab[9] = D_HIDREPORT((uint8_t)HID_SizeReportDescriptor());
-		return USBDevice.sendControl(tab, sizeof(tab));
+#ifdef PLUGGABLE_USB_ENABLED
+	ret = PUSB_GetDescriptor(t);
+	if (ret != 0) {
+		return (ret > 0 ? true : false);
 	}
 #endif
 
 	if (t == USB_DEVICE_DESCRIPTOR_TYPE)
 	{
-		desc_addr = (const uint8_t*)&USB_DeviceDescriptor;
+		if (setup.wLength == 8)
+			_cdcComposite = 1;
+
+		desc_addr = _cdcComposite ?  (const uint8_t*)&USB_DeviceDescriptorB : (const uint8_t*)&USB_DeviceDescriptor;
+
 		if (*desc_addr > setup.wLength) {
 			desc_length = setup.wLength;
 		}
@@ -269,7 +257,7 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 	}
 #endif
 
-#if defined(HID_ENABLED)
+#if defined(PLUGGABLE_USB_ENABLED)
 	// Empty
 #endif
 }
@@ -355,7 +343,7 @@ bool USBDeviceClass::configured()
 	return _usbConfiguration != 0;
 }
 
-bool USBDeviceClass::handleClassInterfaceSetup(Setup& setup)
+bool USBDeviceClass::handleClassInterfaceSetup(USBSetup& setup)
 {
 	uint8_t i = setup.wIndex;
 
@@ -369,17 +357,42 @@ bool USBDeviceClass::handleClassInterfaceSetup(Setup& setup)
 	}
 	#endif
 
-	#if defined(HID_ENABLED)
-	if (HID_INTERFACE == i)
-	{
-		if (HID_Setup(setup) == false) {
-			sendZlp(0);
-		}
-		return true;
+	#if defined(PLUGGABLE_USB_ENABLED)
+	bool ret = PUSB_Setup(setup, i);
+	if ( ret == false) {
+		sendZlp(0);
 	}
+	return ret;
 	#endif
 
 	return false;
+}
+
+uint32_t EndPoints[] =
+{
+	USB_ENDPOINT_TYPE_CONTROL,
+
+#ifdef CDC_ENABLED
+	USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0),           // CDC_ENDPOINT_ACM
+	USB_ENDPOINT_TYPE_BULK      | USB_ENDPOINT_OUT(0),               // CDC_ENDPOINT_OUT
+	USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0),                // CDC_ENDPOINT_IN
+#endif
+
+#ifdef PLUGGABLE_USB_ENABLED
+	//allocate 6 endpoints and remove const so they can be changed by the user
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+#endif
+};
+
+void USBDeviceClass::initEndpoints() {
+	for (uint8_t i = 1; i < sizeof(EndPoints) && EndPoints[i] != 0; i++) {
+		initEP(i, EndPoints[i]);
+	}
 }
 
 void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
@@ -648,6 +661,15 @@ uint32_t USBDeviceClass::sendControl(const void* _data, uint32_t len)
 	uint32_t sent = 0;
 	uint32_t pos = 0;
 
+	if (_dry_run == true)
+		return length;
+
+	if (_pack_message == true) {
+		memcpy(&_pack_buffer[_pack_size], data, len);
+		_pack_size += len;
+		return length;
+	}
+
  	while (len > 0)
  	{
 		sent = armSend(EP0, data + pos, len);
@@ -664,7 +686,7 @@ void USBDeviceClass::sendZlp(uint32_t ep)
 	usbd.epBank1SetByteCount(ep, 0);
 }
 
-bool USBDeviceClass::handleStandardSetup(Setup &setup)
+bool USBDeviceClass::handleStandardSetup(USBSetup &setup)
 {
 	switch (setup.bRequest) {
 	case GET_STATUS:
@@ -741,15 +763,8 @@ bool USBDeviceClass::handleStandardSetup(Setup &setup)
 
 	case SET_CONFIGURATION:
 		if (REQUEST_DEVICE == (setup.bmRequestType & REQUEST_RECIPIENT)) {
-			#if defined(HID_ENABLED)
-			initEP(HID_ENDPOINT_INT, USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0));
-			#endif
 
-			#if defined(CDC_ENABLED)
-			initEP(CDC_ENDPOINT_ACM, USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0));
-			initEP(CDC_ENDPOINT_OUT, USB_ENDPOINT_TYPE_BULK      | USB_ENDPOINT_OUT(0));
-			initEP(CDC_ENDPOINT_IN,  USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0));
-			#endif
+			initEndpoints();
 			_usbConfiguration = setup.wValueL;
 
 			#if defined(CDC_ENABLED)
@@ -780,6 +795,10 @@ bool USBDeviceClass::handleStandardSetup(Setup &setup)
 
 void USBDeviceClass::ISRHandler()
 {
+
+	if (_pack_message == true) {
+		return;
+	}
 	// End-Of-Reset
 	if (usbd.isEndOfResetInterrupt())
 	{
@@ -805,7 +824,7 @@ void USBDeviceClass::ISRHandler()
 	{
 		usbd.epBank0AckSetupReceived(0);
 
-		Setup *setup = reinterpret_cast<Setup *>(udd_ep_out_cache_buffer[0]);
+		USBSetup *setup = reinterpret_cast<USBSetup *>(udd_ep_out_cache_buffer[0]);
 
 		/* Clear the Bank 0 ready flag on Control OUT */
 		// The RAM Buffer is empty: we can receive data
