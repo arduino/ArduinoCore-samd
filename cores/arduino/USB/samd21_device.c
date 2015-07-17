@@ -143,13 +143,11 @@ void UDD_Init(void)
 	/* Set the configuration */
 	udd_force_device_mode();
 	udd_device_run_in_standby();
-    // Set address of USB SRAM
+	// Set address of USB SRAM
 	USB->DEVICE.DESCADD.reg = (uint32_t)(&usb_endpoint_table[0]);
 	// For USB_SPEED_FULL
 	udd_force_full_speed();
- 	for (i = 0; i < sizeof(usb_endpoint_table); i++) {
- 		(*(uint32_t *)(&usb_endpoint_table[0]+i)) = 0;
- 	}
+	memset(&usb_endpoint_table[0], 0, sizeof(usb_endpoint_table));
 
 	// Configure interrupts
 	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
