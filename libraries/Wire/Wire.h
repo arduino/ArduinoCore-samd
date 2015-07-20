@@ -22,6 +22,7 @@
 
 #include "Stream.h"
 #include "variant.h"
+#include <WVariant.h>
 
 #include "SERCOM.h"
 #include "RingBuffer.h"
@@ -34,6 +35,7 @@ class TwoWire : public Stream
     TwoWire(SERCOM *s);
     void begin();
     void begin(uint8_t);
+    void end();
 
     void beginTransmission(uint8_t);
     uint8_t endTransmission(bool stopBit);
@@ -98,6 +100,8 @@ class TwoWire : public Stream
     //static const uint32_t XMIT_TIMEOUT = 100000;
 };
 
+#if WIRE_INTERFACES_COUNT > 0
 extern TwoWire Wire;
+#endif
 
 #endif

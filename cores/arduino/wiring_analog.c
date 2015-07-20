@@ -97,7 +97,7 @@ static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to
 }
 
 /*
- * Internal Reference is at 1.0v
+ * Default Internal Reference is at 1.65V (with ADC gain of 1/2)
  * External Reference should be between 1v and VDDANA-0.6v=2.7v
  *
  * Warning : On Arduino Zero board the input/output voltage for SAMD21G18 is 3.3 volts maximum
@@ -114,8 +114,11 @@ void analogReference( eAnalogReference ulMode )
       break;
 
     case AR_EXTERNAL:
-      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+      if ( pinPeripheral(REFA_PIN, PIO_ANALOG_REF) == RET_STATUS_OK )
+      {
+        ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
+        ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+      }
       break;
 
     case AR_INTERNAL1V0:
@@ -130,7 +133,7 @@ void analogReference( eAnalogReference ulMode )
 
     case AR_DEFAULT:
     default:
-      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
+      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;    // This allows values up to VDDANA (3.3V) on the pin
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
       break;
   }
@@ -140,57 +143,56 @@ uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t valueRead = 0;
 
-  if ( ulPin < A0 )
+  REMAP_ANALOG_PIN_ID ;
+
+  if ( pinPeripheral(ulPin, PIO_ANALOG_ADC) == RET_STATUS_OK )
   {
-    ulPin += A0 ;
+    // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
+    if ( (g_APinDescription[ulPin].ulPinAttribute & PIN_ATTR_DAC) == PIN_ATTR_DAC )
+    {
+      syncDAC();
+      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
+      //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
+      syncDAC();
+    }
+
+    syncADC();
+    ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber; // Selection for the positive ADC input
+
+    // Control A
+    /*
+     * Bit 1 ENABLE: Enable
+     *   0: The ADC is disabled.
+     *   1: The ADC is enabled.
+     * Due to synchronization, there is a delay from writing CTRLA.ENABLE until the peripheral is enabled/disabled. The
+     * value written to CTRL.ENABLE will read back immediately and the Synchronization Busy bit in the Status register
+     * (STATUS.SYNCBUSY) will be set. STATUS.SYNCBUSY will be cleared when the operation is complete.
+     *
+     * Before enabling the ADC, the asynchronous clock source must be selected and enabled, and the ADC reference must be
+     * configured. The first conversion after the reference is changed must not be used.
+     */
+    syncADC();
+    ADC->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+
+    // Start conversion
+    syncADC();
+    ADC->SWTRIG.bit.START = 1;
+
+    // Clear the Data Ready flag
+    ADC->INTFLAG.bit.RESRDY = 1;
+
+    // Start conversion again, since The first conversion after the reference is changed must not be used.
+    syncADC();
+    ADC->SWTRIG.bit.START = 1;
+
+    // Store the value
+    while ( ADC->INTFLAG.bit.RESRDY == 0 );   // Waiting for conversion to complete
+    valueRead = ADC->RESULT.reg;
+
+    syncADC();
+    ADC->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
+    syncADC();
   }
-
-  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
-
-  if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
-  {
-    syncDAC();
-    DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
-    //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
-    syncDAC();
-  }
-
-  syncADC();
-  ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber; // Selection for the positive ADC input
-
-  // Control A
-  /*
-   * Bit 1 ENABLE: Enable
-   *   0: The ADC is disabled.
-   *   1: The ADC is enabled.
-   * Due to synchronization, there is a delay from writing CTRLA.ENABLE until the peripheral is enabled/disabled. The
-   * value written to CTRL.ENABLE will read back immediately and the Synchronization Busy bit in the Status register
-   * (STATUS.SYNCBUSY) will be set. STATUS.SYNCBUSY will be cleared when the operation is complete.
-   *
-   * Before enabling the ADC, the asynchronous clock source must be selected and enabled, and the ADC reference must be
-   * configured. The first conversion after the reference is changed must not be used.
-   */
-  syncADC();
-  ADC->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
-
-  // Start conversion
-  syncADC();
-  ADC->SWTRIG.bit.START = 1;
-
-  // Clear the Data Ready flag
-  ADC->INTFLAG.bit.RESRDY = 1;
-
-  // Start conversion again, since The first conversion after the reference is changed must not be used.
-  syncADC();
-  ADC->SWTRIG.bit.START = 1;
-
-  // Store the value
-  while ( ADC->INTFLAG.bit.RESRDY == 0 );   // Waiting for conversion to complete
-  valueRead = ADC->RESULT.reg;
-
-  syncADC();
-  ADC->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
-  syncADC();
 
   return mapResolution(valueRead, _ADCResolution, _readResolution);
 }
@@ -202,15 +204,8 @@ uint32_t analogRead( uint32_t ulPin )
 // to digital output.
 void analogWrite( uint32_t ulPin, uint32_t ulValue )
 {
-  uint32_t attr = g_APinDescription[ulPin].ulPinAttribute ;
-
-  if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
+  if ( pinPeripheral(ulPin, PIO_ANALOG_DAC) == RET_STATUS_OK )
   {
-    if ( ulPin != PIN_A0 )  // Only 1 DAC on A0 (PA02)
-    {
-      return;
-    }
-
     ulValue = mapResolution(ulValue, _writeResolution, 10);
 
     syncDAC();
@@ -220,28 +215,22 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     syncDAC();
     return ;
   }
-
-  if ( (attr & PIN_ATTR_PWM) == PIN_ATTR_PWM )
+  else if ( pinPeripheral(ulPin, PIO_TIMER_PWM) == RET_STATUS_OK )
   {
-    if ( (g_APinDescription[ulPin].ulPinType == PIO_TIMER) || g_APinDescription[ulPin].ulPinType == PIO_TIMER_ALT )
-    {
-      pinPeripheral( ulPin, g_APinDescription[ulPin].ulPinType ) ;
-    }
-
     Tc*  TCx  = 0 ;
     Tcc* TCCx = 0 ;
-    uint8_t Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) ;
-    if ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
+    uint8_t Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulTCChannel ) ;
+    if ( GetTCNumber( g_APinDescription[ulPin].ulTCChannel ) >= TCC_INST_NUM )
     {
-      TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
+      TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulTCChannel ) ;
     }
     else
     {
-      TCCx = (Tcc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
+      TCCx = (Tcc*) GetTC( g_APinDescription[ulPin].ulTCChannel ) ;
     }
 
     // Enable clocks according to TCCx instance to use
-    switch ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) )
+    switch ( GetTCNumber( g_APinDescription[ulPin].ulTCChannel ) )
     {
       case 0: // TCC0
       case 1: // TCC1
@@ -261,11 +250,13 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 ));
       break ;
 
+#if defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
       case 6: // TC6 (not available on Zero)
       case 7: // TC7 (not available on Zero)
         // Enable GCLK for TC6 and TC7 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC6_TC7 ));
       break ;
+#endif
     }
 
     while ( GCLK->STATUS.bit.SYNCBUSY == 1 ) ;
@@ -313,20 +304,19 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       TCCx->CTRLA.reg |= TCC_CTRLA_ENABLE ;
       syncTCC(TCCx);
     }
-
-    return ;
   }
-
   // -- Defaults to digital write
-  pinMode( ulPin, OUTPUT ) ;
-  ulValue = mapResolution(ulValue, _writeResolution, 8);
-  if ( ulValue < 128 )
+  else if ( pinPeripheral(ulPin, PIO_OUTPUT) == RET_STATUS_OK )
   {
-    digitalWrite( ulPin, LOW ) ;
-  }
-  else
-  {
-    digitalWrite( ulPin, HIGH ) ;
+    ulValue = mapResolution(ulValue, _writeResolution, 8);
+    if ( ulValue < 128 )
+    {
+      digitalWrite( ulPin, LOW ) ;
+    }
+    else
+    {
+      digitalWrite( ulPin, HIGH ) ;
+    }
   }
 }
 

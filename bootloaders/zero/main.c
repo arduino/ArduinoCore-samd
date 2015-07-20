@@ -84,8 +84,28 @@
 #define NVM_SW_CALIB_DFLL48M_FINE_VAL     64
 
 static void check_start_application(void);
+void portable_delay_cycles(unsigned long n);
 
 static volatile bool main_b_cdc_enable = false;
+
+// Delay loop is put to SRAM so that FWS will not affect delay time
+OPTIMIZE_HIGH
+RAMFUNC
+void portable_delay_cycles(unsigned long n)
+{
+	UNUSED(n);
+	
+	__asm (
+		"loop: DMB	\n"
+		#ifdef __ICCARM__
+		"SUBS r0, r0, #1 \n"
+		#else
+		"SUB r0, r0, #1 \n"
+		#endif
+		"CMP r0, #0  \n"
+		"BNE loop         "
+	);
+}
 
 /**
  * \brief Check the application startup condition
@@ -93,11 +113,7 @@ static volatile bool main_b_cdc_enable = false;
  */
 static void check_start_application(void)
 {
-	volatile PortGroup *led_port = (volatile PortGroup *)&PORT->Group[1];
-	led_port->DIRSET.reg = (1<<30);
-	led_port->OUTCLR.reg = (1<<30);
-
-#if defined(BOOT_DOUBLE_TAP_ADDRESS)
+#if defined(BOOT_DOUBLE_TAP)
 	#define DOUBLE_TAP_MAGIC 0x07738135
 	if (PM->RCAUSE.bit.POR)
 	{
@@ -148,6 +164,10 @@ static void check_start_application(void)
 	boot_port->DIRCLR.reg = BOOT_PIN_MASK;
 	boot_port->PINCFG[BOOT_LOAD_PIN & 0x1F].reg = PORT_PINCFG_INEN | PORT_PINCFG_PULLEN;
 	boot_port->OUTSET.reg = BOOT_PIN_MASK;
+	
+	/* Allow time for debouncing capacitor to charge (6ms, 1MHz clock is default after reset) */
+	portable_delay_cycles(((uint64_t)6 * 1000000ul + (uint64_t)(7e3-1ul)) / (uint64_t)7e3);
+	
 	/* Read the BOOT_LOAD_PIN status */
 	boot_en = (boot_port->IN.reg) & BOOT_PIN_MASK;
 
@@ -157,8 +177,6 @@ static void check_start_application(void)
 		return;
 	}
 #endif
-
-	led_port->OUTSET.reg = (1<<30);
 
 	/* Rebase the Stack Pointer */
 	__set_MSP(*(uint32_t *) APP_START_ADDRESS);
@@ -242,7 +260,6 @@ void system_init()
 #endif
 }
 
-
 #if DEBUG_ENABLE
 #	define DEBUG_PIN_HIGH 	port_pin_set_output_level(BOOT_LED, 1)
 #	define DEBUG_PIN_LOW 	port_pin_set_output_level(BOOT_LED, 0)
@@ -270,8 +287,14 @@ int main(void)
 	/* System initialization */
 	system_init();
 	cpu_irq_enable();
-
-	#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+	
+#if defined(LED_PIN)
+	volatile PortGroup *led_port = (volatile PortGroup *)(&(PORT->Group[LED_PIN / 32]));
+	led_port->DIRSET.reg = LED_PIN_MASK;
+	led_port->OUTSET.reg = LED_PIN_MASK;
+#endif
+	
+#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
 	/* UART is enabled in all cases */
 	usart_open();
 #endif

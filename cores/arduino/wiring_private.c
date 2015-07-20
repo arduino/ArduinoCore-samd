@@ -19,56 +19,142 @@
 #include "Arduino.h"
 #include "wiring_private.h"
 
-int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral )
+int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
 {
+  uint32_t pinAttribute = g_APinDescription[ulPin].ulPinAttribute;
+  uint8_t peripheralAttribute = g_APinDescription[ulPin].ulPeripheralAttribute;
+  EPioType pinType = g_APinDescription[ulPin].ulPinType;
+
   // Handle the case the pin isn't usable as PIO
-  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  if ( pinType == PIO_NOT_A_PIN )
   {
     return -1 ;
   }
 
+  // If pinType is not PIO_MULTI in the pinDescription table, then it must match ulPeripheral
+  if ( pinType != PIO_MULTI && pinType != ulPeripheral )
+  {
+    return -1 ;
+  }
+
+  // Make sure ulPeripheral is listed in the attributes
+  if ( !(pinAttribute & (1UL << ulPeripheral)) )
+  {
+    return -1 ;
+  }
+
+  // Determine hardware peripheral to use
+  EPioPeripheral peripheral = PER_PORT;
   switch ( ulPeripheral )
   {
-    case PIO_DIGITAL:
-    case PIO_INPUT:
-    case PIO_INPUT_PULLUP:
-    case PIO_OUTPUT:
-      // Disable peripheral muxing, done in pinMode
-//			PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].bit.PMUXEN = 0 ;
-
-      // Configure pin mode, if requested
-      if ( ulPeripheral == PIO_INPUT )
+    case PIO_EXTINT:
+      if ( digitalPinToInterrupt( ulPin ) == NOT_AN_INTERRUPT )
       {
-        pinMode( ulPin, INPUT ) ;
+        return -1 ;
+      }
+      peripheral = PER_EXTINT;
+    break ;
+
+    case PIO_ANALOG_ADC:
+      if ( g_APinDescription[ulPin].ulADCChannelNumber == No_ADC_Channel )
+      {
+        return -1 ;
+      }
+      peripheral = PER_ANALOG;
+    break ;
+
+    case PIO_ANALOG_DAC:
+    case PIO_ANALOG_REF:
+      peripheral = PER_ANALOG;
+    break ;
+
+    case PIO_TIMER_PWM:
+    case PIO_TIMER_CAPTURE:
+      if ( g_APinDescription[ulPin].ulTCChannel == NOT_ON_TIMER )
+      {
+        return -1 ;
+      }
+
+      if ( (peripheralAttribute & PER_ATTR_TIMER_MASK) == PER_ATTR_TIMER_STD )
+      {
+        peripheral = PER_TIMER;
       }
       else
       {
-        if ( ulPeripheral == PIO_INPUT_PULLUP )
-        {
-          pinMode( ulPin, INPUT_PULLUP ) ;
-        }
-        else
-        {
-          if ( ulPeripheral == PIO_OUTPUT )
-          {
-            pinMode( ulPin, OUTPUT ) ;
-          }
-          else
-          {
-            // PIO_DIGITAL, do we have to do something as all cases are covered?
-          }
-        }
+        peripheral = PER_TIMER_ALT;
       }
     break ;
 
-    case PIO_ANALOG:
     case PIO_SERCOM:
-    case PIO_SERCOM_ALT:
-    case PIO_TIMER:
-    case PIO_TIMER_ALT:
-    case PIO_EXTINT:
+      if ( (peripheralAttribute & PER_ATTR_SERCOM_MASK) == PER_ATTR_SERCOM_STD )
+      {
+        peripheral = PER_SERCOM;
+      }
+      else
+      {
+        peripheral = PER_SERCOM_ALT;
+      }
+    break ;
+
     case PIO_COM:
-    case PIO_AC_CLK:
+      peripheral = PER_COM;
+    break ;
+
+    case PIO_AC_GCLK:
+      peripheral = PER_AC_CLK;
+    break ;
+
+    default:
+    break ;
+  }
+
+  switch ( ulPeripheral )
+  {
+    // Set pin mode according to chapter '22.6.3 I/O Pin Configuration'
+    case PIO_INPUT:
+      // Set pin to input mode, disable the port mux
+      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN) ;
+      PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+    break ;
+
+    case PIO_OUTPUT:
+      // Set pin to output mode, set pin drive strength, disable the port mux
+      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg &= ~(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PMUXEN) ;
+      if ( (peripheralAttribute & PER_ATTR_DRIVE_MASK) == PER_ATTR_DRIVE_STRONG )
+      {
+        PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg |= (uint8_t)(PORT_PINCFG_DRVSTR) ;
+      }
+      PORT->Group[g_APinDescription[ulPin].ulPort].DIRSET.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+    break ;
+
+    case PIO_INPUT_PULLUP:
+      // Set pin to input mode with pull-up resistor enabled, disable the port mux
+      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN) ;
+      PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+
+      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.7 Data Output Value Set')
+      PORT->Group[g_APinDescription[ulPin].ulPort].OUTSET.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+    break ;
+
+    case PIO_INPUT_PULLDOWN:
+      // Set pin to input mode with pull-down resistor enabled, disable the port mux
+      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN) ;
+      PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+
+      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.6 Data Output Value Clear')
+      PORT->Group[g_APinDescription[ulPin].ulPort].OUTCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+    break ;
+
+
+    case PIO_EXTINT:
+    case PIO_ANALOG_ADC:
+    case PIO_ANALOG_DAC:
+    case PIO_ANALOG_REF:
+    case PIO_TIMER_PWM:
+    case PIO_TIMER_CAPTURE:
+    case PIO_SERCOM:
+    case PIO_COM:
+    case PIO_AC_GCLK:
 #if 0
       // Is the pio pin in the lower 16 ones?
       // The WRCONFIG register allows update of only 16 pin max out of 32
@@ -93,7 +179,7 @@ int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral )
         // Get whole current setup for both odd and even pins and remove odd one
         temp = (PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg) & PORT_PMUX_PMUXE( 0xF ) ;
         // Set new muxing
-        PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg = temp|PORT_PMUX_PMUXO( ulPeripheral ) ;
+	PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg = temp|PORT_PMUX_PMUXO( peripheral ) ;
         // Enable port mux
         PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg |= PORT_PINCFG_PMUXEN ;
       }
@@ -102,13 +188,15 @@ int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral )
         uint32_t temp ;
 
         temp = (PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg) & PORT_PMUX_PMUXO( 0xF ) ;
-        PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg = temp|PORT_PMUX_PMUXE( ulPeripheral ) ;
+	PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg = temp|PORT_PMUX_PMUXE( peripheral ) ;
         PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg |= PORT_PINCFG_PMUXEN ; // Enable port mux
       }
 #endif
     break ;
 
     case PIO_NOT_A_PIN:
+    case PIO_MULTI:
+    default:
       return -1l ;
     break ;
   }

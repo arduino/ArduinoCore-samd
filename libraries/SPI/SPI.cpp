@@ -44,10 +44,10 @@ void SPIClass::begin()
   init();
 
   // PIO init
-  pinPeripheral(_uc_pinMiso, g_APinDescription[_uc_pinMiso].ulPinType);
-  pinPeripheral(_uc_pinSCK, g_APinDescription[_uc_pinSCK].ulPinType);
-  pinPeripheral(_uc_pinMosi, g_APinDescription[_uc_pinMosi].ulPinType);
-
+  pinPeripheral(_uc_pinMiso, PIO_SERCOM);
+  pinPeripheral(_uc_pinSCK, PIO_SERCOM);
+  pinPeripheral(_uc_pinMosi, PIO_SERCOM);
+  
   config(DEFAULT_SPI_SETTINGS);
 }
 
@@ -197,4 +197,6 @@ void SPIClass::detachInterrupt() {
   // Should be disableInterrupt()
 }
 
-SPIClass SPI( &sercom4, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI );
+#if SPI_INTERFACES_COUNT > 0
+SPIClass SPI( SERCOM_INSTANCE_SPI, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI );
+#endif

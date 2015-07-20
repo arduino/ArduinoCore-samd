@@ -75,10 +75,11 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
   static int enabled = 0 ;
   uint32_t ulConfig ;
   uint32_t ulPos ;
-
-  if ( digitalPinToInterrupt( ulPin ) == NOT_AN_INTERRUPT )
+  
+  // Assign pin to EIC
+  if ( pinPeripheral(ulPin, PIO_EXTINT) != RET_STATUS_OK )
   {
-    return ;
+	  return ;
   }
 
   if ( !enabled )
@@ -87,15 +88,12 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
     enabled = 1 ;
   }
 
-  // Assign pin to EIC
-  pinPeripheral( ulPin, PIO_EXTINT ) ;
-
   // Assign callback to interrupt
   callbacksInt[digitalPinToInterrupt( ulPin )]._ulPin = ulPin ;
   callbacksInt[digitalPinToInterrupt( ulPin )]._callback = callback ;
 
   // Check if normal interrupt or NMI
-  if ( ulPin != 2 )
+  if ( digitalPinToInterrupt( ulPin ) != EXTERNAL_INT_NMI )
   {
     // Look for right CONFIG register to be addressed
     if ( digitalPinToInterrupt( ulPin ) > EXTERNAL_INT_7 )
@@ -139,7 +137,7 @@ void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
     // Enable the interrupt
     EIC->INTENSET.reg = EIC_INTENSET_EXTINT( 1 << digitalPinToInterrupt( ulPin ) ) ;
   }
-  else // Handles NMI on pin 2
+  else // Handles NMI
   {
     // Configure the interrupt mode
     switch ( ulMode )

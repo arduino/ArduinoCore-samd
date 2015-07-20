@@ -36,9 +36,13 @@ void TwoWire::begin(void) {
   //Master Mode
   sercom->initMasterWIRE(TWI_CLOCK);
   sercom->enableWIRE();
+  
+  pinPeripheral(PIN_WIRE_SDA, PIO_SERCOM);
+  pinPeripheral(PIN_WIRE_SCL, PIO_SERCOM);
+}
 
-  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
-  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+void TwoWire::end(void) {
+	sercom->disableWIRE();
 }
 
 void TwoWire::begin(uint8_t address) {
@@ -342,10 +346,8 @@ void TwoWire::onService(void)
 }*/
 
 
-TwoWire Wire(&sercom3);
+TwoWire Wire(SERCOM_INSTANCE_WIRE);
 
-void SERCOM3_Handler(void) {
-  Wire.onService();
-}
+SERCOM_WIRE_HANDLER_MACRO
 
 #endif

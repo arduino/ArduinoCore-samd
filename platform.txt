@@ -14,11 +14,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-/*
- * Modified 23 June 2015 by Justin Mattair
- *   for the MattairTech MT-D21E board (www.mattairtech.com)
- */
-
 # Arduino SAMD Core and platform.
 #
 # For more info:
@@ -115,7 +110,7 @@ recipe.size.regex=\.text\s+([0-9]+).*
 #
 # BOSSA
 #
-tools.bossac.path={runtime.tools.bossac-1.5-arduino.path}
+tools.bossac.path={runtime.tools.bossac-1.5-arduino-mattairtech-1.path}
 tools.bossac.cmd=bossac
 tools.bossac.cmd.windows=bossac.exe
 
@@ -143,7 +138,7 @@ tools.openocd.erase.params.verbose=-d3
 tools.openocd.erase.params.quiet=-d0
 tools.openocd.erase.pattern=
 
-tools.openocd.bootloader.params.verbose=-d2
+tools.openocd.bootloader.params.verbose=-d3
 tools.openocd.bootloader.params.quiet=-d0
 tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
 

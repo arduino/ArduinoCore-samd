@@ -36,8 +36,8 @@ void Uart::begin(unsigned long baudrate)
 
 void Uart::begin(unsigned long baudrate, uint8_t config)
 {
-  pinPeripheral(uc_pinRX, g_APinDescription[uc_pinRX].ulPinType);
-  pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
+  pinPeripheral(uc_pinRX, PIO_SERCOM);
+  pinPeripheral(uc_pinTX, PIO_SERCOM);
 
   sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
   sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
@@ -59,17 +59,17 @@ void Uart::flush()
 
 void Uart::IrqHandler()
 {
-  if(sercom->availableDataUART())
-  {
-    rxBuffer.store_char(sercom->readDataUART());
-  }
-
-  if(  sercom->isBufferOverflowErrorUART() ||
-    sercom->isFrameErrorUART() ||
-    sercom->isParityErrorUART())
-  {
-    sercom->clearStatusUART();
-  }
+	if (sercom->availableDataUART()) {
+		rxBuffer.store_char(sercom->readDataUART());
+	}
+	
+	if (sercom->isUARTError()) {
+		sercom->acknowledgeUARTError();
+		// TODO: if (sercom->isBufferOverflowErrorUART()) ....
+		// TODO: if (sercom->isFrameErrorUART()) ....
+		// TODO: if (sercom->isParityErrorUART()) ....
+		sercom->clearStatusUART();
+	}
 }
 
 int Uart::available()

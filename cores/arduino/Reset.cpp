@@ -24,7 +24,19 @@ extern "C" {
 #endif
 
 #define NVM_MEMORY ((volatile uint16_t *)0x000000)
-#define APP_START 0x00002004
+
+#if defined(__NO_BOOTLODAER__)
+	#define APP_START 0x00000004
+#elif defined(__4KB_BOOTLODAER__)
+	#define APP_START 0x00001004
+#elif defined(__8KB_BOOTLODAER__)
+	#define APP_START 0x00002004
+#elif defined(__16KB_BOOTLODAER__)
+	#define APP_START 0x00004004
+#else
+	// default of 8KB
+	#define APP_START 0x00002004
+#endif
 
 static inline bool nvmReady(void) {
         return NVMCTRL->INTFLAG.reg & NVMCTRL_INTFLAG_READY;

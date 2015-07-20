@@ -33,6 +33,11 @@
 #include "sam.h"
 #include "stdbool.h"
 
+#define USB_VENDOR_ID_H		0x16
+#define USB_VENDOR_ID_L		0xD0
+#define USB_PRODUCT_ID_H	0x05
+#define USB_PRODUCT_ID_L	0x57
+
 #define USB_EP_OUT              2
 #define USB_EP_OUT_SIZE         0x40
 #define USB_EP_IN               1

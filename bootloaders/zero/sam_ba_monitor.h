@@ -41,6 +41,9 @@
 #define SAM_BA_INTERFACE    SAM_BA_BOTH_INTERFACES
 #endif
 
+/* disable for 4KB bootloaders */
+#define ARDUINO_EXTENDED_CAPABILITIES		1
+
 /* Selects USART as the communication interface of the monitor */
 #define SAM_BA_INTERFACE_USART      1
 /* Selects USB as the communication interface of the monitor */

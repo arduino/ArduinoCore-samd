@@ -30,12 +30,31 @@
 #pragma once
 
 /*
- * If BOOT_DOUBLE_TAP_ADDRESS is defined the bootloader is started by
+ * If LED_PIN is defined, it will turn on during bootloader operation.
+ */
+#define	LED_PIN                           PIN_PA28 // Pin 28
+#define LED_PIN_MASK                      (1U << (LED_PIN & 0x1f))
+
+/*
+ * If BOOT_DOUBLE_TAP is defined the bootloader is started by
  * quickly tapping two times on the reset button.
  * BOOT_DOUBLE_TAP_ADDRESS must point to a free SRAM cell that must not
  * be touched from the loaded application.
  */
-#define BOOT_DOUBLE_TAP_ADDRESS           0x20007FFC
+#define BOOT_DOUBLE_TAP	1
+
+#if defined(__SAMD21J18A__) || defined(__SAMD21G18A__) || defined(__SAMD21E18A__)
+	#define BOOT_DOUBLE_TAP_ADDRESS           0x20007FFC
+#elif defined(__SAMD21J17A__) || defined(__SAMD21G17A__) || defined(__SAMD21E17A__)
+	#define BOOT_DOUBLE_TAP_ADDRESS           0x20003FFC
+#elif defined(__SAMD21J16A__) || defined(__SAMD21G16A__) || defined(__SAMD21E16A__)
+	#define BOOT_DOUBLE_TAP_ADDRESS           0x20001FFC
+#elif defined(__SAMD21J15A__) || defined(__SAMD21G15A__) || defined(__SAMD21E15A__)
+	#define BOOT_DOUBLE_TAP_ADDRESS           0x20000FFC
+#elif defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+	#define BOOT_DOUBLE_TAP_ADDRESS           0x20000FFC
+#endif
+
 #define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
 
 /*

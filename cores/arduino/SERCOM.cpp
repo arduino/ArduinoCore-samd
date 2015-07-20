@@ -30,8 +30,8 @@ SERCOM::SERCOM(Sercom* s)
 */
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {
-  resetUART();
   initClockNVIC();
+  resetUART();
 
   //Setting the CTRLA register
   sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
@@ -125,6 +125,16 @@ bool SERCOM::availableDataUART()
 {
   //RXC : Receive Complete
   return sercom->USART.INTFLAG.bit.RXC;
+}
+
+bool SERCOM::isUARTError()
+{
+	return sercom->USART.INTFLAG.bit.ERROR;
+}
+
+void SERCOM::acknowledgeUARTError()
+{
+	sercom->USART.INTFLAG.bit.ERROR = 1;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()
@@ -628,6 +638,8 @@ void SERCOM::initClockNVIC( void )
     clockId = GCM_SERCOM3_CORE;
     IdNvic = SERCOM3_IRQn;
   }
+#if defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
+  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
   else if(sercom == SERCOM4)
   {
     clockId = GCM_SERCOM4_CORE;
@@ -638,6 +650,7 @@ void SERCOM::initClockNVIC( void )
     clockId = GCM_SERCOM5_CORE;
     IdNvic = SERCOM5_IRQn;
   }
+#endif
 
   if ( IdNvic == PendSV_IRQn )
   {

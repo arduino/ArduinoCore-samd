@@ -21,6 +21,7 @@
 #define _SPI_H_INCLUDED
 
 #include <Arduino.h>
+#include <WVariant.h>
 
 // SPI_HAS_TRANSACTION means SPI has
 //   - beginTransaction()

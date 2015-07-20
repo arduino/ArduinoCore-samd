@@ -36,7 +36,9 @@
 #include "cdc_enumerate.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
+#if defined ARDUINO_EXTENDED_CAPABILITIES
 const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZ]";
+#endif
 
 /* Provides one common interface to handle both USART and USB-CDC */
 typedef struct
@@ -167,6 +169,7 @@ uint8_t command, *ptr_data, *ptr, data[SIZEBUFMAX];
 uint8_t j;
 uint32_t u32tmp;
 
+#if defined ARDUINO_EXTENDED_CAPABILITIES
 uint32_t PAGE_SIZE, PAGES, MAX_FLASH;
 
 /**
@@ -185,6 +188,16 @@ void sam_ba_monitor_run(void)
 		sam_ba_monitor_loop();
 	}
 }
+#else
+void sam_ba_monitor_run(void)
+{
+	ptr_data = NULL;
+	command = 'z';
+	while (1) {
+		sam_ba_monitor_loop();
+	}
+}
+#endif
 
 // Prints a 32-bit integer in hex.
 void put_uint32(uint32_t n) {
@@ -295,10 +308,12 @@ void sam_ba_monitor_loop(void)
 			{
 				ptr_monitor_if->putdata("v", 1);
 				ptr_monitor_if->putdata((uint8_t *) RomBOOT_Version,
-						strlen(RomBOOT_Version));
+							strlen(RomBOOT_Version));
+#if defined ARDUINO_EXTENDED_CAPABILITIES
 				ptr_monitor_if->putdata(" ", 1);
 				ptr_monitor_if->putdata((uint8_t *) RomBOOT_ExtendedCapabilities,
-						strlen(RomBOOT_ExtendedCapabilities));
+					strlen(RomBOOT_ExtendedCapabilities));
+#endif
 				ptr_monitor_if->putdata(" ", 1);
 				ptr = (uint8_t*) &(__DATE__);
 				i = 0;
@@ -313,6 +328,7 @@ void sam_ba_monitor_loop(void)
 				ptr_monitor_if->putdata((uint8_t *) &(__TIME__), i);
 				ptr_monitor_if->putdata("\n\r", 2);
 			}
+#if defined ARDUINO_EXTENDED_CAPABILITIES
 			else if (command == 'X')
 			{
 				// Syntax: X[ADDR]#
@@ -412,7 +428,7 @@ void sam_ba_monitor_loop(void)
 				put_uint32(crc);
 				ptr_monitor_if->putdata("#\n\r", 3);
 			}
-
+#endif
 			command = 'z';
 			current_number = 0;
 

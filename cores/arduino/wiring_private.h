@@ -31,7 +31,9 @@ extern "C" {
 
 #include "wiring_constants.h"
 
-int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral );
+#define RET_STATUS_OK     0
+
+int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral );
 
 #ifdef __cplusplus
 } // extern "C"
