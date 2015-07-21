@@ -8,6 +8,7 @@ SAMD CORE 1.6.1 2015.07.21
 * Fixed acknowledge of UART errors
 * Enabled C11/C++11
 * Fixed initialization in USB Device
+* Updated bossac to version 1.6-arduino
 
 SAMD CORE 1.6.0  2015.06.15
 
