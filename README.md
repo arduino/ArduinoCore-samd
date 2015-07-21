@@ -33,71 +33,72 @@ PWM output, Digital I/O, or the TX pin of 'Serial1'. These always reference the 
 without the 'A' (with the usable pins starting at 2). DO NOT connect voltages higher than 3.3V!
 
 ```
-============================================ MattairTech MT-D21E (ATsamd21eXXa) =======================================
-Comm/Other INT      PWM    Digital    Analog                               Digital   PWM       INT    Comm/other
-=======================================================================================================================
-                                                  -----------------------
-Xin32                                            |   A0            RST   |                            Reset
-Xout32                                           |   A1            NC    |
-                             2     2 (ADC0, DAC) |   A2            NC    |
-                             3     3 (ADC1, REF) |   A3            A31   |   31   TCC1/WO[1]  INT11   Button B / SWD IO
-          INT4               4     4 (ADC4)      |   A4            A30   |   30   TCC1/WO[0]  INT10   SWD CLK
-          INT5               5     5 (ADC5)      |   A5            NC    |
-                             6     6 (ADC6)      |   A6            A28   |   28               INT8    LED
-VDIV                         7     7 (ADC7)      |   A7            A27   |   27               INT15   Button A
-          INTNMI TCC0/WO[0]  8     8 (ADC16)     |   A8            A23   |   23   TC4/WO[1]   INT7    SPI SS
-          INT9   TCC0/WO[1]  9     9 (ADC17)     |   A9            A22   |   22   TC4/WO[0]   INT6    SPI MISO
-TX (1)           TCC0/WO[2]  10    10 (ADC18)    |   A10           A19   |   19               INT3    SPI SCK
-RX (1)           TCC0/WO[3]  11    11 (ADC19)    |   A11           A18   |   18               INT2    SPI MOSI
-TX (2)    INT14  TC3/WO[0]   14                  |   A14           A17   |   17   TCC2/WO[1]  INT1    I2C/SCL
-RX (2)           TC3/WO[1]   15                  |   A15           A16   |   16   TCC2/WO[0]  INT0    I2C/SDA
-                                                 |   NC            NC    |
-                                                 |   NC            NC    |
-                                                 |   Vbus          3.3V  |
-USB D-                                           |   A24-  _____   Vcc   |
-USB D+                                           |   A25+ |     |  Vin   |
-                                                 |   Gnd  | USB |  Gnd   |
-                                                  -----------------------
+============================= MattairTech MT-D21E (ATsamd21eXXa) ========================
+Other   INT    PWM   Digital  Analog                      Digital  PWM     INT    Other
+=========================================================================================
+                                       -------------------
+Xin32                                 | A0            RST |                      Reset
+Xout32                                | A1            NC  |
+DAC                    2    2 (ADC0)  | A2            NC  |
+REF                    3    3 (ADC1)  | A3            A31 |  31  TCC1[1]  INT11  SWD IO *
+       INT4            4    4 (ADC4)  | A4            A30 |  30  TCC1[0]  INT10  SWD CLK
+       INT5            5    5 (ADC5)  | A5            NC  |
+                       6    6 (ADC6)  | A6            A28 |  28           INT8   LED
+VDIV                   7    7 (ADC7)  | A7            A27 |  27           INT15  Button A
+       INTNMI TCC0[0]  8    8 (ADC16) | A8            A23 |  23  TC4[1]   INT7   SPI SS
+       INT9   TCC0[1]  9    9 (ADC17) | A9            A22 |  22  TC4[0]   INT6   SPI MISO
+TX (1)        TCC0[2]  10   10 (ADC18)| A10           A19 |  19           INT3   SPI SCK
+RX (1)        TCC0[3]  11   11 (ADC19)| A11           A18 |  18           INT2   SPI MOSI
+TX (2) INT14  TC3[0]   14             | A14           A17 |  17  TCC2[1]  INT1   I2C/SCL
+RX (2)        TC3[1]   15             | A15           A16 |  16  TCC2[0]  INT0   I2C/SDA
+                                      | NC            NC  |
+                                      | NC            NC  |
+                                      | Vbus          3.3V|   * Button B available on 31
+USB D-                                | A24-  _____   Vcc |
+USB D+                                | A25+ |     |  Vin |
+                                      | Gnd  | USB |  Gnd |
+                                       -------------------
 ```
 
 #### All pins operate at 3.3 volts. DO NOT connect voltages higher than 3.3V!
 
-* Digital: All 22 pins can be used for general purpose I/O (INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN).
+* **Digital: All 22 pins can be used for general purpose I/O** 
+  * Supports INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
   * Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
   * Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
   * Use the pinMode(), digitalWrite(), and digitalRead() functions.
-* Analog Inputs: 10 pins can be configured as ADC analog inputs.
+* **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
   * These are available on pins 2 through 11 using the analogRead() function.
   * These pins can be used for GPIO and other digital functions (ie. pwm and serial) as well.
   * Each pin provides 10 bits of resolution (1024 values) by default.
   * 12-bit resolution supported by using the analogReadResolution() function.
   * Each pin measures from ground to 3.3 volts.
   * The upper end of the measurement range can be changed using the AREF pin and the analogReference() function.
-* DAC: One analog output is available on pin 2.
+* **DAC: One analog output is available on pin 2.**
   * Provides a 10-bit voltage output with the analogWrite() function.
-* PWM: 12 pins can be configured as PWM outputs.
+* **PWM: 12 pins can be configured as PWM outputs.**
   * Available on pins 8, 9, 10, 11, 14, 15, 16, 17, 22, 23, 30, and 31 using the analogWrite() function.
   * Each pin provides 8 bits of resolution (256 values) by default.
   * 12-bit resolution supported by using the analogWriteResolution() function.
-* External Interrupts: 15 pins can be configured with external interrupts.
+* **External Interrupts: 15 pins can be configured with external interrupts.**
   * Available on all the pins except pins 2, 3, 6, 7, 10, 11, and 15 using the attachInterrupt() function.
-* Serial: 2 pairs of pins can be configured for TTL serial I/O.
+* **Serial: 2 pairs of pins can be configured for TTL serial I/O.**
   * Serial1: pin 11 (RX) and pin 10 (TX).
   * Serial2: pin 15 (RX) and pin 14 (TX).
-* SPI: 3 or 4 pins can be configured for SPI I/O.
+* **SPI: 3 or 4 pins can be configured for SPI I/O.**
   * Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
   * SPI communication using the SPI library.
-* TWI (I2C): 2 pins can be configured for TWI I/O.
+* **TWI (I2C): 2 pins can be configured for TWI I/O.**
   * Pin 16 (SDA) and pin 17 (SCL).
   * TWI communication using the Wire library.
-* LED: One pin can be configured to light the onboard LED.
+* **LED: One pin can be configured to light the onboard LED.**
   * Pin 28 (LED_BUILTIN). Bring the pin HIGH to turn the LED on. The pullup is disabled on this pin.
-* Button: One pin can be configured to read the onboard Button A.
+* **Button: One pin can be configured to read the onboard Button A.**
   * Pin 27 (BUTTON_BUILTIN). Pressing the button will bring the pin LOW. The pullup must be enabled first.
   * If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
-* AREF: One pin can be configured as an AREF analog input.
+* **AREF: One pin can be configured as an AREF analog input.**
   * The upper end of the analog measurement range can be changed using the analogReference() function.
-* Reset: Bring this line LOW to reset the microcontroller.
+* **Reset: Bring this line LOW to reset the microcontroller.**
 
 #### MT-D21E Board Configuration
 
@@ -255,7 +256,7 @@ and 0x00001000 for 4 KB bootloaders. This is because the bootloader resides at 0
 by passing the following flag to the linker (typically LDFLAGS in your makefile; adjust for your bootloader size):
 
 ```
-­Wl,­­section­start=.text=0x2000
+Wl,sectionstart=.text=0x2000
 ```
 
 You may also use a linker script. See the MattairTech SAMD package for examples.
@@ -286,56 +287,74 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 ## New PinDescription Table
 
 ```
-/*   The PinDescription table describes how each of the pins can be used by the Arduino core. Each pin can have multiple
- *   functions (ie: ADC input, digital output, PWM, communications, etc.), and the PinDescription table configures
- *   which functions can be used for each pin. This table is mainly accessed by the pinPeripheral function in
- *   wiring_private.c, which is used to attach a pin to a particular peripheral function. The communications drivers
- *   (ie: SPI, I2C, and UART), analogRead(), analogWrite(), analogReference(), attachInterrupt(), and pinMode() all
- *   call pinPeripheral() to verify that the pin can perform the function requested, and to configure the pin for
+/*   The PinDescription table describes how each of the pins can be used by the Arduino
+ *   core. Each pin can have multiple functions (ie: ADC input, digital output, PWM,
+ *   communications, etc.), and the PinDescription table configures which functions can
+ *   be used for each pin. This table is mainly accessed by the pinPeripheral function in
+ *   wiring_private.c, which is used to attach a pin to a particular peripheral function.
+ *   The communications drivers (ie: SPI, I2C, and UART), analogRead(), analogWrite(),
+ *   analogReference(), attachInterrupt(), and pinMode() all call pinPeripheral() to
+ *   verify that the pin can perform the function requested, and to configure the pin for
  *   that function. Most of the contents of pinMode() are now in pinPeripheral().
  * 
  *   Explanation of PinDescription table:
  * 
- *   Port			This is the port (ie: PORTA).
- *   Pin			This is the pin (bit) within the port. Valid values are 0 through 31.
- *   PinType			This indicates what peripheral function the pin can be attached to. In most cases, this
- *                              is PIO_MULTI, which means that the pin can be anything listed in the PinAttribute field.
- *                              It can also be set to a specific peripheral. In this case, any attempt to configure the
- *                              pin (using pinPeripheral or pinMode) as anything else will fail (and pinPeripheral will
- *                              return -1). This can be used to prevent accidental re-configuration of a pin that is
- *                              configured for only one function (ie: USB D- and D+ pins). If a pin is not used or does
- *                              not exist, PIO_NOT_A_PIN must be entered in this field. See WVariant.h for valid
- *                              entries. These entries are also used as a parameter to pinPeripheral() with the
- *                              exception of PIO_NOT_A_PIN and PIO_MULTI. The pinMode function now calls pinPeripheral()
- *                              with the desired mode. Note that this field is not used to select between the two
- *                              peripherals possible with each of the SERCOM and TIMER functions. PeripheralAttribute
- *                              is now used for this.
- *   PeripheralAttribute	This is an 8-bit bitfield used for various peripheral configuration. It is primarily
- *                              used to select between the two peripherals possible with each of the SERCOM and TIMER
- *                              functions. TIMER pins are individual, while SERCOM uses a group of two to four pins.
- *                              This group of pins can span both peripherals. For example, pin 19 (SPI1 SCK) uses
- *                              PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses PER_ATTR_SERCOM_STD. Both TIMER and
- *                              SERCOM can exist for each pin. This bitfield is also used to set the pin drive strength.
- *                              In the future, other attributes (like input buffer configuration) may be added.
- *                              See WVariant.h for valid entries.
- *   PinAttribute		This is a 32-bit bitfield used to list all of the valid peripheral functions that a pin
- *                              can attach to. This includes GPIO functions like PIN_ATTR_OUTPUT. Certain attributes
- *                              are shorthand for a combination of other attributes. PIN_ATTR_DIGITAL includes all of
- *                              the GPIO functions, while PIN_ATTR_TIMER includes both PIN_ATTR_TIMER_PWM and
- *                              PIN_ATTR_TIMER_CAPTURE (capture is not used yet). PIN_ATTR_ANALOG is an alias to
- *                              PIN_ATTR_ANALOG_ADC. There is only one DAC channel, so PIN_ATTR_DAC appears only once.
- *                              This bitfield is useful for limiting a pin to only input related functions or output
- *                              functions. This allows a pin to have a more flexible configuration, while restricting
- *                              the direction (ie: to avoid contention). See WVariant.h for valid entries.
- *   TCChannel			This is the TC(C) channel (if any) assigned to the pin. Some TC channels are available
- *                              on multiple pins (ie: TCC0/WO[0] is available on pin A4 or pin A8). In general, only
- *                              one pin should be configured (in the pinDescription table) per TC channel.
- *                              See WVariant.h for valid entries. The tone library uses TC5.
- *   ADCChannelNumber		This is the ADC channel (if any) assigned to the pin. See WVariant.h for valid entries.
- *   ExtInt			This is the interrupt (if any) assigned to the pin. Some interrupt numbers are available
- *                              on multiple pins (ie: EIC/EXTINT[2] is available on pin A2 or pin A18). In general, only
- *                              one pin should be configured (in the pinDescription table) per interrupt number. Thus,
- *                              if an interrupt was needed on pin 2, EXTERNAL_INT_2 can be moved from pin 18.
- *                              See WVariant.h for valid entries.
+ *   Port                  This is the port (ie: PORTA).
+ *   Pin                   This is the pin (bit) within the port. Valid values are 0-31.
+ *   PinType               This indicates what peripheral function the pin can be
+ *                         attached to. In most cases, this is PIO_MULTI, which means
+ *                         that the pin can be anything listed in the PinAttribute field.
+ *                         It can also be set to a specific peripheral. In this case, any
+ *                         attempt to configure the pin (using pinPeripheral or pinMode)
+ *                         as anything else will fail (and pinPeripheral will return -1).
+ *                         This can be used to prevent accidental re-configuration of a
+ *                         pin that is configured for only one function (ie: USB D- and
+ *                         D+ pins). If a pin is not used or does not exist,
+ *                         PIO_NOT_A_PIN must be entered in this field. See WVariant.h
+ *                         for valid entries. These entries are also used as a parameter
+ *                         to pinPeripheral() with the exception of PIO_NOT_A_PIN and
+ *                         PIO_MULTI. The pinMode function now calls pinPeripheral() with
+ *                         the desired mode. Note that this field is not used to select
+ *                         between the two peripherals possible with each of the SERCOM
+ *                         and TIMER functions. PeripheralAttribute is now used for this.
+ *   PeripheralAttribute   This is an 8-bit bitfield used for various peripheral
+ *                         configuration. It is primarily used to select between the two
+ *                         peripherals possible with each of the SERCOM and TIMER
+ *                         functions. TIMER pins are individual, while SERCOM uses a
+ *                         group of two to four pins. This group of pins can span both
+ *                         peripherals. For example, pin 19 (SPI1 SCK) uses
+ *                         PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses
+ *                         PER_ATTR_SERCOM_STD. Both TIMER and SERCOM can exist for each
+ *                         pin. This bitfield is also used to set the pin drive strength.
+ *                         In the future, other attributes (like input buffer
+ *                         configuration) may be added. See WVariant.h for valid entries.
+ *   PinAttribute          This is a 32-bit bitfield used to list all of the valid
+ *                         peripheral functions that a pin can attach to. This includes
+ *                         GPIO functions like PIN_ATTR_OUTPUT. Certain attributes are
+ *                         shorthand for a combination of other attributes.
+ *                         PIN_ATTR_DIGITAL includes all of the GPIO functions, while
+ *                         PIN_ATTR_TIMER includes both PIN_ATTR_TIMER_PWM and
+ *                         PIN_ATTR_TIMER_CAPTURE (capture is not used yet).
+ *                         PIN_ATTR_ANALOG is an alias to PIN_ATTR_ANALOG_ADC. There is
+ *                         only one DAC channel, so PIN_ATTR_DAC appears only once. This
+ *                         bitfield is useful for limiting a pin to only input related
+ *                         functions or output functions. This allows a pin to have a
+ *                         more flexible configuration, while restricting the direction
+ *                         (ie: to avoid contention). See WVariant.h for valid entries.
+ *   TCChannel             This is the TC(C) channel (if any) assigned to the pin. Some
+ *                         TC channels are available on multiple pins (ie: TCC0/WO[0] is
+ *                         available on pin A4 or pin A8). In general, only one pin
+ *                         should be configured (in the pinDescription table) per TC
+ *                         channel. See WVariant.h for valid entries. The tone library
+ *                         uses TC5.
+ *   ADCChannelNumber      This is the ADC channel (if any) assigned to the pin. See
+ *                         WVariant.h for valid entries.
+ *   ExtInt                This is the interrupt (if any) assigned to the pin. Some
+ *                         interrupt numbers are available on multiple pins (ie:
+ *                         EIC/EXTINT[2] is available on pin A2 or pin A18). In general,
+ *                         only one pin should be configured (in the pinDescription
+ *                         table) per interrupt number. Thus, if an interrupt was needed
+ *                         on pin 2, EXTERNAL_INT_2 can be moved from pin 18. See 
+ *                         WVariant.h for valid entries.
  */
 ```
