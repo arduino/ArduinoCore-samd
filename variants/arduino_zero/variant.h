@@ -153,13 +153,12 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
-#define SERCOM_INSTANCE_SPI           &sercom4
-
 #define PIN_SPI1_MISO         (19u)
 #define PIN_SPI1_MOSI         (16u)
 #define PIN_SPI1_SCK          (17u)
-
-#define SERCOM_INSTANCE_SPI1          &sercom1
+#define PERIPH_SPI           sercom1
+#define PAD_SPI_TX           SPI_PAD_2_SCK_3
+#define PAD_SPI_RX           SERCOM_RX_PAD_0
 
 /*
  * Wire Interfaces

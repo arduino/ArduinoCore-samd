@@ -185,13 +185,14 @@ static const uint8_t ATN = PIN_ATN;
 #define PIN_SPI_MOSI         PIN_SPI1_MOSI
 #define PIN_SPI_SCK          PIN_SPI1_SCK
 #define PIN_SPI_SS           PIN_SPI1_SS
+#define PERIPH_SPI           sercom0
+#define PAD_SPI_TX           SPI_PAD_2_SCK_3
+#define PAD_SPI_RX           SERCOM_RX_PAD_0
 
 static const uint8_t SS	  = PIN_SPI_SS ;	// The SERCOM SS PAD is available on this pin but HW SS isn't used. Set here only for reference.
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
-
-#define SERCOM_INSTANCE_SPI           &sercom0
 
 
 /*
