@@ -28,15 +28,20 @@
 
 const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
 
-SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI)
+SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad PadTx, SercomRXPad PadRx)
 {
   initialized = false;
   assert(p_sercom != NULL);
   _p_sercom = p_sercom;
 
+  // pins
   _uc_pinMiso = uc_pinMISO;
   _uc_pinSCK = uc_pinSCK;
   _uc_pinMosi = uc_pinMOSI;
+
+  // SERCOM pads
+  _padTx=PadTx;
+  _padRx=PadRx;
 }
 
 void SPIClass::begin()
@@ -65,7 +70,7 @@ void SPIClass::config(SPISettings settings)
 {
   _p_sercom->disableSPI();
 
-  _p_sercom->initSPI(SPI_PAD_2_SCK_3, SERCOM_RX_PAD_0, SPI_CHAR_SIZE_8_BITS, settings.bitOrder);
+  _p_sercom->initSPI(_padTx, _padRx, SPI_CHAR_SIZE_8_BITS, settings.bitOrder);
   _p_sercom->initSPIClock(settings.dataMode, settings.clockFreq);
 
   _p_sercom->enableSPI();
@@ -197,4 +202,8 @@ void SPIClass::detachInterrupt() {
   // Should be disableInterrupt()
 }
 
-SPIClass SPI( &sercom4, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI );
+#if SPI_INTERFACES_COUNT > 0
+
+SPIClass SPI( &PERIPH_SPI, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI, PAD_SPI_TX, PAD_SPI_RX );
+
+#endif // SPI_INTERFACES_COUNT > 0
