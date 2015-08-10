@@ -21,9 +21,15 @@
 
 int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
 {
+  // Prevent out of bounds access
+  if (ulPin >= NUM_PIN_DESCRIPTION_ENTRIES)
+  {
+    return -1 ;
+  }
+
   uint32_t pinAttribute = g_APinDescription[ulPin].ulPinAttribute;
   uint8_t peripheralAttribute = g_APinDescription[ulPin].ulPeripheralAttribute;
-  EPioType pinType = g_APinDescription[ulPin].ulPinType;
+  uint8_t pinType = g_APinDescription[ulPin].ulPinType;
 
   // Handle the case the pin isn't usable as PIO
   if ( pinType == PIO_NOT_A_PIN )
@@ -104,45 +110,55 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
       peripheral = PER_AC_CLK;
     break ;
 
+    case PIO_NOT_A_PIN:
+    case PIO_MULTI:
+      return -1l ;
+    break ;
+
     default:
     break ;
   }
+
+  noInterrupts(); // Avoid possible invalid interim pin state
+
+  uint8_t pinPort = g_APinDescription[ulPin].ulPort;
+  uint8_t pinNum = g_APinDescription[ulPin].ulPin;
+  uint8_t pinCfg = PORT_PINCFG_INEN;
 
   switch ( ulPeripheral )
   {
     // Set pin mode according to chapter '22.6.3 I/O Pin Configuration'
     case PIO_INPUT:
-      // Set pin to input mode, disable the port mux
-      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN) ;
-      PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+    case PIO_INPUT_PULLUP:
+    case PIO_INPUT_PULLDOWN:
+      if (ulPeripheral != PIO_INPUT)
+      {
+	pinCfg |= PORT_PINCFG_PULLEN;
+      }
+      // Set pin to input mode with pull-up resistor enabled, disable the port mux
+      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ;
+      PORT->Group[pinPort].DIRCLR.reg = (uint32_t)(1<<pinNum) ;
+      if (ulPeripheral == PIO_INPUT_PULLUP)
+      {
+        // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.7 Data Output Value Set')
+        PORT->Group[pinPort].OUTSET.reg = (uint32_t)(1<<pinNum) ;
+      }
+      else
+      {
+        // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.6 Data Output Value Clear')
+        PORT->Group[pinPort].OUTCLR.reg = (uint32_t)(1<<pinNum) ;
+      }
     break ;
 
     case PIO_OUTPUT:
-      // Set pin to output mode, set pin drive strength, disable the port mux
-      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg &= ~(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PMUXEN) ;
+      pinCfg = 0;
       if ( (peripheralAttribute & PER_ATTR_DRIVE_MASK) == PER_ATTR_DRIVE_STRONG )
       {
-        PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg |= (uint8_t)(PORT_PINCFG_DRVSTR) ;
+        pinCfg |= PORT_PINCFG_DRVSTR;
       }
-      PORT->Group[g_APinDescription[ulPin].ulPort].DIRSET.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
-    break ;
-
-    case PIO_INPUT_PULLUP:
-      // Set pin to input mode with pull-up resistor enabled, disable the port mux
-      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN) ;
-      PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
-
-      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.7 Data Output Value Set')
-      PORT->Group[g_APinDescription[ulPin].ulPort].OUTSET.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
-    break ;
-
-    case PIO_INPUT_PULLDOWN:
-      // Set pin to input mode with pull-down resistor enabled, disable the port mux
-      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN|PORT_PINCFG_PULLEN) ;
-      PORT->Group[g_APinDescription[ulPin].ulPort].DIRCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
-
-      // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.6 Data Output Value Clear')
-      PORT->Group[g_APinDescription[ulPin].ulPort].OUTCLR.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
+      // Set pin to output mode, set pin drive strength, disable the port mux
+      PORT->Group[pinPort].PINCFG[pinNum].reg = (uint8_t)pinCfg ;
+      PORT->Group[pinPort].DIRSET.reg = (uint32_t)(1<<pinNum) ;
     break ;
 
 
@@ -172,35 +188,32 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
                                                                     PORT_WRCONFIG_PINMASK( g_APinDescription[ulPin].ulPin - 16 ) ;
       }
 #else
-      if ( g_APinDescription[ulPin].ulPin & 1 ) // is pin odd?
+      if ( pinNum & 1 ) // is pin odd?
       {
         uint32_t temp ;
 
         // Get whole current setup for both odd and even pins and remove odd one
-        temp = (PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg) & PORT_PMUX_PMUXE( 0xF ) ;
+	temp = (PORT->Group[pinPort].PMUX[pinNum >> 1].reg) & PORT_PMUX_PMUXE( 0xF ) ;
         // Set new muxing
-	PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg = temp|PORT_PMUX_PMUXO( peripheral ) ;
+	PORT->Group[pinPort].PMUX[pinNum >> 1].reg = temp|PORT_PMUX_PMUXO( peripheral ) ;
         // Enable port mux
-        PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg |= PORT_PINCFG_PMUXEN ;
+	PORT->Group[pinPort].PINCFG[pinNum].reg |= PORT_PINCFG_PMUXEN ;
       }
       else // even pin
       {
         uint32_t temp ;
 
-        temp = (PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg) & PORT_PMUX_PMUXO( 0xF ) ;
-	PORT->Group[g_APinDescription[ulPin].ulPort].PMUX[g_APinDescription[ulPin].ulPin >> 1].reg = temp|PORT_PMUX_PMUXE( peripheral ) ;
-        PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg |= PORT_PINCFG_PMUXEN ; // Enable port mux
+	temp = (PORT->Group[pinPort].PMUX[pinNum >> 1].reg) & PORT_PMUX_PMUXO( 0xF ) ;
+	PORT->Group[pinPort].PMUX[pinNum >> 1].reg = temp|PORT_PMUX_PMUXE( peripheral ) ;
+	PORT->Group[pinPort].PINCFG[pinNum].reg |= PORT_PINCFG_PMUXEN ; // Enable port mux
       }
 #endif
     break ;
 
-    case PIO_NOT_A_PIN:
-    case PIO_MULTI:
     default:
-      return -1l ;
     break ;
   }
 
+  interrupts();
   return 0l ;
 }
-

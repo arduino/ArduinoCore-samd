@@ -35,7 +35,7 @@ class TwoWire : public Stream
     TwoWire(SERCOM *s);
     void begin();
     void begin(uint8_t);
-    void end();
+    void setClock(uint32_t); // dummy function
 
     void beginTransmission(uint8_t);
     uint8_t endTransmission(bool stopBit);
@@ -102,6 +102,10 @@ class TwoWire : public Stream
 
 #if WIRE_INTERFACES_COUNT > 0
 extern TwoWire Wire;
+#endif
+
+#if WIRE_INTERFACES_COUNT > 1
+extern TwoWire Wire1;
 #endif
 
 #endif

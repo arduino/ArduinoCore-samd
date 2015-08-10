@@ -35,8 +35,10 @@ int main( void )
 
   delay(1);
 #if defined(USBCON)
+  #if !defined(ARDUINO_USB_UART_DISABLED) && !defined(ARDUINO_UART_ONLY)
   USBDevice.init();
   USBDevice.attach();
+  #endif
 #endif
 
   setup();
@@ -44,6 +46,7 @@ int main( void )
   for (;;)
   {
     loop();
+
     if (serialEventRun) serialEventRun();
   }
 

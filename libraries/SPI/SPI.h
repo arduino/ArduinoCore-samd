@@ -139,6 +139,14 @@ void SPIClass::transfer(void *buf, size_t count)
   extern SPIClass SPI;
 #endif
 
+#if SPI_INTERFACES_COUNT > 1
+  extern SPIClass SPI1;
+#endif
+
+#if SPI_INTERFACES_COUNT > 2
+  extern SPIClass SPI2;
+#endif
+
 // For compatibility with sketches designed for AVR @ 16 MHz
 // New programs should use SPI.beginTransaction to set the SPI clock
 #if F_CPU == 48000000

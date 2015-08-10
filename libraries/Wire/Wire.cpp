@@ -41,14 +41,14 @@ void TwoWire::begin(void) {
   pinPeripheral(PIN_WIRE_SCL, PIO_SERCOM);
 }
 
-void TwoWire::end(void) {
-	sercom->disableWIRE();
-}
-
 void TwoWire::begin(uint8_t address) {
   //Slave mode
   sercom->initSlaveWIRE(address);
   sercom->enableWIRE();
+}
+ 
+void TwoWire::setClock(uint32_t frequency) {
+       // dummy funtion
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
@@ -349,5 +349,12 @@ void TwoWire::onService(void)
 TwoWire Wire(SERCOM_INSTANCE_WIRE);
 
 SERCOM_WIRE_HANDLER_MACRO
+
+#endif
+
+#if WIRE_INTERFACES_COUNT > 1
+TwoWire Wire1(SERCOM_INSTANCE_WIRE1);
+
+SERCOM_WIRE1_HANDLER_MACRO
 
 #endif

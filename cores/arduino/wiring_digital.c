@@ -36,25 +36,31 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
     return ;
   }
 
-  // Enable pull resistor if pin attributes allow
   uint32_t pinAttribute = g_APinDescription[ulPin].ulPinAttribute;
+  uint8_t pinPort = g_APinDescription[ulPin].ulPort;
+  uint8_t pinNum = g_APinDescription[ulPin].ulPin;
+  uint8_t pullConfig = PORT->Group[pinPort].PINCFG[pinNum].reg;
+  
+  // Enable pull resistor if pin attributes allow
   if ( (ulVal == HIGH && (pinAttribute & PIN_ATTR_INPUT_PULLUP)) || (ulVal == LOW && (pinAttribute & PIN_ATTR_INPUT_PULLDOWN)) )
   {
-    PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg |= (uint8_t)(PORT_PINCFG_PULLEN) ;
+    pullConfig |= (uint8_t)(PORT_PINCFG_PULLEN) ;
   }
   else
   {
-    PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg &= ~(uint8_t)(PORT_PINCFG_PULLEN) ;
+    pullConfig &= ~(uint8_t)(PORT_PINCFG_PULLEN) ;
   }
+
+  PORT->Group[pinPort].PINCFG[pinNum].reg = pullConfig ;
 
   switch ( ulVal )
   {
     case LOW:
-      PORT->Group[g_APinDescription[ulPin].ulPort].OUTCLR.reg = (1ul << g_APinDescription[ulPin].ulPin) ;
+      PORT->Group[pinPort].OUTCLR.reg = (1ul << pinNum) ;
     break ;
 
     case HIGH:
-      PORT->Group[g_APinDescription[ulPin].ulPort].OUTSET.reg = (1ul << g_APinDescription[ulPin].ulPin) ;
+      PORT->Group[pinPort].OUTSET.reg = (1ul << pinNum) ;
     break ;
 
     default:

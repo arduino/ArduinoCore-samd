@@ -50,9 +50,11 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
+#define NUM_PIN_DESCRIPTION_ENTRIES     (44u)
+
 #define PINS_COUNT           (26u)
 #define NUM_DIGITAL_PINS     (14u)
-#define NUM_ANALOG_INPUTS    (6u)
+#define NUM_ANALOG_INPUTS    (13u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
@@ -61,7 +63,7 @@ extern "C"
 #define portOutputRegister(port)   ( &(port->OUT.reg) )
 #define portInputRegister(port)    ( &(port->IN.reg) )
 #define portModeRegister(port)     ( &(port->DIR.reg) )
-#define digitalPinHasPWM(P)        ( g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER )
+#define digitalPinHasPWM(P)        ( (g_APinDescription[P].ulPinAttribute & PIN_ATTR_TIMER_PWM) == PIN_ATTR_TIMER_PWM )
 
 /*
  * digitalPinToTimer(..) is AVR-specific and is not defined for SAMD
@@ -102,6 +104,15 @@ static const uint8_t A4  = PIN_A4 ;
 static const uint8_t A5  = PIN_A5 ;
 #define ADC_RESOLUTION		12
 
+// #define REMAP_ANALOG_PIN_ID	while(0)
+#define REMAP_ANALOG_PIN_ID	if ( ulPin < A0 ) ulPin += A0
+
+/* Set default analog voltage reference */
+#define VARIANT_AR_DEFAULT	AR_DEFAULT
+
+/* Reference voltage pins (define even if not enabled with PIN_ATTR_REF in the PinDescription table) */
+#define REFA_PIN    (42ul)
+
 // Other pins
 #define PIN_ATN              (38ul)
 static const uint8_t ATN = PIN_ATN;
@@ -115,16 +126,20 @@ static const uint8_t ATN = PIN_ATN;
 #define PAD_SERIAL_TX       (UART_TX_PAD_2)
 #define PAD_SERIAL_RX       (SERCOM_RX_PAD_3)
 
+#define SERCOM_INSTANCE_SERIAL       &sercom5
+
 // Serial1
 #define PIN_SERIAL1_RX       (0ul)
 #define PIN_SERIAL1_TX       (1ul)
 #define PAD_SERIAL1_TX       (UART_TX_PAD_2)
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
 
+#define SERCOM_INSTANCE_SERIAL1       &sercom0
+
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 1
+#define SPI_INTERFACES_COUNT 2
 
 #define PIN_SPI_MISO         (22u)
 #define PIN_SPI_MOSI         (23u)
@@ -135,20 +150,46 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
+#define SERCOM_INSTANCE_SPI           &sercom4
+
+#define PIN_SPI1_MISO         (19u)
+#define PIN_SPI1_MOSI         (16u)
+#define PIN_SPI1_SCK          (17u)
+
+#define SERCOM_INSTANCE_SPI1          &sercom1
+
 /*
  * Wire Interfaces
  */
-#define WIRE_INTERFACES_COUNT 1
+#define WIRE_INTERFACES_COUNT 2
 
 #define PIN_WIRE_SDA         (20u)
 #define PIN_WIRE_SCL         (21u)
 
+#define SERCOM_INSTANCE_WIRE          &sercom3
+
+#define SERCOM_WIRE_HANDLER_MACRO \
+void SERCOM3_Handler(void) { \
+	Wire.onService(); \
+}
+
+#define PIN_WIRE_SDA1         (4u)
+#define PIN_WIRE_SCL1         (3u)
+
+#define SERCOM_INSTANCE_WIRE1         &sercom2
+
+#define SERCOM_WIRE1_HANDLER_MACRO \
+void SERCOM2_Handler(void) { \
+	Wire1.onService(); \
+}
+
 /*
  * USB
  */
-#define PIN_USB_HOST_ENABLE (27ul)
 #define PIN_USB_DM          (28ul)
 #define PIN_USB_DP          (29ul)
+#define PIN_USB_HOST_ENABLE (27ul)
+#define PIN_USB_HOST_ENABLE_VALUE	HIGH
 
 #ifdef __cplusplus
 }

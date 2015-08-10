@@ -104,39 +104,41 @@ static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to
  */
 void analogReference( eAnalogReference ulMode )
 {
+  uint32_t gain = ADC_INPUTCTRL_GAIN_1X_Val;      // Default Gain Factor Selection
+  uint32_t refsel;
+
   syncADC();
   switch ( ulMode )
   {
     case AR_INTERNAL:
     case AR_INTERNAL2V23:
-      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
+      refsel = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
       break;
 
     case AR_EXTERNAL:
       if ( pinPeripheral(REFA_PIN, PIO_ANALOG_REF) == RET_STATUS_OK )
       {
-        ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-        ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+        refsel = ADC_REFCTRL_REFSEL_AREFA_Val;
       }
       break;
 
     case AR_INTERNAL1V0:
-      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;   // 1.0V voltage reference
+      refsel = ADC_REFCTRL_REFSEL_INT1V_Val;   // 1.0V voltage reference
       break;
 
     case AR_INTERNAL1V65:
-      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
+      refsel = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
       break;
 
     case AR_DEFAULT:
     default:
-      ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;    // This allows values up to VDDANA (3.3V) on the pin
-      ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
+      gain = ADC_INPUTCTRL_GAIN_DIV2_Val;    // This allows values up to VDDANA (3.3V) on the pin
+      refsel = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
       break;
   }
+
+  ADC->INPUTCTRL.bit.GAIN = gain;
+  ADC->REFCTRL.bit.REFSEL = refsel;
 }
 
 uint32_t analogRead( uint32_t ulPin )
@@ -232,6 +234,18 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     // Enable clocks according to TCCx instance to use
     switch ( GetTCNumber( g_APinDescription[ulPin].ulTCChannel ) )
     {
+#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+      case 0: // TCC0
+        // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC0 )) ;
+      break ;
+
+      case 1: // TC1
+      case 2: // TC2
+        // Enable GCLK for TCC2 and TC3 (timer counter input clock)
+        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC1_TC2 )) ;
+      break ;
+#else
       case 0: // TCC0
       case 1: // TCC1
         // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
@@ -249,7 +263,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
         // Enable GCLK for TC4 and TC5 (timer counter input clock)
         GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 ));
       break ;
-
+#endif
 #if defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
       case 6: // TC6 (not available on Zero)
       case 7: // TC7 (not available on Zero)

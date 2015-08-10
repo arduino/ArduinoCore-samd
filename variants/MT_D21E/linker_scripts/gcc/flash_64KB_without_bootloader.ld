@@ -143,6 +143,7 @@ SECTIONS
 	{
 		__data_start__ = .;
 		*(vtable)
+		*(.ramfunc*)
 		*(.data*)
 
 		. = ALIGN(4);

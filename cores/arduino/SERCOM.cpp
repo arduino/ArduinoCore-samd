@@ -24,6 +24,29 @@ SERCOM::SERCOM(Sercom* s)
   sercom = s;
 }
 
+// From https://en.wikipedia.org/wiki/Division_algorithm
+static uint64_t divide64(uint64_t n, uint64_t d)
+{
+  uint64_t q = 0, r = 0;
+
+  for (int8_t i = 63; i >= 0; i--) {
+    r = r << 1;
+
+    // set the LSB of r equal to bit i of n
+    // because r was just shifted right by one, we don't need to explicitly set r to 0 if bit i of n is 0.
+    if (n & ((uint64_t)1 << i)) {
+      r |= 0x01;
+    }
+
+    if (r >= d) {
+      r = r - d;
+      q |= ((uint64_t)1 << i);
+    }
+  }
+
+  return q;
+}
+
 /* 	=========================
  *	===== Sercom UART
  *	=========================
@@ -64,7 +87,13 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
     // Asynchronous arithmetic mode
     // 65535 * ( 1 - sampleRateValue * baudrate / SystemCoreClock);
     // 65535 - 65535 * (sampleRateValue * baudrate / SystemCoreClock));
-    sercom->USART.BAUD.reg = 65535.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock));
+    // sercom->USART.BAUD.reg = 65535.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock));  // this pulls in 3KB of floating point math code
+    // make numerator much larger than denominator so result is integer (avoid floating point).
+    uint64_t numerator = ((sampleRateValue * (uint64_t)baudrate) << 32); // 32 bits of shifting ensures no loss of precision.
+    uint64_t ratio = divide64(numerator, SystemCoreClock);
+    uint64_t scale = ((uint64_t)1 << 32) - ratio;
+    uint64_t baudValue = (65536 * scale) >> 32;
+    sercom->USART.BAUD.reg = baudValue;
   }
 }
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
@@ -129,12 +158,12 @@ bool SERCOM::availableDataUART()
 
 bool SERCOM::isUARTError()
 {
-	return sercom->USART.INTFLAG.bit.ERROR;
+  return sercom->USART.INTFLAG.bit.ERROR;
 }
 
 void SERCOM::acknowledgeUARTError()
 {
-	sercom->USART.INTFLAG.bit.ERROR = 1;
+  sercom->USART.INTFLAG.bit.ERROR = 1;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()
@@ -271,7 +300,7 @@ void SERCOM::setBaudrateSPI(uint8_t divider)
   //Register enable-protected
   disableSPI();
 
-  sercom->SPI.BAUD.reg = calculateBaudrateSynchronous( SERCOM_FREQ_REF / divider );
+  sercom->SPI.BAUD.reg = calculateBaudrateSynchronous( SystemCoreClock / divider );
 
   enableSPI();
 }
@@ -346,9 +375,9 @@ bool SERCOM::isDataRegisterEmptySPI()
 //	return sercom->SPI.INTFLAG.bit.RXC;
 //}
 
-uint8_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
+uint32_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
 {
-  return SERCOM_FREQ_REF / (2 * baudrate) - 1;
+  return ((SystemCoreClock / (2 * baudrate)) - 1);
 }
 
 
@@ -445,7 +474,7 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 //  sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
 
   // Synchronous arithmetic baudrate
-  sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 1 ;
+  sercom->I2CM.BAUD.bit.BAUD = calculateBaudrateSynchronous(baudrate) ;
 }
 
 void SERCOM::prepareNackBitWIRE( void )
@@ -628,18 +657,22 @@ void SERCOM::initClockNVIC( void )
     clockId = GCM_SERCOM1_CORE;
     IdNvic = SERCOM1_IRQn;
   }
+#if !defined(__SAMD11C14A__)
   else if(sercom == SERCOM2)
   {
     clockId = GCM_SERCOM2_CORE;
     IdNvic = SERCOM2_IRQn;
   }
+#endif
+#if !defined(__SAMD11D14AM__) && !defined(__SAMD11C14A__) && !defined(__SAMD11D14AS__)
   else if(sercom == SERCOM3)
   {
     clockId = GCM_SERCOM3_CORE;
     IdNvic = SERCOM3_IRQn;
   }
+#endif
 #if defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
-  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
+    defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
   else if(sercom == SERCOM4)
   {
     clockId = GCM_SERCOM4_CORE;

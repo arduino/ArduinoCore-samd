@@ -55,6 +55,8 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
+#define NUM_PIN_DESCRIPTION_ENTRIES     (32u)
+
 #define PINS_COUNT           (32u)
 #define NUM_DIGITAL_PINS     (32u)
 #define NUM_ANALOG_INPUTS    (10u)
@@ -205,7 +207,7 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define SERCOM_INSTANCE_WIRE           &sercom1
 
 #define SERCOM_WIRE_HANDLER_MACRO \
-void SERCOM3_Handler(void) { \
+void SERCOM1_Handler(void) { \
 	Wire.onService(); \
 }
 

@@ -30,8 +30,15 @@ volatile uint32_t portBitMask;
 volatile int64_t toggleCount;
 volatile bool toneIsActive = false;
 
+/* TC5 does not exist on the D11. Using TC2 instead. It will conflict with the 2 TC2 PWM pins */
+#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+#define TONE_TC         TC2
+#define TONE_TC_IRQn    TC2_IRQn
+#else
 #define TONE_TC         TC5
 #define TONE_TC_IRQn    TC5_IRQn
+#endif
+
 #define TONE_TC_TOP     0xFFFF
 #define TONE_TC_CHANNEL 0
 void TC5_Handler (void) __attribute__ ((weak, alias("Tone_Handler")));
@@ -112,8 +119,13 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
 
   toggleCount = (duration > 0 ? frequency * duration * 2 / 1000UL : -1);
 
-  // Enable GCLK for TC4 and TC5 (timer counter input clock)
+  // Enable GCLK for timer used
+#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+  GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC1_TC2));
+#else
   GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC4_TC5));
+#endif
+
   while (GCLK->STATUS.bit.SYNCBUSY);
 
   resetTC(TONE_TC);

@@ -193,8 +193,8 @@ void EIC_Handler( void )
 {
   uint32_t ul ;
 
-  // Test the 16 normal interrupts
-  for ( ul = EXTERNAL_INT_0 ; ul <= EXTERNAL_INT_15 ; ul++ )
+  // Test the normal interrupts
+  for ( ul = EXTERNAL_INT_0 ; ul < (EXTERNAL_NUM_INTERRUPTS - 1) ; ul++ )
   {
     if ( (EIC->INTFLAG.reg & ( 1 << ul ) ) != 0 )
     {

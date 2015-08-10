@@ -20,8 +20,19 @@
 #define __USBDESC_H__
 
 // CDC or HID can be enabled together.
-#define CDC_ENABLED
-#define HID_ENABLED
+// These are now controlled by the boards.txt menu system
+#if defined(ARDUINO_CDC_HID) || defined(ARDUINO_CDC_HID_UART)
+  #define CDC_ENABLED
+  #define HID_ENABLED
+#elif defined(ARDUINO_CDC_ONLY) || defined(ARDUINO_CDC_UART)
+  #define CDC_ENABLED
+#elif defined(ARDUINO_HID_ONLY) || defined(ARDUINO_HID_UART)
+  #define HID_ENABLED
+#elif defined(ARDUINO_USB_UART_DISABLED) || defined(ARDUINO_UART_ONLY)
+  // do nothing
+#else
+  #error "USBDesc.h: CDC_ENABLED and HID_ENABLED are now controlled by the boards.txt menu system"
+#endif
 
 // CDC
 #define CDC_ACM_INTERFACE	0	// CDC ACM

@@ -19,7 +19,7 @@ All of these options will build an 8KB bootloader.
 If you want to build a 4KB bootloader, you will need to:
    * Choose only one interface from above
    * Disable ARDUINO_EXTENDED_CAPABILITIES (sam_ba_monitor.h)
-   * Disable BOOT_DOUBLE_TAP (main.h)
+   * Disable BOOT_DOUBLE_TAP (main.h) for SAMD21 only (there is enough room on the SAMD11)
 
 3- Makefile configuration
 

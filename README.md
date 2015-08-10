@@ -1,36 +1,56 @@
 # MattairTech Arduino SAMD Core
 
-This is a fork from arduino/ArduinoCore-samd on GitHub. This will be used to maintain Arduino support
-for SAMD boards including the MattairTech MT-D21E and the MT-D11 (see https://www.mattairtech.com/).
-It primarily adds support for new devices as well as a more flexible pin configuration / mapping system.
-This core is intended to be installed using the Boards Manager (see below).
+This is a fork from arduino/ArduinoCore-samd on GitHub. This will be used to maintain
+Arduino support for SAMD boards including the MattairTech MT-D21E and the MT-D11
+(see https://www.mattairtech.com/). It primarily adds support for new devices as well
+as a more flexible pin configuration / mapping system. It also adds some size
+optimizations, including the ability to select any combination of CDC, HID, or UART
+through the menu (~7.5KB for blink sketch with CDC+HID+UART, ~2.5KB without USB or UART).
+
+This core is intended to be installed using Boards Manager (see below). To update from a
+previous version, click on MattairTech SAMD Boards in Boards Manager, then click Update.
+
+
+## What's New
+
+* Added support for the MT-D11 (ATSAMD11D14AM).
+* Reduced code size (see 'Code Size and RAM Usage' below).
+* Any combination of CDC, HID, or UART can be used (or no combination), by using the Tools->Communication menu.
+* Note that switching between CDC and CDC+HID will require re-selecting the COM port.
+* More detailed memory usage at end of compilation (see below).
+* Merged in upstream updates. Fixed Wire interrupt.
+* Tested all ADC, DAC, external interrupts, PWM outputs, serial, SPI, and Wire instances/pins.
 
 
 ## Summary
-Feature                 |	Value
-------------------------|------------------------------------------------------------------------------
-Microcontroller		|	ATSAMD21ExxA, 32-Bit ARM Cortex M0+
-Clock Speed		|	48 MHz
-Flash Memory		|	256 KB (D21E18A) / 128 KB (D21E17A) / 64 KB (D21E16A) / 32 KB (D21E15A)
-SRAM			|	32 KB (D21E18A) / 16 KB (D21E17A) / 8 KB (D21E16A) / 4 KB (D21E15A)
-EEPROM			|	None (emulation may be available in the future)
-Digital Pins		|	22
-Analog Input Pins	|	10, 12-bit ADC channels
-Analog Output Pins	|	1, 10-bit DAC
-PWM Output Pins		|	12
-External Interrupts	|	15 (1 NMI)
-UART (Serial)		|	2
-SPI			|	1
-I2C (TWI)		|	1
-Operating Voltage	|	3.3V (Do not connect voltages higher than 3.3V!)
-DC Current per I/O Pin	|	7 mA
+
+Feature                 |	MT-D21E										|	MT-D11
+------------------------|---------------------------------------------------------------------------------------|------------------------------------------------------
+Microcontroller		|	ATSAMD21ExxA, 32-Bit ARM Cortex M0+						|	ATSAMD11D14AM, 32-Bit ARM Cortex M0+
+Clock Speed		|	48 MHz										|	48 MHz
+Flash Memory		|	256 KB (D21E18A) / 128 KB (D21E17A) / 64 KB (D21E16A) / 32 KB (D21E15A)		|	16 KB (4KB used by USB SAM-BA bootloader)
+SRAM			|	32 KB (D21E18A) / 16 KB (D21E17A) / 8 KB (D21E16A) / 4 KB (D21E15A)		|	4 KB
+EEPROM			|	None (emulation may be available in the future)					|	None (emulation may be available in the future)
+Digital Pins		|	22										|	17
+Analog Input Pins	|	10, 12-bit ADC channels								|	10, 12-bit ADC channels
+Analog Output Pins	|	1, 10-bit DAC									|	1, 10-bit DAC
+PWM Output Pins		|	12										|	8
+External Interrupts	|	15 (1 NMI)									|	9 (1 NMI)
+USB			|	Device and Host (CDC and HID)							|	Device and Host (CDC and HID)
+UART (Serial)		|	2										|	1
+SPI			|	1										|	1
+I2C (TWI)		|	1										|	1
+Operating Voltage	|	3.3V (Do not connect voltages higher than 3.3V!)				|	3.3V (Do not connect voltages higher than 3.3V!)
+DC Current per I/O Pin	|	7 mA										|	7 mA
 
 
 ## Pin Configurations
 
-Most pins have multiple configurations available (even analog pins). For example, pin A10 can be an analog input, a
-PWM output, Digital I/O, or the TX pin of 'Serial1'. These always reference the pin number printed on the board but
-without the 'A' (with the usable pins starting at 2). DO NOT connect voltages higher than 3.3V!
+Most pins have multiple configurations available (even analog pins). For example, pin A10 on the MT-D21E can be an analog
+input, a PWM output, Digital I/O, or the TX pin of 'Serial1'. These always reference the pin number printed on the board
+but without the 'A' (with the usable pins starting at 2). DO NOT connect voltages higher than 3.3V!
+
+### SAMD21 (MT-D21E)
 
 ```
 ============================= MattairTech MT-D21E (ATsamd21eXXa) ========================
@@ -60,47 +80,71 @@ USB D+                                | A25+ |     |  Vin |
                                        -------------------
 ```
 
+### SAMD11 (MT-D11)
+
+```
+============================= MattairTech MT-D11 (ATsamd11D14AM) ========================
+Other   INT    PWM   Digital  Analog                      Digital  PWM   INT    Other
+=========================================================================================
+                                       -------------------
+DAC                    2    2 (ADC0)  | A2   | USB |  Gnd |
+REF                    3    3 (ADC1)  | A3   |     |  Vcc |
+VDIV   INT4   TCC0[0]  4    4 (ADC2)  | A4    -----   A31 |  31  TC2[1]  INT3  RX / SWDIO
+       INT5   TCC0[1]  5    5 (ADC3)  | A5            A30 |  30  TC2[0]       TX / SWDCLK  
+              TCC0[2]  6    6 (ADC4)  | A6            A27 |  27          INT7
+              TCC0[3]  7    7 (ADC5)  | A7            A23 |  23                 I2C/SCL
+SPI MOSI  INT2         10   10 (ADC8) | A10           A22 |  22          INT6   I2C/SDA
+SPI SCK                11   11 (ADC9) | A11           A17 |  17  TC1[1]
+SPI MISO  INTNMI       14   14 (ADC6) | A14           A16 |  16  TC1[0]  INT0   LED
+Button    INT1         15   15 (ADC7) | A15           RST |                     Reset
+                                       -------------------
+```
+
 #### All pins operate at 3.3 volts. DO NOT connect voltages higher than 3.3V!
 
-* **Digital: All 22 pins can be used for general purpose I/O** 
-  * Supports INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
-  * Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
-  * Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
-  * Use the pinMode(), digitalWrite(), and digitalRead() functions.
+### Pin Capabilities
+
+* **Digital: All pins can be used for general purpose I/O** 
+* Supports INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
+* Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
+* Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
+* Use the pinMode(), digitalWrite(), and digitalRead() functions.
 * **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
-  * These are available on pins 2 through 11 using the analogRead() function.
-  * These pins can be used for GPIO and other digital functions (ie. pwm and serial) as well.
-  * Each pin provides 10 bits of resolution (1024 values) by default.
-  * 12-bit resolution supported by using the analogReadResolution() function.
-  * Each pin measures from ground to 3.3 volts.
-  * The upper end of the measurement range can be changed using the AREF pin and the analogReference() function.
+* These are available using the analogRead() function.
+* All pins can be used for GPIO and some pins can be used for other digital functions (ie. pwm or serial).
+* Each pin provides 10 bits of resolution (1024 values) by default.
+* 12-bit resolution supported by using the analogReadResolution() function.
+* Each pin measures from ground to 3.3 volts.
+* The upper end of the measurement range can be changed using the AREF pin and the analogReference() function.
 * **DAC: One analog output is available on pin 2.**
-  * Provides a 10-bit voltage output with the analogWrite() function.
-* **PWM: 12 pins can be configured as PWM outputs.**
-  * Available on pins 8, 9, 10, 11, 14, 15, 16, 17, 22, 23, 30, and 31 using the analogWrite() function.
-  * Each pin provides 8 bits of resolution (256 values) by default.
-  * 12-bit resolution supported by using the analogWriteResolution() function.
-* **External Interrupts: 15 pins can be configured with external interrupts.**
-  * Available on all the pins except pins 2, 3, 6, 7, 10, 11, and 15 using the attachInterrupt() function.
-* **Serial: 2 pairs of pins can be configured for TTL serial I/O.**
-  * Serial1: pin 11 (RX) and pin 10 (TX).
-  * Serial2: pin 15 (RX) and pin 14 (TX).
-* **SPI: 3 or 4 pins can be configured for SPI I/O.**
-  * Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
-  * SPI communication using the SPI library.
-* **TWI (I2C): 2 pins can be configured for TWI I/O.**
-  * Pin 16 (SDA) and pin 17 (SCL).
-  * TWI communication using the Wire library.
-* **LED: One pin can be configured to light the onboard LED.**
-  * Pin 28 (LED_BUILTIN). Bring the pin HIGH to turn the LED on. The pullup is disabled on this pin.
-* **Button: One pin can be configured to read the onboard Button A.**
-  * Pin 27 (BUTTON_BUILTIN). Pressing the button will bring the pin LOW. The pullup must be enabled first.
-  * If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
+* Provides a 10-bit voltage output with the analogWrite() function.
+* **PWM: 12 pins (MT-D21E) or 8 pins (MT-D11) can be configured as PWM outputs.**
+* Available using the analogWrite() function.
+* Each pin provides 8 bits of resolution (256 values) by default.
+* 12-bit resolution supported by using the analogWriteResolution() function.
+* **External Interrupts: 15 pins (MT-D21E) or 9 pins (MT-D11) can be configured with external interrupts.**
+* Available using the attachInterrupt() function.
+* **Serial: 2 pairs of pins (MT-D21E) or 1 pair (MT-D11) can be configured for TTL serial I/O.**
+* MT-D21E: Serial1: pin 11 (RX) and pin 10 (TX). Serial2: pin 15 (RX) and pin 14 (TX).
+* MT-D11: Serial1: pin 31 (RX) and pin 30 (TX).
+* **SPI: 3 or 4 pins can be configured for SPI I/O (SPI).**
+* MT-D21E: Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
+* MT-D11: Pin 10 (MOSI), pin 11 (SCK), pin 14 (MISO), and optionally pin 15 (SS, not currently used).
+* SPI communication using the SPI library.
+* **TWI (I2C): 2 pins can be configured for TWI I/O (Wire).**
+* MT-D21E: Pin 16 (SDA) and pin 17 (SCL).
+* MT-D11: Pin 22 (SDA) and pin 23 (SCL).
+* TWI communication using the Wire library.
+* **LED: One pin can be configured to light the onboard LED (LED_BUILTIN).**
+* Pin 28 (MT-D21E) or pin 16 (MT-D11). Bring the pin HIGH to turn the LED on. The pullup is disabled on this pin.
+* **Button: One pin can be configured to read the onboard Button A (BUTTON_BUILTIN).**
+* Pin 27 (MT-D21E) or pin 15 (MT-D11). Pressing the button will bring the pin LOW. The pullup must be enabled first.
+* If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
 * **AREF: One pin can be configured as an AREF analog input.**
-  * The upper end of the analog measurement range can be changed using the analogReference() function.
+* The upper end of the analog measurement range can be changed using the analogReference() function.
 * **Reset: Bring this line LOW to reset the microcontroller.**
 
-#### MT-D21E Board Configuration
+### MT-D21E and MT-D11 Board Configuration
 
 * The 32.768KHz crystal is used by the Arduino core, so it MUST be connected via the solder jumpers.
 * Note that the sketch may still run without the crystal attached, but the clock speed will be very inaccurate.
@@ -108,13 +152,13 @@ USB D+                                | A25+ |     |  Vin |
 * The I2C (TWI) pullup resistors should be enabled via the solder jumpers.
 * The LED should be enabled via the solder jumper.
 * Button A should be connected via the solder jumper. The debouncing capacitor should also be connected.
-* Button B is connected to the Reset pin by default, but can be connected to pin 31 via the solder jumper.
+* Button B (MT-D21E only) is connected to the Reset pin by default, but can be connected to pin 31 via the solder jumper.
 * A reference voltage can be connected to AREF. In this case, the capacitors should be enabled via the solder jumper.
 
 
 ## Serial Monitor
 
-To print to the Serial Monitor over USB, use 'Serial'. Serial points to SerialUSB (Serial1 and Serial2 are UARTS).
+To print to the Serial Monitor over USB, use 'Serial'. Serial points to SerialUSB (Serial1 and Serial2 are UARTs).
 Unlike most Arduino boards (ie. Uno), SAMD boards do not automatically reset when the serial monitor is opened.
 To see what your sketch outputs to the serial monitor from the beginning, the sketch must wait for the SerialUSB
 port to open first. Add the following to setup():
@@ -129,6 +173,42 @@ You can also reset the board manually with the Reset button if you wish to resta
 the Reset button will reset the SAMD chip, which in turn will reset USB communication. This interruption means
 that if the serial monitor is open, it will be necessary to close and re-open it to restart communication.
 
+
+## Code Size and RAM Usage
+
+Sketch and Configuration    | MT-D21E (Code + RAM) | MT-D11 (Code + RAM)
+----------------------------|----------------------|-----------------------
+Blink (CDC + HID + UART)    |     7564 + 1524      |     7452 + 1424
+Blink (CDC + UART)          |     6588 + 1496      |     6484 + 1396
+Blink (CDC Only)            |     5248 + 1304      |     5192 + 1300
+Blink (UART Only)           |     3828 + 336       |     3716 + 236
+Blink (No USB or UART)      |     2472 + 144       |     2416 + 140
+Datalogger (No USB or UART) |     10340 + 948      |     10260 + 944
+
+* 180 bytes of flash can be saved on the MT-D11 by using PIN_MAP_COMPACT (see 'New PinDescription Table' below).
+* Datalogger compiled without USB or UART support, but with SPI and SD (with FAT filesystem) support. Serial output was disabled.
+* Note that USB CDC is required for auto-reset into the bootloader to work (otherwise, manually press reset twice in quick succession).
+* USB uses primarily 3 buffers totaling 1024 bytes. The UART uses a 96 byte buffer. The banzai() function (used for auto-reset) resides in RAM and uses 72 bytes.
+* Any combination of CDC, HID, or UART can be used (or no combination), by using the Tools->Communication menu.
+
+
+### Detailed Memory Usage Output After Compilation
+
+The flash used message at the end of compilation is not correct. The number shown
+represents the .text segment only. However, Flash usage = .text + .data segments
+(RAM usage = .data + .bss segments). In this release, two programs are run at the
+end of compilation to provide more detailed memory usage.
+
+Just above the normal flash usage message, is the output from the size utility.
+However, this output is also incorrect, as it shows .text+.data in the .text field,
+but 0 in the .data field. However, the .text field does show the total flash used.
+The .data field can be determined by subtracting the value from the normal flash
+usage message (.text) from the value in the .text field (.text+.data). The .bss
+field is correct.
+
+Above the size utility output is the output from the nm utility. The values on the
+left are in bytes. The letters stand for: T(t)=.text, D(d)=.data, B(b)=.bss, and
+everything else (ie: W) resides in flash (in most cases).
 
 
 ## Installation
@@ -163,12 +243,15 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 
 1. As of this writing, only the 256 KB chip variants work with the OS X version of the upload tool, bossac.
 2. First, you will need to open boards.txt and change mattairtech_mt_d21e_bl8k.upload.tool to equal arduino:bossac.
-3. No driver installation is needed. You may get a dialog box asking if you wish to open the “Network Preferences”:
+3. Open platform.txt and change tools.bossac.path to equal{runtime.tools.bossac-1.5-arduino.path}.
+4. No driver installation is needed. You may get a dialog box asking if you wish to open the “Network Preferences”:
    * Click the "Network Preferences..." button, then click "Apply".
    * The board will show up as “Not Configured”, but it will work fine.
-4. Continue with SAMD Core Installation below.
+5. Continue with SAMD Core Installation below.
 
 ### SAMD Core Installation
+
+* To update from a previous version, click on MattairTech SAMD Boards in Boards Manager, then click Update.
 
 1. The MattairTech SAMD Core requires Arduino 1.6.5+.
 2. In the Arduino IDE 1.6.5+, click File->Preferences.
@@ -177,7 +260,7 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 5. Save preferences, then open the Boards Manager.
 6. Install the Arduino SAMD Boards package.
 7. Install the MattairTech SAMD Boards package.
-8. Close Boards Manager, then click Tools->Board->MattairTech MT-D21E.
+8. Close Boards Manager, then click Tools->Board->MattairTech MT-D21E (or MT-D11).
 9. Select the processor with the now visible Tools->Processor menu.
 10. If you do not already have the bootloader or blink sketch installed, see SAM-BA USB CDC Bootloader below.
 11. Plug in the board. The blink sketch should be running.
@@ -185,10 +268,9 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 13. You can now upload your own sketch.
 
 
-
 ## SAM-BA USB CDC Bootloader (Arduino Zero compatible)
 
-The SAM-BA bootloader has both a CDC USB interface, and a UART interface (TX: pin 10, RX: pin 11). It is
+The SAM-BA bootloader has both a CDC USB interface, and a UART interface (MT-D21E: TX: pin 10, RX: pin 11). It is
 compatible with the Arduino IDE (Zero compatible), or it can be used with the Bossac tool standalone. Under
 Arduino, auto-reset is supported (automatically runs the bootloader while the sketch is running) as well as
 automatic return freom reset. The SAM-BA bootloader described here adds to the Arduino version, which in
@@ -219,12 +301,13 @@ The bootloader can be started by:
 
 Otherwise, it jumps to application and starts execution from there. The LED will light during bootloader execution.
 Note that the 4KB bootloader does not support the Arduino Extended Capabilities or BOOT_DOUBLE_TAP.
+However, BOOT_DOUBLE_TAP does fit into the SAMD11 4KB bootloader.
 
 When the Arduino IDE initiates the bootloader, the following procedure is used:
 
 1. The IDE opens and closes the USB serial port at a baud rate of 1200bps. This triggers a “soft erase” procedure.
-2. The flash memory is erased by the MCU. If it is interrupted for any reason, the erase procedure will likely fail.
-3. The board is reset. The bootloader (which always runs first) detects a blank FLASH, so bootloader operation resumes.
+2. The first row of application section flash memory is erased by the MCU. If it is interrupted for any reason, the erase procedure will likely fail.
+3. The board is reset. The bootloader (which always runs first) detects the blank flah row, so bootloader operation resumes.
 4. Opening and closing the port at a baud rate other than 1200bps will not erase or reset the SAMD.
 
 ### Bootloader Firmware Installation
@@ -234,7 +317,7 @@ When the Arduino IDE initiates the bootloader, the following procedure is used:
 1. If you do not already have the MattairTech SAMD core installed, see SAMD Core Installation above.
 2. Plug an Atmel ICE into USB, then connect it to the powered SAMD board. A green LED should light on the Atmel ICE.
 3. Click Tools->Programmer->Atmel ICE.
-4. Click Tools->Board->MattairTech MT-D21E.
+4. Click Tools->Board->MattairTech MT-D21E (or MT-D11).
 5. Click Tools->Burn Bootloader. Ignore any messages about not supporting shutdown or reset.
 6. Continue with driver installation above.
 
@@ -245,7 +328,7 @@ When the Arduino IDE initiates the bootloader, the following procedure is used:
 3. Follow the procedures for your upload tool to upload the firmware.
    * Perform a chip erase first. Be sure no BOOTPROT bits are set.
    * Install the binary file to 0x00000000 of the FLASH.
-   * You can optionally set the BOOTPROT bits to 8KB. The Arduino installation method does not set these.
+   * You can optionally set the BOOTPROT bits to 8KB (or 4KB for the MT-D11). The Arduino installation method does not set these.
    * You can optionally set the EEPROM bits or anything else. The Arduino installation method uses factory defaults.
 4. Continue with driver installation above.
 
@@ -297,6 +380,14 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
  *   verify that the pin can perform the function requested, and to configure the pin for
  *   that function. Most of the contents of pinMode() are now in pinPeripheral().
  * 
+ *   There are two ways that pins can be mapped. The first is to map pins contiguously
+ *   (no PIO_NOT_A_PIN entries) in the table. This results in the least amount of space
+ *   used by the table. A second method, used by default by the MT-D21E and MT-D11, maps
+ *   Arduino pin numbers to the actual port pin number (ie: Arduino pin 28 = Port A28).
+ *   This only works when there is one port. Because not all port pins are available,
+ *   PIO_NOT_A_PIN entries must be added for these pins and more FLASH space is consumed.
+ *   For an example of both types, see variant.cpp from the MT-D11 variant.
+ * 
  *   Explanation of PinDescription table:
  * 
  *   Port                  This is the port (ie: PORTA).
@@ -322,8 +413,8 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
  *                         peripherals possible with each of the SERCOM and TIMER
  *                         functions. TIMER pins are individual, while SERCOM uses a
  *                         group of two to four pins. This group of pins can span both
- *                         peripherals. For example, pin 19 (SPI1 SCK) uses
- *                         PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses
+ *                         peripherals. For example, pin 19 (SPI1 SCK) on the MT-D21E
+ *                         uses PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses
  *                         PER_ATTR_SERCOM_STD. Both TIMER and SERCOM can exist for each
  *                         pin. This bitfield is also used to set the pin drive strength.
  *                         In the future, other attributes (like input buffer
@@ -343,18 +434,66 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
  *                         (ie: to avoid contention). See WVariant.h for valid entries.
  *   TCChannel             This is the TC(C) channel (if any) assigned to the pin. Some
  *                         TC channels are available on multiple pins (ie: TCC0/WO[0] is
- *                         available on pin A4 or pin A8). In general, only one pin
- *                         should be configured (in the pinDescription table) per TC
- *                         channel. See WVariant.h for valid entries. The tone library
- *                         uses TC5.
+ *                         available on pin A4 or pin A8 on the MT-D21E). In general,
+ *                         only one pin should be configured (in the pinDescription
+ *                         table) per TC channel. See WVariant.h for valid entries.
+ *                         The tone library uses TC5 (MT-D21E) or TC2 (MT-D11).
  *   ADCChannelNumber      This is the ADC channel (if any) assigned to the pin. See
  *                         WVariant.h for valid entries.
  *   ExtInt                This is the interrupt (if any) assigned to the pin. Some
  *                         interrupt numbers are available on multiple pins (ie:
- *                         EIC/EXTINT[2] is available on pin A2 or pin A18). In general,
- *                         only one pin should be configured (in the pinDescription
- *                         table) per interrupt number. Thus, if an interrupt was needed
- *                         on pin 2, EXTERNAL_INT_2 can be moved from pin 18. See 
- *                         WVariant.h for valid entries.
+ *                         EIC/EXTINT[2] is available on pin A2 or pin A18 on the
+ *                         MT-D21E). In general, only one pin should be configured (in
+ *                         the pinDescription table) per interrupt number. Thus, if an
+ *                         interrupt was needed on pin 2, EXTERNAL_INT_2 can be moved
+ *                         from pin 18. See WVariant.h for valid entries.
  */
 ```
+
+
+## Possible Future Additions
+
+* Port Servo library
+* Replace pulse with timer capture
+* MIDI USB Device Class
+* MSC (Mass Storage) USB Device Class
+* More detailed memory usage statistics
+* Some kind of stack overflow detection. Estimation on stack usage.
+* Analog calibration
+* Polyphonic tone
+* Better OS X support
+* Drivers for some hardware I plan on using (TFT LCD, motor controller, IR decoder, several I2C (Wire) sensor devices, I2S device, etc.)
+
+
+## ChangeLog
+
+* 1.6.5-mt2:
+  * See 'What's New' above.
+
+* 1.6.5-mt1:
+  * Initial release
+
+
+## License and credits
+
+This core has been developed by Arduino LLC in collaboration with Atmel.
+This fork developed by Justin Mattair of MattairTech LLC.
+
+```
+Copyright (c) 2015 Arduino LLC.  All right reserved.
+
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
+
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+See the GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+```
+

@@ -61,6 +61,8 @@ void SERCOM5_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC0_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC1_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC2_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC1_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC2_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC3_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC4_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC5_Handler      (void) __attribute__ ((weak)); // Used in Tone.cpp
@@ -115,22 +117,37 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) SERCOM0_Handler,        /*  9 Serial Communication Interface 0 */
   (void*) SERCOM1_Handler,        /* 10 Serial Communication Interface 1 */
   (void*) SERCOM2_Handler,        /* 11 Serial Communication Interface 2 */
+#if defined(__SAMD21E15A__) || defined(__SAMD21E16A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__) || \
+  defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
+  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
   (void*) SERCOM3_Handler,        /* 12 Serial Communication Interface 3 */
   (void*) SERCOM4_Handler,        /* 13 Serial Communication Interface 4 */
   (void*) SERCOM5_Handler,        /* 14 Serial Communication Interface 5 */
-  (void*) TCC0_Handler,           /* 15 Timer Counter Control 0 */
+#endif
+  (void*) TCC0_Handler,           /* 15 / 12 Timer Counter Control 0 */
+#if defined(__SAMD21E15A__) || defined(__SAMD21E16A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__) || \
+  defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
+  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
   (void*) TCC1_Handler,           /* 16 Timer Counter Control 1 */
   (void*) TCC2_Handler,           /* 17 Timer Counter Control 2 */
-  (void*) TC3_Handler,            /* 18 Basic Timer Counter 0 */
-  (void*) TC4_Handler,            /* 19 Basic Timer Counter 1 */
-  (void*) TC5_Handler,            /* 20 Basic Timer Counter 2 */
-  (void*) TC6_Handler,            /* 21 Basic Timer Counter 3 */
-  (void*) TC7_Handler,            /* 22 Basic Timer Counter 4 */
-  (void*) ADC_Handler,            /* 23 Analog Digital Converter */
-  (void*) AC_Handler,             /* 24 Analog Comparators */
-  (void*) DAC_Handler,            /* 25 Digital Analog Converter */
-  (void*) PTC_Handler,            /* 26 Peripheral Touch Controller */
+  (void*) TC3_Handler,            /* 18 Basic Timer Counter 3 */
+  (void*) TC4_Handler,            /* 19 Basic Timer Counter 4 */
+  (void*) TC5_Handler,            /* 20 Basic Timer Counter 5 */
+  (void*) TC6_Handler,            /* 21 Basic Timer Counter 6 */
+  (void*) TC7_Handler,            /* 22 Basic Timer Counter 7 */
+#else
+  (void*) TC1_Handler,            /* 13 Basic Timer Counter 1 */
+  (void*) TC2_Handler,            /* 14 Basic Timer Counter 2 */
+#endif
+  (void*) ADC_Handler,            /* 23 / 15 Analog Digital Converter */
+  (void*) AC_Handler,             /* 24 / 16 Analog Comparators */
+  (void*) DAC_Handler,            /* 25 / 17 Digital Analog Converter */
+  (void*) PTC_Handler,            /* 26 / 18 Peripheral Touch Controller */
+#if defined(__SAMD21E15A__) || defined(__SAMD21E16A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__) || \
+  defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
+  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
   (void*) I2S_Handler             /* 27 Inter-IC Sound Interface */
+#endif
 };
 
 extern int main(void);

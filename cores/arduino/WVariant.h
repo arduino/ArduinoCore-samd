@@ -26,7 +26,9 @@ extern "C" {
 #endif
 
 /* Definitions and types for pins */
-/* ADC channels 2, 3, and 10 not present in ATSAMD21ExxA */
+/* ADC channels for ATSAMD21GxxA and ATSAMD21JxxA: All but 8 and 9  */
+/* ADC channels for ATSAMD21ExxA: All but 2, 3, 8, 9, and 10 */
+/* ADC channels for ATSAMD11D14AM: 0 through 9 */
 typedef enum _EAnalogChannel
 {
   No_ADC_Channel=-1,
@@ -38,6 +40,8 @@ typedef enum _EAnalogChannel
   ADC_Channel5=5,
   ADC_Channel6=6,
   ADC_Channel7=7,
+  ADC_Channel8=8,
+  ADC_Channel9=9,
   ADC_Channel10=10,
   ADC_Channel16=16,
   ADC_Channel17=17,
@@ -66,6 +70,12 @@ typedef enum _ETCChannel
   TCC2_CH1 = (2<<8)|(1),
   TCC2_CH2 = (2<<8)|(0), // Channel 2 is 0!
   TCC2_CH3 = (2<<8)|(1), // Channel 3 is 1!
+#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+  TC1_CH0  = (1<<8)|(0),
+  TC1_CH1  = (1<<8)|(1),
+  TC2_CH0  = (2<<8)|(0),
+  TC2_CH1  = (2<<8)|(1),
+#endif
   TC3_CH0  = (3<<8)|(0),
   TC3_CH1  = (3<<8)|(1),
   TC4_CH0  = (4<<8)|(0),
@@ -77,7 +87,7 @@ typedef enum _ETCChannel
   TC6_CH1  = (6<<8)|(1),
   TC7_CH0  = (7<<8)|(0),
   TC7_CH1  = (7<<8)|(1)
-#endif // __SAMD21J18A__
+#endif
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -86,6 +96,7 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #define GetTCChannelNumber( x ) ( (x) & 0xff )
 #define GetTC( x ) ( g_apTCInstances[(x) >> 8] )
 
+/* Only PORTA on D21E and D11 */
 typedef enum _EPortType
 {
   NOT_A_PORT=-1,
@@ -94,6 +105,7 @@ typedef enum _EPortType
   PORTC=2,
 } EPortType ;
 
+/* The D11 has only INT 0 though 7 (the SAMD11C14A lacks INT 0 as well */
 typedef enum _EExt_Interrupts
 {
   EXTERNAL_INT_0 = 0,
@@ -104,6 +116,7 @@ typedef enum _EExt_Interrupts
   EXTERNAL_INT_5,
   EXTERNAL_INT_6,
   EXTERNAL_INT_7,
+#if !defined(__SAMD11D14AM__) && !defined(__SAMD11C14A__) && !defined(__SAMD11D14AS__)
   EXTERNAL_INT_8,
   EXTERNAL_INT_9,
   EXTERNAL_INT_10,
@@ -112,6 +125,7 @@ typedef enum _EExt_Interrupts
   EXTERNAL_INT_13,
   EXTERNAL_INT_14,
   EXTERNAL_INT_15,
+#endif
   EXTERNAL_INT_NMI,
   EXTERNAL_NUM_INTERRUPTS,
   NOT_AN_INTERRUPT = -1,
@@ -208,6 +222,13 @@ typedef enum _EPioPeripheral
 #define PER_ATTR_DRIVE_STRONG    (1UL<<2)
 #define PER_ATTR_DRIVE_MASK      (1UL<<2)
 
+#define PER_ATTR_OUTPUT_TYPE_STD            (0UL<<3)
+#define PER_ATTR_OUTPUT_TYPE_OPEN_DRAIN     (1UL<<3)
+#define PER_ATTR_OUTPUT_TYPE_OPEN_SOURCE    (2UL<<3)
+#define PER_ATTR_OUTPUT_TYPE_BUSKEEPER      (3UL<<3)
+#define PER_ATTR_OUTPUT_TYPE_MASK           (3UL<<3)
+
+
 /* Types used for the table below
  * This struct MUST be 12 bytes long (elements are ordered to prevent unaligned access).
  */
@@ -240,6 +261,23 @@ extern const PinDescription g_APinDescription[] ;
 #define GCM_EVSYS_CHANNEL_3       (0x0AU)
 #define GCM_EVSYS_CHANNEL_4       (0x0BU)
 #define GCM_EVSYS_CHANNEL_5       (0x0CU)
+
+#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+
+#define GCM_SERCOMx_SLOW          (0x0DU)
+#define GCM_SERCOM0_CORE          (0x0EU)
+#define GCM_SERCOM1_CORE          (0x0FU)
+#define GCM_SERCOM2_CORE          (0x10U)
+#define GCM_TCC0                  (0x11U)
+#define GCM_TC1_TC2               (0x12U)
+#define GCM_ADC                   (0x13U)
+#define GCM_AC_DIG                (0x14U)
+#define GCM_AC_ANA                (0x15U)
+#define GCM_DAC                   (0x16U)
+#define GCM_PTC                   (0x17U)
+
+#else
+
 #define GCM_EVSYS_CHANNEL_6       (0x0DU)
 #define GCM_EVSYS_CHANNEL_7       (0x0EU)
 #define GCM_EVSYS_CHANNEL_8       (0x0FU)
@@ -264,6 +302,8 @@ extern const PinDescription g_APinDescription[] ;
 #define GCM_PTC                   (0x22U)
 #define GCM_I2S_0                 (0x23U)
 #define GCM_I2S_1                 (0x24U)
+
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

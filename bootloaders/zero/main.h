@@ -29,10 +29,28 @@
 
 #pragma once
 
+
+/*
+ * Starting address for the application section.
+ * For example, with an 8KB bootloader, APP_START_ADDRESS = 0x00002000.
+ * SAMD11 devices should probably use a 4KB bootloader.
+ */
+#define APP_START_ADDRESS                 0x00002000
+//#define APP_START_ADDRESS                 0x00001000
+
+/*
+ * If BOOT_LOAD_PIN is defined the bootloader is started if the selected
+ * pin is tied LOW.
+ */
+#define BOOT_LOAD_PIN                     PIN_PA27
+//#define BOOT_LOAD_PIN                     PIN_PA15
+#define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
+
 /*
  * If LED_PIN is defined, it will turn on during bootloader operation.
  */
-#define	LED_PIN                           PIN_PA28 // Pin 28
+#define	LED_PIN                           PIN_PA28
+//#define	LED_PIN                           PIN_PA16
 #define LED_PIN_MASK                      (1U << (LED_PIN & 0x1f))
 
 /*
@@ -53,28 +71,25 @@
 	#define BOOT_DOUBLE_TAP_ADDRESS           0x20000FFC
 #elif defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
 	#define BOOT_DOUBLE_TAP_ADDRESS           0x20000FFC
+#else
+	#error "main.h: Unsupported MCU"
 #endif
 
 #define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
 
 /*
- * If BOOT_LOAD_PIN is defined the bootloader is started if the selected
- * pin is tied LOW.
+ * If bootloader UART support is compiled in (see sam_ba_monitor.h), configure it here.
  */
-#define BOOT_LOAD_PIN                     PIN_PA27 // Pin 27
-#define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
-
-#define CPU_FREQUENCY                     8000000
-#define APP_START_ADDRESS                 0x00002000
-#define FLASH_WAIT_STATES                 1
-
 #define BOOT_USART_MODULE                 SERCOM0
-//#define BOOT_USART_MODULE                 SERCOM5
 #define BOOT_USART_MUX_SETTINGS           UART_RX_PAD3_TX_PAD2
-//#define BOOT_USART_PAD3                   PINMUX_PB23D_SERCOM5_PAD3
-//#define BOOT_USART_PAD2                   PINMUX_PB22D_SERCOM5_PAD2
 #define BOOT_USART_PAD3                   PINMUX_PA11C_SERCOM0_PAD3
 #define BOOT_USART_PAD2                   PINMUX_PA10C_SERCOM0_PAD2
+//#define BOOT_USART_PAD3                   PINMUX_UNUSED
+//#define BOOT_USART_PAD2                   PINMUX_UNUSED
 #define BOOT_USART_PAD1                   PINMUX_UNUSED
 #define BOOT_USART_PAD0                   PINMUX_UNUSED
+
+
+#define CPU_FREQUENCY                     8000000
+#define FLASH_WAIT_STATES                 1
 

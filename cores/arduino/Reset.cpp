@@ -25,17 +25,16 @@ extern "C" {
 
 #define NVM_MEMORY ((volatile uint16_t *)0x000000)
 
-#if defined(__NO_BOOTLODAER__)
+#if defined(__NO_BOOTLOADER__)
 	#define APP_START 0x00000004
-#elif defined(__4KB_BOOTLODAER__)
+#elif defined(__4KB_BOOTLOADER__)
 	#define APP_START 0x00001004
-#elif defined(__8KB_BOOTLODAER__)
+#elif defined(__8KB_BOOTLOADER__)
 	#define APP_START 0x00002004
-#elif defined(__16KB_BOOTLODAER__)
+#elif defined(__16KB_BOOTLOADER__)
 	#define APP_START 0x00004004
 #else
-	// default of 8KB
-	#define APP_START 0x00002004
+	#error "Reset.cpp: You must define bootloader size in boards.txt build.extra_flags (ie: -D__8KB_BOOTLOADER__)"
 #endif
 
 static inline bool nvmReady(void) {
@@ -43,7 +42,7 @@ static inline bool nvmReady(void) {
 }
 
 __attribute__ ((long_call, section (".ramfunc")))
-static void banzai() {
+void banzai() {
 	// Disable all interrupts
 	__disable_irq();
 

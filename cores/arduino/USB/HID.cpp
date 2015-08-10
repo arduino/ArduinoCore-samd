@@ -461,10 +461,14 @@ size_t Keyboard_::press(uint8_t k)
 
 	// Add k to the key report only if it's not already present
 	// and if there is an empty slot.
-	if (_keyReport.keys[0] != k && _keyReport.keys[1] != k &&
-		_keyReport.keys[2] != k && _keyReport.keys[3] != k &&
-		_keyReport.keys[4] != k && _keyReport.keys[5] != k) {
-
+	uint8_t keyAlreadyPresent = 0;
+	for (i=0; i<6; i++) {
+		if (_keyReport.keys[i] == k) {
+			keyAlreadyPresent = 1;
+		}
+	}
+	
+	if (keyAlreadyPresent) {
 		for (i=0; i<6; i++) {
 			if (_keyReport.keys[i] == 0x00) {
 				_keyReport.keys[i] = k;
