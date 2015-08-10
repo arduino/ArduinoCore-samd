@@ -156,9 +156,9 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_SPI1_MISO         (19u)
 #define PIN_SPI1_MOSI         (16u)
 #define PIN_SPI1_SCK          (17u)
-#define PERIPH_SPI           sercom1
-#define PAD_SPI_TX           SPI_PAD_2_SCK_3
-#define PAD_SPI_RX           SERCOM_RX_PAD_0
+#define PERIPH_SPI1           sercom1
+#define PAD_SPI1_TX           SPI_PAD_2_SCK_3
+#define PAD_SPI1_RX           SERCOM_RX_PAD_0
 
 /*
  * Wire Interfaces
@@ -170,22 +170,10 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PERIPH_WIRE          sercom3
 #define WIRE_IT_HANDLER      SERCOM3_Handler
 
-#define SERCOM_INSTANCE_WIRE          &sercom3
-
-#define SERCOM_WIRE_HANDLER_MACRO \
-void SERCOM3_Handler(void) { \
-	Wire.onService(); \
-}
-
-#define PIN_WIRE_SDA1         (4u)
-#define PIN_WIRE_SCL1         (3u)
-
-#define SERCOM_INSTANCE_WIRE1         &sercom2
-
-#define SERCOM_WIRE1_HANDLER_MACRO \
-void SERCOM2_Handler(void) { \
-	Wire1.onService(); \
-}
+#define PIN_WIRE1_SDA         (4u)
+#define PIN_WIRE1_SCL         (3u)
+#define PERIPH_WIRE1          sercom2
+#define WIRE1_IT_HANDLER      SERCOM2_Handler
 
 /*
  * USB

@@ -204,13 +204,8 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_WIRE1_SCL         (23u)
 #define PIN_WIRE_SDA          PIN_WIRE1_SDA
 #define PIN_WIRE_SCL          PIN_WIRE1_SCL
-
-#define SERCOM_INSTANCE_WIRE           &sercom2
-
-#define SERCOM_WIRE_HANDLER_MACRO \
-void SERCOM2_Handler(void) { \
-	Wire.onService(); \
-}
+#define PERIPH_WIRE          sercom2
+#define WIRE_IT_HANDLER      SERCOM2_Handler
 
 
 /*
