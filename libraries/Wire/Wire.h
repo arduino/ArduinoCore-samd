@@ -31,7 +31,7 @@
 class TwoWire : public Stream
 {
   public:
-    TwoWire(SERCOM *s);
+    TwoWire(SERCOM *s, uint8_t pinSDA, uint8_t pinSCL);
     void begin();
     void begin(uint8_t);
     void setClock(uint32_t); // dummy function
@@ -59,6 +59,9 @@ class TwoWire : public Stream
 
   private:
     SERCOM * sercom;
+    uint8_t _uc_pinSDA;
+    uint8_t _uc_pinSCL;
+
     bool transmissionBegun;
 
     // RX Buffer

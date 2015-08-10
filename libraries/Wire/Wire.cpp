@@ -26,9 +26,11 @@ extern "C" {
 
 #include "Wire.h"
 
-TwoWire::TwoWire(SERCOM * s)
+TwoWire::TwoWire(SERCOM * s, uint8_t pinSDA, uint8_t pinSCL)
 {
   this->sercom = s;
+  this->_uc_pinSDA=pinSDA;
+  this->_uc_pinSCL=pinSCL;
   transmissionBegun = false;
 }
 
@@ -37,8 +39,8 @@ void TwoWire::begin(void) {
   sercom->initMasterWIRE(TWI_CLOCK);
   sercom->enableWIRE();
 
-  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
-  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+  pinPeripheral(_uc_pinSDA, g_APinDescription[_uc_pinSDA].ulPinType);
+  pinPeripheral(_uc_pinSCL, g_APinDescription[_uc_pinSCL].ulPinType);
 }
 
 void TwoWire::begin(uint8_t address) {
@@ -254,77 +256,6 @@ void TwoWire::onService(void)
   }
 }
 
-/*
-void TwoWire::onService(void)
-{
-  // Retrieve interrupt status
-  uint32_t sr = TWI_GetStatus(twi);
-
-  if (status == SLAVE_IDLE && TWI_STATUS_SVACC(sr)) {
-    TWI_DisableIt(twi, TWI_IDR_SVACC);
-    TWI_EnableIt(twi, TWI_IER_RXRDY | TWI_IER_GACC | TWI_IER_NACK
-        | TWI_IER_EOSACC | TWI_IER_SCL_WS | TWI_IER_TXCOMP);
-
-    srvBufferLength = 0;
-    srvBufferIndex = 0;
-
-    // Detect if we should go into RECV or SEND status
-    // SVREAD==1 means *master* reading -> SLAVE_SEND
-    if (!TWI_STATUS_SVREAD(sr)) {
-      status = SLAVE_RECV;
-    } else {
-      status = SLAVE_SEND;
-
-      // Alert calling program to generate a response ASAP
-      if (onRequestCallback)
-        onRequestCallback();
-      else
-        // create a default 1-byte response
-        write((uint8_t) 0);
-    }
-  }
-
-  if (status != SLAVE_IDLE) {
-    if (TWI_STATUS_TXCOMP(sr) && TWI_STATUS_EOSACC(sr)) {
-      if (status == SLAVE_RECV && onReceiveCallback) {
-        // Copy data into rxBuffer
-        // (allows to receive another packet while the
-        // user program reads actual data)
-        for (uint8_t i = 0; i < srvBufferLength; ++i)
-          rxBuffer[i] = srvBuffer[i];
-        rxBufferIndex = 0;
-        rxBufferLength = srvBufferLength;
-
-        // Alert calling program
-        onReceiveCallback( rxBufferLength);
-      }
-
-      // Transfer completed
-      TWI_EnableIt(twi, TWI_SR_SVACC);
-      TWI_DisableIt(twi, TWI_IDR_RXRDY | TWI_IDR_GACC | TWI_IDR_NACK
-          | TWI_IDR_EOSACC | TWI_IDR_SCL_WS | TWI_IER_TXCOMP);
-      status = SLAVE_IDLE;
-    }
-  }
-
-  if (status == SLAVE_RECV) {
-    if (TWI_STATUS_RXRDY(sr)) {
-      if (srvBufferLength < BUFFER_LENGTH)
-        srvBuffer[srvBufferLength++] = TWI_ReadByte(twi);
-    }
-  }
-
-  if (status == SLAVE_SEND) {
-    if (TWI_STATUS_TXRDY(sr) && !TWI_STATUS_NACK(sr)) {
-      uint8_t c = 'x';
-      if (srvBufferIndex < srvBufferLength)
-        c = srvBuffer[srvBufferIndex++];
-      TWI_WriteByte(twi, c);
-    }
-  }
-}
-*/
-
 #if WIRE_INTERFACES_COUNT > 0
 /*static void Wire_Init(void) {
   pmc_enable_periph_clk(WIRE_INTERFACE_ID);
@@ -346,10 +277,10 @@ void TwoWire::onService(void)
 }*/
 
 
-TwoWire Wire(&sercom3);
+TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
 
-void SERCOM3_Handler(void) {
+void WIRE_IT_HANDLER(void) {
   Wire.onService();
 }
 
-#endif
+#endif // WIRE_INTERFACES_COUNT > 0
