@@ -90,7 +90,7 @@ Other   INT    PWM   Digital  Analog                      Digital  PWM   INT    
 DAC                    2    2 (ADC0)  | A2   | USB |  Gnd |
 REF                    3    3 (ADC1)  | A3   |     |  Vcc |
 VDIV   INT4   TCC0[0]  4    4 (ADC2)  | A4    -----   A31 |  31  TC2[1]  INT3  RX / SWDIO
-       INT5   TCC0[1]  5    5 (ADC3)  | A5            A30 |  30  TC2[0]       TX / SWDCLK  
+       INT5   TCC0[1]  5    5 (ADC3)  | A5            A30 |  30  TC2[0]       TX / SWDCLK
               TCC0[2]  6    6 (ADC4)  | A6            A27 |  27          INT7
               TCC0[3]  7    7 (ADC5)  | A7            A23 |  23                 I2C/SCL
 SPI MOSI  INT2         10   10 (ADC8) | A10           A22 |  22          INT6   I2C/SDA
@@ -168,7 +168,6 @@ while (!Serial) ;
 ```
 
 Remember that if the sketch needs to run without SerialUSB connected, another approach must be used.
-
 You can also reset the board manually with the Reset button if you wish to restart your sketch. However, pressing
 the Reset button will reset the SAMD chip, which in turn will reset USB communication. This interruption means
 that if the serial monitor is open, it will be necessary to close and re-open it to restart communication.
@@ -176,14 +175,14 @@ that if the serial monitor is open, it will be necessary to close and re-open it
 
 ## Code Size and RAM Usage
 
-Sketch and Configuration    | MT-D21E (Code + RAM) | MT-D11 (Code + RAM)
-----------------------------|----------------------|-----------------------
-Blink (CDC + HID + UART)    |     7564 + 1524      |     7452 + 1424
-Blink (CDC + UART)          |     6588 + 1496      |     6484 + 1396
-Blink (CDC Only)            |     5248 + 1304      |     5192 + 1300
-Blink (UART Only)           |     3828 + 336       |     3716 + 236
-Blink (No USB or UART)      |     2472 + 144       |     2416 + 140
-Datalogger (No USB or UART) |     10340 + 948      |     10260 + 944
+Sketch and Configuration    | MT-D21E (Flash + RAM) | MT-D11 (Flash + RAM)
+----------------------------|-----------------------|-----------------------
+Blink (CDC + HID + UART)    |     7564 + 1524       |     7452 + 1424
+Blink (CDC + UART)          |     6588 + 1496       |     6484 + 1396
+Blink (CDC Only)            |     5248 + 1304       |     5192 + 1300
+Blink (UART Only)           |     3828 + 336        |     3716 + 236
+Blink (No USB or UART)      |     2472 + 144        |     2416 + 140
+Datalogger (No USB or UART) |     10340 + 948       |     10260 + 944
 
 * 180 bytes of flash can be saved on the MT-D11 by using PIN_MAP_COMPACT (see 'New PinDescription Table' below).
 * Datalogger compiled without USB or UART support, but with SPI and SD (with FAT filesystem) support. Serial output was disabled.
@@ -273,7 +272,7 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 The SAM-BA bootloader has both a CDC USB interface, and a UART interface (MT-D21E: TX: pin 10, RX: pin 11). It is
 compatible with the Arduino IDE (Zero compatible), or it can be used with the Bossac tool standalone. Under
 Arduino, auto-reset is supported (automatically runs the bootloader while the sketch is running) as well as
-automatic return freom reset. The SAM-BA bootloader described here adds to the Arduino version, which in
+automatic return from reset. The SAM-BA bootloader described here adds to the Arduino version, which in
 turn is based on the bootloader from Atmel. The Arduino version added several features, including three
 new commands (Arduino Extended Capabilities) that increase upload speed. The bootloader normally requires
 8 KB FLASH, however, a 4 KB version can be used for the D11 chips.
@@ -454,6 +453,7 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 ## Possible Future Additions
 
 * Port Servo library
+* Features for lower power consumption
 * Replace pulse with timer capture
 * MIDI USB Device Class
 * MSC (Mass Storage) USB Device Class
