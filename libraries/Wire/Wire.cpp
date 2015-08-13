@@ -257,25 +257,17 @@ void TwoWire::onService(void)
 }
 
 #if WIRE_INTERFACES_COUNT > 0
-/*static void Wire_Init(void) {
-  pmc_enable_periph_clk(WIRE_INTERFACE_ID);
-  PIO_Configure(
-      g_APinDescription[PIN_WIRE_SDA].pPort,
-      g_APinDescription[PIN_WIRE_SDA].ulPinType,
-      g_APinDescription[PIN_WIRE_SDA].ulPin,
-      g_APinDescription[PIN_WIRE_SDA].ulPinConfiguration);
-  PIO_Configure(
-      g_APinDescription[PIN_WIRE_SCL].pPort,
-      g_APinDescription[PIN_WIRE_SCL].ulPinType,
-      g_APinDescription[PIN_WIRE_SCL].ulPin,
-      g_APinDescription[PIN_WIRE_SCL].ulPinConfiguration);
 
-  NVIC_DisableIRQ(WIRE_ISR_ID);
-  NVIC_ClearPendingIRQ(WIRE_ISR_ID);
-  NVIC_SetPriority(WIRE_ISR_ID, 0);
-  NVIC_EnableIRQ(WIRE_ISR_ID);
-}*/
+/* In case new variant doesn't define these macros,
+ * we put here the ones for Arduino Zero.
+ *
+ * These values should be different on some variants!
+ */
 
+#ifndef PERIPH_WIRE
+#  define PERIPH_WIRE          sercom3
+#  define WIRE_IT_HANDLER      SERCOM3_Handler
+#endif // PERIPH_WIRE
 
 TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
 
