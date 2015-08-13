@@ -203,6 +203,22 @@ void SPIClass::detachInterrupt() {
 }
 
 #if SPI_INTERFACES_COUNT > 0
+
+/* In case new variant doesn't define these macros,
+ * we put here the ones for Arduino Zero.
+ *
+ * These values should be different on some variants!
+ *
+ * The SPI PAD values can be found in cores/arduino/SERCOM.h:
+ *   - SercomSpiTXPad
+ *   - SercomRXPad
+ */
+#ifndef PERIPH_SPI
+#define PERIPH_SPI           sercom4
+#define PAD_SPI_TX           SPI_PAD_2_SCK_3
+#define PAD_SPI_RX           SERCOM_RX_PAD_0
+#endif // PERIPH_SPI
+
 SPIClass SPI( &PERIPH_SPI, PIN_SPI_MISO, PIN_SPI_SCK, PIN_SPI_MOSI, PAD_SPI_TX, PAD_SPI_RX );
 #endif // SPI_INTERFACES_COUNT > 0
 
