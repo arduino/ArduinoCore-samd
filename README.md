@@ -12,10 +12,10 @@ Just open the "Boards Manager" and install the package called:
 
 Next, clone this repository and move the following files/folders to C:\Users\mperla.CORP\AppData\Roaming\Arduino15\packages\arduino\hardware\samd\1.6.1 :
 
-bootloaders\jack
-cores\jack
-variants\jack
-boards.txt
+- bootloaders\jack
+- cores\jack
+- variants\jack
+- boards.txt
 
 ## Contributions
 
