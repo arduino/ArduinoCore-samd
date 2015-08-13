@@ -62,7 +62,7 @@ void loop( void ) ;
 
 #ifdef __cplusplus
 } // extern "C"
-#endif // __cplusplus
+#endif
 
 // The following headers are for C++ only compilation
 #ifdef __cplusplus
@@ -72,9 +72,11 @@ void loop( void ) ;
   #include "WMath.h"
   #include "HardwareSerial.h"
   #include "pulse.h"
-  #include "delay.h"
+#endif
+#include "delay.h"
+#ifdef __cplusplus
   #include "Uart.h"
-#endif // __cplusplus
+#endif
 
 // Include board variant
 #include "variant.h"
