@@ -10,7 +10,7 @@ Just open the "Boards Manager" and install the package called:
 
 "Arduino SAMD Boards (32-bit ARM Cortex-M0+)"
 
-Next, clone this repository and move the following files/folders to c:\Users\your_user\AppData\Roaming\Arduino15\packages\hardware :
+Next, clone this repository and move the following files/folders to C:\Users\mperla.CORP\AppData\Roaming\Arduino15\packages\arduino\hardware\samd\1.6.1 :
 
 bootloaders\jack
 cores\jack
