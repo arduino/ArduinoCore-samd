@@ -26,11 +26,10 @@ Pull Request on github.
 
 The Arduino Zero core has been developed by Arduino LLC in collaboration with Atmel.
 
-The JACK core has been developed by Michele Perla on top of the Arduino one, so I suppose
-their GLPL applies to it as well.
+The JACK core has been developed by Michele Perla on top of the Arduino one, so GLPL applies to it as well.
 
 ```
-  Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright © 2015 Arduino LLC, Michele Perla.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
