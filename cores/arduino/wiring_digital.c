@@ -59,11 +59,8 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
       PORT->Group[pinPort].OUTCLR.reg = (1ul << pinNum) ;
     break ;
 
-    case HIGH:
-      PORT->Group[pinPort].OUTSET.reg = (1ul << pinNum) ;
-    break ;
-
     default:
+      PORT->Group[pinPort].OUTSET.reg = (1ul << pinNum) ;
     break ;
   }
 
