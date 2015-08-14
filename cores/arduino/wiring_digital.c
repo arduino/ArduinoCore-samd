@@ -117,18 +117,18 @@ void digitalWrite(uint32_t ulPin, uint32_t ulVal)
 
 int digitalRead( uint32_t ulPin )
 {
-  // Handle the case the pin isn't usable as PIO
-  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  // Handle the case the pin is invalid
+  if (ulPin >= PINS_COUNT)
   {
-    return LOW ;
+    return LOW;
   }
 
   if ( (PORT->Group[g_APinDescription[ulPin].ulPort].IN.reg & (1ul << g_APinDescription[ulPin].ulPin)) != 0 )
   {
-    return HIGH ;
+    return HIGH;
   }
 
-  return LOW ;
+  return LOW;
 }
 
 #ifdef __cplusplus
