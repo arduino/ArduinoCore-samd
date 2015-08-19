@@ -68,22 +68,15 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     rxBuffer.store_char(sercom->readDataWIRE());
 
     // Connected to slave
-    //while(toRead--)
-    for(byteRead = 0; byteRead < quantity; ++byteRead)
+    for (byteRead = 1; byteRead < quantity; ++byteRead)
     {
-      if( byteRead == quantity - 1)  // Stop transmission
-      {
-        sercom->prepareNackBitWIRE(); // Prepare NACK to stop slave transmission
-        //sercom->readDataWIRE(); // Clear data register to send NACK
-        sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP); // Send Stop
-      }
-      else // Continue transmission
-      {
-        sercom->prepareAckBitWIRE();  // Prepare Acknowledge
-        sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ); // Prepare the ACK command for the slave
-        rxBuffer.store_char( sercom->readDataWIRE() );  // Read data and send the ACK
-      }
+      sercom->prepareAckBitWIRE();                          // Prepare Acknowledge
+      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ); // Prepare the ACK command for the slave
+      rxBuffer.store_char(sercom->readDataWIRE());          // Read data and send the ACK
     }
+    sercom->prepareNackBitWIRE();                           // Prepare NACK to stop slave transmission
+    //sercom->readDataWIRE();                               // Clear data register to send NACK
+    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);   // Send Stop
   }
 
   return byteRead;
@@ -134,12 +127,8 @@ uint8_t TwoWire::endTransmission(bool stopBit)
       sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
       return 3 ;  // Nack or error
     }
-
-    if(txBuffer.available() == 0)
-    {
-      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-    }
   }
+  sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
   return 0;
 }
