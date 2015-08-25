@@ -48,7 +48,11 @@ void TwoWire::begin(uint8_t address) {
   sercom->initSlaveWIRE(address);
   sercom->enableWIRE();
 }
- 
+
+void TwoWire::end() {
+  sercom->disableWIRE();
+}
+
 void TwoWire::setClock(uint32_t frequency) {
        // dummy funtion
 }
