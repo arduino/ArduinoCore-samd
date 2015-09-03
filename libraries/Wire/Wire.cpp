@@ -49,7 +49,7 @@ void TwoWire::begin(uint8_t address) {
 
 void TwoWire::setClock(uint32_t baudrate) {
   sercom->disableWIRE();
-  if ( baudrate == 100000 || baudrate == 400000 ) sercom->initMasterWIRE(baudrate); // Validate input baudrate
+  sercom->initMasterWIRE(baudrate);
   sercom->enableWIRE();
 }
 
