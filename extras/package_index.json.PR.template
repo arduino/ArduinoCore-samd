@@ -32,7 +32,7 @@
             {
               "packager": "arduino",
               "name": "bossac",
-              "version": "1.5-arduino"
+              "version": "1.6-arduino"
             },
             {
               "packager": "arduino",

@@ -1,0 +1,16 @@
+
+SAMD CORE 1.6.1 2015.07.21
+
+* Added missing ATN pin definition
+* Added missing bootloader key/value pair in boards.txt (this allows to burn bootloader with Sam-ICE too)
+* Fixed min/max functions
+* Fixed hooks for Cortex-M RTOS
+* Fixed acknowledge of UART errors
+* Enabled C11/C++11
+* Fixed initialization in USB Device
+* Updated bossac to version 1.6-arduino
+
+SAMD CORE 1.6.0  2015.06.15
+
+* First public release.
+

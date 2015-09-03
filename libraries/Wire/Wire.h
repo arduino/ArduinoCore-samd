@@ -28,13 +28,21 @@
 
 #define BUFFER_LENGTH 32
 
+ // WIRE_HAS_END means Wire has end()
+#define WIRE_HAS_END 1
+
 class TwoWire : public Stream
 {
   public:
-    TwoWire(SERCOM *s);
+    TwoWire(SERCOM *s, uint8_t pinSDA, uint8_t pinSCL);
     void begin();
     void begin(uint8_t);
+<<<<<<< HEAD
     void setClock(uint32_t);
+=======
+    void end();
+    void setClock(uint32_t); // dummy function
+>>>>>>> arduino/master
 
     void beginTransmission(uint8_t);
     uint8_t endTransmission(bool stopBit);
@@ -59,6 +67,9 @@ class TwoWire : public Stream
 
   private:
     SERCOM * sercom;
+    uint8_t _uc_pinSDA;
+    uint8_t _uc_pinSCL;
+
     bool transmissionBegun;
 
     // RX Buffer

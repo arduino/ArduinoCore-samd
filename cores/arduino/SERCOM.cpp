@@ -30,8 +30,8 @@ SERCOM::SERCOM(Sercom* s)
 */
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {
-  resetUART();
   initClockNVIC();
+  resetUART();
 
   //Setting the CTRLA register
   sercom->USART.CTRLA.reg =	SERCOM_USART_CTRLA_MODE(mode) |
@@ -125,6 +125,16 @@ bool SERCOM::availableDataUART()
 {
   //RXC : Receive Complete
   return sercom->USART.INTFLAG.bit.RXC;
+}
+
+bool SERCOM::isUARTError()
+{
+  return sercom->USART.INTFLAG.bit.ERROR;
+}
+
+void SERCOM::acknowledgeUARTError()
+{
+  sercom->USART.INTFLAG.bit.ERROR = 1;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()
@@ -483,6 +493,12 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   {
     while( !sercom->I2CM.INTFLAG.bit.SB )
     {
+        // If the slave NACKS the address, the MB bit will be set.
+        // In that case, send a stop condition and return false.
+        if (sercom->I2CM.INTFLAG.bit.MB) {
+            sercom->I2CM.CTRLB.bit.CMD = 3; // Stop condition
+            return false;
+        }
       // Wait transmission complete
     }
 
@@ -508,7 +524,14 @@ bool SERCOM::sendDataMasterWIRE(uint8_t data)
   sercom->I2CM.DATA.bit.DATA = data;
 
   //Wait transmission successful
-  while(!sercom->I2CM.INTFLAG.bit.MB);
+  while(!sercom->I2CM.INTFLAG.bit.MB) {
+
+    // If a bus error occurs, the MB bit may never be set.
+    // Check the bus error bit and bail if it's set.
+    if (sercom->I2CM.STATUS.bit.BUSERR) {
+      return false;
+    }
+  }
 
   //Problems on line? nack received?
   if(sercom->I2CM.STATUS.bit.RXNACK)

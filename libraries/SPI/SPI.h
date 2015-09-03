@@ -91,7 +91,8 @@ class SPISettings {
 
 class SPIClass {
   public:
-  SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI);
+  SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad, SercomRXPad);
+
 
   byte transfer(uint8_t data);
   inline void transfer(void *buf, size_t count);
@@ -120,6 +121,10 @@ class SPIClass {
   uint8_t _uc_pinMiso;
   uint8_t _uc_pinMosi;
   uint8_t _uc_pinSCK;
+
+  SercomSpiTXPad _padTx;
+  SercomRXPad _padRx;
+
   bool initialized;
   uint8_t interruptMode;
   char interruptSave;
