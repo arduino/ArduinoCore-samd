@@ -57,9 +57,8 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   uint32_t config;
   uint32_t pos;
 
-  if (digitalPinToInterrupt(pin) == NOT_AN_INTERRUPT)
-    return;
-  if (digitalPinToInterrupt(pin) == EXTERNAL_INT_NMI)
+  EExt_Interrupts in = digitalPinToInterrupt(pin);
+  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
   if (!enabled) {
@@ -71,17 +70,17 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   pinPeripheral(pin, PIO_EXTINT);
 
   // Assign callback to interrupt
-  callbacksInt[digitalPinToInterrupt(pin)] = callback;
+  callbacksInt[in] = callback;
 
   // Look for right CONFIG register to be addressed
-  if (digitalPinToInterrupt(pin) > EXTERNAL_INT_7) {
+  if (in > EXTERNAL_INT_7) {
     config = 1;
   } else {
     config = 0;
   }
 
   // Configure the interrupt mode
-  pos = ((digitalPinToInterrupt(pin) - (8 * config)) << 2);
+  pos = (in - (8 * config)) << 2;
   switch (mode)
   {
     case LOW:
@@ -106,7 +105,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   }
 
   // Enable the interrupt
-  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << digitalPinToInterrupt(pin));
+  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
 }
 
 /*
@@ -114,12 +113,11 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
  */
 void detachInterrupt(uint32_t pin)
 {
-  if (digitalPinToInterrupt(pin) == NOT_AN_INTERRUPT)
-    return;
-  if (digitalPinToInterrupt(pin) == EXTERNAL_INT_NMI)
+  EExt_Interrupts in = digitalPinToInterrupt(pin);
+  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
-  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << digitalPinToInterrupt(pin));
+  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
 }
 
 /*
