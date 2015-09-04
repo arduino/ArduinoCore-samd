@@ -75,7 +75,9 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   uint32_t pos;
   
   // Assign pin to EIC
-  if ( pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK )
+  if (pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK)
+    return;
+  if (digitalPinToInterrupt(pin) == EXTERNAL_INT_NMI)
     return;
 
   if (!enabled) {
@@ -87,91 +89,53 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   callbacksInt[digitalPinToInterrupt(pin)]._ulPin = pin;
   callbacksInt[digitalPinToInterrupt(pin)]._callback = callback;
 
-  // Check if normal interrupt or NMI
-if ( digitalPinToInterrupt( pin ) != EXTERNAL_INT_NMI )
-  {
-    // Look for right CONFIG register to be addressed
-    if (digitalPinToInterrupt(pin) > EXTERNAL_INT_7) {
-      config = 1;
-    } else {
-      config = 0;
-    }
-
-    // Configure the interrupt mode
-    pos = ((digitalPinToInterrupt(pin) - (8 * config)) << 2);
-    switch (mode)
-    {
-      case LOW:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_LOW_Val << pos;
-        break;
-
-      case HIGH:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_HIGH_Val << pos;
-        break;
-
-      case CHANGE:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_BOTH_Val << pos;
-        break;
-
-      case FALLING:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_FALL_Val << pos;
-        break;
-
-      case RISING:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_RISE_Val << pos;
-        break;
-    }
-
-    // Enable the interrupt
-    EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << digitalPinToInterrupt(pin));
+  // Look for right CONFIG register to be addressed
+  if (digitalPinToInterrupt(pin) > EXTERNAL_INT_7) {
+    config = 1;
+  } else {
+    config = 0;
   }
-  else // Handles NMI
+
+  // Configure the interrupt mode
+  pos = ((digitalPinToInterrupt(pin) - (8 * config)) << 2);
+  switch (mode)
   {
-    // Configure the interrupt mode
-    switch (mode)
-    {
-      case LOW:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_LOW;
-        break;
+    case LOW:
+      EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_LOW_Val << pos;
+      break;
 
-      case HIGH:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_HIGH;
-        break;
+    case HIGH:
+      EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_HIGH_Val << pos;
+      break;
 
-      case CHANGE:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_BOTH;
-        break;
+    case CHANGE:
+      EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_BOTH_Val << pos;
+      break;
 
-      case FALLING:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL;
-        break;
+    case FALLING:
+      EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_FALL_Val << pos;
+      break;
 
-      case RISING:
-        EIC->NMICTRL.reg= EIC_NMICTRL_NMISENSE_RISE;
-        break;
-    }
+    case RISING:
+      EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_RISE_Val << pos;
+      break;
   }
+
+  // Enable the interrupt
+  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << digitalPinToInterrupt(pin));
 }
 
 /*
  * \brief Turns off the given interrupt.
  */
-void detachInterrupt( uint32_t ulPin )
+void detachInterrupt(uint32_t pin)
 {
-/*
-  // Retrieve pin information
-  Pio *pio = g_APinDescription[pin].pPort;
-  uint32_t mask = g_APinDescription[pin].ulPin;
+  if (digitalPinToInterrupt(pin) == NOT_AN_INTERRUPT)
+    return;
+  if (digitalPinToInterrupt(pin) == EXTERNAL_INT_NMI)
+    return;
 
-  // Disable interrupt
-  pio->PIO_IDR = mask;
-*/
-  if ( digitalPinToInterrupt( ulPin ) == NOT_AN_INTERRUPT )
-  {
-    return ;
-  }
-
-  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT( 1 << digitalPinToInterrupt( ulPin ) ) ;
+  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << digitalPinToInterrupt(pin));
 }
 
 /*
@@ -196,21 +160,6 @@ void EIC_Handler( void )
       EIC->INTFLAG.reg = 1 << ul ;
     }
   }
-}
-
-/*
- * External Non-Maskable Interrupt Controller NVIC Interrupt Handler
- */
-void NMI_Handler( void )
-{
-  // Call the callback function if assigned
-  if ( callbacksInt[EXTERNAL_INT_NMI]._callback != NULL )
-  {
-    callbacksInt[EXTERNAL_INT_NMI]._callback() ;
-  }
-
-  // Clear the interrupt
-  EIC->NMIFLAG.reg = EIC_NMIFLAG_NMI ;
 }
 
 #ifdef __cplusplus
