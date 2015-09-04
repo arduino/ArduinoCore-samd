@@ -68,99 +68,87 @@ static void __initialize()
  * \brief Specifies a named Interrupt Service Routine (ISR) to call when an interrupt occurs.
  *        Replaces any previous function that was attached to the interrupt.
  */
-//void attachInterrupt( uint32_t ulPin, void (*callback)(void), EExt_IntMode mode )
-//void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, EExt_IntMode mode )
-void attachInterrupt( uint32_t ulPin, voidFuncPtr callback, uint32_t ulMode )
+void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 {
-  static int enabled = 0 ;
-  uint32_t ulConfig ;
-  uint32_t ulPos ;
+  static int enabled = 0;
+  uint32_t config;
+  uint32_t pos;
   
   // Assign pin to EIC
-  if ( pinPeripheral(ulPin, PIO_EXTINT) != RET_STATUS_OK )
-  {
-	  return ;
-  }
+  if ( pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK )
+    return;
 
-  if ( !enabled )
-  {
-    __initialize() ;
-    enabled = 1 ;
+  if (!enabled) {
+    __initialize();
+    enabled = 1;
   }
 
   // Assign callback to interrupt
-  callbacksInt[digitalPinToInterrupt( ulPin )]._ulPin = ulPin ;
-  callbacksInt[digitalPinToInterrupt( ulPin )]._callback = callback ;
+  callbacksInt[digitalPinToInterrupt(pin)]._ulPin = pin;
+  callbacksInt[digitalPinToInterrupt(pin)]._callback = callback;
 
   // Check if normal interrupt or NMI
-  if ( digitalPinToInterrupt( ulPin ) != EXTERNAL_INT_NMI )
+if ( digitalPinToInterrupt( pin ) != EXTERNAL_INT_NMI )
   {
     // Look for right CONFIG register to be addressed
-    if ( digitalPinToInterrupt( ulPin ) > EXTERNAL_INT_7 )
-    {
-      ulConfig = 1 ;
-    }
-    else
-    {
-      ulConfig = 0 ;
+    if (digitalPinToInterrupt(pin) > EXTERNAL_INT_7) {
+      config = 1;
+    } else {
+      config = 0;
     }
 
     // Configure the interrupt mode
-    ulPos = ((digitalPinToInterrupt( ulPin ) - (8*ulConfig) ) << 2) ;
-    switch ( ulMode )
+    pos = ((digitalPinToInterrupt(pin) - (8 * config)) << 2);
+    switch (mode)
     {
       case LOW:
-        EIC->CONFIG[ulConfig].reg |= EIC_CONFIG_SENSE0_LOW_Val << ulPos ;
-      break ;
+        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_LOW_Val << pos;
+        break;
 
       case HIGH:
-        // EIC->CONFIG[ulConfig].reg = EIC_CONFIG_SENSE0_HIGH_Val << ((digitalPinToInterrupt( ulPin ) >> ulConfig ) << ulPos) ;
-        EIC->CONFIG[ulConfig].reg |= EIC_CONFIG_SENSE0_HIGH_Val << ulPos ;
-      break ;
+        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_HIGH_Val << pos;
+        break;
 
       case CHANGE:
-        // EIC->CONFIG[ulConfig].reg = EIC_CONFIG_SENSE0_BOTH_Val << ((digitalPinToInterrupt( ulPin ) >> ulConfig ) << ulPos) ;
-        EIC->CONFIG[ulConfig].reg |= EIC_CONFIG_SENSE0_BOTH_Val << ulPos ;
-      break ;
+        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_BOTH_Val << pos;
+        break;
 
       case FALLING:
-        // EIC->CONFIG[ulConfig].reg = EIC_CONFIG_SENSE0_FALL_Val << ((digitalPinToInterrupt( ulPin ) >> ulConfig ) << ulPos) ;
-        EIC->CONFIG[ulConfig].reg |= EIC_CONFIG_SENSE0_FALL_Val << ulPos ;
-      break ;
+        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_FALL_Val << pos;
+        break;
 
       case RISING:
-        // EIC->CONFIG[ulConfig].reg = EIC_CONFIG_SENSE0_RISE_Val << ((digitalPinToInterrupt( ulPin ) >> ulConfig ) << ulPos) ;
-        EIC->CONFIG[ulConfig].reg |= EIC_CONFIG_SENSE0_RISE_Val << ulPos ;
-      break ;
+        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_RISE_Val << pos;
+        break;
     }
 
     // Enable the interrupt
-    EIC->INTENSET.reg = EIC_INTENSET_EXTINT( 1 << digitalPinToInterrupt( ulPin ) ) ;
+    EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << digitalPinToInterrupt(pin));
   }
   else // Handles NMI
   {
     // Configure the interrupt mode
-    switch ( ulMode )
+    switch (mode)
     {
       case LOW:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_LOW ;
-      break ;
+        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_LOW;
+        break;
 
       case HIGH:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_HIGH ;
-      break ;
+        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_HIGH;
+        break;
 
       case CHANGE:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_BOTH ;
-      break ;
+        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_BOTH;
+        break;
 
       case FALLING:
-        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL ;
-      break ;
+        EIC->NMICTRL.reg = EIC_NMICTRL_NMISENSE_FALL;
+        break;
 
       case RISING:
-        EIC->NMICTRL.reg= EIC_NMICTRL_NMISENSE_RISE ;
-      break ;
+        EIC->NMICTRL.reg= EIC_NMICTRL_NMISENSE_RISE;
+        break;
     }
   }
 }
