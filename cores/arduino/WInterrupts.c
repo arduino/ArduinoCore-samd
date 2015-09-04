@@ -25,16 +25,12 @@
 extern "C" {
 #endif
 
-static struct
-{
-  uint32_t _ulPin ;
-  voidFuncPtr _callback ;
-} callbacksInt[EXTERNAL_NUM_INTERRUPTS] ;
+static voidFuncPtr callbacksInt[EXTERNAL_NUM_INTERRUPTS];
 
 /* Configure I/O interrupt sources */
 static void __initialize()
 {
-  memset( callbacksInt, 0, sizeof( callbacksInt ) ) ;
+  memset(callbacksInt, 0, sizeof(callbacksInt));
 
   NVIC_DisableIRQ( EIC_IRQn ) ;
   NVIC_ClearPendingIRQ( EIC_IRQn ) ;
@@ -86,8 +82,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   }
 
   // Assign callback to interrupt
-  callbacksInt[digitalPinToInterrupt(pin)]._ulPin = pin;
-  callbacksInt[digitalPinToInterrupt(pin)]._callback = callback;
+  callbacksInt[digitalPinToInterrupt(pin)] = callback;
 
   // Look for right CONFIG register to be addressed
   if (digitalPinToInterrupt(pin) > EXTERNAL_INT_7) {
@@ -151,9 +146,8 @@ void EIC_Handler( void )
     if ( (EIC->INTFLAG.reg & ( 1 << ul ) ) != 0 )
     {
       // Call the callback function if assigned
-      if ( callbacksInt[ul]._callback != NULL )
-      {
-        callbacksInt[ul]._callback() ;
+      if (callbacksInt[ul]) {
+        callbacksInt[ul]();
       }
 
       // Clear the interrupt
