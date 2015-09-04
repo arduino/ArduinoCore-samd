@@ -21,10 +21,6 @@
 
 #include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 static voidFuncPtr callbacksInt[EXTERNAL_NUM_INTERRUPTS];
 
 /* Configure I/O interrupt sources */
@@ -146,7 +142,3 @@ void EIC_Handler(void)
     }
   }
 }
-
-#ifdef __cplusplus
-}
-#endif
