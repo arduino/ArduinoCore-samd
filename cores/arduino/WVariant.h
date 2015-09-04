@@ -106,7 +106,7 @@ typedef enum _EPortType
 } EPortType ;
 
 /* The D11 has only INT 0 though 7 (the SAMD11C14A lacks INT 0 as well */
-typedef enum _EExt_Interrupts
+typedef enum
 {
   EXTERNAL_INT_0 = 0,
   EXTERNAL_INT_1,
