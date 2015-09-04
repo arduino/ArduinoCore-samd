@@ -32,32 +32,23 @@ static void __initialize()
 {
   memset(callbacksInt, 0, sizeof(callbacksInt));
 
-  NVIC_DisableIRQ( EIC_IRQn ) ;
-  NVIC_ClearPendingIRQ( EIC_IRQn ) ;
-  NVIC_SetPriority( EIC_IRQn, 0 ) ;
-  NVIC_EnableIRQ( EIC_IRQn ) ;
+  NVIC_DisableIRQ(EIC_IRQn);
+  NVIC_ClearPendingIRQ(EIC_IRQn);
+  NVIC_SetPriority(EIC_IRQn, 0);
+  NVIC_EnableIRQ(EIC_IRQn);
 
   // Enable GCLK for IEC (External Interrupt Controller)
-  GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_EIC )) ;
+  GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_EIC));
 
 /* Shall we do that?
   // Do a software reset on EIC
   EIC->CTRL.SWRST.bit = 1 ;
-
-  while ( (EIC->CTRL.SWRST.bit == 1) && (EIC->STATUS.SYNCBUSY.bit == 1) )
-  {
-    // Waiting for synchronisation
-  }
+  while ((EIC->CTRL.SWRST.bit == 1) && (EIC->STATUS.SYNCBUSY.bit == 1)) { }
 */
 
   // Enable EIC
-  EIC->CTRL.bit.ENABLE = 1 ;
-
-  while ( EIC->STATUS.bit.SYNCBUSY == 1 )
-  {
-    // Waiting for synchronisation
-  }
-
+  EIC->CTRL.bit.ENABLE = 1;
+  while (EIC->STATUS.bit.SYNCBUSY == 1) { }
 }
 
 /*
@@ -138,22 +129,20 @@ void detachInterrupt(uint32_t pin)
 /*
  * External Interrupt Controller NVIC Interrupt Handler
  */
-void EIC_Handler( void )
+void EIC_Handler(void)
 {
-  uint32_t ul ;
-
   // Test the 16 normal interrupts
-  for ( ul = EXTERNAL_INT_0 ; ul <= EXTERNAL_INT_15 ; ul++ )
+  for (uint32_t i=EXTERNAL_INT_0; i<=EXTERNAL_INT_15; i++)
   {
-    if ( (EIC->INTFLAG.reg & ( 1 << ul ) ) != 0 )
+    if ((EIC->INTFLAG.reg & (1 << i)) != 0)
     {
       // Call the callback function if assigned
-      if (callbacksInt[ul]) {
-        callbacksInt[ul]();
+      if (callbacksInt[i]) {
+        callbacksInt[i]();
       }
 
       // Clear the interrupt
-      EIC->INTFLAG.reg = 1 << ul ;
+      EIC->INTFLAG.reg = 1 << i;
     }
   }
 }

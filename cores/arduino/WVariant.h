@@ -111,25 +111,25 @@ typedef enum _EPortType
   PORTC=2,
 } EPortType ;
 
-typedef enum _EExt_Interrupts
+typedef enum
 {
-  EXTERNAL_INT_0 = 0, // Available on pin 11
-  EXTERNAL_INT_1, // Available on pin 13
-  EXTERNAL_INT_2, // Available on pins 10, A0, A5
-  EXTERNAL_INT_3, // Available on pin 12
-  EXTERNAL_INT_4, // Available on pin 6, 8, A3
-  EXTERNAL_INT_5, // Available on pin 7, 9, A4
-  EXTERNAL_INT_6, // Available on pin 16
-  EXTERNAL_INT_7, // Available on pin 17
-  EXTERNAL_INT_8, // Available on pin A1
-  EXTERNAL_INT_9, // Available on pin 3, A2
-  EXTERNAL_INT_10, // Available on pin 0, 21
-  EXTERNAL_INT_11, // Available on pin 1, 20
-  EXTERNAL_INT_12, // Available on pin 18
-  EXTERNAL_INT_13, // Available on pin EDBG_GPIO0 (43)
-  EXTERNAL_INT_14, // Available on pin 4
-  EXTERNAL_INT_15, // Available on pin 5
-  EXTERNAL_INT_NMI, // Available on pin 2
+  EXTERNAL_INT_0 = 0,
+  EXTERNAL_INT_1,
+  EXTERNAL_INT_2,
+  EXTERNAL_INT_3,
+  EXTERNAL_INT_4,
+  EXTERNAL_INT_5,
+  EXTERNAL_INT_6,
+  EXTERNAL_INT_7,
+  EXTERNAL_INT_8,
+  EXTERNAL_INT_9,
+  EXTERNAL_INT_10,
+  EXTERNAL_INT_11,
+  EXTERNAL_INT_12,
+  EXTERNAL_INT_13,
+  EXTERNAL_INT_14,
+  EXTERNAL_INT_15,
+  EXTERNAL_INT_NMI,
   EXTERNAL_NUM_INTERRUPTS,
   NOT_AN_INTERRUPT = -1,
   EXTERNAL_INT_NONE = NOT_AN_INTERRUPT,
