@@ -152,7 +152,7 @@ bool HID_Setup(USBSetup& setup, uint8_t i)
 
 HID_::HID_(void)
 {
-	static uint8_t endpointType[1];
+	static uint32_t endpointType[1];
 
 	endpointType[0] = USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0);
 
