@@ -47,6 +47,9 @@ void TwoWire::begin(uint8_t address) {
   //Slave mode
   sercom->initSlaveWIRE(address);
   sercom->enableWIRE();
+
+  pinPeripheral(_uc_pinSDA, g_APinDescription[_uc_pinSDA].ulPinType);
+  pinPeripheral(_uc_pinSCL, g_APinDescription[_uc_pinSCL].ulPinType);
 }
 
 void TwoWire::end() {
@@ -216,26 +219,11 @@ void TwoWire::onService(void)
 {
   if ( sercom->isSlaveWIRE() )
   {
-    //Received data
-    if(sercom->isDataReadyWIRE())
+    if(sercom->isAddressMatch())  //Address Match
     {
-      //Store data
-      rxBuffer.store_char(sercom->readDataWIRE());
+      sercom->prepareAckBitWIRE();
+      sercom->prepareCommandBitsWire(0x03);
 
-      //Stop or Restart detected
-      if(sercom->isStopDetectedWIRE() || sercom->isRestartDetectedWIRE())
-      {
-        //Calling onReceiveCallback, if exists
-        if(onReceiveCallback)
-        {
-          onReceiveCallback(available());
-        }
-      }
-    }
-
-    //Address Match
-    if(sercom->isAddressMatch())
-    {
       //Is a request ?
       if(sercom->isMasterReadOperationWIRE())
       {
@@ -245,6 +233,32 @@ void TwoWire::onService(void)
           onRequestCallback();
         }
       }
+    }
+    else if(sercom->isDataReadyWIRE()) //Received data
+    {
+      if (rxBuffer.isFull()) {
+        sercom->prepareNackBitWIRE(); 
+      } else {
+        //Store data
+        rxBuffer.store_char(sercom->readDataWIRE());
+
+        sercom->prepareAckBitWIRE(); 
+      }
+
+      sercom->prepareCommandBitsWire(0x03);
+    }
+    else if(sercom->isStopDetectedWIRE() || sercom->isRestartDetectedWIRE()) //Stop or Restart detected
+    {
+      sercom->prepareAckBitWIRE();
+      sercom->prepareCommandBitsWire(0x03);
+
+      //Calling onReceiveCallback, if exists
+      if(onReceiveCallback)
+      {
+        onReceiveCallback(available());
+      }
+      
+      rxBuffer.clear();
     }
   }
 }
