@@ -69,29 +69,47 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
   }
 }
 
-void digitalWrite( uint32_t ulPin, uint32_t ulVal )
+void digitalWrite(uint32_t ulPin, uint32_t ulVal)
 {
-  // Handle the case the pin isn't usable as PIO
-  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  uint32_t ulGPIOPin=g_APinDescription[ulPin].ulPin;
+  PortGroup* port=&(PORT->Group[g_APinDescription[ulPin].ulPort]);
+
+  // Handle the case the pin is invalid
+  if (ulPin >= PINS_COUNT)
   {
     return ;
   }
 
-  // Enable pull-up resistor
-  PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_PULLEN) ;
-
-  switch ( ulVal )
+  // Test if pin is set to INPUT mode, then activate pull-up according to ulVal
+  if (port->DIR.reg & (1ul<<ulGPIOPin) != 0)
   {
-    case LOW:
-      PORT->Group[g_APinDescription[ulPin].ulPort].OUTCLR.reg = (1ul << g_APinDescription[ulPin].ulPin) ;
-    break ;
+    switch (ulVal)
+    {
+      case LOW:
+        // Disable pull-up resistor
+        port->PINCFG[ulGPIOPin].bit.PULLEN=0;
+      break;
 
-    case HIGH:
-      PORT->Group[g_APinDescription[ulPin].ulPort].OUTSET.reg = (1ul << g_APinDescription[ulPin].ulPin) ;
-    break ;
+      case HIGH:
+      default:
+        // Enable pull-up resistor
+        port->PINCFG[ulGPIOPin].bit.PULLEN=1;
+      break;
+    }
+  }
+  else // pin is set to OUTPUT mode, we output the requested voltage level
+  {
+    switch (ulVal)
+    {
+      case LOW:
+        port->OUTCLR.reg=(1ul<<ulGPIOPin);
+      break;
 
-    default:
-    break ;
+      case HIGH:
+      default:
+        port->OUTSET.reg=(1ul<<ulGPIOPin);
+      break;
+    }
   }
 
   return ;
