@@ -565,6 +565,17 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 	if (len > 16384)
 		return -1;
 
+#if 0
+// This shortcut has some issues:
+// - sometimes it fails when sending an odd number of bytes (may be
+//   due to memory alignment?)
+// - the data pointer should point to "stable" data (and this is not
+//   guaranteed by caller, it may be some sort of temporary buffer)
+// - the SRAM is not guaranteed to start at 0x20000000
+
+// All the above problems must be properly fixed before reenabling
+// this part
+
 	if ((unsigned int)data > 0x20000000)
 	{
 		// Buffer in RAM
@@ -583,39 +594,37 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		while (!usbd.epBank1IsTransferComplete(ep)) {
 			;  // need fire exit.
 		}
-		len = 0;
+		return 0;
 	}
-	else
+#endif
+
+	// Flash area
+	while (len != 0)
 	{
-		// Flash area
-		while (len != 0)
-		{
-			if (len >= 64) {
-				length = 64;
-			} else {
-				length = len;
-			}
-
-			/* memcopy could be safer in multi threaded environment */
-			memcpy(&udd_ep_in_cache_buffer[ep], data, length);
-
-			usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
-			usbd.epBank1SetByteCount(ep, length);
-
-			// Clear the transfer complete flag
-			usbd.epBank1AckTransferComplete(ep);
-
-			// RAM buffer is full, we can send data (IN)
-			usbd.epBank1SetReady(ep);
-
-			// Wait for transfer to complete
-			while (!usbd.epBank1IsTransferComplete(ep)) {
-				;  // need fire exit.
-			}
-			len -= length;
+		if (len >= 64) {
+			length = 64;
+		} else {
+			length = len;
 		}
-	}
 
+		/* memcopy could be safer in multi threaded environment */
+		memcpy(&udd_ep_in_cache_buffer[ep], data, length);
+
+		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+		usbd.epBank1SetByteCount(ep, length);
+
+		// Clear the transfer complete flag
+		usbd.epBank1AckTransferComplete(ep);
+
+		// RAM buffer is full, we can send data (IN)
+		usbd.epBank1SetReady(ep);
+
+		// Wait for transfer to complete
+		while (!usbd.epBank1IsTransferComplete(ep)) {
+			;  // need fire exit.
+		}
+		len -= length;
+	}
 	return len;
 }
 
