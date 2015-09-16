@@ -40,7 +40,7 @@ int PUSB_GetInterface(uint8_t* interfaceNum)
 	int ret = 0;
 	PUSBListNode* node = rootNode;
 	for (uint8_t i=0; i<modules_count; i++) {
-		ret = node->cb->getInterface(interfaceNum);
+		ret += node->cb->getInterface(interfaceNum);
 		node = node->next;
 	}
 	return ret;
