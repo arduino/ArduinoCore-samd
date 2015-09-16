@@ -156,6 +156,8 @@ uint32_t USBDeviceClass::sendConfiguration(uint32_t maxlen)
 		return true;
 	}
 
+	total = 0;
+
 	packMessages(true);
 	sendControl(&config, sizeof(ConfigDescriptor));
 	SendInterfaces(&total);
