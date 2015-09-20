@@ -49,12 +49,19 @@ void TwoWire::begin(uint8_t address) {
   sercom->enableWIRE();
 }
 
+<<<<<<< HEAD
+void TwoWire::setClock(uint32_t baudrate) {
+  sercom->disableWIRE();
+  sercom->initMasterWIRE(baudrate);
+  sercom->enableWIRE();
+=======
 void TwoWire::end() {
   sercom->disableWIRE();
 }
 
 void TwoWire::setClock(uint32_t frequency) {
 	// dummy funtion
+>>>>>>> arduino/master
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)

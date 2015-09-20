@@ -37,8 +37,12 @@ class TwoWire : public Stream
     TwoWire(SERCOM *s, uint8_t pinSDA, uint8_t pinSCL);
     void begin();
     void begin(uint8_t);
+<<<<<<< HEAD
+    void setClock(uint32_t);
+=======
     void end();
     void setClock(uint32_t); // dummy function
+>>>>>>> arduino/master
 
     void beginTransmission(uint8_t);
     uint8_t endTransmission(bool stopBit);
