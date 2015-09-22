@@ -219,13 +219,26 @@ void TwoWire::onService(void)
 {
   if ( sercom->isSlaveWIRE() )
   {
-    if(sercom->isAddressMatch())  //Address Match
+    if(sercom->isStopDetectedWIRE() || 
+        (sercom->isAddressMatch() && sercom->isRestartDetectedWIRE())) //Stop or Restart detected
     {
       sercom->prepareAckBitWIRE();
       sercom->prepareCommandBitsWire(0x03);
 
-      //Is a request ?
-      if(sercom->isMasterReadOperationWIRE())
+      //Calling onReceiveCallback, if exists
+      if(onReceiveCallback)
+      {
+        onReceiveCallback(available());
+      }
+      
+      rxBuffer.clear();
+    }
+    else if(sercom->isAddressMatch())  //Address Match
+    {
+      sercom->prepareAckBitWIRE();
+      sercom->prepareCommandBitsWire(0x03);
+
+      if(sercom->isMasterReadOperationWIRE()) //Is a request ?
       {
         //Calling onRequestCallback, if exists
         if(onRequestCallback)
@@ -246,19 +259,6 @@ void TwoWire::onService(void)
       }
 
       sercom->prepareCommandBitsWire(0x03);
-    }
-    else if(sercom->isStopDetectedWIRE() || sercom->isRestartDetectedWIRE()) //Stop or Restart detected
-    {
-      sercom->prepareAckBitWIRE();
-      sercom->prepareCommandBitsWire(0x03);
-
-      //Calling onReceiveCallback, if exists
-      if(onReceiveCallback)
-      {
-        onReceiveCallback(available());
-      }
-      
-      rxBuffer.clear();
     }
   }
 }
