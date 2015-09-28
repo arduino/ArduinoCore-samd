@@ -26,6 +26,9 @@ extern "C" {
 #define EP0				0
 #define EPX_SIZE		64// 64 for Full Speed, EPT size max is 1024
 
+#define UDD_OUT_CACHE_SIZE 64
+#define UDD_IN_CACHE_SIZE 128
+
 // Force device low speed mode
 #define udd_force_low_speed()               USB->DEVICE.CTRLB.reg &= ~USB_DEVICE_CTRLB_SPDCONF_Msk; USB->DEVICE.CTRLB.reg |= USB_DEVICE_CTRLB_SPDCONF_1_Val
 // Force full speed mode
