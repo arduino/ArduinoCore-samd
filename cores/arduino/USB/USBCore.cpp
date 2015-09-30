@@ -120,12 +120,32 @@ uint32_t USBD_Send(uint32_t ep, const void* d, uint32_t len)
 	int r = len;
 	const uint8_t* data = (const uint8_t*)d;
 
-    if (!_usbConfiguration)
-    {
-    	TRACE_CORE(printf("pb conf\n\r");)
+  if (!_usbConfiguration)
+  {
+  	TRACE_CORE(printf("pb conf\n\r");)
 		return -1;
-    }
-	UDD_Send(ep, data, len);
+  }
+
+  size_t i = 0;
+  // Ensure the chunk size is aligned 4
+  size_t chunkSize = UDD_IN_CACHE_SIZE -(UDD_IN_CACHE_SIZE % 4);
+
+  // Send the full chunks
+  for (i = 0; i < (len / chunkSize); i++)
+  {
+    UDD_Send(ep, data + (i*chunkSize), chunkSize);
+
+    /* Clear the transfer complete flag  */
+    udd_clear_IN_transf_cplt(ep);
+    /* Set the bank as ready */
+    udd_IN_transfer_allowed(ep);
+
+    /* Wait for transfer to complete */
+    while (!udd_is_IN_transf_cplt(ep));  // need fire exit.
+  }
+
+  // Send the remainder
+  UDD_Send(ep, data + (i * chunkSize), len % chunkSize);
 
 	/* Clear the transfer complete flag  */
 	udd_clear_IN_transf_cplt(ep);
