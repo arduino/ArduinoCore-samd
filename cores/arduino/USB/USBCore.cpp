@@ -75,10 +75,10 @@ volatile uint32_t _usbConfiguration = 0;
 volatile uint32_t _usbSetInterface = 0;
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
-uint8_t udd_ep_out_cache_buffer[6][64];
+uint8_t udd_ep_out_cache_buffer[7][64];
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
-uint8_t udd_ep_in_cache_buffer[6][64];
+uint8_t udd_ep_in_cache_buffer[7][64];
 
 //==================================================================
 
@@ -129,7 +129,7 @@ uint8_t USBDeviceClass::SendInterfaces(uint32_t* total)
 #endif
 
 #ifdef PLUGGABLE_USB_ENABLED
-	total[0] += PUSB_GetInterface(&interfaces);
+	total[0] += PluggableUSB().getInterface(&interfaces);
 #endif
 
 	return interfaces;
@@ -180,7 +180,7 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 	}
 
 #ifdef PLUGGABLE_USB_ENABLED
-	ret = PUSB_GetDescriptor(t);
+	ret = PluggableUSB().getDescriptor(setup);
 	if (ret != 0) {
 		return (ret > 0 ? true : false);
 	}
@@ -360,7 +360,7 @@ bool USBDeviceClass::handleClassInterfaceSetup(USBSetup& setup)
 	#endif
 
 	#if defined(PLUGGABLE_USB_ENABLED)
-	bool ret = PUSB_Setup(setup, i);
+	bool ret = PluggableUSB().setup(setup);
 	if ( ret == false) {
 		sendZlp(0);
 	}

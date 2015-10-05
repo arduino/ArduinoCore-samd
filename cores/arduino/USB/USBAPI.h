@@ -78,6 +78,7 @@ public:
 	bool sendStringDescriptor(const uint8_t *string, uint8_t maxlen);
 	void initControl(int end);
 	uint8_t SendInterfaces(uint32_t* total);
+	void packMessages(bool val);
 
 	// Generic EndPoint API
 	void initEndpoints(void);
@@ -100,8 +101,6 @@ public:
 	void ISRHandler();
 
 private:
-	void packMessages(bool val);
-
 	bool initialized;
 };
 
