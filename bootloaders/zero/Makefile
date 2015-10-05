@@ -1,29 +1,159 @@
-IDE_PATH="../../../../.."
-ARM_GCC_PATH=$(IDE_PATH)/hardware/tools/gcc-arm-none-eabi-4.8.3-2014q1/bin
-CC=$(ARM_GCC_PATH)/arm-none-eabi-gcc
-CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -g -Os -w -std=gnu99 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500
-LDFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
-BLD_EXTA_FLAGS=-D__SAMD21G18A__
+# Copyright (c) 2015 Arduino LLC.  All right reserved.
+#
+# This library is free software; you can redistribute it and/or
+# modify it under the terms of the GNU Lesser General Public
+# License as published by the Free Software Foundation; either
+# version 2.1 of the License, or (at your option) any later version.
+#
+# This library is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+# See the GNU Lesser General Public License for more details.
+#
+# You should have received a copy of the GNU Lesser General Public
+# License along with this library; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+
+# -----------------------------------------------------------------------------
+# Paths
+ifeq ($(OS),Windows_NT)
+
+  # Are we using mingw/msys/msys2/cygwin?
+  ifeq ($(TERM),xterm)
+#		T=$(shell cygpath -u $(LOCALAPPDATA))
+		T=$(shell cygpath -u $(APPDATA))
+    MODULE_PATH?=$(T)/Arduino15/packages/arduino
+    ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+    RM=rm
+    SEP=/
+  else
+#    MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/arduino
+    MODULE_PATH?=$(APPDATA)/Arduino15/packages/arduino
+    ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+    RM=rm
+    SEP=\\
+  endif
+else
+    UNAME_S := $(shell uname -s)
+
+    ifeq ($(UNAME_S),Linux)
+			MODULE_PATH?=$HOME/.arduino15/packages/arduino
+			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+      RM=rm
+	    SEP=/
+    endif
+
+    ifeq ($(UNAME_S),Darwin)
+			MODULE_PATH?=$HOME/Library/Arduino15/packages/arduino/
+			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+      RM=rm
+	    SEP=/
+    endif
+endif
+
 BUILD_PATH=build
-INCLUDES=-I$(IDE_PATH)/hardware/tools/CMSIS/CMSIS/Include/ -I$(IDE_PATH)/hardware/tools/CMSIS/Device/ATMEL/ -I./drivers/ -I./utils/ -I./utils/preprocessor/ -I./utils/interrupt 
-SOURCES=main.c sam_ba_monitor.c startup_samd21.c usart_sam_ba.c drivers/cdc_enumerate.c drivers/uart_driver.c utils/interrupt/interrupt_sam_nvic.c 
+
+# -----------------------------------------------------------------------------
+# Tools
+CC=$(ARM_GCC_PATH)gcc
+OBJCOPY=$(ARM_GCC_PATH)objcopy
+NM=$(ARM_GCC_PATH)nm
+SIZE=$(ARM_GCC_PATH)size
+
+# -----------------------------------------------------------------------------
+# Compiler options
+#-w
+CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
+ifdef DEBUG
+CFLAGS+=-g3 -O1
+else
+CFLAGS+=-Os
+endif
+#CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_LOW=0x4D -DUSB_PID_HIGH=0x00
+CFLAGS_EXTRA?=-D__SAMD21J18A__ -DUSB_PID_LOW=0x01 -DUSB_PID_HIGH=0xE0
+INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
+
+# -----------------------------------------------------------------------------
+# Linker options
+LDFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all
+LDFLAGS+=-Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols --specs=nano.specs --specs=nosys.specs
+
+# -----------------------------------------------------------------------------
+# Source files and objects
+SOURCES= \
+board_driver_led.c \
+board_driver_serial.c \
+board_driver_usb.c \
+board_init.c \
+board_startup.c \
+cdc_enumerate.c \
+main.c \
+sam_ba_cdc.c \
+sam_ba_led.c \
+sam_ba_monitor.c \
+sam_ba_serial.c
+
+
 OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
+DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
 
 NAME=samd21_sam_ba
+ELF=$(NAME).elf
 EXECUTABLE=$(NAME).bin
 
-SLASH=/
-BSLASH=$(EMPTY)\$(EMPTY)
+ifneq "test$(AVRSTUDIO_EXE_PATH)" "test"
+AS=copy_for_atmel_studio
+else
+AS=
+endif
 
-all: $(SOURCES) $(EXECUTABLE)
-	
-$(EXECUTABLE): $(OBJECTS) 
-	$(CC) -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps  -Tsamd21j18a_flash.ld -Wl,-Map,$(BUILD_PATH)/$(NAME).map --specs=nano.specs --specs=nosys.specs -o $(BUILD_PATH)/$(NAME).elf $(OBJECTS) -Wl,--start-group -lm -Wl,--end-group
-	$(ARM_GCC_PATH)/arm-none-eabi-objcopy -O binary $(BUILD_PATH)/$(NAME).elf $@
+
+all: print_info $(SOURCES) $(EXECUTABLE) $(AS)
+
+$(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
+	@echo ----------------------------------------------------------
+	@echo Creating ELF binary
+	"$(CC)" -L. -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps -Tbootloader_samd21x18.ld -Wl,-Map,"$(BUILD_PATH)/$(NAME).map" -o "$(BUILD_PATH)/$(ELF)" -Wl,--start-group $(OBJECTS) -lm -Wl,--end-group
+	"$(NM)" "$(BUILD_PATH)/$(ELF)" >"$(BUILD_PATH)/$(NAME)_symbols.txt"
+	"$(SIZE)" --format=sysv -t -x $(BUILD_PATH)/$(ELF)
+
+$(EXECUTABLE): $(ELF)
+	@echo ----------------------------------------------------------
+	@echo Creating flash binary
+	"$(OBJCOPY)" -O binary $(BUILD_PATH)/$< $@
 
 $(BUILD_PATH)/%.o: %.c
-	-@mkdir -p $(@D)
-	$(CC) $(CFLAGS) $(BLD_EXTA_FLAGS) $(INCLUDES) $< -o $@
-	
+	@echo ----------------------------------------------------------
+	@echo Compiling $< to $@
+	"$(CC)" $(CFLAGS) $(CFLAGS_EXTRA) $(INCLUDES) $< -o $@
+	@echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+$(BUILD_PATH):
+	@echo ----------------------------------------------------------
+	@echo Creating build folder
+	-mkdir $(BUILD_PATH)
+
+print_info:
+	@echo ----------------------------------------------------------
+	@echo Compiling bootloader using
+	@echo BASE PATH = $(MODULE_PATH)
+	@echo GCC  PATH = $(ARM_GCC_PATH)
+	@echo OS        = $(OS)
+	@echo SHELL     = $(SHELL)
+	@echo TERM      = $(TERM)
+#	"$(CC)" -v
+#	env
+
+copy_for_atmel_studio: $(EXECUTABLE)
+	@echo ----------------------------------------------------------
+	@echo Atmel Studio detected, copying ELF to project root for debug
+	cp $(BUILD_PATH)/$(ELF) .
+
 clean:
-	del $(EXECUTABLE) $(subst /,\,$(OBJECTS)) $(subst /,\,$(BUILD_PATH)/$(NAME).*)
+	@echo ----------------------------------------------------------
+	@echo Cleaning project
+	-$(RM) $(EXECUTABLE)
+	-$(RM) $(BUILD_PATH)/*.*
+	-rmdir $(BUILD_PATH)
+
+.phony: clean print_info $(BUILD_PATH)
