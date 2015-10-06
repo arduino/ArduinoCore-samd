@@ -102,13 +102,15 @@ ELF=$(NAME).elf
 EXECUTABLE=$(NAME).bin
 
 ifneq "test$(AVRSTUDIO_EXE_PATH)" "test"
-AS=copy_for_atmel_studio
+AS_BUILD=copy_for_atmel_studio
+AS_CLEAN=clean_for_atmel_studio
 else
-AS=
+AS_BUILD=
+AS_CLEAN=
 endif
 
 
-all: print_info $(SOURCES) $(EXECUTABLE) $(AS)
+all: print_info $(SOURCES) $(EXECUTABLE) $(AS_BUILD)
 
 $(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
 	@echo ----------------------------------------------------------
@@ -149,11 +151,16 @@ copy_for_atmel_studio: $(EXECUTABLE)
 	@echo Atmel Studio detected, copying ELF to project root for debug
 	cp $(BUILD_PATH)/$(ELF) .
 
-clean:
+clean_for_atmel_studio:
+	@echo ----------------------------------------------------------
+	@echo Atmel Studio detected, cleaing ELF from project root
+	-$(RM) $(BUILD_PATH)/$(ELF) .
+
+clean: $(AS_CLEAN)
 	@echo ----------------------------------------------------------
 	@echo Cleaning project
 	-$(RM) $(EXECUTABLE)
 	-$(RM) $(BUILD_PATH)/*.*
 	-rmdir $(BUILD_PATH)
 
-.phony: clean print_info $(BUILD_PATH)
+.phony: clean print_info $(BUILD_PATH) $(AS_BUILD) $(AS_CLEAN)
