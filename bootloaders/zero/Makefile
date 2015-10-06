@@ -86,7 +86,6 @@ board_driver_serial.c \
 board_driver_usb.c \
 board_init.c \
 board_startup.c \
-cdc_enumerate.c \
 main.c \
 sam_ba_cdc.c \
 sam_ba_led.c \
