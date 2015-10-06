@@ -58,8 +58,8 @@ char cfgDescriptor[] =
   0x02,   // CbNumInterfaces
   0x01,   // CbConfigurationValue
   0x00,   // CiConfiguration
-  0xC0,   // CbmAttributes 0xA0
-  0x00,   // CMaxPower
+  0xC0,   // CbmAttributes Bus powered without remote wakeup: 0xc0, Self powered with remote wakeup: 0xa0
+  0x32,   // CMaxPower, report using 100mA, enough for a bootloader
 
   /* Communication Class Interface Descriptor Requirement */
   0x09, // bLength
