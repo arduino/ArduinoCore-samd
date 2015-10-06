@@ -22,7 +22,10 @@
 #include "board_driver_usb.h"
 #include "sam_ba_cdc.h"
 
-__attribute__((__aligned__(4)))
+/* This data array will be copied into SRAM as its length is inferior to 64 bytes,
+ * and so can stay in flash.
+ */
+static __attribute__((__aligned__(4)))
 const char devDescriptor[] =
 {
   /* Device descriptor */
@@ -46,7 +49,10 @@ const char devDescriptor[] =
   0x01    // bNumConfigs
 };
 
-__attribute__((__aligned__(4)))
+/* This data array will be consumed directly by USB_Write() and must be in SRAM.
+ * We cannot send data from product internal flash.
+ */
+static __attribute__((__aligned__(4)))
 char cfgDescriptor[] =
 {
   /* ============== CONFIGURATION 1 =========== */
@@ -58,7 +64,7 @@ char cfgDescriptor[] =
   0x02,   // CbNumInterfaces
   0x01,   // CbConfigurationValue
   0x00,   // CiConfiguration
-  0xC0,   // CbmAttributes Bus powered without remote wakeup: 0xc0, Self powered with remote wakeup: 0xa0
+  0x80,   // CbmAttributes Bus powered without remote wakeup: 0x80, Self powered without remote wakeup: 0xc0
   0x32,   // CMaxPower, report using 100mA, enough for a bootloader
 
   /* Communication Class Interface Descriptor Requirement */
@@ -171,48 +177,42 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
   switch ((bRequest << 8) | bmRequestType)
   {
     case STD_GET_DESCRIPTOR:
-      if (wValue == 0x100)
+      if (wValue == (STD_GET_DESCRIPTOR_DEVICE<<8))
+      {
         /* Return Device Descriptor */
         USB_Write(pCdc->pUsb, devDescriptor, SAM_BA_MIN(sizeof(devDescriptor), wLength), USB_EP_CTRL);
-      else if (wValue == 0x200)
-        /* Return Configuration Descriptor */
-        USB_Write(pCdc->pUsb, cfgDescriptor, SAM_BA_MIN(sizeof(cfgDescriptor), wLength), USB_EP_CTRL);
+      }
       else
-        /* Stall the request */
-        USB_SendStall(pUsb, true);
+      {
+        if (wValue == (STD_GET_DESCRIPTOR_CONFIGURATION<<8))
+        {
+          /* Return Configuration Descriptor */
+          USB_Write(pCdc->pUsb, cfgDescriptor, SAM_BA_MIN(sizeof(cfgDescriptor), wLength), USB_EP_CTRL);
+        }
+        else
+        {
+          /* Stall the request */
+          USB_SendStall(pUsb, true);
+        }
+      }
     break;
 
     case STD_SET_ADDRESS:
       /* Send ZLP */
       USB_SendZlp(pUsb);
       /* Set device address to the newly received address from host */
-      pUsb->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | wValue;
+      USB_SetAddress(pCdc->pUsb, wValue);
     break;
 
     case STD_SET_CONFIGURATION:
       /* Store configuration */
       pCdc->currentConfiguration = (uint8_t)wValue;
+
       /* Send ZLP */
       USB_SendZlp(pUsb);
-      /* Configure BULK OUT endpoint for CDC Data interface*/
-      pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE0(3);
-      /* Set maximum packet size as 64 bytes */
-      usb_endpoint_table[USB_EP_OUT].DeviceDescBank[0].PCKSIZE.bit.SIZE = 3;
-      pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK0RDY;
-      /* Configure the data buffer */
-      usb_endpoint_table[USB_EP_OUT].DeviceDescBank[0].ADDR.reg = (uint32_t)&udd_ep_out_cache_buffer[1];
-      /* Configure BULK IN endpoint for CDC Data interface */
-      pUsb->DEVICE.DeviceEndpoint[USB_EP_IN].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE1(3);
-      /* Set maximum packet size as 64 bytes */
-      usb_endpoint_table[USB_EP_IN].DeviceDescBank[1].PCKSIZE.bit.SIZE = 3;
-      pUsb->DEVICE.DeviceEndpoint[USB_EP_IN].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
-      /* Configure the data buffer */
-      usb_endpoint_table[USB_EP_IN].DeviceDescBank[1].ADDR.reg = (uint32_t)&udd_ep_in_cache_buffer[1];
-      /* Configure INTERRUPT IN endpoint for CDC COMM interface*/
-      pUsb->DEVICE.DeviceEndpoint[USB_EP_COMM].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE1(4);
-      /* Set maximum packet size as 64 bytes */
-      usb_endpoint_table[USB_EP_COMM].DeviceDescBank[1].PCKSIZE.bit.SIZE = 0;
-      pUsb->DEVICE.DeviceEndpoint[USB_EP_COMM].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
+
+      /* Configure the 3 needed endpoints */
+      USB_Configure(pUsb);
     break;
 
     case STD_GET_CONFIGURATION:
@@ -282,6 +282,7 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
           //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
           pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.bit.STALLRQ = (1<<0);
         }
+
         /* Send ZLP */
         USB_SendZlp(pUsb);
       }

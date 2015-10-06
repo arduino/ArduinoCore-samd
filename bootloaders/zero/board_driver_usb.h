@@ -25,7 +25,6 @@ extern UsbDeviceDescriptor usb_endpoint_table[MAX_EP];
 extern uint8_t udd_ep_out_cache_buffer[2][64]; //1 for CTRL, 1 for BULK
 extern uint8_t udd_ep_in_cache_buffer[2][64]; //1 for CTRL, 1 for BULK
 
-
 P_USB_CDC USB_Open(P_USB_CDC pCdc, Usb *pUsb);
 
 void USB_Init(void);
@@ -39,5 +38,7 @@ uint8_t USB_IsConfigured(P_USB_CDC pCdc);
 void USB_SendStall(Usb *pUsb, bool direction_in);
 void USB_SendZlp(Usb *pUsb);
 
+void USB_SetAddress(Usb *pUsb, uint16_t wValue);
+void USB_Configure(Usb *pUsb);
 
 #endif // _BOARD_DRIVER_USB_H_

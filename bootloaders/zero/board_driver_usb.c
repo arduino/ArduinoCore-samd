@@ -312,3 +312,39 @@ void USB_SendZlp(Usb *pUsb)
   while (!( pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT & (1<<1) ));
 }
 
+/*----------------------------------------------------------------------------
+ * \brief Set USB device address obtained from host
+ */
+void USB_SetAddress(Usb *pUsb, uint16_t wValue)
+{
+  pUsb->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | wValue;
+}
+
+/*----------------------------------------------------------------------------
+ * \brief Configure USB device
+ */
+void USB_Configure(Usb *pUsb)
+{
+  /* Configure BULK OUT endpoint for CDC Data interface*/
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE0(3);
+  /* Set maximum packet size as 64 bytes */
+  usb_endpoint_table[USB_EP_OUT].DeviceDescBank[0].PCKSIZE.bit.SIZE = 3;
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_BK0RDY;
+  /* Configure the data buffer */
+  usb_endpoint_table[USB_EP_OUT].DeviceDescBank[0].ADDR.reg = (uint32_t)&udd_ep_out_cache_buffer[1];
+
+  /* Configure BULK IN endpoint for CDC Data interface */
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_IN].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE1(3);
+  /* Set maximum packet size as 64 bytes */
+  usb_endpoint_table[USB_EP_IN].DeviceDescBank[1].PCKSIZE.bit.SIZE = 3;
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_IN].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
+  /* Configure the data buffer */
+  usb_endpoint_table[USB_EP_IN].DeviceDescBank[1].ADDR.reg = (uint32_t)&udd_ep_in_cache_buffer[1];
+
+  /* Configure INTERRUPT IN endpoint for CDC COMM interface*/
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_COMM].EPCFG.reg = USB_DEVICE_EPCFG_EPTYPE1(4);
+  /* Set maximum packet size as 64 bytes */
+  usb_endpoint_table[USB_EP_COMM].DeviceDescBank[1].PCKSIZE.bit.SIZE = 0;
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_COMM].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
+}
+
