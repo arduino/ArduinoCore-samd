@@ -87,6 +87,7 @@ board_driver_usb.c \
 board_init.c \
 board_startup.c \
 main.c \
+sam_ba_usb.c \
 sam_ba_cdc.c \
 sam_ba_led.c \
 sam_ba_monitor.c \
