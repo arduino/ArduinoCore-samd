@@ -292,6 +292,7 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
       }
     break;
 
+    case STD_SET_INTERFACE:
     case STD_CLEAR_FEATURE_ZERO:
       /* Stall the request */
       USB_SendStall(pUsb, true);
