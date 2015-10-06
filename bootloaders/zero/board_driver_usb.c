@@ -1,8 +1,8 @@
 
 #include <string.h>
 #include "board_driver_usb.h"
+#include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
-#include "cdc_enumerate.h"
 
 #define NVM_USB_PAD_TRANSN_POS            (45)
 #define NVM_USB_PAD_TRANSN_SIZE           (5)

@@ -67,8 +67,7 @@
 #include "sam_ba_serial.h"
 #include "board_definitions.h"
 #include "board_driver_led.h"
-#include "cdc_enumerate.h"
-//#include "sam_ba_usb.h"
+#include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
 extern uint32_t __app_start_address;

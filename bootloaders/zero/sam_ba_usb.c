@@ -18,7 +18,7 @@
 
 #include <stdint.h>
 #include <string.h>
-#include "cdc_enumerate.h"
+#include "sam_ba_usb.h"
 #include "board_driver_usb.h"
 #include "sam_ba_cdc.h"
 

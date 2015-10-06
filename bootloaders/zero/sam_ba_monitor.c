@@ -22,8 +22,7 @@
 #include "sam_ba_serial.h"
 #include "board_driver_serial.h"
 #include "board_driver_usb.h"
-//#include "sam_ba_usb.h"
-#include "cdc_enumerate.h"
+#include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;

@@ -20,8 +20,7 @@
 #define _SAM_BA_USB_CDC_H_
 
 #include <stdint.h>
-#include "cdc_enumerate.h"
-//#include "sam_ba_usb.h"
+#include "sam_ba_usb.h"
 
 typedef struct
 {
