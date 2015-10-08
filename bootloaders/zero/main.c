@@ -70,10 +70,12 @@
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
-extern uint32_t __app_start_address;
+extern uint32_t __sketch_stackptr; // Exported value from linker script
 extern void board_init(void);
 
-//static void check_start_application(void);
+#if (defined DEBUG) && (DEBUG == 1)
+volatile uint32_t* pulSketch_Start_Address;
+#endif
 
 static volatile bool main_b_cdc_enable = false;
 
@@ -105,7 +107,9 @@ static void check_start_application(void)
     /* First tap */
     BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
 
-    /* Wait 0.5sec to see if the user tap reset again */
+    /* Wait 0.5sec to see if the user tap reset again.
+     * The loop value is based on SAMD21 default 1MHz clock @ reset.
+     */
     for (uint32_t i=0; i<125000; i++) /* 500ms */
       /* force compiler to not optimize this... */
       __asm__ __volatile__("");
@@ -115,51 +119,71 @@ static void check_start_application(void)
   }
 #endif
 
-  uint32_t app_start_address;
+#if (!defined DEBUG) || ((defined DEBUG) && (DEBUG == 0))
+uint32_t* pulSketch_Start_Address;
+#endif
 
-  /* Load the Reset Handler address of the application */
-  app_start_address = *(uint32_t *)(&__app_start_address + 4);
-
-  /**
-   * Test reset vector of application @__app_start_address+4
-   * Stay in SAM-BA if *(__app_start_address+0x4) == 0xFFFFFFFF
-   * Application erased condition
+  /*
+   * Test sketch stack pointer @ &__sketch_stackptr
+   * Stay in SAM-BA if value @ (&__sketch_stackptr) == 0xFFFFFFFF (Erased flash cell value)
    */
-  if (app_start_address == 0xFFFFFFFF)
+  if (__sketch_stackptr == 0xFFFFFFFF)
+  {
+    /* Stay in bootloader */
+    return;
+  }
+ 
+  /* 
+   * Load the sketch Reset Handler address
+   * __sketch_stackptr is exported from linker script and point on first 32b word of sketch vector table
+   * First 32b word is sketch stack
+   * Second 32b word is sketch entry point: Reset_Handler()
+   */
+  pulSketch_Start_Address = &__sketch_stackptr ;
+  pulSketch_Start_Address++ ;
+
+  /*
+   * Test reset vector of sketch @ &__sketch_stackptr+4
+   * Stay in SAM-BA if this function is not aligned enough, ie not valid
+   * The value 0x01 is the 'Thumb mode' bit added by linker.
+   */
+  if ( (*pulSketch_Start_Address & ~SCB_VTOR_TBLOFF_Msk) != 0x01 )
   {
     /* Stay in bootloader */
     return;
   }
 
+/*
 #if defined(BOOT_LOAD_PIN)
   volatile PortGroup *boot_port = (volatile PortGroup *)(&(PORT->Group[BOOT_LOAD_PIN / 32]));
   volatile bool boot_en;
 
-  /* Enable the input mode in Boot GPIO Pin */
+  // Enable the input mode in Boot GPIO Pin
   boot_port->DIRCLR.reg = BOOT_PIN_MASK;
   boot_port->PINCFG[BOOT_LOAD_PIN & 0x1F].reg = PORT_PINCFG_INEN | PORT_PINCFG_PULLEN;
   boot_port->OUTSET.reg = BOOT_PIN_MASK;
-  /* Read the BOOT_LOAD_PIN status */
+  // Read the BOOT_LOAD_PIN status
   boot_en = (boot_port->IN.reg) & BOOT_PIN_MASK;
 
-  /* Check the bootloader enable condition */
+  // Check the bootloader enable condition
   if (!boot_en)
   {
-    /* Stay in bootloader */
+    // Stay in bootloader
     return;
   }
 #endif
+*/
 
   LED_on();
 
   /* Rebase the Stack Pointer */
-  __set_MSP(*(uint32_t *) &__app_start_address);
+  __set_MSP( (uint32_t)(*(pulSketch_Start_Address-1)) );
 
   /* Rebase the vector table base address */
-  SCB->VTOR = ((uint32_t) &__app_start_address & SCB_VTOR_TBLOFF_Msk);
+  SCB->VTOR = ((uint32_t)(pulSketch_Start_Address-1) & SCB_VTOR_TBLOFF_Msk);
 
   /* Jump to application Reset Handler in the application */
-  asm("bx %0"::"r"(app_start_address));
+  asm("bx %0"::"r"(*pulSketch_Start_Address));
 }
 
 #if DEBUG_ENABLE

@@ -58,7 +58,7 @@ MEMORY
  *   __StackLimit
  *   __StackTop
  *   __stack
- *   __app_start_address
+ *   __sketch_stackptr
  */
 ENTRY(Reset_Handler)
 
@@ -144,7 +144,7 @@ SECTIONS
 	*/
 
 	__etext = .;
-  PROVIDE(__app_start_address = ORIGIN(FLASH) + LENGTH(FLASH));
+  PROVIDE(__sketch_stackptr = ORIGIN(FLASH) + LENGTH(FLASH));
 
 
 	.data : AT (__etext)

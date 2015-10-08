@@ -65,9 +65,9 @@ SIZE=$(ARM_GCC_PATH)size
 #-w
 CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
 ifdef DEBUG
-CFLAGS+=-g3 -O1
+CFLAGS+=-g3 -O1 -DDEBUG=1
 else
-CFLAGS+=-Os
+CFLAGS+=-Os -DDEBUG=0
 endif
 #CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_LOW=0x4D -DUSB_PID_HIGH=0x00
 CFLAGS_EXTRA?=-D__SAMD21J18A__ -DUSB_PID_LOW=0x01 -DUSB_PID_HIGH=0xE0
@@ -153,8 +153,9 @@ copy_for_atmel_studio: $(EXECUTABLE)
 
 clean_for_atmel_studio:
 	@echo ----------------------------------------------------------
-	@echo Atmel Studio detected, cleaing ELF from project root
-	-$(RM) $(BUILD_PATH)/$(ELF) .
+	@echo Atmel Studio detected, cleaning ELF from project root
+#	-$(RM) $(BUILD_PATH)/$(ELF)
+	-$(RM) ./$(ELF)
 
 clean: $(AS_CLEAN)
 	@echo ----------------------------------------------------------
