@@ -180,7 +180,7 @@ void SERCOM::enableDataRegisterEmptyInterruptUART()
 
 void SERCOM::disableDataRegisterEmptyInterruptUART()
 {
-  sercom->USART.INTENSET.bit.DRE = 0;
+  sercom->USART.INTENCLR.bit.DRE = 1;
 }
 
 /*	=========================
