@@ -40,6 +40,7 @@ class RingBuffer
 	void clear();
 	int read_char();
 	int available();
+	int availableForStore();
 	int peek();
 	bool isFull();
 
