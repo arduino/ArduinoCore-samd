@@ -50,6 +50,7 @@ void Uart::end()
 {
   sercom->resetUART();
   rxBuffer.clear();
+  txBuffer.clear();
 }
 
 void Uart::flush()
@@ -59,6 +60,16 @@ void Uart::flush()
 
 void Uart::IrqHandler()
 {
+  if (sercom->isDataRegisterEmptyUART()) {
+    if (txBuffer.available()) {
+      uint8_t data = txBuffer.read_char();
+
+      sercom->writeDataUART(data);
+    } else {
+      sercom->disableDataRegisterEmptyInterruptUART();
+    }
+  }
+
   if (sercom->availableDataUART()) {
     rxBuffer.store_char(sercom->readDataUART());
   }
@@ -79,7 +90,7 @@ int Uart::available()
 
 int Uart::availableForWrite()
 {
-  return (sercom->isDataRegisterEmptyUART() ? 1 : 0);
+  return txBuffer.availableForStore();
 }
 
 int Uart::peek()
@@ -94,7 +105,16 @@ int Uart::read()
 
 size_t Uart::write(const uint8_t data)
 {
-  sercom->writeDataUART(data);
+  if (sercom->isDataRegisterEmptyUART()) {
+    sercom->writeDataUART(data);
+  } else {
+    while(txBuffer.isFull()); // spin lock until a spot opens up in the buffer
+
+    txBuffer.store_char(data);
+
+    sercom->enableDataRegisterEmptyInterruptUART();
+  }
+
   return 1;
 }
 
