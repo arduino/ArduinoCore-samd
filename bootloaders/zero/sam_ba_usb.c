@@ -31,21 +31,26 @@ const char devDescriptor[] =
   /* Device descriptor */
   0x12,   // bLength
   0x01,   // bDescriptorType
-  0x10,   // bcdUSBL
-  0x01,   //
+  0x00,   // bcdUSB L
+  0x02,   // bcdUSB H
   0x02,   // bDeviceClass:    CDC class code
   0x00,   // bDeviceSubclass: CDC class sub code
   0x00,   // bDeviceProtocol: CDC Device protocol
   0x40,   // bMaxPacketSize0
-  0x41,   // idVendorL
-  0x23,   //
-  USB_PID_LOW,   // idProductL
-  USB_PID_HIGH,   //
-  0x10,   // bcdDeviceL
-  0x01,   //
-  0x00,   // iManufacturer    // 0x01
+  0x41,   // idVendor L
+  0x23,   // idVendor H
+  USB_PID_LOW,   // idProduct L
+  USB_PID_HIGH,  // idProduct H
+  0x00,   // bcdDevice L, here matching SAM-BA version
+  0x02,   // bcdDevice H
+#if 0 // TODO: pending validation
+  STRING_INDEX_MANUFACTURER,   // iManufacturer
+  STRING_INDEX_PRODUCT,        // iProduct
+#else
+  0x00,   // iManufacturer
   0x00,   // iProduct
-  0x00,   // SerialNumber
+#endif // 0
+  0x00,   // SerialNumber, should be based on product unique ID
   0x01    // bNumConfigs
 };
 
@@ -145,6 +150,13 @@ char cfgDescriptor[] =
   0x00    // bInterval
 };
 
+#ifndef STRING_MANUFACTURER
+#  define STRING_MANUFACTURER "Arduino LLC"
+#endif
+
+#ifndef STRING_PRODUCT
+#  define STRING_PRODUCT "Arduino Zero"
+#endif
 
 USB_CDC sam_ba_cdc;
 
@@ -177,22 +189,50 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
   switch ((bRequest << 8) | bmRequestType)
   {
     case STD_GET_DESCRIPTOR:
-      if (wValue == (STD_GET_DESCRIPTOR_DEVICE<<8))
+      if (wValue>>8 == STD_GET_DESCRIPTOR_DEVICE)
       {
         /* Return Device Descriptor */
         USB_Write(pCdc->pUsb, devDescriptor, SAM_BA_MIN(sizeof(devDescriptor), wLength), USB_EP_CTRL);
       }
       else
       {
-        if (wValue == (STD_GET_DESCRIPTOR_CONFIGURATION<<8))
+        if (wValue>>8 == STD_GET_DESCRIPTOR_CONFIGURATION)
         {
           /* Return Configuration Descriptor */
           USB_Write(pCdc->pUsb, cfgDescriptor, SAM_BA_MIN(sizeof(cfgDescriptor), wLength), USB_EP_CTRL);
         }
         else
         {
-          /* Stall the request */
-          USB_SendStall(pUsb, true);
+#if 0 // TODO: pending validation
+          if (wValue>>8 == STD_GET_DESCRIPTOR_STRING)
+          {
+            switch ( wValue & 0xff )
+            {
+              case STRING_INDEX_LANGUAGES:
+                uint16_t STRING_LANGUAGE[2] = { (STD_GET_DESCRIPTOR_STRING<<8) | 4, 0x0409 };
+
+                USB_Write(pCdc->pUsb, (const char*)STRING_LANGUAGE, SAM_BA_MIN(sizeof(STRING_LANGUAGE), wLength), USB_EP_CTRL);
+              break;
+
+              case STRING_INDEX_MANUFACTURER:
+                USB_SendString(pCdc->pUsb, STRING_MANUFACTURER, strlen(STRING_MANUFACTURER), wLength );
+              break;
+
+              case STRING_INDEX_PRODUCT:
+                USB_SendString(pCdc->pUsb, STRING_PRODUCT, strlen(STRING_PRODUCT), wLength );
+              break;
+              default:
+                /* Stall the request */
+                USB_SendStall(pUsb, true);
+              break;
+            }
+          }
+          else
+#endif // 0
+          {
+            /* Stall the request */
+            USB_SendStall(pUsb, true);
+          }
         }
       }
     break;
@@ -388,3 +428,28 @@ P_USB_CDC usb_init(void)
 
   return &sam_ba_cdc;
 }
+
+#if 0 // TODO: pending validation
+/*----------------------------------------------------------------------------
+ * \brief Send a USB descriptor string.
+ *
+ * The input string is plain ASCII but is sent out as UTF-16 with the correct 2-byte prefix.
+ */
+uint32_t USB_SendString(Usb *pUsb, const char* ascii_string, uint8_t length, uint8_t maxLength)
+{
+  uint8_t string_descriptor[255]; // Max USB-allowed string length
+  uint16_t* unicode_string=(uint16_t*)(string_descriptor+2); // point on 3 bytes of descriptor
+
+  int resulting_length = 1;
+
+  for ( ; *ascii_string && (length>=0) && (resulting_length<(maxLength>>1)) ; ascii_string++, length--, resulting_length++ )
+  {
+    *unicode_string++ = (uint16_t)(*ascii_string);
+  }
+
+  string_descriptor[0] = (resulting_length<<1);
+  string_descriptor[1] = STD_GET_DESCRIPTOR_STRING;
+
+  return USB_Write(pUsb, (const char*)unicode_string, resulting_length, USB_EP_CTRL);
+}
+#endif // 0
