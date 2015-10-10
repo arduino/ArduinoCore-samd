@@ -93,10 +93,8 @@ board_startup.c \
 main.c \
 sam_ba_usb.c \
 sam_ba_cdc.c \
-sam_ba_led.c \
 sam_ba_monitor.c \
 sam_ba_serial.c
-
 
 OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
 DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
