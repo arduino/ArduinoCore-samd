@@ -1,3 +1,21 @@
+/*
+  Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
+
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
+
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+*/
 
 #include <string.h>
 #include "board_driver_usb.h"
@@ -155,12 +173,12 @@ uint32_t USB_Write(Usb *pUsb, const char *pData, uint32_t length, uint8_t ep_num
   usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
   /* Clear the transfer complete flag  */
   //pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT1 = true;
-  pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT |= (1 << 1);
+  pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT |= (1<<1);
   /* Set the bank as ready */
   pUsb->DEVICE.DeviceEndpoint[ep_num].EPSTATUSSET.bit.BK1RDY = true;
 
   /* Wait for transfer to complete */
-  while (!( pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT & (1<<1) ));
+  while ( (pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT & (1<<1)) == 0 );
 
   return length;
 }
@@ -347,4 +365,3 @@ void USB_Configure(Usb *pUsb)
   usb_endpoint_table[USB_EP_COMM].DeviceDescBank[1].PCKSIZE.bit.SIZE = 0;
   pUsb->DEVICE.DeviceEndpoint[USB_EP_COMM].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
 }
-
