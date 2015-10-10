@@ -1,3 +1,4 @@
+# Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
 # Copyright (c) 2015 Arduino LLC.  All right reserved.
 #
 # This library is free software; you can redistribute it and/or
@@ -20,14 +21,18 @@ ifeq ($(OS),Windows_NT)
 
   # Are we using mingw/msys/msys2/cygwin?
   ifeq ($(TERM),xterm)
+# this is the path coming with night build
 #		T=$(shell cygpath -u $(LOCALAPPDATA))
+# this is the path till 1.6.5 r5
 		T=$(shell cygpath -u $(APPDATA))
     MODULE_PATH?=$(T)/Arduino15/packages/arduino
     ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
     RM=rm
     SEP=/
   else
+# this is the path coming with night build
 #    MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/arduino
+# this is the path till 1.6.5 r5
     MODULE_PATH?=$(APPDATA)/Arduino15/packages/arduino
     ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
     RM=rm
@@ -69,8 +74,7 @@ CFLAGS+=-g3 -O1 -DDEBUG=1
 else
 CFLAGS+=-Os -DDEBUG=0
 endif
-#CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_LOW=0x4D -DUSB_PID_HIGH=0x00
-CFLAGS_EXTRA?=-D__SAMD21J18A__ -DUSB_PID_LOW=0x01 -DUSB_PID_HIGH=0xE0
+CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_LOW=0x4D -DUSB_PID_HIGH=0x00
 INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
 
 # -----------------------------------------------------------------------------
@@ -99,7 +103,8 @@ DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
 
 NAME=samd21_sam_ba
 ELF=$(NAME).elf
-EXECUTABLE=$(NAME).bin
+BIN=$(NAME).bin
+HEX=$(NAME).hex
 
 ifneq "test$(AVRSTUDIO_EXE_PATH)" "test"
 AS_BUILD=copy_for_atmel_studio
@@ -110,7 +115,7 @@ AS_CLEAN=
 endif
 
 
-all: print_info $(SOURCES) $(EXECUTABLE) $(AS_BUILD)
+all: print_info $(SOURCES) $(BIN) $(HEX) $(AS_BUILD)
 
 $(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
 	@echo ----------------------------------------------------------
@@ -119,10 +124,15 @@ $(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
 	"$(NM)" "$(BUILD_PATH)/$(ELF)" >"$(BUILD_PATH)/$(NAME)_symbols.txt"
 	"$(SIZE)" --format=sysv -t -x $(BUILD_PATH)/$(ELF)
 
-$(EXECUTABLE): $(ELF)
+$(BIN): $(ELF)
 	@echo ----------------------------------------------------------
 	@echo Creating flash binary
 	"$(OBJCOPY)" -O binary $(BUILD_PATH)/$< $@
+
+$(HEX): $(ELF)
+	@echo ----------------------------------------------------------
+	@echo Creating flash binary
+	"$(OBJCOPY)" -O ihex $(BUILD_PATH)/$< $@
 
 $(BUILD_PATH)/%.o: %.c
 	@echo ----------------------------------------------------------
@@ -140,13 +150,13 @@ print_info:
 	@echo Compiling bootloader using
 	@echo BASE PATH = $(MODULE_PATH)
 	@echo GCC  PATH = $(ARM_GCC_PATH)
-	@echo OS        = $(OS)
-	@echo SHELL     = $(SHELL)
-	@echo TERM      = $(TERM)
+#	@echo OS        = $(OS)
+#	@echo SHELL     = $(SHELL)
+#	@echo TERM      = $(TERM)
 #	"$(CC)" -v
 #	env
 
-copy_for_atmel_studio: $(EXECUTABLE)
+copy_for_atmel_studio: $(BIN) $(HEX)
 	@echo ----------------------------------------------------------
 	@echo Atmel Studio detected, copying ELF to project root for debug
 	cp $(BUILD_PATH)/$(ELF) .
@@ -154,14 +164,14 @@ copy_for_atmel_studio: $(EXECUTABLE)
 clean_for_atmel_studio:
 	@echo ----------------------------------------------------------
 	@echo Atmel Studio detected, cleaning ELF from project root
-#	-$(RM) $(BUILD_PATH)/$(ELF)
 	-$(RM) ./$(ELF)
 
 clean: $(AS_CLEAN)
 	@echo ----------------------------------------------------------
 	@echo Cleaning project
-	-$(RM) $(EXECUTABLE)
+	-$(RM) $(BIN)
+	-$(RM) $(HEX)
 	-$(RM) $(BUILD_PATH)/*.*
 	-rmdir $(BUILD_PATH)
 
-.phony: clean print_info $(BUILD_PATH) $(AS_BUILD) $(AS_CLEAN)
+.phony: print_info $(BUILD_PATH)
