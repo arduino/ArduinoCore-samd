@@ -1,5 +1,6 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -30,7 +31,7 @@
  *
  * USB : D-:PA24 D+:PA25
  *
- * Pins Usage
+ * Pins Usage (*outdated as of 2015/10/10*)
  * --------------------
  * The following pins are used by the program :
  * PA25 : input/output
@@ -42,7 +43,7 @@
  * The application board shall avoid driving the PA25,PA24,PB23,PB22 and PA15 signals
  * while the boot program is running (after a POR for example)
  *
- * Clock system
+ * Clock system (*outdated as of 2015/10/10*)
  * --------------------
  * CPU clock source (GCLK_GEN_0) - 8MHz internal oscillator (OSC8M)
  * SERCOM5 core GCLK source (GCLK_ID_SERCOM5_CORE) - GCLK_GEN_0 (i.e., OSC8M)
@@ -54,10 +55,10 @@
  * SAM-BA code will be located at 0x0 and executed before any applicative code.
  *
  * Applications compiled to be executed along with the bootloader will start at
- * 0x2000
+ * 0x2000 (see linker script bootloader_samd21x18.ld)
  * Before jumping to the application, the bootloader changes the VTOR register
  * to use the interrupt vectors of the application @0x2000.<- not required as
- * application code is taking care of this
+ * application code is taking care of this.
  *
 */
 
@@ -70,7 +71,7 @@
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
-extern uint32_t __sketch_stackptr; // Exported value from linker script
+extern uint32_t __sketch_vectors_ptr; // Exported value from linker script
 extern void board_init(void);
 
 #if (defined DEBUG) && (DEBUG == 1)
@@ -85,8 +86,8 @@ static volatile bool main_b_cdc_enable = false;
  */
 static void check_start_application(void)
 {
-  LED_init();
-  LED_off();
+//  LED_init();
+//  LED_off();
 
 #if defined(BOOT_DOUBLE_TAP_ADDRESS)
   #define DOUBLE_TAP_MAGIC 0x07738135
@@ -124,30 +125,29 @@ uint32_t* pulSketch_Start_Address;
 #endif
 
   /*
-   * Test sketch stack pointer @ &__sketch_stackptr
-   * Stay in SAM-BA if value @ (&__sketch_stackptr) == 0xFFFFFFFF (Erased flash cell value)
+   * Test sketch stack pointer @ &__sketch_vectors_ptr
+   * Stay in SAM-BA if value @ (&__sketch_vectors_ptr) == 0xFFFFFFFF (Erased flash cell value)
    */
-  if (__sketch_stackptr == 0xFFFFFFFF)
+  if (__sketch_vectors_ptr == 0xFFFFFFFF)
   {
     /* Stay in bootloader */
     return;
   }
- 
-  /* 
+
+  /*
    * Load the sketch Reset Handler address
-   * __sketch_stackptr is exported from linker script and point on first 32b word of sketch vector table
+   * __sketch_vectors_ptr is exported from linker script and point on first 32b word of sketch vector table
    * First 32b word is sketch stack
    * Second 32b word is sketch entry point: Reset_Handler()
    */
-  pulSketch_Start_Address = &__sketch_stackptr ;
+  pulSketch_Start_Address = &__sketch_vectors_ptr ;
   pulSketch_Start_Address++ ;
 
   /*
-   * Test reset vector of sketch @ &__sketch_stackptr+4
+   * Test vector table address of sketch @ &__sketch_vectors_ptr
    * Stay in SAM-BA if this function is not aligned enough, ie not valid
-   * The value 0x01 is the 'Thumb mode' bit added by linker.
    */
-  if ( (*pulSketch_Start_Address & ~SCB_VTOR_TBLOFF_Msk) != 0x01 )
+  if ( ((uint32_t)(&__sketch_vectors_ptr) & ~SCB_VTOR_TBLOFF_Msk) != 0x00)
   {
     /* Stay in bootloader */
     return;
@@ -174,13 +174,13 @@ uint32_t* pulSketch_Start_Address;
 #endif
 */
 
-  LED_on();
+//  LED_on();
 
   /* Rebase the Stack Pointer */
-  __set_MSP( (uint32_t)(*(pulSketch_Start_Address-1)) );
+  __set_MSP( (uint32_t)(__sketch_vectors_ptr) );
 
   /* Rebase the vector table base address */
-  SCB->VTOR = ((uint32_t)(pulSketch_Start_Address-1) & SCB_VTOR_TBLOFF_Msk);
+  SCB->VTOR = ((uint32_t)(&__sketch_vectors_ptr) & SCB_VTOR_TBLOFF_Msk);
 
   /* Jump to application Reset Handler in the application */
   asm("bx %0"::"r"(*pulSketch_Start_Address));
