@@ -990,7 +990,7 @@ const char * const ReportDescParserBase::medInstrTitles4[] PROGMEM = {
         pstrUsageSoftControlAdjust
 };
 
-void ReportDescParserBase::Parse(const uint32_t len, const uint8_t *pbuf, const uint32_t &offset) {
+void ReportDescParserBase::Parse(const uint32_t len, const uint8_t *pbuf, const uint32_t & /* offset */) {
         uint32_t cntdn = (uint32_t)len;
         uint8_t *p = (uint8_t*)pbuf;
 
@@ -1589,7 +1589,7 @@ void ReportDescParser2::OnInputItem(uint8_t itm) {
         E_Notify(PSTR("\r\n"), 0x80);
 }
 
-void UniversalReportParser::Parse(HID *hid, uint32_t is_rpt_id, uint32_t len, uint8_t *buf) {
+void UniversalReportParser::Parse(HID *hid, uint32_t /* is_rpt_id */, uint32_t len, uint8_t *buf) {
         ReportDescParser2 prs(len, buf);
 
         uint8_t ret = hid->GetReportDescr(0, &prs);

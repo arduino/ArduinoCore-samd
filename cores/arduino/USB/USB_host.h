@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -48,7 +48,7 @@ typedef enum {
 
 extern void UHD_Init(void);
 extern void UHD_Handler(void);
-extern void UHD_SetStack(void (*pf_isr)(void)); 
+extern void USB_SetHandler(void (*pf_isr)(void));
 extern uhd_vbus_state_t UHD_GetVBUSState(void);
 extern uint32_t UHD_Pipe0_Alloc(uint32_t ul_add, uint32_t ul_ep_size);
 extern uint32_t UHD_Pipe_Alloc(uint32_t ul_dev_addr, uint32_t ul_dev_ep, uint32_t ul_type, uint32_t ul_dir, uint32_t ul_maxsize, uint32_t ul_interval, uint32_t ul_nb_bank);
