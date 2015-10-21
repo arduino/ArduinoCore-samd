@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2014 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -22,17 +22,18 @@
 #include <string.h>
 
 #include "../Arduino.h"
-#include "../wiring_private.h"
+#include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
+#include "sam.h"
+#include "wiring_digital.h"
+#include "wiring_private.h"
 
 #define HOST_DEFINED
 #ifdef HOST_DEFINED
 
 //#define TRACE_UOTGHS_HOST(x)	x
 #define TRACE_UOTGHS_HOST(x)
-
-//extern void (*gpf_isr)(void);
 
 // Handle UOTGHS Host driver state
 static uhd_vbus_state_t uhd_state = UHD_STATE_NO_VBUS;
@@ -41,10 +42,6 @@ __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table[USB_EP
 
 extern void (*gpf_isr)(void);
 
-void UHD_SetStack(void (*pf_isr)(void))
-{
-	gpf_isr = pf_isr;
-}
 
 // NVM Software Calibration Area Mapping
 // USB TRANSN calibration value. Should be written to the USB PADCAL register.
@@ -67,7 +64,7 @@ void UHD_Init(void)
 	uint32_t pad_trim;
 	uint32_t i;
 
-	UHD_SetStack(&UHD_Handler);
+	USB_SetHandler(&UHD_Handler);
 
 	/* Enable USB clock */
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
@@ -178,7 +175,6 @@ void UHD_Init(void)
 /**
  * \brief Interrupt sub routine for USB Host state machine management.
  */
-//static void UHD_ISR(void)
 void UHD_Handler(void)
 {
    uint16_t flags;
@@ -303,8 +299,10 @@ uhd_vbus_state_t UHD_GetVBUSState(void)
  * \retval 0 success.
  * \retval 1 error.
  */
-uint32_t UHD_Pipe0_Alloc(uint32_t ul_add, uint32_t ul_ep_size)
+uint32_t UHD_Pipe0_Alloc(uint32_t ul_add , uint32_t ul_ep_size)
 {
+	(void)(ul_add); // Unused argument
+
 	if( USB->HOST.STATUS.reg & USB_HOST_STATUS_SPEED(1) )
 		ul_ep_size = USB_PCKSIZE_SIZE_8_BYTES;  // Low Speed
 	else
@@ -516,4 +514,13 @@ uint32_t UHD_Pipe_Is_Transfer_Complete(uint32_t ul_pipe, uint32_t ul_token_type)
 
    return 0;
 }
+
+
+
+
+// USB_Handler ISR
+// void USB_Handler(void) {
+// 	UHD_Handler();
+// }
+
 #endif //  HOST_DEFINED

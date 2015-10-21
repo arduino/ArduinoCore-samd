@@ -64,25 +64,25 @@ public:
 
 protected:
 
-        virtual void OnMouseMove(MOUSEINFO *mi) {
+        virtual void OnMouseMove(MOUSEINFO *) {
         };
 
-        virtual void OnLeftButtonUp(MOUSEINFO *mi) {
+        virtual void OnLeftButtonUp(MOUSEINFO *) {
         };
 
-        virtual void OnLeftButtonDown(MOUSEINFO *mi) {
+        virtual void OnLeftButtonDown(MOUSEINFO *) {
         };
 
-        virtual void OnRightButtonUp(MOUSEINFO *mi) {
+        virtual void OnRightButtonUp(MOUSEINFO *) {
         };
 
-        virtual void OnRightButtonDown(MOUSEINFO *mi) {
+        virtual void OnRightButtonDown(MOUSEINFO *) {
         };
 
-        virtual void OnMiddleButtonUp(MOUSEINFO *mi) {
+        virtual void OnMiddleButtonUp(MOUSEINFO *) {
         };
 
-        virtual void OnMiddleButtonDown(MOUSEINFO *mi) {
+        virtual void OnMiddleButtonDown(MOUSEINFO *) {
         };
 };
 
@@ -153,13 +153,13 @@ public:
 protected:
 	virtual uint8_t HandleLockingKeys(HID* hid, uint8_t key);
 
-        virtual void OnControlKeysChanged(uint8_t before, uint8_t after) {
+        virtual void OnControlKeysChanged(uint8_t /* before */, uint8_t /* after */) {
         };
 
-        virtual void OnKeyDown(uint8_t mod, uint8_t key) {
+        virtual void OnKeyDown(uint8_t /* mod */, uint8_t /* key */) {
         };
 
-        virtual void OnKeyUp(uint8_t mod, uint8_t key) {
+        virtual void OnKeyUp(uint8_t /* mod */, uint8_t /* key */) {
         };
 
         virtual const uint8_t *getNumKeys() {
@@ -520,7 +520,7 @@ Fail:
 }
 
 template <const uint8_t BOOT_PROTOCOL>
-void HIDBoot<BOOT_PROTOCOL>::EndpointXtract(uint32_t conf, uint32_t iface, uint32_t alt, uint32_t proto, const USB_ENDPOINT_DESCRIPTOR *pep) {
+void HIDBoot<BOOT_PROTOCOL>::EndpointXtract(uint32_t conf, uint32_t iface, uint32_t /* alt */, uint32_t /* proto */, const USB_ENDPOINT_DESCRIPTOR *pep) {
 	// If the first configuration satisfies, the others are not considered.
         //if(bNumEP > 1 && conf != bConfNum)
         if(bNumEP == totalEndpoints(BOOT_PROTOCOL))

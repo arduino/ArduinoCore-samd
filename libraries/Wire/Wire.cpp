@@ -49,12 +49,14 @@ void TwoWire::begin(uint8_t address) {
   sercom->enableWIRE();
 }
 
-void TwoWire::end() {
+void TwoWire::setClock(uint32_t baudrate) {
   sercom->disableWIRE();
+  sercom->initMasterWIRE(baudrate);
+  sercom->enableWIRE();
 }
 
-void TwoWire::setClock(uint32_t frequency) {
-	// dummy funtion
+void TwoWire::end() {
+  sercom->disableWIRE();
 }
 
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
@@ -108,12 +110,6 @@ void TwoWire::beginTransmission(uint8_t address) {
 uint8_t TwoWire::endTransmission(bool stopBit)
 {
   transmissionBegun = false ;
-
-  // Check if there are data to send
-  if ( txBuffer.available() == 0)
-  {
-    return 4 ;
-  }
 
   // Start I2C transmission
   if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )

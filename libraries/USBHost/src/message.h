@@ -55,24 +55,30 @@ void NotifyFail(uint8_t rcode);
 #define NotifyFail(...) ((void)0)
 #endif
 
+#ifdef DEBUG_USB_HOST
 template <class ERROR_TYPE>
 void ErrorMessage(uint8_t level, char const * msg, ERROR_TYPE rcode = 0) {
-#ifdef DEBUG_USB_HOST
         Notify(msg, level);
         Notify(PSTR(": "), level);
         D_PrintHex<ERROR_TYPE > (rcode, level);
         Notify(PSTR("\r\n"), level);
-#endif
 }
 
 template <class ERROR_TYPE>
 void ErrorMessage(char const * msg, ERROR_TYPE rcode = 0) {
-#ifdef DEBUG_USB_HOST
         Notify(msg, 0x80);
         Notify(PSTR(": "), 0x80);
         D_PrintHex<ERROR_TYPE > (rcode, 0x80);
         Notify(PSTR("\r\n"), 0x80);
-#endif
 }
+#else
+template <class ERROR_TYPE>
+void ErrorMessage(uint8_t, char const *, ERROR_TYPE = 0) {
+}
+
+template <class ERROR_TYPE>
+void ErrorMessage(char const *, ERROR_TYPE = 0) {
+}
+#endif
 
 #endif // __MESSAGE_H__

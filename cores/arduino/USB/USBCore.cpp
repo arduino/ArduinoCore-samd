@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2014 Arduino.  All right reserved.
+  Copyright (c) 2015 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,17 +16,29 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "../Arduino.h"
-#include "USBCore.h"
-#include "USB/USB_device.h"   // needed for USB PID define
-#include "USBDesc.h"
-#include "USBAPI.h"
+#include <Arduino.h>
 
-//#define TRACE_CORE(x)	x
-#define TRACE_CORE(x)
+#include "SAMD21_USBDevice.h"
+#include "PluggableUSB.h"
+
+#include <stdlib.h>
+#include <stdio.h>
+#include <stdint.h>
+#include <limits.h>
+
+USBDevice_SAMD21G18x usbd;
 
 static char isRemoteWakeUpEnabled = 0;
 static char isEndpointHalt = 0;
+
+extern void (*gpf_isr)(void);
+
+// USB_Handler ISR
+extern "C" void UDD_Handler(void) {
+	USBDevice.ISRHandler();
+}
+
+
 
 const uint16_t STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
@@ -50,682 +62,831 @@ const uint8_t STRING_PRODUCT[] = USB_PRODUCT;
 #  define USB_MANUFACTURER "Unknown"
 #endif
 
-const uint8_t STRING_MANUFACTURER[12] = USB_MANUFACTURER;
+const uint8_t STRING_MANUFACTURER[] = USB_MANUFACTURER;
 
 
 //	DEVICE DESCRIPTOR
-#if (defined CDC_ENABLED) && defined(HID_ENABLED)
-const DeviceDescriptor USB_DeviceDescriptor =
-	D_DEVICE(0xEF,0x02,0x01,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,0,1);
-#elif defined(CDC_ENABLED)  // CDC only
-const DeviceDescriptor USB_DeviceDescriptor =
-	D_DEVICE(0x02,0x00,0x00,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,0,1);
-#else // HID only
-const DeviceDescriptor USB_DeviceDescriptor =
-	D_DEVICE(0,0x00,0x00,64,USB_VID,USB_PID,0x100,IMANUFACTURER,IPRODUCT,0,1);
-#endif
+const DeviceDescriptor USB_DeviceDescriptorB = D_DEVICE(0xEF, 0x02, 0x01, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, 0, 1);
+const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0x00, 0x00, 0x00, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, 0, 1);
 
 //==================================================================
 
 volatile uint32_t _usbConfiguration = 0;
-volatile uint32_t _usbInitialized = 0;
 volatile uint32_t _usbSetInterface = 0;
 
+static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
+uint8_t udd_ep_out_cache_buffer[7][64];
+
+static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
+uint8_t udd_ep_in_cache_buffer[7][64];
+
 //==================================================================
-
-
-//	Number of bytes, assumes a rx endpoint
-uint32_t USBD_Available(uint32_t ep)
-{
-	return UDD_FifoByteCount(ep);
-}
-
-//	Non Blocking receive
-//	Return number of bytes read
-uint32_t USBD_Recv(uint32_t ep, void* d, uint32_t len)
-{
-	if (!_usbConfiguration)
-		return -1;
-
-	uint8_t *buffer;
-	uint8_t *data = (uint8_t *)d;
-
-	len = min(UDD_FifoByteCount(ep), len);
-
-	UDD_Recv_data(ep, len);
-	UDD_Recv(ep, &buffer);
-	for (uint32_t i=0; i<len; i++) {
-		data[i] = buffer[i];
-	}
-
-	if (len && !UDD_FifoByteCount(ep)) // release empty buffer
-		UDD_ReleaseRX(ep);
-
-	return len;
-}
-
-//	Recv 1 byte if ready
-uint32_t USBD_Recv(uint32_t ep)
-{
-	uint8_t c;
-	if (USBD_Recv(ep, &c, 1) != 1)
-		return -1;
-	else
-		return c;
-}
-
-//	Blocking Send of data to an endpoint
-uint32_t USBD_Send(uint32_t ep, const void* d, uint32_t len)
-{
-	int r = len;
-	const uint8_t* data = (const uint8_t*)d;
-
-    if (!_usbConfiguration)
-    {
-    	TRACE_CORE(printf("pb conf\n\r");)
-		return -1;
-    }
-	UDD_Send(ep, data, len);
-
-	/* Clear the transfer complete flag  */
-	udd_clear_IN_transf_cplt(ep);
-	/* Set the bank as ready */
-	udd_IN_transfer_allowed(ep);
-
-	/* Wait for transfer to complete */
-	while (! udd_is_IN_transf_cplt(ep));  // need fire exit.
-	return r;
-}
-
-uint32_t USBD_SendControl(uint8_t flags, const void* d, uint32_t len)
-{
-	const uint8_t* data = (const uint8_t*)d;
-	uint32_t length = len;
-	uint32_t sent = 0;
-	uint32_t pos = 0;
-
-	TRACE_CORE(printf("=> USBD_SendControl TOTAL len=%lu\r\n", len);)
-
- 		while (len > 0)
- 		{
-			sent = UDD_Send(EP0, data + pos, len);
-			TRACE_CORE(printf("=> USBD_SendControl sent=%lu\r\n", sent);)
-			pos += sent;
-			len -= sent;
- 		}
-
-	return length;
-}
 
 // Send a USB descriptor string. The string is stored as a
 // plain ASCII string but is sent out as UTF-16 with the
 // correct 2-byte prefix
-static bool USB_SendStringDescriptor(const uint8_t *string, int wLength)
+bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
 {
-	uint16_t buff[64];
+	if (maxlen < 2)
+		return false;
+
+	uint16_t buff[maxlen/2];
 	int l = 1;
 
-	wLength -= 2;
-	while (*string && wLength>0)
+	maxlen -= 2;
+	while (*string && maxlen>0)
 	{
 		buff[l++] = (uint8_t)(*string++);
-		wLength -= 2;
+		maxlen -= 2;
 	}
 	buff[0] = (3<<8) | (l*2);
 
-	return USBD_SendControl(0, (uint8_t*)buff, l*2);
+	return USBDevice.sendControl((uint8_t*)buff, l*2);
 }
 
-uint32_t USBD_RecvControl(void* d, uint32_t len)
+bool _dry_run = false;
+bool _pack_message = false;
+uint16_t _pack_size = 0;
+uint8_t _pack_buffer[256];
+
+void USBDeviceClass::packMessages(bool val)
 {
-	uint8_t *buffer;
-	uint8_t *data = (uint8_t *)d;
-	uint32_t read = UDD_Recv_data(EP0, len);
-	if (read > len)
-		read = len;
-	UDD_Recv(EP0, &buffer);
-	while (!udd_is_OUT_transf_cplt(EP0));
-	for (uint32_t i=0; i<read; i++) {
-		data[i] = buffer[i];
+	if (val) {
+		_pack_message = true;
+		_pack_size = 0;
+	} else {
+		_pack_message = false;
+		sendControl(_pack_buffer, _pack_size);
 	}
-	udd_OUT_transfer_allowed(EP0);
-	return read;
 }
 
-//	Handle CLASS_INTERFACE requests
-bool USBD_ClassInterfaceRequest(Setup& setup)
+uint8_t USBDeviceClass::SendInterfaces(uint32_t* total)
 {
-	uint8_t i = setup.wIndex;
+	uint8_t interfaces = 0;
 
-	TRACE_CORE(printf("=> USBD_ClassInterfaceRequest\r\n");)
+#if defined(CDC_ENABLED)
+	total[0] += CDC_GetInterface(&interfaces);
+#endif
 
-#ifdef CDC_ENABLED
-	if (CDC_ACM_INTERFACE == i)
-	{
-		if( CDC_Setup(setup) == false )
-		{
-			send_zlp();
-		}
+#ifdef PLUGGABLE_USB_ENABLED
+	total[0] += PluggableUSB().getInterface(&interfaces);
+#endif
+
+	return interfaces;
+}
+
+// Construct a dynamic configuration descriptor
+// This really needs dynamic endpoint allocation etc
+uint32_t USBDeviceClass::sendConfiguration(uint32_t maxlen)
+{
+	uint32_t total = 0;
+	// Count and measure interfaces
+	_dry_run = true;
+	uint8_t interfaces = SendInterfaces(&total);
+
+	_Pragma("pack(1)")
+	ConfigDescriptor config = D_CONFIG((uint16_t)(total + sizeof(ConfigDescriptor)), interfaces);
+	_Pragma("pack()")
+
+	//	Now send them
+	_dry_run = false;
+
+	if (maxlen == sizeof(ConfigDescriptor)) {
+		sendControl(&config, sizeof(ConfigDescriptor));
 		return true;
 	}
-#endif
 
-#ifdef HID_ENABLED
-	if (HID_INTERFACE == i)
-	{
-		if( HID_Setup(setup) == true )
-		{
-			send_zlp();
-		}
-		return true;
-	}
-#endif
+	total = 0;
 
-	return false;
-}
+	packMessages(true);
+	sendControl(&config, sizeof(ConfigDescriptor));
+	SendInterfaces(&total);
+	packMessages(false);
 
-//	Construct a dynamic configuration descriptor
-//	This really needs dynamic endpoint allocation etc
-//	TODO
-static bool USBD_SendConfiguration(uint32_t maxlen)
-{
-	uint8_t cache_buffer[128];
-	uint8_t i;
-
-	const uint8_t* interfaces;
-	uint32_t interfaces_length = 0;
-	uint8_t num_interfaces[1];
-
-	num_interfaces[0] = 0;
-
-#if (defined CDC_ENABLED) && defined(HID_ENABLED)
-    num_interfaces[0] += 3;
-    interfaces = (const uint8_t*) CDC_GetInterface();
-    interfaces_length = CDC_GetInterfaceLength() + HID_GetInterfaceLength();
-    if( maxlen > CDC_GetInterfaceLength() + HID_GetInterfaceLength() + sizeof(ConfigDescriptor) )
-    {
-	    maxlen = CDC_GetInterfaceLength() + HID_GetInterfaceLength() + sizeof(ConfigDescriptor);
-    }
-
-#else
-#ifdef CDC_ENABLED
-    num_interfaces[0] += 2;
-	interfaces = (const uint8_t*) CDC_GetInterface();
-	interfaces_length += CDC_GetInterfaceLength();
-	if( maxlen > CDC_GetInterfaceLength()+ sizeof(ConfigDescriptor) )
-	{
-		maxlen = CDC_GetInterfaceLength()+ sizeof(ConfigDescriptor);
-	}
-#endif
-
-#ifdef HID_ENABLED
-    num_interfaces[0] += 1;
-	interfaces = (const uint8_t*) HID_GetInterface();
-	interfaces_length += HID_GetInterfaceLength();
-	if( maxlen > HID_GetInterfaceLength()+ sizeof(ConfigDescriptor) )
-	{
-		maxlen = HID_GetInterfaceLength()+ sizeof(ConfigDescriptor);
-	}
-#endif
-#endif
-
-_Pragma("pack(1)")
-	ConfigDescriptor config = D_CONFIG((uint16_t)(interfaces_length + sizeof(ConfigDescriptor)),num_interfaces[0]);
-_Pragma("pack()")
-
-	memcpy( cache_buffer, &config, sizeof(ConfigDescriptor) );
-
-#if (defined CDC_ENABLED) && defined(HID_ENABLED)
-	for ( i=0; i<CDC_GetInterfaceLength(); i++)
-	{
-		cache_buffer[i+sizeof(ConfigDescriptor)] = interfaces[i];
-	}
-	interfaces = (const uint8_t*) HID_GetInterface();
-	for ( i=0; i<HID_GetInterfaceLength(); i++)
-	{
-		cache_buffer[i+sizeof(ConfigDescriptor)+CDC_GetInterfaceLength()] = interfaces[i];
-	}
-#else
-#ifdef HID_ENABLED
-	for ( i=0; i<interfaces_length; i++)
-	{
-		cache_buffer[i+sizeof(ConfigDescriptor)] = interfaces[i];
-	}
-#endif
-
-#ifdef CDC_ENABLED
-	for ( i=0; i<interfaces_length; i++)
-	{
-		cache_buffer[i+sizeof(ConfigDescriptor)] = interfaces[i];
-	}
-#endif
-#endif
-
-	if (maxlen > sizeof(cache_buffer))
-	{
-		 maxlen = sizeof(cache_buffer);
-	}
-	USBD_SendControl(0,cache_buffer, maxlen );
 	return true;
 }
 
-static bool USBD_SendDescriptor(Setup* pSetup)
+bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 {
-	uint8_t t = pSetup->wValueH;
+	uint8_t t = setup.wValueH;
 	uint8_t desc_length = 0;
-	const uint8_t* desc_addr = 0;
+	bool _cdcComposite;
+	int ret;
+	const uint8_t *desc_addr = 0;
 
-	if (USB_CONFIGURATION_DESCRIPTOR_TYPE == t)
+	if (t == USB_CONFIGURATION_DESCRIPTOR_TYPE)
 	{
-		TRACE_CORE(printf("=> USBD_SendDescriptor : USB_CONFIGURATION_DESCRIPTOR_TYPE length=%d\r\n", setup.wLength);)
-		return USBD_SendConfiguration(pSetup->wLength);
+		return USBDevice.sendConfiguration(setup.wLength);
 	}
 
-#ifdef HID_ENABLED
-	if (HID_REPORT_DESCRIPTOR_TYPE == t)
-	{
-		TRACE_CORE(puts("=> USBD_SendDescriptor : HID_REPORT_DESCRIPTOR_TYPE\r\n");)
-		return HID_GetDescriptor();
-	}
-	if (HID_HID_DESCRIPTOR_TYPE == t)
-	{
-		uint8_t tab[9] = D_HIDREPORT((uint8_t)HID_SizeReportDescriptor());
-
-		TRACE_CORE(puts("=> USBD_SendDescriptor : HID_HID_DESCRIPTOR_TYPE\r\n");)
-
-		return USBD_SendControl(0, tab, sizeof(tab));
+#ifdef PLUGGABLE_USB_ENABLED
+	ret = PluggableUSB().getDescriptor(setup);
+	if (ret != 0) {
+		return (ret > 0 ? true : false);
 	}
 #endif
 
-	if (USB_DEVICE_DESCRIPTOR_TYPE == t)
+	if (t == USB_DEVICE_DESCRIPTOR_TYPE)
 	{
-		TRACE_CORE(puts("=> USBD_SendDescriptor : USB_DEVICE_DESCRIPTOR_TYPE\r\n");)
-		desc_addr = (const uint8_t*)&USB_DeviceDescriptor;
-        if( *desc_addr > pSetup->wLength ) {
-            desc_length = pSetup->wLength;
-        }
+		if (setup.wLength == 8)
+			_cdcComposite = 1;
+
+		desc_addr = _cdcComposite ?  (const uint8_t*)&USB_DeviceDescriptorB : (const uint8_t*)&USB_DeviceDescriptor;
+
+		if (*desc_addr > setup.wLength) {
+			desc_length = setup.wLength;
+		}
 	}
 	else if (USB_STRING_DESCRIPTOR_TYPE == t)
 	{
-		TRACE_CORE(puts("=> USBD_SendDescriptor : USB_STRING_DESCRIPTOR_TYPE\r\n");)
-		if (pSetup->wValueL == 0) {
+		if (setup.wValueL == 0) {
 			desc_addr = (const uint8_t*)&STRING_LANGUAGE;
 		}
-		else if (pSetup->wValueL == IPRODUCT) {
-			return USB_SendStringDescriptor(STRING_PRODUCT, pSetup->wLength);
+		else if (setup.wValueL == IPRODUCT) {
+			return sendStringDescriptor(STRING_PRODUCT, setup.wLength);
 		}
-		else if (pSetup->wValueL == IMANUFACTURER) {
-			return USB_SendStringDescriptor(STRING_MANUFACTURER, pSetup->wLength);
+		else if (setup.wValueL == IMANUFACTURER) {
+			return sendStringDescriptor(STRING_MANUFACTURER, setup.wLength);
 		}
 		else {
 			return false;
 		}
-		if( *desc_addr > pSetup->wLength ) {
-			desc_length = pSetup->wLength;
+		if (*desc_addr > setup.wLength) {
+			desc_length = setup.wLength;
 		}
 	}
-    else
-    {
-        TRACE_CORE(printf("Device ERROR");)
-    }
-
-	if (desc_addr == 0)
+	else
 	{
+	}
+
+	if (desc_addr == 0) {
 		return false;
 	}
 
-	if (desc_length == 0)
-	{
+	if (desc_length == 0) {
 		desc_length = *desc_addr;
 	}
 
-	TRACE_CORE(printf("=> USBD_SendDescriptor : desc_addr=%p desc_length=%d\r\n", desc_addr, desc_length);)
-	USBD_SendControl(0, desc_addr, desc_length);
+	sendControl(desc_addr, desc_length);
 
 	return true;
 }
 
 
-void EndpointHandler(uint8_t bEndpoint)
+void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
-#ifdef CDC_ENABLED
-	if( bEndpoint == CDC_ENDPOINT_OUT )
+#if defined(CDC_ENABLED)
+	if (ep == CDC_ENDPOINT_OUT)
 	{
-		udd_OUT_transfer_allowed(CDC_ENDPOINT_OUT);
+		// The RAM Buffer is empty: we can receive data
+		//usbd.epBank0ResetReady(CDC_ENDPOINT_OUT);
 
 		// Handle received bytes
-		if (USBD_Available(CDC_ENDPOINT_OUT))
-		{
+		if (available(CDC_ENDPOINT_OUT))
 			SerialUSB.accept();
-		}
 	}
-	if( bEndpoint == CDC_ENDPOINT_IN )
+	if (ep == CDC_ENDPOINT_IN)
 	{
-		udd_IN_stop_transfer(CDC_ENDPOINT_IN);
-		/* Clear the transfer complete flag  */
-		udd_clear_IN_transf_cplt(CDC_ENDPOINT_IN);
-
+		// NAK on endpoint IN, the bank is not yet filled in.
+		usbd.epBank1ResetReady(CDC_ENDPOINT_IN);
+		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_IN);
 	}
-	if( bEndpoint == CDC_ENDPOINT_ACM )
+	if (ep == CDC_ENDPOINT_ACM)
 	{
-		udd_IN_stop_transfer(CDC_ENDPOINT_ACM);
-		/* Clear the transfer complete flag  */
-		udd_clear_IN_transf_cplt(CDC_ENDPOINT_ACM);
+		// NAK on endpoint IN, the bank is not yet filled in.
+		usbd.epBank1ResetReady(CDC_ENDPOINT_ACM);
+		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_ACM);
 	}
 #endif
 
-#ifdef HID_ENABLED
-	/* Nothing to do in our example */
+#if defined(PLUGGABLE_USB_ENABLED)
+	// Empty
 #endif
 }
 
-
-void USB_ISR(void)
+void USBDeviceClass::init()
 {
-	uint16_t flags;
-	uint8_t i;
-	uint8_t ept_int;
+	// Enable USB clock
+	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
-	ept_int = udd_endpoint_interrupt();
+	// Set up the USB DP/DN pins
+	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
+	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
+	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg |= MUX_PA24G_USB_DM << (4 * (PIN_PA24G_USB_DM & 0x01u));
+	PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].bit.PMUXEN = 1;
+	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25G_USB_DP & 0x01u)));
+	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
 
-	/* Not endpoint interrupt */
-	if (0 == ept_int)
-	{
-		udd_clear_wakeup_interrupt();
-		udd_clear_eorsm_interrupt();
-		udd_clear_suspend_interrupt();
+	// Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
+	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(6)     | // Generic Clock Multiplexer 6
+	                    GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+	                    GCLK_CLKCTRL_CLKEN;
+	while (GCLK->STATUS.bit.SYNCBUSY)
+		;
 
-		// End of bus reset
-		if (Is_udd_reset())
-		{
-			TRACE_CORE(printf(">>> End of Reset\r\n");)
-			// Reset USB address to 0
-			udd_configure_address(0);
+	USB_SetHandler(&UDD_Handler);
 
-			// Configure EP 0
-			UDD_InitEP(0, USB_ENDPOINT_TYPE_CONTROL);
-			udd_enable_setup_received_interrupt(0);
-			_usbConfiguration = 0;
-			udd_ack_reset();
-		}
+	// Reset USB Device
+	usbd.reset();
 
-		if (Is_udd_sof())
-		{
-			udd_ack_sof();
-		}
+	usbd.calibrate();
+	usbd.setUSBDeviceMode();
+	usbd.runInStandby();
+	usbd.setFullSpeed();
 
-	}
-	else
-	{
-		// Endpoint interrupt
-		flags = udd_read_endpoint_flag(0);
+	// Configure interrupts
+	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
+	NVIC_EnableIRQ((IRQn_Type) USB_IRQn);
 
-		// endpoint received setup interrupt
-		if (flags & USB_DEVICE_EPINTFLAG_RXSTP)
-		{
-			Setup *pSetupData;
+	usbd.enable();
 
-			/* Clear the Received Setup flag */
-			udd_read_endpoint_flag(0) = USB_DEVICE_EPINTFLAG_RXSTP;
-
-			UDD_Recv(EP0, (uint8_t**)&pSetupData);
-
-			/* Clear the Bank 0 ready flag on Control OUT */
-			udd_OUT_transfer_allowed(0);
-
-			bool ok = true;
-			if (REQUEST_STANDARD == (pSetupData->bmRequestType & REQUEST_TYPE))
-			{
-				unsigned char data_to_be_send[2];
-
-				// Standard Requests
-				uint8_t r = pSetupData->bRequest;
-				if (GET_STATUS == r)
-				{
-					if( pSetupData->bmRequestType == 0 )  // device
-					{
-						// Send the device status
-     					TRACE_CORE(puts(">>> EP0 Int: GET_STATUS\r\n");)
-						// Check current configuration for power mode (if device is configured)
-						// TODO
-						// Check if remote wake-up is enabled
-						// TODO
-						data_to_be_send[0]=0;
-						data_to_be_send[1]=0;
-						UDD_Send(0, data_to_be_send, 2);
-					}
-					// if( pSetupData->bmRequestType == 2 ) // Endpoint:
-					else
-					{
-						// Send the endpoint status
-						// Check if the endpoint if currently halted
- 						if( isEndpointHalt == 1 )
-							data_to_be_send[0]=1;
- 						else
-							data_to_be_send[0]=0;
-						data_to_be_send[1]=0;
-						UDD_Send(0, data_to_be_send, 2);
-					}
-				}
-				else if (CLEAR_FEATURE == r)
-				{
-				   // Check which is the selected feature
-					if( pSetupData->wValueL == 1) // DEVICEREMOTEWAKEUP
-					{
-						// Enable remote wake-up and send a ZLP
-						if( isRemoteWakeUpEnabled == 1 )
-							data_to_be_send[0]=1;
-						else
-							data_to_be_send[0]=0;
-						data_to_be_send[1]=0;
-						UDD_Send(0, data_to_be_send, 2);
-					}
-					else // if( pSetupData->wValueL == 0) // ENDPOINTHALT
-					{
-						isEndpointHalt = 0;
-						send_zlp();
-					}
- 				}
-				else if (SET_FEATURE == r)
-				{
-					// Check which is the selected feature
-					if( pSetupData->wValueL == 1) // DEVICEREMOTEWAKEUP
-					{
-						// Enable remote wake-up and send a ZLP
-						isRemoteWakeUpEnabled = 1;
-	    				data_to_be_send[0] = 0;
-						UDD_Send(0, data_to_be_send, 1);
-					}
-					if( pSetupData->wValueL == 0) // ENDPOINTHALT
-					{
-						// Halt endpoint
-						isEndpointHalt = 1;
-						send_zlp();
-					}
-				}
-				else if (SET_ADDRESS == r)
-				{
-					TRACE_CORE(puts(">>> EP0 Int: SET_ADDRESS\r\n");)
-					UDD_SetAddress(pSetupData->wValueL);
-				}
-				else if (GET_DESCRIPTOR == r)
-				{
-					TRACE_CORE(puts(">>> EP0 Int: GET_DESCRIPTOR\r\n");)
-					ok = USBD_SendDescriptor(pSetupData);
-				}
-				else if (SET_DESCRIPTOR == r)
-				{
-					TRACE_CORE(puts(">>> EP0 Int: SET_DESCRIPTOR\r\n");)
-					ok = false;
-				}
-				else if (GET_CONFIGURATION == r)
-				{
-					TRACE_CORE(puts(">>> EP0 Int: GET_CONFIGURATION\r\n");)
-					UDD_Send(0, (void*)&_usbConfiguration, 1);
-				}
-				else if (SET_CONFIGURATION == r)
-				{
-					if (REQUEST_DEVICE == (pSetupData->bmRequestType & REQUEST_RECIPIENT))
-					{
-						TRACE_CORE(printf(">>> EP0 Int: SET_CONFIGURATION REQUEST_DEVICE %d\r\n", pSetupData->wValueL);)
-#ifdef HID_ENABLED
-						UDD_InitEP( HID_ENDPOINT_INT, USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0));
-#endif
-
-#ifdef CDC_ENABLED
-						UDD_InitEP( CDC_ENDPOINT_ACM, USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0));
-						UDD_InitEP( CDC_ENDPOINT_OUT, USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0));
-						UDD_InitEP( CDC_ENDPOINT_IN, USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0));
-#endif
-						_usbConfiguration = pSetupData->wValueL;
-
-#ifdef CDC_ENABLED
-						// Enable interrupt for CDC reception from host (OUT packet)
-						udd_ept_enable_it_IN_transf_cplt(CDC_ENDPOINT_ACM);
-						udd_ept_enable_it_OUT_transf_cplt(CDC_ENDPOINT_OUT);
-#endif
-						send_zlp();
-					}
-					else
-					{
-						TRACE_CORE(puts(">>> EP0 Int: SET_CONFIGURATION failed!\r\n");)
-						ok = false;
-					}
-				}
-				else if (GET_INTERFACE == r)
-				{
-					TRACE_CORE(puts(">>> EP0 Int: GET_INTERFACE\r\n");)
-					UDD_Send(0, (void*)&_usbSetInterface, 1);
-				}
-				else if (SET_INTERFACE == r)
-				{
-					_usbSetInterface = pSetupData->wValueL;
-					TRACE_CORE(puts(">>> EP0 Int: SET_INTERFACE\r\n");)
-					send_zlp();
-				}
-			}
-			else
-			{
-				TRACE_CORE(puts(">>> EP0 Int: ClassInterfaceRequest\r\n");)
-				ok =  USBD_ClassInterfaceRequest(*pSetupData);
-			}
-
-			if (ok)
-			{
-				TRACE_CORE(puts(">>> EP0 Int: Send packet\r\n");)
-				UDD_ClearIN();
-			}
-			else
-			{
-				TRACE_CORE(puts(">>> EP0 Int: Stall\r\n");)
-				UDD_Stall(0);
-			}
-
-			if( flags & USB_DEVICE_EPINTFLAG_STALL(2) )
-			{
-				/* Clear the stall flag */
-				udd_clear_stall_request(0);
-
-				// Remove stall request
-				udd_remove_stall_request(0);
-			}
-		}  // end if USB_DEVICE_EPINTFLAG_RXSTP
-
-		i=0;
-		ept_int &= 0xFE;  // Remove endpoint number 0 (setup)
-		while (ept_int != 0)
-		{
-            // Check if endpoint has a pending interrupt
-            if ((ept_int & (1 << i)) != 0)
-			{
-				if( (udd_read_endpoint_flag(i) & USB_DEVICE_EPINTFLAG_TRCPT_Msk ) != 0 )
-
-				{
-					EndpointHandler(i);
-				}
-                ept_int &= ~(1 << i);
-
-                if (ept_int != 0)
-				{
-
-                    TRACE_CORE("\n\r  - ");
-                }
-            }
-            i++;
-			if( i> USB_EPT_NUM) break;  // fire exit
-        }
-	}
+	initialized = true;
 }
 
-
-
-void USBD_Flush(uint32_t ep)
+bool USBDeviceClass::attach()
 {
-	if (UDD_FifoByteCount(ep))
-	{
-		UDD_ReleaseTX(ep);
-	}
-}
+	if (!initialized)
+		return false;
 
-//	Counting frames
-uint32_t USBD_Connected(void)
-{
-	uint8_t f = UDD_GetFrameNumber();
+	usbd.attach();
+	usbd.enableEndOfResetInterrupt();
+	usbd.enableStartOfFrameInterrupt();
 
-    //delay(3);
-
-	return f != UDD_GetFrameNumber();
-}
-
-
-//=======================================================================
-//=======================================================================
-
-USBDevice_ USBDevice;
-
-USBDevice_::USBDevice_()
-{
-	UDD_SetStack(&USB_ISR);
-}
-
-bool USBDevice_::attach()
-{
-  if (_usbInitialized != 0UL)
-  {
-    UDD_Attach();
 	_usbConfiguration = 0;
 	return true;
-  }
-  else
-  {
-    return false;
-  }
 }
 
-bool USBDevice_::detach()
+void USBDeviceClass::setAddress(uint32_t addr)
 {
-	if (_usbInitialized != 0UL)
+	usbd.epBank1SetByteCount(0, 0);
+	usbd.epBank1AckTransferComplete(0);
+
+	// RAM buffer is full, we can send data (IN)
+	usbd.epBank1SetReady(0);
+
+	// Wait for transfer to complete
+	while (!usbd.epBank1IsTransferComplete(0)) {}
+
+	// Set USB address to addr
+	USB->DEVICE.DADD.bit.DADD = addr; // Address
+	USB->DEVICE.DADD.bit.ADDEN = 1; // Enable
+}
+
+bool USBDeviceClass::detach()
+{
+	if (!initialized)
+		return false;
+	usbd.detach();
+	return true;
+}
+
+bool USBDeviceClass::configured()
+{
+	return _usbConfiguration != 0;
+}
+
+bool USBDeviceClass::handleClassInterfaceSetup(USBSetup& setup)
+{
+	uint8_t i = setup.wIndex;
+
+	#if defined(CDC_ENABLED)
+	if (CDC_ACM_INTERFACE == i)
 	{
-		UDD_Detach();
+		if (CDC_Setup(setup) == false) {
+			sendZlp(0);
+		}
 		return true;
 	}
-	else
-	{
-		return false;
+	#endif
+
+	#if defined(PLUGGABLE_USB_ENABLED)
+	bool ret = PluggableUSB().setup(setup);
+	if ( ret == false) {
+		sendZlp(0);
+	}
+	return ret;
+	#endif
+
+	return false;
+}
+
+uint32_t EndPoints[] =
+{
+	USB_ENDPOINT_TYPE_CONTROL,
+
+#ifdef CDC_ENABLED
+	USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0),           // CDC_ENDPOINT_ACM
+	USB_ENDPOINT_TYPE_BULK      | USB_ENDPOINT_OUT(0),               // CDC_ENDPOINT_OUT
+	USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0),                // CDC_ENDPOINT_IN
+#endif
+
+#ifdef PLUGGABLE_USB_ENABLED
+	//allocate 6 endpoints and remove const so they can be changed by the user
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+#endif
+};
+
+void USBDeviceClass::initEndpoints() {
+	for (uint8_t i = 1; i < sizeof(EndPoints) && EndPoints[i] != 0; i++) {
+		initEP(i, EndPoints[i]);
 	}
 }
 
-bool USBDevice_::configured()
+void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 {
-	return _usbConfiguration;
+	if (config == (USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0)))
+	{
+		usbd.epBank1SetSize(ep, 64);
+		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+		usbd.epBank1SetType(ep, 4); // INTERRUPT IN
+	}
+	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0)))
+	{
+		usbd.epBank0SetSize(ep, 64);
+		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
+		usbd.epBank0SetType(ep, 3); // BULK OUT
+
+		// Release OUT EP
+		usbd.epBank0SetMultiPacketSize(ep, 64);
+		usbd.epBank0SetByteCount(ep, 0);
+	}
+	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
+	{
+		usbd.epBank1SetSize(ep, 64);
+		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+
+		// NAK on endpoint IN, the bank is not yet filled in.
+		usbd.epBank1ResetReady(ep);
+
+		usbd.epBank1SetType(ep, 3); // BULK IN
+	}
+	else if (config == USB_ENDPOINT_TYPE_CONTROL)
+	{
+		// XXX: Needed?
+// 		usbd.epBank0DisableAutoZLP(ep);
+// 		usbd.epBank1DisableAutoZLP(ep);
+
+		// Setup Control OUT
+		usbd.epBank0SetSize(ep, 64);
+		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
+		usbd.epBank0SetType(ep, 1); // CONTROL OUT / SETUP
+
+		// Setup Control IN
+		usbd.epBank1SetSize(ep, 64);
+		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[0]);
+		usbd.epBank1SetType(ep, 1); // CONTROL IN
+
+		// Release OUT EP
+		usbd.epBank0SetMultiPacketSize(ep, 64);
+		usbd.epBank0SetByteCount(ep, 0);
+
+		// NAK on endpoint OUT, the bank is full.
+		usbd.epBank0SetReady(ep);
+	}
 }
 
-void USBDevice_::poll()
+void USBDeviceClass::flush(uint32_t ep)
 {
+	if (available(ep)) {
+		// RAM buffer is full, we can send data (IN)
+		usbd.epBank1SetReady(ep);
+
+	 	// Clear the transfer complete flag
+		usbd.epBank1AckTransferComplete(ep);
+	}
 }
 
-void USBDevice_::init()
+void USBDeviceClass::stall(uint32_t ep)
 {
-	UDD_Init();
-	_usbInitialized=1UL;
+	// TODO: test
+	// TODO: use .bit. notation
+
+	// Stall endpoint
+	USB->DEVICE.DeviceEndpoint[ep].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ(2);
 }
+
+bool USBDeviceClass::connected()
+{
+	// Count frame numbers
+	uint8_t f = USB->DEVICE.FNUM.bit.FNUM;
+	//delay(3);
+	return f != USB->DEVICE.FNUM.bit.FNUM;
+}
+
+
+uint32_t USBDeviceClass::recvControl(void *_data, uint32_t len)
+{
+	uint8_t *data = reinterpret_cast<uint8_t *>(_data);
+
+	// The RAM Buffer is empty: we can receive data
+	usbd.epBank0ResetReady(0);
+
+	//usbd.epBank0AckSetupReceived(0);
+	uint32_t read = armRecvCtrlOUT(0);
+	if (read > len)
+		read = len;
+	//while (!usbd.epBank0AckTransferComplete(0)) {}
+	uint8_t *buffer = udd_ep_out_cache_buffer[0];
+	for (uint32_t i=0; i<len; i++) {
+		data[i] = buffer[i];
+	}
+
+	return read;
+}
+
+// Number of bytes, assumes a rx endpoint
+uint32_t USBDeviceClass::available(uint32_t ep)
+{
+	return usbd.epBank0ByteCount(ep);
+}
+
+// Non Blocking receive
+// Return number of bytes read
+uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
+{
+	if (!_usbConfiguration)
+		return -1;
+
+	if (available(ep) < len)
+		len = available(ep);
+
+	armRecv(ep);
+
+	usbd.epBank0DisableTransferComplete(ep);
+
+	memcpy(_data, udd_ep_out_cache_buffer[ep], len);
+
+	// release empty buffer
+	if (len && !available(ep)) {
+		// The RAM Buffer is empty: we can receive data
+		usbd.epBank0ResetReady(ep);
+
+		// Clear Transfer complete 0 flag
+		usbd.epBank0AckTransferComplete(ep);
+	}
+
+	return len;
+}
+
+// Recv 1 byte if ready
+uint32_t USBDeviceClass::recv(uint32_t ep)
+{
+	uint8_t c;
+	if (recv(ep, &c, 1) != 1) {
+		return -1;
+	} else {
+		return c;
+	}
+}
+
+uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep)
+{
+	// Get endpoint configuration from setting register
+	usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
+	usbd.epBank0SetMultiPacketSize(ep, 8);
+	usbd.epBank0SetByteCount(ep, 0);
+
+	usbd.epBank0ResetReady(ep);
+
+	// Wait OUT
+	while (!usbd.epBank0IsReady(ep)) {}
+	while (!usbd.epBank0IsTransferComplete(ep)) {}
+	return usbd.epBank0ByteCount(ep);
+}
+
+uint8_t USBDeviceClass::armRecv(uint32_t ep)
+{
+	uint16_t count = usbd.epBank0ByteCount(ep);
+	if (count >= 64) {
+		usbd.epBank0SetByteCount(ep, count - 64);
+	} else {
+		usbd.epBank0SetByteCount(ep, 0);
+	}
+	return usbd.epBank0ByteCount(ep);
+}
+
+// Blocking Send of data to an endpoint
+uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
+{
+	uint32_t length = 0;
+
+	if (!_usbConfiguration)
+		return -1;
+	if (len > 16384)
+		return -1;
+
+#if 0
+// This shortcut has some issues:
+// - sometimes it fails when sending an odd number of bytes (may be
+//   due to memory alignment?)
+// - the data pointer should point to "stable" data (and this is not
+//   guaranteed by caller, it may be some sort of temporary buffer)
+// - the SRAM is not guaranteed to start at 0x20000000
+
+// All the above problems must be properly fixed before reenabling
+// this part
+
+	if ((unsigned int)data > 0x20000000)
+	{
+		// Buffer in RAM
+		usbd.epBank1SetAddress(ep, (void *)data);
+		usbd.epBank1SetMultiPacketSize(ep, 0);
+
+		usbd.epBank1SetByteCount(ep, len);
+
+		// Clear the transfer complete flag
+		usbd.epBank1AckTransferComplete(ep);
+
+		// RAM buffer is full, we can send data (IN)
+		usbd.epBank1SetReady(ep);
+
+		// Wait for transfer to complete
+		while (!usbd.epBank1IsTransferComplete(ep)) {
+			;  // need fire exit.
+		}
+		return 0;
+	}
+#endif
+
+	// Flash area
+	while (len != 0)
+	{
+		if (len >= 64) {
+			length = 64;
+		} else {
+			length = len;
+		}
+
+		/* memcopy could be safer in multi threaded environment */
+		memcpy(&udd_ep_in_cache_buffer[ep], data, length);
+
+		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+		usbd.epBank1SetByteCount(ep, length);
+
+		// Clear the transfer complete flag
+		usbd.epBank1AckTransferComplete(ep);
+
+		// RAM buffer is full, we can send data (IN)
+		usbd.epBank1SetReady(ep);
+
+		// Wait for transfer to complete
+		while (!usbd.epBank1IsTransferComplete(ep)) {
+			;  // need fire exit.
+		}
+		len -= length;
+		data += length;
+	}
+	return len;
+}
+
+uint32_t USBDeviceClass::armSend(uint32_t ep, const void* data, uint32_t len)
+{
+	memcpy(&udd_ep_in_cache_buffer[ep], data, len);
+
+	// Get endpoint configuration from setting register
+	usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+	usbd.epBank1SetMultiPacketSize(ep, 0);
+	usbd.epBank1SetByteCount(ep, len);
+
+	return len;
+}
+
+uint32_t USBDeviceClass::sendControl(const void* _data, uint32_t len)
+{
+	const uint8_t *data = reinterpret_cast<const uint8_t *>(_data);
+	uint32_t length = len;
+	uint32_t sent = 0;
+	uint32_t pos = 0;
+
+	if (_dry_run == true)
+		return length;
+
+	if (_pack_message == true) {
+		memcpy(&_pack_buffer[_pack_size], data, len);
+		_pack_size += len;
+		return length;
+	}
+
+ 	while (len > 0)
+ 	{
+		sent = armSend(EP0, data + pos, len);
+		pos += sent;
+		len -= sent;
+ 	}
+
+	return length;
+}
+
+void USBDeviceClass::sendZlp(uint32_t ep)
+{
+	// Set the byte count as zero
+	usbd.epBank1SetByteCount(ep, 0);
+}
+
+bool USBDeviceClass::handleStandardSetup(USBSetup &setup)
+{
+	switch (setup.bRequest) {
+	case GET_STATUS:
+		if (setup.bmRequestType == 0)  // device
+		{
+			// Send the device status
+			// TODO: Check current configuration for power mode (if device is configured)
+			// TODO: Check if remote wake-up is enabled
+			uint8_t buff[] = { 0, 0 };
+			armSend(0, buff, 2);
+			return true;
+		}
+		// if( setup.bmRequestType == 2 ) // Endpoint:
+		else
+		{
+			// Send the endpoint status
+			// Check if the endpoint if currently halted
+			uint8_t buff[] = { 0, 0 };
+			if (isEndpointHalt == 1)
+				buff[0] = 1;
+			armSend(0, buff, 2);
+			return true;
+		}
+
+	case CLEAR_FEATURE:
+		// Check which is the selected feature
+		if (setup.wValueL == 1) // DEVICEREMOTEWAKEUP
+		{
+			// Enable remote wake-up and send a ZLP
+			uint8_t buff[] = { 0, 0 };
+			if (isRemoteWakeUpEnabled == 1)
+				buff[0] = 1;
+			armSend(0, buff, 2);
+			return true;
+		}
+		else // if( setup.wValueL == 0) // ENDPOINTHALT
+		{
+			isEndpointHalt = 0;
+			sendZlp(0);
+			return true;
+		}
+
+	case SET_FEATURE:
+		// Check which is the selected feature
+		if (setup.wValueL == 1) // DEVICEREMOTEWAKEUP
+		{
+			// Enable remote wake-up and send a ZLP
+			isRemoteWakeUpEnabled = 1;
+			uint8_t buff[] = { 0 };
+			armSend(0, buff, 1);
+			return true;
+		}
+		if (setup.wValueL == 0) // ENDPOINTHALT
+		{
+			// Halt endpoint
+			isEndpointHalt = 1;
+			sendZlp(0);
+			return true;
+		}
+
+	case SET_ADDRESS:
+		setAddress(setup.wValueL);
+		return true;
+
+	case GET_DESCRIPTOR:
+		return sendDescriptor(setup);
+
+	case SET_DESCRIPTOR:
+		return false;
+
+	case GET_CONFIGURATION:
+		armSend(0, (void*)&_usbConfiguration, 1);
+		return true;
+
+	case SET_CONFIGURATION:
+		if (REQUEST_DEVICE == (setup.bmRequestType & REQUEST_RECIPIENT)) {
+
+			initEndpoints();
+			_usbConfiguration = setup.wValueL;
+
+			#if defined(CDC_ENABLED)
+			// Enable interrupt for CDC reception from host (OUT packet)
+			usbd.epBank1EnableTransferComplete(CDC_ENDPOINT_ACM);
+			usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);
+			#endif
+
+			sendZlp(0);
+			return true;
+		} else {
+			return false;
+		}
+
+	case GET_INTERFACE:
+		armSend(0, (void*)&_usbSetInterface, 1);
+		return true;
+
+	case SET_INTERFACE:
+		_usbSetInterface = setup.wValueL;
+		sendZlp(0);
+		return true;
+
+	default:
+		return true;
+	}
+}
+
+void USBDeviceClass::ISRHandler()
+{
+
+	if (_pack_message == true) {
+		return;
+	}
+	// End-Of-Reset
+	if (usbd.isEndOfResetInterrupt())
+	{
+		// Configure EP 0
+		initEP(0, USB_ENDPOINT_TYPE_CONTROL);
+
+		// Enable Setup-Received interrupt
+		usbd.epBank0EnableSetupReceived(0);
+
+		_usbConfiguration = 0;
+
+		usbd.ackEndOfResetInterrupt();
+	}
+
+	// Start-Of-Frame
+	if (usbd.isStartOfFrameInterrupt())
+	{
+		usbd.ackStartOfFrameInterrupt();
+	}
+
+	// Endpoint 0 Received Setup interrupt
+	if (usbd.epBank0IsSetupReceived(0))
+	{
+		usbd.epBank0AckSetupReceived(0);
+
+		USBSetup *setup = reinterpret_cast<USBSetup *>(udd_ep_out_cache_buffer[0]);
+
+		/* Clear the Bank 0 ready flag on Control OUT */
+		// The RAM Buffer is empty: we can receive data
+		usbd.epBank0ResetReady(0);
+
+		bool ok;
+		if (REQUEST_STANDARD == (setup->bmRequestType & REQUEST_TYPE)) {
+			// Standard Requests
+			ok = handleStandardSetup(*setup);
+		} else {
+			// Class Interface Requests
+			ok = handleClassInterfaceSetup(*setup);
+		}
+
+		if (ok) {
+			usbd.epBank1SetReady(0);
+		} else {
+			stall(0);
+		}
+
+		if (usbd.epBank1IsStalled(0))
+		{
+			usbd.epBank1AckStalled(0);
+
+			// Remove stall request
+			usbd.epBank1DisableStalled(0);
+		}
+
+	} // end Received Setup handler
+
+	uint8_t i=0;
+	uint8_t ept_int = usbd.epInterruptSummary() & 0xFE; // Remove endpoint number 0 (setup)
+	while (ept_int != 0)
+	{
+		// Check if endpoint has a pending interrupt
+		if ((ept_int & (1 << i)) != 0)
+		{
+			// Endpoint Transfer Complete (0/1) Interrupt
+			if (usbd.epBank0IsTransferComplete(i) ||
+			    usbd.epBank1IsTransferComplete(i))
+			{
+				handleEndpoint(i);
+			}
+			ept_int &= ~(1 << i);
+		}
+		i++;
+		if (i > USB_EPT_NUM)
+			break;  // fire exit
+	}
+}
+
+/*
+ * USB Device instance
+ * -------------------
+ */
+
+// USBDevice class instance
+USBDeviceClass USBDevice;
+
+// USB_Handler ISR
+// extern "C" void USB_Handler(void) {
+// 	USBDevice.ISRHandler();
+// }

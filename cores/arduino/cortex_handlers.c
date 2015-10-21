@@ -16,8 +16,9 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "sam.h"
-#include "variant.h"
+#include <sam.h>
+#include <variant.h>
+#include <stdio.h>
 
 /* RTOS Hooks */
 extern void svcHook(void);
@@ -25,7 +26,6 @@ extern void pendSVHook(void);
 extern int sysTickHook(void);
 
 /* Default empty handler */
-
 void Dummy_Handler(void)
 {
 #if defined DEBUG
@@ -50,7 +50,7 @@ void RTC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void EIC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void NVMCTRL_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void DMAC_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
-void USB_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void USB_Handler      (void) __attribute__ ((weak));
 void EVSYS_Handler    (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM0_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM1_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -175,4 +175,17 @@ void SysTick_Handler(void)
   if (sysTickHook())
     return;
   SysTick_DefaultHandler();
+}
+
+static void (*usb_isr)(void) = NULL;
+
+void USB_Handler(void)
+{
+  if (usb_isr)
+    usb_isr();
+}
+
+void USB_SetHandler(void (*new_usb_isr)(void))
+{
+  usb_isr = new_usb_isr;
 }
