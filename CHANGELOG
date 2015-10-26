@@ -1,4 +1,6 @@
 
+* Print not aborting on write() failure. Thanks @stickbreaker
+
 SAMD CORE 1.6.1 2015.07.21
 
 * Added missing ATN pin definition
