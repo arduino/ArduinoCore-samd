@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
 # Copyright (c) 2015 Arduino LLC.  All right reserved.
 #
@@ -98,6 +99,17 @@ SOURCES= \
   sam_ba_monitor.c \
   sam_ba_serial.c
 
+=======
+IDE_PATH="../../../../.."
+ARM_GCC_PATH=$(IDE_PATH)/hardware/tools/gcc-arm-none-eabi-4.8.3-2014q1/bin
+CC=$(ARM_GCC_PATH)/arm-none-eabi-gcc
+CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -g -Os -w -std=gnu99 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500
+LDFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols
+BLD_EXTA_FLAGS=-D__SAMD21G18A__
+BUILD_PATH=build
+INCLUDES=-I$(IDE_PATH)/hardware/tools/CMSIS/CMSIS/Include/ -I$(IDE_PATH)/hardware/tools/CMSIS/Device/ATMEL/ -I./drivers/ -I./utils/ -I./utils/preprocessor/ -I./utils/interrupt 
+SOURCES=main.c sam_ba_monitor.c startup_samd21.c usart_sam_ba.c drivers/cdc_enumerate.c drivers/uart_driver.c utils/interrupt/interrupt_sam_nvic.c 
+>>>>>>> fix makefile for easier programming
 OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
 DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
 
@@ -109,10 +121,16 @@ else
   AS_CLEAN=
 endif
 
+<<<<<<< HEAD
 LD_SCRIPT=bootloader_samd21x18.ld
+=======
+NAME=samd21_sam_ba
+EXECUTABLE=$(NAME).bin
+>>>>>>> fix makefile for easier programming
 
 all: print_info $(SOURCES) $(BIN) $(HEX) $(AS_BUILD)
 
+<<<<<<< HEAD
 $(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
 	@echo ----------------------------------------------------------
 	@echo Creating ELF binary
@@ -171,3 +189,17 @@ clean: $(AS_CLEAN)
 	-rmdir $(BUILD_PATH)
 
 .phony: print_info $(BUILD_PATH)
+=======
+all: $(SOURCES) $(EXECUTABLE)
+	
+$(EXECUTABLE): $(OBJECTS) 
+	$(CC) -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps  -Tsamd21j18a_flash.ld -Wl,-Map,$(BUILD_PATH)/$(NAME).map --specs=nano.specs --specs=nosys.specs -o $(BUILD_PATH)/$(NAME).elf $(OBJECTS) -Wl,--start-group -lm -Wl,--end-group
+	$(ARM_GCC_PATH)/arm-none-eabi-objcopy -O binary $(BUILD_PATH)/$(NAME).elf $@
+
+$(BUILD_PATH)/%.o: %.c
+	-@mkdir -p $(@D)
+	$(CC) $(CFLAGS) $(BLD_EXTA_FLAGS) $(INCLUDES) $< -o $@
+	
+clean:
+	del $(EXECUTABLE) $(subst /,\,$(OBJECTS)) $(subst /,\,$(BUILD_PATH)/$(NAME).*)
+>>>>>>> fix makefile for easier programming
