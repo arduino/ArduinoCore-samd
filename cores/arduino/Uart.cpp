@@ -107,7 +107,7 @@ int Uart::read()
 
 size_t Uart::write(const uint8_t data)
 {
-  if (sercom->isDataRegisterEmptyUART()) {
+  if (sercom->isDataRegisterEmptyUART() && txBuffer.available() == 0) {
     sercom->writeDataUART(data);
   } else {
     while(txBuffer.isFull()); // spin lock until a spot opens up in the buffer
