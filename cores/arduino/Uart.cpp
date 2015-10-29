@@ -62,6 +62,10 @@ void Uart::flush()
 
 void Uart::IrqHandler()
 {
+  if (sercom->availableDataUART()) {
+    rxBuffer.store_char(sercom->readDataUART());
+  }
+
   if (sercom->isDataRegisterEmptyUART()) {
     if (txBuffer.available()) {
       uint8_t data = txBuffer.read_char();
@@ -70,10 +74,6 @@ void Uart::IrqHandler()
     } else {
       sercom->disableDataRegisterEmptyInterruptUART();
     }
-  }
-
-  if (sercom->availableDataUART()) {
-    rxBuffer.store_char(sercom->readDataUART());
   }
 
   if (sercom->isUARTError()) {
