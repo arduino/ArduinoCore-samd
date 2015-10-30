@@ -17,51 +17,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-/**
- * --------------------
- * SAM-BA Implementation on SAMD21
- * --------------------
- * Requirements to use SAM-BA :
- *
- * Supported communication interfaces :
- * --------------------
- *
- * SERCOM5 : RX:PB23 TX:PB22
- * Baudrate : 115200 8N1
- *
- * USB : D-:PA24 D+:PA25
- *
- * Pins Usage (*outdated as of 2015/10/10*)
- * --------------------
- * The following pins are used by the program :
- * PA25 : input/output
- * PA24 : input/output
- * PB23 : input
- * PB22 : output
- * PA15 : input
- *
- * The application board shall avoid driving the PA25,PA24,PB23,PB22 and PA15 signals
- * while the boot program is running (after a POR for example)
- *
- * Clock system (*outdated as of 2015/10/10*)
- * --------------------
- * CPU clock source (GCLK_GEN_0) - 8MHz internal oscillator (OSC8M)
- * SERCOM5 core GCLK source (GCLK_ID_SERCOM5_CORE) - GCLK_GEN_0 (i.e., OSC8M)
- * GCLK Generator 1 source (GCLK_GEN_1) - 48MHz DFLL in Clock Recovery mode (DFLL48M)
- * USB GCLK source (GCLK_ID_USB) - GCLK_GEN_1 (i.e., DFLL in CRM mode)
- *
- * Memory Mapping
- * --------------------
- * SAM-BA code will be located at 0x0 and executed before any applicative code.
- *
- * Applications compiled to be executed along with the bootloader will start at
- * 0x2000 (see linker script bootloader_samd21x18.ld)
- * Before jumping to the application, the bootloader changes the VTOR register
- * to use the interrupt vectors of the application @0x2000.<- not required as
- * application code is taking care of this.
- *
-*/
-
 #include <stdio.h>
 #include <sam.h>
 #include "sam_ba_monitor.h"
