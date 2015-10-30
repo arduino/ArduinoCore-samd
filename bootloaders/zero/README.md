@@ -49,6 +49,7 @@ The USART in use is the one available on pins D0/D1, labelled respectively RX/TX
 ## 4- Description
 
 **Pinmap**
+
 The following pins are used by the program :
 PA25 : input/output (USB DP)
 PA24 : input/output (USB DM)
@@ -60,7 +61,9 @@ The application board shall avoid driving the PA25, PA24, PB23 and PB22 signals 
 **Clock system**
 
 CPU runs at 48MHz from Generic Clock Generator 0 on DFLL48M.
+
 Generic Clock Generator 1 is using external 32kHz oscillator and is the source of DFLL48M.
+
 USB and USART are using Generic Clock Generator 0 also.
 
 **Memory Mapping**
