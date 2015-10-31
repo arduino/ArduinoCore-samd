@@ -201,6 +201,7 @@ void put_uint32(uint32_t n) {
 
 void sam_ba_monitor_loop(void)
 {
+        pulse_led(3);
 	length = ptr_monitor_if->getdata(data, SIZEBUFMAX);
 	ptr = data;
 	for (i = 0; i < length; i++, ptr++)

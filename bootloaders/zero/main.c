@@ -280,8 +280,15 @@ int main(void)
 	pCdc = (P_USB_CDC)usb_init();
 #endif
 	DEBUG_PIN_LOW;
+
+	// output on D13 (PA.17)
+	LED_PORT.PINCFG[LED_PIN].reg &= ~ (uint8_t)(PORT_PINCFG_INEN);
+	LED_PORT.DIRSET.reg = (uint32_t)(1 << LED_PIN);
+
 	/* Wait for a complete enum on usb or a '#' char on serial line */
 	while (1) {
+   	        pulse_led(1); // while we're waiting, blink the D13 
+
 #if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
 		if (pCdc->IsConfigured(pCdc) != 0) {
 			main_b_cdc_enable = true;
@@ -308,4 +315,29 @@ int main(void)
 		}
 #endif
 	}
+}
+
+
+// We'll have the D13 LED slowly pulse on and off with bitbang PWM
+// for a nice 'hey we're in bootload mode' indication! -ada
+static uint8_t pulse_tick=0;
+static int8_t  pulse_dir=1;
+static int16_t pulse_pwm;
+void pulse_led(int8_t speed) {
+  // blink D13
+  pulse_tick++;
+  if (pulse_tick==0) {
+    pulse_pwm += pulse_dir * speed;
+    if (pulse_pwm > 255) {
+      pulse_pwm = 255;
+      pulse_dir = -1;
+    }
+    if (pulse_pwm < 0) {
+      pulse_pwm = 0;
+      pulse_dir = +1;
+    }
+    LED_ON;
+  }
+  if (pulse_tick==pulse_pwm) 
+    LED_OFF;
 }

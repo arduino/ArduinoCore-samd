@@ -29,6 +29,13 @@
 
 #pragma once
 
+// Gently pulse the D13 LED
+#define LED_PIN 17
+#define PORTA   PORT->Group[0]
+#define LED_PORT PORTA
+
+#define LED_ON LED_PORT.OUTSET.reg = (uint32_t)(1 << LED_PIN);
+#define LED_OFF LED_PORT.OUTCLR.reg = (uint32_t)(1 << LED_PIN);
 /*
  * If BOOT_DOUBLE_TAP_ADDRESS is defined the bootloader is started by
  * quickly tapping two times on the reset button.
