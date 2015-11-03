@@ -1,5 +1,15 @@
+SAMD CORE 1.6.2 2015.11.03
 
+* Fixed bug in delay calculations
+* Fixed deadlock conditions in Wire. Thanks Erin Tomson
 * Print not aborting on write() failure. Thanks @stickbreaker
+* SPI can now be configured in variants. Thanks @aethaniel
+* Implemented Wire.end
+* Fixed external interrupt for pin 8 and 9
+* Implemented Wire.setClock. Thanks @PaoloP74
+* Wire: allow scanning bus via beginTransmission-endTransmission
+* USB Device: big refactoring and bug fix
+* USB Device: added PluggableUSB interface
 
 SAMD CORE 1.6.1 2015.07.21
 
