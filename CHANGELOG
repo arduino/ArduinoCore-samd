@@ -10,6 +10,7 @@ SAMD CORE 1.6.2 2015.11.03
 * Wire: allow scanning bus via beginTransmission-endTransmission
 * USB Device: big refactoring and bug fix
 * USB Device: added PluggableUSB interface
+* updated bossac to version 1.6.1-arduino
 
 SAMD CORE 1.6.1 2015.07.21
 
