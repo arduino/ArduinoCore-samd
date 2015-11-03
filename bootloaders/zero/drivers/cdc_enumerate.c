@@ -32,6 +32,7 @@
 #include <compiler.h>
 #include <string.h>
 
+//#define GENUINO_ZERO_PID
 
 #define MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -52,8 +53,13 @@ const char devDescriptor[] = {
 	0x40,   // bMaxPacketSize0
 	0x41,   // idVendorL
 	0x23,   //
+#if defined(GENUINO_ZERO_PID)
+	0x4D,   // idProductL
+	0x02,   //
+#else
 	0x4D,   // idProductL
 	0x00,   //
+#endif
 	0x10,   // bcdDeviceL
 	0x01,   //
 	0x00,   // iManufacturer    // 0x01
