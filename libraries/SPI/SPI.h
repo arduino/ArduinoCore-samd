@@ -96,6 +96,7 @@ class SPIClass {
 
 
   byte transfer(uint8_t data);
+  uint16_t transfer16(uint16_t data);
   inline void transfer(void *buf, size_t count);
 
   // Transaction Functions
