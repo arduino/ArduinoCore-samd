@@ -291,6 +291,11 @@ void SERCOM::setDataOrderSPI(SercomDataOrder dataOrder)
   enableSPI();
 }
 
+SercomDataOrder SERCOM::getDataOrderSPI()
+{
+  return (sercom->SPI.CTRLA.bit.DORD ? LSB_FIRST : MSB_FIRST);
+}
+
 void SERCOM::setBaudrateSPI(uint8_t divider)
 {
   //Can't divide by 0
