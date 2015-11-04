@@ -194,6 +194,22 @@ byte SPIClass::transfer(uint8_t data)
   return _p_sercom->readDataSPI() & 0xFF;
 }
 
+uint16_t SPIClass::transfer16(uint16_t data) {
+  union { uint16_t val; struct { uint8_t lsb; uint8_t msb; }; } t;
+
+  t.val = data;
+
+  if (_p_sercom->getDataOrderSPI() == LSB_FIRST) {
+    t.lsb = transfer(t.lsb);
+    t.msb = transfer(t.msb);
+  } else {
+    t.msb = transfer(t.msb);
+    t.lsb = transfer(t.lsb);
+  }
+
+  return t.val;
+}
+
 void SPIClass::attachInterrupt() {
   // Should be enableInterrupt()
 }
