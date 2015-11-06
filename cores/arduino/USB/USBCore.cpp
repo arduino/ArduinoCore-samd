@@ -623,8 +623,8 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 	// Flash area
 	while (len != 0)
 	{
-		if (len >= 64) {
-			length = 64;
+		if (len > EPX_SIZE) {
+			length = EPX_SIZE;
 		} else {
 			length = len;
 		}
