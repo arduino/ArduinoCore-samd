@@ -679,12 +679,12 @@ uint32_t USBDeviceClass::sendControl(const void* _data, uint32_t len)
 		return length;
 	}
 
- 	while (len > 0)
- 	{
+	while (len > 0)
+	{
 		sent = armSend(EP0, data + pos, len);
 		pos += sent;
 		len -= sent;
- 	}
+	}
 
 	return length;
 }
