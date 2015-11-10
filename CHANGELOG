@@ -1,6 +1,7 @@
 SAMD CORE 1.6.3
 
 * Added SPI.transfer16(..) method
+* Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
 
 SAMD CORE 1.6.2 2015.11.03
 
