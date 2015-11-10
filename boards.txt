@@ -1,4 +1,4 @@
-# Copyright (c) 2014-2015 Arduino LLC.  All right reserved.
+# Copyright (c) 2014-2015 Arduino LLC, Michele Perla.  All right reserved.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -87,3 +87,30 @@ arduino_zero_native.build.vid=0x2341
 arduino_zero_native.build.pid=0x804d
 arduino_zero_native.bootloader.tool=openocd
 arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
+
+jack.name=Arduino Zero (Jack)
+jack.vid.0=0x2341
+jack.pid.0=0x804d
+jack.vid.1=0x2341
+jack.pid.1=0x004d
+jack.upload.tool=bossac
+jack.upload.protocol=sam-ba
+jack.upload.maximum_size=262144
+jack.upload.use_1200bps_touch=true
+jack.upload.wait_for_upload_port=true
+jack.upload.native_usb=true
+jack.build.mcu=cortex-m0plus
+jack.build.f_cpu=48000000L
+jack.build.usb_product="Arduino Zero"
+jack.build.usb_manufacturer="Arduino LLC"
+jack.build.board=SAMD_ZERO
+jack.build.core=jack
+jack.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
+jack.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+jack.build.openocdscript=openocd_scripts/arduino_zero.cfg
+jack.build.variant=jack
+jack.build.variant_system_lib=
+jack.build.vid=0x2341
+jack.build.pid=0x804d
+jack.bootloader.tool=openocd
+jack.bootloader.file=jack/samd21_sam_ba.bin

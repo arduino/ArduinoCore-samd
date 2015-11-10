@@ -1,0 +1,888 @@
+Archive member included because of file (symbol)
+
+c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+                              c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o (exit)
+c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+                              c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o) (_global_impure_ptr)
+c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+                              c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o (__libc_init_array)
+c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+                              build/sam_ba_monitor.o (memcpy)
+c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+                              c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o (memset)
+c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+                              c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o) (_exit)
+
+Allocating common symbols
+Common symbol       size              file
+
+b_sharp_received    0x1               build/usart_sam_ba.o
+udd_ep_out_cache_buffer
+                    0x80              build/drivers/cdc_enumerate.o
+j                   0x1               build/sam_ba_monitor.o
+udd_ep_in_cache_buffer
+                    0x80              build/drivers/cdc_enumerate.o
+idx_rx_write        0x1               build/usart_sam_ba.o
+size_of_data        0x2               build/usart_sam_ba.o
+length              0x4               build/sam_ba_monitor.o
+ptr                 0x4               build/sam_ba_monitor.o
+command             0x1               build/sam_ba_monitor.o
+MAX_FLASH           0x4               build/sam_ba_monitor.o
+PAGES               0x4               build/sam_ba_monitor.o
+idx_tx_read         0x1               build/usart_sam_ba.o
+i                   0x4               build/sam_ba_monitor.o
+buffer_tx_usart     0x80              build/usart_sam_ba.o
+error_timeout       0x1               build/usart_sam_ba.o
+PAGE_SIZE           0x4               build/sam_ba_monitor.o
+data                0x40              build/sam_ba_monitor.o
+mode_of_transfer    0x1               build/usart_sam_ba.o
+ptr_data            0x4               build/sam_ba_monitor.o
+idx_rx_read         0x1               build/usart_sam_ba.o
+ptr_monitor_if      0x4               build/sam_ba_monitor.o
+sp                  0x4               build/sam_ba_monitor.o
+current_number      0x4               build/sam_ba_monitor.o
+idx_tx_write        0x1               build/usart_sam_ba.o
+u32tmp              0x4               build/sam_ba_monitor.o
+buffer_rx_usart     0x80              build/usart_sam_ba.o
+
+Discarded input sections
+
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+ .data          0x00000000        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+ .text          0x00000000       0x78 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+ .ARM.extab     0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+ .ARM.exidx     0x00000000        0x8 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+ .ARM.attributes
+                0x00000000       0x1b c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+ .text          0x00000000        0x0 build/main.o
+ .data          0x00000000        0x0 build/main.o
+ .bss           0x00000000        0x0 build/main.o
+ .bss.cpu_irq_critical_section_counter
+                0x00000000        0x4 build/main.o
+ .bss.cpu_irq_prev_interrupt_state
+                0x00000000        0x1 build/main.o
+ .text          0x00000000        0x0 build/sam_ba_monitor.o
+ .data          0x00000000        0x0 build/sam_ba_monitor.o
+ .bss           0x00000000        0x0 build/sam_ba_monitor.o
+ .bss.cpu_irq_prev_interrupt_state
+                0x00000000        0x1 build/sam_ba_monitor.o
+ .bss.cpu_irq_critical_section_counter
+                0x00000000        0x4 build/sam_ba_monitor.o
+ .text          0x00000000        0x0 build/startup_samd21.o
+ .data          0x00000000        0x0 build/startup_samd21.o
+ .bss           0x00000000        0x0 build/startup_samd21.o
+ .text          0x00000000        0x0 build/usart_sam_ba.o
+ .data          0x00000000        0x0 build/usart_sam_ba.o
+ .bss           0x00000000        0x0 build/usart_sam_ba.o
+ .text.usart_close
+                0x00000000       0x10 build/usart_sam_ba.o
+ .text.usart_readc
+                0x00000000       0x20 build/usart_sam_ba.o
+ .bss.cpu_irq_critical_section_counter
+                0x00000000        0x4 build/usart_sam_ba.o
+ .bss.cpu_irq_prev_interrupt_state
+                0x00000000        0x1 build/usart_sam_ba.o
+ .text          0x00000000        0x0 build/drivers/cdc_enumerate.o
+ .data          0x00000000        0x0 build/drivers/cdc_enumerate.o
+ .bss           0x00000000        0x0 build/drivers/cdc_enumerate.o
+ .text.AT91F_USB_SendStall
+                0x00000000       0x18 build/drivers/cdc_enumerate.o
+ .bss.cpu_irq_critical_section_counter
+                0x00000000        0x4 build/drivers/cdc_enumerate.o
+ .bss.cpu_irq_prev_interrupt_state
+                0x00000000        0x1 build/drivers/cdc_enumerate.o
+ .text          0x00000000        0x0 build/drivers/uart_driver.o
+ .data          0x00000000        0x0 build/drivers/uart_driver.o
+ .bss           0x00000000        0x0 build/drivers/uart_driver.o
+ .text.uart_disable
+                0x00000000       0x10 build/drivers/uart_driver.o
+ .text.uart_write_buffer_polled
+                0x00000000       0x20 build/drivers/uart_driver.o
+ .text.uart_read_buffer_polled
+                0x00000000       0x40 build/drivers/uart_driver.o
+ .text          0x00000000        0x0 build/utils/interrupt/interrupt_sam_nvic.o
+ .data          0x00000000        0x0 build/utils/interrupt/interrupt_sam_nvic.o
+ .bss           0x00000000        0x0 build/utils/interrupt/interrupt_sam_nvic.o
+ .text.cpu_irq_enter_critical
+                0x00000000       0x38 build/utils/interrupt/interrupt_sam_nvic.o
+ .text.cpu_irq_leave_critical
+                0x00000000       0x30 build/utils/interrupt/interrupt_sam_nvic.o
+ .bss.cpu_irq_critical_section_counter
+                0x00000000        0x4 build/utils/interrupt/interrupt_sam_nvic.o
+ .bss.cpu_irq_prev_interrupt_state
+                0x00000000        0x1 build/utils/interrupt/interrupt_sam_nvic.o
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+ .text.exit     0x00000000       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+ .ARM.attributes
+                0x00000000       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+ .debug_frame   0x00000000       0x28 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .data.impure_data
+                0x00000000       0x60 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .data._impure_ptr
+                0x00000000        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .rodata.str1.1
+                0x00000000        0x2 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .rodata._global_impure_ptr
+                0x00000000        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .ARM.attributes
+                0x00000000       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+ .text._exit    0x00000000        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+ .ARM.attributes
+                0x00000000       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+ .debug_frame   0x00000000       0x20 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtend.o
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtend.o
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtend.o
+ .eh_frame      0x00000000        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtend.o
+ .jcr           0x00000000        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtend.o
+ .ARM.attributes
+                0x00000000       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtend.o
+ .text          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtn.o
+ .data          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtn.o
+ .bss           0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtn.o
+
+Memory Configuration
+
+Name             Origin             Length             Attributes
+rom              0x00000000         0x00040000         xr
+ram              0x20000000         0x00007ffc         xrw
+*default*        0x00000000         0xffffffff
+
+Linker script and memory map
+
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+LOAD build/main.o
+LOAD build/sam_ba_monitor.o
+LOAD build/startup_samd21.o
+LOAD build/usart_sam_ba.o
+LOAD build/drivers/cdc_enumerate.o
+LOAD build/drivers/uart_driver.o
+LOAD build/utils/interrupt/interrupt_sam_nvic.o
+START GROUP
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libm.a
+END GROUP
+START GROUP
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m\libgcc.a
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a
+END GROUP
+START GROUP
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m\libgcc.a
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a
+END GROUP
+START GROUP
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m\libgcc.a
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a
+END GROUP
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtend.o
+LOAD c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtn.o
+                0x00002000                STACK_SIZE = DEFINED (STACK_SIZE)?STACK_SIZE:DEFINED (__stack_size__)?__stack_size__:0x2000
+
+.text           0x00000000     0x1890
+                0x00000000                . = ALIGN (0x4)
+                0x00000000                _sfixed = .
+ *(.vectors .vectors.*)
+ .vectors       0x00000000       0xb0 build/startup_samd21.o
+                0x00000000                exception_table
+ *(.text .text.* .gnu.linkonce.t.*)
+ .text          0x000000b0       0x60 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+ .text.system_init
+                0x00000110       0xe0 build/main.o
+                0x00000110                system_init
+ .text.startup.main
+                0x000001f0       0xfc build/main.o
+                0x000001f0                main
+ .text.sam_ba_monitor_init
+                0x000002ec       0x2c build/sam_ba_monitor.o
+                0x000002ec                sam_ba_monitor_init
+ .text.sam_ba_putdata_term
+                0x00000318       0x74 build/sam_ba_monitor.o
+                0x00000318                sam_ba_putdata_term
+ .text.call_applet
+                0x0000038c       0x28 build/sam_ba_monitor.o
+                0x0000038c                call_applet
+ .text.put_uint32
+                0x000003b4       0x30 build/sam_ba_monitor.o
+                0x000003b4                put_uint32
+ .text.sam_ba_monitor_loop
+                0x000003e4      0x434 build/sam_ba_monitor.o
+                0x000003e4                sam_ba_monitor_loop
+ .text.sam_ba_monitor_run
+                0x00000818       0x64 build/sam_ba_monitor.o
+                0x00000818                sam_ba_monitor_run
+ .text.Dummy_Handler
+                0x0000087c        0x2 build/startup_samd21.o
+                0x0000087c                DMAC_Handler
+                0x0000087c                HardFault_Handler
+                0x0000087c                AC_Handler
+                0x0000087c                SysTick_Handler
+                0x0000087c                PendSV_Handler
+                0x0000087c                NMI_Handler
+                0x0000087c                TC7_Handler
+                0x0000087c                SERCOM1_Handler
+                0x0000087c                ADC_Handler
+                0x0000087c                TCC1_Handler
+                0x0000087c                SERCOM2_Handler
+                0x0000087c                TCC0_Handler
+                0x0000087c                RTC_Handler
+                0x0000087c                EIC_Handler
+                0x0000087c                TC6_Handler
+                0x0000087c                WDT_Handler
+                0x0000087c                TC4_Handler
+                0x0000087c                USB_Handler
+                0x0000087c                TC3_Handler
+                0x0000087c                Dummy_Handler
+                0x0000087c                PM_Handler
+                0x0000087c                SERCOM5_Handler
+                0x0000087c                SVC_Handler
+                0x0000087c                TCC2_Handler
+                0x0000087c                EVSYS_Handler
+                0x0000087c                SERCOM3_Handler
+                0x0000087c                SERCOM4_Handler
+                0x0000087c                I2S_Handler
+                0x0000087c                NVMCTRL_Handler
+                0x0000087c                SERCOM0_Handler
+                0x0000087c                DAC_Handler
+                0x0000087c                PTC_Handler
+                0x0000087c                TC5_Handler
+                0x0000087c                SYSCTRL_Handler
+ *fill*         0x0000087e        0x2 
+ .text.Reset_Handler
+                0x00000880       0x64 build/startup_samd21.o
+                0x00000880                Reset_Handler
+ .text.usart_open
+                0x000008e4       0xbc build/usart_sam_ba.o
+                0x000008e4                usart_open
+ .text.usart_putc
+                0x000009a0       0x14 build/usart_sam_ba.o
+                0x000009a0                usart_putc
+ .text.usart_is_rx_ready
+                0x000009b4       0x10 build/usart_sam_ba.o
+                0x000009b4                usart_is_rx_ready
+ .text.usart_getc
+                0x000009c4       0x18 build/usart_sam_ba.o
+                0x000009c4                usart_getc
+ .text.usart_sharp_received
+                0x000009dc       0x1c build/usart_sam_ba.o
+                0x000009dc                usart_sharp_received
+ .text.usart_putdata
+                0x000009f8       0x1a build/usart_sam_ba.o
+                0x000009f8                usart_putdata
+ .text.usart_getdata
+                0x00000a12        0xe build/usart_sam_ba.o
+                0x00000a12                usart_getdata
+ .text.add_crc  0x00000a20       0x18 build/usart_sam_ba.o
+                0x00000a20                add_crc
+ .text.getbytes
+                0x00000a38       0x64 build/usart_sam_ba.o
+ .text.getPacket
+                0x00000a9c       0x6c build/usart_sam_ba.o
+                0x00000a9c                getPacket
+ .text.usart_putdata_xmd
+                0x00000b08      0x108 build/usart_sam_ba.o
+                0x00000b08                usart_putdata_xmd
+ .text.usart_getdata_xmd
+                0x00000c10       0xa0 build/usart_sam_ba.o
+                0x00000c10                usart_getdata_xmd
+ .text.USB_Read
+                0x00000cb0       0x8c build/drivers/cdc_enumerate.o
+ .text.USB_Write
+                0x00000d3c       0xa0 build/drivers/cdc_enumerate.o
+ .text.AT91F_InitUSB
+                0x00000ddc      0x10c build/drivers/cdc_enumerate.o
+                0x00000ddc                AT91F_InitUSB
+ .text.AT91F_CDC_Open
+                0x00000ee8       0x2c build/drivers/cdc_enumerate.o
+                0x00000ee8                AT91F_CDC_Open
+ .text.AT91F_USB_SendZlp
+                0x00000f14       0x38 build/drivers/cdc_enumerate.o
+                0x00000f14                AT91F_USB_SendZlp
+ .text.USB_IsConfigured
+                0x00000f4c      0x438 build/drivers/cdc_enumerate.o
+ .text.usb_init
+                0x00001384       0x20 build/drivers/cdc_enumerate.o
+                0x00001384                usb_init
+ .text.cdc_putc
+                0x000013a4       0x18 build/drivers/cdc_enumerate.o
+                0x000013a4                cdc_putc
+ .text.cdc_getc
+                0x000013bc       0x18 build/drivers/cdc_enumerate.o
+                0x000013bc                cdc_getc
+ .text.cdc_is_rx_ready
+                0x000013d4       0x24 build/drivers/cdc_enumerate.o
+                0x000013d4                cdc_is_rx_ready
+ .text.cdc_write_buf
+                0x000013f8       0x1c build/drivers/cdc_enumerate.o
+                0x000013f8                cdc_write_buf
+ .text.cdc_read_buf
+                0x00001414       0x28 build/drivers/cdc_enumerate.o
+                0x00001414                cdc_read_buf
+ .text.cdc_read_buf_xmd
+                0x0000143c       0x38 build/drivers/cdc_enumerate.o
+                0x0000143c                cdc_read_buf_xmd
+ .text.uart_get_sercom_index
+                0x00001474       0x30 build/drivers/uart_driver.o
+                0x00001474                uart_get_sercom_index
+ .text.uart_basic_init
+                0x000014a4       0x5c build/drivers/uart_driver.o
+                0x000014a4                uart_basic_init
+ .text.uart_write_byte
+                0x00001500        0xa build/drivers/uart_driver.o
+                0x00001500                uart_write_byte
+ *fill*         0x0000150a        0x2 
+ .text.uart_read_byte
+                0x0000150c       0x30 build/drivers/uart_driver.o
+                0x0000150c                uart_read_byte
+ .text.__libc_init_array
+                0x0000153c       0x4c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+                0x0000153c                __libc_init_array
+ .text.memcpy   0x00001588       0x12 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+                0x00001588                memcpy
+ .text.memset   0x0000159a       0x10 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+                0x0000159a                memset
+ *(.glue_7t)
+ .glue_7t       0x00000000        0x0 linker stubs
+ *(.glue_7)
+ .glue_7        0x00000000        0x0 linker stubs
+ *(.rodata .rodata* .gnu.linkonce.r.*)
+ *fill*         0x000015aa        0x2 
+ .rodata        0x000015ac       0x20 build/sam_ba_monitor.o
+ .rodata.uart_if
+                0x000015cc       0x1c build/sam_ba_monitor.o
+                0x000015cc                uart_if
+ .rodata.str1.1
+                0x000015e8       0x29 build/sam_ba_monitor.o
+                                 0x2c (size before relaxing)
+ .rodata.RomBOOT_Version
+                0x00001611        0x4 build/sam_ba_monitor.o
+                0x00001611                RomBOOT_Version
+ *fill*         0x00001615        0x3 
+ .rodata.usbcdc_if
+                0x00001618       0x1c build/sam_ba_monitor.o
+                0x00001618                usbcdc_if
+ .rodata.RomBOOT_ExtendedCapabilities
+                0x00001634        0xe build/sam_ba_monitor.o
+                0x00001634                RomBOOT_ExtendedCapabilities
+ .rodata.crc16Table
+                0x00001642      0x200 build/usart_sam_ba.o
+ *fill*         0x00001842        0x2 
+ .rodata.devDescriptor
+                0x00001844       0x14 build/drivers/cdc_enumerate.o
+                0x00001844                devDescriptor
+ .rodata        0x00001858       0x18 build/drivers/uart_driver.o
+ *(.ARM.extab* .gnu.linkonce.armextab.*)
+                0x00001870                . = ALIGN (0x4)
+ *(.init)
+ .init          0x00001870        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+                0x00001870                _init
+ .init          0x00001874        0x8 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtn.o
+                0x0000187c                . = ALIGN (0x4)
+                0x0000187c                __preinit_array_start = .
+ *(.preinit_array)
+                0x0000187c                __preinit_array_end = .
+                0x0000187c                . = ALIGN (0x4)
+                0x0000187c                __init_array_start = .
+ *(SORT(.init_array.*))
+ *(.init_array)
+ .init_array    0x0000187c        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+                0x00001880                __init_array_end = .
+                0x00001880                . = ALIGN (0x4)
+ *crtbegin.o(.ctors)
+ *(EXCLUDE_FILE(*crtend.o) .ctors)
+ *(SORT(.ctors.*))
+ *crtend.o(.ctors)
+                0x00001880                . = ALIGN (0x4)
+ *(.fini)
+ .fini          0x00001880        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+                0x00001880                _fini
+ .fini          0x00001884        0x8 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtn.o
+                0x0000188c                . = ALIGN (0x4)
+                0x0000188c                __fini_array_start = .
+ *(.fini_array)
+ .fini_array    0x0000188c        0x4 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+ *(SORT(.fini_array.*))
+                0x00001890                __fini_array_end = .
+ *crtbegin.o(.dtors)
+ *(EXCLUDE_FILE(*crtend.o) .dtors)
+ *(SORT(.dtors.*))
+ *crtend.o(.dtors)
+                0x00001890                . = ALIGN (0x4)
+                0x00001890                _efixed = .
+                0x00001890                PROVIDE (__exidx_start, .)
+
+.vfp11_veneer   0x00001890        0x0
+ .vfp11_veneer  0x00000000        0x0 linker stubs
+
+.v4_bx          0x00001890        0x0
+ .v4_bx         0x00000000        0x0 linker stubs
+
+.iplt           0x00001890        0x0
+ .iplt          0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+
+.eh_frame       0x00001890        0x0
+ .eh_frame      0x00001890        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+
+.rel.dyn        0x00001890        0x0
+ .rel.iplt      0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+
+.jcr            0x00001890        0x0
+ .jcr           0x00001890        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+
+.igot.plt       0x00001890        0x0
+ .igot.plt      0x00000000        0x0 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+
+.ARM.exidx
+ *(.ARM.exidx* .gnu.linkonce.armexidx.*)
+                0x00001890                PROVIDE (__exidx_end, .)
+                0x00001890                . = ALIGN (0x4)
+                0x00001890                _etext = .
+
+.relocate       0x20000000       0x50 load address 0x00001890
+                0x20000000                . = ALIGN (0x4)
+                0x20000000                _srelocate = .
+ *(.ramfunc .ramfunc.*)
+ *(.data .data.*)
+ .data.cfgDescriptor
+                0x20000000       0x44 build/drivers/cdc_enumerate.o
+                0x20000000                cfgDescriptor
+ .data.line_coding
+                0x20000044        0x8 build/drivers/cdc_enumerate.o
+ .data.g_interrupt_enabled
+                0x2000004c        0x1 build/utils/interrupt/interrupt_sam_nvic.o
+                0x2000004c                g_interrupt_enabled
+                0x20000050                . = ALIGN (0x4)
+ *fill*         0x2000004d        0x3 
+                0x20000050                _erelocate = .
+
+.bss            0x20000050      0x34c load address 0x000018e0
+                0x20000050                . = ALIGN (0x4)
+                0x20000050                _sbss = .
+                0x20000050                _szero = .
+ *(.bss .bss.*)
+ .bss           0x20000050       0x1c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+ .bss.main_b_cdc_enable
+                0x2000006c        0x1 build/main.o
+ *fill*         0x2000006d        0x3 
+ .bss.src_buff_addr.11753
+                0x20000070        0x4 build/sam_ba_monitor.o
+ .bss.b_terminal_mode
+                0x20000074        0x1 build/sam_ba_monitor.o
+                0x20000074                b_terminal_mode
+ .bss.b_sam_ba_interface_usart
+                0x20000075        0x1 build/sam_ba_monitor.o
+                0x20000075                b_sam_ba_interface_usart
+ .bss.wIndex.11683
+                0x20000076        0x2 build/drivers/cdc_enumerate.o
+ .bss.wLength.11684
+                0x20000078        0x2 build/drivers/cdc_enumerate.o
+ *fill*         0x2000007a        0x2 
+ .bss.pCdc      0x2000007c       0x14 build/drivers/cdc_enumerate.o
+ .bss.read_job  0x20000090        0x1 build/drivers/cdc_enumerate.o
+ .bss.bmRequestType.11679
+                0x20000091        0x1 build/drivers/cdc_enumerate.o
+ .bss.bRequest.11680
+                0x20000092        0x1 build/drivers/cdc_enumerate.o
+ *fill*         0x20000093        0x1 
+ .bss.usb_endpoint_table
+                0x20000094       0x80 build/drivers/cdc_enumerate.o
+                0x20000094                usb_endpoint_table
+ .bss.wValue.11682
+                0x20000114        0x2 build/drivers/cdc_enumerate.o
+ .bss.wStatus.11685
+                0x20000116        0x2 build/drivers/cdc_enumerate.o
+ .bss.dir.11681
+                0x20000118        0x1 build/drivers/cdc_enumerate.o
+ .bss.uart_drv_error_flag
+                0x20000119        0x1 build/drivers/uart_driver.o
+                0x20000119                uart_drv_error_flag
+ *(COMMON)
+ *fill*         0x2000011a        0x2 
+ COMMON         0x2000011c       0x74 build/sam_ba_monitor.o
+                0x2000011c                j
+                0x20000120                length
+                0x20000124                ptr
+                0x20000128                command
+                0x2000012c                MAX_FLASH
+                0x20000130                PAGES
+                0x20000134                i
+                0x20000138                PAGE_SIZE
+                0x2000013c                data
+                0x2000017c                ptr_data
+                0x20000180                ptr_monitor_if
+                0x20000184                sp
+                0x20000188                current_number
+                0x2000018c                u32tmp
+ COMMON         0x20000190      0x109 build/usart_sam_ba.o
+                0x20000190                b_sharp_received
+                0x20000191                idx_rx_write
+                0x20000192                size_of_data
+                0x20000194                idx_tx_read
+                0x20000195                buffer_tx_usart
+                0x20000215                error_timeout
+                0x20000216                mode_of_transfer
+                0x20000217                idx_rx_read
+                0x20000218                idx_tx_write
+                0x20000219                buffer_rx_usart
+ *fill*         0x20000299        0x3 
+ COMMON         0x2000029c      0x100 build/drivers/cdc_enumerate.o
+                0x2000029c                udd_ep_out_cache_buffer
+                0x2000031c                udd_ep_in_cache_buffer
+                0x2000039c                . = ALIGN (0x4)
+                0x2000039c                _ebss = .
+                0x2000039c                _ezero = .
+
+.stack          0x2000039c     0x2004 load address 0x00001c2c
+                0x200003a0                . = ALIGN (0x8)
+ *fill*         0x2000039c        0x4 
+                0x200003a0                _sstack = .
+                0x200023a0                . = (. + STACK_SIZE)
+ *fill*         0x200003a0     0x2000 
+                0x200023a0                . = ALIGN (0x8)
+                0x200023a0                _estack = .
+                0x200023a0                . = ALIGN (0x4)
+                0x200023a0                _end = .
+OUTPUT(build/samd21_sam_ba.elf elf32-littlearm)
+
+.ARM.attributes
+                0x00000000       0x28
+ .ARM.attributes
+                0x00000000       0x1e c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+ .ARM.attributes
+                0x0000001e       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+ .ARM.attributes
+                0x0000004a       0x32 build/main.o
+ .ARM.attributes
+                0x0000007c       0x32 build/sam_ba_monitor.o
+ .ARM.attributes
+                0x000000ae       0x32 build/startup_samd21.o
+ .ARM.attributes
+                0x000000e0       0x32 build/usart_sam_ba.o
+ .ARM.attributes
+                0x00000112       0x32 build/drivers/cdc_enumerate.o
+ .ARM.attributes
+                0x00000144       0x32 build/drivers/uart_driver.o
+ .ARM.attributes
+                0x00000176       0x32 build/utils/interrupt/interrupt_sam_nvic.o
+ .ARM.attributes
+                0x000001a8       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+ .ARM.attributes
+                0x000001d4       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+ .ARM.attributes
+                0x00000200       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+ .ARM.attributes
+                0x0000022c       0x1e c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtn.o
+
+.comment        0x00000000       0x70
+ .comment       0x00000000       0x70 build/main.o
+                                 0x71 (size before relaxing)
+ .comment       0x00000000       0x71 build/sam_ba_monitor.o
+ .comment       0x00000000       0x71 build/startup_samd21.o
+ .comment       0x00000000       0x71 build/usart_sam_ba.o
+ .comment       0x00000000       0x71 build/drivers/cdc_enumerate.o
+ .comment       0x00000000       0x71 build/drivers/uart_driver.o
+ .comment       0x00000000       0x71 build/utils/interrupt/interrupt_sam_nvic.o
+
+.debug_info     0x00000000     0xe2c3
+ .debug_info    0x00000000     0x431a build/main.o
+ .debug_info    0x0000431a      0xd5c build/sam_ba_monitor.o
+ .debug_info    0x00005076      0x434 build/startup_samd21.o
+ .debug_info    0x000054aa     0x35e2 build/usart_sam_ba.o
+ .debug_info    0x00008a8c     0x37cd build/drivers/cdc_enumerate.o
+ .debug_info    0x0000c259     0x1e97 build/drivers/uart_driver.o
+ .debug_info    0x0000e0f0      0x1d3 build/utils/interrupt/interrupt_sam_nvic.o
+
+.debug_abbrev   0x00000000     0x12d3
+ .debug_abbrev  0x00000000      0x354 build/main.o
+ .debug_abbrev  0x00000354      0x3b3 build/sam_ba_monitor.o
+ .debug_abbrev  0x00000707      0x14f build/startup_samd21.o
+ .debug_abbrev  0x00000856      0x3e1 build/usart_sam_ba.o
+ .debug_abbrev  0x00000c37      0x3e6 build/drivers/cdc_enumerate.o
+ .debug_abbrev  0x0000101d      0x1c7 build/drivers/uart_driver.o
+ .debug_abbrev  0x000011e4       0xef build/utils/interrupt/interrupt_sam_nvic.o
+
+.debug_loc      0x00000000     0x1377
+ .debug_loc     0x00000000       0xf7 build/main.o
+ .debug_loc     0x000000f7      0x2f4 build/sam_ba_monitor.o
+ .debug_loc     0x000003eb       0xa8 build/startup_samd21.o
+ .debug_loc     0x00000493      0x689 build/usart_sam_ba.o
+ .debug_loc     0x00000b1c      0x72e build/drivers/cdc_enumerate.o
+ .debug_loc     0x0000124a      0x12d build/drivers/uart_driver.o
+
+.debug_aranges  0x00000000      0x220
+ .debug_aranges
+                0x00000000       0x28 build/main.o
+ .debug_aranges
+                0x00000028       0x48 build/sam_ba_monitor.o
+ .debug_aranges
+                0x00000070       0x28 build/startup_samd21.o
+ .debug_aranges
+                0x00000098       0x88 build/usart_sam_ba.o
+ .debug_aranges
+                0x00000120       0x88 build/drivers/cdc_enumerate.o
+ .debug_aranges
+                0x000001a8       0x50 build/drivers/uart_driver.o
+ .debug_aranges
+                0x000001f8       0x28 build/utils/interrupt/interrupt_sam_nvic.o
+
+.debug_ranges   0x00000000      0x1f8
+ .debug_ranges  0x00000000       0x18 build/main.o
+ .debug_ranges  0x00000018       0x38 build/sam_ba_monitor.o
+ .debug_ranges  0x00000050       0x18 build/startup_samd21.o
+ .debug_ranges  0x00000068       0x90 build/usart_sam_ba.o
+ .debug_ranges  0x000000f8       0x90 build/drivers/cdc_enumerate.o
+ .debug_ranges  0x00000188       0x58 build/drivers/uart_driver.o
+ .debug_ranges  0x000001e0       0x18 build/utils/interrupt/interrupt_sam_nvic.o
+
+.debug_line     0x00000000     0x1910
+ .debug_line    0x00000000      0x3c7 build/main.o
+ .debug_line    0x000003c7      0x489 build/sam_ba_monitor.o
+ .debug_line    0x00000850      0x219 build/startup_samd21.o
+ .debug_line    0x00000a69      0x495 build/usart_sam_ba.o
+ .debug_line    0x00000efe      0x4d8 build/drivers/cdc_enumerate.o
+ .debug_line    0x000013d6      0x2f0 build/drivers/uart_driver.o
+ .debug_line    0x000016c6      0x24a build/utils/interrupt/interrupt_sam_nvic.o
+
+.debug_str      0x00000000     0x2528
+ .debug_str     0x00000000     0x1383 build/main.o
+                               0x14d0 (size before relaxing)
+ .debug_str     0x00001383      0x1ad build/sam_ba_monitor.o
+                                0x6ab (size before relaxing)
+ .debug_str     0x00001530      0x34e build/startup_samd21.o
+                                0x563 (size before relaxing)
+ .debug_str     0x0000187e      0x86b build/usart_sam_ba.o
+                               0x10d2 (size before relaxing)
+ .debug_str     0x000020e9      0x33d build/drivers/cdc_enumerate.o
+                               0x1233 (size before relaxing)
+ .debug_str     0x00002426       0xa1 build/drivers/uart_driver.o
+                                0xa37 (size before relaxing)
+ .debug_str     0x000024c7       0x61 build/utils/interrupt/interrupt_sam_nvic.o
+                                0x332 (size before relaxing)
+
+.debug_frame    0x00000000      0x56c
+ .debug_frame   0x00000000       0x4c build/main.o
+ .debug_frame   0x0000004c       0xa4 build/sam_ba_monitor.o
+ .debug_frame   0x000000f0       0x38 build/startup_samd21.o
+ .debug_frame   0x00000128      0x174 build/usart_sam_ba.o
+ .debug_frame   0x0000029c      0x180 build/drivers/cdc_enumerate.o
+ .debug_frame   0x0000041c       0xac build/drivers/uart_driver.o
+ .debug_frame   0x000004c8       0x30 build/utils/interrupt/interrupt_sam_nvic.o
+ .debug_frame   0x000004f8       0x2c c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+ .debug_frame   0x00000524       0x28 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+ .debug_frame   0x0000054c       0x20 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+
+Cross Reference Table
+
+Symbol                                            File
+AC_Handler                                        build/startup_samd21.o
+ADC_Handler                                       build/startup_samd21.o
+AT91F_CDC_Open                                    build/drivers/cdc_enumerate.o
+AT91F_InitUSB                                     build/drivers/cdc_enumerate.o
+AT91F_USB_SendStall                               build/drivers/cdc_enumerate.o
+AT91F_USB_SendZlp                                 build/drivers/cdc_enumerate.o
+DAC_Handler                                       build/startup_samd21.o
+DMAC_Handler                                      build/startup_samd21.o
+Dummy_Handler                                     build/startup_samd21.o
+EIC_Handler                                       build/startup_samd21.o
+EVSYS_Handler                                     build/startup_samd21.o
+HardFault_Handler                                 build/startup_samd21.o
+I2S_Handler                                       build/startup_samd21.o
+MAX_FLASH                                         build/sam_ba_monitor.o
+NMI_Handler                                       build/startup_samd21.o
+NVMCTRL_Handler                                   build/startup_samd21.o
+PAGES                                             build/sam_ba_monitor.o
+PAGE_SIZE                                         build/sam_ba_monitor.o
+PM_Handler                                        build/startup_samd21.o
+PTC_Handler                                       build/startup_samd21.o
+PendSV_Handler                                    build/startup_samd21.o
+RTC_Handler                                       build/startup_samd21.o
+Reset_Handler                                     build/startup_samd21.o
+RomBOOT_ExtendedCapabilities                      build/sam_ba_monitor.o
+RomBOOT_Version                                   build/sam_ba_monitor.o
+SERCOM0_Handler                                   build/startup_samd21.o
+SERCOM1_Handler                                   build/startup_samd21.o
+SERCOM2_Handler                                   build/startup_samd21.o
+SERCOM3_Handler                                   build/startup_samd21.o
+SERCOM4_Handler                                   build/startup_samd21.o
+SERCOM5_Handler                                   build/startup_samd21.o
+SVC_Handler                                       build/startup_samd21.o
+SYSCTRL_Handler                                   build/startup_samd21.o
+SysTick_Handler                                   build/startup_samd21.o
+TC3_Handler                                       build/startup_samd21.o
+TC4_Handler                                       build/startup_samd21.o
+TC5_Handler                                       build/startup_samd21.o
+TC6_Handler                                       build/startup_samd21.o
+TC7_Handler                                       build/startup_samd21.o
+TCC0_Handler                                      build/startup_samd21.o
+TCC1_Handler                                      build/startup_samd21.o
+TCC2_Handler                                      build/startup_samd21.o
+USB_Handler                                       build/startup_samd21.o
+WDT_Handler                                       build/startup_samd21.o
+_Jv_RegisterClasses                               c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+__bss_end__                                       c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+__bss_start__                                     c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+__call_exitprocs                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+__deregister_frame_info                           c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+__dso_handle                                      c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+__init_array_end                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+__init_array_start                                c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+__libc_fini_array                                 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+__libc_init_array                                 c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+                                                  build/startup_samd21.o
+                                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+__preinit_array_end                               c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+__preinit_array_start                             c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+__register_frame_info                             c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crtbegin.o
+__sf_fake_stderr                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+__sf_fake_stdin                                   c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+__sf_fake_stdout                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+__stack                                           c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+_erelocate                                        build/startup_samd21.o
+_estack                                           build/startup_samd21.o
+_etext                                            build/startup_samd21.o
+_exit                                             c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libnosys.a(_exit.o)
+                                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+_ezero                                            build/startup_samd21.o
+_fini                                             c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+_global_impure_ptr                                c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+                                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+_impure_ptr                                       c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-impure.o)
+_init                                             c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/armv6-m/crti.o
+                                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-init.o)
+_mainCRTStartup                                   c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+_sfixed                                           build/startup_samd21.o
+_srelocate                                        build/startup_samd21.o
+_start                                            c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+_szero                                            build/startup_samd21.o
+add_crc                                           build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+atexit                                            c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+b_sam_ba_interface_usart                          build/sam_ba_monitor.o
+b_sharp_received                                  build/usart_sam_ba.o
+b_terminal_mode                                   build/sam_ba_monitor.o
+buffer_rx_usart                                   build/usart_sam_ba.o
+buffer_tx_usart                                   build/usart_sam_ba.o
+call_applet                                       build/sam_ba_monitor.o
+cdc_getc                                          build/drivers/cdc_enumerate.o
+                                                  build/sam_ba_monitor.o
+cdc_is_rx_ready                                   build/drivers/cdc_enumerate.o
+                                                  build/sam_ba_monitor.o
+cdc_putc                                          build/drivers/cdc_enumerate.o
+                                                  build/sam_ba_monitor.o
+cdc_read_buf                                      build/drivers/cdc_enumerate.o
+                                                  build/sam_ba_monitor.o
+cdc_read_buf_xmd                                  build/drivers/cdc_enumerate.o
+                                                  build/sam_ba_monitor.o
+cdc_write_buf                                     build/drivers/cdc_enumerate.o
+                                                  build/sam_ba_monitor.o
+cfgDescriptor                                     build/drivers/cdc_enumerate.o
+command                                           build/sam_ba_monitor.o
+cpu_irq_enter_critical                            build/utils/interrupt/interrupt_sam_nvic.o
+cpu_irq_leave_critical                            build/utils/interrupt/interrupt_sam_nvic.o
+current_number                                    build/sam_ba_monitor.o
+data                                              build/sam_ba_monitor.o
+devDescriptor                                     build/drivers/cdc_enumerate.o
+error_timeout                                     build/usart_sam_ba.o
+exception_table                                   build/startup_samd21.o
+exit                                              c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-exit.o)
+                                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+g_interrupt_enabled                               build/utils/interrupt/interrupt_sam_nvic.o
+                                                  build/sam_ba_monitor.o
+                                                  build/main.o
+getPacket                                         build/usart_sam_ba.o
+hardware_init_hook                                c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+i                                                 build/sam_ba_monitor.o
+idx_rx_read                                       build/usart_sam_ba.o
+idx_rx_write                                      build/usart_sam_ba.o
+idx_tx_read                                       build/usart_sam_ba.o
+idx_tx_write                                      build/usart_sam_ba.o
+j                                                 build/sam_ba_monitor.o
+length                                            build/sam_ba_monitor.o
+main                                              build/main.o
+                                                  build/startup_samd21.o
+                                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+memcpy                                            c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memcpy-stub.o)
+                                                  build/drivers/cdc_enumerate.o
+                                                  build/sam_ba_monitor.o
+memset                                            c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m\libc_s.a(lib_a-memset.o)
+                                                  build/drivers/cdc_enumerate.o
+                                                  c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+mode_of_transfer                                  build/usart_sam_ba.o
+ptr                                               build/sam_ba_monitor.o
+ptr_data                                          build/sam_ba_monitor.o
+ptr_monitor_if                                    build/sam_ba_monitor.o
+put_uint32                                        build/sam_ba_monitor.o
+sam_ba_monitor_init                               build/sam_ba_monitor.o
+                                                  build/main.o
+sam_ba_monitor_loop                               build/sam_ba_monitor.o
+sam_ba_monitor_run                                build/sam_ba_monitor.o
+                                                  build/main.o
+sam_ba_putdata_term                               build/sam_ba_monitor.o
+size_of_data                                      build/usart_sam_ba.o
+software_init_hook                                c:/users/mperla.corp/appdata/roaming/arduino15/packages/arduino/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/../lib/gcc/arm-none-eabi/4.8.3/../../../../arm-none-eabi/lib/armv6-m/crt0.o
+sp                                                build/sam_ba_monitor.o
+system_init                                       build/main.o
+u32tmp                                            build/sam_ba_monitor.o
+uart_basic_init                                   build/drivers/uart_driver.o
+                                                  build/usart_sam_ba.o
+uart_disable                                      build/drivers/uart_driver.o
+                                                  build/usart_sam_ba.o
+uart_drv_error_flag                               build/drivers/uart_driver.o
+uart_get_sercom_index                             build/drivers/uart_driver.o
+                                                  build/usart_sam_ba.o
+uart_if                                           build/sam_ba_monitor.o
+uart_read_buffer_polled                           build/drivers/uart_driver.o
+uart_read_byte                                    build/drivers/uart_driver.o
+                                                  build/usart_sam_ba.o
+uart_write_buffer_polled                          build/drivers/uart_driver.o
+uart_write_byte                                   build/drivers/uart_driver.o
+                                                  build/usart_sam_ba.o
+udd_ep_in_cache_buffer                            build/drivers/cdc_enumerate.o
+udd_ep_out_cache_buffer                           build/drivers/cdc_enumerate.o
+usart_close                                       build/usart_sam_ba.o
+usart_getc                                        build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+usart_getdata                                     build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+usart_getdata_xmd                                 build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+usart_is_rx_ready                                 build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+usart_open                                        build/usart_sam_ba.o
+                                                  build/main.o
+usart_putc                                        build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+usart_putdata                                     build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+usart_putdata_xmd                                 build/usart_sam_ba.o
+                                                  build/sam_ba_monitor.o
+usart_readc                                       build/usart_sam_ba.o
+usart_sharp_received                              build/usart_sam_ba.o
+                                                  build/main.o
+usb_endpoint_table                                build/drivers/cdc_enumerate.o
+usb_init                                          build/drivers/cdc_enumerate.o
+                                                  build/main.o
+usbcdc_if                                         build/sam_ba_monitor.o
