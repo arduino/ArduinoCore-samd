@@ -68,7 +68,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
   size_t byteRead = 0;
 
-  if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
+  if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG, repeatedStart))
   {
     // Read first data
     rxBuffer.store_char(sercom->readDataWIRE());
@@ -82,7 +82,12 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     }
     sercom->prepareNackBitWIRE();                           // Prepare NACK to stop slave transmission
     //sercom->readDataWIRE();                               // Clear data register to send NACK
-    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);   // Send Stop
+	
+	repeatedStart = !stopBit;
+	if (stopBit)
+	{
+		sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);   // Send Stop
+	}
   }
 
   return byteRead;
@@ -112,7 +117,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   transmissionBegun = false ;
 
   // Start I2C transmission
-  if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
+  if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG, repeatedStart ) )
   {
     sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
     return 2 ;  // Address error
@@ -128,7 +133,12 @@ uint8_t TwoWire::endTransmission(bool stopBit)
       return 3 ;  // Nack or error
     }
   }
-  sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+  
+  repeatedStart = !stopBit;
+  if (stopBit)
+  {
+	  sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+  }   
 
   return 0;
 }

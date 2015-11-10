@@ -477,11 +477,16 @@ void SERCOM::prepareCommandBitsWire(SercomMasterCommandWire cmd)
 
 bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
 {
+	return startTransmissionWIRE(address, flag, false);
+}
+
+bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag, bool repeatedStart)
+{
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
   // Wait idle bus mode
-  while ( !isBusIdleWIRE() );
+  while ( !repeatedStart && !isBusIdleWIRE());
 
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
