@@ -2,6 +2,8 @@ SAMD CORE 1.6.3
 
 * Added SPI.transfer16(..) method
 * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
+* Bootloader: 32Khz external oscillator is now used, improves USB clock. Thanks @aethaniel
+* Bootloader: Clean up of makefiles and file organization. Thanks @aethaniel
 
 SAMD CORE 1.6.2 2015.11.03
 
