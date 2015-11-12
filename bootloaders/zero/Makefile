@@ -73,7 +73,12 @@ CFLAGS+=-g3 -O1 -DDEBUG=1
 else
 CFLAGS+=-Os -DDEBUG=0
 endif
-CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_LOW=0x4D -DUSB_PID_HIGH=0x00
+
+# Arduino Zero (PID == 0x004D)
+CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4D
+# Genuino Zero (PID == 0x024D)
+# CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D
+
 INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
 
 # -----------------------------------------------------------------------------
