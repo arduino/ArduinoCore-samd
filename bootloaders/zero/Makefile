@@ -42,14 +42,14 @@ else
     UNAME_S := $(shell uname -s)
 
     ifeq ($(UNAME_S),Linux)
-			MODULE_PATH?=$HOME/.arduino15/packages/arduino
+			MODULE_PATH?=$(HOME)/.arduino15/packages/arduino
 			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
       RM=rm
 	    SEP=/
     endif
 
     ifeq ($(UNAME_S),Darwin)
-			MODULE_PATH?=$HOME/Library/Arduino15/packages/arduino/
+			MODULE_PATH?=$(HOME)/Library/Arduino15/packages/arduino/
 			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
       RM=rm
 	    SEP=/
