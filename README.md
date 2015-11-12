@@ -196,7 +196,8 @@ Datalogger (No USB or UART) |     10340 + 948       |     10260 + 944
 The flash used message at the end of compilation is not correct. The number shown
 represents the .text segment only. However, Flash usage = .text + .data segments
 (RAM usage = .data + .bss segments). In this release, two programs are run at the
-end of compilation to provide more detailed memory usage.
+end of compilation to provide more detailed memory usage. To enable this output, go
+to File->Preferences and beside "Show verbose output during:", check "compilation".
 
 Just above the normal flash usage message, is the output from the size utility.
 However, this output is also incorrect, as it shows .text+.data in the .text field,
@@ -267,7 +268,7 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 13. You can now upload your own sketch.
 
 
-## SAM-BA USB CDC Bootloader (Arduino Zero compatible)
+## SAM-BA USB CDC Bootloader (Arduino compatible)
 
 The SAM-BA bootloader has both a CDC USB interface, and a UART interface (MT-D21E: TX: pin 10, RX: pin 11). It is
 compatible with the Arduino IDE (Zero compatible), or it can be used with the Bossac tool standalone. Under
