@@ -77,3 +77,24 @@ Bootloader code will be located at 0x0 and executed before any applicative code.
 Applications compiled to be executed along with the bootloader will start at 0x2000 (see linker script bootloader_samd21x18.ld).
 
 Before jumping to the application, the bootloader changes the VTOR register to use the interrupt vectors of the application @0x2000.<- not required as application code is taking care of this.
+
+## 5- How to build
+
+**Arduino Zero**
+
+```
+make
+```
+
+**Genuino Zero**
+
+```
+make GENUINO=1
+```
+
+**Others (derivatives)**
+
+```
+make CFLAGS_EXTRA="-D__SAMD21G18A__ -DUSB_PID_HIGH=<your USB VID> -DUSB_PID_LOW=<your USB PID>"
+```
+You can also check https://github.com/ameltech/sme-arduino-core/blob/master/hardware/AMEL/samd/bootloaders/sme/Makefile for reference.
