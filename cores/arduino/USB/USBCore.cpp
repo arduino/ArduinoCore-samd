@@ -581,9 +581,9 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep)
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
 	uint32_t length = 0;
-	// if len is a multiple of EPX_SIZE an empty transfer needs to be sent
+	// if len is a multiple of EPX_SIZE an ZLP needs to be sent
 	// to indicate end of transfer
-	bool sendEmpty = (len % EPX_SIZE) == 0;
+	bool sendZlp = (len % EPX_SIZE) == 0;
 
 	if (!_usbConfiguration)
 		return -1;
@@ -624,7 +624,7 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 #endif
 
 	// Flash area
-	while (len != 0 || sendEmpty)
+	while (len != 0 || sendZlp)
 	{
 		if (len > EPX_SIZE) {
 			length = EPX_SIZE;
@@ -649,9 +649,9 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 			;  // need fire exit.
 		}
 
-		if (len == 0 && sendEmpty) {
+		if (len == 0 && sendZlp) {
 			// empty transfer sent
-			sendEmpty = false;
+			sendZlp = false;
 		}
 
 		len -= length;
