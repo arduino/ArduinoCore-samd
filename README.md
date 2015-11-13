@@ -468,6 +468,23 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 
 ## ChangeLog
 
+* 1.6.6-mt1:
+
+  * Merged in changes from upstream SAMD CORE 1.6.3
+    * Added SPI.transfer16(..) method
+    * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
+    
+  * Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03
+    * Fixed bug in delay calculations
+    * Fixed deadlock conditions in Wire. Thanks Erin Tomson
+    * Print not aborting on write() failure. Thanks @stickbreaker
+    * SPI can now be configured in variants. Thanks @aethaniel
+    * Implemented Wire.end
+    * Implemented Wire.setClock. Thanks @PaoloP74
+    * Wire: allow scanning bus via beginTransmission-endTransmission
+    * USB Device: big refactoring and bug fix
+    * USB Device: added PluggableUSB interface
+
 * 1.6.5-mt2:
   * See 'What's New' above.
 
