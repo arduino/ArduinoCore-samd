@@ -74,10 +74,13 @@ else
 CFLAGS+=-Os -DDEBUG=0
 endif
 
+ifeq ($(GENUINO),)
 # Arduino Zero (PID == 0x004D)
 CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4D
+else
 # Genuino Zero (PID == 0x024D)
-# CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D
+CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D
+endif
 
 INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
 
@@ -103,7 +106,11 @@ sam_ba_serial.c
 OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
 DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
 
+ifeq ($(GENUINO),)
 NAME=samd21_sam_ba
+else
+NAME=samd21_sam_ba_genuino
+endif
 ELF=$(NAME).elf
 BIN=$(NAME).bin
 HEX=$(NAME).hex
