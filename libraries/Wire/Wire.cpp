@@ -246,22 +246,59 @@ void TwoWire::onService(void)
 }
 
 #if WIRE_INTERFACES_COUNT > 0
+  /* In case new variant doesn't define these macros,
+   * we put here the ones for Arduino Zero.
+   *
+   * These values should be different on some variants!
+   */
+  #ifndef PERIPH_WIRE
+    #define PERIPH_WIRE          sercom3
+    #define WIRE_IT_HANDLER      SERCOM3_Handler
+  #endif // PERIPH_WIRE
+  TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
 
-/* In case new variant doesn't define these macros,
- * we put here the ones for Arduino Zero.
- *
- * These values should be different on some variants!
- */
+  void WIRE_IT_HANDLER(void) {
+    Wire.onService();
+  }
+#endif
 
-#ifndef PERIPH_WIRE
-#  define PERIPH_WIRE          sercom3
-#  define WIRE_IT_HANDLER      SERCOM3_Handler
-#endif // PERIPH_WIRE
+#if WIRE_INTERFACES_COUNT > 1
+  TwoWire Wire1(&PERIPH_WIRE1, PIN_WIRE1_SDA, PIN_WIRE1_SCL);
 
-TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
+  void WIRE1_IT_HANDLER(void) {
+    Wire1.onService();
+  }
+#endif
 
-void WIRE_IT_HANDLER(void) {
-  Wire.onService();
-}
+#if WIRE_INTERFACES_COUNT > 2
+  TwoWire Wire2(&PERIPH_WIRE2, PIN_WIRE2_SDA, PIN_WIRE2_SCL);
 
-#endif // WIRE_INTERFACES_COUNT > 0
+  void WIRE2_IT_HANDLER(void) {
+    Wire2.onService();
+  }
+#endif
+
+#if WIRE_INTERFACES_COUNT > 3
+  TwoWire Wire3(&PERIPH_WIRE3, PIN_WIRE3_SDA, PIN_WIRE3_SCL);
+
+  void WIRE3_IT_HANDLER(void) {
+    Wire3.onService();
+  }
+#endif
+
+#if WIRE_INTERFACES_COUNT > 4
+  TwoWire Wire4(&PERIPH_WIRE4, PIN_WIRE4_SDA, PIN_WIRE4_SCL);
+
+  void WIRE4_IT_HANDLER(void) {
+    Wire4.onService();
+  }
+#endif
+
+#if WIRE_INTERFACES_COUNT > 5
+  TwoWire Wire5(&PERIPH_WIRE5, PIN_WIRE5_SDA, PIN_WIRE5_SCL);
+
+  void WIRE5_IT_HANDLER(void) {
+    Wire5.onService();
+  }
+#endif
+
