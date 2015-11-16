@@ -36,6 +36,7 @@ void Uart::begin(unsigned long baudrate)
 
 void Uart::begin(unsigned long baudrate, uint8_t config)
 {
+  pinMode(uc_pinRX,INPUT_PULLUP);//Rx pin set INPUT_PULLUP mode
   pinPeripheral(uc_pinRX, PIO_SERCOM);
   pinPeripheral(uc_pinTX, PIO_SERCOM);
 
