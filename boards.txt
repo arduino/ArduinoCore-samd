@@ -14,9 +14,12 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-arduino_zero_edbg.name=Arduino Zero (Programming Port)
+# Arduino/Genuino Zero (Prorgamming Port)
+# ---------------------------------------
+arduino_zero_edbg.name=Arduino/Genuino Zero (Programming Port)
 arduino_zero_edbg.vid.0=0x03eb
 arduino_zero_edbg.pid.0=0x2157
+
 arduino_zero_edbg.upload.tool=openocd
 arduino_zero_edbg.upload.protocol=sam-ba
 arduino_zero_edbg.upload.maximum_size=262144
@@ -39,11 +42,30 @@ arduino_zero_edbg.build.pid=0x804d
 arduino_zero_edbg.bootloader.tool=openocd
 arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
 
-arduino_zero_native.name=Arduino Zero (Native USB Port)
+# Arduino/Genuino Zero (Native USB Port)
+# ---------------------------------------
+arduino_zero_native.name=Arduino/Genuino Zero (Native USB Port)
 arduino_zero_native.vid.0=0x2341
 arduino_zero_native.pid.0=0x804d
 arduino_zero_native.vid.1=0x2341
 arduino_zero_native.pid.1=0x004d
+
+arduino_zero_native.vid.2=0x2341
+arduino_zero_native.pid.2=0x824d
+# If the board is a 2341:824d use 2341:824d for build and set other parameters as well
+arduino_zero_native.vid.2.build.vid=0x2341
+arduino_zero_native.vid.2.build.pid=0x824d
+arduino_zero_native.vid.2.build.usb_product="Genuino Zero"
+arduino_zero_native.vid.2.bootloader.file=zero/samd21_sam_ba_genuino.bin
+
+arduino_zero_native.vid.3=0x2341
+arduino_zero_native.pid.3=0x024d
+# If the board is a 2341:024d use 2341:824d for build and set other parameters as well
+arduino_zero_native.vid.3.build.vid=0x2341
+arduino_zero_native.vid.3.build.pid=0x824d
+arduino_zero_native.vid.3.build.usb_product="Genuino Zero"
+arduino_zero_native.vid.3.bootloader.file=zero/samd21_sam_ba_genuino.bin
+
 arduino_zero_native.upload.tool=bossac
 arduino_zero_native.upload.protocol=sam-ba
 arduino_zero_native.upload.maximum_size=262144

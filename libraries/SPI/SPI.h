@@ -95,6 +95,7 @@ class SPIClass {
 
 
   byte transfer(uint8_t data);
+  uint16_t transfer16(uint16_t data);
   inline void transfer(void *buf, size_t count);
 
   // Transaction Functions
@@ -141,6 +142,21 @@ void SPIClass::transfer(void *buf, size_t count)
 
 #if SPI_INTERFACES_COUNT > 0
   extern SPIClass SPI;
+#endif
+#if SPI_INTERFACES_COUNT > 1
+  extern SPIClass SPI1;
+#endif
+#if SPI_INTERFACES_COUNT > 2
+  extern SPIClass SPI2;
+#endif
+#if SPI_INTERFACES_COUNT > 3
+  extern SPIClass SPI3;
+#endif
+#if SPI_INTERFACES_COUNT > 4
+  extern SPIClass SPI4;
+#endif
+#if SPI_INTERFACES_COUNT > 5
+  extern SPIClass SPI5;
 #endif
 
 // For compatibility with sketches designed for AVR @ 16 MHz
