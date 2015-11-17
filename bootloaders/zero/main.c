@@ -23,32 +23,17 @@
 #include "sam_ba_serial.h"
 #include "board_definitions.h"
 #include "board_driver_led.h"
-#include "board_driver_i2c.h"
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
 extern uint32_t __sketch_vectors_ptr; // Exported value from linker script
 extern void board_init(void);
 
+#if (defined DEBUG) && (DEBUG == 1)
 volatile uint32_t* pulSketch_Start_Address;
-
-static void jump_to_application(void) {
-
-  /* Rebase the Stack Pointer */
-  __set_MSP( (uint32_t)(__sketch_vectors_ptr) );
-
-  /* Rebase the vector table base address */
-  SCB->VTOR = ((uint32_t)(&__sketch_vectors_ptr) & SCB_VTOR_TBLOFF_Msk);
-
-  /* Jump to application Reset Handler in the application */
-  asm("bx %0"::"r"(*pulSketch_Start_Address));
-}
+#endif
 
 static volatile bool main_b_cdc_enable = false;
-
-#ifdef CONFIGURE_PMIC
-static volatile bool jump_to_app = false;
-#endif
 
 /**
  * \brief Check the application startup condition
@@ -58,35 +43,6 @@ static void check_start_application(void)
 {
 //  LED_init();
 //  LED_off();
-
-  /*
-   * Test sketch stack pointer @ &__sketch_vectors_ptr
-   * Stay in SAM-BA if value @ (&__sketch_vectors_ptr) == 0xFFFFFFFF (Erased flash cell value)
-   */
-  if (__sketch_vectors_ptr == 0xFFFFFFFF)
-  {
-    /* Stay in bootloader */
-    return;
-  }
-
-  /*
-   * Load the sketch Reset Handler address
-   * __sketch_vectors_ptr is exported from linker script and point on first 32b word of sketch vector table
-   * First 32b word is sketch stack
-   * Second 32b word is sketch entry point: Reset_Handler()
-   */
-  pulSketch_Start_Address = &__sketch_vectors_ptr ;
-  pulSketch_Start_Address++ ;
-
-  /*
-   * Test vector table address of sketch @ &__sketch_vectors_ptr
-   * Stay in SAM-BA if this function is not aligned enough, ie not valid
-   */
-  if ( ((uint32_t)(&__sketch_vectors_ptr) & ~SCB_VTOR_TBLOFF_Msk) != 0x00)
-  {
-    /* Stay in bootloader */
-    return;
-  }
 
 #if defined(BOOT_DOUBLE_TAP_ADDRESS)
   #define DOUBLE_TAP_MAGIC 0x07738135
@@ -119,6 +75,39 @@ static void check_start_application(void)
   }
 #endif
 
+#if (!defined DEBUG) || ((defined DEBUG) && (DEBUG == 0))
+uint32_t* pulSketch_Start_Address;
+#endif
+
+  /*
+   * Test sketch stack pointer @ &__sketch_vectors_ptr
+   * Stay in SAM-BA if value @ (&__sketch_vectors_ptr) == 0xFFFFFFFF (Erased flash cell value)
+   */
+  if (__sketch_vectors_ptr == 0xFFFFFFFF)
+  {
+    /* Stay in bootloader */
+    return;
+  }
+
+  /*
+   * Load the sketch Reset Handler address
+   * __sketch_vectors_ptr is exported from linker script and point on first 32b word of sketch vector table
+   * First 32b word is sketch stack
+   * Second 32b word is sketch entry point: Reset_Handler()
+   */
+  pulSketch_Start_Address = &__sketch_vectors_ptr ;
+  pulSketch_Start_Address++ ;
+
+  /*
+   * Test vector table address of sketch @ &__sketch_vectors_ptr
+   * Stay in SAM-BA if this function is not aligned enough, ie not valid
+   */
+  if ( ((uint32_t)(&__sketch_vectors_ptr) & ~SCB_VTOR_TBLOFF_Msk) != 0x00)
+  {
+    /* Stay in bootloader */
+    return;
+  }
+
 /*
 #if defined(BOOT_LOAD_PIN)
   volatile PortGroup *boot_port = (volatile PortGroup *)(&(PORT->Group[BOOT_LOAD_PIN / 32]));
@@ -141,12 +130,15 @@ static void check_start_application(void)
 */
 
 //  LED_on();
-#ifdef CONFIGURE_PMIC
-  jump_to_app = true;
-#else
-  jump_to_application();
-#endif
 
+  /* Rebase the Stack Pointer */
+  __set_MSP( (uint32_t)(__sketch_vectors_ptr) );
+
+  /* Rebase the vector table base address */
+  SCB->VTOR = ((uint32_t)(&__sketch_vectors_ptr) & SCB_VTOR_TBLOFF_Msk);
+
+  /* Jump to application Reset Handler in the application */
+  asm("bx %0"::"r"(*pulSketch_Start_Address));
 }
 
 #if DEBUG_ENABLE
@@ -176,13 +168,6 @@ int main(void)
   board_init();
   __enable_irq();
 
-#ifdef CONFIGURE_PMIC
-  configure_pmic();
-  if (jump_to_app == true) {
-    jump_to_application();
-  }
-#endif
-
 #if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
   /* UART is enabled in all cases */
   serial_open();
@@ -191,16 +176,12 @@ int main(void)
 #if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
   pCdc = usb_init();
 #endif
-	DEBUG_PIN_LOW;
 
-	// output on D13 (PA.17)
-	LED_PORT.PINCFG[LED_PIN].reg &= ~ (uint8_t)(PORT_PINCFG_INEN);
-	LED_PORT.DIRSET.reg = (uint32_t)(1 << LED_PIN);
+  DEBUG_PIN_LOW;
 
-	/* Wait for a complete enum on usb or a '#' char on serial line */
-	while (1) {
-   	        pulse_led(1); // while we're waiting, blink the D13 
-
+  /* Wait for a complete enum on usb or a '#' char on serial line */
+  while (1)
+  {
 #if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
     if (pCdc->IsConfigured(pCdc) != 0)
     {
@@ -232,36 +213,4 @@ int main(void)
     }
 #endif
   }
-}
-
-void SysTick_Handler(void)
-{
-  LED_pulse();
-
-  sam_ba_monitor_sys_tick();
-}
-
-
-// We'll have the D13 LED slowly pulse on and off with bitbang PWM
-// for a nice 'hey we're in bootload mode' indication! -ada
-static uint8_t pulse_tick=0;
-static int8_t  pulse_dir=1;
-static int16_t pulse_pwm;
-void pulse_led(int8_t speed) {
-  // blink D13
-  pulse_tick++;
-  if (pulse_tick==0) {
-    pulse_pwm += pulse_dir * speed;
-    if (pulse_pwm > 255) {
-      pulse_pwm = 255;
-      pulse_dir = -1;
-    }
-    if (pulse_pwm < 0) {
-      pulse_pwm = 0;
-      pulse_dir = +1;
-    }
-    LED_ON;
-  }
-  if (pulse_tick==pulse_pwm) 
-    LED_OFF;
 }

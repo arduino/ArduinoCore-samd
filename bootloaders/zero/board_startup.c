@@ -139,3 +139,9 @@ void PendSV_Handler(void)
   __BKPT(2);
   while (1);
 }
+
+void SysTick_Handler(void)
+{
+  __BKPT(1);
+  while (1);
+}

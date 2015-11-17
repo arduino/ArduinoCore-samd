@@ -25,7 +25,6 @@
 #include "board_driver_usb.h"
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
-#include "board_driver_led.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
 const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZ]";
@@ -85,11 +84,6 @@ t_monitor_if * ptr_monitor_if;
 volatile bool b_terminal_mode = false;
 volatile bool b_sam_ba_interface_usart = false;
 
-/* Pulse generation counters to keep track of the time remaining for each pulse type */
-#define TX_RX_LED_PULSE_PERIOD 100
-volatile uint16_t txLEDPulse = 0; // time remaining for Tx LED pulse
-volatile uint16_t rxLEDPulse = 0; // time remaining for Rx LED pulse
-
 void sam_ba_monitor_init(uint8_t com_interface)
 {
 #if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
@@ -108,74 +102,8 @@ void sam_ba_monitor_init(uint8_t com_interface)
 #endif
 }
 
-/*
- * Central SAM-BA monitor putdata function using the board LEDs
- */
-static uint32_t sam_ba_putdata(t_monitor_if* pInterface, void const* data, uint32_t length)
-{
-	uint32_t result ;
-
-	result=pInterface->putdata(data, length);
-
-	LEDTX_on();
-	txLEDPulse = TX_RX_LED_PULSE_PERIOD;
-
-	return result;
-}
-
-/*
- * Central SAM-BA monitor getdata function using the board LEDs
- */
-static uint32_t sam_ba_getdata(t_monitor_if* pInterface, void* data, uint32_t length)
-{
-	uint32_t result ;
-
-	result=pInterface->getdata(data, length);
-
-	if (result)
-	{
-		LEDRX_on();
-		rxLEDPulse = TX_RX_LED_PULSE_PERIOD;
-	}
-
-	return result;
-}
-
-/*
- * Central SAM-BA monitor putdata function using the board LEDs
- */
-static uint32_t sam_ba_putdata_xmd(t_monitor_if* pInterface, void const* data, uint32_t length)
-{
-	uint32_t result ;
-
-	result=pInterface->putdata_xmd(data, length);
-
-	LEDTX_on();
-	txLEDPulse = TX_RX_LED_PULSE_PERIOD;
-
-	return result;
-}
-
-/*
- * Central SAM-BA monitor getdata function using the board LEDs
- */
-static uint32_t sam_ba_getdata_xmd(t_monitor_if* pInterface, void* data, uint32_t length)
-{
-	uint32_t result ;
-
-	result=pInterface->getdata_xmd(data, length);
-
-	if (result)
-	{
-		LEDRX_on();
-		rxLEDPulse = TX_RX_LED_PULSE_PERIOD;
-	}
-
-	return result;
-}
-
 /**
- * \brief This function allows data emission by USART
+ * \brief This function allows data rx by USART
  *
  * \param *data  Data pointer
  * \param length Length of the data
@@ -213,10 +141,10 @@ void sam_ba_putdata_term(uint8_t* data, uint32_t length)
     buf[1] = 'x';
     buf[length * 2 + 2] = '\n';
     buf[length * 2 + 3] = '\r';
-    sam_ba_putdata(ptr_monitor_if, buf, length * 2 + 4);
+    ptr_monitor_if->putdata(buf, length * 2 + 4);
   }
   else
-    sam_ba_putdata(ptr_monitor_if, data, length);
+    ptr_monitor_if->putdata(data, length);
   return;
 }
 
@@ -259,12 +187,12 @@ static void put_uint32(uint32_t n)
 
     buff[7-i] = d > 9 ? 'A' + d - 10 : '0' + d;
   }
-  sam_ba_putdata( ptr_monitor_if, buff, 8);
+  ptr_monitor_if->putdata(buff, 8);
 }
 
 static void sam_ba_monitor_loop(void)
 {
-  length = sam_ba_getdata(ptr_monitor_if, data, SIZEBUFMAX);
+  length = ptr_monitor_if->getdata(data, SIZEBUFMAX);
   ptr = data;
 
   for (i = 0; i < length; i++, ptr++)
@@ -275,7 +203,7 @@ static void sam_ba_monitor_loop(void)
     {
       if (b_terminal_mode)
       {
-        sam_ba_putdata(ptr_monitor_if, "\n\r", 2);
+        ptr_monitor_if->putdata("\n\r", 2);
       }
       if (command == 'S')
       {
@@ -307,13 +235,13 @@ static void sam_ba_monitor_loop(void)
         ptr--;
         //Do we expect more data ?
         if(j<current_number)
-          sam_ba_getdata_xmd(ptr_monitor_if, ptr_data, current_number-j);
+          ptr_monitor_if->getdata_xmd(ptr_data, current_number-j);
 
         __asm("nop");
       }
       else if (command == 'R')
       {
-        sam_ba_putdata_xmd(ptr_monitor_if, ptr_data, current_number);
+        ptr_monitor_if->putdata_xmd(ptr_data, current_number);
       }
       else if (command == 'O')
       {
@@ -354,35 +282,35 @@ static void sam_ba_monitor_loop(void)
       else if (command == 'T')
       {
         b_terminal_mode = 1;
-        sam_ba_putdata(ptr_monitor_if, "\n\r", 2);
+        ptr_monitor_if->putdata("\n\r", 2);
       }
       else if (command == 'N')
       {
         if (b_terminal_mode == 0)
         {
-          sam_ba_putdata( ptr_monitor_if, "\n\r", 2);
+          ptr_monitor_if->putdata("\n\r", 2);
         }
         b_terminal_mode = 0;
       }
       else if (command == 'V')
       {
-        sam_ba_putdata( ptr_monitor_if, "v", 1);
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) RomBOOT_Version, strlen(RomBOOT_Version));
-        sam_ba_putdata( ptr_monitor_if, " ", 1);
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) RomBOOT_ExtendedCapabilities, strlen(RomBOOT_ExtendedCapabilities));
-        sam_ba_putdata( ptr_monitor_if, " ", 1);
+        ptr_monitor_if->putdata("v", 1);
+        ptr_monitor_if->putdata((uint8_t *) RomBOOT_Version, strlen(RomBOOT_Version));
+        ptr_monitor_if->putdata(" ", 1);
+        ptr_monitor_if->putdata((uint8_t *) RomBOOT_ExtendedCapabilities, strlen(RomBOOT_ExtendedCapabilities));
+        ptr_monitor_if->putdata(" ", 1);
         ptr = (uint8_t*) &(__DATE__);
         i = 0;
         while (*ptr++ != '\0')
           i++;
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) &(__DATE__), i);
-        sam_ba_putdata( ptr_monitor_if, " ", 1);
+        ptr_monitor_if->putdata((uint8_t *) &(__DATE__), i);
+        ptr_monitor_if->putdata(" ", 1);
         i = 0;
         ptr = (uint8_t*) &(__TIME__);
         while (*ptr++ != '\0')
           i++;
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) &(__TIME__), i);
-        sam_ba_putdata( ptr_monitor_if, "\n\r", 2);
+        ptr_monitor_if->putdata((uint8_t *) &(__TIME__), i);
+        ptr_monitor_if->putdata("\n\r", 2);
       }
       else if (command == 'X')
       {
@@ -406,7 +334,7 @@ static void sam_ba_monitor_loop(void)
         }
 
         // Notify command completed
-        sam_ba_putdata( ptr_monitor_if, "X\n\r", 3);
+        ptr_monitor_if->putdata("X\n\r", 3);
       }
       else if (command == 'Y')
       {
@@ -465,7 +393,7 @@ static void sam_ba_monitor_loop(void)
         }
 
         // Notify command completed
-        sam_ba_putdata( ptr_monitor_if, "Y\n\r", 3);
+        ptr_monitor_if->putdata("Y\n\r", 3);
       }
       else if (command == 'Z')
       {
@@ -484,9 +412,9 @@ static void sam_ba_monitor_loop(void)
           crc = serial_add_crc(*data++, crc);
 
         // Send response
-        sam_ba_putdata( ptr_monitor_if, "Z", 1);
+        ptr_monitor_if->putdata("Z", 1);
         put_uint32(crc);
-        sam_ba_putdata( ptr_monitor_if, "#\n\r", 3);
+        ptr_monitor_if->putdata("#\n\r", 3);
       }
 
       command = 'z';
@@ -494,7 +422,7 @@ static void sam_ba_monitor_loop(void)
 
       if (b_terminal_mode)
       {
-        sam_ba_putdata( ptr_monitor_if, ">", 1);
+        ptr_monitor_if->putdata(">", 1);
       }
     }
     else
@@ -523,257 +451,6 @@ static void sam_ba_monitor_loop(void)
       }
     }
   }
-}
-
-void sam_ba_monitor_sys_tick(void)
-{
-        pulse_led(3);
-	length = ptr_monitor_if->getdata(data, SIZEBUFMAX);
-	ptr = data;
-	for (i = 0; i < length; i++, ptr++)
-	{
-		if (*ptr == 0xff) continue;
-
-		if (*ptr == '#')
-		{
-			if (b_terminal_mode)
-			{
-				ptr_monitor_if->putdata("\n\r", 2);
-			}
-			if (command == 'S')
-			{
-				//Check if some data are remaining in the "data" buffer
-				if(length>i)
-				{
-					//Move current indexes to next avail data (currently ptr points to "#")
-					ptr++;
-					i++;
-					//We need to add first the remaining data of the current buffer already read from usb
-					//read a maximum of "current_number" bytes
-					u32tmp=min((length-i),current_number);
-					memcpy(ptr_data, ptr, u32tmp);
-					i += u32tmp;
-					ptr += u32tmp;
-					j = u32tmp;
-				}
-				//update i with the data read from the buffer
-				i--;
-				ptr--;
-				//Do we expect more data ?
-				if(j<current_number)
-					ptr_monitor_if->getdata_xmd(ptr_data, current_number-j);
-				
-				__asm("nop");
-			}
-			else if (command == 'R')
-			{
-				ptr_monitor_if->putdata_xmd(ptr_data, current_number);
-			}
-			else if (command == 'O')
-			{
-				*ptr_data = (char) current_number;
-			}
-			else if (command == 'H')
-			{
-				*((uint16_t *) ptr_data) = (uint16_t) current_number;
-			}
-			else if (command == 'W')
-			{
-				*((int *) ptr_data) = current_number;
-			}
-			else if (command == 'o')
-			{
-				sam_ba_putdata_term(ptr_data, 1);
-			}
-			else if (command == 'h')
-			{
-				current_number = *((uint16_t *) ptr_data);
-				sam_ba_putdata_term((uint8_t*) &current_number, 2);
-			}
-			else if (command == 'w')
-			{
-				current_number = *((uint32_t *) ptr_data);
-				sam_ba_putdata_term((uint8_t*) &current_number, 4);
-			}
-			else if (command == 'G')
-			{
-				call_applet(current_number);
-				/* Rebase the Stack Pointer */
-				__set_MSP(sp);
-				cpu_irq_enable();
-				if (b_sam_ba_interface_usart) {
-					ptr_monitor_if->put_c(0x6);
-				}
-			}
-			else if (command == 'T')
-			{
-				b_terminal_mode = 1;
-				ptr_monitor_if->putdata("\n\r", 2);
-			}
-			else if (command == 'N')
-			{
-				if (b_terminal_mode == 0)
-				{
-					ptr_monitor_if->putdata("\n\r", 2);
-				}
-				b_terminal_mode = 0;
-			}
-			else if (command == 'V')
-			{
-				ptr_monitor_if->putdata("v", 1);
-				ptr_monitor_if->putdata((uint8_t *) RomBOOT_Version,
-						strlen(RomBOOT_Version));
-				ptr_monitor_if->putdata(" ", 1);
-				ptr_monitor_if->putdata((uint8_t *) RomBOOT_ExtendedCapabilities,
-						strlen(RomBOOT_ExtendedCapabilities));
-				ptr_monitor_if->putdata(" ", 1);
-				ptr = (uint8_t*) &(__DATE__);
-				i = 0;
-				while (*ptr++ != '\0')
-					i++;
-				ptr_monitor_if->putdata((uint8_t *) &(__DATE__), i);
-				ptr_monitor_if->putdata(" ", 1);
-				i = 0;
-				ptr = (uint8_t*) &(__TIME__);
-				while (*ptr++ != '\0')
-					i++;
-				ptr_monitor_if->putdata((uint8_t *) &(__TIME__), i);
-				ptr_monitor_if->putdata("\n\r", 2);
-			}
-			else if (command == 'X')
-			{
-				// Syntax: X[ADDR]#
-				// Erase the flash memory starting from ADDR to the end of flash.
-
-				// Note: the flash memory is erased in ROWS, that is in block of 4 pages.
-				//       Even if the starting address is the last byte of a ROW the entire
-				//       ROW is erased anyway.
-
-				uint32_t dst_addr = current_number; // starting address
-
-				while (dst_addr < MAX_FLASH) {
-					// Execute "ER" Erase Row
-					NVMCTRL->ADDR.reg = dst_addr / 2;
-					NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
-					while (NVMCTRL->INTFLAG.bit.READY == 0)
-						;
-					dst_addr += PAGE_SIZE * 4; // Skip a ROW
-				}
-
-				// Notify command completed
-				ptr_monitor_if->putdata("X\n\r", 3);
-			}
-			else if (command == 'Y')
-			{
-				// This command writes the content of a buffer in SRAM into flash memory.
-
-				// Syntax: Y[ADDR],0#
-				// Set the starting address of the SRAM buffer.
-
-				// Syntax: Y[ROM_ADDR],[SIZE]#
-				// Write the first SIZE bytes from the SRAM buffer (previously set) into
-				// flash memory starting from address ROM_ADDR
-
-				static uint32_t *src_buff_addr = NULL;
-
-				if (current_number == 0) {
-					// Set buffer address
-					src_buff_addr = ptr_data;
-
-				} else {
-					// Write to flash
-					uint32_t size = current_number/4;
-					uint32_t *src_addr = src_buff_addr;
-					uint32_t *dst_addr = ptr_data;
-
-					// Set automatic page write
-					NVMCTRL->CTRLB.bit.MANW = 0;
-
-					// Do writes in pages
-					while (size) {
-						// Execute "PBC" Page Buffer Clear
-						NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
-						while (NVMCTRL->INTFLAG.bit.READY == 0)
-							;
-
-						// Fill page buffer
-						uint32_t i;
-						for (i=0; i<(PAGE_SIZE/4) && i<size; i++) {
-							dst_addr[i] = src_addr[i];
-						}
-
-						// Execute "WP" Write Page
-						//NVMCTRL->ADDR.reg = ((uint32_t)dst_addr) / 2;
-						NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
-						while (NVMCTRL->INTFLAG.bit.READY == 0)
-							;
-
-						// Advance to next page
-						dst_addr += i;
-						src_addr += i;
-						size     -= i;
-					}
-				}
-
-				// Notify command completed
-				ptr_monitor_if->putdata("Y\n\r", 3);
-			}
-			else if (command == 'Z')
-			{
-				// This command calculate CRC for a given area of memory.
-				// It's useful to quickly check if a transfer has been done
-				// successfully.
-
-				// Syntax: Z[START_ADDR],[SIZE]#
-				// Returns: Z[CRC]#
-
-				uint8_t *data = (uint8_t *)ptr_data;
-				uint32_t size = current_number;
-				uint16_t crc = 0;
-				uint32_t i = 0;
-				for (i=0; i<size; i++)
-					crc = add_crc(*data++, crc);
-
-				// Send response
-				ptr_monitor_if->putdata("Z", 1);
-				put_uint32(crc);
-				ptr_monitor_if->putdata("#\n\r", 3);
-			}
-
-			command = 'z';
-			current_number = 0;
-
-			if (b_terminal_mode)
-			{
-				ptr_monitor_if->putdata(">", 1);
-			}
-		}
-		else
-		{
-			if (('0' <= *ptr) && (*ptr <= '9'))
-			{
-				current_number = (current_number << 4) | (*ptr - '0');
-			}
-			else if (('A' <= *ptr) && (*ptr <= 'F'))
-			{
-				current_number = (current_number << 4) | (*ptr - 'A' + 0xa);
-			}
-			else if (('a' <= *ptr) && (*ptr <= 'f'))
-			{
-				current_number = (current_number << 4) | (*ptr - 'a' + 0xa);
-			}
-			else if (*ptr == ',')
-			{
-				ptr_data = (uint8_t *) current_number;
-				current_number = 0;
-			}
-			else
-			{
-				command = *ptr;
-				current_number = 0;
-			}
-		}
-	}
 }
 
 /**
