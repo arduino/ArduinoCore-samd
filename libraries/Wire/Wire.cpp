@@ -82,12 +82,12 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     }
     sercom->prepareNackBitWIRE();                           // Prepare NACK to stop slave transmission
     //sercom->readDataWIRE();                               // Clear data register to send NACK
-	
-	repeatedStart = !stopBit;
-	if (stopBit)
-	{
-		sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);   // Send Stop
-	}
+
+    repeatedStart = !stopBit;
+    if (stopBit)
+    {
+      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);   // Send Stop
+    }
   }
 
   return byteRead;
@@ -137,7 +137,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   repeatedStart = !stopBit;
   if (stopBit)
   {
-	  sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
   }   
 
   return 0;

@@ -67,8 +67,8 @@ class TwoWire : public Stream
     uint8_t _uc_pinSCL;
 
     bool transmissionBegun;
-	bool repeatedStart;
-	
+    bool repeatedStart;
+
     // RX Buffer
     RingBuffer rxBuffer;
 
