@@ -415,14 +415,12 @@ void SERCOM::initSlaveWIRE( uint8_t ucAddress )
   // Set slave mode
   sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION ;
 
-  // Enable Quick Command
-  sercom->I2CM.CTRLB.bit.QCEN = 1 ;
-
   sercom->I2CS.ADDR.reg = SERCOM_I2CS_ADDR_ADDR( ucAddress & 0x7Ful ) | // 0x7F, select only 7 bits
                           SERCOM_I2CS_ADDR_ADDRMASK( 0x3FFul ) ;    // 0x3FF all bits set
 
   // Set the interrupt register
-  sercom->I2CS.INTENSET.reg = SERCOM_I2CS_INTENSET_AMATCH | // Address Match
+  sercom->I2CS.INTENSET.reg = SERCOM_I2CS_INTENSET_PREC |   // Stop
+                              SERCOM_I2CS_INTENSET_AMATCH | // Address Match
                               SERCOM_I2CS_INTENSET_DRDY ;   // Data Ready
 
   while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
@@ -455,23 +453,35 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 
 void SERCOM::prepareNackBitWIRE( void )
 {
-  // Send a NACK
-  sercom->I2CM.CTRLB.bit.ACKACT = 1;
+  if(isMasterWIRE()) {
+    // Send a NACK
+    sercom->I2CM.CTRLB.bit.ACKACT = 1;
+  } else {
+    sercom->I2CS.CTRLB.bit.ACKACT = 1;
+  }
 }
 
 void SERCOM::prepareAckBitWIRE( void )
 {
-  // Send an ACK
-  sercom->I2CM.CTRLB.bit.ACKACT = 0;
+  if(isMasterWIRE()) {
+    // Send an ACK
+    sercom->I2CM.CTRLB.bit.ACKACT = 0;
+  } else {
+    sercom->I2CS.CTRLB.bit.ACKACT = 0;
+  }
 }
 
-void SERCOM::prepareCommandBitsWire(SercomMasterCommandWire cmd)
+void SERCOM::prepareCommandBitsWire(uint8_t cmd)
 {
-  sercom->I2CM.CTRLB.bit.CMD = cmd;
+  if(isMasterWIRE()) {
+    sercom->I2CM.CTRLB.bit.CMD = cmd;
 
-  while(sercom->I2CM.SYNCBUSY.bit.SYSOP)
-  {
-    // Waiting for synchronization
+    while(sercom->I2CM.SYNCBUSY.bit.SYSOP)
+    {
+      // Waiting for synchronization
+    }
+  } else {
+    sercom->I2CS.CTRLB.bit.CMD = cmd;
   }
 }
 
