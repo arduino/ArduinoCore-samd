@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino SAMD (32-bits ARM Cortex-M0+) Boards
-version=1.6.2
+version=1.6.1
 
 # Compile variables
 # -----------------
@@ -109,7 +109,7 @@ recipe.size.regex=\.text\s+([0-9]+).*
 #
 # BOSSA
 #
-tools.bossac.path={runtime.tools.bossac-1.6.1-arduino.path}
+tools.bossac.path={runtime.tools.bossac-1.6-arduino.path}
 tools.bossac.cmd=bossac
 tools.bossac.cmd.windows=bossac.exe
 
