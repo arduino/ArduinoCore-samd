@@ -129,14 +129,9 @@ uint32_t analogRead(uint32_t pin)
 {
   uint32_t valueRead = 0;
 
-<<<<<<< HEAD
-  if (pin < A0) {
-    pin += A0;
-=======
   if ( ulPin <= 5 ) // turn '0' -> 'A0'
   {
     ulPin += A0 ;
->>>>>>> add support for A6 (D8) and A7 (D9)
   }
   if (ulPin == 6) ulPin = PIN_A6;
   if (ulPin == 7) ulPin = PIN_A7;
