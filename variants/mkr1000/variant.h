@@ -18,11 +18,13 @@
 
 #pragma once
 
-#include "WVariant.h"
+// The definitions here needs a SAMD core >=1.6.3
+#define ARDUINO_SAMD_VARIANT_COMPLIANCE 10603
 
-/*----------------------------------------------------------------------------
- *        Definitions
- *----------------------------------------------------------------------------*/
+#include <WVariant.h>
+
+// General definitions
+// -------------------
 
 // Frequency of the board main oscillator
 #define VARIANT_MAINOSC (32768ul)
@@ -30,14 +32,8 @@
 // Master clock frequency
 #define VARIANT_MCK     (48000000ul)
 
-//#ifdef __cplusplus
-//extern "C"
-//{
-//#endif // __cplusplus
-
-/*----------------------------------------------------------------------------
- *        Pins
- *----------------------------------------------------------------------------*/
+// Pins
+// ----
 
 // Number of pins defined in PinDescription array
 #define PINS_COUNT           (26u)
@@ -45,14 +41,16 @@
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
-#define digitalPinToPort(P)        (&(PORT->Group[g_APinDescription[P].ulPort]))
-#define digitalPinToBitMask(P)     (1 << g_APinDescription[P].ulPin)
-//#define analogInPinToBit(P)      ()
-#define portOutputRegister(port)   (&(port->OUT.reg))
-#define portInputRegister(port)    (&(port->IN.reg))
-#define portModeRegister(port)     (&(port->DIR.reg))
-#define digitalPinHasPWM(P)        (g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER)
-#define digitalPinToInterrupt(P)   (g_APinDescription[P].ulExtInt)
+// Low-level pin register query macros
+// -----------------------------------
+#define digitalPinToPort(P)      (&(PORT->Group[g_APinDescription[P].ulPort]))
+#define digitalPinToBitMask(P)   (1 << g_APinDescription[P].ulPin)
+//#define analogInPinToBit(P)    ()
+#define portOutputRegister(port) (&(port->OUT.reg))
+#define portInputRegister(port)  (&(port->IN.reg))
+#define portModeRegister(port)   (&(port->DIR.reg))
+#define digitalPinHasPWM(P)      (g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER)
+#define digitalPinToInterrupt(P) (g_APinDescription[P].ulExtInt)
 
 /*
  * digitalPinToTimer(..) is AVR-specific and is not defined for SAMD
@@ -63,21 +61,20 @@
  */
 // #define digitalPinToTimer(P)
 
-
 // LEDs
 // ----
-#define PIN_LED              (7u)
-#define LED_BUILTIN          PIN_LED
+#define PIN_LED     (7u)
+#define LED_BUILTIN PIN_LED
 
 // Analog pins
 // -----------
-#define PIN_A0               (15u)
-#define PIN_A1               (16u)
-#define PIN_A2               (17u)
-#define PIN_A3               (18u)
-#define PIN_A4               (19u)
-#define PIN_A5               (20u)
-#define PIN_A6               (21u)
+#define PIN_A0 (15u)
+#define PIN_A1 (16u)
+#define PIN_A2 (17u)
+#define PIN_A3 (18u)
+#define PIN_A4 (19u)
+#define PIN_A5 (20u)
+#define PIN_A6 (21u)
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
@@ -85,33 +82,33 @@ static const uint8_t A3  = PIN_A3;
 static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
 static const uint8_t A6  = PIN_A6;
-#define ADC_RESOLUTION        12
+#define ADC_RESOLUTION 12
 
 // SPI Interfaces
 // --------------
 #define SPI_INTERFACES_COUNT 2
 
 // SPI
-#define PIN_SPI_MISO         (10u)
-#define PIN_SPI_MOSI         (8u)
-#define PIN_SPI_SCK          (9u)
-#define PIN_SPI_SS           (24u)
-#define PERIPH_SPI           sercom1
-#define PAD_SPI_TX           SPI_PAD_0_SCK_1
-#define PAD_SPI_RX           SERCOM_RX_PAD_3
+#define PIN_SPI_MISO  (10u)
+#define PIN_SPI_MOSI  (8u)
+#define PIN_SPI_SCK   (9u)
+#define PIN_SPI_SS    (24u)
+#define PERIPH_SPI    sercom1
+#define PAD_SPI_TX    SPI_PAD_0_SCK_1
+#define PAD_SPI_RX    SERCOM_RX_PAD_3
 static const uint8_t SS   = PIN_SPI_SS;   // SPI Slave SS not used. Set here only for reference.
 static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
 // SPI1: Connected to WINC1501B
-#define PIN_SPI1_MISO         (29u)
-#define PIN_SPI1_MOSI         (26u)
-#define PIN_SPI1_SCK          (27u)
-#define PIN_SPI1_SS           (28u)
-#define PERIPH_SPI1           sercom2
-#define PAD_SPI1_TX           SPI_PAD_0_SCK_1
-#define PAD_SPI1_RX           SERCOM_RX_PAD_3
+#define PIN_SPI1_MISO (29u)
+#define PIN_SPI1_MOSI (26u)
+#define PIN_SPI1_SCK  (27u)
+#define PIN_SPI1_SS   (28u)
+#define PERIPH_SPI1   sercom2
+#define PAD_SPI1_TX   SPI_PAD_0_SCK_1
+#define PAD_SPI1_RX   SERCOM_RX_PAD_3
 static const uint8_t SS1   = PIN_SPI1_SS;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI;
 static const uint8_t MISO1 = PIN_SPI1_MISO;
@@ -133,10 +130,6 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 #define PIN_USB_DP          (23ul)
 #define PIN_USB_HOST_ENABLE (24ul)
 
-//#ifdef __cplusplus
-//}
-//#endif
-
 // Needed for WINC1501B (WiFi101) library
 // --------------------------------------
 #define WINC1501_RESET_PIN   (30u)
@@ -145,10 +138,9 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 #define WINC1501_SPI         SPI1
 #define WINC1501_SPI_CS_PIN  PIN_SPI1_SS
 
-/*----------------------------------------------------------------------------
- *        Arduino objects - C++ only
- *----------------------------------------------------------------------------*/
 
+// Serial ports
+// ------------
 #ifdef __cplusplus
 #include "SERCOM.h"
 #include "Uart.h"
@@ -163,11 +155,11 @@ extern SERCOM sercom5;
 
 // Serial1
 extern Uart Serial1;
-#define PIN_SERIAL1_RX       (13ul)
-#define PIN_SERIAL1_TX       (14ul)
-#define PAD_SERIAL1_TX       (UART_TX_PAD_2)
-#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
-#endif
+#define PIN_SERIAL1_RX (13ul)
+#define PIN_SERIAL1_TX (14ul)
+#define PAD_SERIAL1_TX (UART_TX_PAD_2)
+#define PAD_SERIAL1_RX (SERCOM_RX_PAD_3)
+#endif // __cplusplus
 
 // These serial port names are intended to allow libraries and architecture-neutral
 // sketches to automatically default to the correct port name for a particular type
