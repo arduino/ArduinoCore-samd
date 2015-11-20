@@ -4,6 +4,9 @@ SAMD CORE 1.6.3
 * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
 * Bootloader: 32Khz external oscillator is now used, improves USB clock. Thanks @aethaniel
 * Bootloader: Clean up of makefiles and file organization. Thanks @aethaniel
+* Added PWM capability to pins A1/A2 of Arduino Zero.
+* variant.h/cpp: PWM capability is now determined by PIN_ATTR_PWM combined with
+                 PIN_ATTR_TIMER or PIN_ATTR_TIMER_ALT for timer selection.
 
 SAMD CORE 1.6.2 2015.11.03
 
