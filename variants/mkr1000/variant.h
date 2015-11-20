@@ -41,8 +41,8 @@
 
 // Number of pins defined in PinDescription array
 #define PINS_COUNT           (26u)
-#define NUM_DIGITAL_PINS     (14u)
-#define NUM_ANALOG_INPUTS    (6u)
+#define NUM_DIGITAL_PINS     (15u)
+#define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 #define digitalPinToPort(P)        (&(PORT->Group[g_APinDescription[P].ulPort]))
@@ -66,19 +66,18 @@
 
 // LEDs
 // ----
-#define PIN_LED              (6u)
-#define PIN_LED2             (7u)
+#define PIN_LED              (7u)
 #define LED_BUILTIN          PIN_LED
 
 // Analog pins
 // -----------
-#define PIN_A0               (8u)
-#define PIN_A1               (9u)
-#define PIN_A2               (10u)
-#define PIN_A3               (11u)
-#define PIN_A4               (12u)
-#define PIN_A5               (13u)
-#define PIN_A6               (14u)
+#define PIN_A0               (15u)
+#define PIN_A1               (16u)
+#define PIN_A2               (17u)
+#define PIN_A3               (18u)
+#define PIN_A4               (19u)
+#define PIN_A5               (20u)
+#define PIN_A6               (21u)
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
@@ -93,10 +92,10 @@ static const uint8_t A6  = PIN_A6;
 #define SPI_INTERFACES_COUNT 2
 
 // SPI
-#define PIN_SPI_MISO         (17u)
-#define PIN_SPI_MOSI         (15u)
-#define PIN_SPI_SCK          (16u)
-#define PIN_SPI_SS           (32u)
+#define PIN_SPI_MISO         (10u)
+#define PIN_SPI_MOSI         (8u)
+#define PIN_SPI_SCK          (9u)
+#define PIN_SPI_SS           (24u)
 #define PERIPH_SPI           sercom1
 #define PAD_SPI_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI_RX           SERCOM_RX_PAD_3
@@ -106,14 +105,14 @@ static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
 // SPI1: Connected to WINC1501B
-#define PIN_SPI1_MISO         (25u)
-#define PIN_SPI1_MOSI         (22u)
-#define PIN_SPI1_SCK          (23u)
-#define PIN_SPI1_SS           (24u)
+#define PIN_SPI1_MISO         (29u)
+#define PIN_SPI1_MOSI         (26u)
+#define PIN_SPI1_SCK          (27u)
+#define PIN_SPI1_SS           (28u)
 #define PERIPH_SPI1           sercom2
 #define PAD_SPI1_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_3
-static const uint8_t SS1   = PIN_SPI1_SS;   // SPI Slave SS not used. Set here only for reference.
+static const uint8_t SS1   = PIN_SPI1_SS;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI;
 static const uint8_t MISO1 = PIN_SPI1_MISO;
 static const uint8_t SCK1  = PIN_SPI1_SCK;
@@ -123,16 +122,16 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 #define WIRE_INTERFACES_COUNT 1
 
 // Wire
-#define PIN_WIRE_SDA        (18u)
-#define PIN_WIRE_SCL        (19u)
+#define PIN_WIRE_SDA        (11u)
+#define PIN_WIRE_SCL        (12u)
 #define PERIPH_WIRE         sercom0
 #define WIRE_IT_HANDLER     SERCOM0_Handler
 
 // USB
 // ---
-#define PIN_USB_HOST_ENABLE (32ul)
-#define PIN_USB_DM          (30ul)
-#define PIN_USB_DP          (31ul)
+#define PIN_USB_DM          (22ul)
+#define PIN_USB_DP          (23ul)
+#define PIN_USB_HOST_ENABLE (24ul)
 
 //#ifdef __cplusplus
 //}
@@ -140,10 +139,11 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 
 // Needed for WINC1501B (WiFi101) library
 // --------------------------------------
-#define WINC1501_RESET_PIN  (26u)
-#define WINC1501_INTN_PIN   (29u)
-#define WINC1501_SPI        SPI1
-#define WINC1501_SPI_CS_PIN PIN_SPI1_SS
+#define WINC1501_RESET_PIN   (30u)
+#define WINC1501_CHIP_EN_PIN (31u)
+#define WINC1501_INTN_PIN    (33u)
+#define WINC1501_SPI         SPI1
+#define WINC1501_SPI_CS_PIN  PIN_SPI1_SS
 
 /*----------------------------------------------------------------------------
  *        Arduino objects - C++ only
@@ -163,8 +163,8 @@ extern SERCOM sercom5;
 
 // Serial1
 extern Uart Serial1;
-#define PIN_SERIAL1_RX       (20ul)
-#define PIN_SERIAL1_TX       (21ul)
+#define PIN_SERIAL1_RX       (13ul)
+#define PIN_SERIAL1_TX       (14ul)
 #define PAD_SERIAL1_TX       (UART_TX_PAD_2)
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
 #endif
@@ -189,6 +189,6 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE        Serial1
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
-// Alisa Serial to SerialUSB, it's the most used serial port
+// Alias Serial to SerialUSB
 #define Serial                      SerialUSB
 
