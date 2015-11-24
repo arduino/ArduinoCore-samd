@@ -1,0 +1,103 @@
+;************************************************************
+; Windows USB CDC ACM Setup File
+; Copyright (c) 2000 Microsoft Corporation
+; Updated November 23, 2015
+;************************************************************
+
+[DefaultInstall]
+CopyINF=MattairTech_CDC.inf
+
+[Version]
+Signature="$Windows NT$"
+Class=Ports
+ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
+Provider=%MFGNAME%
+DriverPackageDisplayName=%DriverPackageDisplayName%
+CatalogFile=MattairTech_CDC.cat
+DriverVer=11/23/2015,1.1.2.0
+
+[Manufacturer]
+%MFGNAME%=DeviceList, NTx86, NTamd64, NTia64
+
+[SourceDisksNames]
+
+[SourceDisksFiles]
+
+[DestinationDirs]
+FakeModemCopyFileSection=12
+DefaultDestDir=12
+
+[DriverInstall]
+Include=mdmcpq.inf,usb.inf
+CopyFiles=FakeModemCopyFileSection
+AddReg=DriverAddReg
+
+[DriverAddReg]
+HKR,,DevLoader,,*ntkern 
+HKR,,NTMPDriver,,usbser.sys 
+HKR,,EnumPropPages32,,"MsPorts.dll,SerialPortPropPageProvider"
+
+[DriverInstall.Services]
+Include=mdmcpq.inf
+AddService=usbser, 0x00000002, DriverService
+
+[DriverService]
+DisplayName=%ServiceName%
+ServiceType=1
+StartType=3
+ErrorControl=1
+ServiceBinary=%12%\usbser.sys
+LoadOrderGroup=Base
+
+
+;------------------------------------------------------------------------------
+;  Vendor and Product ID Definitions
+;------------------------------------------------------------------------------
+; When developing your USB device, the VID and PID used in the PC side
+; application program and the firmware on the microcontroller must match.
+; Modify the below line to use your VID and PID.  Use the format as shown below.
+; Note: One INF file can be used for multiple devices with different VID and PIDs.
+; For each supported device, append ",USB\VID_xxxx&PID_yyyy" to the end of the line.
+;------------------------------------------------------------------------------
+[DeviceList]
+%DESCRIPTION.CDC%=DriverInstall, USB\VID_16D0&PID_0557
+%DESCRIPTION.CDC.HID%=DriverInstall, USB\VID_16D0&PID_0856&MI_00
+%DESCRIPTION.CDC.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B34&MI_00
+%DESCRIPTION.CDC.MSD.HID%=DriverInstall, USB\VID_16D0&PID_0B40&MI_00
+%DESCRIPTION.CDC.MSD.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B41&MI_00
+
+[DeviceList.NTx86]
+%DESCRIPTION.CDC%=DriverInstall, USB\VID_16D0&PID_0557
+%DESCRIPTION.CDC.HID%=DriverInstall, USB\VID_16D0&PID_0856&MI_00
+%DESCRIPTION.CDC.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B34&MI_00
+%DESCRIPTION.CDC.MSD.HID%=DriverInstall, USB\VID_16D0&PID_0B40&MI_00
+%DESCRIPTION.CDC.MSD.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B41&MI_00
+
+[DeviceList.NTamd64]
+%DESCRIPTION.CDC%=DriverInstall, USB\VID_16D0&PID_0557
+%DESCRIPTION.CDC.HID%=DriverInstall, USB\VID_16D0&PID_0856&MI_00
+%DESCRIPTION.CDC.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B34&MI_00
+%DESCRIPTION.CDC.MSD.HID%=DriverInstall, USB\VID_16D0&PID_0B40&MI_00
+%DESCRIPTION.CDC.MSD.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B41&MI_00
+
+[DeviceList.NTia64]
+%DESCRIPTION.CDC%=DriverInstall, USB\VID_16D0&PID_0557
+%DESCRIPTION.CDC.HID%=DriverInstall, USB\VID_16D0&PID_0856&MI_00
+%DESCRIPTION.CDC.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B34&MI_00
+%DESCRIPTION.CDC.MSD.HID%=DriverInstall, USB\VID_16D0&PID_0B40&MI_00
+%DESCRIPTION.CDC.MSD.MIDI.HID%=DriverInstall, USB\VID_16D0&PID_0B41&MI_00
+
+;------------------------------------------------------------------------------
+;  String Definitions
+;------------------------------------------------------------------------------
+;Modify these strings to customize your device
+;------------------------------------------------------------------------------
+[Strings]
+DriverPackageDisplayName="MattairTech CDC Drivers"
+ServiceName="USB RS-232 Emulation Driver"
+MFGNAME="MattairTech LLC"
+DESCRIPTION.CDC="MattairTech CDC Serial"
+DESCRIPTION.CDC.HID="MattairTech CDC Serial & HID Keyboard/Mouse"
+DESCRIPTION.CDC.MIDI.HID="MattairTech CDC Serial & MIDI & HID Keyboard/Mouse"
+DESCRIPTION.CDC.MSD.HID="MattairTech CDC Serial & Mass Storage & HID Keyboard/Mouse"
+DESCRIPTION.CDC.MSD.MIDI.HID="MattairTech CDC Serial & Mass Storage & MIDI & HID Keyboard/Mouse"
