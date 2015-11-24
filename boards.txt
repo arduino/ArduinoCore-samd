@@ -102,7 +102,7 @@ mkr1000.pid.2=0x824e
 mkr1000.vid.2.build.vid=0x2341
 mkr1000.vid.2.build.pid=0x824e
 mkr1000.vid.2.build.usb_product="Genuino MKR1000"
-mkr1000.vid.2.bootloader.file=mkr1000/samd21_sam_ba_genuino.bin
+mkr1000.vid.2.bootloader.file=mkr1000/samd21_sam_ba_genuino_mkr1000.bin
 
 mkr1000.vid.3=0x2341
 mkr1000.pid.3=0x024e
@@ -110,7 +110,7 @@ mkr1000.pid.3=0x024e
 mkr1000.vid.3.build.vid=0x2341
 mkr1000.vid.3.build.pid=0x824e
 mkr1000.vid.3.build.usb_product="Genuino MKR1000"
-mkr1000.vid.3.bootloader.file=mkr1000/samd21_sam_ba_genuino.bin
+mkr1000.vid.3.bootloader.file=mkr1000/samd21_sam_ba_genuino_mkr1000.bin
 
 mkr1000.upload.tool=bossac
 mkr1000.upload.protocol=sam-ba
@@ -131,4 +131,4 @@ mkr1000.build.variant=mkr1000
 mkr1000.build.vid=0x2341
 mkr1000.build.pid=0x804e
 mkr1000.bootloader.tool=openocd
-mkr1000.bootloader.file=mkr1000/samd21_sam_ba.bin
+mkr1000.bootloader.file=mkr1000/samd21_sam_ba_arduino_mkr1000.bin
