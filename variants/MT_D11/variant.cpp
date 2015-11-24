@@ -22,21 +22,21 @@
  */
 
 /*
-============================= MattairTech MT-D11 (ATsamd11D14AM) ========================
-Other   INT    PWM   Digital  Analog                      Digital  PWM   INT    Other
+=========================== MattairTech MT-D11 (ATsamd11D14AM) ==========================
+Other  INT   PWM   Digital  Analog                    Digital   PWM      INT     Other
 =========================================================================================
-                                       -------------------
-DAC                    2    2 (ADC0)  | A2   | USB |  Gnd |
-REF                    3    3 (ADC1)  | A3   |     |  Vcc |
-VDIV   INT4   TCC0[0]  4    4 (ADC2)  | A4    -----   A31 |  31  TC2[1]  INT3  RX / SWDIO
-       INT5   TCC0[1]  5    5 (ADC3)  | A5            A30 |  30  TC2[0]       TX / SWDCLK  
-              TCC0[2]  6    6 (ADC4)  | A6            A27 |  27          INT7
-              TCC0[3]  7    7 (ADC5)  | A7            A23 |  23                 I2C/SCL
-SPI MOSI  INT2         10   10 (ADC8) | A10           A22 |  22          INT6   I2C/SDA
-SPI SCK                11   11 (ADC9) | A11           A17 |  17  TC1[1]
-SPI MISO  INTNMI       14   14 (ADC6) | A14           A16 |  16  TC1[0]  INT0   LED
-Button    INT1         15   15 (ADC7) | A15           RST |                     Reset
-                                       -------------------
+                                    -------------------
+DAC                   2   2(ADC0)  | A2   | USB |  Gnd |
+REF                   3   3(ADC1)  | A3   |     |  Vcc |
+   4(INT4)  4(TCC00)  4   4(ADC2)  | A4    -----   A31 | 31  31(TC21)  31(INT3)  RX/SWDIO
+   5(INT5)  5(TCC01)  5   5(ADC3)  | A5            A30 | 30  30(TC20)           TX/SWDCLK
+            6(TCC02)  6   6(ADC4)  | A6            A27 | 27            27(INT7)
+            7(TCC03)  7   7(ADC5)  | A7            A23 | 23                      SCL
+MOSI  10(INT2)        10  10(ADC8) | A10           A22 | 22            22(INT6)  SDA
+SCK                   11  11(ADC9) | A11           A17 | 17  17(TC11)
+MISO  14(INTNMI)      14  14(ADC6) | A14           A16 | 16  16(TC10)  16(INT0)  LED
+BTN/SS  15(INT1)      15  15(ADC7) | A15           RST |                         Reset
+                                    -------------------
 Most pins have multiple configurations available (even analog pins). For example, pin
 4 can be an analog input, a PWM output, Digital I/O, or interrupt input. These
 always reference the pin number printed on the board but without the 'A' (with the
@@ -269,7 +269,7 @@ SERCOM sercom0( SERCOM0 ) ;
 SERCOM sercom1( SERCOM1 ) ;
 SERCOM sercom2( SERCOM2 ) ;
 
-#if defined(ARDUINO_UART_ONLY) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_UART) || defined(ARDUINO_HID_UART)
+#if defined(ARDUINO_UART_ONLY) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_UART) || defined(ARDUINO_HID_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
 Uart Serial1( SERCOM_INSTANCE_SERIAL1, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX ) ;
 
 void SERCOM1_Handler()

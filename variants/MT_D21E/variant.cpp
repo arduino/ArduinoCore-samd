@@ -23,30 +23,30 @@
 
 /*
 ============================= MattairTech MT-D21E (ATsamd21eXXa) ========================
-Other   INT    PWM   Digital  Analog                      Digital  PWM     INT    Other
+Other  INT     PWM   Digital  Analog                     Digital  PWM      INT      Other
 =========================================================================================
-                                       -------------------
-Xin32                                 | A0            RST |                      Reset
-Xout32                                | A1            NC  |
-DAC                    2    2 (ADC0)  | A2            NC  |
-REF                    3    3 (ADC1)  | A3            A31 |  31  TCC1[1]  INT11  SWD IO *
-       INT4            4    4 (ADC4)  | A4            A30 |  30  TCC1[0]  INT10  SWD CLK
-       INT5            5    5 (ADC5)  | A5            NC  |
-                       6    6 (ADC6)  | A6            A28 |  28           INT8   LED
-VDIV                   7    7 (ADC7)  | A7            A27 |  27           INT15  Button A
-       INTNMI TCC0[0]  8    8 (ADC16) | A8            A23 |  23  TC4[1]   INT7   SPI SS
-       INT9   TCC0[1]  9    9 (ADC17) | A9            A22 |  22  TC4[0]   INT6   SPI MISO
-TX (1)        TCC0[2]  10   10 (ADC18)| A10           A19 |  19           INT3   SPI SCK
-RX (1)        TCC0[3]  11   11 (ADC19)| A11           A18 |  18           INT2   SPI MOSI
-TX (2) INT14  TC3[0]   14             | A14           A17 |  17  TCC2[1]  INT1   I2C/SCL
-RX (2)        TC3[1]   15             | A15           A16 |  16  TCC2[0]  INT0   I2C/SDA
-                                      | NC            NC  |
-                                      | NC            NC  |
-                                      | Vbus          3.3V|   * Button B available on 31
-USB D-                                | A24-  _____   Vcc |
-USB D+                                | A25+ |     |  Vin |
-                                      | Gnd  | USB |  Gnd |
-                                       -------------------
+                                      -------------------
+Xin32                                | A0            RST |                          Reset
+Xout32                               | A1            NC  |
+DAC                     2   2(ADC0)  | A2            NC  |
+REF                     3   3(ADC1)  | A3            A31 | 31  31(TCC11) 31(INT11) SWDIO*
+     4(INT4)            4   4(ADC4)  | A4            A30 | 30  30(TCC10) 30(INT10) SWDCLK
+     5(INT5)            5   5(ADC5)  | A5            NC  |
+                        6   6(ADC6)  | A6            A28 | 28            28(INT8)   LED
+VDIV                    7   7(ADC7)  | A7            A27 | 27            27(INT15)  BTNA
+    8(INTNMI) 8(TCC00)  8   8(ADC16) | A8            A23 | 23  23(TC41)  23(INT7)   SS
+    9(INT9)   9(TCC01)  9   9(ADC17) | A9            A22 | 22  22(TC40)  22(INT6)   MISO
+TX1          10(TCC02)  10  10(ADC18)| A10           A19 | 19            19(INT3)   SCK
+RX1          11(TCC03)  11  11(ADC19)| A11           A18 | 18            18(INT2)   MOSI
+TX2 14(INT14) 14(TC30)  14           | A14           A17 | 17  17(TCC21)  17(INT1)  SCL
+RX2           15(TC31)  15           | A15           A16 | 16  16(TCC20)  16(INT0)  SDA
+                                     | NC            NC  |
+                                     | NC            NC  |
+                                     | Vbus          3.3V|   * Button B available on 31
+USB D-                               | A24-  _____   Vcc |
+USB D+                               | A25+ |     |  Vin |
+                                     | Gnd  | USB |  Gnd |
+                                      -------------------
 Most pins have multiple configurations available (even analog pins). For example, pin
 10 can be an analog input, a PWM output, Digital I/O, or the TX pin of 'Serial1'. These
 always reference the pin number printed on the board but without the 'A' (with the
@@ -257,7 +257,7 @@ SERCOM sercom1( SERCOM1 ) ;
 SERCOM sercom2( SERCOM2 ) ;
 SERCOM sercom3( SERCOM3 ) ;
 
-#if defined(ARDUINO_UART_ONLY) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_UART) || defined(ARDUINO_HID_UART)
+#if defined(ARDUINO_UART_ONLY) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_UART) || defined(ARDUINO_HID_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
 Uart Serial1( SERCOM_INSTANCE_SERIAL1, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX ) ;
 Uart Serial2( SERCOM_INSTANCE_SERIAL2, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX ) ;
 

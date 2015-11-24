@@ -11,15 +11,32 @@ This core is intended to be installed using Boards Manager (see below). To updat
 previous version, click on MattairTech SAMD Boards in Boards Manager, then click Update.
 
 
-## What's New
+## What's New (1.6.6-mt1, November 24, 2015)
 
-* Added support for the MT-D11 (ATSAMD11D14AM).
-* Reduced code size (see 'Code Size and RAM Usage' below).
-* Any combination of CDC, HID, or UART can be used (or no combination), by using the Tools->Communication menu.
-* Note that switching between CDC and CDC+HID will require re-selecting the COM port.
-* More detailed memory usage at end of compilation (see below).
-* Merged in upstream updates. Fixed Wire interrupt.
-* Tested all ADC, DAC, external interrupts, PWM outputs, serial, SPI, and Wire instances/pins.
+* New documentation section 'Special Notes'. Please read!
+* Updated ASCII pinouts to be more readable and less ambiguous.
+* Updated the Signed driver for Windows (extras directory).
+  * adds CDC/MIDI/HID, CDC/MSD/HID, and CDC/MSD/MIDI/HID composite USB devices.
+  * Of the above, currently only CDC/MIDI/HID is usable (see MIDIUSB library).
+* Merged in changes from upstream past SAMD CORE 1.6.2 release
+  * Added SPI.transfer16(..) method
+  * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
+  * the pin mode is changed to INPUT mode, arduino/ArduinoCore-samd#28
+  * HardwareSerial BUG Rx pin floating input, arduino/ArduinoCore-samd#48
+  * Send a ZLP if data size is multiple of EPX_SIZE for USB sends, arduino/ArduinoCore-samd#63
+  * Print not aborting on write failure, changelog update
+  * Tone fix for arduino/ArduinoCore-samd#59 and optimizations
+  * Fix warnings about deprecated recipe.ar.pattern
+* Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03
+  * Fixed bug in delay calculations
+  * Fixed deadlock conditions in Wire. Thanks Erin Tomson
+  * Print not aborting on write() failure. Thanks @stickbreaker
+  * SPI can now be configured in variants. Thanks @aethaniel
+  * Implemented Wire.end
+  * Implemented Wire.setClock. Thanks @PaoloP74
+  * Wire: allow scanning bus via beginTransmission-endTransmission
+  * USB Device: big refactoring and bug fix
+  * USB Device: added PluggableUSB interface
 
 
 ## Summary
@@ -44,6 +61,33 @@ Operating Voltage	|	3.3V (Do not connect voltages higher than 3.3V!)				|	3.3V (
 DC Current per I/O Pin	|	7 mA										|	7 mA
 
 
+## Special Notes
+
+* Boards Manager may require opening twice (with possibly a delay in between) to see some updates.
+
+* Errors when compiling, uploading, or burning the bootloader
+  Be sure to install the Arduino samd core before installing the MattairTech samd core. If you have problems upgrading
+  the IDE to 1.6.6, you may need to uninstall both the Arduino and MattairTech cores, then re-install in the proper order.
+  Use Arduino core 1.6.2 or above.
+
+* Tools->Communications menu
+  Currently, the Tools->Communications menu must be used to select the communications configuration. This configuration
+  must match the included libraries. For example, when including the HID and Keyboard libraries, you must select an
+  option that includes HID (ie: CDC_HID_UART). This menu is currently needed to select the USB PID that matches the
+  USB device configuration (needed for Windows). This may become automatic in a future release.
+
+  * Be sure that the Tools->Communications menu matches the sketch and libraries you are compiling.
+  * Different combinations of USB devices will result in different COM port assingments in Windows.
+
+* Incude platform specific libraries
+  You may need to manually include platform specific libraries such as SPI.h, Wire.h, and HID.h.
+
+* Differences from Arduino in versioning
+  The MattairTech ArduinoCore-samd version currently tracks the IDE version. In some cases, it may indicate the
+  minimum IDE version. This is the case for both 1.6.5-mtX and 1.6.6-mtX (which corresponds to SAMD CORE 1.6.2).
+  1.6.6-mt1 corresponds to Arduino SAMD CORE 1.6.2 plus some pull requests.
+
+
 ## Pin Configurations
 
 Most pins have multiple configurations available (even analog pins). For example, pin A10 on the MT-D21E can be an analog
@@ -54,50 +98,50 @@ but without the 'A' (with the usable pins starting at 2). DO NOT connect voltage
 
 ```
 ============================= MattairTech MT-D21E (ATsamd21eXXa) ========================
-Other   INT    PWM   Digital  Analog                      Digital  PWM     INT    Other
+Other  INT     PWM   Digital  Analog                     Digital  PWM      INT      Other
 =========================================================================================
-                                       -------------------
-Xin32                                 | A0            RST |                      Reset
-Xout32                                | A1            NC  |
-DAC                    2    2 (ADC0)  | A2            NC  |
-REF                    3    3 (ADC1)  | A3            A31 |  31  TCC1[1]  INT11  SWD IO *
-       INT4            4    4 (ADC4)  | A4            A30 |  30  TCC1[0]  INT10  SWD CLK
-       INT5            5    5 (ADC5)  | A5            NC  |
-                       6    6 (ADC6)  | A6            A28 |  28           INT8   LED
-VDIV                   7    7 (ADC7)  | A7            A27 |  27           INT15  Button A
-       INTNMI TCC0[0]  8    8 (ADC16) | A8            A23 |  23  TC4[1]   INT7   SPI SS
-       INT9   TCC0[1]  9    9 (ADC17) | A9            A22 |  22  TC4[0]   INT6   SPI MISO
-TX (1)        TCC0[2]  10   10 (ADC18)| A10           A19 |  19           INT3   SPI SCK
-RX (1)        TCC0[3]  11   11 (ADC19)| A11           A18 |  18           INT2   SPI MOSI
-TX (2) INT14  TC3[0]   14             | A14           A17 |  17  TCC2[1]  INT1   I2C/SCL
-RX (2)        TC3[1]   15             | A15           A16 |  16  TCC2[0]  INT0   I2C/SDA
-                                      | NC            NC  |
-                                      | NC            NC  |
-                                      | Vbus          3.3V|   * Button B available on 31
-USB D-                                | A24-  _____   Vcc |
-USB D+                                | A25+ |     |  Vin |
-                                      | Gnd  | USB |  Gnd |
-                                       -------------------
+                                      -------------------
+Xin32                                | A0            RST |                          Reset
+Xout32                               | A1            NC  |
+DAC                     2   2(ADC0)  | A2            NC  |
+REF                     3   3(ADC1)  | A3            A31 | 31  31(TCC11) 31(INT11) SWDIO*
+     4(INT4)            4   4(ADC4)  | A4            A30 | 30  30(TCC10) 30(INT10) SWDCLK
+     5(INT5)            5   5(ADC5)  | A5            NC  |
+                        6   6(ADC6)  | A6            A28 | 28            28(INT8)   LED
+VDIV                    7   7(ADC7)  | A7            A27 | 27            27(INT15)  BTNA
+    8(INTNMI) 8(TCC00)  8   8(ADC16) | A8            A23 | 23  23(TC41)  23(INT7)   SS
+    9(INT9)   9(TCC01)  9   9(ADC17) | A9            A22 | 22  22(TC40)  22(INT6)   MISO
+TX1          10(TCC02)  10  10(ADC18)| A10           A19 | 19            19(INT3)   SCK
+RX1          11(TCC03)  11  11(ADC19)| A11           A18 | 18            18(INT2)   MOSI
+TX2 14(INT14) 14(TC30)  14           | A14           A17 | 17  17(TCC21)  17(INT1)  SCL
+RX2           15(TC31)  15           | A15           A16 | 16  16(TCC20)  16(INT0)  SDA
+                                     | NC            NC  |
+                                     | NC            NC  |
+                                     | Vbus          3.3V|   * Button B available on 31
+USB D-                               | A24-  _____   Vcc |
+USB D+                               | A25+ |     |  Vin |
+                                     | Gnd  | USB |  Gnd |
+                                      -------------------
 ```
 
 ### SAMD11 (MT-D11)
 
 ```
-============================= MattairTech MT-D11 (ATsamd11D14AM) ========================
-Other   INT    PWM   Digital  Analog                      Digital  PWM   INT    Other
+=========================== MattairTech MT-D11 (ATsamd11D14AM) ==========================
+Other  INT   PWM   Digital  Analog                    Digital   PWM      INT     Other
 =========================================================================================
-                                       -------------------
-DAC                    2    2 (ADC0)  | A2   | USB |  Gnd |
-REF                    3    3 (ADC1)  | A3   |     |  Vcc |
-VDIV   INT4   TCC0[0]  4    4 (ADC2)  | A4    -----   A31 |  31  TC2[1]  INT3  RX / SWDIO
-       INT5   TCC0[1]  5    5 (ADC3)  | A5            A30 |  30  TC2[0]       TX / SWDCLK
-              TCC0[2]  6    6 (ADC4)  | A6            A27 |  27          INT7
-              TCC0[3]  7    7 (ADC5)  | A7            A23 |  23                 I2C/SCL
-SPI MOSI  INT2         10   10 (ADC8) | A10           A22 |  22          INT6   I2C/SDA
-SPI SCK                11   11 (ADC9) | A11           A17 |  17  TC1[1]
-SPI MISO  INTNMI       14   14 (ADC6) | A14           A16 |  16  TC1[0]  INT0   LED
-Button    INT1         15   15 (ADC7) | A15           RST |                     Reset
-                                       -------------------
+                                    -------------------
+DAC                   2   2(ADC0)  | A2   | USB |  Gnd |
+REF                   3   3(ADC1)  | A3   |     |  Vcc |
+   4(INT4)  4(TCC00)  4   4(ADC2)  | A4    -----   A31 | 31  31(TC21)  31(INT3)  RX/SWDIO
+   5(INT5)  5(TCC01)  5   5(ADC3)  | A5            A30 | 30  30(TC20)           TX/SWDCLK
+            6(TCC02)  6   6(ADC4)  | A6            A27 | 27            27(INT7)
+            7(TCC03)  7   7(ADC5)  | A7            A23 | 23                      SCL
+MOSI  10(INT2)        10  10(ADC8) | A10           A22 | 22            22(INT6)  SDA
+SCK                   11  11(ADC9) | A11           A17 | 17  17(TC11)
+MISO  14(INTNMI)      14  14(ADC6) | A14           A16 | 16  16(TC10)  16(INT0)  LED
+BTN/SS  15(INT1)      15  15(ADC7) | A15           RST |                         Reset
+                                    -------------------
 ```
 
 #### All pins operate at 3.3 volts. DO NOT connect voltages higher than 3.3V!
@@ -131,6 +175,8 @@ Button    INT1         15   15 (ADC7) | A15           RST |                     
 * MT-D21E: Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
 * MT-D11: Pin 10 (MOSI), pin 11 (SCK), pin 14 (MISO), and optionally pin 15 (SS, not currently used).
 * SPI communication using the SPI library.
+* Note that the SPI library will set SS as an output.
+* On the MT-D11, the button must be configured as reset (default) when using SPI.
 * **TWI (I2C): 2 pins can be configured for TWI I/O (Wire).**
 * MT-D21E: Pin 16 (SDA) and pin 17 (SCL).
 * MT-D11: Pin 22 (SDA) and pin 23 (SCL).
@@ -144,7 +190,7 @@ Button    INT1         15   15 (ADC7) | A15           RST |                     
 * The upper end of the analog measurement range can be changed using the analogReference() function.
 * **Reset: Bring this line LOW to reset the microcontroller.**
 
-### MT-D21E and MT-D11 Board Configuration
+### MT-D21E and MT-D11 Board Configuration Notes
 
 * The 32.768KHz crystal is used by the Arduino core, so it MUST be connected via the solder jumpers.
 * Note that the sketch may still run without the crystal attached, but the clock speed will be very inaccurate.
@@ -154,6 +200,7 @@ Button    INT1         15   15 (ADC7) | A15           RST |                     
 * Button A should be connected via the solder jumper. The debouncing capacitor should also be connected.
 * Button B (MT-D21E only) is connected to the Reset pin by default, but can be connected to pin 31 via the solder jumper.
 * A reference voltage can be connected to AREF. In this case, the capacitors should be enabled via the solder jumper.
+* On the MT-D11, BTN is shared with SPI SS, so the button must be configured as reset (default) when using SPI.
 
 
 ## Serial Monitor
@@ -173,7 +220,7 @@ the Reset button will reset the SAMD chip, which in turn will reset USB communic
 that if the serial monitor is open, it will be necessary to close and re-open it to restart communication.
 
 
-## Code Size and RAM Usage
+## Code Size and RAM Usage (1.6.5-mt2)
 
 Sketch and Configuration    | MT-D21E (Flash + RAM) | MT-D11 (Flash + RAM)
 ----------------------------|-----------------------|-----------------------
@@ -217,15 +264,16 @@ everything else (ie: W) resides in flash (in most cases).
 
 #### Windows
 
-There are two "drivers", a CDC only driver for the bootloader, and a CDC-HID driver for Arduino sketches (optional).
-The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP3), Vista, 7, and 8.
+There are currently four USB composite device combinations that include CDC as well as a CDC only device.
+Drivers are required for each of these five devices. The CDC only driver is required by the bootloader.
+The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP3), Vista, 7, 8, and 10.
 
 1. If you do not already have the SAM-BA bootloader installed, see below.
 2. Download https://www.mattairtech.com/software/MattairTech_CDC_Driver_Signed.zip and unzip into any folder.
 3. Plug in the board while holding down button A to enter the bootloader. The LED should light.
 4. Windows will detect the board. Point the installer to the folder from above to install the bootloader driver.
 5. If you don't intend on using Arduino, you can skip the rest of this list. See Using Bossac Standalone below.
-6. If you do not already have the test firmware installed, see Using Bossac Standalone below.
+6. If you do not already have the test firmware installed (comes preinstalled), see Using Bossac Standalone below.
 7. Press the reset button to run the test firmware (blink sketch with CDC-HID).
 8. Windows will detect the board. Point the installer to the folder from above to install the sketch driver.
 9. Continue with SAMD Core Installation below.
@@ -243,7 +291,7 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 
 1. As of this writing, only the 256 KB chip variants work with the OS X version of the upload tool, bossac.
 2. First, you will need to open boards.txt and change mattairtech_mt_d21e_bl8k.upload.tool to equal arduino:bossac.
-3. Open platform.txt and change tools.bossac.path to equal{runtime.tools.bossac-1.5-arduino.path}.
+3. Open platform.txt and change tools.bossac.path to equal{runtime.tools.bossac-1.6.1-arduino.path}.
 4. No driver installation is needed. You may get a dialog box asking if you wish to open the “Network Preferences”:
    * Click the "Network Preferences..." button, then click "Apply".
    * The board will show up as “Not Configured”, but it will work fine.
@@ -252,14 +300,15 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 ### SAMD Core Installation
 
 * To update from a previous version, click on MattairTech SAMD Boards in Boards Manager, then click Update.
+* Boards Manager may require opening twice (with possibly a delay in between) to see some updates.
 
-1. The MattairTech SAMD Core requires Arduino 1.6.5+.
-2. In the Arduino IDE 1.6.5+, click File->Preferences.
+1. The MattairTech SAMD Core requires Arduino 1.6.6+ (1.6.5-mtX required IDE 1.6.5).
+2. In the Arduino IDE, click File->Preferences.
 3. Click the button next to Additional Boards Manager URLs.
 4. Add https://www.mattairtech.com/software/arduino/package_MattairTech_index.json.
 5. Save preferences, then open the Boards Manager.
-6. Install the Arduino SAMD Boards package.
-7. Install the MattairTech SAMD Boards package.
+6. Install the Arduino SAMD Boards package. Use version 1.6.2 or higher with 1.6.6-mtX.
+7. Install the MattairTech SAMD Boards package (1.6.6-mtX).
 8. Close Boards Manager, then click Tools->Board->MattairTech MT-D21E (or MT-D11).
 9. Select the processor with the now visible Tools->Processor menu.
 10. If you do not already have the bootloader or blink sketch installed, see SAM-BA USB CDC Bootloader below.
@@ -453,40 +502,42 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 
 ## Possible Future Additions
 
-* Port Servo library
-* Features for lower power consumption
+* USB Host mode CDC ACM
+* Features for lower power consumption (library?)
+* Enhanced SD card library
+* Optional use of single on-board LED as USB activity LED
 * Replace pulse with timer capture
-* MIDI USB Device Class
 * MSC (Mass Storage) USB Device Class
-* More detailed memory usage statistics
-* Some kind of stack overflow detection. Estimation on stack usage.
-* Analog calibration
 * Polyphonic tone
 * Better OS X support
-* Drivers for some hardware I plan on using (TFT LCD, motor controller, IR decoder, several I2C (Wire) sensor devices, I2S device, etc.)
+* Libraries for some hardware I plan on using:
+  TFT LCD
+  Motor controller
+  IR decoder
+  I2S DAC/AMP and I2S MEMS microphone
+  Battery management IC
+  XBee/Xbee Pro devices
+  RS485
+  Several I2C (Wire) sensor devices: 
+    Accelerometer/gyro/magnetometer
+    Barometer/altimeter
+    Humidity/temperature
+    Light/color sensor
 
 
 ## ChangeLog
 
 * 1.6.6-mt1:
-
-  * Merged in changes from upstream SAMD CORE 1.6.3
-    * Added SPI.transfer16(..) method
-    * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
-    
-  * Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03
-    * Fixed bug in delay calculations
-    * Fixed deadlock conditions in Wire. Thanks Erin Tomson
-    * Print not aborting on write() failure. Thanks @stickbreaker
-    * SPI can now be configured in variants. Thanks @aethaniel
-    * Implemented Wire.end
-    * Implemented Wire.setClock. Thanks @PaoloP74
-    * Wire: allow scanning bus via beginTransmission-endTransmission
-    * USB Device: big refactoring and bug fix
-    * USB Device: added PluggableUSB interface
+  * See 'What's New' above.
 
 * 1.6.5-mt2:
-  * See 'What's New' above.
+  * Added support for the MT-D11 (ATSAMD11D14AM).
+  * Reduced code size (see 'Code Size and RAM Usage' below).
+  * Any combination of CDC, HID, or UART can be used (or no combination), by using the Tools->Communication menu.
+  * Note that switching between CDC and CDC+HID will require re-selecting the COM port.
+  * More detailed memory usage at end of compilation (see below).
+  * Merged in upstream updates. Fixed Wire interrupt.
+  * Tested all ADC, DAC, external interrupts, PWM outputs, serial, SPI, and Wire instances/pins.
 
 * 1.6.5-mt1:
   * Initial release
