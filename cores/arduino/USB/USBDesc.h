@@ -19,32 +19,48 @@
 #ifndef __USBDESC_H__
 #define __USBDESC_H__
 
-// CDC or HID can be enabled together.
+#if !defined(ARDUINO_USB_UART_DISABLED) && !defined(ARDUINO_UART_ONLY)
 #define PLUGGABLE_USB_ENABLED
-
-// These are now controlled by the boards.txt menu system
-#if defined(ARDUINO_CDC_HID) || defined(ARDUINO_CDC_HID_UART)
-  #define CDC_ENABLED
-  #define HID_ENABLED
-#elif defined(ARDUINO_CDC_ONLY) || defined(ARDUINO_CDC_UART)
-  #define CDC_ENABLED
-#elif defined(ARDUINO_HID_ONLY) || defined(ARDUINO_HID_UART)
-  #define HID_ENABLED
-#elif defined(ARDUINO_USB_UART_DISABLED) || defined(ARDUINO_UART_ONLY)
-  // do nothing
-#else
-  #error "USBDesc.h: CDC_ENABLED and HID_ENABLED are now controlled by the boards.txt menu system"
 #endif
+
+// These are controlled by the boards.txt menu system.
+// Now that there is Pluggable USB, these will be eliminated
+// once an alternate method for USB PID allocation is found.
+#if defined(ARDUINO_CDC_ONLY) || defined(ARDUINO_CDC_UART) || defined(ARDUINO_CDC_HID) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
+#define CDC_ENABLED
+#if defined(ARDUINO_CDC_ONLY)
+#define CDC_ONLY
+#else
+#define IAD_PRESENT
+#endif
+#endif
+
+#if defined(ARDUINO_HID_ONLY) || defined(ARDUINO_HID_UART) || defined(ARDUINO_CDC_HID) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
+#define HID_ENABLED
+#endif
+
+#if defined(ARDUINO_MIDI_ONLY) || defined(ARDUINO_MIDI_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
+#define MIDI_ENABLED
+#define IAD_PRESENT
+#endif
+
+#if defined(ARDUINO_MSD_ONLY) || defined(ARDUINO_MSD_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
+#define MSD_ENABLED
+#endif
+
 
 #ifdef CDC_ENABLED
 #define CDC_INTERFACE_COUNT 2
 #define CDC_ENPOINT_COUNT 3
+#else
+#define CDC_INTERFACE_COUNT	0
+#define CDC_ENPOINT_COUNT	0
 #endif
 
 // CDC
 #define CDC_ACM_INTERFACE	0	// CDC ACM
 #define CDC_DATA_INTERFACE	1	// CDC Data
-#define CDC_FIRST_ENDPOINT  1
+#define CDC_FIRST_ENDPOINT	1
 #define CDC_ENDPOINT_ACM	1
 #define CDC_ENDPOINT_OUT	2
 #define CDC_ENDPOINT_IN		3

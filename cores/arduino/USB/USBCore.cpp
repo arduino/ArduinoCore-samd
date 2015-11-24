@@ -20,6 +20,7 @@
 
 #include "SAMD21_USBDevice.h"
 #include "PluggableUSB.h"
+#include "USBDesc.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -66,8 +67,9 @@ const uint8_t STRING_MANUFACTURER[] = USB_MANUFACTURER;
 
 
 //	DEVICE DESCRIPTOR
-const DeviceDescriptor USB_DeviceDescriptorB = D_DEVICE(0xEF, 0x02, 0x01, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
 const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0x00, 0x00, 0x00, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
+const DeviceDescriptor USB_DeviceDescriptorB = D_DEVICE(0xEF, 0x02, 0x01, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
+const DeviceDescriptor USB_DeviceDescriptorC = D_DEVICE(0x02, 0x00, 0x00, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
 
 //==================================================================
 
@@ -170,7 +172,7 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 {
 	uint8_t t = setup.wValueH;
 	uint8_t desc_length = 0;
-	bool _cdcComposite;
+	//bool _cdcComposite;
 	int ret;
 	const uint8_t *desc_addr = 0;
 
@@ -188,10 +190,17 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 
 	if (t == USB_DEVICE_DESCRIPTOR_TYPE)
 	{
-		if (setup.wLength == 8)
-			_cdcComposite = 1;
+		//if (setup.wLength == 8)
+		//	_cdcComposite = 1;
 
-		desc_addr = _cdcComposite ?  (const uint8_t*)&USB_DeviceDescriptorB : (const uint8_t*)&USB_DeviceDescriptor;
+		//desc_addr = _cdcComposite ?  (const uint8_t*)&USB_DeviceDescriptorB : (const uint8_t*)&USB_DeviceDescriptor;
+#if defined(IAD_PRESENT)
+		desc_addr = (const uint8_t*)&USB_DeviceDescriptorB;
+#elif defined(CDC_ONLY)
+		desc_addr = (const uint8_t*)&USB_DeviceDescriptorC;
+#else
+		desc_addr = (const uint8_t*)&USB_DeviceDescriptor;
+#endif
 
 		if (*desc_addr > setup.wLength) {
 			desc_length = setup.wLength;
@@ -785,11 +794,11 @@ bool USBDeviceClass::handleStandardSetup(USBSetup &setup)
 			initEndpoints();
 			_usbConfiguration = setup.wValueL;
 
-			#if defined(CDC_ENABLED)
+#if defined(CDC_ENABLED)
 			// Enable interrupt for CDC reception from host (OUT packet)
 			usbd.epBank1EnableTransferComplete(CDC_ENDPOINT_ACM);
 			usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);
-			#endif
+#endif
 
 			sendZlp(0);
 			return true;

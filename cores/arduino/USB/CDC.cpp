@@ -18,6 +18,7 @@
 
 #include <Arduino.h>
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
+#include "USBDesc.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -59,7 +60,9 @@ static volatile LineInfo _usbLineInfo = {
 };
 
 static CDCDescriptor _cdcInterface = {
+#if !defined(CDC_ONLY)
 	D_IAD(0, 2, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
+#endif
 
 	// CDC communication interface
 	D_INTERFACE(CDC_ACM_INTERFACE, 1, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
