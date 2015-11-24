@@ -190,7 +190,8 @@ typedef enum _EPioType
 #define PIN_ATTR_DIGITAL       (1UL<<2)
 #define PIN_ATTR_PWM           (1UL<<3)
 #define PIN_ATTR_TIMER         (1UL<<4)
-#define PIN_ATTR_EXTINT        (1UL<<5)
+#define PIN_ATTR_TIMER_ALT     (1UL<<5)
+#define PIN_ATTR_EXTINT        (1UL<<6)
 
 /* Types used for the table below */
 typedef struct _PinDescription

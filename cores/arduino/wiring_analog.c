@@ -147,7 +147,7 @@ uint32_t analogRead( uint32_t ulPin )
   if (ulPin == 6) ulPin = PIN_A6;
   if (ulPin == 7) ulPin = PIN_A7;
 
-  pinPeripheral(ulPin, g_APinDescription[ulPin].ulPinType);
+  pinPeripheral(ulPin, PIO_ANALOG);
 
   if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
   {
@@ -225,9 +225,19 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 
   if ( (attr & PIN_ATTR_PWM) == PIN_ATTR_PWM )
   {
-    if ( (g_APinDescription[ulPin].ulPinType == PIO_TIMER) || g_APinDescription[ulPin].ulPinType == PIO_TIMER_ALT )
-    {
-      pinPeripheral( ulPin, g_APinDescription[ulPin].ulPinType ) ;
+    if (attr & PIN_ATTR_TIMER) {
+      #if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
+      // Compatibility for cores based on SAMD core <=1.6.2
+      if (g_APinDescription[ulPin].ulPinType == PIO_TIMER_ALT) {
+        pinPeripheral(ulPin, PIO_TIMER_ALT);
+      } else
+      #endif
+      {
+        pinPeripheral(ulPin, PIO_TIMER);
+      }
+    } else {
+      // We suppose that attr has PIN_ATTR_TIMER_ALT bit set...
+      pinPeripheral(ulPin, PIO_TIMER_ALT);
     }
 
     Tc*  TCx  = 0 ;
