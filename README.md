@@ -63,14 +63,14 @@ DC Current per I/O Pin	|	7 mA										|	7 mA
 
 ## Special Notes
 
-* ** Boards Manager must be opened twice to see some updates **
+* **Boards Manager must be opened twice to see some updates**
 
-* ** Errors when compiling, uploading, or burning the bootloader **
+* **Errors when compiling, uploading, or burning the bootloader**
   * Be sure to install the Arduino samd core before installing the MattairTech samd core. If you have problems upgrading
   the IDE to 1.6.6, you may need to uninstall both the Arduino and MattairTech cores, then re-install in the proper order.
   Use Arduino core 1.6.2 or above.
 
-* ** Tools->Communications menu **
+* **Tools->Communications menu**
   * Currently, the Tools->Communications menu must be used to select the communications configuration. This configuration
   must match the included libraries. For example, when including the HID and Keyboard libraries, you must select an
   option that includes HID (ie: CDC_HID_UART). This menu is currently needed to select the USB PID that matches the
@@ -79,10 +79,10 @@ DC Current per I/O Pin	|	7 mA										|	7 mA
     * Be sure that the Tools->Communications menu matches the sketch and libraries you are compiling.
     * Different combinations of USB devices will result in different COM port assingments in Windows.
 
-* ** Incude platform specific libraries **
+* **Incude platform specific libraries**
   * You may need to manually include platform specific libraries such as SPI.h, Wire.h, and HID.h.
 
-* ** Differences from Arduino in versioning **
+* **Differences from Arduino in versioning**
   * The MattairTech ArduinoCore-samd version currently tracks the IDE version. In some cases, it may indicate the
   minimum IDE version. This is the case for both 1.6.5-mtX and 1.6.6-mtX (which corresponds to SAMD CORE 1.6.2).
   1.6.6-mt1 corresponds to Arduino SAMD CORE 1.6.2 plus some pull requests.
@@ -153,7 +153,7 @@ BTN/SS  15(INT1)      15  15(ADC7) | A15           RST |                        
   * Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
   * Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
   * Use the pinMode(), digitalWrite(), and digitalRead() functions.
-  * **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
+* **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
   * These are available using the analogRead() function.
   * All pins can be used for GPIO and some pins can be used for other digital functions (ie. pwm or serial).
   * Each pin provides 10 bits of resolution (1024 values) by default.
