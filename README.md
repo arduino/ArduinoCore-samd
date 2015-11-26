@@ -63,27 +63,27 @@ DC Current per I/O Pin	|	7 mA										|	7 mA
 
 ## Special Notes
 
-* Boards Manager may require opening twice (with possibly a delay in between) to see some updates.
+* ** Boards Manager must be opened twice to see some updates **
 
-* Errors when compiling, uploading, or burning the bootloader
-  Be sure to install the Arduino samd core before installing the MattairTech samd core. If you have problems upgrading
+* ** Errors when compiling, uploading, or burning the bootloader **
+  * Be sure to install the Arduino samd core before installing the MattairTech samd core. If you have problems upgrading
   the IDE to 1.6.6, you may need to uninstall both the Arduino and MattairTech cores, then re-install in the proper order.
   Use Arduino core 1.6.2 or above.
 
-* Tools->Communications menu
-  Currently, the Tools->Communications menu must be used to select the communications configuration. This configuration
+* ** Tools->Communications menu **
+  * Currently, the Tools->Communications menu must be used to select the communications configuration. This configuration
   must match the included libraries. For example, when including the HID and Keyboard libraries, you must select an
   option that includes HID (ie: CDC_HID_UART). This menu is currently needed to select the USB PID that matches the
   USB device configuration (needed for Windows). This may become automatic in a future release.
 
-  * Be sure that the Tools->Communications menu matches the sketch and libraries you are compiling.
-  * Different combinations of USB devices will result in different COM port assingments in Windows.
+    * Be sure that the Tools->Communications menu matches the sketch and libraries you are compiling.
+    * Different combinations of USB devices will result in different COM port assingments in Windows.
 
-* Incude platform specific libraries
-  You may need to manually include platform specific libraries such as SPI.h, Wire.h, and HID.h.
+* ** Incude platform specific libraries **
+  * You may need to manually include platform specific libraries such as SPI.h, Wire.h, and HID.h.
 
-* Differences from Arduino in versioning
-  The MattairTech ArduinoCore-samd version currently tracks the IDE version. In some cases, it may indicate the
+* ** Differences from Arduino in versioning **
+  * The MattairTech ArduinoCore-samd version currently tracks the IDE version. In some cases, it may indicate the
   minimum IDE version. This is the case for both 1.6.5-mtX and 1.6.6-mtX (which corresponds to SAMD CORE 1.6.2).
   1.6.6-mt1 corresponds to Arduino SAMD CORE 1.6.2 plus some pull requests.
 
@@ -149,57 +149,57 @@ BTN/SS  15(INT1)      15  15(ADC7) | A15           RST |                        
 ### Pin Capabilities
 
 * **Digital: All pins can be used for general purpose I/O** 
-* Supports INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
-* Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
-* Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
-* Use the pinMode(), digitalWrite(), and digitalRead() functions.
-* **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
-* These are available using the analogRead() function.
-* All pins can be used for GPIO and some pins can be used for other digital functions (ie. pwm or serial).
-* Each pin provides 10 bits of resolution (1024 values) by default.
-* 12-bit resolution supported by using the analogReadResolution() function.
-* Each pin measures from ground to 3.3 volts.
-* The upper end of the measurement range can be changed using the AREF pin and the analogReference() function.
+  * Supports INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
+  * Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
+  * Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
+  * Use the pinMode(), digitalWrite(), and digitalRead() functions.
+  * **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
+  * These are available using the analogRead() function.
+  * All pins can be used for GPIO and some pins can be used for other digital functions (ie. pwm or serial).
+  * Each pin provides 10 bits of resolution (1024 values) by default.
+  * 12-bit resolution supported by using the analogReadResolution() function.
+  * Each pin measures from ground to 3.3 volts.
+  * The upper end of the measurement range can be changed using the AREF pin and the analogReference() function.
 * **DAC: One analog output is available on pin 2.**
-* Provides a 10-bit voltage output with the analogWrite() function.
+  * Provides a 10-bit voltage output with the analogWrite() function.
 * **PWM: 12 pins (MT-D21E) or 8 pins (MT-D11) can be configured as PWM outputs.**
-* Available using the analogWrite() function.
-* Each pin provides 8 bits of resolution (256 values) by default.
-* 12-bit resolution supported by using the analogWriteResolution() function.
+  * Available using the analogWrite() function.
+  * Each pin provides 8 bits of resolution (256 values) by default.
+  * 12-bit resolution supported by using the analogWriteResolution() function.
 * **External Interrupts: 15 pins (MT-D21E) or 9 pins (MT-D11) can be configured with external interrupts.**
-* Available using the attachInterrupt() function.
+  * Available using the attachInterrupt() function.
 * **Serial: 2 pairs of pins (MT-D21E) or 1 pair (MT-D11) can be configured for TTL serial I/O.**
-* MT-D21E: Serial1: pin 11 (RX) and pin 10 (TX). Serial2: pin 15 (RX) and pin 14 (TX).
-* MT-D11: Serial1: pin 31 (RX) and pin 30 (TX).
+  * MT-D21E: Serial1: pin 11 (RX) and pin 10 (TX). Serial2: pin 15 (RX) and pin 14 (TX).
+  * MT-D11: Serial1: pin 31 (RX) and pin 30 (TX).
 * **SPI: 3 or 4 pins can be configured for SPI I/O (SPI).**
-* MT-D21E: Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
-* MT-D11: Pin 10 (MOSI), pin 11 (SCK), pin 14 (MISO), and optionally pin 15 (SS, not currently used).
-* SPI communication using the SPI library.
-* Note that the SPI library will set SS as an output.
-* On the MT-D11, the button must be configured as reset (default) when using SPI.
+  * MT-D21E: Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
+  * MT-D11: Pin 10 (MOSI), pin 11 (SCK), pin 14 (MISO), and optionally pin 15 (SS, not currently used).
+  * SPI communication using the SPI library.
+  * Note that the SPI library will set SS as an output.
+  * On the MT-D11, the button must be configured as reset (default) when using SPI.
 * **TWI (I2C): 2 pins can be configured for TWI I/O (Wire).**
-* MT-D21E: Pin 16 (SDA) and pin 17 (SCL).
-* MT-D11: Pin 22 (SDA) and pin 23 (SCL).
-* TWI communication using the Wire library.
+  * MT-D21E: Pin 16 (SDA) and pin 17 (SCL).
+  * MT-D11: Pin 22 (SDA) and pin 23 (SCL).
+  * TWI communication using the Wire library.
 * **LED: One pin can be configured to light the onboard LED (LED_BUILTIN).**
-* Pin 28 (MT-D21E) or pin 16 (MT-D11). Bring the pin HIGH to turn the LED on. The pullup is disabled on this pin.
+  * Pin 28 (MT-D21E) or pin 16 (MT-D11). Bring the pin HIGH to turn the LED on. The pullup is disabled on this pin.
 * **Button: One pin can be configured to read the onboard Button A (BUTTON_BUILTIN).**
-* Pin 27 (MT-D21E) or pin 15 (MT-D11). Pressing the button will bring the pin LOW. The pullup must be enabled first.
-* If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
+  * Pin 27 (MT-D21E) or pin 15 (MT-D11). Pressing the button will bring the pin LOW. The pullup must be enabled first.
+  * If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
 * **AREF: One pin can be configured as an AREF analog input.**
-* The upper end of the analog measurement range can be changed using the analogReference() function.
+  * The upper end of the analog measurement range can be changed using the analogReference() function.
 * **Reset: Bring this line LOW to reset the microcontroller.**
 
 ### MT-D21E and MT-D11 Board Configuration Notes
 
 * The 32.768KHz crystal is used by the Arduino core, so it MUST be connected via the solder jumpers.
-* Note that the sketch may still run without the crystal attached, but the clock speed will be very inaccurate.
+* The sketch in some cases can run without the crystal attached, but the clock will be very inaccurate.
 * The 16MHz crystal is not used. It should be disconnected via the solder jumpers.
 * The I2C (TWI) pullup resistors should be enabled via the solder jumpers.
 * The LED should be enabled via the solder jumper.
-* Button A should be connected via the solder jumper. The debouncing capacitor should also be connected.
+* Button A and the debouncing capacitor should be connected via the solder jumpers.
 * Button B (MT-D21E only) is connected to the Reset pin by default, but can be connected to pin 31 via the solder jumper.
-* A reference voltage can be connected to AREF. In this case, the capacitors should be enabled via the solder jumper.
+* A reference voltage can be connected to AREF. In this case, the capacitors should be enabled via the solder jumpers.
 * On the MT-D11, BTN is shared with SPI SS, so the button must be configured as reset (default) when using SPI.
 
 
