@@ -18,6 +18,7 @@
 */
 
 #include <sam.h>
+#include "board_driver_led.h"
 
 struct ConstVectors
 {
@@ -140,8 +141,25 @@ void PendSV_Handler(void)
   while (1);
 }
 
+volatile uint8_t keepValue = 0;
+volatile uint8_t targetValue = 20;
+volatile int8_t direction = 1;
+
 void SysTick_Handler(void)
 {
-  __BKPT(1);
-  while (1);
+  if (keepValue == 0) {
+    targetValue += direction;
+    LED_toggle();
+  }
+  keepValue ++;
+
+  if (targetValue > 240 || targetValue < 10) {
+    direction = -direction;
+    targetValue += direction;
+  }
+
+  if (keepValue == targetValue) {
+    LED_toggle();
+  }
+  //TC5->COUNT16.INTFLAG.bit.MC0 = 1;     // Clear interrupt
 }
