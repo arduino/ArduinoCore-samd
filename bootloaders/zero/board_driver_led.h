@@ -38,4 +38,6 @@ inline void LEDTX_on(void) { PORT->Group[BOARD_LEDTX_PORT].OUTCLR.reg = (1<<BOAR
 inline void LEDTX_off(void) { PORT->Group[BOARD_LEDTX_PORT].OUTSET.reg = (1<<BOARD_LEDTX_PIN); }
 inline void LEDTX_toggle(void) { PORT->Group[BOARD_LEDTX_PORT].OUTTGL.reg = (1<<BOARD_LEDTX_PIN); }
 
+inline void LED_configure(uint32_t sampleRate) { SysTick_Config(sampleRate); }
+
 #endif // _BOARD_DRIVER_LED_
