@@ -38,8 +38,8 @@ const char devDescriptor[] =
   0x00,   // bDeviceSubclass: CDC class sub code
   0x00,   // bDeviceProtocol: CDC Device protocol
   0x40,   // bMaxPacketSize0
-  0x41,   // idVendor L
-  0x23,   // idVendor H
+  USB_VID_LOW,   // idVendor L
+  USB_VID_HIGH,   // idVendor H
   USB_PID_LOW,   // idProduct L
   USB_PID_HIGH,  // idProduct H
   0x00,   // bcdDevice L, here matching SAM-BA version
