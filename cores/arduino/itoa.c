@@ -17,7 +17,7 @@
 */
 
 #include "itoa.h"
-#include <string.h>
+#include <stddef.h> // For NULL
 
 #ifdef __cplusplus
 extern "C" {

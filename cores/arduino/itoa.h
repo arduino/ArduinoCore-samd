@@ -16,7 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#pragma once
+#ifndef _ARDUINO_ITOA_
+#define _ARDUINO_ITOA_
 
 #ifdef __cplusplus
 extern "C"{
@@ -33,3 +34,4 @@ extern char* ultoa( unsigned long value, char *string, int radix ) ;
 } // extern "C"
 #endif
 
+#endif // _ARDUINO_ITOA_
