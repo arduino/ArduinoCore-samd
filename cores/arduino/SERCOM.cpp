@@ -485,17 +485,19 @@ void SERCOM::prepareCommandBitsWire(uint8_t cmd)
   }
 }
 
-bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
+bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag, bool _repeatstart)
 {
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
-  // Wait idle bus mode
-  while ( !isBusIdleWIRE() );
+  // Wait idle bus mode (except repeated start)
+  if (! _repeatstart) {
+    while ( !isBusIdleWIRE() );
+  }
 
-  // Send start and address
+  // Send start and address, in repeated start mode this will kick off the repstart too!
   sercom->I2CM.ADDR.bit.ADDR = address;
-
+  
   // Address Transmitted
   if ( flag == WIRE_WRITE_FLAG ) // Write mode
   {

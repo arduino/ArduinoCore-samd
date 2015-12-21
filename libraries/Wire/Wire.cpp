@@ -32,6 +32,7 @@ TwoWire::TwoWire(SERCOM * s, uint8_t pinSDA, uint8_t pinSCL)
   this->_uc_pinSDA=pinSDA;
   this->_uc_pinSCL=pinSCL;
   transmissionBegun = false;
+  _repeatedstart = false;
 }
 
 void TwoWire::begin(void) {
@@ -71,7 +72,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
   size_t byteRead = 0;
 
-  if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
+  if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG, _repeatedstart))
   {
     // Read first data
     rxBuffer.store_char(sercom->readDataWIRE());
@@ -114,6 +115,13 @@ uint8_t TwoWire::endTransmission(bool stopBit)
 {
   transmissionBegun = false ;
 
+  SercomMasterCommandWire cmd;
+  if (stopBit) {
+    _repeatedstart = false;
+  } else {
+    _repeatedstart = true;
+  }
+
   // Start I2C transmission
   if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
   {
@@ -131,7 +139,12 @@ uint8_t TwoWire::endTransmission(bool stopBit)
       return 3 ;  // Nack or error
     }
   }
-  sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  if (stopBit) {
+    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+  }
+  /* We dont actually send any command now, next time we try to do a read
+     it will automagically send a repeated start, see Table 27-12. Command Description */  
 
   return 0;
 }
