@@ -19,6 +19,8 @@
 #ifndef __USBCORE_H__
 #define __USBCORE_H__
 
+#include "USBDesc.h"
+
 //	Standard requests
 #define GET_STATUS					0
 #define CLEAR_FEATURE				1
@@ -226,7 +228,9 @@ typedef struct
 typedef struct
 {
 	//	IAD
+#if !defined(CDC_ONLY)
 	IADDescriptor				iad;	// Only needed on compound device
+#endif
 	//	Control
 	InterfaceDescriptor			cif;
 	CDCCSInterfaceDescriptor	header;
