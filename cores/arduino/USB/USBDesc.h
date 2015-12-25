@@ -28,7 +28,7 @@
 // once an alternate method for USB PID allocation is found.
 #if defined(ARDUINO_CDC_ONLY) || defined(ARDUINO_CDC_UART) || defined(ARDUINO_CDC_HID) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
 #define CDC_ENABLED
-#if defined(ARDUINO_CDC_ONLY)
+#if defined(ARDUINO_CDC_ONLY) || defined(ARDUINO_CDC_UART)
 #define CDC_ONLY
 #else
 #define IAD_PRESENT
