@@ -37,6 +37,8 @@ previous version, click on MattairTech SAMD Boards in Boards Manager, then click
   * Wire: allow scanning bus via beginTransmission-endTransmission
   * USB Device: big refactoring and bug fix
   * USB Device: added PluggableUSB interface
+* 1.6.6-mt2 changes the default Communication setting to CDC_UART (from CDC_HID_UART)
+* 1.6.6-mt3 fixes compilation with CDC_UART and CDC_ONLY settings
 
 
 ## Summary
