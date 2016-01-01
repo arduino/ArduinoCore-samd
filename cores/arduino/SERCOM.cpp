@@ -62,9 +62,9 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
     }
 
     // Asynchronous arithmetic mode
-    // 65535 * ( 1 - sampleRateValue * baudrate / SystemCoreClock);
-    // 65535 - 65535 * (sampleRateValue * baudrate / SystemCoreClock));
-    sercom->USART.BAUD.reg = 65535.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock));
+    // 65536 * ( 1 - sampleRateValue * baudrate / SystemCoreClock);
+    // add 0.5 to round up/down as appropriate
+    sercom->USART.BAUD.reg = 65536.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock)) + 0.5f;
   }
 }
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
