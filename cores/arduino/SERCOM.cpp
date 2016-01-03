@@ -105,7 +105,7 @@ void SERCOM::enableUART()
 void SERCOM::flushUART()
 {
   // Wait for transmission to complete
-  while(sercom->USART.INTFLAG.bit.DRE != SERCOM_USART_INTFLAG_DRE);
+  while(!sercom->USART.INTFLAG.bit.TXC);
 }
 
 void SERCOM::clearStatusUART()
@@ -161,8 +161,8 @@ uint8_t SERCOM::readDataUART()
 
 int SERCOM::writeDataUART(uint8_t data)
 {
-  //Flush UART buffer
-  flushUART();
+  // Wait for data register to be empty
+  while(!isDataRegisterEmptyUART());
 
   //Put data into DATA register
   sercom->USART.DATA.reg = (uint16_t)data;
