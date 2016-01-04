@@ -62,9 +62,9 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
     }
 
     // Asynchronous arithmetic mode
-    // 65535 * ( 1 - sampleRateValue * baudrate / SystemCoreClock);
-    // 65535 - 65535 * (sampleRateValue * baudrate / SystemCoreClock));
-    sercom->USART.BAUD.reg = 65535.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock));
+    // 65536 * ( 1 - sampleRateValue * baudrate / SystemCoreClock);
+    // add 0.5 to round up/down as appropriate
+    sercom->USART.BAUD.reg = 65536.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock)) + 0.5f;
   }
 }
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
@@ -112,7 +112,7 @@ void SERCOM::enableUART()
 void SERCOM::flushUART()
 {
   // Wait for transmission to complete
-  while(sercom->USART.INTFLAG.bit.DRE != SERCOM_USART_INTFLAG_DRE);
+  while(!sercom->USART.INTFLAG.bit.TXC);
 }
 
 void SERCOM::clearStatusUART()
@@ -168,8 +168,8 @@ uint8_t SERCOM::readDataUART()
 
 int SERCOM::writeDataUART(uint8_t data)
 {
-  //Flush UART buffer
-  flushUART();
+  // Wait for data register to be empty
+  while(!isDataRegisterEmptyUART());
 
   //Put data into DATA register
   sercom->USART.DATA.reg = (uint16_t)data;
