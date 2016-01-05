@@ -43,28 +43,21 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 
   if ( mode == UART_INT_CLOCK )
   {
-    uint16_t sampleRateValue ;
+    uint16_t sampleRateValue;
 
-    if ( sampleRate == SAMPLE_RATE_x16 )
-    {
-      sampleRateValue = 16 ;
-    }
-    else
-    {
-      if ( sampleRate == SAMPLE_RATE_x8 )
-      {
-        sampleRateValue = 8 ;
-      }
-      else
-      {
-        sampleRateValue = 3 ;
-      }
+    if (sampleRate == SAMPLE_RATE_x16) {
+      sampleRateValue = 16;
+    } else {
+      sampleRateValue = 8;
     }
 
-    // Asynchronous arithmetic mode
-    // 65535 * ( 1 - sampleRateValue * baudrate / SystemCoreClock);
-    // 65535 - 65535 * (sampleRateValue * baudrate / SystemCoreClock));
-    sercom->USART.BAUD.reg = 65535.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock));
+    // Asynchronous fractional mode (Table 24-2 in datasheet)
+    //   BAUD = fref / (sampleRateValue * fbaud)
+    // (multiply by 8, to calculate fractional piece)
+    uint32_t baudTimes8 = (SystemCoreClock * 8) / (sampleRateValue * baudrate);
+
+    sercom->USART.BAUD.FRAC.FP   = (baudTimes8 % 8);
+    sercom->USART.BAUD.FRAC.BAUD = (baudTimes8 / 8);
   }
 }
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
