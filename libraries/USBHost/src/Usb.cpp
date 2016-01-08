@@ -263,6 +263,7 @@ uint32_t USBHost::InTransfer(EpInfo *pep, uint32_t nak_limit, uint8_t *nbytesptr
             continue;
 		}
         if(rcode) {
+                uhd_freeze_pipe(pep->epAddr);
                 //printf(">>>>>>>> Problem! dispatchPkt %2.2x\r\n", rcode);
                 return(rcode);// break; //should be 0, indicating ACK. Else return error code.
         }
@@ -305,6 +306,7 @@ uint32_t USBHost::InTransfer(EpInfo *pep, uint32_t nak_limit, uint8_t *nbytesptr
             break;
 		} // if
 	} //while( 1 )
+	uhd_freeze_pipe(pep->epAddr);
 	return ( rcode);
 }
 
@@ -420,6 +422,16 @@ uint32_t USBHost::dispatchPkt(uint32_t token, uint32_t epAddr, uint32_t nak_limi
 		if (UHD_Pipe_Is_Transfer_Complete(epAddr, token))
 		{
 			return 0;
+		}
+
+		//case hrNAK:
+		if((USB->HOST.HostPipe[epAddr].PINTFLAG.reg & USB_HOST_PINTFLAG_TRFAIL) ) {
+			USB->HOST.HostPipe[epAddr].PINTFLAG.reg = USB_HOST_PINTFLAG_TRFAIL;
+			nak_count++;
+			if(nak_limit && (nak_count == nak_limit)) {
+				rcode = USB_ERRORFLOW;
+				return (rcode);
+			}
 		}
 
 		//case hrNAK:
