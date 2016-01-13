@@ -60,13 +60,15 @@ class TwoWire : public Stream
     using Print::write;
 
     void onService(void);
-
   private:
     SERCOM * sercom;
+
     uint8_t _uc_pinSDA;
     uint8_t _uc_pinSCL;
 
     bool transmissionBegun;
+
+    bool _repeatedstart;
 
     // RX Buffer
     RingBuffer rxBuffer;
