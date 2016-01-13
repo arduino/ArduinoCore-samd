@@ -243,6 +243,7 @@ Serial_::operator bool()
 	return result;
 }
 
+<<<<<<< HEAD
 int32_t Serial_::readBreak() {
 	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
 
@@ -288,5 +289,8 @@ bool Serial_::rts() {
 }
 
 Serial_ SerialUSB(USBDevice);
+=======
+Serial_ Serial(USBDevice);
+>>>>>>> make it so native USB is Serial
 
 #endif

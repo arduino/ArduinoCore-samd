@@ -280,6 +280,15 @@ void USBDeviceClass::standby() {
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
 #if defined(CDC_ENABLED)
+	if (ep == CDC_ENDPOINT_OUT)
+	{
+		// The RAM Buffer is empty: we can receive data
+		//usbd.epBank0ResetReady(CDC_ENDPOINT_OUT);
+
+		// Handle received bytes
+		if (available(CDC_ENDPOINT_OUT))
+			Serial.accept();
+	}
 	if (ep == CDC_ENDPOINT_IN)
 	{
 		// NAK on endpoint IN, the bank is not yet filled in.
