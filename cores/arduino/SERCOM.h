@@ -198,6 +198,7 @@ class SERCOM
 		bool isMasterWIRE( void ) ;
 		bool isSlaveWIRE( void ) ;
 		bool isBusIdleWIRE( void ) ;
+		bool isBusOwnerWIRE( void ) ;
 		bool isDataReadyWIRE( void ) ;
 		bool isStopDetectedWIRE( void ) ;
 		bool isRestartDetectedWIRE( void ) ;
