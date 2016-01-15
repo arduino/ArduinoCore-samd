@@ -63,7 +63,7 @@
 
 // LEDs
 // ----
-#define PIN_LED     (7u)
+#define PIN_LED     (6u)
 #define LED_BUILTIN PIN_LED
 
 // Analog pins
