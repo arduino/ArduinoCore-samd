@@ -166,7 +166,9 @@ void Serial_::accept(void)
 	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
 	uint32_t len = usb.recv(CDC_ENDPOINT_OUT, &buffer, CDC_SERIAL_BUFFER_SIZE);
 
-	noInterrupts();
+	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+	__disable_irq();
+
 	ring_buffer *ringBuffer = &cdc_rx_buffer;
 	uint32_t i = ringBuffer->head;
 
@@ -183,7 +185,9 @@ void Serial_::accept(void)
 			ringBuffer->full = true;
 	}
 	ringBuffer->head = i;
-	interrupts();
+	if (enableInterrupts) {
+		__enable_irq();
+	}
 }
 
 int Serial_::available(void)
