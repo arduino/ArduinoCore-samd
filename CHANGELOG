@@ -1,12 +1,18 @@
 SAMD CORE 1.6.3
 
+* Fixed Wire master repeated start behaviour
+* Added SerialUSB methods: readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts()
 * Added SPI.transfer16(..) method
 * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
+* Fixed Serial baudrate calculations for 1200bps. Thanks @TomKeddie
+* Fixed Serial.flush() that now waits until the last bit has been sent. Thanks @TomKeddie
+* Fixed Serial configuration for data-bit. Thanks @TomKeddie
 * Bootloader: 32Khz external oscillator is now used, improves USB clock. Thanks @aethaniel
 * Bootloader: Clean up of makefiles and file organization. Thanks @aethaniel
 * Added PWM capability to pins A1/A2 of Arduino Zero.
 * variant.h/cpp: PWM capability is now determined by PIN_ATTR_PWM combined with
                  PIN_ATTR_TIMER or PIN_ATTR_TIMER_ALT for timer selection.
+* Small fix to USBHost example "USB_desc.ino". Thanks @bbx10
 
 SAMD CORE 1.6.2 2015.11.03
 
