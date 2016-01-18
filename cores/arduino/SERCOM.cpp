@@ -557,11 +557,8 @@ bool SERCOM::sendDataSlaveWIRE(uint8_t data)
   //Send data
   sercom->I2CS.DATA.bit.DATA = data;
 
-  //Wait data transmission successful
-  while(!sercom->I2CS.INTFLAG.bit.DRDY);
-
   //Problems on line? nack received?
-  if(sercom->I2CS.STATUS.bit.RXNACK)
+  if(!sercom->I2CS.INTFLAG.bit.DRDY || sercom->I2CS.STATUS.bit.RXNACK)
     return false;
   else
     return true;
