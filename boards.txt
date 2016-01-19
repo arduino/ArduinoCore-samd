@@ -87,3 +87,30 @@ arduino_zero_native.build.vid=0x2341
 arduino_zero_native.build.pid=0x804d
 arduino_zero_native.bootloader.tool=openocd
 arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
+
+# Atmel ATSAMD21E18A (Native USB Port)
+atsamd21e18a.name=Atmel ATSAMD21E18A (Native USB Port)
+atsamd21e18a.vid.0=0x03eb
+atsamd21e18a.pid.0=0x6124
+
+atsamd21e18a.upload.tool=bossac
+atsamd21e18a.upload.protocol=sam-ba
+atsamd21e18a.upload.maximum_size=262144
+atsamd21e18a.upload.use_1200bps_touch=true
+atsamd21e18a.upload.wait_for_upload_port=true
+atsamd21e18a.upload.native_usb=true
+atsamd21e18a.build.mcu=cortex-m0plus
+atsamd21e18a.build.f_cpu=48000000L
+atsamd21e18a.build.usb_product="Atmel ATSAMD21E18A"
+atsamd21e18a.build.usb_manufacturer="Atmel"
+atsamd21e18a.build.board=SAMD_ZERO
+atsamd21e18a.build.core=arduino
+atsamd21e18a.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
+atsamd21e18a.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+atsamd21e18a.build.openocdscript=openocd_scripts/arduino_zero.cfg
+atsamd21e18a.build.variant=atsamd21e18a
+atsamd21e18a.build.variant_system_lib=
+atsamd21e18a.build.vid=0x03eb
+atsamd21e18a.build.pid=0x6124
+atsamd21e18a.bootloader.tool=openocd
+atsamd21e18a.bootloader.file=zero/samd21_sam_ba.bin
