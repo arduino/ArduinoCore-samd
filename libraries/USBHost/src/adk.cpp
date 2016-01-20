@@ -45,7 +45,8 @@ ready(false) {
 	for (uint32_t i = 0; i < ADK_MAX_ENDPOINTS; i++) {
 		epInfo[i].epAddr	= 0;
 		epInfo[i].maxPktSize	= (i) ? 0 : 8;
-		epInfo[i].epAttribs		= 0;
+		epInfo[i].bmSndToggle   = 0;
+		epInfo[i].bmRcvToggle   = 0;
 		epInfo[i].bmNakPower  	= (i) ? USB_NAK_NOWAIT : USB_NAK_MAX_POWER;
         }//for(uint32_t i=0; i<ADK_MAX_ENDPOINTS; i++...
 
@@ -221,15 +222,15 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
 		USBTRACE("\r\nEP0:");
 		USBTRACE2("\r\nAddr: ", epInfo[0].epAddr);
 		USBTRACE2("\r\nMax.pkt.size: ", epInfo[0].maxPktSize);
-		USBTRACE2("\r\nAttr: ", epInfo[0].epAttribs);
+		USBTRACE2("\r\nAttr: ", epInfo[0].bmNakPower);
 		USBTRACE("\r\nEpout:");
 		USBTRACE2("\r\nAddr: ", epInfo[epDataOutIndex].epAddr);
 		USBTRACE2("\r\nMax.pkt.size: ", epInfo[epDataOutIndex].maxPktSize);
-		USBTRACE2("\r\nAttr: ", epInfo[epDataOutIndex].epAttribs);
+		USBTRACE2("\r\nAttr: ", epInfo[epDataOutIndex].bmNakPower);
 		USBTRACE("\r\nEpin:");
 		USBTRACE2("\r\nAddr: ", epInfo[epDataInIndex].epAddr);
 		USBTRACE2("\r\nMax.pkt.size: ", epInfo[epDataInIndex].maxPktSize);
-		USBTRACE2("\r\nAttr: ", epInfo[epDataInIndex].epAttribs);
+		USBTRACE2("\r\nAttr: ", epInfo[epDataInIndex].bmNakPower);
 	
 
 		USBTRACE("\r\nConfiguration successful");
@@ -364,6 +365,8 @@ void ADK::EndpointXtract(uint32_t conf, uint32_t /* iface */, uint32_t /* alt */
                 // Fill in the endpoint info structure
                 epInfo[index].epAddr = (pep->bEndpointAddress & 0x0F);
                 epInfo[index].maxPktSize = (uint8_t)pep->wMaxPacketSize;
+                epInfo[index].bmSndToggle = 0;
+                epInfo[index].bmRcvToggle = 0;
 
                 bNumEP++;
 

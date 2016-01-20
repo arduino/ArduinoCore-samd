@@ -710,7 +710,8 @@ uint32_t USBHost::Configuring(uint32_t parent, uint32_t port, uint32_t lowspeed)
 
         epInfo.epAddr = 0;
         epInfo.maxPktSize = 8;
-        epInfo.epAttribs = 0;
+        epInfo.bmSndToggle = 0;
+        epInfo.bmRcvToggle = 0;
         epInfo.bmNakPower = USB_NAK_MAX_POWER;
 
         //delay(2000);
