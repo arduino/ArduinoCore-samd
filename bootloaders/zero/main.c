@@ -179,6 +179,14 @@ int main(void)
 
   DEBUG_PIN_LOW;
 
+  /* Initialize LEDs */
+  LED_init();
+  LED_configure(1000);
+  LEDRX_init();
+  LEDRX_off();
+  LEDTX_init();
+  LEDTX_off();
+
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
   {
