@@ -82,8 +82,10 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
     return ;
   }
 
-  // Enable pull-up resistor
-  PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_PULLEN) ;
+  if ( (PORT->Group[g_APinDescription[ulPin].ulPort].DIRSET.reg & (1ul << g_APinDescription[ulPin].ulPin)) == 0 ) {
+    // the pin is not an output, disable pull-up if val is LOW, otherwise enable pull-up
+    PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].bit.PULLEN = (ulVal != LOW) ;
+  }
 
   switch ( ulVal )
   {
