@@ -88,7 +88,7 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 
   if ( (PORT->Group[port].DIRSET.reg & pinMask) == 0 ) {
     // the pin is not an output, disable pull-up if val is LOW, otherwise enable pull-up
-    PORT->Group[port].PINCFG[pin].bit.PULLEN = (ulVal != LOW) ;
+    PORT->Group[port].PINCFG[pin].bit.PULLEN = ((ulVal == LOW) ? 0 : 1) ;
   }
 
   switch ( ulVal )
