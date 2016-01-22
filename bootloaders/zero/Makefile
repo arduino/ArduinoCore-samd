@@ -21,19 +21,13 @@ ifeq ($(OS),Windows_NT)
 
   # Are we using mingw/msys/msys2/cygwin?
   ifeq ($(TERM),xterm)
-# this is the path coming with night build
 		T=$(shell cygpath -u $(LOCALAPPDATA))
-# this is the path till 1.6.5 r5
-#		T=$(shell cygpath -u $(APPDATA))
     MODULE_PATH?=$(T)/Arduino15/packages/arduino
     ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
     RM=rm
     SEP=/
   else
-# this is the path coming with night build
     MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/arduino
-# this is the path till 1.6.5 r5
-#    MODULE_PATH?=$(APPDATA)/Arduino15/packages/arduino
     ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
     RM=rm
     SEP=\\
