@@ -91,8 +91,8 @@ bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
 		return false;
 
 	uint8_t buffer[maxlen];
-	buffer[0] = 0x03;
-	buffer[1] = strlen((const char*)string) * 2 + 2;
+	buffer[0] = strlen((const char*)string) * 2 + 2;
+	buffer[1] = 0x03;
 
 	uint8_t i;
 	for (i = 2; i < maxlen && *string; i++) {
