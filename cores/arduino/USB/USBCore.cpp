@@ -66,8 +66,8 @@ const uint8_t STRING_MANUFACTURER[] = USB_MANUFACTURER;
 
 
 //	DEVICE DESCRIPTOR
-const DeviceDescriptor USB_DeviceDescriptorB = D_DEVICE(0xEF, 0x02, 0x01, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
-const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0x00, 0x00, 0x00, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
+const DeviceDescriptor USB_DeviceDescriptor = D_DEVICE(0xEF, 0x02, 0x01, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
+const DeviceDescriptor USB_DeviceDescriptorB = D_DEVICE(0x00, 0x00, 0x00, 64, USB_VID, USB_PID, 0x100, IMANUFACTURER, IPRODUCT, ISERIAL, 1);
 
 //==================================================================
 
@@ -90,14 +90,14 @@ bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
 	if (maxlen < 2)
 		return false;
 
-	uint16_t buff[maxlen/2];
+	uint16_t buff[maxlen];
 	int l = 1;
 
-	maxlen -= 2;
-	while (*string && maxlen>0)
+	maxlen -= 1;
+	while (*string && maxlen>=0)
 	{
 		buff[l++] = (uint8_t)(*string++);
-		maxlen -= 2;
+		maxlen -= 1;
 	}
 	buff[0] = (3<<8) | (l*2);
 
@@ -203,16 +203,16 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			desc_addr = (const uint8_t*)&STRING_LANGUAGE;
 		}
 		else if (setup.wValueL == IPRODUCT) {
-			return sendStringDescriptor(STRING_PRODUCT, setup.wLength);
+			return sendStringDescriptor(STRING_PRODUCT, strlen((char*)STRING_PRODUCT));
 		}
 		else if (setup.wValueL == IMANUFACTURER) {
-			return sendStringDescriptor(STRING_MANUFACTURER, setup.wLength);
+			return sendStringDescriptor(STRING_MANUFACTURER, strlen((char*)STRING_MANUFACTURER));
 		}
 		else if (setup.wValueL == ISERIAL) {
 #ifdef PLUGGABLE_USB_ENABLED
 			char name[ISERIAL_MAX_LEN];
 			PluggableUSB().getShortName(name);
-			return sendStringDescriptor((uint8_t*)name, setup.wLength);
+			return sendStringDescriptor((uint8_t*)name, strlen(name));
 #endif
 		}
 		else {
@@ -851,7 +851,7 @@ void USBDeviceClass::ISRHandler()
 		if (ok) {
 			usbd.epBank1SetReady(0);
 		} else {
-			stall(0);
+			//stall(0);
 		}
 
 		if (usbd.epBank1IsStalled(0))
