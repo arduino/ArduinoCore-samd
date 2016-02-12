@@ -27,10 +27,10 @@
  *----------------------------------------------------------------------------*/
 
 /** Frequency of the board main oscillator */
-#define VARIANT_MAINOSC     (48000000ul)
+#define VARIANT_MAINOSC     (32768ul)
 
 /** Master clock frequency */
-#define VARIANT_MCK           (8000000ul)
+#define VARIANT_MCK           (48000000ul)
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -82,7 +82,7 @@ extern "C"
 // #define PIN_LED_10           (10u)
 // #define PIN_LED_RXL          (25u)
 // #define PIN_LED_TXL          (26u)
-#define PIN_LED              (10u)
+#define PIN_LED              (27u) // SWDIO Pin
 // #define PIN_LED2             PIN_LED_RXL
 // #define PIN_LED3             PIN_LED_TXL
 // #define LED_BUILTIN          PIN_LED_10
@@ -212,8 +212,9 @@ extern Uart Serial;
 // #define SERIAL_PORT_HARDWARE        Serial1
 // #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
-#define SERIAL_PORT_HARDWARE        Serial
-#define SERIAL_PORT_HARDWARE_OPEN   Serial
+#define SERIAL_PORT_MONITOR        Serial
+// #define SERIAL_PORT_HARDWARE        Serial1
+// #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
 #endif /* _VARIANT_ATSAMD21E18A_ */
 

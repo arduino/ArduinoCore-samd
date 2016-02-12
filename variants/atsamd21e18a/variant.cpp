@@ -83,7 +83,7 @@ const PinDescription g_APinDescription[]=
 {
   // 0..13 - Digital pins
   // ----------------------
-  // 0/1 - SERCOM/UART (Serial1)
+  // 0/1 - SERCOM/UART (Serial)
   { PORTA, 11, PIO_SERCOM, (PIN_ATTR_DIGITAL), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_11 }, // RX: SERCOM0/PAD[3]
   { PORTA, 10, PIO_SERCOM, (PIN_ATTR_DIGITAL), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_10 }, // TX: SERCOM0/PAD[2]
 
@@ -136,6 +136,8 @@ const PinDescription g_APinDescription[]=
   // ----------------------
   // 26 - Alternate use of A0 (DAC output)
   { PORTA,  2, PIO_ANALOG, PIN_ATTR_ANALOG, DAC_Channel0, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_2 }, // DAC/VOUT
+  // 27 - Alternate LED pin
+  { PORTA, 31, PIO_DIGITAL, (PIN_ATTR_DIGITAL), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_11 } // Also SWDIO pin
 } ;
 
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 } ;
