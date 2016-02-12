@@ -13,6 +13,7 @@ SAMD CORE 1.6.3
 * variant.h/cpp: PWM capability is now determined by PIN_ATTR_PWM combined with
                  PIN_ATTR_TIMER or PIN_ATTR_TIMER_ALT for timer selection.
 * Small fix to USBHost example "USB_desc.ino". Thanks @bbx10
+* USBHost: USB-Keyboard right shift key was ignored. Thanks @bbx10 
 
 SAMD CORE 1.6.2 2015.11.03
 
