@@ -82,7 +82,7 @@ extern "C"
 // #define PIN_LED_10           (10u)
 // #define PIN_LED_RXL          (25u)
 // #define PIN_LED_TXL          (26u)
-#define PIN_LED              (27u) // SWDIO Pin
+#define PIN_LED              (10u)
 // #define PIN_LED2             PIN_LED_RXL
 // #define PIN_LED3             PIN_LED_TXL
 // #define LED_BUILTIN          PIN_LED_10
