@@ -5,12 +5,16 @@ for Atmel's SAMD21 (E variant) processor (used on the FemtoUSB board).
 
 ## Installation on Arduino IDE
 
-This core is available as a package in the Arduino IDE cores manager.
-Just open the "Boards Manager" and install the package called:
+Add the following package URL to the Additional Boards Manager URLs field in your Arduino IDE via **File > Preferences** (Settings tab).
 
-"Atmel ATSAMD21E18A (32-bits ARM Cortex-M0+) Boards"
+This core is now available as a package in the Arduino IDE cores manager.
+Just open the **Boards Manager** and install the package called:
+
+"Atmel ATSAMD21E18A core" by FemtoIO
 
 ## Support
+
+This package is derrived from the Arduino Zero bootloader and core. It has been modified to work with the E variant of the SAM D21 chips.
 
 There is a dedicated section of the Arduino Forum for general discussion and project assistance:
 
@@ -37,16 +41,16 @@ builds a release for testing (the so called "Hourly builds").
 
 The hourly builds are available through Boards Manager. If you want to install them:
   1. Open the **Preferences** of the Arduino IDE.
-  2. Add this URL `http://downloads.arduino.cc/Hourly/samd/package_samd-hourly-build_index.json` in the **Additional Boards Manager URLs** field, and click OK.
+  2. Add this URL `http://downloads.femtoduino.com/ArduinoCore-atsamd21e18a/package_atsamd21e18a-hourly-build_index.json` in the **Additional Boards Manager URLs** field, and click OK.
   3. Open the **Boards Manager** (menu Tools->Board->Board Manager...)
-  4. Install **Arduino SAMD core - Hourly build**
-  5. Select one of the boards under **SAMD Hourly build XX** in Tools->Board menu
+  4. Install **Atmel ATSAMD21E18A core - Hourly build**
+  5. Select one of the boards under **Atmel ATSAMD21E18A Hourly build XX** in Tools->Board menu
   6. Compile/Upload as usual
 
 If you already installed an hourly build and you want to update it with the latest:
   1. Open the **Boards Manager** (menu Tools->Board->Board Manager...)
-  2. Remove **Arduino SAMD core - Hourly build**
-  3. Install again **Arduino SAMD core - Hourly build**, the Board Manager will download the latest build replacing the old one.
+  2. Remove **Atmel ATSAMD21E18A core - Hourly build**
+  3. Install again **Atmel ATSAMD21E18A core - Hourly build**, the Board Manager will download the latest build replacing the old one.
 
 ## License and credits
 
