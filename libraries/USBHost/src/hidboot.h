@@ -25,6 +25,10 @@ e-mail   :  support@circuitsathome.com
 
 #define UHS_HID_BOOT_KEY_ZERO           0x27
 #define UHS_HID_BOOT_KEY_ENTER          0x28
+#define UHS_HID_BOOT_KEY_ESCAPE         0x29
+#define UHS_HID_BOOT_KEY_DELETE         0x2a    // Backspace
+#define UHS_HID_BOOT_KEY_DELETE_FORWARD	0x4C	// Delete
+#define UHS_HID_BOOT_KEY_TAB            0x2b
 #define UHS_HID_BOOT_KEY_SPACE          0x2c
 #define UHS_HID_BOOT_KEY_CAPS_LOCK      0x39
 #define UHS_HID_BOOT_KEY_SCROLL_LOCK    0x47
