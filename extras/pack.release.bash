@@ -1,6 +1,6 @@
 #!/bin/bash -ex
 
-#  pack.*.bash - Bash script to help packaging samd core releases.
+#  pack.*.bash - Bash script to help packaging atsamd21e18a core releases.
 #  Copyright (c) 2015 Arduino LLC.  All right reserved.
 #
 #  This library is free software; you can redistribute it and/or
