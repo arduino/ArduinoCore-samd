@@ -1,26 +1,26 @@
 {
   "packages": [
     {
-      "name": "arduino-beta",
-      "maintainer": "Arduino Betatesting",
-      "websiteURL": "http://www.arduino.cc/",
-      "email": "packages@arduino.cc",
+      "name": "femtoio-beta",
+      "maintainer": "FemtoIO",
+      "websiteURL": "https://github.com/femtoio",
+      "email": "support@femtoduino.com",
       "help": {
         "online": "http://www.arduino.cc/en/Reference/HomePage"
       },
       "platforms": [
         {
-          "name": "Arduino SAMD core - Pull request #%%PR_NUMBER%% (build %%BUILD_NUMBER%%)",
+          "name": "Atmel ATSAMD21E18A core - Pull request #%%PR_NUMBER%% (build %%BUILD_NUMBER%%)",
           "architecture": "samd",
           "version": "%%VERSION%%",
           "category": "Arduino",
-          "url": "http://downloads.arduino.cc/PR/samd/%%FILENAME%%",
+          "url": "http://downloads.femtoduino.com/PR/atsamd21e18a/%%FILENAME%%",
           "archiveFileName": "%%FILENAME%%",
           "checksum": "SHA-256:%%CHECKSUM%%",
           "size": "%%SIZE%%",
           "boards": [
             {
-              "name": "Arduino Zero"
+              "name": "Atmel ATSAMD21E18A"
             }
           ],
           "toolsDependencies": [

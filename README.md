@@ -1,14 +1,14 @@
-# Arduino Core for SAMD21 CPU
+# Arduino Core for SAMD21 (E variant) CPU
 
 This repository containts the source code and configuration files of the Arduino Core
-for Atmel's SAMD21 processor (used on the Arduino Zero board).
+for Atmel's SAMD21 (E variant) processor (used on the FemtoUSB board).
 
 ## Installation on Arduino IDE
 
 This core is available as a package in the Arduino IDE cores manager.
 Just open the "Boards Manager" and install the package called:
 
-"Arduino SAMD Boards (32-bit ARM Cortex-M0+)"
+"Atmel ATSAMD21E18A (32-bits ARM Cortex-M0+) Boards"
 
 ## Support
 
@@ -20,7 +20,7 @@ http://forum.arduino.cc/index.php?board=98.0
 
 If you find a bug you can submit an issue here on github:
 
-https://github.com/arduino/ArduinoCore-samd/issues
+https://github.com/femtoio/ArduinoCore-atsamd21e18a/issues
 
 Before posting a new issue, please check if the same problem has been already reported by someone else
 to avoid duplicates.
