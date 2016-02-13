@@ -14,7 +14,7 @@
           "architecture": "samd",
           "version": "%%VERSION%%",
           "category": "Arduino",
-          "url": "http://downloads.femtoduino.com/PR/atsamd21e18a/%%FILENAME%%",
+          "url": "http://downloads.femtoduino.com/ArduinoCore-atsamd21e18a/%%FILENAME%%",
           "archiveFileName": "%%FILENAME%%",
           "checksum": "SHA-256:%%CHECKSUM%%",
           "size": "%%SIZE%%",
