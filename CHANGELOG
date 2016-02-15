@@ -1,5 +1,6 @@
-SAMD CORE 1.6.3
+SAMD CORE 1.6.3 2016.02.15
 
+* Added support for Arduino/Genuino MKR1000 board
 * Fixed Wire master repeated start behaviour
 * Added SerialUSB methods: readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts()
 * Added SPI.transfer16(..) method
@@ -14,6 +15,8 @@ SAMD CORE 1.6.3
                  PIN_ATTR_TIMER or PIN_ATTR_TIMER_ALT for timer selection.
 * Small fix to USBHost example "USB_desc.ino". Thanks @bbx10
 * USBHost: USB-Keyboard right shift key was ignored. Thanks @bbx10 
+* Wire library now support multiple instances in variant. Thanks @spiderkeys
+* Ported some SerialUSB API (readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts())
 
 SAMD CORE 1.6.2 2015.11.03
 
