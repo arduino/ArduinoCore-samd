@@ -27,7 +27,7 @@ e-mail   :  support@circuitsathome.com
 // None of these should ever be included by a driver, or a user's sketch.
 
 #include "variant.h"
-#define USB_HOST_SERIAL SERIAL_PORT_MONITOR
+#define USB_HOST_SERIAL Serial1
 #include "Print.h"
 #include "printhex.h"
 #include "message.h"
