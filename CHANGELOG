@@ -2,6 +2,9 @@ SAMD CORE 1.6.4
 
 * Fixed Wire address setup when running as slave.
 * Fixed String constructor when using floating point numbers.
+* USBHost: fixed blocking USBHost.Task(). Thanks @bbx10
+* USBHost: fixed some ASCII Control codes in keyboard controller. Thanks @bbx10
+* USBHost: ported some minor fix from upstream UHS2. Thanks @bbx10
 
 SAMD CORE 1.6.3 2016.02.15
 
