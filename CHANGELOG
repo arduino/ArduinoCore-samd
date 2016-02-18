@@ -6,6 +6,7 @@ SAMD CORE 1.6.4
 * USBHost: fixed some ASCII Control codes in keyboard controller. Thanks @bbx10
 * USBHost: ported some minor fix from upstream UHS2. Thanks @bbx10
 * USBHost: fixed wrong library initialization. Thanks @bbx10 @ladyada
+* better interrupt handling in Serial::accept()
 
 SAMD CORE 1.6.3 2016.02.15
 
