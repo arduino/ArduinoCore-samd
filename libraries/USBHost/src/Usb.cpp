@@ -36,7 +36,6 @@ USBHost::USBHost() : bmHubPre(0) {
 uint32_t USBHost::Init() {
 	//devConfigIndex	= 0;
 	// Init host stack
-	init();
 	bmHubPre		= 0;
 	UHD_Init();
 	return 0;
@@ -507,7 +506,6 @@ void USBHost::Task(void) //USB state machine
 
 			// Init USB stack and driver
 			UHD_Init();
-			init();
 
 			// Free all USB resources
 			for (uint32_t i = 0; i < USB_NUMDEVICES; ++i)
