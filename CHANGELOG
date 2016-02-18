@@ -1,3 +1,8 @@
+SAMD CORE 1.6.4
+
+* Fixed Wire address setup when running as slave.
+* Fixed String constructor when using floating point numbers.
+
 SAMD CORE 1.6.3 2016.02.15
 
 * Added support for Arduino/Genuino MKR1000 board
