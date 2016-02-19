@@ -52,3 +52,57 @@ atsamd21e18a.build.vid=0x03eb
 atsamd21e18a.build.pid=0x6124
 atsamd21e18a.bootloader.tool=openocd
 atsamd21e18a.bootloader.file=zero/samd21_sam_ba.bin
+
+
+# Atmel ATSAMR21E18A (Prorgamming Port)
+# ---------------------------------------
+atsamr21e18a_ice.name=Atmel ATSAMR21E18A (Programming Port)
+atsamr21e18a_ice.vid.0=0x03eb
+atsamr21e18a_ice.pid.0=0x2157
+
+atsamr21e18a_ice.upload.tool=openocd
+atsamr21e18a_ice.upload.protocol=sam-ba
+atsamr21e18a_ice.upload.maximum_size=262144
+atsamr21e18a_ice.upload.use_1200bps_touch=false
+atsamr21e18a_ice.upload.wait_for_upload_port=false
+atsamr21e18a_ice.upload.native_usb=false
+atsamr21e18a_ice.build.mcu=cortex-m0plus
+atsamr21e18a_ice.build.f_cpu=48000000L
+atsamr21e18a_ice.build.usb_product="Atmel ATSAMR21E18A"
+atsamr21e18a_ice.build.usb_manufacturer="Atmel"
+atsamr21e18a_ice.build.board=SAMD_ZERO
+atsamr21e18a_ice.build.core=arduino_osc32k
+atsamr21e18a_ice.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
+atsamr21e18a_ice.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+atsamr21e18a_ice.build.openocdscript=openocd_scripts/atsamr21e18a.cfg
+atsamr21e18a_ice.build.variant=atsamr21e18a
+atsamr21e18a_ice.build.variant_system_lib=
+atsamr21e18a_ice.build.vid=0x03eb
+atsamr21e18a_ice.build.pid=0x6124
+atsamr21e18a_ice.bootloader.tool=openocd
+atsamr21e18a_ice.bootloader.file=zero_osc32k/samd21_sam_ba.bin
+
+# Atmel ATSAMR21E18A (Native USB Port)
+atsamr21e18a.name=Atmel ATSAMR21E18A (Native USB Port)
+atsamr21e18a.vid.0=0x03eb
+atsamr21e18a.pid.0=0x6124
+
+atsamr21e18a.upload.tool=bossac
+atsamr21e18a.upload.protocol=sam-ba
+atsamr21e18a.upload.maximum_size=262144
+atsamr21e18a.upload.use_1200bps_touch=true
+atsamr21e18a.upload.wait_for_upload_port=true
+atsamr21e18a.upload.native_usb=true
+atsamr21e18a.build.mcu=cortex-m0plus
+atsamr21e18a.build.f_cpu=48000000L
+atsamr21e18a.build.usb_product="Atmel ATSAMR21E18A"
+atsamr21e18a.build.usb_manufacturer="Atmel"
+atsamr21e18a.build.board=SAMD_ZERO
+atsamr21e18a.build.core=arduino_osc32k
+atsamr21e18a.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
+atsamr21e18a.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+atsamr21e18a.build.openocdscript=openocd_scripts/atsamr21e18a.cfg
+atsamr21e18a.build.variant=atsamr21e18a
+atsamr21e18a.build.variant_system_lib=
+atsamr21e18a.build.vid=0x03eb
+atsamr21e18a.build.pid=0x6124
