@@ -1,4 +1,4 @@
-SAMD CORE 1.6.4
+SAMD CORE 1.6.4 2016.02.19
 
 * Fixed Wire address setup when running as slave.
 * Fixed String constructor when using floating point numbers.
@@ -10,7 +10,7 @@ SAMD CORE 1.6.4
 
 SAMD CORE 1.6.3 2016.02.15
 
-* Added support for Arduino/Genuino MKR1000 board
+* Added drivers for Arduino/Genuino MKR1000 board
 * Fixed Wire master repeated start behaviour
 * Added SerialUSB methods: readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts()
 * Added SPI.transfer16(..) method
