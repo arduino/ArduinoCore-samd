@@ -251,6 +251,10 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 		// Handle received bytes
 		if (available(CDC_ENDPOINT_OUT))
 		{
+			// always disable transfer complete,
+			// in case the CDC receive buffer is full
+			usbd.epBank0DisableTransferComplete(CDC_ENDPOINT_OUT);
+
 			SerialUSB.accept();
 		}
 		else
