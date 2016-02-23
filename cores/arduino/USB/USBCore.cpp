@@ -245,9 +245,6 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 #if defined(CDC_ENABLED)
 	if (ep == CDC_ENDPOINT_OUT)
 	{
-		// The RAM Buffer is empty: we can receive data
-		//usbd.epBank0ResetReady(CDC_ENDPOINT_OUT);
-
 		// Handle received bytes
 		if (available(CDC_ENDPOINT_OUT))
 		{
