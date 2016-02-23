@@ -553,6 +553,9 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 
 		// Clear Transfer complete 0 flag
 		usbd.epBank0AckTransferComplete(ep);
+
+		// Enable Transfer complete 0 interrupt
+		usbd.epBank0EnableTransferComplete(ep);
 	}
 
 	return len;
