@@ -116,7 +116,7 @@ void loop( void ) ;
 
 #if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10605)
 // Interrupts
-#define digitalPinToInterrupt(P)   ( g_APinDescription[P].ulExtInt )
+#define digitalPinToInterrupt(P)   ( P )
 #endif
 
 // USB Device
