@@ -355,8 +355,10 @@ bool Serial_::rts() {
 int Serial_::availableForStore(void) {
 	ring_buffer *buffer = &cdc_rx_buffer;
 
-	if (buffer->head >= buffer->tail)
-		return CDC_SERIAL_BUFFER_SIZE - 1 - buffer->head  + buffer->tail;
+	if (buffer->full)
+		return 0;
+	else if (buffer->head >= buffer->tail)
+		return CDC_SERIAL_BUFFER_SIZE - 1 - buffer->head + buffer->tail;
 	else
 		return buffer->tail - buffer->head  - 1;
 }
