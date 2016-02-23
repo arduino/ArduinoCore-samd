@@ -447,10 +447,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	}
 	else if (config == USB_ENDPOINT_TYPE_CONTROL)
 	{
-		// XXX: Needed?
-// 		usbd.epBank0DisableAutoZLP(ep);
-// 		usbd.epBank1DisableAutoZLP(ep);
-
 		// Setup Control OUT
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
