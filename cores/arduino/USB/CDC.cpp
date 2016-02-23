@@ -163,7 +163,7 @@ void Serial_::end(void)
 
 void Serial_::accept(void)
 {
-	uint32_t ringBufferSpace = CDC_SERIAL_BUFFER_SIZE - available();
+	uint32_t ringBufferSpace = availableForStore();
 	if (ringBufferSpace < EPX_SIZE) {
 		// usb.recv will always try to receive up to EPX_SIZE bytes on the endpoint
 		// make sure there is enough space, so that data is not lost
@@ -350,6 +350,15 @@ bool Serial_::dtr() {
 
 bool Serial_::rts() {
 	return _usbLineInfo.lineState & 0x2;
+}
+
+int Serial_::availableForStore(void) {
+	ring_buffer *buffer = &cdc_rx_buffer;
+
+	if (buffer->head >= buffer->tail)
+		return CDC_SERIAL_BUFFER_SIZE - 1 - buffer->head  + buffer->tail;
+	else
+		return buffer->tail - buffer->head  - 1;
 }
 
 Serial_ SerialUSB(USBDevice);
