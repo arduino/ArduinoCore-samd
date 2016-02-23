@@ -163,8 +163,15 @@ void Serial_::end(void)
 
 void Serial_::accept(void)
 {
-	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
-	uint32_t len = usb.recv(CDC_ENDPOINT_OUT, &buffer, CDC_SERIAL_BUFFER_SIZE);
+	uint32_t ringBufferSpace = CDC_SERIAL_BUFFER_SIZE - available();
+	if (ringBufferSpace < EPX_SIZE) {
+		// usb.recv will always try to receive up to EPX_SIZE bytes on the endpoint
+		// make sure there is enough space, so that data is not lost
+		return;
+	}
+
+	uint8_t buffer[EPX_SIZE];
+	uint32_t len = usb.recv(CDC_ENDPOINT_OUT, &buffer, sizeof(buffer));
 
 	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
 	__disable_irq();
