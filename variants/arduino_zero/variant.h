@@ -19,8 +19,8 @@
 #ifndef _VARIANT_ARDUINO_ZERO_
 #define _VARIANT_ARDUINO_ZERO_
 
-// The definitions here needs a SAMD core >=1.6.3
-#define ARDUINO_SAMD_VARIANT_COMPLIANCE 10603
+// The definitions here needs a SAMD core >=1.6.5
+#define ARDUINO_SAMD_VARIANT_COMPLIANCE 10605
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -75,9 +75,6 @@ extern "C"
  * https://github.com/arduino/Arduino/issues/1833
  */
 // #define digitalPinToTimer(P)
-
-// Interrupts
-#define digitalPinToInterrupt(P)   ( P )
 
 // LEDs
 #define PIN_LED_13           (13u)

@@ -114,6 +114,11 @@ void loop( void ) ;
 
 #define bit(b) (1UL << (b))
 
+#if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10605)
+// Interrupts
+#define digitalPinToInterrupt(P)   ( g_APinDescription[P].ulExtInt )
+#endif
+
 // USB Device
 #include "USB/USBDesc.h"
 #include "USB/USBCore.h"
