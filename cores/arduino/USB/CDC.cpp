@@ -204,7 +204,8 @@ int Serial_::available(void)
 		return CDC_SERIAL_BUFFER_SIZE;
 	}
 	if (buffer->head == buffer->tail) {
-		USB->DEVICE.DeviceEndpoint[CDC_ENDPOINT_OUT].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
+		if (usb.available(CDC_ENDPOINT_OUT))
+			accept();
 	}
 	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
 }
