@@ -250,7 +250,19 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 
 		// Handle received bytes
 		if (available(CDC_ENDPOINT_OUT))
+		{
 			SerialUSB.accept();
+		}
+		else
+		{
+			// ZLP received
+
+			// The RAM Buffer is empty: we can receive data
+			usbd.epBank0ResetReady(CDC_ENDPOINT_OUT);
+
+			// Clear Transfer complete 0 flag
+			usbd.epBank0AckTransferComplete(CDC_ENDPOINT_OUT);
+		}
 	}
 	if (ep == CDC_ENDPOINT_IN)
 	{
