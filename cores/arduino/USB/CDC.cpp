@@ -161,32 +161,21 @@ void Serial_::end(void)
 {
 }
 
-void Serial_::accept(void)
+void Serial_::accept(uint8_t *data, uint32_t size)
 {
-	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
-	uint32_t len = usb.recv(CDC_ENDPOINT_OUT, &buffer, CDC_SERIAL_BUFFER_SIZE);
-
-	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
-	__disable_irq();
-
 	ring_buffer *ringBuffer = &cdc_rx_buffer;
 	uint32_t i = ringBuffer->head;
-
-	// if we should be storing the received character into the location
-	// just before the tail (meaning that the head would advance to the
-	// current location of the tail), we're about to overflow the buffer
-	// and so we don't write the character or advance the head.
-	uint32_t k = 0;
-	while (len > 0 && !ringBuffer->full) {
-		len--;
-		ringBuffer->buffer[i++] = buffer[k++];
+	while (size--) {
+		ringBuffer->buffer[i++] = *data;
+		data++;
 		i %= CDC_SERIAL_BUFFER_SIZE;
-		if (i == ringBuffer->tail)
-			ringBuffer->full = true;
 	}
 	ringBuffer->head = i;
-	if (enableInterrupts) {
-		__enable_irq();
+	if (i == ringBuffer->tail) ringBuffer->full = true;
+	if (availableForStore() < EPX_SIZE) {
+		stalled = true;
+	} else {
+		usb.epOut(CDC_ENDPOINT_OUT);
 	}
 }
 
@@ -195,9 +184,6 @@ int Serial_::available(void)
 	ring_buffer *buffer = &cdc_rx_buffer;
 	if (buffer->full) {
 		return CDC_SERIAL_BUFFER_SIZE;
-	}
-	if (buffer->head == buffer->tail) {
-		USB->DEVICE.DeviceEndpoint[CDC_ENDPOINT_OUT].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
 	}
 	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
 }
@@ -228,11 +214,11 @@ int Serial_::read(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
 
-	// if the head isn't ahead of the tail, we don't have any characters
-	if (buffer->head == buffer->tail && !buffer->full)
+	// if we have enough space enable OUT endpoint to receive more data
+	if (stalled && availableForStore() >= EPX_SIZE)
 	{
-		if (usb.available(CDC_ENDPOINT_OUT))
-			accept();
+		stalled = false;
+		usb.epOut(CDC_ENDPOINT_OUT);
 	}
 	if (buffer->head == buffer->tail && !buffer->full)
 	{

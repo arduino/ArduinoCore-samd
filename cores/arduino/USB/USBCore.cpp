@@ -247,15 +247,23 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 	return true;
 }
 
+void USBDeviceClass::epOut(uint32_t ep)
+{
+	usbd.epBank0AckTransferComplete(ep);
+	//usbd.epBank0AckTransferFailed(ep);
+	usbd.epBank0EnableTransferComplete(ep);
+	usbd.epBank0ResetReady(ep);
+}
 
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
 #if defined(CDC_ENABLED)
-	if (ep == CDC_ENDPOINT_OUT)
+	if (ep == CDC_ENDPOINT_OUT && usbd.epBank0IsTransferComplete(CDC_ENDPOINT_OUT))
 	{
-		// Handle received bytes
-		if (available(CDC_ENDPOINT_OUT))
-			SerialUSB.accept();
+		// Ack Transfer complete
+		usbd.epBank0AckTransferComplete(CDC_ENDPOINT_OUT);
+
+		SerialUSB.accept(udd_ep_out_cache_buffer[CDC_ENDPOINT_OUT], available(CDC_ENDPOINT_OUT));
 	}
 	if (ep == CDC_ENDPOINT_IN)
 	{
@@ -438,6 +446,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 		// Release OUT EP
 		usbd.epBank0SetMultiPacketSize(ep, 64);
 		usbd.epBank0SetByteCount(ep, 0);
+		epOut(ep);
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{

@@ -92,6 +92,7 @@ public:
 	uint32_t available(uint32_t ep);
 	void flush(uint32_t ep);
 	void stall(uint32_t ep);
+	void epOut(uint32_t ep);
 
 	// private?
 	uint32_t armSend(uint32_t ep, const void *data, uint32_t len);
@@ -112,14 +113,14 @@ extern USBDeviceClass USBDevice;
 class Serial_ : public Stream
 {
 public:
-	Serial_(USBDeviceClass &_usb) : usb(_usb) { }
+	Serial_(USBDeviceClass &_usb) : usb(_usb), stalled(false) { }
 	void begin(uint32_t baud_count);
 	void begin(unsigned long, uint8_t);
 	void end(void);
 
 	virtual int available(void);
 	virtual int availableForWrite(void);
-	virtual void accept(void);
+	virtual void accept(uint8_t *data, uint32_t size);
 	virtual int peek(void);
 	virtual int read(void);
 	virtual void flush(void);
@@ -172,6 +173,7 @@ private:
 
 	USBDeviceClass &usb;
 	RingBuffer *_cdc_rx_buffer;
+	bool stalled;
 };
 extern Serial_ SerialUSB;
 
