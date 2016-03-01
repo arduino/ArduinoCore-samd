@@ -20,7 +20,7 @@
 #ifndef _MONITOR_SAM_BA_H_
 #define _MONITOR_SAM_BA_H_
 
-#define SAM_BA_VERSION              "2.0"
+#define SAM_BA_VERSION              "2.1"
 
 /* Enable the interfaces to save code size */
 #define SAM_BA_BOTH_INTERFACES      0
