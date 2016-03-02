@@ -1,6 +1,7 @@
 SAMD CORE 1.6.5
 
 * Set NVMCTRL.MANW bit to 1 (default is 0). This prevents accidental writes on program memory.
+* Bootloader: Fixed wrong UART speed (regression)
 
 SAMD CORE 1.6.4 2016.02.19
 
