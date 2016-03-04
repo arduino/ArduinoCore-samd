@@ -66,6 +66,9 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     enabled = 1;
   }
 
+  // Enable wakeup capability on pin in case being used during sleep
+  EIC->WAKEUP.reg |= (1 << in);
+
   // Assign pin to EIC
   pinPeripheral(pin, PIO_EXTINT);
 
@@ -118,6 +121,9 @@ void detachInterrupt(uint32_t pin)
     return;
 
   EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
+  
+  // Disable wakeup capability on pin during sleep
+  EIC->WAKEUP.reg &= ~(1 << in);
 }
 
 /*

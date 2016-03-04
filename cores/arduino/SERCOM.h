@@ -86,9 +86,8 @@ typedef enum
 
 typedef enum
 {
-	SAMPLE_RATE_x16 = 0,	//Arithmetic
-	SAMPLE_RATE_x8 = 0x2,	//Arithmetic
-	SAMPLE_RATE_x3 = 0x3	//Arithmetic
+	SAMPLE_RATE_x16 = 0x1,	//Fractional
+	SAMPLE_RATE_x8 = 0x3,	//Fractional
 } SercomUartSampleRate;
 
 typedef enum
@@ -199,6 +198,7 @@ class SERCOM
 		bool isMasterWIRE( void ) ;
 		bool isSlaveWIRE( void ) ;
 		bool isBusIdleWIRE( void ) ;
+		bool isBusOwnerWIRE( void ) ;
 		bool isDataReadyWIRE( void ) ;
 		bool isStopDetectedWIRE( void ) ;
 		bool isRestartDetectedWIRE( void ) ;

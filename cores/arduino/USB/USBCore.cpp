@@ -646,7 +646,7 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 			;  // need fire exit.
 		}
 		len -= length;
-		data += length;
+		data = (char *)data + length;
 	}
 	return len;
 }

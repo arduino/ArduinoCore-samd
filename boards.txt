@@ -69,4 +69,3 @@ adafruit_metro_m0.build.vid=0x239A
 adafruit_metro_m0.build.pid=0x8013
 adafruit_metro_m0.bootloader.tool=openocd
 adafruit_metro_m0.bootloader.file=metro/samd21_sam_ba.bin
-

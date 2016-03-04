@@ -263,7 +263,8 @@ uint32_t USBHost::InTransfer(EpInfo *pep, uint32_t nak_limit, uint8_t *nbytesptr
 		}
         if(rcode) {
                 uhd_freeze_pipe(pep->epAddr);
-								//printf(">>>>>>>> Problem! dispatchPkt %2.2x\r\n", rcode);
+
+                //printf(">>>>>>>> Problem! dispatchPkt %2.2x\r\n", rcode);
                 return(rcode);// break; //should be 0, indicating ACK. Else return error code.
         }
         /* check for RCVDAVIRQ and generate error if not present */
@@ -425,14 +426,15 @@ uint32_t USBHost::dispatchPkt(uint32_t token, uint32_t epAddr, uint32_t nak_limi
 
 		//case hrNAK:
 		if((USB->HOST.HostPipe[epAddr].PINTFLAG.reg & USB_HOST_PINTFLAG_TRFAIL) ) {
-	 			USB->HOST.HostPipe[epAddr].PINTFLAG.reg = USB_HOST_PINTFLAG_TRFAIL;
-	 			nak_count++;
-	 			if(nak_limit && (nak_count == nak_limit)) {
-	 				rcode = USB_ERRORFLOW;
-	 				return (rcode);
-	 			}
-	  }
+			USB->HOST.HostPipe[epAddr].PINTFLAG.reg = USB_HOST_PINTFLAG_TRFAIL;
+			nak_count++;
+			if(nak_limit && (nak_count == nak_limit)) {
+				rcode = USB_ERRORFLOW;
+				return (rcode);
+			}
+		}
 
+		//case hrNAK:
 		if( (usb_pipe_table[epAddr].HostDescBank[0].STATUS_BK.reg & USB_ERRORFLOW ) ) {
 			nak_count++;
 			if(nak_limit && (nak_count == nak_limit)) {
@@ -719,7 +721,8 @@ uint32_t USBHost::Configuring(uint32_t parent, uint32_t port, uint32_t lowspeed)
 
         epInfo.epAddr = 0;
         epInfo.maxPktSize = 8;
-        epInfo.epAttribs = 0;
+        epInfo.bmSndToggle = 0;
+        epInfo.bmRcvToggle = 0;
         epInfo.bmNakPower = USB_NAK_MAX_POWER;
 
         //delay(2000);
