@@ -228,4 +228,6 @@ int main(void)
 void SysTick_Handler(void)
 {
   LED_pulse();
+
+  sam_ba_monitor_sys_tick();
 }
