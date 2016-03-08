@@ -91,6 +91,6 @@ make GENUINO=1
 **Others (derivatives)**
 
 ```
-make CFLAGS_EXTRA="-D__SAMD21G18A__ -DUSB_PID_HIGH=<your USB VID> -DUSB_PID_LOW=<your USB PID>"
+make CFLAGS_EXTRA="-D__SAMD21G18A__ -DUSB_PID_HIGH=<your USB PID> -DUSB_PID_LOW=<your USB PID> -DUSB_VID_LOW=<your USB VID> -DUSB_VID_HIGH=<your USB VID>"
 ```
 You can also check https://github.com/ameltech/sme-arduino-core/blob/master/hardware/AMEL/samd/bootloaders/sme/Makefile for reference.
