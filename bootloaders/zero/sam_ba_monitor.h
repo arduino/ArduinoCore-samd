@@ -46,6 +46,12 @@
 void sam_ba_monitor_init(uint8_t com_interface);
 
 /**
+ * \brief System tick function of the SAM-BA Monitor
+ *
+ */
+void sam_ba_monitor_sys_tick(void);
+
+/**
  * \brief Main function of the SAM-BA Monitor
  *
  */

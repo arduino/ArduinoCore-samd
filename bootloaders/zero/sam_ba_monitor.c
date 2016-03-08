@@ -85,6 +85,11 @@ t_monitor_if * ptr_monitor_if;
 volatile bool b_terminal_mode = false;
 volatile bool b_sam_ba_interface_usart = false;
 
+/* Pulse generation counters to keep track of the time remaining for each pulse type */
+#define TX_RX_LED_PULSE_PERIOD 100
+volatile uint16_t txLEDPulse = 0; // time remaining for Tx LED pulse
+volatile uint16_t rxLEDPulse = 0; // time remaining for Rx LED pulse
+
 void sam_ba_monitor_init(uint8_t com_interface)
 {
 #if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
@@ -110,9 +115,10 @@ static uint32_t sam_ba_putdata(t_monitor_if* pInterface, void const* data, uint3
 {
 	uint32_t result ;
 	
-	LEDTX_on();
 	result=pInterface->putdata(data, length);
-	LEDTX_off();
+
+	LEDTX_on();
+	txLEDPulse = TX_RX_LED_PULSE_PERIOD;
 	
 	return result;
 }
@@ -124,9 +130,13 @@ static uint32_t sam_ba_getdata(t_monitor_if* pInterface, void const* data, uint3
 {
 	uint32_t result ;
 	
-	LEDRX_on();
 	result=pInterface->getdata(data, length);
-	LEDRX_off();
+
+	if (result)
+	{
+		LEDRX_on();
+		rxLEDPulse = TX_RX_LED_PULSE_PERIOD;
+	}
 	
 	return result;
 }
@@ -138,10 +148,11 @@ static uint32_t sam_ba_putdata_xmd(t_monitor_if* pInterface, void const* data, u
 {
 	uint32_t result ;
 	
-	LEDTX_on();
 	result=pInterface->putdata_xmd(data, length);
-	LEDTX_off();
-	
+
+	LEDTX_on();
+	txLEDPulse = TX_RX_LED_PULSE_PERIOD;
+
 	return result;
 }
 
@@ -152,9 +163,13 @@ static uint32_t sam_ba_getdata_xmd(t_monitor_if* pInterface, void const* data, u
 {
 	uint32_t result ;
 	
-	LEDRX_on();
 	result=pInterface->getdata_xmd(data, length);
-	LEDRX_off();
+
+	if (result)
+	{
+		LEDRX_on();
+		rxLEDPulse = TX_RX_LED_PULSE_PERIOD;
+	}
 	
 	return result;
 }
@@ -508,6 +523,15 @@ static void sam_ba_monitor_loop(void)
       }
     }
   }
+}
+
+void sam_ba_monitor_sys_tick(void)
+{
+	/* Check whether the TX or RX LED one-shot period has elapsed.  if so, turn off the LED */
+	if (txLEDPulse && !(--txLEDPulse))
+		LEDTX_off();
+	if (rxLEDPulse && !(--rxLEDPulse))
+		LEDRX_off();
 }
 
 /**
