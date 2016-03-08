@@ -181,11 +181,13 @@ int main(void)
 
   /* Initialize LEDs */
   LED_init();
-  LED_configure(1000);
   LEDRX_init();
   LEDRX_off();
   LEDTX_init();
   LEDTX_off();
+
+  /* Start the sys tick (1 ms) */
+  SysTick_Config(1000);
 
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
@@ -221,4 +223,9 @@ int main(void)
     }
 #endif
   }
+}
+
+void SysTick_Handler(void)
+{
+  LED_pulse();
 }

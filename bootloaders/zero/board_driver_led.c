@@ -19,4 +19,24 @@
 
 #include "board_driver_led.h"
 
+volatile uint8_t ledKeepValue = 0;
+volatile uint8_t ledTargetValue = 20;
+volatile int8_t ledDirection = 1;
 
+inline void LED_pulse()
+{
+  if (ledKeepValue == 0) {
+    ledTargetValue += ledDirection;
+    LED_toggle();
+  }
+  ledKeepValue ++;
+
+  if (ledTargetValue > 240 || ledTargetValue < 10) {
+    ledDirection = -ledDirection;
+    ledTargetValue += ledDirection;
+  }
+
+  if (ledKeepValue == ledTargetValue) {
+    LED_toggle();
+  }
+}
