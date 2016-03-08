@@ -126,7 +126,7 @@ static uint32_t sam_ba_putdata(t_monitor_if* pInterface, void const* data, uint3
 /*
  * Central SAM-BA monitor getdata function using the board LEDs
  */
-static uint32_t sam_ba_getdata(t_monitor_if* pInterface, void const* data, uint32_t length)
+static uint32_t sam_ba_getdata(t_monitor_if* pInterface, void* data, uint32_t length)
 {
 	uint32_t result ;
 
@@ -159,7 +159,7 @@ static uint32_t sam_ba_putdata_xmd(t_monitor_if* pInterface, void const* data, u
 /*
  * Central SAM-BA monitor getdata function using the board LEDs
  */
-static uint32_t sam_ba_getdata_xmd(t_monitor_if* pInterface, void const* data, uint32_t length)
+static uint32_t sam_ba_getdata_xmd(t_monitor_if* pInterface, void* data, uint32_t length)
 {
 	uint32_t result ;
 
