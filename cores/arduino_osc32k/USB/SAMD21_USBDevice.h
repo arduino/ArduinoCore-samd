@@ -91,7 +91,7 @@ public:
 	inline uint16_t epInterruptSummary() { return usb.EPINTSMRY.reg; }
 
 	inline bool epBank0IsSetupReceived(ep_t ep)     { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.RXSTP; }
-	inline bool epBank0IsStalled(ep_t ep)           { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.STALL & 1; } // Might need vec.STALL and vec.TRCPT
+	inline bool epBank0IsStalled(ep_t ep)           { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.STALL & 1; }
 	inline bool epBank1IsStalled(ep_t ep)           { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.STALL & 2; }
 	inline bool epBank0IsTransferComplete(ep_t ep)  { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT & 1; }
 	inline bool epBank1IsTransferComplete(ep_t ep)  { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT & 2; }

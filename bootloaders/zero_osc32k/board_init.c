@@ -26,8 +26,8 @@
  * - OSC8M clock source is enabled with a divider by 8 (1MHz).
  * - Generic Clock Generator 0 (GCLKMAIN) is using OSC8M as source.
  * We need to:
- * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator), will be used as DFLL48M reference.
- * 2) Put XOSC32K as source of Generic Clock Generator 1
+ * 1) Enable OSC32K clock (External on-board 32.768Hz oscillator), will be used as DFLL48M reference.
+ * 2) Put OSC32K as source of Generic Clock Generator 1
  * 3) Put Generic Clock Generator 1 as source for Generic Clock Multiplexer 0 (DFLL48M reference)
  * 4) Enable DFLL48M clock
  * 5) Switch Generic Clock Generator 0 to DFLL48M. CPU will run at 48MHz.
@@ -36,9 +36,11 @@
  */
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
-#define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
-#define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
-#define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
+#define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
+#define GENERIC_CLOCK_GENERATOR_OSC32K    (2u)
+#define GENERIC_CLOCK_GENERATOR_OSCULP32K (3u) /* Initialized at reset for WDT */
+#define GENERIC_CLOCK_GENERATOR_OSC8M     (4u)
+
 // Constants for Clock multiplexers
 #define GENERIC_CLOCK_MULTIPLEXER_DFLL48M (0u)
 
@@ -54,7 +56,7 @@ void board_init(void)
    * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
    */
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x6u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
-                         SYSCTRL_OSC32K_ENABLE | SYSCTRL_OSC32K_EN32K;
+                         SYSCTRL_OSC32K_ENABLE | SYSCTRL_OSC32K_EN32K | SYSCTRL_OSC32K_EN1K;
   SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 14.6.3 */
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 )
@@ -120,9 +122,9 @@ void board_init(void)
     /* Wait for synchronization */
   }
 
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
-                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // External 32KHz is the reference
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( NVM_SW_CALIB_DFLL48M_COARSE_VAL ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( NVM_SW_CALIB_DFLL48M_FINE_VAL ) | // Fine step is 511, half of the max value
+                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // Internal 32KHz is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
@@ -142,11 +144,11 @@ void board_init(void)
   /* Enable the DFLL */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE;
 
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
-          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
-  {
-    /* Wait for locks flags */
-  }
+//  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
+//          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
+//  {
+//    /* Wait for locks flags */
+//  }
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
@@ -165,7 +167,7 @@ void board_init(void)
 
   /* Write Generic Clock Generator 0 configuration */
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | // Generic Clock Generator 0
-                      GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
+		      GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
 //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
                       GCLK_GENCTRL_IDC | // Set 50/50 duty cycle
                       GCLK_GENCTRL_GENEN;
@@ -175,36 +177,13 @@ void board_init(void)
     /* Wait for synchronization */
   }
 
-#if 0
-  /* ----------------------------------------------------------------------------------------------
-   * 6) Modify PRESCaler value of OSC8M to have 8MHz
-   */
-  SYSCTRL->OSC8M.bit.PRESC = SYSCTRL_OSC8M_PRESC_1_Val;
-  SYSCTRL->OSC8M.bit.ONDEMAND = 0;
-
-  /* ----------------------------------------------------------------------------------------------
-   * 7) Put OSC8M as source for Generic Clock Generator 3
-   */
-  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC8M ); // Generic Clock Generator 3
-
-  /* Write Generic Clock Generator 3 configuration */
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 3
-                      GCLK_GENCTRL_SRC_OSC8M | // Selected source is RC OSC 8MHz (already enabled at reset)
-//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_GENEN;
-
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
-  {
-    /* Wait for synchronization */
-  }
-#endif //0
 
   /*
    * Now that all system clocks are configured, we can set CPU and APBx BUS clocks.
    * These values are normally the ones present after Reset.
    */
-  PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1;
-  PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val;
-  PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val;
-  PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val;
+ PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1;
+ PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val;
+ PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val;
+ PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val;
 }

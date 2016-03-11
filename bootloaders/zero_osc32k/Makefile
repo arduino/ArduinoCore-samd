@@ -59,6 +59,8 @@ OBJCOPY=$(ARM_GCC_PATH)objcopy
 NM=$(ARM_GCC_PATH)nm
 SIZE=$(ARM_GCC_PATH)size
 
+DEBUG=1
+
 # -----------------------------------------------------------------------------
 # Compiler options
 CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
@@ -69,7 +71,7 @@ CFLAGS+=-Os -DDEBUG=0
 endif
 
 # Arduino Zero (PID == 0x004D)
-CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
+CFLAGS_EXTRA?=-D__SAMD21E18A__ -DUSB_PID_HIGH=0x61 -DUSB_PID_LOW=0x24 -DUSB_VID_LOW=0x03 -DUSB_VID_HIGH=0xEB
 # Genuino Zero (PID == 0x024D)
 # CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
 

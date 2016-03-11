@@ -37,12 +37,13 @@
  */
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
-#define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
-#define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
-#define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
+#define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
+#define GENERIC_CLOCK_GENERATOR_OSC32K    (2u)
+#define GENERIC_CLOCK_GENERATOR_OSCULP32K (3u) /* Initialized at reset for WDT */
+#define GENERIC_CLOCK_GENERATOR_OSC8M     (4u)
+
 // Constants for Clock multiplexers
 #define GENERIC_CLOCK_MULTIPLEXER_DFLL48M (0u)
-
 void SystemInit( void )
 {
   /* Set 1 Flash Wait State for 48MHz, cf tables 20.9 and 35.27 in SAMD21 Datasheet */
@@ -121,8 +122,8 @@ void SystemInit( void )
     /* Wait for synchronization */
   }
 
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 58 ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( 64 ) | // Fine step is 511, half of the max value
                          SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ) ; // External 32KHz is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )

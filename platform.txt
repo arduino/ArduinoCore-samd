@@ -19,7 +19,7 @@
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
-name=Atmel ATSAMD21E18A Hourly Build  (2016-02-12 22:34)
+name=Atmel ATSAMD21E18A Hourly Build  (2016-02-20 20:43)
 version=1.6.2
 
 # Compile variables

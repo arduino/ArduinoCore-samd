@@ -1,3 +1,7 @@
 *.bz2
 
 bootloaders/*/build/
+**/*/*.cproject
+**/*/*.project
+**/*/*.settings
+**/*/*.launch

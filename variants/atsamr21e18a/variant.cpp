@@ -26,12 +26,12 @@ const PinDescription g_APinDescription[]=
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | Serial           |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 0          |                  |  PA15  | EXT3_5          | EIC/EXTINT[15] SERCOM2/PAD[3] SERCOM4/PAD[3] TC3/WO[1]  FECTRL[5] GCLK_IO[1]
- * | 1          |                  |  PA14  | EXT3_15         | EIC/EXTINT[14]  SERCOM2/PAD[2]  TC3/WO[0]  FECTRL[4]  GCLK_IO[0]
+ * | 0          |                  |  PA17  | RX              | EXTINT[1]      PTX/X[5]  SERCOM1/PAD[1]  SERCOM3_ALT[PAD1]  TCC2/WO[1]  *TCC0_ALT/WO[1] GCLK_IO[3]
+ * | 1          |                  |  PA16  | TX              |                PTC/X[4]  SERCOM1/PAD[0]  SERCOM3_ALT[PAD0]  TCC2/WO[0]  *TCC0_ALT/WO[0] GCLK_IO[2]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
-  { PORTA, 15, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_15 }, // RX: SERCOM2/PAD[3]
-  { PORTA, 14, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_14 }, // TX: SERCOM2/PAD[2]
+  { PORTA, 17, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_1 }, // RX: SERCOM1/PAD[1]
+  { PORTA, 16, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // TX: SERCOM1/PAD[0]
 
 /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | LEDs & button    |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
@@ -108,14 +108,14 @@ const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, T
 
 // Multi-serial objects instantiation
 SERCOM sercom0( SERCOM0 ) ; // Wire
-// SERCOM sercom1( SERCOM1 ) ; // 
-SERCOM sercom2( SERCOM2 ) ; // Serial
+SERCOM sercom1( SERCOM1 ) ; // Serial
+SERCOM sercom2( SERCOM2 ) ; // 
 SERCOM sercom4( SERCOM4 ) ; // ATRF233/802.15.4
 // SERCOM sercom5( SERCOM5 ) ; // SPI
 
-Uart Serial( &sercom2, PIN_SERIAL_RX, PIN_SERIAL_TX, PAD_SERIAL_RX, PAD_SERIAL_TX ) ;
+Uart Serial( &sercom1, PIN_SERIAL_RX, PIN_SERIAL_TX, PAD_SERIAL_RX, PAD_SERIAL_TX ) ;
 
-void SERCOM2_Handler(void)
+void SERCOM1_Handler(void)
 {
   Serial.IrqHandler();
 }

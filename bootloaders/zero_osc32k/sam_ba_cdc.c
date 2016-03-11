@@ -17,82 +17,75 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "sam_ba_cdc.h"
-#include "board_driver_usb.h"
+#ifndef _SAM_BA_USB_CDC_H_
+#define _SAM_BA_USB_CDC_H_
 
-usb_cdc_line_coding_t line_coding=
+#include <stdint.h>
+#include "sam_ba_usb.h"
+
+typedef struct
 {
-  115200, // baudrate
-  0,      // 1 Stop Bit
-  0,      // None Parity
-  8     // 8 Data bits
-};
+	uint32_t dwDTERate;
+	uint8_t bCharFormat;
+	uint8_t bParityType;
+	uint8_t bDataBits;
+} usb_cdc_line_coding_t;
 
-#define pCdc (&sam_ba_cdc)
+/* CDC Class Specific Request Code */
+#define GET_LINE_CODING               0x21A1
+#define SET_LINE_CODING               0x2021
+#define SET_CONTROL_LINE_STATE        0x2221
 
-int cdc_putc(/*P_USB_CDC pCdc,*/ int value)
-{
-  /* Send single byte on USB CDC */
-  USB_Write(pCdc->pUsb, (const char *)&value, 1, USB_EP_IN);
+extern usb_cdc_line_coding_t line_coding;
 
-  return 1;
-}
 
-int cdc_getc(/*P_USB_CDC pCdc*/void)
-{
-  uint8_t rx_char;
+/**
+ * \brief Sends a single byte through USB CDC
+ *
+ * \param Data to send
+ * \return number of data sent
+ */
+int cdc_putc(/*P_USB_CDC pCdc,*/ int value);
 
-  /* Read singly byte on USB CDC */
-  USB_Read(pCdc->pUsb, (char *)&rx_char, 1);
+/**
+ * \brief Reads a single byte through USB CDC
+ *
+ * \return Data read through USB
+ */
+int cdc_getc(/*P_USB_CDC pCdc*/);
 
-  return (int)rx_char;
-}
+/**
+ * \brief Checks if a character has been received on USB CDC
+ *
+ * \return \c 1 if a byte is ready to be read.
+ */
+bool cdc_is_rx_ready(/*P_USB_CDC pCdc*/);
 
-bool cdc_is_rx_ready(/*P_USB_CDC pCdc*/void)
-{
-  /* Check whether the device is configured */
-  if ( !USB_IsConfigured(pCdc) )
-    return 0;
+/**
+ * \brief Sends buffer on USB CDC
+ *
+ * \param data pointer
+ * \param number of data to send
+ * \return number of data sent
+ */
+uint32_t cdc_write_buf(/*P_USB_CDC pCdc,*/ void const* data, uint32_t length);
 
-  /* Return transfer complete 0 flag status */
-  return (pCdc->pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0));
-}
+/**
+ * \brief Gets data on USB CDC
+ *
+ * \param data pointer
+ * \param number of data to read
+ * \return number of data read
+ */
+uint32_t cdc_read_buf(/*P_USB_CDC pCdc,*/ void* data, uint32_t length);
 
-uint32_t cdc_write_buf(/*P_USB_CDC pCdc,*/ void const* data, uint32_t length)
-{
-  /* Send the specified number of bytes on USB CDC */
-  USB_Write(pCdc->pUsb, (const char *)data, length, USB_EP_IN);
-  return length;
-}
+/**
+ * \brief Gets specified number of bytes on USB CDC
+ *
+ * \param data pointer
+ * \param number of data to read
+ * \return number of data read
+ */
+uint32_t cdc_read_buf_xmd(/*P_USB_CDC pCdc,*/ void* data, uint32_t length);
 
-uint32_t cdc_read_buf(/*P_USB_CDC pCdc,*/ void* data, uint32_t length)
-{
-  /* Check whether the device is configured */
-  if ( !USB_IsConfigured(pCdc) )
-    return 0;
-
-  /* Read from USB CDC */
-  return USB_Read(pCdc->pUsb, (char *)data, length);
-}
-
-uint32_t cdc_read_buf_xmd(/*P_USB_CDC pCdc,*/ void* data, uint32_t length)
-{
-  /* Check whether the device is configured */
-  if ( !USB_IsConfigured(pCdc) )
-    return 0;
-
-  /* Blocking read till specified number of bytes is received */
-  // XXX: USB_Read_blocking is not reliable
-  // return USB_Read_blocking(pCdc, (char *)data, length);
-
-  char *dst = (char *)data;
-  uint32_t remaining = length;
-  while (remaining)
-  {
-    uint32_t readed = USB_Read(pCdc->pUsb, (char *)dst, remaining);
-    remaining -= readed;
-    dst += readed;
-  }
-
-  return length;
-}
+#endif // _SAM_BA_USB_CDC_H_
