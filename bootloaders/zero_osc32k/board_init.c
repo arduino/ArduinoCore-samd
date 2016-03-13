@@ -130,10 +130,14 @@ void board_init(void)
   {
     /* Wait for synchronization */
   }
+  // Open-loop
+  SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(SYSCTRL_FUSES_DFLL48M_COARSE_CAL(2)) |
+			 SYSCTRL_DFLLVAL_FINE(SYSCTRL_FUSES_DFLL48M_FINE_CAL(1));
 
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 15 ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( 254 ) | // Fine step is 511, half of the max value
-                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // Internal 32KHz is the reference
+  // Closed-loop
+//  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
+//                         SYSCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
+//                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // Internal 32KHz is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
@@ -153,11 +157,11 @@ void board_init(void)
   /* Enable the DFLL */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE;
 
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
-          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
-  {
-    /* Wait for locks flags */
-  }
+//  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
+//          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
+//  {
+//    /* Wait for locks flags */
+//  }
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
@@ -176,7 +180,7 @@ void board_init(void)
 
   /* Write Generic Clock Generator 0 configuration */
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | // Generic Clock Generator 0
-		      GCLK_GENCTRL_SRC_OSC32K | //GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
+		      GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
 //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
                       GCLK_GENCTRL_IDC | // Set 50/50 duty cycle
                       GCLK_GENCTRL_GENEN;

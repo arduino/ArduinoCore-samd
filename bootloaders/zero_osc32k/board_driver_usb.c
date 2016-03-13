@@ -89,6 +89,7 @@ void USB_Init(void)
     /* Sync wait */
   }
 
+
   /* Load Pad Calibration */
   pad_transn =( *((uint32_t *)(NVMCTRL_OTP4)
       + (NVM_USB_PAD_TRANSN_POS / 32))
@@ -127,7 +128,6 @@ void USB_Init(void)
 
   /* Set the configuration */
   /* Set mode to Device mode */
-  USB->HOST.CTRLA.bit.ENABLE = 1;
   USB->HOST.CTRLA.bit.MODE = 0;
   /* Enable Run in Standby */
   USB->HOST.CTRLA.bit.RUNSTDBY = true;
@@ -140,6 +140,8 @@ void USB_Init(void)
 
   /* Initialize endpoint table RAM location to a known value 0 */
   memset((uint8_t *)(&usb_endpoint_table[0]), 0, sizeof(usb_endpoint_table));
+
+  USB->HOST.CTRLA.bit.ENABLE = 1;
 
 }
 
