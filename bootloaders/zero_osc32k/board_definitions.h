@@ -38,7 +38,7 @@
 #define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
 
 //#define CPU_FREQUENCY                     (48000000ul)
-#define CPU_FREQUENCY                     (48000000ul)
+#define CPU_FREQUENCY                     (32000000ul) // SAM R21E XOSC max is 32MHz, not 48MHz like the SAM D21
 
 #define BOOT_USART_MODULE                 SERCOM1
 #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM1
