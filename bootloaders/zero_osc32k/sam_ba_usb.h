@@ -83,8 +83,8 @@ typedef struct _USB_CDC
 	uint8_t currentConnection;
 	// Public Methods:
 	uint8_t (*IsConfigured)(struct _USB_CDC *pCdc);
-//	uint32_t (*Write) (Usb *pUsb, const char *pData, uint32_t length, uint8_t ep_num);
-//	uint32_t (*Read)  (Usb *pUsb, char *pData, uint32_t length);
+	uint32_t (*Write) (Usb *pUsb, const char *pData, uint32_t length, uint8_t ep_num);
+	uint32_t (*Read)  (Usb *pUsb, char *pData, uint32_t length);
 } USB_CDC, *P_USB_CDC;
 
 /**

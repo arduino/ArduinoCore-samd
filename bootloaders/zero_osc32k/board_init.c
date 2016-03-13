@@ -37,7 +37,7 @@
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
 #define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
-#define GENERIC_CLOCK_GENERATOR_OSC32K    (2u)
+#define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
 #define GENERIC_CLOCK_GENERATOR_OSCULP32K (3u) /* Initialized at reset for WDT */
 #define GENERIC_CLOCK_GENERATOR_OSC8M     (4u)
 
@@ -56,8 +56,11 @@ void board_init(void)
    * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
    */
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x6u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
-                         SYSCTRL_OSC32K_ENABLE | SYSCTRL_OSC32K_EN32K | SYSCTRL_OSC32K_EN1K;
+                         SYSCTRL_OSC32K_ENABLE |
+			 SYSCTRL_OSC32K_EN32K |
+			 SYSCTRL_OSC32K_CALIB(32); // | SYSCTRL_OSC32K_EN1K;
   SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 14.6.3 */
+  SYSCTRL->OSC32K.bit.EN32K = 1;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 )
   {
@@ -78,7 +81,8 @@ void board_init(void)
   /* ----------------------------------------------------------------------------------------------
    * 2) Put OSC32K as source of Generic Clock Generator 1
    */
-  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC32K ); // Generic Clock Generator 1
+//  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC32K ); // Generic Clock Generator 1
+  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC32K );
 
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
@@ -86,10 +90,15 @@ void board_init(void)
   }
 
   /* Write Generic Clock Generator 1 configuration */
+//  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
+//                      GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
+////                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+//                      GCLK_GENCTRL_GENEN;
+
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
-                      GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
-//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_GENEN;
+                        GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
+  //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+                        GCLK_GENCTRL_GENEN;
 
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
@@ -122,8 +131,8 @@ void board_init(void)
     /* Wait for synchronization */
   }
 
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( NVM_SW_CALIB_DFLL48M_COARSE_VAL ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( NVM_SW_CALIB_DFLL48M_FINE_VAL ) | // Fine step is 511, half of the max value
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 15 ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( 254 ) | // Fine step is 511, half of the max value
                          SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // Internal 32KHz is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
@@ -144,11 +153,11 @@ void board_init(void)
   /* Enable the DFLL */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE;
 
-//  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
-//          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
-//  {
-//    /* Wait for locks flags */
-//  }
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
+          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
+  {
+    /* Wait for locks flags */
+  }
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
@@ -167,7 +176,7 @@ void board_init(void)
 
   /* Write Generic Clock Generator 0 configuration */
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | // Generic Clock Generator 0
-		      GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
+		      GCLK_GENCTRL_SRC_OSC32K | //GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
 //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
                       GCLK_GENCTRL_IDC | // Set 50/50 duty cycle
                       GCLK_GENCTRL_GENEN;

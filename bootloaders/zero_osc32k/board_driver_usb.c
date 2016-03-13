@@ -44,8 +44,8 @@ P_USB_CDC USB_Open(P_USB_CDC pCdc, Usb *pUsb)
   pCdc->currentConfiguration = 0;
   pCdc->currentConnection    = 0;
   pCdc->IsConfigured = USB_IsConfigured;
-//  pCdc->Write        = USB_Write;
-//  pCdc->Read         = USB_Read;
+  pCdc->Write        = USB_Write;
+  pCdc->Read         = USB_Read;
 
   pCdc->pUsb->HOST.CTRLA.bit.ENABLE = true;
 
@@ -127,6 +127,7 @@ void USB_Init(void)
 
   /* Set the configuration */
   /* Set mode to Device mode */
+  USB->HOST.CTRLA.bit.ENABLE = 1;
   USB->HOST.CTRLA.bit.MODE = 0;
   /* Enable Run in Standby */
   USB->HOST.CTRLA.bit.RUNSTDBY = true;
@@ -139,6 +140,7 @@ void USB_Init(void)
 
   /* Initialize endpoint table RAM location to a known value 0 */
   memset((uint8_t *)(&usb_endpoint_table[0]), 0, sizeof(usb_endpoint_table));
+
 }
 
 uint32_t USB_Write(Usb *pUsb, const char *pData, uint32_t length, uint8_t ep_num)
