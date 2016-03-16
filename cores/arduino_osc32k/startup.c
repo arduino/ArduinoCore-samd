@@ -38,9 +38,9 @@
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
 #define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
-#define GENERIC_CLOCK_GENERATOR_OSC32K    (2u)
-#define GENERIC_CLOCK_GENERATOR_OSCULP32K (3u) /* Initialized at reset for WDT */
-#define GENERIC_CLOCK_GENERATOR_OSC8M     (4u)
+#define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
+#define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
+#define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
 
 // Constants for Clock multiplexers
 #define GENERIC_CLOCK_MULTIPLEXER_DFLL48M (0u)
@@ -56,8 +56,10 @@ void SystemInit( void )
    * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
    */
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x6u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
-                         SYSCTRL_OSC32K_ENABLE | SYSCTRL_OSC32K_EN32K ;
+                         SYSCTRL_OSC32K_ENABLE | 
+                         SYSCTRL_OSC32K_EN32K ;
   SYSCTRL->OSC32K.bit.ENABLE = 1 ; /* separate call, as described in chapter 14.6.3 */
+  SYSCTRL->OSC32K.bit.EN32K = 1;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 )
   {
