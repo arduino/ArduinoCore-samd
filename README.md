@@ -7,13 +7,13 @@ for Atmel's SAMD21 (E variant) processor (used on the FemtoUSB board).
 
 Add the following package URL to the Additional Boards Manager URLs field in your Arduino IDE via **File > Preferences** (Settings tab).
 ```
-downloads.femtoduino.com/ArduinoCore-atsamd21e18a/package_atsamd21e18a-hourly-build_index.json
+http://downloads.femtoduino.com/ArduinoCore-atsamd21e18a/package_atsamd21e18a-hourly-build_index.json
 ```
 
 or, for our stable release, try:
 
 ```
-downloads.femtoduino.com/ArduinoCore-atsamd21e18a/package_atsamd21e18a-release-build_index.json
+http://downloads.femtoduino.com/ArduinoCore-atsamd21e18a/package_atsamd21e18a-release-build_index.json
 ```
 
 This core is now available as a package in the Arduino IDE cores manager.
