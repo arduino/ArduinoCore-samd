@@ -44,8 +44,8 @@ P_USB_CDC USB_Open(P_USB_CDC pCdc, Usb *pUsb)
   pCdc->currentConfiguration = 0;
   pCdc->currentConnection    = 0;
   pCdc->IsConfigured = USB_IsConfigured;
-  pCdc->Write        = USB_Write;
-  pCdc->Read         = USB_Read;
+  // pCdc->Write        = USB_Write;
+  // pCdc->Read         = USB_Read;
 
   pCdc->pUsb->HOST.CTRLA.bit.ENABLE = true;
 
@@ -134,7 +134,7 @@ void USB_Init(void)
   /* Set the descriptor address */
   USB->HOST.DESCADD.reg = (uint32_t)(&usb_endpoint_table[0]);
   /* Set speed configuration to Full speed */
-  USB->DEVICE.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_FS_Val;
+  USB->DEVICE.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_LS_Val;
   /* Attach to the USB host */
   USB->DEVICE.CTRLB.reg &= ~USB_DEVICE_CTRLB_DETACH;
 

@@ -131,8 +131,8 @@ void board_init(void)
     /* Wait for synchronization */
   }
   // Open-loop
-//  SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(SYSCTRL_FUSES_DFLL48M_COARSE_CAL(2)) |
-//			 SYSCTRL_DFLLVAL_FINE(SYSCTRL_FUSES_DFLL48M_FINE_CAL(1));
+//  SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(NVM_SW_CALIB_DFLL48M_COARSE_VAL) |
+//			 SYSCTRL_DFLLVAL_FINE(NVM_SW_CALIB_DFLL48M_FINE_VAL);
 
   // Closed-loop
   SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
