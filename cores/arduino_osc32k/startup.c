@@ -57,7 +57,8 @@ void SystemInit( void )
    */
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x6u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
                          SYSCTRL_OSC32K_ENABLE | 
-                         SYSCTRL_OSC32K_EN32K ;
+                         SYSCTRL_OSC32K_EN32K |
+                         SYSCTRL_OSC32K_CALIB(0);
   SYSCTRL->OSC32K.bit.ENABLE = 1 ; /* separate call, as described in chapter 14.6.3 */
   SYSCTRL->OSC32K.bit.EN32K = 1;
 
@@ -124,9 +125,9 @@ void SystemInit( void )
     /* Wait for synchronization */
   }
 
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 58 ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( 64 ) | // Fine step is 511, half of the max value
-                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ) ; // External 32KHz is the reference
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( (0xff / 4) ) | // Fine step is 511, half of the max value
+                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ) ; // Internal 32KHz is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
