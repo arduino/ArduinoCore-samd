@@ -37,8 +37,8 @@
 //#define BOOT_LOAD_PIN                     PIN_PA15 // Pin 5
 #define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
 
-// #define CPU_FREQUENCY                     (32000000ul)
-#define CPU_FREQUENCY                     (26000000ul) // SAM R21E XOSC max is 32MHz, not 48MHz like the SAM D21. FemtoBeacon (SAM R21) using 26MHz
+ #define CPU_FREQUENCY                     (32000000ul)
+//#define CPU_FREQUENCY                     (12000000ul) // SAM R21E XOSC max is 32MHz, not 48MHz like the SAM D21. FemtoBeacon (SAM R21) using 26MHz
 
 #define BOOT_USART_MODULE                 SERCOM1
 #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM1
@@ -57,7 +57,7 @@
 #define VARIANT_MCK			                  CPU_FREQUENCY
 
 #define NVM_SW_CALIB_DFLL48M_COARSE_VAL   (58)
-#define NVM_SW_CALIB_DFLL48M_FINE_VAL     (64)
+#define NVM_SW_CALIB_DFLL48M_FINE_VAL     (512)//(64)
 
 /*
  * LEDs definitions

@@ -38,8 +38,8 @@
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
 #define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
 #define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
-#define GENERIC_CLOCK_GENERATOR_OSCULP32K (3u) /* Initialized at reset for WDT */
-#define GENERIC_CLOCK_GENERATOR_OSC8M     (4u)
+#define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
+#define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
 
 // Constants for Clock multiplexers
 #define GENERIC_CLOCK_MULTIPLEXER_DFLL48M (0u)
@@ -58,7 +58,7 @@ void board_init(void)
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x6u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
                          SYSCTRL_OSC32K_ENABLE |
 			 SYSCTRL_OSC32K_EN32K |
-			 SYSCTRL_OSC32K_CALIB(32); // | SYSCTRL_OSC32K_EN1K;
+			 SYSCTRL_OSC32K_CALIB(0); // | SYSCTRL_OSC32K_EN1K;
   SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 14.6.3 */
   SYSCTRL->OSC32K.bit.EN32K = 1;
 
@@ -130,14 +130,11 @@ void board_init(void)
   {
     /* Wait for synchronization */
   }
-  // Open-loop
-//  SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(NVM_SW_CALIB_DFLL48M_COARSE_VAL) |
-//			 SYSCTRL_DFLLVAL_FINE(NVM_SW_CALIB_DFLL48M_FINE_VAL);
 
   // Closed-loop
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
-                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // Internal 32KHz is the reference
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step
+                         SYSCTRL_DFLLMUL_FSTEP( (0xff / 4) ) | // Fine step
+                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // Internal 32.768KHz is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
