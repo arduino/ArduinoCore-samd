@@ -19,8 +19,8 @@
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
-name=Atmel ATSAMD21E18A Hourly Build  (2016-02-20 20:43)
-version=1.6.2
+name=Arduino SAMD (32-bits ARM Cortex-M0+) Boards
+version=1.6.4
 
 # Compile variables
 # -----------------

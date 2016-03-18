@@ -223,4 +223,9 @@ void SystemInit( void )
   linearity |= ((*((uint32_t *) ADC_FUSES_LINEARITY_1_ADDR) & ADC_FUSES_LINEARITY_1_Msk) >> ADC_FUSES_LINEARITY_1_Pos) << 5;
 
   ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
+
+  /*
+   * 9) Disable automatic NVM write operations
+   */
+  NVMCTRL->CTRLB.bit.MANW = 1;
 }
