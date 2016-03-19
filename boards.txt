@@ -106,3 +106,5 @@ atsamr21e18a.build.variant=atsamr21e18a
 atsamr21e18a.build.variant_system_lib=
 atsamr21e18a.build.vid=0x03eb
 atsamr21e18a.build.pid=0x6124
+atsamr21e18a.bootloader.tool=openocd
+atsamr21e18a.bootloader.file=zero_osc32k/samd21_sam_ba.bin
