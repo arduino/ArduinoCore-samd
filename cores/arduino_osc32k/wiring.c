@@ -67,10 +67,10 @@ void init( void )
   }
 
   // Clock PORT for Digital I/O
-//	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
+//  PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
 //
 //  // Clock EIC for I/O interrupts
-//	PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
+//  PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
 
   // Clock SERCOM for Serial
   PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5 ;
@@ -79,12 +79,12 @@ void init( void )
   PM->APBCMASK.reg |= PM_APBCMASK_TCC0 | PM_APBCMASK_TCC1 | PM_APBCMASK_TCC2 | PM_APBCMASK_TC3 | PM_APBCMASK_TC4 | PM_APBCMASK_TC5 ;
 
   // Clock ADC/DAC for Analog
-  PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
+  PM->APBCMASK.reg |= PM_APBCMASK_ADC ;//| PM_APBCMASK_DAC ;
 
   // Setup all pins (digital and analog) in INPUT mode (default is nothing)
   for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
   {
-	  pinMode( ul, INPUT ) ;
+    pinMode( ul, INPUT ) ;
   }
 
   // Initialize Analog Controller
@@ -114,14 +114,14 @@ void init( void )
 
   // Initialize DAC
   // Setting clock
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_DAC ) | // Generic Clock ADC
-                      GCLK_CLKCTRL_GEN_GCLK0     | // Generic Clock Generator 0 is source
-                      GCLK_CLKCTRL_CLKEN ;
+  // while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+  // GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_DAC ) | // Generic Clock ADC
+  //                     GCLK_CLKCTRL_GEN_GCLK0     | // Generic Clock Generator 0 is source
+  //                     GCLK_CLKCTRL_CLKEN ;
 
-  while ( DAC->STATUS.bit.SYNCBUSY == 1 ); // Wait for synchronization of registers between the clock domains
-  DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
-                   DAC_CTRLB_EOEN ;        // External Output Enable (Vout)
+  // while ( DAC->STATUS.bit.SYNCBUSY == 1 ); // Wait for synchronization of registers between the clock domains
+  // DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
+  //                  DAC_CTRLB_EOEN ;        // External Output Enable (Vout)
 }
 
 #ifdef __cplusplus

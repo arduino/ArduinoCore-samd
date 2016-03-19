@@ -37,8 +37,8 @@ static void syncADC() {
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncDAC() __attribute__((always_inline, unused));
 static void syncDAC() {
-  while (DAC->STATUS.bit.SYNCBUSY == 1)
-    ;
+  // while (DAC->STATUS.bit.SYNCBUSY == 1)
+  //   ;
 }
 
 // Wait for synchronization of registers between the clock domains
@@ -149,10 +149,10 @@ uint32_t analogRead( uint32_t ulPin )
 
   if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
   {
-    syncDAC();
-    DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
-    //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
-    syncDAC();
+    // syncDAC();
+    // DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
+    // //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
+    // syncDAC();
   }
 
   syncADC();
@@ -213,11 +213,11 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 
     ulValue = mapResolution(ulValue, _writeResolution, 10);
 
-    syncDAC();
-    DAC->DATA.reg = ulValue & 0x3FF;  // DAC on 10 bits.
-    syncDAC();
-    DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
-    syncDAC();
+    // syncDAC();
+    // DAC->DATA.reg = ulValue & 0x3FF;  // DAC on 10 bits.
+    // syncDAC();
+    // DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
+    // syncDAC();
     return ;
   }
 

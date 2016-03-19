@@ -71,11 +71,11 @@ CFLAGS+=-Os -DDEBUG=0
 endif
 
 # Arduino Zero (PID == 0x004D)
-CFLAGS_EXTRA?=-D__SAMD21E18A__ -DUSB_PID_HIGH=0x61 -DUSB_PID_LOW=0x24 -DUSB_VID_LOW=0xEB -DUSB_VID_HIGH=0x03
+CFLAGS_EXTRA?=-D__SAMR21E18A__ -DUSB_PID_HIGH=0x61 -DUSB_PID_LOW=0x24 -DUSB_VID_LOW=0xEB -DUSB_VID_HIGH=0x03
 # Genuino Zero (PID == 0x024D)
 # CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
 
-INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
+INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"ATMEL/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
 
 # -----------------------------------------------------------------------------
 # Linker options
