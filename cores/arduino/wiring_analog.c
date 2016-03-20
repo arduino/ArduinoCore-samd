@@ -140,10 +140,12 @@ uint32_t analogRead( uint32_t ulPin )
 {
   uint32_t valueRead = 0;
 
-  if ( ulPin < A0 )
+  if ( ulPin <= 5 ) // turn '0' -> 'A0'
   {
     ulPin += A0 ;
   }
+  if (ulPin == 6) ulPin = PIN_A6;
+  if (ulPin == 7) ulPin = PIN_A7;
 
   pinPeripheral(ulPin, PIO_ANALOG);
 

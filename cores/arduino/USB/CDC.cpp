@@ -23,6 +23,8 @@
 #include <stdio.h>
 #include <stdint.h>
 
+uint8_t USB_TXLEDticks = 0, USB_RXLEDticks = 0;
+
 #ifdef CDC_ENABLED
 
 #define CDC_SERIAL_BUFFER_SIZE	256
@@ -99,6 +101,12 @@ bool CDC_Setup(USBSetup& setup)
 {
 	uint8_t requestType = setup.bmRequestType;
 	uint8_t r = setup.bRequest;
+
+	digitalWrite(PIN_LED_RXL, HIGH);
+	digitalWrite(PIN_LED_TXL, HIGH);
+	pinMode(PIN_LED_RXL, OUTPUT);
+	pinMode(PIN_LED_TXL, OUTPUT);
+	USB_TXLEDticks = USB_RXLEDticks = 0;
 
 	if (requestType == REQUEST_DEVICETOHOST_CLASS_INTERFACE)
 	{
@@ -221,6 +229,9 @@ int Serial_::read(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
 
+	digitalWrite(PIN_LED_RXL, LOW);
+	USB_RXLEDticks = 10; // how many ms to keep LED on 
+
 	// if the head isn't ahead of the tail, we don't have any characters
 	if (buffer->head == buffer->tail && !buffer->full)
 	{
@@ -254,6 +265,9 @@ size_t Serial_::write(const uint8_t *buffer, size_t size)
 	 is opened and clear lineState when the port is closed.
 	 bytes sent before the user opens the connection or after
 	 the connection is closed are lost - just like with a UART. */
+
+        digitalWrite(PIN_LED_TXL, LOW);
+	USB_TXLEDticks = 10; // how many ms to keep LED on 
 
 	// TODO - ZE - check behavior on different OSes and test what happens if an
 	// open connection isn't broken cleanly (cable is yanked out, host dies
@@ -345,6 +359,6 @@ bool Serial_::rts() {
 	return _usbLineInfo.lineState & 0x2;
 }
 
-Serial_ SerialUSB(USBDevice);
+Serial_ Serial(USBDevice);
 
 #endif

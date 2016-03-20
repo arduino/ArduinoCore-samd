@@ -19,6 +19,9 @@
 #include "delay.h"
 #include "Arduino.h"
 
+extern uint8_t USB_TXLEDticks, USB_RXLEDticks;
+
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -83,6 +86,21 @@ void SysTick_DefaultHandler(void)
   // Increment tick count each ms
   _ulTickCount++;
   tickReset();
+
+  // turn off CDC LEDs if time
+  if (USB_RXLEDticks) {
+    USB_RXLEDticks--;
+    if (USB_RXLEDticks == 0) {
+      digitalWrite(PIN_LED_RXL, HIGH);
+    }
+  }
+
+  if (USB_TXLEDticks) {
+    USB_TXLEDticks--;
+    if (USB_TXLEDticks == 0) {
+      digitalWrite(PIN_LED_TXL, HIGH);
+    }
+  }
 }
 
 #ifdef __cplusplus
