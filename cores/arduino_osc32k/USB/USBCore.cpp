@@ -52,7 +52,7 @@ const uint16_t STRING_LANGUAGE[2] = {
 
 const uint8_t STRING_PRODUCT[] = USB_PRODUCT;
 
-#if USB_VID == 0x2341
+#if USB_VID == 0x03eb
 #  if defined(USB_MANUFACTURER)
 #    undef USB_MANUFACTURER
 #  endif
