@@ -25,7 +25,8 @@
 #include <sam.h>
 
 #define PINMUX_UNUSED          0xFFFFFFFF
-#define GCLK_ID_SERCOM1_CORE   0x15 // See Section 13.8.3, Table 13-4
+#define GCLK_ID_SERCOM0_CORE   0x14
+#define GCLK_ID_SERCOM1_CORE   0x15
 
 /* SERCOM UART available pad settings */
 enum uart_pad_settings {

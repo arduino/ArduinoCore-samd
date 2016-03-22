@@ -167,7 +167,7 @@ USB_CDC sam_ba_cdc;
 void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
 {
   Usb *pUsb = pCdc->pUsb;
-  static volatile uint8_t bmRequestType, bRequest, dir;
+  static volatile uint8_t bmRequestType, bRequest, dir, requestSwitchValue;
   static volatile uint16_t wValue, wIndex, wLength, wStatus;
 
   /* Clear the Received Setup flag */
@@ -185,6 +185,8 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
 
   /* Clear the Bank 0 ready flag on Control OUT */
   pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
+
+  requestSwitchValue = (bRequest << 8) | bmRequestType;
 
   /* Handle supported standard device request Cf Table 9-3 in USB specification Rev 1.1 */
   switch ((bRequest << 8) | bmRequestType)

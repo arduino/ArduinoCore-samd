@@ -56,9 +56,9 @@ void board_init(void)
    * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
    */
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x6u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
-                         SYSCTRL_OSC32K_ENABLE |
-			                   SYSCTRL_OSC32K_EN32K |
-			                   SYSCTRL_OSC32K_CALIB(0); // | SYSCTRL_OSC32K_EN1K;
+                        SYSCTRL_OSC32K_ENABLE |
+			SYSCTRL_OSC32K_EN32K |
+			SYSCTRL_OSC32K_CALIB( 0xCu ); // | SYSCTRL_OSC32K_EN1K;
   SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 14.6.3 */
   SYSCTRL->OSC32K.bit.EN32K = 1;
 

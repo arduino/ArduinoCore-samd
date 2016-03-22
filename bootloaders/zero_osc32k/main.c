@@ -158,7 +158,7 @@ int main(void)
 #if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
   P_USB_CDC pCdc;
 #endif
-  DEBUG_PIN_HIGH;
+//  DEBUG_PIN_HIGH;
 
   /* Jump in application if condition is satisfied */
   check_start_application();
@@ -177,7 +177,7 @@ int main(void)
   pCdc = usb_init();
 #endif
 
-  DEBUG_PIN_LOW;
+//  DEBUG_PIN_LOW;
 
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
