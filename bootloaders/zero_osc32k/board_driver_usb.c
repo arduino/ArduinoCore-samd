@@ -296,11 +296,11 @@ uint8_t USB_IsConfigured(P_USB_CDC pCdc)
 //    				USB_DEVICE_INTENSET_EORST;
 
     // alt..
-    pUsb->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_EORST;
-
-    pUsb->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
-    pUsb->DEVICE.DeviceEndpoint[0].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT(2);
-    pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT(2);
+//    pUsb->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_EORST;
+//
+//    pUsb->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
+//    pUsb->DEVICE.DeviceEndpoint[0].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT(2);
+//    pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT(2);
 
     // Reset current configuration value to 0
     pCdc->currentConfiguration = 0;
