@@ -40,15 +40,6 @@
  #define CPU_FREQUENCY                     (32000000ul)
 //#define CPU_FREQUENCY                     (12000000ul) // SAM R21E XOSC max is 32MHz, not 48MHz like the SAM D21. FemtoBeacon (SAM R21) using 26MHz
 
-//#define BOOT_USART_MODULE                 SERCOM0
-//#define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM0
-//#define BOOT_USART_PER_CLOCK_INDEX        GCLK_ID_SERCOM0_CORE
-//#define BOOT_USART_PAD_SETTINGS           UART_RX_PAD3_TX_PAD2
-//#define BOOT_USART_PAD3                   PINMUX_PA11C_SERCOM0_PAD3
-//#define BOOT_USART_PAD2                   PINMUX_PA10C_SERCOM0_PAD2
-//#define BOOT_USART_PAD1                   PINMUX_UNUSED
-//#define BOOT_USART_PAD0                   PINMUX_UNUSED
-
 #define BOOT_USART_MODULE                 SERCOM1
 #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM1
 #define BOOT_USART_PER_CLOCK_INDEX        GCLK_ID_SERCOM1_CORE
@@ -59,11 +50,11 @@
 #define BOOT_USART_PAD0                   PINMUX_UNUSED
 
 /* Frequency of the board main oscillator */
-#define VARIANT_MAINOSC	                  (32768ul)
-//#define VARIANT_MAINOSC	                  (32000ul)
+// #define VARIANT_MAINOSC                    (32768ul)
+#define VARIANT_MAINOSC                   (8000000ul)
 
 /* Master clock frequency */
-#define VARIANT_MCK			                  CPU_FREQUENCY
+#define VARIANT_MCK                       CPU_FREQUENCY
 
 #define NVM_SW_CALIB_DFLL48M_COARSE_VAL   (58)
 #define NVM_SW_CALIB_DFLL48M_FINE_VAL     (512)//(64)

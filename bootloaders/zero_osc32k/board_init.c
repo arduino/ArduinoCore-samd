@@ -55,16 +55,31 @@ void board_init(void)
   /* ----------------------------------------------------------------------------------------------
    * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
    */
-  SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x7u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
-                        SYSCTRL_OSC32K_ENABLE |
-			SYSCTRL_OSC32K_EN1K |
-                  	SYSCTRL_OSC32K_EN32K |
-                  	SYSCTRL_OSC32K_CALIB( 0x6u ); // | SYSCTRL_OSC32K_EN1K;
-  SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 14.6.3 */
-  SYSCTRL->OSC32K.bit.EN1K = 1;
-  SYSCTRL->OSC32K.bit.EN32K = 1;
+//  SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x7u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
+//                        SYSCTRL_OSC32K_ENABLE |
+//			SYSCTRL_OSC32K_EN1K |
+//                  	SYSCTRL_OSC32K_EN32K |
+//                  	SYSCTRL_OSC32K_CALIB( 0x1au );
+//  SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 14.6.3 */
+//  SYSCTRL->OSC32K.bit.EN1K = 1;
+//  SYSCTRL->OSC32K.bit.EN32K = 1;
+//
+//  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 )
+//  {
+//    /* Wait for oscillator stabilization */
+//  }
+  SYSCTRL->OSC8M.bit.ENABLE = 1;
+  SYSCTRL->OSC8M.bit.PRESC = 1;
+  SYSCTRL->OSC8M.bit.ONDEMAND = 0;
 
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 )
+
+  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC8M );
+  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 3
+		      GCLK_GENCTRL_SRC_OSC8M | // Selected source is RC OSC 8MHz (already enabled at reset)
+  //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+		      GCLK_GENCTRL_GENEN ;
+
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
     /* Wait for oscillator stabilization */
   }
@@ -80,22 +95,27 @@ void board_init(void)
     /* Wait for reset to complete */
   }
 
-  /* ----------------------------------------------------------------------------------------------
-   * 2) Put OSC32K as source of Generic Clock Generator 1
-   */
-  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC32K ); // Generic Clock Generator 1
+//  /* ----------------------------------------------------------------------------------------------
+//   * 2) Put OSC32K as source of Generic Clock Generator 1
+//   */
+////  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC32K ); // Generic Clock Generator 1
+//  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSCM8M );
+//
+//  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+//  {
+//    /* Wait for synchronization */
+//  }
 
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
-  {
-    /* Wait for synchronization */
-  }
-
-  /* Write Generic Clock Generator 1 configuration */
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
-                      GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
-  //                    GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_GENEN ;
-
+//  /* Write Generic Clock Generator 1 configuration */
+//  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
+//                      GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
+//  //                    GCLK_GENCTRL_OE | // Output clock to a pin for tests
+//                      GCLK_GENCTRL_GENEN ;
+    /* Write Generic Clock Generator 1 configuration */
+    GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 1
+                        GCLK_GENCTRL_SRC_OSC8M | // Selected source is Internal 32KHz Oscillator
+    //                    GCLK_GENCTRL_OE | // Output clock to a pin for tests
+                        GCLK_GENCTRL_GENEN ;
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
     /* Wait for synchronization */
@@ -127,6 +147,13 @@ void board_init(void)
     /* Wait for synchronization */
   }
 
+  /* get the coarse and fine values stored in NVM */
+  uint32_t coarse = (*(uint32_t *)(0x806024) >> 26);
+  uint32_t fine = (*(uint32_t *)(0x806028) & 0x3FF);
+
+  SYSCTRL->DFLLVAL.bit.COARSE = coarse;
+  SYSCTRL->DFLLVAL.bit.FINE = fine;
+
   // Closed-loop
   SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step
                          SYSCTRL_DFLLMUL_FSTEP( (0xff / 4) ) | // Fine step
@@ -138,8 +165,8 @@ void board_init(void)
   }
 
   /* Write full configuration to DFLL control register */
-  SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
-                           SYSCTRL_DFLLCTRL_WAITLOCK |
+  SYSCTRL->DFLLCTRL.reg |= //SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
+                           //SYSCTRL_DFLLCTRL_WAITLOCK |
                            SYSCTRL_DFLLCTRL_QLDIS ; /* Disable Quick lock */
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
@@ -150,11 +177,11 @@ void board_init(void)
   /* Enable the DFLL */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
 
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
-          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
-  {
-    /* Wait for locks flags */
-  }
+//  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
+//          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
+//  {
+//    /* Wait for locks flags */
+//  }
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
