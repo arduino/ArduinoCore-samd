@@ -359,8 +359,10 @@ static void sam_ba_monitor_loop(void)
           // Execute "ER" Erase Row
           NVMCTRL->ADDR.reg = dst_addr / 2;
           NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
-          while (NVMCTRL->INTFLAG.bit.READY == 0)
-            ;
+
+          //while (NVMCTRL->INTFLAG.bit.READY == 0);
+          while (NVMCTRL->INTFLAG.bit.READY == 0);
+
           dst_addr += PAGE_SIZE * 4; // Skip a ROW
         }
 

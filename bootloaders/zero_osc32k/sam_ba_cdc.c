@@ -22,7 +22,7 @@
 
 usb_cdc_line_coding_t line_coding=
 {
-  921600, // baudrate, or 921600
+  115200, // baudrate, or 921600
   0,      // 1 Stop Bit
   0,      // None Parity
   8     // 8 Data bits

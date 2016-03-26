@@ -69,7 +69,7 @@ void board_init(void)
 //    /* Wait for oscillator stabilization */
 //  }
   SYSCTRL->OSC8M.bit.ENABLE = 1;
-  SYSCTRL->OSC8M.bit.PRESC = 1;
+  SYSCTRL->OSC8M.bit.PRESC = 0;
   SYSCTRL->OSC8M.bit.ONDEMAND = 0;
 
 
