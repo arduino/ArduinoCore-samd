@@ -539,18 +539,18 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 * Wired-AND, Wired-OR for port pins
 * High-speed port pin access (IOBUS)
 * Libraries for some hardware I plan on using:
-  TFT LCD (CFAF128128B-0145T)
-  Motor controller (LV8711T)
-  IR decoder
-  I2S DAC/AMP and I2S MEMS microphone
-  Battery management IC
-  XBee/Xbee Pro devices
-  RS485
-  Several I2C (Wire) sensor devices: 
-    Accelerometer/magnetometer (LSM303CTR)
-    Barometer/altimeter (LPS22HBTR)
-    Humidity/temperature
-    Light/color sensor
+  * TFT LCD (CFAF128128B-0145T)
+  * Motor controller (LV8711T)
+  * IR decoder
+  * I2S DAC/AMP and I2S MEMS microphone
+  * Battery management IC
+  * XBee/Xbee Pro devices
+  * RS485
+  * Several I2C (Wire) sensor devices: 
+    * Accelerometer/magnetometer (LSM303CTR)
+    * Barometer/altimeter (LPS22HBTR)
+    * Humidity/temperature
+    * Light/color sensor
 
 
 ## ChangeLog
