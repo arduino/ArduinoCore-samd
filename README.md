@@ -266,9 +266,16 @@ everything else (ie: W) resides in flash (in most cases).
 
 #### Windows
 
-There are currently four USB composite device combinations that include CDC as well as a CDC only device.
-Drivers are required for each of these five devices. The CDC only driver is required by the bootloader.
-The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP3), Vista, 7, 8, and 10.
+Prior to core version 1.6.6-mt1, sketches compiled with both CDC and HID USB code by default, thus requiring a CDC
+driver for the bootloader and a CDC-HID driver for sketches. Now that PluggableUSB is supported, sketches compile
+with only CDC code by default. Thus, only one driver is needed. Since HID and MIDI are currently supported (and
+MSD potentially in the future), driver installation will be required for each different combination of USB devices.
+There are currently four USB composite device combinations that include CDC as well as a CDC only device. Each
+supported combination has a unique USB VID:PID pair, and these are listed in the .inf file. Once the first device
+is installed (the CDC only device), future installations *might* be automatic, otherwise, you may direct the
+installer to the same .inf file. The drivers are signed and support both 32 and 64 bit versions of Windows XP(SP3),
+Vista, 7, 8, and 10.
+
 
 1. If you do not already have the SAM-BA bootloader installed, see below.
 2. Download https://www.mattairtech.com/software/MattairTech_CDC_Driver_Signed.zip and unzip into any folder.
@@ -276,8 +283,8 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 4. Windows will detect the board. Point the installer to the folder from above to install the bootloader driver.
 5. If you don't intend on using Arduino, you can skip the rest of this list. See Using Bossac Standalone below.
 6. If you do not already have the test firmware installed (comes preinstalled), see Using Bossac Standalone below.
-7. Press the reset button to run the test firmware (blink sketch with CDC-HID).
-8. Windows will detect the board. Point the installer to the folder from above to install the sketch driver.
+7. Press the reset button to run the test firmware (blink sketch).
+8. Windows will detect the board. Point the installer to the above folder to install the sketch driver (if needed).
 9. Continue with SAMD Core Installation below.
 
 #### Linux
@@ -291,13 +298,16 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 
 #### OS X
 
+UNTESTED
 1. As of this writing, only the 256 KB chip variants work with the OS X version of the upload tool, bossac.
 2. First, you will need to open boards.txt and change mattairtech_mt_d21e_bl8k.upload.tool to equal arduino:bossac.
 3. Open platform.txt and change tools.bossac.path to equal{runtime.tools.bossac-1.6.1-arduino.path}.
-4. No driver installation is needed. You may get a dialog box asking if you wish to open the “Network Preferences”:
+4. No driver installation is needed.
+5. Plug in the board. You may get a dialog box asking if you wish to open the “Network Preferences”:
    * Click the "Network Preferences..." button, then click "Apply".
    * The board will show up as “Not Configured”, but it will work fine.
 5. Continue with SAMD Core Installation below.
+
 
 ### SAMD Core Installation
 
@@ -317,6 +327,16 @@ The drivers are signed and support both 32 and 64 bit versions of Windows XP (SP
 11. Plug in the board. The blink sketch should be running.
 12. Click Tools->Port and choose the COM port.
 13. You can now upload your own sketch.
+
+
+### Uploading the First Sketch
+
+1. In the Arduino IDE 1.6.7 (or above), open File->Examples->01.Basics->Blink.
+2. Change the three instances of '13' to 'LED_BUILTIN'.
+3. Be sure the correct options are selected in the Tools menu (see AVR Core Installation above).
+4. With the board plugged in, select the correct port from Tools->Port.
+5. Click the Upload button. After compiling, the sketch should be transferred to the board.
+6. Once the bootloader exits, the blink sketch should be running.
 
 
 ## SAM-BA USB CDC Bootloader (Arduino compatible)
@@ -361,6 +381,7 @@ When the Arduino IDE initiates the bootloader, the following procedure is used:
 3. The board is reset. The bootloader (which always runs first) detects the blank flah row, so bootloader operation resumes.
 4. Opening and closing the port at a baud rate other than 1200bps will not erase or reset the SAMD.
 
+
 ### Bootloader Firmware Installation
 
 #### Bootloader Installation Using the Arduino IDE
@@ -382,6 +403,7 @@ When the Arduino IDE initiates the bootloader, the following procedure is used:
    * You can optionally set the BOOTPROT bits to 8KB (or 4KB for the MT-D11). The Arduino installation method does not set these.
    * You can optionally set the EEPROM bits or anything else. The Arduino installation method uses factory defaults.
 4. Continue with driver installation above.
+
 
 ### Using Bossac Standalone
 
@@ -408,13 +430,13 @@ As an example, bossac will be used to upload the test firmware (blink sketch):
 1. Download firmware from https://www.mattairtech.com/software/SAM-BA-bootloader-test-firmware.zip and unzip.
 2. If you have not already installed the bootloader driver, see Driver Installation above.
 3. Be sure there is a binary that matches your chip. On the command line (change the binary to match yours):
-4. On Linux --port might be /dev/ttyACM0. If the device is not found, remove the --port argument for auto-detection.
 
 ```
 bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 ```
+4. On Linux --port might be /dev/ttyACM0. If the device is not found, remove the --port argument for auto-detection.
 5. See http://manpages.ubuntu.com/manpages/vivid/man1/bossac.1.html for details.
-6. Continue with the CDC-HID driver installation above (optional).
+6. The board should reset automatically and the sketch should be running.
 
 
 
@@ -504,7 +526,9 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 
 ## Possible Future Additions
 
-* USB Host mode CDC ACM
+* SAML21 support in the works
+* Timer library in the works (like TimerOne, plus input capture and possibly waveform extensions)
+* USB Host mode CDC ACM (partially complete; BSD-like license?)
 * Features for lower power consumption (library?)
 * Enhanced SD card library
 * Optional use of single on-board LED as USB activity LED
@@ -512,17 +536,19 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 * MSC (Mass Storage) USB Device Class
 * Polyphonic tone
 * Better OS X support
+* Wired-AND, Wired-OR for port pins
+* High-speed port pin access (IOBUS)
 * Libraries for some hardware I plan on using:
-  TFT LCD
-  Motor controller
+  TFT LCD (CFAF128128B-0145T)
+  Motor controller (LV8711T)
   IR decoder
   I2S DAC/AMP and I2S MEMS microphone
   Battery management IC
   XBee/Xbee Pro devices
   RS485
   Several I2C (Wire) sensor devices: 
-    Accelerometer/gyro/magnetometer
-    Barometer/altimeter
+    Accelerometer/magnetometer (LSM303CTR)
+    Barometer/altimeter (LPS22HBTR)
     Humidity/temperature
     Light/color sensor
 

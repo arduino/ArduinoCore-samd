@@ -39,29 +39,38 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
   uint32_t pinAttribute = g_APinDescription[ulPin].ulPinAttribute;
   uint8_t pinPort = g_APinDescription[ulPin].ulPort;
   uint8_t pinNum = g_APinDescription[ulPin].ulPin;
-  uint8_t pullConfig = PORT->Group[pinPort].PINCFG[pinNum].reg;
-  
-  // Enable pull resistor if pin attributes allow
-  if ( (ulVal == HIGH && (pinAttribute & PIN_ATTR_INPUT_PULLUP)) || (ulVal == LOW && (pinAttribute & PIN_ATTR_INPUT_PULLDOWN)) )
-  {
-    pullConfig |= (uint8_t)(PORT_PINCFG_PULLEN) ;
+  uint8_t pinConfig = PORT->Group[pinPort].PINCFG[pinNum].reg;
+  uint8_t pinDir = PORT->Group[pinPort].DIR[pinNum].reg;
+  uint8_t pinOut = PORT->Group[pinPort].OUT[pinNum].reg;
+
+  // Enable pull resistor if pin attributes allow and only if pin is not configured as output
+  // Note that most pins should use PIN_ATTR_DIGITAL, which includes both PIN_ATTR_INPUT_PULLUP and PIN_ATTR_INPUT_PULLDOWN.
+  if ( pinDir == 0 ) { // pin DIR is input
+     if ( ulVal == HIGH )
+     {
+       if ( (pinOut == 1 && (pinAttribute & PIN_ATTR_INPUT_PULLUP)) || (pinOut == 0 && (pinAttribute & PIN_ATTR_INPUT_PULLDOWN)) )
+       {
+         pinConfig |= (uint8_t)(PORT_PINCFG_PULLEN) ;
+       }
+     }
+     else
+     {
+       pinConfig &= ~(uint8_t)(PORT_PINCFG_PULLEN) ;
+     }
+     
+     PORT->Group[pinPort].PINCFG[pinNum].reg = pinConfig ;
   }
+  // Set or clear OUT register only when pin DIR is set to output.
+  // Pull direction (pullup or pulldown) is now set with pinMode only.
   else
   {
-    pullConfig &= ~(uint8_t)(PORT_PINCFG_PULLEN) ;
-  }
-
-  PORT->Group[pinPort].PINCFG[pinNum].reg = pullConfig ;
-
-  switch ( ulVal )
-  {
-    case LOW:
-      PORT->Group[pinPort].OUTCLR.reg = (1ul << pinNum) ;
-    break ;
-
-    default:
+    if ( ulVal == HIGH ) {
       PORT->Group[pinPort].OUTSET.reg = (1ul << pinNum) ;
-    break ;
+    }
+    else
+    {
+      PORT->Group[pinPort].OUTCLR.reg = (1ul << pinNum) ;
+    }
   }
 
   return ;

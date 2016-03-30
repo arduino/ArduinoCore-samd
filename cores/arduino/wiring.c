@@ -96,11 +96,11 @@ void init( void )
   // Clock ADC/DAC for Analog
   PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
 
-  // Setup all pins (digital and analog) in INPUT mode (default is nothing)
-  // for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
-  // {
-  //	  pinMode( ul, INPUT ) ;
-  // }
+  //Setup all pins (digital and analog) in STARTUP mode (enable INEN only)
+  for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
+  {
+  	pinMode( ul, PIO_STARTUP ) ;
+  }
 
   // Initialize Analog Controller
   // Setting clock

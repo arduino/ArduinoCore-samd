@@ -37,14 +37,14 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     return -1 ;
   }
 
-  // If pinType is not PIO_MULTI in the pinDescription table, then it must match ulPeripheral
-  if ( pinType != PIO_MULTI && pinType != ulPeripheral )
+  // If pinType is not PIO_MULTI or PIO_STARTUP in the pinDescription table, then it must match ulPeripheral
+  if ( pinType != PIO_MULTI && pinType != PIO_STARTUP && pinType != ulPeripheral )
   {
     return -1 ;
   }
 
   // Make sure ulPeripheral is listed in the attributes
-  if ( !(pinAttribute & (1UL << ulPeripheral)) )
+  if ( !(pinAttribute & (1UL << ulPeripheral)) && pinType != PIO_STARTUP )
   {
     return -1 ;
   }
@@ -123,10 +123,14 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
 
   uint8_t pinPort = g_APinDescription[ulPin].ulPort;
   uint8_t pinNum = g_APinDescription[ulPin].ulPin;
-  uint8_t pinCfg = PORT_PINCFG_INEN;
+  uint8_t pinCfg = PORT_PINCFG_INEN;	// INEN should be enabled for both input and output (but not analog)
 
   switch ( ulPeripheral )
   {
+    case PIO_STARTUP:
+      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ; // Just enable INEN
+    break;
+    
     // Set pin mode according to chapter '22.6.3 I/O Pin Configuration'
     case PIO_INPUT:
     case PIO_INPUT_PULLUP:
@@ -151,7 +155,6 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     break ;
 
     case PIO_OUTPUT:
-      pinCfg = 0;
       if ( (peripheralAttribute & PER_ATTR_DRIVE_MASK) == PER_ATTR_DRIVE_STRONG )
       {
         pinCfg |= PORT_PINCFG_DRVSTR;
@@ -162,10 +165,12 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     break ;
 
 
-    case PIO_EXTINT:
     case PIO_ANALOG_ADC:
     case PIO_ANALOG_DAC:
     case PIO_ANALOG_REF:
+	pinCfg = 0;	// Disable INEN with analog
+	
+    case PIO_EXTINT:
     case PIO_TIMER_PWM:
     case PIO_TIMER_CAPTURE:
     case PIO_SERCOM:

@@ -161,6 +161,8 @@ typedef enum _EPioType
   PIO_AC_GCLK=12,                     /* The pin is controlled by the AC_GCLK peripheral (output). */
 
   PIO_MULTI,                          /* The pin can be configured to any type based on the attributes. */
+  
+  PIO_STARTUP,                        /* Used as parameter to pinPeripheral() only to set startup state (enable INEN only) */
 } EPioType ;
 
 /**
@@ -227,6 +229,10 @@ typedef enum _EPioPeripheral
 #define PER_ATTR_OUTPUT_TYPE_OPEN_SOURCE    (2UL<<3)
 #define PER_ATTR_OUTPUT_TYPE_BUSKEEPER      (3UL<<3)
 #define PER_ATTR_OUTPUT_TYPE_MASK           (3UL<<3)
+
+#define PER_ATTR_INPUT_SYNCHRONIZER_ON_DEMAND     (0UL<<5)
+#define PER_ATTR_INPUT_SYNCHRONIZER_ALWAYS_ON     (1UL<<5)
+#define PER_ATTR_INPUT_SYNCHRONIZER_MASK          (1UL<<5)
 
 
 /* Types used for the table below
