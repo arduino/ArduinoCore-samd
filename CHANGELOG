@@ -4,6 +4,7 @@ SAMD CORE 1.6.5
 * Bootloader: Fixed wrong UART speed (regression)
 * Fixed incorrect return value from Wire.available() when the receive buffer is not fully read.
 * Added DAC0 definition in Arduino/Genuino Zero variant file.
+* Enabled bootloader protection after "Burn bootloader".
 
 SAMD CORE 1.6.4 2016.02.19
 
