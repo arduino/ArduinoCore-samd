@@ -68,20 +68,23 @@
 
 // Analog pins
 // -----------
-#define PIN_A0 (15u)
-#define PIN_A1 (16u)
-#define PIN_A2 (17u)
-#define PIN_A3 (18u)
-#define PIN_A4 (19u)
-#define PIN_A5 (20u)
-#define PIN_A6 (21u)
-static const uint8_t A0  = PIN_A0;
-static const uint8_t A1  = PIN_A1;
-static const uint8_t A2  = PIN_A2;
-static const uint8_t A3  = PIN_A3;
-static const uint8_t A4  = PIN_A4;
-static const uint8_t A5  = PIN_A5;
-static const uint8_t A6  = PIN_A6;
+#define PIN_A0   (15u)
+#define PIN_A1   (16u)
+#define PIN_A2   (17u)
+#define PIN_A3   (18u)
+#define PIN_A4   (19u)
+#define PIN_A5   (20u)
+#define PIN_A6   (21u)
+#define PIN_DAC0 (15u)
+
+static const uint8_t A0   = PIN_A0;
+static const uint8_t A1   = PIN_A1;
+static const uint8_t A2   = PIN_A2;
+static const uint8_t A3   = PIN_A3;
+static const uint8_t A4   = PIN_A4;
+static const uint8_t A5   = PIN_A5;
+static const uint8_t A6   = PIN_A6;
+static const uint8_t DAC0 = PIN_DAC0;
 #define ADC_RESOLUTION 12
 
 // SPI Interfaces
