@@ -21,6 +21,9 @@
           "boards": [
             {
               "name": "Atmel ATSAMD21E18A"
+            },
+            {
+              "name": "Atmel ATSAMR21E18A"
             }
           ],
           "toolsDependencies": [

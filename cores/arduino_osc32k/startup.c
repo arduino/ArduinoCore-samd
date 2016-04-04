@@ -37,8 +37,11 @@
  */
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
+
+#define GENERIC_CLOCK_GENERATOR_XOSC      (1u)
 #define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
 #define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
+
 #define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
 #define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
 
@@ -50,7 +53,7 @@ void SystemInit( void )
   NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ;
 
   /* Turn on the digital interface clock */
-  PM->APBAMASK.reg |= PM_APBAMASK_GCLK ;
+  PM->APBAMASK.reg |= PM_APBAMASK_GCLK | PM_APBAMASK_RTC ;
 
   /* ----------------------------------------------------------------------------------------------
    * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
@@ -69,21 +72,37 @@ void SystemInit( void )
   //   /* Wait for oscillator stabilization */
   // }
 
-  SYSCTRL->OSC8M.bit.ENABLE = 1;
-  SYSCTRL->OSC8M.bit.PRESC = 1;
-  SYSCTRL->OSC8M.bit.ONDEMAND = 0;
+  /* ----------------------------------------------------------------------------------------------
+   * 1) Enable XOSC clock (External on-board XOSC oscillator)
+   */
+  SYSCTRL->XOSC.reg = SYSCTRL_XOSC_STARTUP( 0x6u ) | /* cf table 14.10 of product datasheet in chapter 14.8.6 */
+                         SYSCTRL_XOSC_XTALEN ;
+  SYSCTRL->XOSC.bit.ENABLE = 1 ; /* separate call, as described in chapter 14.6.3 */
+  SYSCTRL->XOSC.bit.AMPGC = 1;
 
-
-  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC8M );
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 3
-      GCLK_GENCTRL_SRC_OSC8M | // Selected source is RC OSC 8MHz (already enabled at reset)
-  //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-      GCLK_GENCTRL_GENEN ;
-
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSCRDY) == 0 )
   {
     /* Wait for oscillator stabilization */
   }
+
+
+
+
+  // SYSCTRL->OSC8M.bit.ENABLE = 1;
+  // SYSCTRL->OSC8M.bit.PRESC = 0;
+  // SYSCTRL->OSC8M.bit.ONDEMAND = 0;
+
+
+  // GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC8M );
+  // GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 3
+  //     GCLK_GENCTRL_SRC_OSC8M | // Selected source is RC OSC 8MHz (already enabled at reset)
+  // //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+  //     GCLK_GENCTRL_GENEN ;
+
+  // while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+  // {
+  //   /* Wait for oscillator stabilization */
+  // }
   
   /* Software reset the module to ensure it is re-initialized correctly */
   /* Note: Due to synchronization, there is a delay from writing CTRL.SWRST until the reset is complete.
@@ -106,22 +125,31 @@ void SystemInit( void )
   //   /* Wait for synchronization */
   // }
 
-  /* Write Generic Clock Generator 1 configuration */
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 1
-                      GCLK_GENCTRL_SRC_OSC8M | // Selected source is External 32KHz Oscillator
-//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_GENEN ;
+  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_XOSC ) ; // Generic Clock Generator 1
 
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
     /* Wait for synchronization */
   }
 
+
+
+  /* Write Generic Clock Generator 1 configuration */
+//   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 1
+//                       GCLK_GENCTRL_SRC_OSC8M | // Selected source is External 32KHz Oscillator
+// //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+//                       GCLK_GENCTRL_GENEN ;
+
+//   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+//   {
+//     /* Wait for synchronization */
+//   }
+
   /* ----------------------------------------------------------------------------------------------
    * 3) Put Generic Clock Generator 1 as source for Generic Clock Multiplexer 0 (DFLL48M reference)
    */
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GENERIC_CLOCK_MULTIPLEXER_DFLL48M ) | // Generic Clock Multiplexer 0
-                      GCLK_CLKCTRL_GEN_GCLK1 | // Generic Clock Generator 1 is source
+                      GCLK_CLKCTRL_GEN_GCLK1 | //GCLK_CLKCTRL_GEN_GCLK3 | // Generic Clock Generator 1 is source
                       GCLK_CLKCTRL_CLKEN ;
 
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
@@ -150,8 +178,8 @@ void SystemInit( void )
   SYSCTRL->DFLLVAL.bit.COARSE = coarse;
   SYSCTRL->DFLLVAL.bit.FINE = fine;
 
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 / 4 ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( 511 / 4 ) | // Fine step is 511, half of the max value
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( (0xff / 4) ) | // Fine step is 511, half of the max value
                          SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ) ; // Internal 32KHz is the reference
                          
   // SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step is 31, half of the max value. 31 / 4 = 7.75

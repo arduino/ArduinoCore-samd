@@ -89,7 +89,6 @@ void USB_Init(void)
     /* Sync wait */
   }
 
-
   /* Load Pad Calibration */
   pad_transn =( *((uint32_t *)(NVMCTRL_OTP4)
       + (NVM_USB_PAD_TRANSN_POS / 32))
@@ -114,7 +113,6 @@ void USB_Init(void)
   }
 
   USB->HOST.PADCAL.bit.TRANSP = pad_transp;
-
   pad_trim =( *((uint32_t *)(NVMCTRL_OTP4)
       + (NVM_USB_PAD_TRIM_POS / 32))
       >> (NVM_USB_PAD_TRIM_POS % 32))
@@ -141,52 +139,48 @@ void USB_Init(void)
 
   /* Initialize endpoint table RAM location to a known value 0 */
   memset((uint8_t *)(&usb_endpoint_table[0]), 0, sizeof(usb_endpoint_table));
-
-//  USB->DEVICE.CTRLA.bit.ENABLE = 1;
-  USB->DEVICE.CTRLA.reg |= USB_CTRLA_ENABLE;
-
 }
 
 uint32_t USB_Write(Usb *pUsb, const char *pData, uint32_t length, uint8_t ep_num)
 {
-    uint32_t data_address;
-    uint8_t buf_index;
+  uint32_t data_address;
+  uint8_t buf_index;
 
-    /* Set buffer index */
-    buf_index = (ep_num == 0) ? 0 : 1;
+  /* Set buffer index */
+  buf_index = (ep_num == 0) ? 0 : 1;
 
-    /* Check for requirement for multi-packet or auto zlp */
-    if (length >= (1 << (usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.SIZE + 3)))
-    {
-      /* Update the EP data address */
-      data_address = (uint32_t) pData;
-      /* Enable auto zlp */
-      usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.AUTO_ZLP = true;
-    }
-    else
-    {
-      /* Copy to local buffer */
-      memcpy(udd_ep_in_cache_buffer[buf_index], pData, length);
-      /* Update the EP data address */
-      data_address = (uint32_t) &udd_ep_in_cache_buffer[buf_index];
-    }
+  /* Check for requirement for multi-packet or auto zlp */
+  if (length >= (1 << (usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.SIZE + 3)))
+  {
+    /* Update the EP data address */
+    data_address = (uint32_t) pData;
+    /* Enable auto zlp */
+    usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.AUTO_ZLP = true;
+  }
+  else
+  {
+    /* Copy to local buffer */
+    memcpy(udd_ep_in_cache_buffer[buf_index], pData, length);
+    /* Update the EP data address */
+    data_address = (uint32_t) &udd_ep_in_cache_buffer[buf_index];
+  }
 
-    /* Set the buffer address for ep data */
-    usb_endpoint_table[ep_num].DeviceDescBank[1].ADDR.reg = data_address;
-    /* Set the byte count as zero */
-    usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.BYTE_COUNT = length;
-    /* Set the multi packet size as zero for multi-packet transfers where length > ep size */
-    usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
-    /* Clear the transfer complete flag  */
-    //pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT1 = true;
-    pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT |= (1<<1);
-    /* Set the bank as ready */
-    pUsb->DEVICE.DeviceEndpoint[ep_num].EPSTATUSSET.bit.BK1RDY = true;
+  /* Set the buffer address for ep data */
+  usb_endpoint_table[ep_num].DeviceDescBank[1].ADDR.reg = data_address;
+  /* Set the byte count as zero */
+  usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.BYTE_COUNT = length;
+  /* Set the multi packet size as zero for multi-packet transfers where length > ep size */
+  usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
+  /* Clear the transfer complete flag  */
+  //pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT1 = true;
+  pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT |= (1<<1);
+  /* Set the bank as ready */
+  pUsb->DEVICE.DeviceEndpoint[ep_num].EPSTATUSSET.bit.BK1RDY = true;
 
-    /* Wait for transfer to complete */
-    while ( (pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT & (1<<1)) == 0 );
+  /* Wait for transfer to complete */
+  while ( (pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT & (1<<1)) == 0 );
 
-    return length;
+  return length;
 }
 
 /*----------------------------------------------------------------------------
@@ -212,7 +206,6 @@ uint32_t USB_Read(Usb *pUsb, char *pData, uint32_t length)
 
   /* Check for Transfer Complete 0 flag */
   if ( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0) )
-//  if ( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT(1) )
   {
     /* Set packet size */
     packetSize = SAM_BA_MIN(usb_endpoint_table[USB_EP_OUT].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT, length);
@@ -248,7 +241,6 @@ uint32_t USB_Read_blocking(Usb *pUsb, char *pData, uint32_t length)
   pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPSTATUSCLR.bit.BK0RDY = true;
   /* Wait for transfer to complete */
   while (!( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0) ));
-//  while (!( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT(1) ));
   /* Clear Transfer complete 0 flag */
   //pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 = true;
   pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT |= (1 << 0);
@@ -264,13 +256,10 @@ uint8_t USB_IsConfigured(P_USB_CDC pCdc)
   Usb *pUsb = pCdc->pUsb;
 
   /* Check for End of Reset flag */
-//  if (pUsb->DEVICE.INTFLAG.reg & USB_DEVICE_INTFLAG_EORST)
-  if (pUsb->DEVICE.INTFLAG.bit.EORST)
+  if (pUsb->DEVICE.INTFLAG.reg & USB_DEVICE_INTFLAG_EORST)
   {
     /* Clear the flag */
     pUsb->DEVICE.INTFLAG.bit.EORST = true;
-//    pUsb->DEVICE.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST;
-
     /* Set Device address as 0 */
     pUsb->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | 0;
     /* Configure endpoint 0 */
@@ -290,17 +279,6 @@ uint8_t USB_IsConfigured(P_USB_CDC pCdc)
     usb_endpoint_table[0].DeviceDescBank[0].PCKSIZE.bit.MULTI_PACKET_SIZE = 8;
     usb_endpoint_table[0].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT = 0;
     pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
-
-    // Additional config.
-//    pUsb->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_SOF |
-//    				USB_DEVICE_INTENSET_EORST;
-
-    // alt..
-//    pUsb->DEVICE.INTENSET.reg = USB_DEVICE_INTENSET_EORST;
-//
-//    pUsb->DEVICE.DeviceEndpoint[0].EPINTENSET.bit.RXSTP = 1;
-//    pUsb->DEVICE.DeviceEndpoint[0].EPINTENSET.reg = USB_DEVICE_EPINTENSET_TRCPT(2);
-//    pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT(2);
 
     // Reset current configuration value to 0
     pCdc->currentConfiguration = 0;
@@ -350,7 +328,6 @@ void USB_SendZlp(Usb *pUsb)
   pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = true;
   /* Wait for transfer to complete */
   while (!( pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT & (1<<1) ));
-//  while (!( pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg & USB_DEVICE_EPINTFLAG_TRCPT(2) ));
 }
 
 /*----------------------------------------------------------------------------

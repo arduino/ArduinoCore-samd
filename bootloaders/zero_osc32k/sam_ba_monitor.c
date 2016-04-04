@@ -189,38 +189,7 @@ static void put_uint32(uint32_t n)
   }
   ptr_monitor_if->putdata(buff, 8);
 }
-/**
- * SAM-BA 2.x commands
- *
- * Command    | Action 		      | Argument(s) 	      | Example
- * -----------+-----------------------+-----------------------+-----------------
- * N 		Set Normal Mode 	No argument		N#
- * T 		Set Terminal Mode 	No argument 		T#
- * O 		Write a byte 		Address, Value# 	O200001,CA#
- * o 		Read a byte 		Address,# 		o200001,#
- * H 		Write a half word 	Address, Value# 	H200002,CAFE#
- * h 		Read a half word 	Address,# 		h200002,#
- * W 		Write a word 		Address, Value# 	W200000,CAFEDECA#
- * w 		Read a word 		Address,# 		w200000,#
- * S 		Send a file 		Address,# 		S200000,#
- * R 		Receive a file 		Address, NbOfBytes# 	R200000, 1234#
- * G 		Go 			Address# 		G200200#
- * V 		Display version 	No argument 		V#
- *
- * X		Erase the flash memory  Address			X200000#
- * 		starting from ADDR to
- * 		the end of flash.
- *
- * 		Note: the flash memory
- * 		is erased in ROWS,
- * 		that is in block of
- * 		4 pages. Even if the
- * 		starting address is
- * 		the last byte of a ROW
- * 		the entire ROW is
- * 		erased anyway.
- *
- */
+
 static void sam_ba_monitor_loop(void)
 {
   length = ptr_monitor_if->getdata(data, SIZEBUFMAX);
@@ -317,10 +286,10 @@ static void sam_ba_monitor_loop(void)
       }
       else if (command == 'N')
       {
-//        if (b_terminal_mode == 0)
-//        {
+        if (b_terminal_mode == 0)
+        {
           ptr_monitor_if->putdata("\n\r", 2);
-//        }
+        }
         b_terminal_mode = 0;
       }
       else if (command == 'V')
@@ -359,10 +328,8 @@ static void sam_ba_monitor_loop(void)
           // Execute "ER" Erase Row
           NVMCTRL->ADDR.reg = dst_addr / 2;
           NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
-
-          //while (NVMCTRL->INTFLAG.bit.READY == 0);
-          while (NVMCTRL->INTFLAG.bit.READY == 0);
-
+          while (NVMCTRL->INTFLAG.bit.READY == 0)
+            ;
           dst_addr += PAGE_SIZE * 4; // Skip a ROW
         }
 
