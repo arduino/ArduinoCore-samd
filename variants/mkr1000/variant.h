@@ -40,6 +40,7 @@
 #define NUM_DIGITAL_PINS     (15u)
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (1u)
+#define analogInputToDigitalPin(p)  ((p < NUM_ANALOG_INPUTS) ? (p) + NUM_DIGITAL_PINS : -1)
 
 // Low-level pin register query macros
 // -----------------------------------

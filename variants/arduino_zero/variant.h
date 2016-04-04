@@ -57,6 +57,7 @@ extern "C"
 #define NUM_DIGITAL_PINS     (14u)
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
+#define analogInputToDigitalPin(p)  ((p < NUM_ANALOG_INPUTS) ? (p) + NUM_DIGITAL_PINS : -1)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
 #define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
