@@ -40,6 +40,7 @@ struct ConstVectors
   void* pfnReservedM3;
   void* pfnPendSV_Handler;
   void* pfnSysTick_Handler;
+
 };
 
 /* Symbols exported from linker script */

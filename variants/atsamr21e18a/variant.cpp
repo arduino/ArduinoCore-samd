@@ -81,22 +81,30 @@ const PinDescription g_APinDescription[]=
  * | 9          |                  |  PB30  | MOSI            | SERCOM4/PAD[2]
  * | 10         |                  |  PC19  | MISO            | SERCOM4/PAD[0]
  * | 11         |                  |  PC18  | SCK             | SERCOM4/PAD[3]
- * | 12         |                  |  PB31  | SS              | SERCOM4/PAD[1]
+ * | 12         |                  |  PB31  | SS (/SEL, CS)   | SERCOM4/PAD[1]
  * | 13         |                  |  PC16  | CLKM            | GCLK/IO[1]
+ * | 14         |                  |  PB00  | IRQ             | EXTINT[0]
+ * | 15         |                  |  PA20  | SLP_TR          | 
+ * | 16         |                  |  PB15  | /RST            | 
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
-  { PORTB, 30, PIO_TIMER_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[2]
-  { PORTC, 19, PIO_TIMER_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[0]
-  { PORTC, 18, PIO_TIMER_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[3]
-  { PORTB, 31, PIO_TIMER_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[1]
-  { PORTC, 16, PIO_TIMER_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // GCLK/IO[1]
+  { PORTB, 30, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[2]
+  { PORTC, 19, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[0]
+  { PORTC, 18, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[3]
+  { PORTB, 31, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[1]
+
+  { PORTC, 16, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // GCLK/IO[1]
+
+  { PORTB,  0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_0 }, // EXTINT[0]
+  { PORTA, 20, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // 
+  { PORTB, 15, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // 
 
 /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | USB              |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 14         |                  |  PA25  | USB_POSITIVE    | *USB/DP
- * | 15         |                  |  PA24  | USB_NEGATIVE    | *USB/DM
- * | 16         |                  |  PA28  | USB_HOST_ENABLE | USB/VBUS | EXT1_6          | EIC/EXTINT[8]  GCLK_IO[0]
+ * | 17         |                  |  PA25  | USB_POSITIVE    | *USB/DP
+ * | 18         |                  |  PA24  | USB_NEGATIVE    | *USB/DM
+ * | 19         |                  |  PA28  | USB_HOST_ENABLE | USB/VBUS | EXT1_6          | EIC/EXTINT[8]  GCLK_IO[0]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
   { PORTA, 25, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB/DP
@@ -109,7 +117,8 @@ const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, T
 // Multi-serial objects instantiation
 SERCOM sercom0( SERCOM0 ) ; // Wire
 SERCOM sercom1( SERCOM1 ) ; // Serial
-SERCOM sercom2( SERCOM2 ) ; // 
+SERCOM sercom2( SERCOM2 ) ; // ???
+SERCOM sercom3( SERCOM3 ) ; // ???
 SERCOM sercom4( SERCOM4 ) ; // ATRF233/802.15.4
 // SERCOM sercom5( SERCOM5 ) ; // SPI
 

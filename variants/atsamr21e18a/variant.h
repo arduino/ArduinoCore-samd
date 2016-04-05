@@ -28,12 +28,12 @@
 
 /** Frequency of the board main oscillator */
 //#define VARIANT_MAINOSC     (32768ul)
-// #define VARIANT_MAINOSC     (8000000ul)
+//#define VARIANT_MAINOSC     (8000000ul)
 #define VARIANT_MAINOSC     (12000000ul)
 
 /** Master clock frequency */
 //#define VARIANT_MCK           (32000000ul)
- #define VARIANT_MCK           (48000000ul)
+#define VARIANT_MCK           (48000000ul)
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -138,13 +138,13 @@ static const uint8_t A1  = PIN_A1 ;
  */
 #define SPI_INTERFACES_COUNT 1
 
-#define PIN_SPI_MISO         (10u)
-#define PIN_SPI_MOSI         (9u)
-#define PIN_SPI_SCK          (11u)
-#define PIN_SPI_SS           (12u)
+#define PIN_SPI_MOSI         ( 9u) // Tx, PAD 2
+#define PIN_SPI_MISO         (10u) // Rx, PAD 0
+#define PIN_SPI_SCK          (11u) //     PAD 3
+#define PIN_SPI_SS           (12u) //     PAT 1
 #define PERIPH_SPI           sercom4
 #define PAD_SPI_TX           SPI_PAD_2_SCK_3
-#define PAD_SPI_RX           SERCOM_RX_PAD_2
+#define PAD_SPI_RX           SERCOM_RX_PAD_0
 
 static const uint8_t SS   = PIN_SPI_SS  ;
 static const uint8_t MOSI = PIN_SPI_MOSI ;
@@ -164,29 +164,38 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 /*
  * USB
  */
-#define PIN_USB_HOST_ENABLE (14ul)
-#define PIN_USB_DM          (15ul)
-#define PIN_USB_DP          (16ul)
+#define PIN_USB_HOST_ENABLE (19ul)
+#define PIN_USB_DM          (18ul)
+#define PIN_USB_DP          (17ul)
 #define PIN_USB_VBUS         PIN_USB_HOST_ENABLE
 
  /*
  * 802.15.4/ATRF233
  */
-#define PIN_ATRF233_MOSI    (9ul)
-#define PIN_ATRF233_MISO    (10ul)
-#define PIN_ATRF233_SCK     (11ul)
-#define PIN_ATRF233_SS      (12ul)
-#define PERIPH_ATRF233      sercom4
-#define PAD_ATRF233_TX      SPI_PAD_2_SCK_3
-#define PAD_ATRF233_RX      SERCOM_RX_PAD_0
+#define PIN_ATRF233_MOSI    PIN_SPI_MOSI
+#define PIN_ATRF233_MISO    PIN_SPI_MISO
+#define PIN_ATRF233_SCK     PIN_SPI_SCK
+#define PIN_ATRF233_SS      PIN_SPI_SS
 
-#define PIN_SPI1_MOSI        PIN_ATRF233_MOSI
-#define PIN_SPI1_MISO        PIN_ATRF233_MISO
-#define PIN_SPI1_SCK         PIN_ATRF233_SCK
-#define PIN_SPI1_SS          PIN_ATRF233_SS
-#define PERIPH_SPI1          PERIPH_ATRF233
-#define PAD_SPI1_TX          PAD_ATRF233_TX
-#define PAD_SPI1_RX          PAD_ATRF233_RX
+#define PIN_ATRF233_IRQ     (14u)
+#define PIN_ATRF233_SLP_TR  (15u)
+#define PIN_ATRF233_RST     (16u)
+#define PIN_ATRF233_SEL     PIN_ATRF233_SS
+
+#define PERIPH_ATRF233      PERIPH_SPI
+#define PAD_ATRF233_TX      PAD_SPI_TX
+#define PAD_ATRF233_RX      PAD_SPI_RX
+
+#define MODULE_AT86RF233    0x01
+#define MODULE_AT86RF233_CLOCK (12000000ul)
+
+// #define PIN_SPI1_MOSI        PIN_ATRF233_MOSI
+// #define PIN_SPI1_MISO        PIN_ATRF233_MISO
+// #define PIN_SPI1_SCK         PIN_ATRF233_SCK
+// #define PIN_SPI1_SS          PIN_ATRF233_SS
+// #define PERIPH_SPI1          PERIPH_ATRF233
+// #define PAD_SPI1_TX          PAD_ATRF233_TX
+// #define PAD_SPI1_RX          PAD_ATRF233_RX
 
 
 #ifdef __cplusplus

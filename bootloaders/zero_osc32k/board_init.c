@@ -55,10 +55,10 @@ void board_init(void)
   /* Turn on the digital interface clock */
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK; //| PM_APBAMASK_RTC;
 
-
+  //board_init_osc32k();
   //board_init_osc8m();
   board_init_xosc();
-  board_init_dfll48( GCLK_CLKCTRL_GEN_GCLK1 );
+  board_init_dfll48( GENERIC_CLOCK_GENERATOR_OSC32K );
 
   board_init_set_dfll48_as_master();
 
@@ -71,6 +71,55 @@ void board_init(void)
   PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val;
   PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val;
   PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val;
+}
+
+void board_init_osc32k(void)
+{
+    /* ----------------------------------------------------------------------------------------------
+     * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
+     */
+    SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x7u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
+                           SYSCTRL_XOSC32K_ENABLE | 
+                           SYSCTRL_XOSC32K_EN32K |
+                           SYSCTRL_OSC32K_CALIB( 0x12u ) ;
+    SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 15.6.3 */
+
+    while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 )
+    {
+      /* Wait for oscillator stabilization */
+    }
+
+    /* Software reset the module to ensure it is re-initialized correctly */
+    /* Note: Due to synchronization, there is a delay from writing CTRL.SWRST until the reset is complete.
+     * CTRL.SWRST and STATUS.SYNCBUSY will both be cleared when the reset is complete, as described in chapter 13.8.1
+     */
+    GCLK->CTRL.reg = GCLK_CTRL_SWRST;
+
+    while ( (GCLK->CTRL.reg & GCLK_CTRL_SWRST) && (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) )
+    {
+      /* Wait for reset to complete */
+    }
+
+    /* ----------------------------------------------------------------------------------------------
+     * 2) Put OSC32K as source of Generic Clock Generator 1
+     */
+    GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC32K ); // Generic Clock Generator 1
+
+    while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+    {
+      /* Wait for synchronization */
+    }
+
+    /* Write Generic Clock Generator 1 configuration */
+    GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
+                        GCLK_GENCTRL_SRC_OSC32K | // Selected source is External 32KHz Oscillator
+  //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+                        GCLK_GENCTRL_GENEN;
+
+    while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+    {
+      /* Wait for synchronization */
+    }
 }
 
 void board_init_osc8m(void)

@@ -115,7 +115,7 @@ tools.bossac.cmd.windows=bossac.exe
 
 tools.bossac.upload.params.verbose=-i -d
 tools.bossac.upload.params.quiet=
-tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.file} -U {upload.native_usb} -i -e -w -v "{build.path}/{build.project_name}.bin" -R
+tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.file} -U {upload.native_usb} -i -e -w -v -b=1 "{build.path}/{build.project_name}.bin" -R
 
 #
 # OpenOCD sketch upload

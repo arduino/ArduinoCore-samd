@@ -34,7 +34,7 @@
 #define SPI_MODE2 0x03
 #define SPI_MODE3 0x01
 
-#if defined(__SAMD21G18A__)
+#if defined(__SAMD21G18A__) || defined(__SAMR21E18A__)
   // Even if not specified on the datasheet, the SAMD21G18A MCU
   // doesn't operate correctly with clock dividers lower than 4.
   // This allows a theoretical maximum SPI clock speed of 12Mhz
