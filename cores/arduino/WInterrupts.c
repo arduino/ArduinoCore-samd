@@ -57,7 +57,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   uint32_t config;
   uint32_t pos;
 
-#if ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10605
+#if ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606
   EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
 #else
   EExt_Interrupts in = digitalPinToInterrupt(pin);
@@ -120,7 +120,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
  */
 void detachInterrupt(uint32_t pin)
 {
-#if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10605)
+#if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606)
   EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
 #else
   EExt_Interrupts in = digitalPinToInterrupt(pin);
