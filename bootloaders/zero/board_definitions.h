@@ -25,6 +25,8 @@
   #include "board_definitions_arduino_mkr1000.h"
 #elif defined(BOARD_ID_genuino_mkr1000)
   #include "board_definitions_genuino_mkr1000.h"
+#elif defined(BOARD_ID_arduino_mkrzero)
+  #include "board_definitions_arduino_mkrzero.h"
 #else
   #error You must define a BOARD_ID and add the corresponding definitions in board_definitions.h
 #endif

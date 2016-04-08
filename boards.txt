@@ -132,3 +132,32 @@ mkr1000.build.vid=0x2341
 mkr1000.build.pid=0x804e
 mkr1000.bootloader.tool=openocd
 mkr1000.bootloader.file=mkr1000/samd21_sam_ba_arduino_mkr1000.bin
+
+# Arduino MKRZero
+# ---------------
+mkrzero.name=Arduino MKRZero
+mkrzero.vid.0=0x2341
+mkrzero.pid.0=0x804f
+mkrzero.vid.1=0x2341
+mkrzero.pid.1=0x004f
+
+mkrzero.upload.tool=bossac
+mkrzero.upload.protocol=sam-ba
+mkrzero.upload.maximum_size=262144
+mkrzero.upload.use_1200bps_touch=true
+mkrzero.upload.wait_for_upload_port=true
+mkrzero.upload.native_usb=true
+mkrzero.build.mcu=cortex-m0plus
+mkrzero.build.f_cpu=48000000L
+mkrzero.build.usb_product="Arduino MKRZero"
+mkrzero.build.usb_manufacturer="Arduino LLC"
+mkrzero.build.board=SAMD_MKR1000
+mkrzero.build.core=arduino
+mkrzero.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
+mkrzero.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrzero.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrzero.build.variant=mkrzero
+mkrzero.build.vid=0x2341
+mkrzero.build.pid=0x804f
+mkrzero.bootloader.tool=openocd
+mkrzero.bootloader.file=mkrzero/samd21_sam_ba_arduino_mkrzero.bin
