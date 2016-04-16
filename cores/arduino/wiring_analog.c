@@ -34,12 +34,15 @@ static void syncADC() {
     ;
 }
 
+ // ATSAMR, for example, doesn't have a DAC
+#ifdef DAC
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncDAC() __attribute__((always_inline, unused));
 static void syncDAC() {
   while (DAC->STATUS.bit.SYNCBUSY == 1)
     ;
 }
+#endif
 
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncTC_16(Tc* TCx) __attribute__((always_inline, unused));
@@ -138,12 +141,16 @@ uint32_t analogRead(uint32_t pin)
 
   pinPeripheral(pin, PIO_ANALOG);
 
-  if (pin == A0) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
+ // ATSAMR, for example, doesn't have a DAC
+#ifdef DAC
+  if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
+  {
     syncDAC();
     DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
     //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
     syncDAC();
   }
+#endif
 
   syncADC();
   ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
@@ -195,7 +202,9 @@ void analogWrite(uint32_t pin, uint32_t value)
   PinDescription pinDesc = g_APinDescription[pin];
   uint32_t attr = pinDesc.ulPinAttribute;
 
-  if ((attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG)
+ // ATSAMR, for example, doesn't have a DAC
+#ifdef DAC
+  if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
   {
     // DAC handling code
 
@@ -212,6 +221,7 @@ void analogWrite(uint32_t pin, uint32_t value)
     syncDAC();
     return;
   }
+#endif
 
   if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM)
   {
