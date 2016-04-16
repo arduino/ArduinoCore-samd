@@ -279,13 +279,19 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
       {
         if (dir)
         {
-          //wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ1) ? 1 : 0;
+#ifdef __SAMR21G18A__
+          wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ1) ? 1 : 0;
+#else
           wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<1)) ? 1 : 0;
+#endif
         }
         else
         {
-          //wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ0) ? 1 : 0;
+#ifdef __SAMR21G18A__
+          wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ0) ? 1 : 0;
+#else
           wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<0)) ? 1 : 0;
+#endif
         }
         /* Return current status of endpoint */
         USB_Write(pCdc->pUsb, (char *) &wStatus, sizeof(wStatus), USB_EP_CTRL);
@@ -315,13 +321,19 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
         /* Set STALL request for the endpoint */
         if (dir)
         {
-          //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
+#ifdef __SAMR21G18A__
+          pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
+#else
           pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.bit.STALLRQ = (1<<1);
+#endif
         }
         else
         {
-          //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
+#ifdef __SAMR21G18A__
+          pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
+#else
           pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.bit.STALLRQ = (1<<0);
+#endif
         }
 
         /* Send ZLP */
@@ -353,14 +365,24 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
       {
         if (dir)
         {
+#ifdef __SAMR21G18A__
+          if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ1)
+          {
+            // Remove stall request
+            pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ1;
+            if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL1)
+            {
+              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL1 = 1;
+#else
+
           if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<1))
           {
             // Remove stall request
-            //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ1;
             pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.bit.STALLRQ = (1<<1);
             if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL & (1<<1))
             {
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL = (1<<1);
+#endif
               // The Stall has occurred, then reset data toggle
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSSET_DTGLIN;
             }
@@ -368,6 +390,15 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
         }
         else
         {
+#ifdef __SAMR21G18A__
+          if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ0)
+          {
+            // Remove stall request
+            pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ0;
+            if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL0)
+            {
+              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL0 = 1;
+#else
           if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<0))
           {
             // Remove stall request
@@ -376,6 +407,7 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
             if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL & (1<<0))
             {
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL = (1<<0);
+#endif
               // The Stall has occurred, then reset data toggle
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSSET_DTGLOUT;
             }
