@@ -20,7 +20,12 @@
 
 #include <Arduino.h>
 
-#include "SAMD21_USBDevice.h"
+// there are ~slight~ CMSIS differences :/
+#ifdef __SAMR21G18A__
+  #include "SAMR21_USBDevice.h"
+#else
+  #include "SAMD21_USBDevice.h"
+#endif
 #include "PluggableUSB.h"
 
 #include <stdlib.h>
@@ -28,7 +33,11 @@
 #include <stdint.h>
 #include <limits.h>
 
+#ifdef __SAMR21G18A__
+USBDevice_SAMR21G18x usbd;
+#else
 USBDevice_SAMD21G18x usbd;
+#endif
 
 /** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
 #define TX_RX_LED_PULSE_MS 100
