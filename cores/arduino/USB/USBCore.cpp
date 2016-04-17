@@ -90,18 +90,18 @@ bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
 	if (maxlen < 2)
 		return false;
 
-	uint16_t buff[maxlen/2];
-	int l = 1;
+	uint8_t buffer[maxlen];
+	buffer[0] = strlen((const char*)string) * 2 + 2;
+	buffer[1] = 0x03;
 
-	maxlen -= 2;
-	while (*string && maxlen>0)
-	{
-		buff[l++] = (uint8_t)(*string++);
-		maxlen -= 2;
+	uint8_t i;
+	for (i = 2; i < maxlen && *string; i++) {
+		buffer[i++] = *string++;
+		if (i == maxlen) break;
+		buffer[i] = 0;
 	}
-	buff[0] = (3<<8) | (l*2);
 
-	return USBDevice.sendControl((uint8_t*)buff, l*2);
+	return USBDevice.sendControl(buffer, i);
 }
 
 bool _dry_run = false;

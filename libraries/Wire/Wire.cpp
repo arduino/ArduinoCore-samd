@@ -71,6 +71,8 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
   size_t byteRead = 0;
 
+  rxBuffer.clear();
+
   if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
   {
     // Read first data
