@@ -27,8 +27,8 @@
  *----------------------------------------------------------------------------*/
 
 /** Frequency of the board main oscillator */
-//#define VARIANT_MAINOSC     (32768ul)
-//#define VARIANT_MAINOSC     (8000000ul)
+// #define VARIANT_MAINOSC     (32768ul)
+// #define VARIANT_MAINOSC     (8000000ul)
 #define VARIANT_MAINOSC     (12000000ul)
 
 /** Master clock frequency */
@@ -164,9 +164,9 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 /*
  * USB
  */
-#define PIN_USB_HOST_ENABLE (19ul)
-#define PIN_USB_DM          (18ul)
-#define PIN_USB_DP          (17ul)
+#define PIN_USB_HOST_ENABLE (18ul)
+#define PIN_USB_DM          (17ul)
+#define PIN_USB_DP          (16ul)
 #define PIN_USB_VBUS         PIN_USB_HOST_ENABLE
 
  /*
@@ -177,17 +177,21 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_ATRF233_SCK     PIN_SPI_SCK
 #define PIN_ATRF233_SS      PIN_SPI_SS
 
-#define PIN_ATRF233_IRQ     (14u)
-#define PIN_ATRF233_SLP_TR  (15u)
-#define PIN_ATRF233_RST     (16u)
+#define PIN_ATRF233_IRQ     (13u)
+#define PIN_ATRF233_SLP_TR  (14u)
+#define PIN_ATRF233_RST     (15u)
 #define PIN_ATRF233_SEL     PIN_ATRF233_SS
 
 #define PERIPH_ATRF233      PERIPH_SPI
 #define PAD_ATRF233_TX      PAD_SPI_TX
 #define PAD_ATRF233_RX      PAD_SPI_RX
 
-#define MODULE_AT86RF233    0x01
-#define MODULE_AT86RF233_CLOCK (12000000ul)
+#define MODULE_AT86RF233        0x01
+#define MODULE_AT86RF233_CLOCK (6000000ul)
+
+
+#define MMIO_REG(mem_addr, type) (*(volatile type *)(mem_addr))
+#define RFCTRL_FECTRL MMIO_REG(0x42005400, uint16_t)
 
 // #define PIN_SPI1_MOSI        PIN_ATRF233_MOSI
 // #define PIN_SPI1_MISO        PIN_ATRF233_MISO

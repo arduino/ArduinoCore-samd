@@ -56,9 +56,9 @@ void board_init(void)
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK; //| PM_APBAMASK_RTC;
 
   //board_init_osc32k();
-  //board_init_osc8m();
+//  board_init_osc8m();
   board_init_xosc();
-  board_init_dfll48( GENERIC_CLOCK_GENERATOR_OSC32K );
+  board_init_dfll48_closed( GCLK_CLKCTRL_GEN_GCLK1 );
 
   board_init_set_dfll48_as_master();
 
@@ -277,6 +277,79 @@ void board_init_dfll48(unsigned int SOURCE)
     }
 }
 
+void board_init_dfll48_closed(unsigned int SOURCE)
+{
+    /* ----------------------------------------------------------------------------------------------
+     * 3) Put Generic Clock Generator 3 as source for Generic Clock Multiplexer 0 (DFLL48M reference)
+     */
+    GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GENERIC_CLOCK_MULTIPLEXER_DFLL48M ) | // Generic Clock Multiplexer 0
+			SOURCE |
+			GCLK_CLKCTRL_CLKEN ;
+
+    while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+    {
+      /* Wait for synchronization */
+    }
+
+    /* ----------------------------------------------------------------------------------------------
+     * 4) Enable DFLL48M clock
+     */
+
+    /* DFLL Configuration in Closed Loop mode, cf product datasheet chapter 15.6.7.1 - Closed-Loop Operation */
+
+    /* Remove the OnDemand mode, Bug http://avr32.icgroup.norway.atmel.com/bugzilla/show_bug.cgi?id=9905 */
+    SYSCTRL->DFLLCTRL.bit.ONDEMAND = 0;
+
+    while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+    {
+      /* Wait for synchronization */
+    }
+
+    /* get the coarse and fine values stored in NVM */
+    uint32_t coarse = (*(uint32_t *)(0x806024) >> 26);
+    uint32_t fine = (*(uint32_t *)(0x806028) & 0x3FF);
+
+    SYSCTRL->DFLLVAL.bit.COARSE = coarse;
+    SYSCTRL->DFLLVAL.bit.FINE = fine;
+
+
+    // This is required when using closed-loop mode. I'm not sure if it's needed in open loop mode...
+    SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step
+			   SYSCTRL_DFLLMUL_FSTEP( (0xff / 4) ) | // Fine step
+			   SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) );
+
+    while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+    {
+      /* Wait for synchronization */
+    }
+
+    /* Write full configuration to DFLL control register */
+    SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
+			     SYSCTRL_DFLLCTRL_WAITLOCK |
+			     SYSCTRL_DFLLCTRL_QLDIS ; /* Disable Quick lock */
+
+    while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+    {
+      /* Wait for synchronization */
+    }
+
+    /* Enable the DFLL */
+    SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
+
+    // This is only used in closed loop mode.
+    // I couldn't get execution past this when attempting to use closed loop mode.
+    while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
+	    (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
+    {
+      /* Wait for locks flags */
+    }
+
+    while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+    {
+      /* Wait for synchronization */
+    }
+}
+
 void board_init_set_dfll48_as_master(void)
 {
     /* ----------------------------------------------------------------------------------------------
@@ -291,8 +364,8 @@ void board_init_set_dfll48_as_master(void)
 
     /* Write Generic Clock Generator 0 configuration */
     GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | // Generic Clock Generator 0
-				  GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
-    //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+			GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
+    //                    GCLK_GENCTRL_OE | // Output clock to a pin for tests
 			GCLK_GENCTRL_IDC | // Set 50/50 duty cycle
 			GCLK_GENCTRL_GENEN ;
 
