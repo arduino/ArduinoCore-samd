@@ -687,7 +687,7 @@ void SERCOM::initClockNVIC( void )
 
   //Setting clock
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
-                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+                      GCLK_CLKCTRL_GEN_GCLK(0) | // Generic Clock Generator 0 is source
                       GCLK_CLKCTRL_CLKEN ;
 
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )

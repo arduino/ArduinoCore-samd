@@ -183,6 +183,7 @@ typedef enum _EPioType
 
   PIO_PWM=PIO_TIMER,
   PIO_PWM_ALT=PIO_TIMER_ALT,
+  PIO_FECTRL=PIO_TIMER_ALT
 } EPioType ;
 
 /**

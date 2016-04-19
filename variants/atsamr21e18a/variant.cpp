@@ -78,20 +78,21 @@ const PinDescription g_APinDescription[]=
 /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | ATRF233          |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 9          |                  |  PB30  | MOSI            | SERCOM4/PAD[2]
- * | 10         |                  |  PC19  | MISO            | SERCOM4/PAD[0]
- * | 11         |                  |  PC18  | SCK             | SERCOM4/PAD[3]
- * | 12         |                  |  PB31  | SS (/SEL, CS)   | SERCOM4/PAD[1]
+ * | 9          |                  |  PB30  | MOSI            | SERCOM4/PAD[2]   peripheral F
+ * | 10         |                  |  PC19  | MISO            | SERCOM4/PAD[0]   peripheral F
+ * | 11         |                  |  PC18  | SCK             | SERCOM4/PAD[3]   peripheral F
+ * | 12         |                  |  PB31  | SS (/SEL, CS)   | SERCOM4/PAD[1]   peripheral F
+ * |            |                  |        |                 |  
  * | 13         |                  |  PB00  | IRQ             | EXTINT[0]
  * | 14         |                  |  PA20  | SLP_TR          | 
  * | 15         |                  |  PB15  | /RST            | 
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
-  { PORTB, 30, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[2]
-  { PORTC, 19, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[0]
-  { PORTC, 18, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[3]
-  { PORTB, 31, PIO_SERCOM, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4_ALT/PAD[1]
-  // { PORTC, 16, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // GCLK/IO[1]
+  { PORTB, 30, PIO_TIMER_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER_ALT), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4/PAD[2]
+  { PORTC, 19, PIO_TIMER_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER_ALT), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4/PAD[0]
+  { PORTC, 18, PIO_TIMER_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER_ALT), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4/PAD[3]
+  { PORTB, 31, PIO_TIMER_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER_ALT), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SERCOM4/PAD[1]
+
   { PORTB,  0, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_0 }, // EXTINT[0]
   { PORTA, 20, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // 
   { PORTB, 15, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // 
@@ -111,15 +112,19 @@ const PinDescription g_APinDescription[]=
 /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | Antenna          |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 19         |                  |  PA14  | RF1             | FECTRL[4]/DIG3
- * | 20         |                  |  PA15  | RF2             | FECTRL[5]/DIG4
+ * | 19         |                  |  PA09  | RF1             | FECTRL[0]/DIG1   peripheral F
+ * | 20         |                  |  PA12  | RF2             | FECTRL[1]/DIG2   peripheral F
  * | 21         |                  |  PA27  |                 | EXTINT[15]  SERCOM3/PAD[0]   GCLK_IO[0]
+ * | 22         |                  |  PA30  | SWCLK           | SERCOM1/PAD[2] (SERCOM_ALT, peripheral D), TCC1/WO[0]
+ * | 23         |                  |  PA31  | SWDIO           | SERCOM1/PAD[3] (SERCOM_ALT, peripheral D), TCC1/WO[1]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
-  { PORTA, 14, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // DIG3
-  { PORTA, 15, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // DIG3
+  { PORTA,  9, PIO_FECTRL, (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER_ALT), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // DIG1
+  { PORTA,  12, PIO_FECTRL, (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER_ALT), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // DIG2
 
-  { PORTA, 28, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_15 } // USB/VBUS
+  { PORTA, 28, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_15 }//, // USB/VBUS
+  // { PORTA, 30, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SWCLK
+  // { PORTA, 31, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE } // SWDIO
 } ;
 
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 } ;

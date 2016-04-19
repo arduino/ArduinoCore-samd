@@ -112,6 +112,9 @@ void SystemInit( void )
    * 9) Disable automatic NVM write operations
    */
   NVMCTRL->CTRLB.bit.MANW = 1;
+
+
+
 }
 
 void board_init_osc32k(void)

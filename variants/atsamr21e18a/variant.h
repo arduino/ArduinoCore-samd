@@ -141,7 +141,7 @@ static const uint8_t A1  = PIN_A1 ;
 #define PIN_SPI_MOSI         ( 9u) // Tx, PAD 2
 #define PIN_SPI_MISO         (10u) // Rx, PAD 0
 #define PIN_SPI_SCK          (11u) //     PAD 3
-#define PIN_SPI_SS           (12u) //     PAT 1
+#define PIN_SPI_SS           (12u) //     PAD 1
 #define PERIPH_SPI           sercom4
 #define PAD_SPI_TX           SPI_PAD_2_SCK_3
 #define PAD_SPI_RX           SERCOM_RX_PAD_0
@@ -170,6 +170,12 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_USB_VBUS         PIN_USB_HOST_ENABLE
 
  /*
+  * SWD
+  */
+// #define PIN_SWCLK           (22u)
+// #define PIN_SWDIO           (23u)
+
+ /*
  * 802.15.4/ATRF233
  */
 #define PIN_ATRF233_MOSI    PIN_SPI_MOSI
@@ -181,17 +187,15 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_ATRF233_SLP_TR  (14u)
 #define PIN_ATRF233_RST     (15u)
 #define PIN_ATRF233_SEL     PIN_ATRF233_SS
+#define PIN_RF1             (19u)
+#define PIN_RF2             (20u)
 
 #define PERIPH_ATRF233      PERIPH_SPI
 #define PAD_ATRF233_TX      PAD_SPI_TX
 #define PAD_ATRF233_RX      PAD_SPI_RX
 
 #define MODULE_AT86RF233        0x01
-#define MODULE_AT86RF233_CLOCK (6000000ul)
-
-
-#define MMIO_REG(mem_addr, type) (*(volatile type *)(mem_addr))
-#define RFCTRL_FECTRL MMIO_REG(0x42005400, uint16_t)
+#define MODULE_AT86RF233_CLOCK (2000000ul)
 
 // #define PIN_SPI1_MOSI        PIN_ATRF233_MOSI
 // #define PIN_SPI1_MISO        PIN_ATRF233_MISO

@@ -4,18 +4,13 @@
 // Based on https://github.com/msolters/arduino-at86rf233
 #include "at86rf2xx.h"
 
-int received = 0;
-
-int IRQ     = PIN_ATRF233_IRQ;
-int RESET   = PIN_ATRF233_RST;
-int SLP_TR  = PIN_ATRF233_SLP_TR;
-int SEL     = PIN_ATRF233_SEL;
+volatile int received = 0;
 
 void setup() {
   while(!Serial);
   
   Serial.begin(9600);
-  at86rf2xx.init(SEL, IRQ, SLP_TR, RESET);
+  at86rf2xx.init(PIN_ATRF233_SEL, PIN_ATRF233_IRQ, PIN_ATRF233_SLP_TR, PIN_ATRF233_RST);
   at86rf2xx.set_chan(26); // set channel to 26
   
 }
@@ -27,6 +22,7 @@ void loop() {
 }
 
 void at86rf2xx_eventHandler() {
+  Serial.println("*");
   /* One less event to handle! */
   at86rf2xx.events--;
 
