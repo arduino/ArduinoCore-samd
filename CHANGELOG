@@ -3,6 +3,7 @@ SAMD CORE 1.6.6
 * Fixed digitalPinToInterrupt() macro, now it works as documented.
 * Added analogInputToDigitalPin macro
 * Fixed NUM_DIGITAL_PINS for Zero Board.
+* On-board RX-TX LEDs now blinks when there is activity on the native USB port
 
 SAMD CORE 1.6.5 2016.04.02
 
