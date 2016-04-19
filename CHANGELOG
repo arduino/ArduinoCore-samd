@@ -1,3 +1,9 @@
+SAMD CORE 1.6.6
+
+* Fixed digitalPinToInterrupt() macro, now it works as documented.
+* Added analogInputToDigitalPin macro
+* Fixed NUM_DIGITAL_PINS for Zero Board.
+
 SAMD CORE 1.6.5 2016.04.02
 
 * Added Arduino/Genuino MKR1000 board
