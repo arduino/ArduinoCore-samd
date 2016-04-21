@@ -5,13 +5,19 @@
 #include "at86rf2xx.h"
 
 volatile int received = 0;
+uint16_t pan_id       = 0x4567;
+uint16_t address      = 0; // Set to zero for first device, other devices are at 1 and up.
+uint8_t  channel      = 26;
 
 void setup() {
   while(!Serial);
   
   Serial.begin(9600);
   at86rf2xx.init(PIN_ATRF233_SEL, PIN_ATRF233_IRQ, PIN_ATRF233_SLP_TR, PIN_ATRF233_RST);
-  at86rf2xx.set_chan(26); // set channel to 26
+
+  at86rf2xx.set_addr_short(address);
+  at86rf2xx.set_pan(pan_id);
+  at86rf2xx.set_chan(channel);
   
 }
 
@@ -22,7 +28,7 @@ void loop() {
 }
 
 void at86rf2xx_eventHandler() {
-  Serial.println("*");
+  
   /* One less event to handle! */
   at86rf2xx.events--;
 

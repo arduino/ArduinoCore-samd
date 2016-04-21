@@ -146,6 +146,10 @@ static const uint8_t A1  = PIN_A1 ;
 #define PAD_SPI_TX           SPI_PAD_2_SCK_3
 #define PAD_SPI_RX           SERCOM_RX_PAD_0
 
+#define PIN_SPI_IRQ         (13u)
+#define PIN_SPI_SLEEP_TR    (14u)
+#define PIN_SPI_RESET       (15u)
+
 static const uint8_t SS   = PIN_SPI_SS  ;
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
