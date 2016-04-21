@@ -7,6 +7,7 @@ SAMD CORE 1.6.6
 * Fixed platform.txt, the core now compiles again with Arduino IDE <=1.6.5. Thanks @per1234
 * Fixed Wire.write(0x00) "ambiguos method" error
 * String class now supports iterators. Thanks @Chris--A
+* Remove enabling bootloader protection when burning bootloader. This enables WDT, so sketches do not work.
 
 SAMD CORE 1.6.5 2016.04.02
 
