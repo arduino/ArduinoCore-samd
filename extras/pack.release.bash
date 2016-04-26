@@ -29,5 +29,5 @@ cd ..
 tar --transform "s|$FOLDERNAME|$FOLDERNAME-$VERSION|g"  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf atsamd21e18a-$VERSION.tar.bz2 $FOLDERNAME
 cd -
 
-mv ../atsamd21e18a-$VERSION.tar.bz2 .
+#mv ../atsamd21e18a-$VERSION.tar.bz2 .
 
