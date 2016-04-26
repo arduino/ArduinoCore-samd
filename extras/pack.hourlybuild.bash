@@ -36,7 +36,7 @@ cd ..
 tar --transform "s|$FOLDERNAME|atsamd21e18a-hourly_b${BUILD_NUMBER}|g"  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf $FILENAME $FOLDERNAME
 cd -
 
-#mv ../$FILENAME .
+mv ../$FILENAME .
 
 CHKSUM=`sha256sum $FILENAME | awk '{ print $1 }'`
 SIZE=`wc -c $FILENAME | awk '{ print $1 }'`
@@ -48,4 +48,6 @@ sed "s/%%VERSION%%/${VERSION}/" |
 sed "s/%%FILENAME%%/${FILENAME}/" |
 sed "s/%%CHECKSUM%%/${CHKSUM}/" |
 sed "s/%%SIZE%%/${SIZE}/" > package_atsamd21e18a-hourly-build_index.json
+
+mv $FILENAME ../
 
