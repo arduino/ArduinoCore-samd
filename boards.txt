@@ -1,5 +1,10 @@
 # Copyright (c) 2014-2015 Arduino LLC.  All right reserved.
 #
+# This package for the Atmel SAM D21E/R21E was derrived from the
+# Arduino Zero board package, and made by A. Albino <aalbino@femtoduino.com>
+# Please note, it includes my modified version of Atmel's samr21 header/source files 
+# to fix some bugs in the original implementation of USB and CMSIS headers
+#
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
 # License as published by the Free Software Foundation; either
@@ -13,125 +18,6 @@
 # You should have received a copy of the GNU Lesser General Public
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-
-# Arduino/Genuino Zero (Prorgamming Port)
-# ---------------------------------------
-#arduino_zero_edbg.name=Arduino/Genuino Zero (Programming Port)
-#arduino_zero_edbg.vid.0=0x03eb
-#arduino_zero_edbg.pid.0=0x2157
-
-#arduino_zero_edbg.upload.tool=openocd
-#arduino_zero_edbg.upload.protocol=sam-ba
-#arduino_zero_edbg.upload.maximum_size=262144
-#arduino_zero_edbg.upload.use_1200bps_touch=false
-#arduino_zero_edbg.upload.wait_for_upload_port=false
-#arduino_zero_edbg.upload.native_usb=false
-#arduino_zero_edbg.build.mcu=cortex-m0plus
-#arduino_zero_edbg.build.f_cpu=48000000L
-#arduino_zero_edbg.build.usb_product="Arduino Zero"
-#arduino_zero_edbg.build.usb_manufacturer="Arduino LLC"
-#arduino_zero_edbg.build.board=SAMD_ZERO
-#arduino_zero_edbg.build.core=arduino
-#arduino_zero_edbg.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
-#arduino_zero_edbg.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-#arduino_zero_edbg.build.openocdscript=openocd_scripts/arduino_zero.cfg
-#arduino_zero_edbg.build.variant=arduino_zero
-#arduino_zero_edbg.build.variant_system_lib=
-#arduino_zero_edbg.build.vid=0x2341
-#arduino_zero_edbg.build.pid=0x804d
-#arduino_zero_edbg.bootloader.tool=openocd
-#arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
-
-# Arduino/Genuino Zero (Native USB Port)
-# ---------------------------------------
-#arduino_zero_native.name=Arduino/Genuino Zero (Native USB Port)
-#arduino_zero_native.vid.0=0x2341
-#arduino_zero_native.pid.0=0x804d
-#arduino_zero_native.vid.1=0x2341
-#arduino_zero_native.pid.1=0x004d
-
-#arduino_zero_native.vid.2=0x2341
-#arduino_zero_native.pid.2=0x824d
-# If the board is a 2341:824d use 2341:824d for build and set other parameters as well
-#arduino_zero_native.vid.2.build.vid=0x2341
-#arduino_zero_native.vid.2.build.pid=0x824d
-#arduino_zero_native.vid.2.build.usb_product="Genuino Zero"
-#arduino_zero_native.vid.2.bootloader.file=zero/samd21_sam_ba_genuino.bin
-
-#arduino_zero_native.vid.3=0x2341
-#arduino_zero_native.pid.3=0x024d
-# If the board is a 2341:024d use 2341:824d for build and set other parameters as well
-#arduino_zero_native.vid.3.build.vid=0x2341
-#arduino_zero_native.vid.3.build.pid=0x824d
-#arduino_zero_native.vid.3.build.usb_product="Genuino Zero"
-#arduino_zero_native.vid.3.bootloader.file=zero/samd21_sam_ba_genuino.bin
-
-#arduino_zero_native.upload.tool=bossac
-#arduino_zero_native.upload.protocol=sam-ba
-#arduino_zero_native.upload.maximum_size=262144
-#arduino_zero_native.upload.use_1200bps_touch=true
-#arduino_zero_native.upload.wait_for_upload_port=true
-#arduino_zero_native.upload.native_usb=true
-#arduino_zero_native.build.mcu=cortex-m0plus
-#arduino_zero_native.build.f_cpu=48000000L
-#arduino_zero_native.build.usb_product="Arduino Zero"
-#arduino_zero_native.build.usb_manufacturer="Arduino LLC"
-#arduino_zero_native.build.board=SAMD_ZERO
-#arduino_zero_native.build.core=arduino
-#arduino_zero_native.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
-#arduino_zero_native.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-#arduino_zero_native.build.openocdscript=openocd_scripts/arduino_zero.cfg
-#arduino_zero_native.build.variant=arduino_zero
-#arduino_zero_native.build.variant_system_lib=
-#arduino_zero_native.build.vid=0x2341
-#arduino_zero_native.build.pid=0x804d
-#arduino_zero_native.bootloader.tool=openocd
-#arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
-
-# Arduino/Genuino MKR1000
-# ---------------------------------------
-#mkr1000.name=Arduino/Genuino MKR1000
-#mkr1000.vid.0=0x2341
-#mkr1000.pid.0=0x804e
-#mkr1000.vid.1=0x2341
-#mkr1000.pid.1=0x004e
-
-#mkr1000.vid.2=0x2341
-#mkr1000.pid.2=0x824e
-# If the board is a 2341:824e use 2341:824e for build and set other parameters as well
-#mkr1000.vid.2.build.vid=0x2341
-#mkr1000.vid.2.build.pid=0x824e
-#mkr1000.vid.2.build.usb_product="Genuino MKR1000"
-#mkr1000.vid.2.bootloader.file=mkr1000/samd21_sam_ba_genuino_mkr1000.bin
-
-#mkr1000.vid.3=0x2341
-#mkr1000.pid.3=0x024e
-# If the board is a 2341:024e use 2341:824e for build and set other parameters as well
-#mkr1000.vid.3.build.vid=0x2341
-#mkr1000.vid.3.build.pid=0x824e
-#mkr1000.vid.3.build.usb_product="Genuino MKR1000"
-#mkr1000.vid.3.bootloader.file=mkr1000/samd21_sam_ba_genuino_mkr1000.bin
-
-#mkr1000.upload.tool=bossac
-#mkr1000.upload.protocol=sam-ba
-#mkr1000.upload.maximum_size=262144
-#mkr1000.upload.use_1200bps_touch=true
-#mkr1000.upload.wait_for_upload_port=true
-#mkr1000.upload.native_usb=true
-#mkr1000.build.mcu=cortex-m0plus
-#mkr1000.build.f_cpu=48000000L
-#mkr1000.build.usb_product="Arduino MKR1000"
-#mkr1000.build.usb_manufacturer="Arduino LLC"
-#mkr1000.build.board=SAMD_MKR1000
-#mkr1000.build.core=arduino
-#mkr1000.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
-#mkr1000.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-#mkr1000.build.openocdscript=openocd_scripts/arduino_zero.cfg
-#mkr1000.build.variant=mkr1000
-#mkr1000.build.vid=0x2341
-#mkr1000.build.pid=0x804e
-#mkr1000.bootloader.tool=openocd
-#mkr1000.bootloader.file=mkr1000/samd21_sam_ba_arduino_mkr1000.bin
 
 # Atmel ATSAMD21E18A (Prorgamming Port)
 # ---------------------------------------
