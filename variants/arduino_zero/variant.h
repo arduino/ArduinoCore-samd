@@ -96,6 +96,7 @@ extern "C"
 #define PIN_A5               (19ul)
 #define PIN_A6               (8ul)
 #define PIN_A7               (9ul)
+#define PIN_DAC0             (14ul)
 
 static const uint8_t A0  = PIN_A0 ;
 static const uint8_t A1  = PIN_A1 ;
