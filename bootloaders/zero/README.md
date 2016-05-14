@@ -9,6 +9,10 @@ Multi-plaform GCC is provided by ARM here: https://launchpad.net/gcc-arm-embedde
 
 Atmel Studio contains both make and ARM GCC toolchain. You don't need to install them in this specific use case.
 
+For all builds and platforms you will need to have the Arduino IDE installed and the board support
+package for "Arduino SAMD Boards (32-bits ARM Cortex-M0+)". You can install the latter
+from the former's "Boards Manager" UI.
+
 ### Windows
 
 * Native command line

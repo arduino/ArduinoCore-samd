@@ -44,8 +44,8 @@ typedef int16_t prog_int16_t;
 typedef uint16_t prog_uint16_t;
 typedef int32_t prog_int32_t;
 typedef uint32_t prog_uint32_t;
-typedef int32_t prog_int64_t;
-typedef uint32_t prog_uint64_t;
+typedef int64_t prog_int64_t;
+typedef uint64_t prog_uint64_t;
 
 typedef const void* int_farptr_t;
 typedef const void* uint_farptr_t;
