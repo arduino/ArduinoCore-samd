@@ -20,6 +20,8 @@ e-mail   :  support@circuitsathome.com
 #else
 #define __PRINTHEX_H__
 
+#include <Arduino.h>
+
 void E_Notifyc(char c, int lvl);
 
 template <class T>

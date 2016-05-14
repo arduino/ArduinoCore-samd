@@ -37,6 +37,14 @@ USBDevice_SAMR21G18x usbd;
 USBDevice_SAMD21G18x usbd;
 #endif
 
+/** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
+#define TX_RX_LED_PULSE_MS 100
+#ifdef PIN_LED_TXL
+static volatile uint8_t txLEDPulse; /**< Milliseconds remaining for data Tx LED pulse */
+#endif
+#ifdef PIN_LED_RXL
+static volatile uint8_t rxLEDPulse; /**< Milliseconds remaining for data Rx LED pulse */
+#endif
 static char isRemoteWakeUpEnabled = 0;
 static char isEndpointHalt = 0;
 
@@ -99,18 +107,18 @@ bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
 	if (maxlen < 2)
 		return false;
 
-	uint16_t buff[maxlen/2];
-	int l = 1;
+	uint8_t buffer[maxlen];
+	buffer[0] = strlen((const char*)string) * 2 + 2;
+	buffer[1] = 0x03;
 
-	maxlen -= 2;
-	while (*string && maxlen>0)
-	{
-		buff[l++] = (uint8_t)(*string++);
-		maxlen -= 2;
+	uint8_t i;
+	for (i = 2; i < maxlen && *string; i++) {
+		buffer[i++] = *string++;
+		if (i == maxlen) break;
+		buffer[i] = 0;
 	}
-	buff[0] = (3<<8) | (l*2);
 
-	return USBDevice.sendControl((uint8_t*)buff, l*2);
+	return USBDevice.sendControl(buffer, i);
 }
 
 bool _dry_run = false;
@@ -282,6 +290,18 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 
 void USBDeviceClass::init()
 {
+#ifdef PIN_LED_TXL
+	txLEDPulse = 0;
+	pinMode(PIN_LED_TXL, OUTPUT);
+	digitalWrite(PIN_LED_TXL, HIGH);
+#endif
+
+#ifdef PIN_LED_RXL
+	rxLEDPulse = 0;
+	pinMode(PIN_LED_RXL, OUTPUT);
+	digitalWrite(PIN_LED_RXL, HIGH);
+#endif
+
 	// Enable USB clock
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
@@ -531,6 +551,11 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 	if (available(ep) < len)
 		len = available(ep);
 
+#ifdef PIN_LED_RXL
+	digitalWrite(PIN_LED_RXL, LOW);
+	rxLEDPulse = TX_RX_LED_PULSE_MS;
+#endif
+
 	armRecv(ep);
 
 	usbd.epBank0DisableTransferComplete(ep);
@@ -627,6 +652,11 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		}
 		return 0;
 	}
+#endif
+
+#ifdef PIN_LED_TXL
+	digitalWrite(PIN_LED_TXL, LOW);
+	txLEDPulse = TX_RX_LED_PULSE_MS;
 #endif
 
 	// Flash area
@@ -835,6 +865,17 @@ void USBDeviceClass::ISRHandler()
 	if (usbd.isStartOfFrameInterrupt())
 	{
 		usbd.ackStartOfFrameInterrupt();
+
+		// check whether the one-shot period has elapsed.  if so, turn off the LED
+#ifdef PIN_LED_TXL
+		if (txLEDPulse && !(--txLEDPulse))
+			digitalWrite(PIN_LED_TXL, HIGH);
+#endif
+
+#ifdef PIN_LED_RXL
+		if (rxLEDPulse && !(--rxLEDPulse))
+			digitalWrite(PIN_LED_RXL, HIGH);
+#endif
 	}
 
 	// Endpoint 0 Received Setup interrupt
