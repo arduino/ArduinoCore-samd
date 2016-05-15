@@ -53,10 +53,11 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (26u)
-#define NUM_DIGITAL_PINS     (20u)
+#define PINS_COUNT           (50u)
+#define NUM_DIGITAL_PINS     (50u)
+
 #define NUM_ANALOG_INPUTS    (8u)
-#define NUM_ANALOG_OUTPUTS   (1u)
+#define NUM_ANALOG_OUTPUTS   (0u)
 #define analogInputToDigitalPin(p)  ((p < 6u) ? (p) + 14u : -1)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
@@ -112,6 +113,17 @@ static const uint8_t A7  = PIN_A7 ;
 #define PIN_ATN              (38ul)
 static const uint8_t ATN = PIN_ATN;
 
+
+// Other pins
+#define PIN_ATRF_RESETN   44
+#define PIN_ATRF_CLKM     45
+#define PIN_ATRF_SLPTR    6
+#define PIN_ATRF_SCLK         (46u)
+#define PIN_ATRF_MISO         (47u)
+#define PIN_ATRF_MOSI         (48u)
+#define PIN_ATRF_SEL          (49u)
+
+
 /*
  * Serial interfaces
  */
@@ -125,8 +137,9 @@ static const uint8_t ATN = PIN_ATN;
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 1
+#define SPI_INTERFACES_COUNT 2
 
+  // "external" SPI, used for sensors, displays, available to user
 #define PIN_SPI_MISO         (2u)
 #define PIN_SPI_MOSI         (22u)
 #define PIN_SPI_SCK          (38u)
@@ -138,6 +151,20 @@ static const uint8_t SS	  = PIN_A2 ;	// SERCOM4 last PAD is present on A2 but HW
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
+
+  // "internal" SPI, used for AT86RF233 only!
+#define PIN_SPI1_MISO         (47u)
+#define PIN_SPI1_MOSI         (48u)
+#define PIN_SPI1_SCK          (46u)
+#define PIN_SPI1_SEL          (49u)
+#define PERIPH_SPI1           sercom4
+#define PAD_SPI1_TX           SPI_PAD_2_SCK_3
+#define PAD_SPI1_RX           SERCOM_RX_PAD_0
+
+static const uint8_t SS1   = PIN_SPI1_SEL ;
+static const uint8_t MOSI1 = PIN_SPI_MOSI ;
+static const uint8_t MISO1 = PIN_SPI_MISO ;
+static const uint8_t SCK1  = PIN_SPI_SCK ;
 
 /*
  * Wire Interfaces
@@ -180,7 +207,6 @@ extern SERCOM sercom3;
 extern SERCOM sercom4;
 extern SERCOM sercom5;
 
-extern Uart Serial5;
 extern Uart Serial1;
 
 #endif
