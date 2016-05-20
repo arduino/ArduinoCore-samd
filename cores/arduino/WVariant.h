@@ -70,24 +70,22 @@ typedef enum _ETCChannel
   TCC2_CH1 = (2<<8)|(1),
   TCC2_CH2 = (2<<8)|(0), // Channel 2 is 0!
   TCC2_CH3 = (2<<8)|(1), // Channel 3 is 1!
-#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+  TC0_CH0  = (0<<8)|(0),
+  TC0_CH1  = (0<<8)|(1),
   TC1_CH0  = (1<<8)|(0),
   TC1_CH1  = (1<<8)|(1),
   TC2_CH0  = (2<<8)|(0),
   TC2_CH1  = (2<<8)|(1),
-#endif
   TC3_CH0  = (3<<8)|(0),
   TC3_CH1  = (3<<8)|(1),
   TC4_CH0  = (4<<8)|(0),
   TC4_CH1  = (4<<8)|(1),
   TC5_CH0  = (5<<8)|(0),
   TC5_CH1  = (5<<8)|(1),
-#if defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
   TC6_CH0  = (6<<8)|(0),
   TC6_CH1  = (6<<8)|(1),
   TC7_CH0  = (7<<8)|(0),
   TC7_CH1  = (7<<8)|(1)
-#endif
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;

@@ -90,6 +90,10 @@ DC Current per I/O Pin	|	7 mA										|	7 mA
   1.6.6-mt1 corresponds to Arduino SAMD CORE 1.6.2 plus some pull requests.
 
 
+## Differences Between MattairTech and Arduino Cores
+* TODO
+
+
 ## Pin Configurations
 
 Most pins have multiple configurations available (even analog pins). For example, pin A10 on the MT-D21E can be an analog
