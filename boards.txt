@@ -288,6 +288,64 @@ mattairtech_mt_d11.bootloader.tool=arduino:openocd
 mattairtech_mt_d11.bootloader.file=zero/samd11d14am_sam_ba.bin
 
 
+# MattairTech MT-D11 (no bootloader)
+mattairtech_mt_d11_bl0k.name=MattairTech MT-D11 (no bootloader)
+mattairtech_mt_d11_bl0k.vid.0=0x16D0
+mattairtech_mt_d11_bl0k.pid.0=0x0557
+mattairtech_mt_d11_bl0k.vid.1=0x16D0
+mattairtech_mt_d11_bl0k.pid.1=0x0856
+mattairtech_mt_d11_bl0k.upload.tool=MattairTech_Arduino:bossac
+mattairtech_mt_d11_bl0k.upload.protocol=sam-ba
+mattairtech_mt_d11_bl0k.upload.use_1200bps_touch=true
+mattairtech_mt_d11_bl0k.upload.wait_for_upload_port=true
+mattairtech_mt_d11_bl0k.upload.native_usb=true
+mattairtech_mt_d11_bl0k.upload.maximum_size=16384
+mattairtech_mt_d11_bl0k.build.extra_flags=-D__SAMD11D14AM__ -D__NO_BOOTLOADER__ {build.usb_flags}
+mattairtech_mt_d11_bl0k.build.ldscript=linker_scripts/gcc/SAMD11D14AM_without_bootloader.ld
+mattairtech_mt_d11_bl0k.build.openocdscript=openocd_scripts/SAMD11D14AM.cfg
+mattairtech_mt_d11_bl0k.build.mcu=cortex-m0plus
+mattairtech_mt_d11_bl0k.build.f_cpu=48000000L
+mattairtech_mt_d11_bl0k.build.usb_product="MT-D11"
+mattairtech_mt_d11_bl0k.build.usb_manufacturer="MattairTech"
+mattairtech_mt_d11_bl0k.build.board=CDC_UART
+mattairtech_mt_d11_bl0k.menu.com.cdc_uart=CDC_UART
+mattairtech_mt_d11_bl0k.menu.com.cdc_uart.build.board=CDC_UART
+mattairtech_mt_d11_bl0k.menu.com.cdc_uart.build.pid=0x0557
+mattairtech_mt_d11_bl0k.menu.com.cdc_hid_uart=CDC_HID_UART
+mattairtech_mt_d11_bl0k.menu.com.cdc_hid_uart.build.board=CDC_HID_UART
+mattairtech_mt_d11_bl0k.menu.com.cdc_hid_uart.build.pid=0x0856
+mattairtech_mt_d11_bl0k.menu.com.cdc_hid=CDC_HID
+mattairtech_mt_d11_bl0k.menu.com.cdc_hid.build.board=CDC_HID
+mattairtech_mt_d11_bl0k.menu.com.cdc_hid.build.pid=0x0856
+mattairtech_mt_d11_bl0k.menu.com.cdc=CDC_ONLY
+mattairtech_mt_d11_bl0k.menu.com.cdc.build.board=CDC_ONLY
+mattairtech_mt_d11_bl0k.menu.com.cdc.build.pid=0x0557
+mattairtech_mt_d11_bl0k.menu.com.cdc_midi_hid_uart=CDC_MIDI_HID_UART
+mattairtech_mt_d11_bl0k.menu.com.cdc_midi_hid_uart.build.board=CDC_MIDI_HID_UART
+mattairtech_mt_d11_bl0k.menu.com.cdc_midi_hid_uart.build.pid=0x0B34
+# mattairtech_mt_d11_bl0k.menu.com.cdc_msd_hid_uart=CDC_MSD_HID_UART
+# mattairtech_mt_d11_bl0k.menu.com.cdc_msd_hid_uart.build.board=CDC_MSD_HID_UART
+# mattairtech_mt_d11_bl0k.menu.com.cdc_msd_hid_uart.build.pid=0x0B40
+# mattairtech_mt_d11_bl0k.menu.com.cdc_msd_midi_hid_uart=CDC_MSD_MIDI_HID_UART
+# mattairtech_mt_d11_bl0k.menu.com.cdc_msd_midi_hid_uart.build.board=CDC_MSD_MIDI_HID_UART
+# mattairtech_mt_d11_bl0k.menu.com.cdc_msd_midi_hid_uart.build.pid=0x0B41
+# mattairtech_mt_d11_bl0k.menu.com.msd_uart=MSD_UART
+# mattairtech_mt_d11_bl0k.menu.com.msd_uart.build.board=MSD_UART
+# mattairtech_mt_d11_bl0k.menu.com.msd_uart.build.pid=0x0A0C
+mattairtech_mt_d11_bl0k.menu.com.uart=UART_ONLY
+mattairtech_mt_d11_bl0k.menu.com.uart.build.board=UART_ONLY
+mattairtech_mt_d11_bl0k.menu.com.uart.build.pid=0x0856
+mattairtech_mt_d11_bl0k.menu.com.none=USB_UART_DISABLED
+mattairtech_mt_d11_bl0k.menu.com.none.build.board=USB_UART_DISABLED
+mattairtech_mt_d11_bl0k.menu.com.none.build.pid=0x0856
+mattairtech_mt_d11_bl0k.build.core=arduino
+mattairtech_mt_d11_bl0k.build.variant=MT_D11
+mattairtech_mt_d11_bl0k.build.variant_system_lib=
+mattairtech_mt_d11_bl0k.build.vid=0x16D0
+mattairtech_mt_d11_bl0k.build.pid=0x0856
+mattairtech_mt_d11_bl0k.bootloader.tool=arduino:openocd
+mattairtech_mt_d11_bl0k.bootloader.file=zero/samd11d14am_sam_ba.bin
+
 
 # MattairTech Core for Arduino Zero (8KB bootloader, Native USB Port)
 arduino_zero_native.name=Arduino Zero (Native USB Port)

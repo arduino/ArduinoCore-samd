@@ -35,6 +35,8 @@ twice in quick succession. If so, bootloader execution is resumed Second, the bo
 checks the state of BOOT_LOAD_PIN (configurable by the user from main.h). If BOOT_LOAD_PIN
 is pulled low, bootloader execution is resumed. Finally, the first location of application
 is fetched and checked. If it is empty (0xFFFFFFFF), then bootloader execution is resumed.
+Note that when Arduino auto-reset (into bootloader) is initiated, the first flash row is
+erased, so the bootloader will always run after reset until a new sketch is transferred.
 Otherwise, it jumps to application and starts execution from there. The LED will light
 during bootloader execution.
 
