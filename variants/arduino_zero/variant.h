@@ -74,8 +74,6 @@ extern "C"
  */
 // #define digitalPinToTimer(P)
 
-// Interrupts
-#define digitalPinToInterrupt(P)   ( g_APinDescription[P].ulExtInt )
 
 // LEDs
 #define PIN_LED_13           (13u)

@@ -88,9 +88,6 @@ extern "C"
  */
 // #define digitalPinToTimer(P)
 
-// Interrupts
-#define digitalPinToInterrupt(P)   ( g_APinDescription[P].ulExtInt )
-
 
 /* LEDs
  * None of these defines are currently used by the core.

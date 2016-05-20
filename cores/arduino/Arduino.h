@@ -20,6 +20,8 @@
 #ifndef Arduino_h
 #define Arduino_h
 
+#define MATTAIRTECH_CORE
+
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
@@ -113,6 +115,9 @@ void loop( void ) ;
 #define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 
 #define bit(b) (1UL << (b))
+
+// Interrupts
+#define digitalPinToInterrupt(P)   ( P )
 
 // USB Device
 #include "USB/USBDesc.h"

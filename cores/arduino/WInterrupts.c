@@ -61,7 +61,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   if (pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK)
     return;
   
-  EExt_Interrupts in = digitalPinToInterrupt(pin);
+  EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
   if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
@@ -114,7 +114,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
  */
 void detachInterrupt(uint32_t pin)
 {
-  EExt_Interrupts in = digitalPinToInterrupt(pin);
+  EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
   if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
