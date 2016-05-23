@@ -123,7 +123,7 @@ uint32_t USBHost::SetPipeAddress(uint32_t addr, uint32_t ep, EpInfo **ppep, uint
 /* 01-0f    =   non-zero HRSLT  */
 uint32_t USBHost::ctrlReq(uint32_t addr, uint32_t ep, uint8_t bmReqType, uint8_t bRequest, uint8_t wValLo, uint8_t wValHi,
                           uint16_t wInd, uint16_t total, uint32_t nbytes, uint8_t* dataptr, USBReadParser *p) {
-
+	
 	uint32_t direction = 0; // Request direction, IN or OUT
 	uint32_t rcode;
 	SETUP_PKT setup_pkt;
@@ -194,14 +194,14 @@ uint32_t USBHost::ctrlReq(uint32_t addr, uint32_t ep, uint8_t bmReqType, uint8_t
 				((USBReadParser*)p)->Parse(read, dataptr, total - left);
 		}
 		else // OUT transfer
-		{
+		{			
 			pep->bmSndToggle = 1; //bmSNDTOG1;
 			rcode = OutTransfer(pep, nak_limit, nbytes, dataptr);
 		}
 		if(rcode) //return error
 			return (rcode);
 	}
-
+	
 	// Status stage
 	UHD_Pipe_CountZero(pep->epAddr);
 	USB->HOST.HostPipe[pep->epAddr].PSTATUSSET.reg = USB_HOST_PSTATUSSET_DTGL;
@@ -263,17 +263,16 @@ uint32_t USBHost::InTransfer(EpInfo *pep, uint32_t nak_limit, uint8_t *nbytesptr
 		}
         if(rcode) {
                 uhd_freeze_pipe(pep->epAddr);
-
                 //printf(">>>>>>>> Problem! dispatchPkt %2.2x\r\n", rcode);
                 return(rcode);// break; //should be 0, indicating ACK. Else return error code.
         }
         /* check for RCVDAVIRQ and generate error if not present */
         /* the only case when absence of RCVDAVIRQ makes sense is when toggle error occurred. Need to add handling for that */
-
+				
 		pktsize = uhd_byte_count(pep->epAddr); // Number of received bytes
-
+		
 		USB->HOST.HostPipe[pep->epAddr].PSTATUSCLR.reg = USB_HOST_PSTATUSCLR_BK0RDY;
-
+        
 		//printf("Got %i bytes \r\n", pktsize);
 		// This would be OK, but...
 		//assert(pktsize <= nbytes);
@@ -298,7 +297,7 @@ uint32_t USBHost::InTransfer(EpInfo *pep, uint32_t nak_limit, uint8_t *nbytesptr
         /* 1. The device sent a short packet (L.T. maxPacketSize)   */
         /* 2. 'nbytes' have been transferred.                       */
         if((pktsize < maxpktsize) || (*nbytesptr >= nbytes)) // have we transferred 'nbytes' bytes?
-		{
+		{					 
             // Save toggle value
             pep->bmRcvToggle = USB_HOST_DTGL(pep->epAddr);
             //printf("\r\n");
@@ -506,7 +505,7 @@ void USBHost::Task(void) //USB state machine
 			TRACE_USBHOST(printf(" + USB_DETACHED_SUBSTATE_INITIALIZE\r\n");)
 
 			// Init USB stack and driver
-			Init();
+			UHD_Init();
 
 			// Free all USB resources
 			for (uint32_t i = 0; i < USB_NUMDEVICES; ++i)
