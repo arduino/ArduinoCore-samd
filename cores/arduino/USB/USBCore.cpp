@@ -605,6 +605,7 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep)
 // Blocking Send of data to an endpoint
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
+	uint32_t written = 0;
 	uint32_t length = 0;
 
 	if (!_usbConfiguration)
@@ -675,10 +676,11 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		while (!usbd.epBank1IsTransferComplete(ep)) {
 			;  // need fire exit.
 		}
+		written += length;
 		len -= length;
 		data = (char *)data + length;
 	}
-	return len;
+	return written;
 }
 
 uint32_t USBDeviceClass::armSend(uint32_t ep, const void* data, uint32_t len)
