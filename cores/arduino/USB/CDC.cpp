@@ -262,7 +262,7 @@ size_t Serial_::write(const uint8_t *buffer, size_t size)
 	{
 		uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);
 
-		if (r == 0) {
+		if (r > 0) {
 			return r;
 		} else {
 			setWriteError();
