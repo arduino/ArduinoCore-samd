@@ -36,7 +36,6 @@ USBHost::USBHost() : bmHubPre(0) {
 uint32_t USBHost::Init() {
 	//devConfigIndex	= 0;
 	// Init host stack
-	init();
 	bmHubPre		= 0;
 	UHD_Init();
 	return 0;
@@ -263,6 +262,7 @@ uint32_t USBHost::InTransfer(EpInfo *pep, uint32_t nak_limit, uint8_t *nbytesptr
             continue;
 		}
         if(rcode) {
+                uhd_freeze_pipe(pep->epAddr);
                 //printf(">>>>>>>> Problem! dispatchPkt %2.2x\r\n", rcode);
                 return(rcode);// break; //should be 0, indicating ACK. Else return error code.
         }
@@ -305,6 +305,7 @@ uint32_t USBHost::InTransfer(EpInfo *pep, uint32_t nak_limit, uint8_t *nbytesptr
             break;
 		} // if
 	} //while( 1 )
+	uhd_freeze_pipe(pep->epAddr);
 	return ( rcode);
 }
 
@@ -423,6 +424,16 @@ uint32_t USBHost::dispatchPkt(uint32_t token, uint32_t epAddr, uint32_t nak_limi
 		}
 
 		//case hrNAK:
+		if((USB->HOST.HostPipe[epAddr].PINTFLAG.reg & USB_HOST_PINTFLAG_TRFAIL) ) {
+			USB->HOST.HostPipe[epAddr].PINTFLAG.reg = USB_HOST_PINTFLAG_TRFAIL;
+			nak_count++;
+			if(nak_limit && (nak_count == nak_limit)) {
+				rcode = USB_ERRORFLOW;
+				return (rcode);
+			}
+		}
+
+		//case hrNAK:
 		if( (usb_pipe_table[epAddr].HostDescBank[0].STATUS_BK.reg & USB_ERRORFLOW ) ) {
 			nak_count++;
 			if(nak_limit && (nak_count == nak_limit)) {
@@ -495,7 +506,6 @@ void USBHost::Task(void) //USB state machine
 
 			// Init USB stack and driver
 			UHD_Init();
-			init();
 
 			// Free all USB resources
 			for (uint32_t i = 0; i < USB_NUMDEVICES; ++i)
@@ -710,7 +720,8 @@ uint32_t USBHost::Configuring(uint32_t parent, uint32_t port, uint32_t lowspeed)
 
         epInfo.epAddr = 0;
         epInfo.maxPktSize = 8;
-        epInfo.epAttribs = 0;
+        epInfo.bmSndToggle = 0;
+        epInfo.bmRcvToggle = 0;
         epInfo.bmNakPower = USB_NAK_MAX_POWER;
 
         //delay(2000);

@@ -1,44 +1,44 @@
-# MattairTech Arduino SAMD Core
+# MattairTech Arduino SAM M0+ Core
 
 This is a fork from arduino/ArduinoCore-samd on GitHub. This will be used to maintain
-Arduino support for SAMD boards including the MattairTech MT-D21E and the MT-D11
+Arduino support for SAM M0+ boards including the MattairTech MT-D21E and the MT-D11
 (see https://www.mattairtech.com/). It primarily adds support for new devices as well
 as a more flexible pin configuration / mapping system. It also adds some size
-optimizations, including the ability to select any combination of CDC, HID, or UART
-through the menu (~7.5KB for blink sketch with CDC+HID+UART, ~2.5KB without USB or UART).
+optimizations (~7.5KB for blink sketch with CDC+HID+UART, ~2.5KB without USB or UART).
 
 This core is intended to be installed using Boards Manager (see below). To update from a
-previous version, click on MattairTech SAMD Boards in Boards Manager, then click Update.
+previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.
 
 
-## What's New (1.6.6-mt1, November 24, 2015)
+## What's New Release (1.6.6)
 
-* New documentation section 'Special Notes'. Please read!
-* Updated ASCII pinouts to be more readable and less ambiguous.
-* Updated the Signed driver for Windows (extras directory).
-  * adds CDC/MIDI/HID, CDC/MSD/HID, and CDC/MSD/MIDI/HID composite USB devices.
-  * Of the above, currently only CDC/MIDI/HID is usable (see MIDIUSB library).
-* Merged in changes from upstream past SAMD CORE 1.6.2 release
-  * Added SPI.transfer16(..) method
-  * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
-  * the pin mode is changed to INPUT mode, arduino/ArduinoCore-samd#28
-  * HardwareSerial BUG Rx pin floating input, arduino/ArduinoCore-samd#48
-  * Send a ZLP if data size is multiple of EPX_SIZE for USB sends, arduino/ArduinoCore-samd#63
-  * Print not aborting on write failure, changelog update
-  * Tone fix for arduino/ArduinoCore-samd#59 and optimizations
+* 1.6.6-mt3:
+  * Fixes compilation with CDC_UART and CDC_ONLY settings
+
+* 1.6.6-mt2:
+  * Changes the default Communication setting to CDC_UART (from CDC_HID_UART)
+
+* 1.6.6-mt1:
+  * New documentation section 'Special Notes'. Please read!
+  * Updated ASCII pinouts to be more readable and less ambiguous.
+  * Updated the Signed driver for Windows (extras directory) (see CHANGELOG for details)
+  * Merged in changes from upstream (see CHANGELOG for details)
   * Fix warnings about deprecated recipe.ar.pattern
-* Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03
-  * Fixed bug in delay calculations
-  * Fixed deadlock conditions in Wire. Thanks Erin Tomson
-  * Print not aborting on write() failure. Thanks @stickbreaker
-  * SPI can now be configured in variants. Thanks @aethaniel
-  * Implemented Wire.end
-  * Implemented Wire.setClock. Thanks @PaoloP74
-  * Wire: allow scanning bus via beginTransmission-endTransmission
-  * USB Device: big refactoring and bug fix
-  * USB Device: added PluggableUSB interface
-* 1.6.6-mt2 changes the default Communication setting to CDC_UART (from CDC_HID_UART)
-* 1.6.6-mt3 fixes compilation with CDC_UART and CDC_ONLY settings
+  * Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03 (see CHANGELOG for details)
+
+
+## What's New Beta (1.6.7-beta)
+
+* 1.6.7-beta-b0:
+  * OS X support added (bossac for OS X can now upload to all supported chips) (Thanks @joseangeljimenez for testing)
+  * New bossac upload tool (added support for SAML and SAMC)
+  * New bootloader from upstream SAMD CORE (see bootloaders/zero/README.md)
+  * New beta release method (see README.md)
+  * Changing some names from 'SAMD' to 'SAM M0+'. The core will add L21 and C21 support soon.
+  * Merged in changes from upstream SAMD CORE 1.6.3 2016.02.15 (see CHANGELOG for details)
+  * Merged in changes from upstream SAMD CORE 1.6.4 2016.02.19 (see CHANGELOG for details)
+  * Merged in changes from upstream SAMD CORE 1.6.5 2016.04.02 (see CHANGELOG for details)
+  * Merged in changes from upstream SAMD 1.6.6 2016.05.19 (see CHANGELOG for details)
 
 
 ## Summary
@@ -68,7 +68,7 @@ DC Current per I/O Pin	|	7 mA										|	7 mA
 * **Boards Manager must be opened twice to see some updates**
 
 * **Errors when compiling, uploading, or burning the bootloader**
-  * Be sure to install the Arduino samd core before installing the MattairTech samd core. If you have problems upgrading
+  * Be sure to install the Arduino samd core before installing the MattairTech sam m0+ core. If you have problems upgrading
   the IDE to 1.6.6, you may need to uninstall both the Arduino and MattairTech cores, then re-install in the proper order.
   Use Arduino core 1.6.2 or above.
 
@@ -90,7 +90,7 @@ DC Current per I/O Pin	|	7 mA										|	7 mA
   1.6.6-mt1 corresponds to Arduino SAMD CORE 1.6.2 plus some pull requests.
 
 
-## Differences Between MattairTech and Arduino Cores
+### Additional Differences Between MattairTech and Arduino Cores
 * TODO
 
 
@@ -212,7 +212,7 @@ BTN/SS  15(INT1)      15  15(ADC7) | A15           RST |                        
 ## Serial Monitor
 
 To print to the Serial Monitor over USB, use 'Serial'. Serial points to SerialUSB (Serial1 and Serial2 are UARTs).
-Unlike most Arduino boards (ie. Uno), SAMD boards do not automatically reset when the serial monitor is opened.
+Unlike most Arduino boards (ie. Uno), SAM M0+ boards do not automatically reset when the serial monitor is opened.
 To see what your sketch outputs to the serial monitor from the beginning, the sketch must wait for the SerialUSB
 port to open first. Add the following to setup():
 
@@ -222,7 +222,7 @@ while (!Serial) ;
 
 Remember that if the sketch needs to run without SerialUSB connected, another approach must be used.
 You can also reset the board manually with the Reset button if you wish to restart your sketch. However, pressing
-the Reset button will reset the SAMD chip, which in turn will reset USB communication. This interruption means
+the Reset button will reset the SAM M0+ chip, which in turn will reset USB communication. This interruption means
 that if the serial monitor is open, it will be necessary to close and re-open it to restart communication.
 
 
@@ -289,7 +289,7 @@ Vista, 7, 8, and 10.
 6. If you do not already have the test firmware installed (comes preinstalled), see Using Bossac Standalone below.
 7. Press the reset button to run the test firmware (blink sketch).
 8. Windows will detect the board. Point the installer to the above folder to install the sketch driver (if needed).
-9. Continue with SAMD Core Installation below.
+9. Continue with SAM M0+ Core Installation below.
 
 #### Linux
 
@@ -298,33 +298,33 @@ Vista, 7, 8, and 10.
 2. You MAY have to install and use Arduino as the root user in order to get reliable access to the serial port.
    * This is true even when group permissions are set correctly, and it may fail after previously working.
    * You can also create/modify a udev rule to set permissions on the port so *everyone* can read / write.
-3. Continue with SAMD Core Installation below.
+3. Continue with SAM M0+ Core Installation below.
 
 #### OS X
 
-UNTESTED
-1. As of this writing, only the 256 KB chip variants work with the OS X version of the upload tool, bossac.
+OS X support currently in beta (see below), the following instructions are still for 1.6.6-mtX.
+1. Only the 256 KB chip variants work with the OS X version of the upload tool, bossac.
 2. First, you will need to open boards.txt and change mattairtech_mt_d21e_bl8k.upload.tool to equal arduino:bossac.
 3. Open platform.txt and change tools.bossac.path to equal{runtime.tools.bossac-1.6.1-arduino.path}.
 4. No driver installation is needed.
 5. Plug in the board. You may get a dialog box asking if you wish to open the “Network Preferences”:
    * Click the "Network Preferences..." button, then click "Apply".
    * The board will show up as “Not Configured”, but it will work fine.
-5. Continue with SAMD Core Installation below.
+5. Continue with SAM M0+ Core Installation below.
 
 
-### SAMD Core Installation
+### SAM M0+ Core Installation
 
-* To update from a previous version, click on MattairTech SAMD Boards in Boards Manager, then click Update.
+* To update from a previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.
 * Boards Manager may require opening twice (with possibly a delay in between) to see some updates.
 
-1. The MattairTech SAMD Core requires Arduino 1.6.6+ (1.6.5-mtX required IDE 1.6.5).
+1. The MattairTech SAM M0+ Core requires Arduino 1.6.7 (1.6.5-mtX required IDE 1.6.5).
 2. In the Arduino IDE, click File->Preferences.
 3. Click the button next to Additional Boards Manager URLs.
 4. Add https://www.mattairtech.com/software/arduino/package_MattairTech_index.json.
 5. Save preferences, then open the Boards Manager.
-6. Install the Arduino SAMD Boards package. Use version 1.6.2 or higher with 1.6.6-mtX.
-7. Install the MattairTech SAMD Boards package (1.6.6-mtX).
+6. Install the Arduino SAM M0+ Boards package. Use version 1.6.2 or higher.
+7. Install the MattairTech SAM M0+ Boards package (1.6.7).
 8. Close Boards Manager, then click Tools->Board->MattairTech MT-D21E (or MT-D11).
 9. Select the processor with the now visible Tools->Processor menu.
 10. If you do not already have the bootloader or blink sketch installed, see SAM-BA USB CDC Bootloader below.
@@ -345,8 +345,8 @@ UNTESTED
 
 ## SAM-BA USB CDC Bootloader (Arduino compatible)
 
-The SAM-BA bootloader has both a CDC USB interface, and a UART interface (MT-D21E: TX: pin 10, RX: pin 11). It is
-compatible with the Arduino IDE (Zero compatible), or it can be used with the Bossac tool standalone. Under
+The SAM-BA bootloader has both a CDC USB interface, and a UART interface (TX: pin 10, RX: pin 11, 8N1).
+It is compatible with the Arduino IDE (Zero compatible), or it can be used with the Bossac tool standalone. Under
 Arduino, auto-reset is supported (automatically runs the bootloader while the sketch is running) as well as
 automatic return from reset. The SAM-BA bootloader described here adds to the Arduino version, which in
 turn is based on the bootloader from Atmel. The Arduino version added several features, including three
@@ -354,11 +354,11 @@ new commands (Arduino Extended Capabilities) that increase upload speed. The boo
 8 KB FLASH, however, a 4 KB version can be used for the D11 chips.
 
 Bossac is a command line utility for uploading firmware to SAM-BA bootloaders. It runs on Windows. Linux, and OS X.
-It is used by Arduino to upload firmware to SAM and SAMD boards. The version Bossac described here adds to the
+It is used by Arduino to upload firmware to SAM and SAM M0+ boards. The version Bossac described here adds to the
 Arduino version (https://github.com/shumatech/BOSSA, Arduino branch), which in turn is a fork from the original
-Bossa (http://www.shumatech.com/web/products/bossa). It adds support for more SAMD chips (both D21 and D11).
+Bossa (http://www.shumatech.com/web/products/bossa). It adds support for more SAM M0+ chips (D21, L21, C21, and D11).
 
-Note that only the Arduino or Mattairtech versions of bossac are currently supported for SAMD chips.
+Note that only the Arduino or Mattairtech versions of bossac are currently supported for SAM M0+ chips.
 Neither the stock bossac (or Bossa) nor the Atmel SAM-BA upload tool will work.
 
 Arduino Extended Capabilities:
@@ -371,7 +371,7 @@ The bootloader can be started by:
 
    * Tapping reset twice in quick succession (BOOT_DOUBLE_TAP).
    * Holding down button A (BOOT_LOAD_PIN) while powering up.
-   * Clicking 'Upload Sketch' in the Arduino IDE, which will automatically start the bootloader.
+   * Clicking 'Upload Sketch' in the Arduino IDE, which will automatically start the bootloader (when CDC is enabled).
    * If the application (sketch) area is blank, the bootloader will run.
 
 Otherwise, it jumps to application and starts execution from there. The LED will light during bootloader execution.
@@ -383,19 +383,23 @@ When the Arduino IDE initiates the bootloader, the following procedure is used:
 1. The IDE opens and closes the USB serial port at a baud rate of 1200bps. This triggers a “soft erase” procedure.
 2. The first row of application section flash memory is erased by the MCU. If it is interrupted for any reason, the erase procedure will likely fail.
 3. The board is reset. The bootloader (which always runs first) detects the blank flah row, so bootloader operation resumes.
-4. Opening and closing the port at a baud rate other than 1200bps will not erase or reset the SAMD.
+4. Opening and closing the port at a baud rate other than 1200bps will not erase or reset the SAM M0+.
 
 
 ### Bootloader Firmware Installation
 
 #### Bootloader Installation Using the Arduino IDE
 
-1. If you do not already have the MattairTech SAMD core installed, see SAMD Core Installation above.
-2. Plug an Atmel ICE into USB, then connect it to the powered SAMD board. A green LED should light on the Atmel ICE.
-3. Click Tools->Programmer->Atmel ICE.
-4. Click Tools->Board->MattairTech MT-D21E (or MT-D11).
-5. Click Tools->Burn Bootloader. Ignore any messages about not supporting shutdown or reset.
-6. Continue with driver installation above.
+1. If you do not already have the MattairTech SAM M0+ core installed, see SAM M0+ Core Installation above.
+2. Plug in the SAM M0+ board. The bootloader must be running to (press reset twice within 500ms).
+3. Plug an Atmel ICE into USB, then connect it to the powered SAM M0+ board. A green LED should light on the Atmel ICE.
+4. Click Tools->Programmer->Atmel ICE.
+5. Click Tools->Board->MattairTech MT-D21E (or MT-D11).
+6. Click Tools->Processor and select your chip.
+7. Click Tools->Burn Bootloader. Ignore any messages about not supporting shutdown or reset.
+8. Continue with driver installation above.
+
+A running sketch may interfere with the bootloader installation process. Be sure you are running the existing bootloader or using a blank chip.
 
 #### Bootloader Installation Using Another Tool (ie: Atmel Studio, openocd)
 
@@ -419,15 +423,19 @@ by passing the following flag to the linker (typically LDFLAGS in your makefile;
 Wl,sectionstart=.text=0x2000
 ```
 
-You may also use a linker script. See the MattairTech SAMD package for examples.
+You may also use a linker script. See the MattairTech SAM M0+ package for examples.
 Be sure to generate and use a binary file. Many makefiles are set up to generate an elf, hex, and bin already.
 
 Download Bossac from:
 
-* https://www.mattairtech.com/software/arduino/bossac-1.5-arduino-mattairtech-1-mingw32.zip (Windows 32 bit and 64 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.5-arduino-mattairtech-1-x86_64-linux-gnu.tar.bz2 (Linux 64 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.5-arduino-mattairtech-1-i686-linux-gnu.tar.bz2 (Linux 32 bit)
-* Use the bossac command from the Arduino SAMD package for OS X support. Only the 256 KB chip versions are supported
+* https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-mingw32.tar.bz2 (Windows 32 bit and 64 bit)
+* https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-x86_64-linux-gnu.tar.bz2 (Linux 64 bit)
+* https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-i686-linux-gnu.tar.bz2 (Linux 32 bit)
+* https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-x86_64-apple-darwin.tar.bz2 (OS X 64 bit)
+
+Linux 64 bit users can also download Bossa (GUI) and bossash (shell) from:
+
+* https://www.mattairtech.com/software/arduino/Bossa-1.6.1-arduino-mattairtech-1-x86_64-linux-gnu.tar.bz2 (Linux 64 bit)
 
 As an example, bossac will be used to upload the test firmware (blink sketch):
 
@@ -530,16 +538,16 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 
 ## Possible Future Additions
 
-* SAML21 support in the works
-* Timer library in the works (like TimerOne, plus input capture and possibly waveform extensions)
+* SAML21 and C21 support is currently under development
+* Timer library is currently under development (like TimerOne, plus input capture, plus ??)
+* OS X support currently in beta testing
+
 * USB Host mode CDC ACM (partially complete; BSD-like license?)
 * Features for lower power consumption (library?)
 * Enhanced SD card library
 * Optional use of single on-board LED as USB activity LED
-* Replace pulse with timer capture
 * MSC (Mass Storage) USB Device Class
 * Polyphonic tone
-* Better OS X support
 * Wired-AND, Wired-OR for port pins
 * High-speed port pin access (IOBUS)
 * Libraries for some hardware I plan on using:
@@ -559,20 +567,40 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 
 ## ChangeLog
 
-* 1.6.6-mt1:
-  * See 'What's New' above.
+The Changelog has moved to a separate file named CHANGELOG. The most recent changes are still in the 'What's New' section above.
 
-* 1.6.5-mt2:
-  * Added support for the MT-D11 (ATSAMD11D14AM).
-  * Reduced code size (see 'Code Size and RAM Usage' below).
-  * Any combination of CDC, HID, or UART can be used (or no combination), by using the Tools->Communication menu.
-  * Note that switching between CDC and CDC+HID will require re-selecting the COM port.
-  * More detailed memory usage at end of compilation (see below).
-  * Merged in upstream updates. Fixed Wire interrupt.
-  * Tested all ADC, DAC, external interrupts, PWM outputs, serial, SPI, and Wire instances/pins.
 
-* 1.6.5-mt1:
-  * Initial release
+## Bugs or Issues
+
+If you find a bug you can submit an issue here on github:
+
+https://github.com/mattairtech/ArduinoCore-samd/issues
+
+Before posting a new issue, please check if the same problem has been already reported by someone else to avoid duplicates.
+
+
+## Contributions
+
+Contributions are always welcome. The preferred way to receive code cotribution is by submitting a Pull Request on github.
+
+
+## Beta builds
+
+Periodically, a beta is released for testing.
+
+The beta builds are available through Boards Manager. If you want to install them:
+  1. Open the **Preferences** of the Arduino IDE.
+  2. Add this URL `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_index.json` in the **Additional Boards Manager URLs** field, and click OK.
+  3. Open the **Boards Manager** (menu Tools->Board->Board Manager...)
+  4. Install **MattairTech SAM M0+ Boards - Beta build**
+  5. Select one of the boards under **MattairTech SAM M0+ Beta Build XX** in Tools->Board menu
+  6. Compile/Upload as usual
+
+The Arduino IDE will notify the user if an update to the beta is available, which can then be installed automatically.
+Alternatively, if a particular beta is needed, replace the url in step 2 with:
+  `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_sam_m0p-${VERSION}-beta-b${BUILD_NUMBER}_index.json`
+where ${VERSION} and ${BUILD_NUMBER} match the beta name as shown in the CHANGELOG (ie: package_MattairTech_sam_m0p-1.6.7-beta-b0_index.json).
+In this case, the IDE will not notify the user of updates.
 
 
 ## License and credits
@@ -581,20 +609,19 @@ This core has been developed by Arduino LLC in collaboration with Atmel.
 This fork developed by Justin Mattair of MattairTech LLC.
 
 ```
-Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2015 Arduino LLC.  All right reserved.
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
+  This library is free software; you can redistribute it and/or
+  modify it under the terms of the GNU Lesser General Public
+  License as published by the Free Software Foundation; either
+  version 2.1 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-See the GNU Lesser General Public License for more details.
+  This library is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+  See the GNU Lesser General Public License for more details.
 
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
+  You should have received a copy of the GNU Lesser General Public
+  License along with this library; if not, write to the Free Software
+  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ```
-

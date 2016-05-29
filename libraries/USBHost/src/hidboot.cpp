@@ -181,16 +181,19 @@ uint8_t KeyboardReportParser::HandleLockingKeys(HID *hid, uint8_t key) {
 const uint8_t KeyboardReportParser::numKeys[10] = { '!', '@', '#', '$', '%', '^', '&', '*', '(', ')'};
 const uint8_t KeyboardReportParser::symKeysUp[12] = { '_', '+', '{', '}', '|', '~', ':', '"', '~', '<', '>', '?'};
 const uint8_t KeyboardReportParser::symKeysLo[12] = { '-', '=', '[', ']', '\\', ' ', ';', '\'', '`', ',', '.', '/'};
-const uint8_t KeyboardReportParser::padKeys[5] = { '/', '*', '-', '+', 0x13};
+const uint8_t KeyboardReportParser::padKeys[5] = { '/', '*', '-', '+', 0x0d};
 #define VALUE_WITHIN(v,l,h) (((v)>=(l)) && ((v)<=(h)))
 uint8_t KeyboardReportParser::OemToAscii(uint8_t mod, uint8_t key) {
 	uint8_t shift = (mod & 0x22);
+	uint8_t ctrl  = (mod & 0x11);
 
 	// [a-z]
         if (VALUE_WITHIN(key, 0x04, 0x1d)) {
+		// [^a-^z]
+		if (ctrl) return (key - 3);
                 // Upper case letters
-                if ((kbdLockingKeys.kbdLeds.bmCapsLock == 0 && (mod & 2)) ||
-                        (kbdLockingKeys.kbdLeds.bmCapsLock == 1 && (mod & 2) == 0))
+                if ((kbdLockingKeys.kbdLeds.bmCapsLock == 0 && shift) ||
+                        (kbdLockingKeys.kbdLeds.bmCapsLock == 1 && shift == 0))
                         return (key - 4 + 'A');
 
                         // Lower case letters
@@ -198,6 +201,7 @@ uint8_t KeyboardReportParser::OemToAscii(uint8_t mod, uint8_t key) {
                         return (key - 4 + 'a');
         }// Numbers
         else if (VALUE_WITHIN(key, 0x1e, 0x27)) {
+                if (ctrl && (key == 0x23)) return (0x1E); /* RS ^^ */
 		if (shift)
                         return ((uint8_t)pgm_read_byte(&getNumKeys()[key - 0x1e]));
                 else
@@ -206,14 +210,27 @@ uint8_t KeyboardReportParser::OemToAscii(uint8_t mod, uint8_t key) {
         else if(VALUE_WITHIN(key, 0x59, 0x61)) {
                 if(kbdLockingKeys.kbdLeds.bmNumLock == 1)
                         return (key - 0x59 + '1');
-        } else if(VALUE_WITHIN(key, 0x2d, 0x38))
+        } else if(VALUE_WITHIN(key, 0x2d, 0x38)) {
+                if (ctrl) {
+                        switch (key) {
+                                case 0x2d: return (0x1f); /* US  ^_ */
+                                case 0x2f: return (0x1b); /* ESC ^[ */
+                                case 0x30: return (0x1d); /* GS  ^] */
+                                case 0x31: return (0x1c); /* FS  ^\ */
+                                default:   return (0x00);
+                        }
+                }
                 return ((shift) ? (uint8_t)pgm_read_byte(&getSymKeysUp()[key - 0x2d]) : (uint8_t)pgm_read_byte(&getSymKeysLo()[key - 0x2d]));
-        else if(VALUE_WITHIN(key, 0x54, 0x58))
+        } else if(VALUE_WITHIN(key, 0x54, 0x58))
                 return (uint8_t)pgm_read_byte(&getPadKeys()[key - 0x54]);
         else {
                 switch(key) {
                         case UHS_HID_BOOT_KEY_SPACE: return (0x20);
-                        case UHS_HID_BOOT_KEY_ENTER: return (0x13);
+                        case UHS_HID_BOOT_KEY_ENTER: return (0x0d);
+			case UHS_HID_BOOT_KEY_ESCAPE: return (0x1b);
+			case UHS_HID_BOOT_KEY_DELETE: return (0x08);
+			case UHS_HID_BOOT_KEY_DELETE_FORWARD: return (0x7f);
+			case UHS_HID_BOOT_KEY_TAB:   return (0x09);
                         case UHS_HID_BOOT_KEY_ZERO2: return ((kbdLockingKeys.kbdLeds.bmNumLock == 1) ? '0': 0);
                         case UHS_HID_BOOT_KEY_PERIOD: return ((kbdLockingKeys.kbdLeds.bmNumLock == 1) ? '.': 0);
                 }

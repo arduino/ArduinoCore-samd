@@ -1,0 +1,84 @@
+* 1.6.7-beta-b0:
+* OS X support added (bossac for OS X can now upload to all supported chips) (Thanks @joseangeljimenez for testing)
+* New bossac upload tool (added support for SAML and SAMC)
+* New bootloader from upstream SAMD CORE (see bootloaders/zero/README.md)
+* New beta release method (see README.md)
+* Changing some names from 'SAMD' to 'SAM M0+'. The core will add L21 and C21 support soon.
+* Merged in changes from upstream SAMD CORE 1.6.3 2016.02.15:
+  * Fixed Wire master repeated start behaviour
+  * Added SerialUSB methods: readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts()
+  * Added SPI.transfer16(..) method
+  * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
+  * Fixed Serial baudrate calculations for 1200bps. Thanks @TomKeddie
+  * Fixed Serial.flush() that now waits until the last bit has been sent. Thanks @TomKeddie
+  * Fixed Serial configuration for data-bit. Thanks @TomKeddie
+  * Bootloader: 32Khz external oscillator is now used, improves USB clock. Thanks @aethaniel
+  * Bootloader: Clean up of makefiles and file organization. Thanks @aethaniel
+  * Small fix to USBHost example "USB_desc.ino". Thanks @bbx10
+  * USBHost: USB-Keyboard right shift key was ignored. Thanks @bbx10 
+  * Wire library now support multiple instances in variant. Thanks @spiderkeys
+  * Ported some SerialUSB API (readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts())
+* Merged in changes from upstream SAMD CORE 1.6.4 2016.02.19:
+  * Fixed Wire address setup when running as slave.
+  * Fixed String constructor when using floating point numbers.
+  * USBHost: fixed blocking USBHost.Task(). Thanks @bbx10
+  * USBHost: fixed some ASCII Control codes in keyboard controller. Thanks @bbx10
+  * USBHost: ported some minor fix from upstream UHS2. Thanks @bbx10
+  * USBHost: fixed wrong library initialization. Thanks @bbx10 @ladyada
+  * better interrupt handling in Serial::accept()
+* Merged in changes from upstream SAMD CORE 1.6.5 2016.04.02:
+  * Set NVMCTRL.MANW bit to 1 (default is 0). This prevents accidental writes on program memory.
+  * Bootloader: Fixed wrong UART speed (regression)
+  * Fixed incorrect return value from Wire.available() when the receive buffer is not fully read.
+  * Added DAC0 definition in Arduino/Genuino Zero variant file.
+* Merged in changes from upstream SAMD 1.6.6 2016.05.19:
+  * Fixed digitalPinToInterrupt() macro, now it works as documented.
+  * Added analogInputToDigitalPin macro
+  * On-board RX-TX LEDs now blinks when there is activity on the native USB port
+  * Fixed platform.txt, the core now compiles again with Arduino IDE <=1.6.5. Thanks @per1234
+  * Fixed Wire.write(0x00) "ambiguos method" error
+  * String class now supports iterators. Thanks @Chris--A
+
+* 1.6.6-mt3:
+* Fixes compilation with CDC_UART and CDC_ONLY settings
+
+* 1.6.6-mt2:
+* Changes the default Communication setting to CDC_UART (from CDC_HID_UART)
+
+* 1.6.6-mt1:
+* New documentation section 'Special Notes'. Please read!
+* Updated ASCII pinouts to be more readable and less ambiguous.
+* Updated the Signed driver for Windows (extras directory).
+  * adds CDC/MIDI/HID, CDC/MSD/HID, and CDC/MSD/MIDI/HID composite USB devices.
+  * Of the above, currently only CDC/MIDI/HID is usable (see MIDIUSB library).
+* Merged in changes from upstream:
+  * Added SPI.transfer16(..) method
+  * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
+* the pin mode is changed to INPUT mode, arduino/ArduinoCore-samd#28
+* HardwareSerial BUG Rx pin floating input, arduino/ArduinoCore-samd#48
+* Send a ZLP if data size is multiple of EPX_SIZE for USB sends, arduino/ArduinoCore-samd#63
+* Print not aborting on write failure, changelog update
+* Tone fix for arduino/ArduinoCore-samd#59 and optimizations
+* Fix warnings about deprecated recipe.ar.pattern
+* Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03:
+  * Fixed bug in delay calculations
+  * Fixed deadlock conditions in Wire. Thanks Erin Tomson
+  * Print not aborting on write() failure. Thanks @stickbreaker
+  * SPI can now be configured in variants. Thanks @aethaniel
+  * Implemented Wire.end
+  * Implemented Wire.setClock. Thanks @PaoloP74
+  * Wire: allow scanning bus via beginTransmission-endTransmission
+  * USB Device: big refactoring and bug fix
+  * USB Device: added PluggableUSB interface
+
+* 1.6.5-mt2:
+* Added support for the MT-D11 (ATSAMD11D14AM).
+* Reduced code size (see 'Code Size and RAM Usage' below).
+* Any combination of CDC, HID, or UART can be used (or no combination), by using the Tools->Communication menu.
+* Note that switching between CDC and CDC+HID will require re-selecting the COM port.
+* More detailed memory usage at end of compilation (see below).
+* Merged in upstream updates. Fixed Wire interrupt.
+* Tested all ADC, DAC, external interrupts, PWM outputs, serial, SPI, and Wire instances/pins.
+
+* 1.6.5-mt1:
+* Initial release

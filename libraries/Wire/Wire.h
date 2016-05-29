@@ -58,6 +58,10 @@ class TwoWire : public Stream
     void onReceive(void(*)(int));
     void onRequest(void(*)(void));
 
+    inline size_t write(unsigned long n) { return write((uint8_t)n); }
+    inline size_t write(long n) { return write((uint8_t)n); }
+    inline size_t write(unsigned int n) { return write((uint8_t)n); }
+    inline size_t write(int n) { return write((uint8_t)n); }
     using Print::write;
 
     void onService(void);
@@ -108,11 +112,22 @@ class TwoWire : public Stream
 };
 
 #if WIRE_INTERFACES_COUNT > 0
-extern TwoWire Wire;
+  extern TwoWire Wire;
 #endif
-
 #if WIRE_INTERFACES_COUNT > 1
-extern TwoWire Wire1;
+  extern TwoWire Wire1;
+#endif
+#if WIRE_INTERFACES_COUNT > 2
+  extern TwoWire Wire2;
+#endif
+#if WIRE_INTERFACES_COUNT > 3
+  extern TwoWire Wire3;
+#endif
+#if WIRE_INTERFACES_COUNT > 4
+  extern TwoWire Wire4;
+#endif
+#if WIRE_INTERFACES_COUNT > 5
+  extern TwoWire Wire5;
 #endif
 
 #endif

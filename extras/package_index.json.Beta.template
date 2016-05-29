@@ -1,0 +1,90 @@
+{
+  "packages": [
+    {
+      "name": "MattairTech_Arduino_Beta",
+      "maintainer": "MattairTech LLC",
+      "websiteURL": "https://www.mattairtech.com/",
+      "email": "support@mattairtech.com",
+      "help": {
+        "online": "https://www.mattairtech.com/support/"
+      },
+      "platforms": [
+        {
+          "name": "MattairTech SAM M0+ Boards - Beta build",
+          "architecture": "samd",
+          "version": "%%VERSION%%",
+          "category": "Contributed",
+          "help": {
+            "online": "https://www.mattairtech.com/support/"
+          },
+          "url": "https://www.mattairtech.com/software/arduino/beta/%%FILENAME%%",
+          "archiveFileName": "%%FILENAME%%",
+          "checksum": "SHA-256:%%CHECKSUM%%",
+          "size": "%%SIZE%%",
+          "boards": [
+            {"name": "MT-D21E"},
+            {"name": "MT-D11"}
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": "4.8.3-2014q1"
+            },
+            {
+              "packager": "MattairTech_Arduino",
+              "name": "bossac",
+              "version": "1.6.1-arduino-mattairtech-1"
+            },
+            {
+              "packager": "arduino",
+              "name": "openocd",
+              "version": "0.9.0-arduino"
+            },
+            {
+              "packager": "arduino",
+              "name": "CMSIS",
+              "version": "4.0.0-atmel"
+            }
+          ]
+        }
+      ],
+      "tools": [
+      {
+        "name": "bossac",
+        "version": "1.6.1-arduino-mattairtech-1",
+        "systems": [
+        {
+          "host": "i686-mingw32",
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-mingw32.tar.bz2",
+          "archiveFileName": "bossac-1.6.1-arduino-mattairtech-1-mingw32.tar.bz2",
+          "checksum": "SHA-256:cd998290e8cfae1acefe6fd65a06747a46963a78a6232efd016287fc202ef54e",
+          "size": "311434"
+        },
+        {
+          "host": "x86_64-pc-linux-gnu",
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-x86_64-linux-gnu.tar.bz2",
+          "archiveFileName": "bossac-1.6.1-arduino-mattairtech-1-x86_64-linux-gnu.tar.bz2",
+          "checksum": "SHA-256:ff7d51822a03d9396d8be6169e5fe5c4067ae3a2bcbb80f79360aa72031d0e33",
+          "size": "33078"
+        },
+        {
+          "host": "i686-pc-linux-gnu",
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-i686-linux-gnu.tar.bz2",
+          "archiveFileName": "bossac-1.6.1-arduino-mattairtech-1-i686-linux-gnu.tar.bz2",
+          "checksum": "SHA-256:c44c43c3327fb09a90e1557c5f9494e19162b9729938e551115fabadc41d7c9e",
+          "size": "33132"
+        },
+        {
+          "host": "x86_64-apple-darwin",
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.6.1-arduino-mattairtech-1-x86_64-apple-darwin.tar.bz2",
+          "archiveFileName": "bossac-1.6.1-arduino-mattairtech-1-x86_64-apple-darwin.tar.bz2",
+          "checksum": "SHA-256:bfd626936eec07fb0f8bc5a137bf3e3b92b5182462043b6549df3033aceb7356",
+          "size": "79282"
+        }
+        ]
+      }
+      ]
+    }
+  ]
+}

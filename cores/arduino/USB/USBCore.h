@@ -70,6 +70,7 @@
 #define CDC_SET_LINE_CODING			0x20
 #define CDC_GET_LINE_CODING			0x21
 #define CDC_SET_CONTROL_LINE_STATE	0x22
+#define CDC_SEND_BREAK				0x23
 
 #define MSC_RESET					0xFF
 #define MSC_GET_MAX_LUN				0xFE
@@ -261,7 +262,7 @@ _Pragma("pack()")
  *    idVendor, idProduct, bcdDevice, iManufacturer, iProduct, iSerialNumber, bNumConfigurations */
 
 #define D_CONFIG(_totalLength,_interfaces) \
-	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_SELF_POWERED, USB_CONFIG_POWER_MA(500) }
+	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_BUS_POWERED, USB_CONFIG_POWER_MA(500) }
 /* Table 9-10. Standard Configuration Descriptor
  * bLength, bDescriptorType, wTotalLength, bNumInterfaces, bConfigurationValue, iConfiguration
  * bmAttributes, bMaxPower */
@@ -279,7 +280,7 @@ _Pragma("pack()")
 
 #define D_IAD(_firstInterface, _count, _class, _subClass, _protocol) \
 	{ 8, 11, _firstInterface, _count, _class, _subClass, _protocol, 0 }
-/* iadclasscode_r10.pdf, Table 9–Z. Standard Interface Association Descriptor
+/* iadclasscode_r10.pdf, Table 9\96Z. Standard Interface Association Descriptor
  * bLength, bDescriptorType, bFirstInterface, bInterfaceCount, bFunctionClass, bFunctionSubClass, bFunctionProtocol, iFunction */
 
 // Functional Descriptor General Format

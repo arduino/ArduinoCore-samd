@@ -22,6 +22,7 @@
 #include <stdint.h>
 #include <Arduino.h>
 #include "USB/PluggableUSB.h"
+
 #if !defined(HID_ENABLED)
 #error Please select an appropriate option that includes HID in the Tools->Communications menu.
 #endif

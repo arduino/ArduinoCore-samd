@@ -56,11 +56,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   static int enabled = 0;
   uint32_t config;
   uint32_t pos;
-  
-  // Assign pin to EIC
-  if (pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK)
-    return;
-  
+
   EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
   if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
@@ -69,6 +65,13 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     __initialize();
     enabled = 1;
   }
+
+  // Assign pin to EIC
+  if (pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK)
+    return;
+
+  // Enable wakeup capability on pin in case being used during sleep
+  EIC->WAKEUP.reg |= (1 << in);
 
   // Assign callback to interrupt
   callbacksInt[in] = callback;
@@ -119,6 +122,9 @@ void detachInterrupt(uint32_t pin)
     return;
 
   EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
+  
+  // Disable wakeup capability on pin during sleep
+  EIC->WAKEUP.reg &= ~(1 << in);
 }
 
 /*

@@ -4,7 +4,6 @@
   Copyright (c) 2009-10 Hernando Barragan.  All right reserved.
   Copyright 2011, Paul Stoffregen, paul@pjrc.com
 
-
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
@@ -60,7 +59,7 @@ public:
 	String(const char *cstr = "");
 	String(const String &str);
 	String(const __FlashStringHelper *str);
-	#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+       #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	String(String &&rval);
 	String(StringSumHelper &&rval);
 	#endif
@@ -87,7 +86,7 @@ public:
 	String & operator = (const String &rhs);
 	String & operator = (const char *cstr);
 	String & operator = (const __FlashStringHelper *str);
-	#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+       #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	String & operator = (String &&rval);
 	String & operator = (StringSumHelper &&rval);
 	#endif
@@ -162,6 +161,8 @@ public:
 	void toCharArray(char *buf, unsigned int bufsize, unsigned int index=0) const
 		{getBytes((unsigned char *)buf, bufsize, index);}
 	const char * c_str() const { return buffer; }
+	const char* begin() { return c_str(); }
+	const char* end() { return c_str() + length(); }
 
 	// search
 	int indexOf( char ch ) const;
@@ -201,7 +202,7 @@ protected:
 	// copy and move
 	String & copy(const char *cstr, unsigned int length);
 	String & copy(const __FlashStringHelper *pstr, unsigned int length);
-	#if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
+       #if __cplusplus >= 201103L || defined(__GXX_EXPERIMENTAL_CXX0X__)
 	void move(String &rhs);
 	#endif
 };

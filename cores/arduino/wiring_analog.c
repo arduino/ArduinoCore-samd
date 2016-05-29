@@ -319,6 +319,7 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
       syncTCC(TCCx);
     }
   }
+
   // -- Defaults to digital write
   else if ( pinPeripheral(ulPin, PIO_OUTPUT) == RET_STATUS_OK )
   {

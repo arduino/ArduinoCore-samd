@@ -73,7 +73,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
     firstTimeRunning = true;
     
     NVIC_SetPriority(TONE_TC_IRQn, 0);
-      
+    
     // Enable GCLK for timer used
 #if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
     GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC1_TC2));

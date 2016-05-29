@@ -43,6 +43,11 @@ typedef enum _EAnalogChannel
   ADC_Channel8=8,
   ADC_Channel9=9,
   ADC_Channel10=10,
+  ADC_Channel11=11,
+  ADC_Channel12=12,
+  ADC_Channel13=13,
+  ADC_Channel14=14,
+  ADC_Channel15=15,
   ADC_Channel16=16,
   ADC_Channel17=17,
   ADC_Channel18=18,
@@ -85,7 +90,7 @@ typedef enum _ETCChannel
   TC6_CH0  = (6<<8)|(0),
   TC6_CH1  = (6<<8)|(1),
   TC7_CH0  = (7<<8)|(0),
-  TC7_CH1  = (7<<8)|(1)
+  TC7_CH1  = (7<<8)|(1),
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -159,7 +164,7 @@ typedef enum _EPioType
   PIO_AC_GCLK=12,                     /* The pin is controlled by the AC_GCLK peripheral (output). */
 
   PIO_MULTI,                          /* The pin can be configured to any type based on the attributes. */
-  
+
   PIO_STARTUP,                        /* Used as parameter to pinPeripheral() only to set startup state (enable INEN only) */
 } EPioType ;
 

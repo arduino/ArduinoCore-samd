@@ -17,7 +17,7 @@
 */
 
 /*
- * Modified 4 August 2015 by Justin Mattair
+ * Modified 20 May 2016 by Justin Mattair
  *   for MattairTech MT-D11 boards (www.mattairtech.com)
  */
 
@@ -70,6 +70,7 @@ extern "C"
 #define NUM_DIGITAL_PINS     (32u)
 #define NUM_ANALOG_INPUTS    (10u)
 #define NUM_ANALOG_OUTPUTS   (1u)
+#define analogInputToDigitalPin(p)  (p)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
 #define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
@@ -87,7 +88,6 @@ extern "C"
  * https://github.com/arduino/Arduino/issues/1833
  */
 // #define digitalPinToTimer(P)
-
 
 /* LEDs
  * None of these defines are currently used by the core.
@@ -126,17 +126,19 @@ extern "C"
 #define PIN_A11              (11ul)
 #define PIN_A14              (14ul)
 #define PIN_A15              (15ul)
+#define PIN_DAC0             (2ul)
 
-static const uint8_t A2   = PIN_A2 ;
-static const uint8_t A3   = PIN_A3 ;
-static const uint8_t A4   = PIN_A4 ;
-static const uint8_t A5   = PIN_A5 ;
-static const uint8_t A6   = PIN_A6 ;
-static const uint8_t A7   = PIN_A7 ;
-static const uint8_t A10  = PIN_A10 ;
-static const uint8_t A11  = PIN_A11 ;
-static const uint8_t A14  = PIN_A14 ;
-static const uint8_t A15  = PIN_A15 ;
+static const uint8_t A2   = PIN_A2;
+static const uint8_t A3   = PIN_A3;
+static const uint8_t A4   = PIN_A4;
+static const uint8_t A5   = PIN_A5;
+static const uint8_t A6   = PIN_A6;
+static const uint8_t A7   = PIN_A7;
+static const uint8_t A10  = PIN_A10;
+static const uint8_t A11  = PIN_A11;
+static const uint8_t A14  = PIN_A14;
+static const uint8_t A15  = PIN_A15;
+static const uint8_t DAC0 = PIN_DAC0;
 
 #define ADC_RESOLUTION		12
 
@@ -174,14 +176,10 @@ static const uint8_t ATN = PIN_ATN;
  */
 #define SPI_INTERFACES_COUNT 1
 
-#define PIN_SPI1_MISO         (14u)
-#define PIN_SPI1_MOSI         (10u)
-#define PIN_SPI1_SCK          (11u)
-#define PIN_SPI1_SS           (15u)
-#define PIN_SPI_MISO         PIN_SPI1_MISO
-#define PIN_SPI_MOSI         PIN_SPI1_MOSI
-#define PIN_SPI_SCK          PIN_SPI1_SCK
-#define PIN_SPI_SS           PIN_SPI1_SS
+#define PIN_SPI_MISO         (14u)
+#define PIN_SPI_MOSI         (10u)
+#define PIN_SPI_SCK          (11u)
+#define PIN_SPI_SS           (15u)
 #define PERIPH_SPI           sercom0
 #define PAD_SPI_TX           SPI_PAD_2_SCK_3
 #define PAD_SPI_RX           SERCOM_RX_PAD_0
@@ -197,12 +195,13 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
  */
 #define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE1_SDA         (22u)
-#define PIN_WIRE1_SCL         (23u)
-#define PIN_WIRE_SDA          PIN_WIRE1_SDA
-#define PIN_WIRE_SCL          PIN_WIRE1_SCL
+#define PIN_WIRE_SDA         (22u)
+#define PIN_WIRE_SCL         (23u)
 #define PERIPH_WIRE          sercom2
 #define WIRE_IT_HANDLER      SERCOM2_Handler
+
+static const uint8_t SDA = PIN_WIRE_SDA;
+static const uint8_t SCL = PIN_WIRE_SCL;
 
 
 /*
@@ -270,4 +269,3 @@ extern Uart Serial1;
 #define Serial                      SerialUSB
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */
-

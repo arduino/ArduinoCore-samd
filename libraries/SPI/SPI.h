@@ -42,7 +42,7 @@
   #define SPI_MIN_CLOCK_DIVIDER 4
   // Other SAMD21xxxxx MCU may be affected as well
 #else
-  #define SPI_MIN_CLOCK_DIVIDER 2
+  #define SPI_MIN_CLOCK_DIVIDER 4
 #endif
 
 class SPISettings {
@@ -144,13 +144,20 @@ void SPIClass::transfer(void *buf, size_t count)
 #if SPI_INTERFACES_COUNT > 0
   extern SPIClass SPI;
 #endif
-
 #if SPI_INTERFACES_COUNT > 1
   extern SPIClass SPI1;
 #endif
-
 #if SPI_INTERFACES_COUNT > 2
   extern SPIClass SPI2;
+#endif
+#if SPI_INTERFACES_COUNT > 3
+  extern SPIClass SPI3;
+#endif
+#if SPI_INTERFACES_COUNT > 4
+  extern SPIClass SPI4;
+#endif
+#if SPI_INTERFACES_COUNT > 5
+  extern SPIClass SPI5;
 #endif
 
 // For compatibility with sketches designed for AVR @ 16 MHz

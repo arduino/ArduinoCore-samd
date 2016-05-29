@@ -1,0 +1,36 @@
+{
+	"name": "MattairTech SAM M0+ Boards",
+	"architecture": "samd",
+	"version": "%%VERSION%%",
+	"category": "Contributed",
+	"url": "https://www.mattairtech.com/software/arduino/%%FILENAME%%",
+	"archiveFileName": "%%FILENAME%%",
+	"checksum": "SHA-256:%%CHECKSUM%%",
+	"size": "%%SIZE%%",
+	"boards": [
+	{"name": "MT-D21E"},
+	{"name": "MT-D11"}
+	],
+	"toolsDependencies": [
+	{
+		"packager": "arduino",
+		"name": "arm-none-eabi-gcc",
+		"version": "4.8.3-2014q1"
+	},
+	{
+		"packager": "MattairTech_Arduino",
+		"name": "bossac",
+		"version": "1.6.1-arduino-mattairtech-1"
+	},
+	{
+		"packager": "arduino",
+		"name": "openocd",
+		"version": "0.9.0-arduino"
+	},
+	{
+		"packager": "arduino",
+		"name": "CMSIS",
+		"version": "4.0.0-atmel"
+	}
+	]
+}

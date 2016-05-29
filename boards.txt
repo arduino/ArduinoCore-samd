@@ -89,10 +89,10 @@ mattairtech_mt_d21e_bl8k.build.variant=MT_D21E
 mattairtech_mt_d21e_bl8k.build.variant_system_lib=
 mattairtech_mt_d21e_bl8k.build.vid=0x16D0
 mattairtech_mt_d21e_bl8k.bootloader.tool=arduino:openocd
-mattairtech_mt_d21e_bl8k.menu.cpu.samd21e18a.bootloader.file=zero/samd21e18a_sam_ba.bin
-mattairtech_mt_d21e_bl8k.menu.cpu.samd21e17a.bootloader.file=zero/samd21e17a_sam_ba.bin
-mattairtech_mt_d21e_bl8k.menu.cpu.samd21e16a.bootloader.file=zero/samd21e16a_sam_ba.bin
-mattairtech_mt_d21e_bl8k.menu.cpu.samd21e15a.bootloader.file=zero/samd21e15a_sam_ba.bin
+mattairtech_mt_d21e_bl8k.menu.cpu.samd21e18a.bootloader.file=zero/binaries/sam_m0p_sam_ba_SAMD21E18A.bin
+mattairtech_mt_d21e_bl8k.menu.cpu.samd21e17a.bootloader.file=zero/binaries/sam_m0p_sam_ba_SAMD21E17A.bin
+mattairtech_mt_d21e_bl8k.menu.cpu.samd21e16a.bootloader.file=zero/binaries/sam_m0p_sam_ba_SAMD21E16A.bin
+mattairtech_mt_d21e_bl8k.menu.cpu.samd21e15a.bootloader.file=zero/binaries/sam_m0p_sam_ba_SAMD21E15A.bin
 
 
 # MattairTech MT-D21E (16KB bootloader), build only
@@ -285,7 +285,7 @@ mattairtech_mt_d11.build.variant_system_lib=
 mattairtech_mt_d11.build.vid=0x16D0
 mattairtech_mt_d11.build.pid=0x0856
 mattairtech_mt_d11.bootloader.tool=arduino:openocd
-mattairtech_mt_d11.bootloader.file=zero/samd11d14am_sam_ba.bin
+mattairtech_mt_d11.bootloader.file=zero/binaries/sam_m0p_sam_ba_SAMD11D14AM.bin
 
 
 # MattairTech MT-D11 (no bootloader)
@@ -294,11 +294,11 @@ mattairtech_mt_d11_bl0k.vid.0=0x16D0
 mattairtech_mt_d11_bl0k.pid.0=0x0557
 mattairtech_mt_d11_bl0k.vid.1=0x16D0
 mattairtech_mt_d11_bl0k.pid.1=0x0856
-mattairtech_mt_d11_bl0k.upload.tool=MattairTech_Arduino:bossac
+mattairtech_mt_d11_bl0k.upload.tool=arduino:openocd
 mattairtech_mt_d11_bl0k.upload.protocol=sam-ba
-mattairtech_mt_d11_bl0k.upload.use_1200bps_touch=true
-mattairtech_mt_d11_bl0k.upload.wait_for_upload_port=true
-mattairtech_mt_d11_bl0k.upload.native_usb=true
+mattairtech_mt_d11_bl0k.upload.use_1200bps_touch=false
+mattairtech_mt_d11_bl0k.upload.wait_for_upload_port=false
+mattairtech_mt_d11_bl0k.upload.native_usb=false
 mattairtech_mt_d11_bl0k.upload.maximum_size=16384
 mattairtech_mt_d11_bl0k.build.extra_flags=-D__SAMD11D14AM__ -D__NO_BOOTLOADER__ {build.usb_flags}
 mattairtech_mt_d11_bl0k.build.ldscript=linker_scripts/gcc/SAMD11D14AM_without_bootloader.ld
@@ -343,8 +343,6 @@ mattairtech_mt_d11_bl0k.build.variant=MT_D11
 mattairtech_mt_d11_bl0k.build.variant_system_lib=
 mattairtech_mt_d11_bl0k.build.vid=0x16D0
 mattairtech_mt_d11_bl0k.build.pid=0x0856
-mattairtech_mt_d11_bl0k.bootloader.tool=arduino:openocd
-mattairtech_mt_d11_bl0k.bootloader.file=zero/samd11d14am_sam_ba.bin
 
 
 # MattairTech Core for Arduino Zero (8KB bootloader, Native USB Port)
@@ -437,4 +435,4 @@ arduino_zero_native.build.pid=0x804d
 #arduino_zero_edbg.build.vid=0x2341
 #arduino_zero_edbg.build.pid=0x804d
 #arduino_zero_edbg.bootloader.tool=arduino:openocd
-#arduino_zero_edbg.bootloader.file=zero/samd21g18a_sam_ba.bin
+#arduino_zero_edbg.bootloader.file=zero/binaries/sam_m0p_sam_ba_SAMD21E18A.bin

@@ -53,9 +53,10 @@ extern "C"
 #define NUM_PIN_DESCRIPTION_ENTRIES     (44u)
 
 #define PINS_COUNT           (26u)
-#define NUM_DIGITAL_PINS     (14u)
-#define NUM_ANALOG_INPUTS    (13u)
+#define NUM_DIGITAL_PINS     (20u)
+#define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
+#define analogInputToDigitalPin(p)  ((p < 6u) ? (p) + 14u : -1)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
 #define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
@@ -73,7 +74,6 @@ extern "C"
  * https://github.com/arduino/Arduino/issues/1833
  */
 // #define digitalPinToTimer(P)
-
 
 // LEDs
 #define PIN_LED_13           (13u)
@@ -93,13 +93,15 @@ extern "C"
 #define PIN_A3               (17ul)
 #define PIN_A4               (18ul)
 #define PIN_A5               (19ul)
+#define PIN_DAC0             (14ul)
 
-static const uint8_t A0  = PIN_A0 ;
-static const uint8_t A1  = PIN_A1 ;
-static const uint8_t A2  = PIN_A2 ;
-static const uint8_t A3  = PIN_A3 ;
-static const uint8_t A4  = PIN_A4 ;
-static const uint8_t A5  = PIN_A5 ;
+static const uint8_t A0  = PIN_A0;
+static const uint8_t A1  = PIN_A1;
+static const uint8_t A2  = PIN_A2;
+static const uint8_t A3  = PIN_A3;
+static const uint8_t A4  = PIN_A4;
+static const uint8_t A5  = PIN_A5;
+static const uint8_t DAC0 = PIN_DAC0;
 #define ADC_RESOLUTION		12
 
 // #define REMAP_ANALOG_PIN_ID	while(0)
@@ -173,6 +175,9 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PERIPH_WIRE1          sercom2
 #define WIRE1_IT_HANDLER      SERCOM2_Handler
 
+static const uint8_t SDA = PIN_WIRE_SDA;
+static const uint8_t SCL = PIN_WIRE_SCL;
+
 /*
  * USB
  */
@@ -229,4 +234,3 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */
-

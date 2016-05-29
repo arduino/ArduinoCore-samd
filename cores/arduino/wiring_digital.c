@@ -40,8 +40,8 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
   uint8_t pinPort = g_APinDescription[ulPin].ulPort;
   uint8_t pinNum = g_APinDescription[ulPin].ulPin;
   uint8_t pinConfig = PORT->Group[pinPort].PINCFG[pinNum].reg;
-  uint8_t pinDir = PORT->Group[pinPort].DIR[pinNum].reg;
-  uint8_t pinOut = PORT->Group[pinPort].OUT[pinNum].reg;
+  uint8_t pinDir = (PORT->Group[pinPort].DIR.reg && (1ul << pinNum));
+  uint8_t pinOut = (PORT->Group[pinPort].OUT.reg && (1ul << pinNum));
 
   // Enable pull resistor if pin attributes allow and only if pin is not configured as output
   // Note that most pins should use PIN_ATTR_DIGITAL, which includes both PIN_ATTR_INPUT_PULLUP and PIN_ATTR_INPUT_PULLDOWN.
