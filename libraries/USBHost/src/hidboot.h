@@ -25,6 +25,10 @@ e-mail   :  support@circuitsathome.com
 
 #define UHS_HID_BOOT_KEY_ZERO           0x27
 #define UHS_HID_BOOT_KEY_ENTER          0x28
+#define UHS_HID_BOOT_KEY_ESCAPE         0x29
+#define UHS_HID_BOOT_KEY_DELETE         0x2a    // Backspace
+#define UHS_HID_BOOT_KEY_DELETE_FORWARD	0x4C	// Delete
+#define UHS_HID_BOOT_KEY_TAB            0x2b
 #define UHS_HID_BOOT_KEY_SPACE          0x2c
 #define UHS_HID_BOOT_KEY_CAPS_LOCK      0x39
 #define UHS_HID_BOOT_KEY_SCROLL_LOCK    0x47
@@ -240,7 +244,8 @@ void HIDBoot<BOOT_PROTOCOL>::Initialize() {
         for(int i = 0; i < totalEndpoints(BOOT_PROTOCOL); i++) {
                 epInfo[i].epAddr = 0;
 		epInfo[i].maxPktSize	= (i) ? 0 : 8;
-		epInfo[i].epAttribs		= 0;
+		epInfo[i].bmSndToggle   = 0;
+		epInfo[i].bmRcvToggle   = 0;
 		epInfo[i].bmNakPower	= (i) ? USB_NAK_NOWAIT : USB_NAK_MAX_POWER;
 	}
 	bNumEP		= 1;
@@ -535,7 +540,8 @@ void HIDBoot<BOOT_PROTOCOL>::EndpointXtract(uint32_t conf, uint32_t iface, uint3
 		// Fill in the endpoint info structure
 		epInfo[bNumEP].epAddr		= (pep->bEndpointAddress & 0x0F);
 		epInfo[bNumEP].maxPktSize	= (uint8_t)pep->wMaxPacketSize;
-		epInfo[bNumEP].epAttribs		= 0;
+		epInfo[bNumEP].bmSndToggle = 0;
+		epInfo[bNumEP].bmRcvToggle = 0;
                 epInfo[bNumEP].bmNakPower = USB_NAK_NOWAIT;
 		bNumEP++;
 

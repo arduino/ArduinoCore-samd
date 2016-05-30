@@ -29,7 +29,7 @@ class Uart : public HardwareSerial
   public:
     Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX);
     void begin(unsigned long baudRate);
-    void begin(unsigned long baudrate, uint8_t config);
+    void begin(unsigned long baudrate, uint16_t config);
     void end();
     int available();
     int peek();
@@ -51,7 +51,7 @@ class Uart : public HardwareSerial
     SercomRXPad uc_padRX;
     SercomUartTXPad uc_padTX;
 
-    SercomNumberStopBit extractNbStopBit(uint8_t config);
-    SercomUartCharSize extractCharSize(uint8_t config);
-    SercomParityMode extractParity(uint8_t config);
+    SercomNumberStopBit extractNbStopBit(uint16_t config);
+    SercomUartCharSize extractCharSize(uint16_t config);
+    SercomParityMode extractParity(uint16_t config);
 };

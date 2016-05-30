@@ -1,12 +1,53 @@
-SAMD CORE 1.6.3
+SAMD CORE 1.6.6 2016.05.19
 
+* Fixed digitalPinToInterrupt() macro, now it works as documented.
+* Added analogInputToDigitalPin macro
+* Fixed NUM_DIGITAL_PINS for Zero Board.
+* On-board RX-TX LEDs now blinks when there is activity on the native USB port
+* Fixed platform.txt, the core now compiles again with Arduino IDE <=1.6.5. Thanks @per1234
+* Fixed Wire.write(0x00) "ambiguos method" error
+* String class now supports iterators. Thanks @Chris--A
+* Remove enabling bootloader protection when burning bootloader. This enables WDT, so sketches do not work.
+* Added remote upload for Yun-Shield
+
+SAMD CORE 1.6.5 2016.04.02
+
+* Added Arduino/Genuino MKR1000 board
+* Set NVMCTRL.MANW bit to 1 (default is 0). This prevents accidental writes on program memory.
+* Bootloader: Fixed wrong UART speed (regression)
+* Fixed incorrect return value from Wire.available() when the receive buffer is not fully read.
+* Added DAC0 definition in Arduino/Genuino Zero variant file.
+* Enabled bootloader protection after "Burn bootloader".
+
+SAMD CORE 1.6.4 2016.02.19
+
+* Fixed Wire address setup when running as slave.
+* Fixed String constructor when using floating point numbers.
+* USBHost: fixed blocking USBHost.Task(). Thanks @bbx10
+* USBHost: fixed some ASCII Control codes in keyboard controller. Thanks @bbx10
+* USBHost: ported some minor fix from upstream UHS2. Thanks @bbx10
+* USBHost: fixed wrong library initialization. Thanks @bbx10 @ladyada
+* better interrupt handling in Serial::accept()
+
+SAMD CORE 1.6.3 2016.02.15
+
+* Added drivers for Arduino/Genuino MKR1000 board
+* Fixed Wire master repeated start behaviour
+* Added SerialUSB methods: readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts()
 * Added SPI.transfer16(..) method
 * Bugfix: added missing Serial.begin(baud, config) method. Thanks @tuxedo0801
+* Fixed Serial baudrate calculations for 1200bps. Thanks @TomKeddie
+* Fixed Serial.flush() that now waits until the last bit has been sent. Thanks @TomKeddie
+* Fixed Serial configuration for data-bit. Thanks @TomKeddie
 * Bootloader: 32Khz external oscillator is now used, improves USB clock. Thanks @aethaniel
 * Bootloader: Clean up of makefiles and file organization. Thanks @aethaniel
 * Added PWM capability to pins A1/A2 of Arduino Zero.
 * variant.h/cpp: PWM capability is now determined by PIN_ATTR_PWM combined with
                  PIN_ATTR_TIMER or PIN_ATTR_TIMER_ALT for timer selection.
+* Small fix to USBHost example "USB_desc.ino". Thanks @bbx10
+* USBHost: USB-Keyboard right shift key was ignored. Thanks @bbx10 
+* Wire library now support multiple instances in variant. Thanks @spiderkeys
+* Ported some SerialUSB API (readBreak(), baud(), stopbits(), paritytype(), numbits(), dtr(), rts())
 
 SAMD CORE 1.6.2 2015.11.03
 
