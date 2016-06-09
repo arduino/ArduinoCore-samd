@@ -23,28 +23,28 @@
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * |            | Digital Low      |        |                 |
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 0          | 0 -> RX          |  PA11  |                 | EIC/EXTINT[11] ADC/AIN[19]           PTC/X[3] *SERCOM0/PAD[3]  SERCOM2/PAD[3]  TCC0/WO[3]  TCC1/WO[1]
- * | 1          | 1 <- TX          |  PA10  |                 | EIC/EXTINT[10] ADC/AIN[18]           PTC/X[2] *SERCOM0/PAD[2]                  TCC0/WO[2]  TCC1/WO[0]
+ * | 0          | 0 -> RX          |  PA11  | RX              | EIC/EXTINT[11] ADC/AIN[19]           PTC/X[3] *SERCOM0/PAD[3]  SERCOM2/PAD[3]  TCC0/WO[3]  TCC1/WO[1]
+ * | 1          | 1 <- TX          |  PA10  | TX              | EIC/EXTINT[10] ADC/AIN[18]           PTC/X[2] *SERCOM0/PAD[2]                  TCC0/WO[2]  TCC1/WO[0]
  * | 2          | 2                |  PA00  |                 | EIC/EXTINT[0]                                    SERCOM4/PAD[2]  TC3/WO[0]   TCC0/WO[4] (32KHz config was EIC/EXTINT[0] SERCOM1/PAD[0] TCC2/WO[0])
- * | 3          | ~3               |  PA09  |                 | EIC/EXTINT[9]  ADC/AIN[17]           PTC/X[1]  SERCOM0/PAD[1]  SERCOM2/PAD[1] *TCC0/WO[1]  TCC1/WO[3]
- * | 4          | ~4               |  PA08  |                 | EIC/NMI        ADC/AIN[16]           PTC/X[0]  SERCOM0/PAD[0]  SERCOM2/PAD[0] *TCC0/WO[0]  TCC1/WO[2]
+ * | 3          | ~3               |  PA09  | Green           | EIC/EXTINT[9]  ADC/AIN[17]           PTC/X[1]  SERCOM0/PAD[1]  SERCOM2/PAD[1] *TCC0/WO[1]  TCC1/WO[3]
+ * | 4          | ~4               |  PA08  | Red             | EIC/NMI        ADC/AIN[16]           PTC/X[0]  SERCOM0/PAD[0]  SERCOM2/PAD[0] *TCC0/WO[0]  TCC1/WO[2]
  * | 5          | 5                |  PA27  |                 | EIC/EXTINT[15]
  * | 6          | 6                |  PA01  |                 | EIC/EXTINT[1]                                                  SERCOM1/PAD[1] (32KHz config was EIC/EXTINT[1] SERCOM1/PAD[1] TCC2/WO[1])
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * |            | Digital High     |        |                 |
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 7          | ~7               |  PA18  |                 | EIC/EXTINT[2]                        PTC/X[6] +SERCOM1/PAD[2]  SERCOM3/PAD[2] *TC3/WO[0]    TCC0/WO[2]
- * | 8          | ~8               |  PA16  |                 | EIC/EXTINT[0]                        PTC/X[4] +SERCOM1/PAD[0]  SERCOM3/PAD[0] *TCC2/WO[0]   TCC0/WO[6]
- * | 9          | ~9               |  PA19  |                 | EIC/EXTINT[3]                        PTC/X[7] +SERCOM1/PAD[3]  SERCOM3/PAD[3]  TC3/WO[1]   *TCC0/WO[3]
- * | 10         | ~10              |  PA17  | LED             | EIC/EXTINT[1]                        PTC/X[5] +SERCOM1/PAD[1]  SERCOM3/PAD[1] *TCC2/WO[1]   TCC0/WO[7]
+ * | 7          | ~7               |  PA18  | SS              | EIC/EXTINT[2]                        PTC/X[6] +SERCOM1/PAD[2]  SERCOM3/PAD[2] *TC3/WO[0]    TCC0/WO[2]
+ * | 8          | ~8               |  PA16  | MOSI            | EIC/EXTINT[0]                        PTC/X[4] +SERCOM1/PAD[0]  SERCOM3/PAD[0] *TCC2/WO[0]   TCC0/WO[6]
+ * | 9          | ~9               |  PA19  | MISO            | EIC/EXTINT[3]                        PTC/X[7] +SERCOM1/PAD[3]  SERCOM3/PAD[3]  TC3/WO[1]   *TCC0/WO[3]
+ * | 10         | ~10              |  PA17  | SCK/Blue        | EIC/EXTINT[1]                        PTC/X[5] +SERCOM1/PAD[1]  SERCOM3/PAD[1] *TCC2/WO[1]   TCC0/WO[7]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * |            | Analog Connector |        |                 |
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | 11         | A0/DAC           |  PA02  | A0              | EIC/EXTINT[2] *ADC/AIN[0]  DAC/VOUT  PTC/Y[0]
- * | 12         | A1               |  PA06  | A1              | EIC/EXTINT[6] *ADC/AIN[6]            PTC/Y[4] SERCOM0/PAD[0]                  TC1/WO[0]
- * | 13         | A2               |  PA07  | A2              | EIC/EXTINT[9] *ADC/AIN[3]            PTC/Y[15] SERCOM0/PAD[3]                  TC1/WO[1]
+ * | 12         | A1               |  PA06  | A1              | EIC/EXTINT[6] *ADC/AIN[6]            PTC/Y[4]  SERCOM0/PAD[0]                  TC1/WO[0]
+ * | 13         | A2               |  PA07  | A2              | EIC/EXTINT[9] *ADC/AIN[3]            PTC/Y[5]  SERCOM0/PAD[3]                  TC1/WO[1]
  * | 14         | A3               |  PA04  | A3              | EIC/EXTINT[4] *ADC/AIN[4]  AC/AIN[0] PTC/Y[2]  SERCOM0/PAD[0]                  TCC0/WO[0]
- * | 15         | A4               |  PA05  | A4              | EIC/EXTINT[5] *ADC/AIN[5]  AC/AIN[1] PTC/Y[5]  SERCOM0/PAD[1]                  TCC0/WO[1]
+ * | 15         | A4               |  PA05  | A4              | EIC/EXTINT[5] *ADC/AIN[5]  AC/AIN[1] PTC/Y[3]  SERCOM0/PAD[1]                  TCC0/WO[1]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * |            | Wire             |        |                 |
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@
  * |            |                  |        |                 |
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * |            | GND              |        |                 |
- * | 25         | AREF             |  PA03  |                 | EIC/EXTINT[3] *[ADC|DAC]/VREFA ADC/AIN[1] PTC/Y[1]
+ * | 25         | AREF             |  PA03  | AREF            | EIC/EXTINT[3] *[ADC|DAC]/VREFA ADC/AIN[1] PTC/Y[1]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
 
