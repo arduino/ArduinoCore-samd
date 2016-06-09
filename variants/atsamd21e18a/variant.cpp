@@ -41,7 +41,7 @@
  * |            | Analog Connector |        |                 |
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | 11         | A0/DAC           |  PA02  | A0              | EIC/EXTINT[2] *ADC/AIN[0]  DAC/VOUT  PTC/Y[0]
- * | 12         | A1               |  PA06  | A1              | EIC/EXTINT[6] *ADC/AIN[6]            PTC/Y[4]  SERCOM0/PAD[0]                  TC1/WO[0]
+ * | 12         | A1               |  PA06  | A1              | EIC/EXTINT[6] *ADC/AIN[6]            PTC/Y[4]  SERCOM0/PAD[2]                  TC1/WO[0]
  * | 13         | A2               |  PA07  | A2              | EIC/EXTINT[9] *ADC/AIN[3]            PTC/Y[5]  SERCOM0/PAD[3]                  TC1/WO[1]
  * | 14         | A3               |  PA04  | A3              | EIC/EXTINT[4] *ADC/AIN[4]  AC/AIN[0] PTC/Y[2]  SERCOM0/PAD[0]                  TCC0/WO[0]
  * | 15         | A4               |  PA05  | A4              | EIC/EXTINT[5] *ADC/AIN[5]  AC/AIN[1] PTC/Y[3]  SERCOM0/PAD[1]                  TCC0/WO[1]
