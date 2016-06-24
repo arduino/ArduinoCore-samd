@@ -115,6 +115,7 @@ recipe.size.regex=\.text\s+([0-9]+).*
 tools.bossac.path={runtime.platform.path}/tools
 tools.bossac.cmd=bossac
 tools.bossac.cmd.windows=bossac.exe
+tools.bossac.cmd.linux=bossac_linux
 tools.bossac.cmd.macosx=bossac_osx
 
 tools.bossac.upload.params.verbose=-i -d
