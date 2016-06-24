@@ -243,8 +243,7 @@ int Serial_::read(void)
 		unsigned char c = buffer->buffer[buffer->tail];
 		buffer->tail = (uint32_t)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
 		buffer->full = false;
-// 		if (usb.available(CDC_ENDPOINT_OUT))
-// 			accept();
+
 		return c;
 	}
 }

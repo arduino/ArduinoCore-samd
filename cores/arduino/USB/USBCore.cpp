@@ -253,9 +253,6 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 #if defined(CDC_ENABLED)
 	if (ep == CDC_ENDPOINT_OUT)
 	{
-		// The RAM Buffer is empty: we can receive data
-		//usbd.epBank0ResetReady(CDC_ENDPOINT_OUT);
-
 		// Handle received bytes
 		if (available(CDC_ENDPOINT_OUT))
 			SerialUSB.accept();
@@ -454,10 +451,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	}
 	else if (config == USB_ENDPOINT_TYPE_CONTROL)
 	{
-		// XXX: Needed?
-// 		usbd.epBank0DisableAutoZLP(ep);
-// 		usbd.epBank1DisableAutoZLP(ep);
-
 		// Setup Control OUT
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
@@ -612,39 +605,6 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		return -1;
 	if (len > 16384)
 		return -1;
-
-#if 0
-// This shortcut has some issues:
-// - sometimes it fails when sending an odd number of bytes (may be
-//   due to memory alignment?)
-// - the data pointer should point to "stable" data (and this is not
-//   guaranteed by caller, it may be some sort of temporary buffer)
-// - the SRAM is not guaranteed to start at 0x20000000
-
-// All the above problems must be properly fixed before reenabling
-// this part
-
-	if ((unsigned int)data > 0x20000000)
-	{
-		// Buffer in RAM
-		usbd.epBank1SetAddress(ep, (void *)data);
-		usbd.epBank1SetMultiPacketSize(ep, 0);
-
-		usbd.epBank1SetByteCount(ep, len);
-
-		// Clear the transfer complete flag
-		usbd.epBank1AckTransferComplete(ep);
-
-		// RAM buffer is full, we can send data (IN)
-		usbd.epBank1SetReady(ep);
-
-		// Wait for transfer to complete
-		while (!usbd.epBank1IsTransferComplete(ep)) {
-			;  // need fire exit.
-		}
-		return 0;
-	}
-#endif
 
 #ifdef PIN_LED_TXL
 	digitalWrite(PIN_LED_TXL, LOW);
