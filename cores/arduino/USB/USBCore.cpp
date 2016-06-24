@@ -252,6 +252,7 @@ void USBDeviceClass::epOut(uint32_t ep)
 	usbd.epBank0AckTransferComplete(ep);
 	//usbd.epBank0AckTransferFailed(ep);
 	usbd.epBank0EnableTransferComplete(ep);
+	usbd.epBank0SetByteCount(ep, 0);
 	usbd.epBank0ResetReady(ep);
 }
 
