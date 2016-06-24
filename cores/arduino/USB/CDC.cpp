@@ -214,24 +214,24 @@ int Serial_::read(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
 
+	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+	__disable_irq();
+
 	// if we have enough space enable OUT endpoint to receive more data
 	if (stalled && availableForStore() >= EPX_SIZE)
 	{
 		stalled = false;
 		usb.epOut(CDC_ENDPOINT_OUT);
 	}
-	if (buffer->head == buffer->tail && !buffer->full)
+	int c = -1;
+	if (buffer->head != buffer->tail || buffer->full)
 	{
-		return -1;
-	}
-	else
-	{
-		unsigned char c = buffer->buffer[buffer->tail];
+		c = buffer->buffer[buffer->tail];
 		buffer->tail = (uint32_t)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
 		buffer->full = false;
-
-		return c;
 	}
+	if (enableInterrupts) __enable_irq();
+	return c;
 }
 
 void Serial_::flush(void)
