@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Adafruit SAMD (32-bits ARM Cortex-M0+) Boards
-version=1.0.10
+version=1.0.11
 
 # Compile variables
 # -----------------
@@ -111,12 +111,12 @@ recipe.size.regex=\.text\s+([0-9]+).*
 #
 # BOSSA
 #
-#tools.bossac.path={runtime.tools.bossac-1.6.1-arduino.path}
-tools.bossac.path={runtime.platform.path}/tools
+tools.bossac.path={runtime.tools.bossac-1.6.1-arduino.path}
+#tools.bossac.path={runtime.platform.path}/tools
 tools.bossac.cmd=bossac
 tools.bossac.cmd.windows=bossac.exe
-tools.bossac.cmd.linux=bossac_linux
-tools.bossac.cmd.macosx=bossac_osx
+#tools.bossac.cmd.linux=bossac_linux
+#tools.bossac.cmd.macosx=bossac_osx
 
 tools.bossac.upload.params.verbose=-i -d
 tools.bossac.upload.params.quiet=
