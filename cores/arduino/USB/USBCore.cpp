@@ -46,6 +46,12 @@ extern "C" void UDD_Handler(void) {
 	USBDevice.ISRHandler();
 }
 
+class EPHandler {
+public:
+	virtual void handleEndpoint() = 0;
+	virtual uint32_t recv(void *_data, uint32_t len) = 0;
+	virtual uint32_t available() const = 0;
+};
 
 
 const uint16_t STRING_LANGUAGE[2] = {
@@ -87,6 +93,8 @@ uint8_t udd_ep_out_cache_buffer[7][64];
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
 uint8_t udd_ep_in_cache_buffer[7][64];
+
+static EPHandler *epHandlers[7];
 
 //==================================================================
 
@@ -532,7 +540,11 @@ uint32_t USBDeviceClass::recvControl(void *_data, uint32_t len)
 // Number of bytes, assumes a rx endpoint
 uint32_t USBDeviceClass::available(uint32_t ep)
 {
-	return usbd.epBank0ByteCount(ep);
+	if (epHandlers[ep]) {
+		return epHandlers[ep]->available();
+	} else {
+		return usbd.epBank0ByteCount(ep);
+	}
 }
 
 // Non Blocking receive
@@ -541,6 +553,10 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 {
 	if (!_usbConfiguration)
 		return -1;
+
+	if (epHandlers[ep]) {
+		return epHandlers[ep]->recv(_data, len);
+	}
 
 	if (available(ep) < len)
 		len = available(ep);
@@ -891,7 +907,11 @@ void USBDeviceClass::ISRHandler()
 			if (usbd.epBank0IsTransferComplete(i) ||
 			    usbd.epBank1IsTransferComplete(i))
 			{
-				handleEndpoint(i);
+				if (epHandlers[i]) {
+					epHandlers[i]->handleEndpoint();
+				} else {
+					handleEndpoint(i);
+				}
 			}
 			ept_int &= ~(1 << i);
 		}
