@@ -88,7 +88,7 @@ public:
 	uint32_t send(uint32_t ep, const void *data, uint32_t len);
 	void sendZlp(uint32_t ep);
 	uint32_t recv(uint32_t ep, void *data, uint32_t len);
-	uint32_t recv(uint32_t ep);
+	int recv(uint32_t ep);
 	uint32_t available(uint32_t ep);
 	void flush(uint32_t ep);
 	void stall(uint32_t ep);

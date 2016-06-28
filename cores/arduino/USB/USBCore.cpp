@@ -572,7 +572,7 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 }
 
 // Recv 1 byte if ready
-uint32_t USBDeviceClass::recv(uint32_t ep)
+int USBDeviceClass::recv(uint32_t ep)
 {
 	uint8_t c;
 	if (recv(ep, &c, 1) != 1) {
