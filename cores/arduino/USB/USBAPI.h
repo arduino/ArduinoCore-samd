@@ -92,7 +92,6 @@ public:
 	uint32_t available(uint32_t ep);
 	void flush(uint32_t ep);
 	void stall(uint32_t ep);
-	void epOut(uint32_t ep);
 
 	// private?
 	uint32_t armSend(uint32_t ep, const void *data, uint32_t len);
@@ -120,7 +119,6 @@ public:
 
 	virtual int available(void);
 	virtual int availableForWrite(void);
-	virtual void accept(uint8_t *data, uint32_t size);
 	virtual int peek(void);
 	virtual int read(void);
 	virtual void flush(void);

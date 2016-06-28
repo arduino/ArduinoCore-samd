@@ -387,25 +387,9 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 	return true;
 }
 
-void USBDeviceClass::epOut(uint32_t ep)
-{
-	usbd.epBank0AckTransferComplete(ep);
-	//usbd.epBank0AckTransferFailed(ep);
-	usbd.epBank0EnableTransferComplete(ep);
-	usbd.epBank0SetByteCount(ep, 0);
-	usbd.epBank0ResetReady(ep);
-}
-
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
 #if defined(CDC_ENABLED)
-	if (ep == CDC_ENDPOINT_OUT && usbd.epBank0IsTransferComplete(CDC_ENDPOINT_OUT))
-	{
-		// Ack Transfer complete
-		usbd.epBank0AckTransferComplete(CDC_ENDPOINT_OUT);
-
-		SerialUSB.accept(udd_ep_out_cache_buffer[CDC_ENDPOINT_OUT], available(CDC_ENDPOINT_OUT));
-	}
 	if (ep == CDC_ENDPOINT_IN)
 	{
 		// NAK on endpoint IN, the bank is not yet filled in.
@@ -580,14 +564,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0)))
 	{
-		usbd.epBank0SetSize(ep, 64);
-		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
-		usbd.epBank0SetType(ep, 3); // BULK OUT
-
-		// Release OUT EP
-		usbd.epBank0SetMultiPacketSize(ep, 64);
-		usbd.epBank0SetByteCount(ep, 0);
-		epOut(ep);
+		epHandlers[ep] = new DoubleBufferedEPOutHandler(ep, 64);
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{

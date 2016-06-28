@@ -33,14 +33,6 @@
 
 #define CDC_LINESTATE_READY		(CDC_LINESTATE_RTS | CDC_LINESTATE_DTR)
 
-struct ring_buffer {
-	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
-	volatile uint32_t head;
-	volatile uint32_t tail;
-	volatile bool full;
-};
-ring_buffer cdc_rx_buffer = {{0}, 0, 0, false};
-
 typedef struct {
 	uint32_t dwDTERate;
 	uint8_t bCharFormat;
@@ -146,7 +138,6 @@ bool CDC_Setup(USBSetup& setup)
 	return false;
 }
 
-uint32_t _serialPeek = -1;
 void Serial_::begin(uint32_t /* baud_count */)
 {
 	// uart config is ignored in USB-CDC
@@ -161,31 +152,9 @@ void Serial_::end(void)
 {
 }
 
-void Serial_::accept(uint8_t *data, uint32_t size)
-{
-	ring_buffer *ringBuffer = &cdc_rx_buffer;
-	uint32_t i = ringBuffer->head;
-	while (size--) {
-		ringBuffer->buffer[i++] = *data;
-		data++;
-		i %= CDC_SERIAL_BUFFER_SIZE;
-	}
-	ringBuffer->head = i;
-	if (i == ringBuffer->tail) ringBuffer->full = true;
-	if (availableForStore() < EPX_SIZE) {
-		stalled = true;
-	} else {
-		usb.epOut(CDC_ENDPOINT_OUT);
-	}
-}
-
 int Serial_::available(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
-	if (buffer->full) {
-		return CDC_SERIAL_BUFFER_SIZE;
-	}
-	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
+	return usb.available(CDC_ENDPOINT_OUT);
 }
 
 int Serial_::availableForWrite(void)
@@ -195,43 +164,24 @@ int Serial_::availableForWrite(void)
 	return (EPX_SIZE - 1);
 }
 
+int _serialPeek = -1;
+
 int Serial_::peek(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
-	if (buffer->head == buffer->tail && !buffer->full) {
-		return -1;
-	} else {
-		return buffer->buffer[buffer->tail];
-	}
+	if (_serialPeek != -1)
+		return _serialPeek;
+	_serialPeek = read();
+	return _serialPeek;
 }
 
-
-// if the ringBuffer is empty: try to fill it
-// if it's still empty: return -1
-// else return the last char
-// so the buffer is filled only when needed
 int Serial_::read(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
-
-	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
-	__disable_irq();
-
-	// if we have enough space enable OUT endpoint to receive more data
-	if (stalled && availableForStore() >= EPX_SIZE)
-	{
-		stalled = false;
-		usb.epOut(CDC_ENDPOINT_OUT);
+	if (_serialPeek != -1) {
+		int res = _serialPeek;
+		_serialPeek = -1;
+		return res;
 	}
-	int c = -1;
-	if (buffer->head != buffer->tail || buffer->full)
-	{
-		c = buffer->buffer[buffer->tail];
-		buffer->tail = (uint32_t)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
-		buffer->full = false;
-	}
-	if (enableInterrupts) __enable_irq();
-	return c;
+	return usb.recv(CDC_ENDPOINT_OUT);
 }
 
 void Serial_::flush(void)
@@ -335,17 +285,6 @@ bool Serial_::dtr() {
 
 bool Serial_::rts() {
 	return _usbLineInfo.lineState & 0x2;
-}
-
-int Serial_::availableForStore(void) {
-	ring_buffer *buffer = &cdc_rx_buffer;
-
-	if (buffer->full)
-		return 0;
-	else if (buffer->head >= buffer->tail)
-		return CDC_SERIAL_BUFFER_SIZE - 1 - buffer->head + buffer->tail;
-	else
-		return buffer->tail - buffer->head  - 1;
 }
 
 Serial_ SerialUSB(USBDevice);
