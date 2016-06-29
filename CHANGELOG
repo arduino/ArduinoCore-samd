@@ -1,7 +1,8 @@
 SAMD CORE
 
- * Fixed Serial.flush() blocking before any writes. Thanks @hangmoh
- * Added snprintf_P to avr/pgmspace.h stub. Thanks @jantje
+* Fixed Serial.flush() blocking before any writes. Thanks @hangmoh
+* Added snprintf_P to avr/pgmspace.h stub. Thanks @jantje
+* Another small fix to String iterators. Thanks @Ivan-Perez @Chris--A
 
 SAMD CORE 1.6.6 2016.05.19
 
