@@ -256,8 +256,8 @@ void analogWrite(uint32_t pin, uint32_t value)
         // Disable TCx
         TCx->COUNT8.CTRLA.bit.ENABLE = 0;
         syncTC_8(TCx);
-        // Set Timer counter Mode to 8 bits, normal PWM
-        TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_WAVEGEN_NPWM;
+        // Set Timer counter Mode to 8 bits, normal PWM, prescaler 1/256
+        TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_WAVEGEN_NPWM | TC_CTRLA_PRESCALER_DIV256;
         syncTC_8(TCx);
         // Set the initial value
         TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
@@ -273,6 +273,9 @@ void analogWrite(uint32_t pin, uint32_t value)
         Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
         // Disable TCCx
         TCCx->CTRLA.bit.ENABLE = 0;
+        syncTCC(TCCx);
+        // Set prescaler to 1/256
+        TCCx->CTRLA.reg |= TCC_CTRLA_PRESCALER_DIV256;
         syncTCC(TCCx);
         // Set TCx as normal PWM
         TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;

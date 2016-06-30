@@ -4,6 +4,7 @@ SAMD CORE
 * Added snprintf_P to avr/pgmspace.h stub. Thanks @jantje
 * Another small fix to String iterators. Thanks @Ivan-Perez @Chris--A
 * Fixed glitch in PWM generation that may happen when calling analogWrite()
+* PWM frequency is now 732.4Hz (before it was 187500.0Hz)
 
 SAMD CORE 1.6.6 2016.05.19
 
