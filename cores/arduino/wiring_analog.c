@@ -189,7 +189,8 @@ uint32_t analogRead(uint32_t pin)
 // to digital output.
 void analogWrite(uint32_t pin, uint32_t value)
 {
-  uint32_t attr = g_APinDescription[pin].ulPinAttribute;
+  PinDescription pinDesc = g_APinDescription[pin];
+  uint32_t attr = pinDesc.ulPinAttribute;
 
   if ((attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG)
   {
@@ -211,104 +212,96 @@ void analogWrite(uint32_t pin, uint32_t value)
 
   if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM)
   {
-    if (attr & PIN_ATTR_TIMER) {
-      #if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
-      // Compatibility for cores based on SAMD core <=1.6.2
-      if (g_APinDescription[pin].ulPinType == PIO_TIMER_ALT) {
-        pinPeripheral(pin, PIO_TIMER_ALT);
-      } else
-      #endif
-      {
-        pinPeripheral(pin, PIO_TIMER);
-      }
-    } else {
-      // We suppose that attr has PIN_ATTR_TIMER_ALT bit set...
-      pinPeripheral(pin, PIO_TIMER_ALT);
-    }
-
-    Tc*  TCx  = NULL;
-    Tcc* TCCx = NULL;
-    uint8_t Channelx = GetTCChannelNumber(g_APinDescription[pin].ulPWMChannel);
-    if (GetTCNumber(g_APinDescription[pin].ulPWMChannel) >= TCC_INST_NUM) {
-      TCx = (Tc*) GetTC(g_APinDescription[pin].ulPWMChannel);
-    } else {
-      TCCx = (Tcc*) GetTC(g_APinDescription[pin].ulPWMChannel);
-    }
-
-    // Enable clocks according to TCCx instance to use
-    switch (GetTCNumber(g_APinDescription[pin].ulPWMChannel))
-    {
-      case 0: // TCC0
-      case 1: // TCC1
-        // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TCC0_TCC1));
-        break;
-
-      case 2: // TCC2
-      case 3: // TC3
-        // Enable GCLK for TCC2 and TC3 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TCC2_TC3));
-        break;
-
-      case 4: // TC4
-      case 5: // TC5
-        // Enable GCLK for TC4 and TC5 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC4_TC5));
-        break;
-
-      case 6: // TC6 (not available on Zero)
-      case 7: // TC7 (not available on Zero)
-        // Enable GCLK for TC6 and TC7 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC6_TC7));
-        break;
-    }
-
-    while (GCLK->STATUS.bit.SYNCBUSY == 1);
-
     value = mapResolution(value, _writeResolution, 8);
 
-    // Set PORT
-    if (TCx)
-    {
-      // -- Configure TC
+    uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
+    uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
+    static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
 
-      // Disable TCx
-      TCx->COUNT8.CTRLA.reg &= ~TC_CTRLA_ENABLE;
-      syncTC_8(TCx);
-      // Set Timer counter Mode to 8 bits
-      TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8;
-      // Set TCx as normal PWM
-      TCx->COUNT8.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
-      // Set TCx in waveform mode Normal PWM
-      TCx->COUNT8.CC[Channelx].reg = (uint8_t) value;
-      syncTC_8(TCx);
-      // Set PER to maximum counter value (resolution : 0xFF)
-      TCx->COUNT8.PER.reg = 0xFF;
-      syncTC_8(TCx);
-      // Enable TCx
-      TCx->COUNT8.CTRLA.reg |= TC_CTRLA_ENABLE;
-      syncTC_8(TCx);
-    }
-    else
-    {
-      // -- Configure TCC
-      // Disable TCCx
-      TCCx->CTRLA.reg &= ~TCC_CTRLA_ENABLE;
-      syncTCC(TCCx);
-      // Set TCx as normal PWM
-      TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
-      syncTCC(TCCx);
-      // Set TCx in waveform mode Normal PWM
-      TCCx->CC[Channelx].reg = (uint32_t)value;
-      syncTCC(TCCx);
-      // Set PER to maximum counter value (resolution : 0xFF)
-      TCCx->PER.reg = 0xFF;
-      syncTCC(TCCx);
-      // Enable TCCx
-      TCCx->CTRLA.reg |= TCC_CTRLA_ENABLE;
-      syncTCC(TCCx);
-    }
+    if (!tcEnabled[tcNum]) {
+      tcEnabled[tcNum] = true;
 
+      if (attr & PIN_ATTR_TIMER) {
+        #if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
+        // Compatibility for cores based on SAMD core <=1.6.2
+        if (pinDesc.ulPinType == PIO_TIMER_ALT) {
+          pinPeripheral(pin, PIO_TIMER_ALT);
+        } else
+        #endif
+        {
+          pinPeripheral(pin, PIO_TIMER);
+        }
+      } else {
+        // We suppose that attr has PIN_ATTR_TIMER_ALT bit set...
+        pinPeripheral(pin, PIO_TIMER_ALT);
+      }
+
+      uint16_t GCLK_CLKCTRL_IDs[] = {
+        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
+        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
+        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TCC2
+        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TC3
+        GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC4
+        GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC5
+        GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC6
+        GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC7
+      };
+      GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_IDs[tcNum]);
+      while (GCLK->STATUS.bit.SYNCBUSY == 1);
+
+      // Set PORT
+      if (tcNum >= TCC_INST_NUM) {
+        // -- Configure TC
+        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+        // Disable TCx
+        TCx->COUNT8.CTRLA.bit.ENABLE = 0;
+        syncTC_8(TCx);
+        // Set Timer counter Mode to 8 bits, normal PWM
+        TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_WAVEGEN_NPWM;
+        syncTC_8(TCx);
+        // Set the initial value
+        TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
+        syncTC_8(TCx);
+        // Set PER to maximum counter value (resolution : 0xFF)
+        TCx->COUNT8.PER.reg = 0xFF;
+        syncTC_8(TCx);
+        // Enable TCx
+        TCx->COUNT8.CTRLA.bit.ENABLE = 1;
+        syncTC_8(TCx);
+      } else {
+        // -- Configure TCC
+        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+        // Disable TCCx
+        TCCx->CTRLA.bit.ENABLE = 0;
+        syncTCC(TCCx);
+        // Set TCx as normal PWM
+        TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
+        syncTCC(TCCx);
+        // Set the initial value
+        TCCx->CC[tcChannel].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        // Set PER to maximum counter value (resolution : 0xFF)
+        TCCx->PER.reg = 0xFF;
+        syncTCC(TCCx);
+        // Enable TCCx
+        TCCx->CTRLA.bit.ENABLE = 1;
+        syncTCC(TCCx);
+      }
+    } else {
+      if (tcNum >= TCC_INST_NUM) {
+        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+        TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
+        syncTC_8(TCx);
+    } else {
+        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+        TCCx->CTRLBSET.bit.LUPD = 1;
+        syncTCC(TCCx);
+        TCCx->CCB[tcChannel].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        TCCx->CTRLBCLR.bit.LUPD = 1;
+        syncTCC(TCCx);
+      }
+    }
     return;
   }
 
