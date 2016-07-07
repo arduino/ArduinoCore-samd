@@ -202,6 +202,13 @@ int Serial_::available(void)
 	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
 }
 
+int Serial_::availableForWrite(void)
+{
+	// return the number of bytes left in the current bank,
+	// always EP size - 1, because bank is flushed on every write
+	return (EPX_SIZE - 1);
+}
+
 int Serial_::peek(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
