@@ -21,6 +21,14 @@ Just open the **Boards Manager** and install the package called:
 
 "Atmel ATSAMD21E18A core" by FemtoIO
 
+
+
+For SAM R21 LwMesh support, you will need our fork of the `Pinnoccio/library-atmel-lwmesh` library, "at86rf233" branch.
+
+See https://github.com/femtoio/library-atmel-lwm/tree/at86rf233
+
+
+
 ## Support
 
 This package is derrived from the Arduino Zero bootloader and core. It has been modified to work with the E variant of the SAM D21 chips.
