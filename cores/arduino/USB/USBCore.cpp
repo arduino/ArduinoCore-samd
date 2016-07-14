@@ -38,7 +38,6 @@ static volatile uint8_t rxLEDPulse; /**< Milliseconds remaining for data Rx LED 
 #endif
 static char isRemoteWakeUpEnabled = 0;
 static char isEndpointHalt = 0;
-static char lastTransmitTimedOut = 0;
 
 extern void (*gpf_isr)(void);
 
@@ -602,6 +601,16 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep)
 // Timeout for sends
 #define TX_TIMEOUT_MS 70
 
+static char LastTransmitTimedOut[7] = {
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
 // Blocking Send of data to an endpoint
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
@@ -627,13 +636,13 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 			// previous transfer is still not complete
 
 			// convert the timeout from microseconds to a number of times through
-			// the wait loop; it takes (roughly) 18 clock cycles per iteration.
-			uint32_t timeout = microsecondsToClockCycles(TX_TIMEOUT_MS * 1000) / 18;
+			// the wait loop; it takes (roughly) 23 clock cycles per iteration.
+			uint32_t timeout = microsecondsToClockCycles(TX_TIMEOUT_MS * 1000) / 23;
 
 			// Wait for (previous) transfer to complete
 			while (!usbd.epBank1IsTransferComplete(ep)) {
-				if (lastTransmitTimedOut || timeout-- == 0) {
-					lastTransmitTimedOut = 1;
+				if (LastTransmitTimedOut[ep] || timeout-- == 0) {
+					LastTransmitTimedOut[ep] = 1;
 
 					// set byte count to zero, so that ZLP is sent
 					// instead of stale data
@@ -643,7 +652,7 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 			}
 		}
 
-		lastTransmitTimedOut = 0;
+		LastTransmitTimedOut[ep] = 0;
 
 		if (len >= EPX_SIZE) {
 			length = EPX_SIZE - 1;
