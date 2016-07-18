@@ -9,6 +9,7 @@ SAMD CORE
 * Fixed writing LOW to a digital input pin blocking subsequent digitalRead attempts
 * Fixed digitalWrite() unnecessarily activating the pull-up resistor
 * Wire: Slave writes now use TX buffer
+* Added getTimeout() method to Stream.
 
 SAMD CORE 1.6.6 2016.05.19
 
