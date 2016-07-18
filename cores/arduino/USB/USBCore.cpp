@@ -640,6 +640,7 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 			uint32_t timeout = microsecondsToClockCycles(TX_TIMEOUT_MS * 1000) / 23;
 
 			// Wait for (previous) transfer to complete
+			// inspired by Paul Stoffregen's work on Teensy
 			while (!usbd.epBank1IsTransferComplete(ep)) {
 				if (LastTransmitTimedOut[ep] || timeout-- == 0) {
 					LastTransmitTimedOut[ep] = 1;
