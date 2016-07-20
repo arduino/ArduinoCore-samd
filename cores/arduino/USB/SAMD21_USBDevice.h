@@ -62,8 +62,8 @@ public:
 	// USB Interrupts
 	inline bool isEndOfResetInterrupt()        { return usb.INTFLAG.bit.EORST; }
 	inline void ackEndOfResetInterrupt()       { usb.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST; }
-	inline void enableEndOfResetInterrupt()    { usb.INTENSET.bit.EORST = 1; } 
-	inline void disableEndOfResetInterrupt()   { usb.INTENCLR.bit.EORST = 1; } 
+	inline void enableEndOfResetInterrupt()    { usb.INTENSET.bit.EORST = 1; }
+	inline void disableEndOfResetInterrupt()   { usb.INTENCLR.bit.EORST = 1; }
 
 	inline bool isStartOfFrameInterrupt()      { return usb.INTFLAG.bit.SOF; }
 	inline void ackStartOfFrameInterrupt()     { usb.INTFLAG.reg = USB_DEVICE_INTFLAG_SOF; }
@@ -194,4 +194,146 @@ void USBDevice_SAMD21G18x::calibrate() {
 	usb.PADCAL.bit.TRANSP = pad_transp;
 	usb.PADCAL.bit.TRIM   = pad_trim;
 }
+
+class EPHandler {
+public:
+	virtual void handleEndpoint() = 0;
+	virtual uint32_t recv(void *_data, uint32_t len) = 0;
+	virtual uint32_t available() const = 0;
+};
+
+class DoubleBufferedEPOutHandler : public EPHandler {
+public:
+	DoubleBufferedEPOutHandler(USBDevice_SAMD21G18x &usbDev, uint32_t endPoint, uint32_t bufferSize) :
+		usbd(usbDev),
+		ep(endPoint), size(bufferSize),
+		current(0), incoming(0),
+		first0(0), last0(0), ready0(false),
+		first1(0), last1(0), ready1(false),
+		notify(false)
+	{
+		data0 = reinterpret_cast<uint8_t *>(malloc(size));
+		data1 = reinterpret_cast<uint8_t *>(malloc(size));
+
+		usbd.epBank0SetSize(ep, 64);
+		usbd.epBank0SetType(ep, 3); // BULK OUT
+
+		release();
+	}
+
+	// Read one byte from the buffer, if the buffer is empty -1 is returned
+	int read() {
+		if (current == 0) {
+			if (!ready0) {
+				return -1;
+			}
+			if (first0 == last0) {
+				first0 = 0;
+				last0 = 0;
+				ready0 = false;
+				if (notify) {
+					release();
+				}
+				current = 1;
+				return -1;
+			}
+			return data0[first0++];
+		} else {
+			if (!ready1) {
+				return -1;
+			}
+			if (first1 == last1) {
+				first1 = 0;
+				last1 = 0;
+				ready1 = false;
+				if (notify) {
+					release();
+				}
+				current = 0;
+				return -1;
+			}
+			return data1[first1++];
+		}
+	}
+
+	virtual void handleEndpoint()
+	{
+		if (usbd.epBank0IsTransferComplete(ep))
+		{
+			// Ack Transfer complete
+			usbd.epBank0AckTransferComplete(ep);
+
+			// Update counters and swap banks
+			if (incoming == 0) {
+				last0 = usbd.epBank0ByteCount(ep);
+				ready0 = true;
+				incoming = 1;
+			} else {
+				last1 = usbd.epBank0ByteCount(ep);
+				ready1 = true;
+				incoming = 0;
+			}
+			release();
+		}
+	}
+
+	virtual uint32_t recv(void *_data, uint32_t len)
+	{
+		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
+		uint32_t i;
+		for (i=0; i<len; i++) {
+			int c = read();
+			if (c == -1) break;
+			data[i] = c;
+		}
+		return i;
+	}
+
+	// Returns how many bytes are stored in the buffers
+	virtual uint32_t available() const {
+		return (last0 - first0) + (last1 - first1);
+	}
+
+	void release() {
+		if (incoming == 0) {
+			if (ready0) {
+				notify = true;
+				return;
+			}
+			usbd.epBank0SetAddress(ep, data0);
+		} else {
+			if (ready1) {
+				notify = true;
+				return;
+			}
+			usbd.epBank0SetAddress(ep, data1);
+		}
+		usbd.epBank0AckTransferComplete(ep);
+		//usbd.epBank0AckTransferFailed(ep);
+		usbd.epBank0EnableTransferComplete(ep);
+
+		// Release OUT EP
+		usbd.epBank0SetMultiPacketSize(ep, size);
+		usbd.epBank0SetByteCount(ep, 0);
+		usbd.epBank0ResetReady(ep);
+		notify = false;
+	}
+
+private:
+	USBDevice_SAMD21G18x &usbd;
+
+	const uint32_t ep;
+	const uint32_t size;
+	uint32_t current, incoming;
+
+	uint8_t *data0;
+	uint32_t first0, last0;
+	bool ready0;
+
+	uint8_t *data1;
+	uint32_t first1, last1;
+	bool ready1;
+
+	bool notify;
+};
 
