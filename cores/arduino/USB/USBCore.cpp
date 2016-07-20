@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2016 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -86,6 +86,9 @@ uint8_t udd_ep_out_cache_buffer[7][64];
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
 uint8_t udd_ep_in_cache_buffer[7][64];
 
+// Some EP are handled using EPHanlders.
+// Possibly all the sparse EP handling subroutines will be
+// converted into reusable EPHandlers in the future.
 static EPHandler *epHandlers[7];
 
 //==================================================================
@@ -898,7 +901,3 @@ void USBDeviceClass::ISRHandler()
 // USBDevice class instance
 USBDeviceClass USBDevice;
 
-// USB_Handler ISR
-// extern "C" void USB_Handler(void) {
-// 	USBDevice.ISRHandler();
-// }
