@@ -35,6 +35,7 @@ typedef uint16_t word;
 //
 #include "avr/pgmspace.h"
 #include "avr/interrupt.h"
+#include "avr/io.h"
 
 #include "binary.h"
 #include "itoa.h"

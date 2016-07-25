@@ -77,6 +77,11 @@ int Uart::available()
   return rxBuffer.available();
 }
 
+int Uart::availableForWrite()
+{
+  return (sercom->isDataRegisterEmptyUART() ? 1 : 0);
+}
+
 int Uart::peek()
 {
   return rxBuffer.peek();

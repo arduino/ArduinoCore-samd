@@ -202,6 +202,13 @@ int Serial_::available(void)
 	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
 }
 
+int Serial_::availableForWrite(void)
+{
+	// return the number of bytes left in the current bank,
+	// always EP size - 1, because bank is flushed on every write
+	return (EPX_SIZE - 1);
+}
+
 int Serial_::peek(void)
 {
 	ring_buffer *buffer = &cdc_rx_buffer;
@@ -236,8 +243,7 @@ int Serial_::read(void)
 		unsigned char c = buffer->buffer[buffer->tail];
 		buffer->tail = (uint32_t)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
 		buffer->full = false;
-// 		if (usb.available(CDC_ENDPOINT_OUT))
-// 			accept();
+
 		return c;
 	}
 }
@@ -262,7 +268,7 @@ size_t Serial_::write(const uint8_t *buffer, size_t size)
 	{
 		uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);
 
-		if (r == 0) {
+		if (r > 0) {
 			return r;
 		} else {
 			setWriteError();
