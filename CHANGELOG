@@ -12,6 +12,7 @@ SAMD CORE
 * Added getTimeout() method to Stream.
 * Fixed glitch in PWM generation that may happen when calling analogWrite()
 * PWM frequency is now 732.4Hz (before it was 187500.0Hz)
+* Fixed PWM/analogwrite() not working on pin 13 on the Zero
 
 SAMD CORE 1.6.6 2016.05.19
 
