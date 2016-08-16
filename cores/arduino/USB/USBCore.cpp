@@ -255,7 +255,23 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 	{
 		// Handle received bytes
 		if (available(CDC_ENDPOINT_OUT))
+		{
+			// always disable transfer complete,
+			// in case the CDC receive buffer is full
+			usbd.epBank0DisableTransferComplete(CDC_ENDPOINT_OUT);
+
 			SerialUSB.accept();
+		}
+		else
+		{
+			// ZLP received
+
+			// The RAM Buffer is empty: we can receive data
+			usbd.epBank0ResetReady(CDC_ENDPOINT_OUT);
+
+			// Clear Transfer complete 0 flag
+			usbd.epBank0AckTransferComplete(CDC_ENDPOINT_OUT);
+		}
 	}
 	if (ep == CDC_ENDPOINT_IN)
 	{
@@ -553,6 +569,9 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 
 		// Clear Transfer complete 0 flag
 		usbd.epBank0AckTransferComplete(ep);
+
+		// Enable Transfer complete 0 interrupt
+		usbd.epBank0EnableTransferComplete(ep);
 	}
 
 	return len;

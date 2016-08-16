@@ -163,8 +163,15 @@ void Serial_::end(void)
 
 void Serial_::accept(void)
 {
-	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
-	uint32_t len = usb.recv(CDC_ENDPOINT_OUT, &buffer, CDC_SERIAL_BUFFER_SIZE);
+	uint32_t ringBufferSpace = availableForStore();
+	if (ringBufferSpace < EPX_SIZE) {
+		// usb.recv will always try to receive up to EPX_SIZE bytes on the endpoint
+		// make sure there is enough space, so that data is not lost
+		return;
+	}
+
+	uint8_t buffer[EPX_SIZE];
+	uint32_t len = usb.recv(CDC_ENDPOINT_OUT, &buffer, sizeof(buffer));
 
 	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
 	__disable_irq();
@@ -197,7 +204,8 @@ int Serial_::available(void)
 		return CDC_SERIAL_BUFFER_SIZE;
 	}
 	if (buffer->head == buffer->tail) {
-		USB->DEVICE.DeviceEndpoint[CDC_ENDPOINT_OUT].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
+		if (usb.available(CDC_ENDPOINT_OUT))
+			accept();
 	}
 	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
 }
@@ -349,6 +357,17 @@ bool Serial_::dtr() {
 
 bool Serial_::rts() {
 	return _usbLineInfo.lineState & 0x2;
+}
+
+int Serial_::availableForStore(void) {
+	ring_buffer *buffer = &cdc_rx_buffer;
+
+	if (buffer->full)
+		return 0;
+	else if (buffer->head >= buffer->tail)
+		return CDC_SERIAL_BUFFER_SIZE - 1 - buffer->head + buffer->tail;
+	else
+		return buffer->tail - buffer->head  - 1;
 }
 
 Serial_ SerialUSB(USBDevice);
