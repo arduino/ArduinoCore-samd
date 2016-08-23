@@ -195,6 +195,10 @@ void USBDevice_SAMD21G18x::calibrate() {
 	usb.PADCAL.bit.TRIM   = pad_trim;
 }
 
+/*
+ * USB EP generic handlers.
+ */
+
 class EPHandler {
 public:
 	virtual void handleEndpoint() = 0;
@@ -218,6 +222,8 @@ public:
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetType(ep, 3); // BULK OUT
 
+		usbd.epBank0SetAddress(ep, data0);
+
 		release();
 	}
 
@@ -229,12 +235,12 @@ public:
 			}
 			if (first0 == last0) {
 				first0 = 0;
-				last0 = 0;
+				current = 1;
 				ready0 = false;
 				if (notify) {
+					notify = false;
 					release();
 				}
-				current = 1;
 				return -1;
 			}
 			return data0[first0++];
@@ -244,12 +250,12 @@ public:
 			}
 			if (first1 == last1) {
 				first1 = 0;
-				last1 = 0;
+				current = 0;
 				ready1 = false;
 				if (notify) {
+					notify = false;
 					release();
 				}
-				current = 0;
 				return -1;
 			}
 			return data1[first1++];
@@ -262,16 +268,29 @@ public:
 		{
 			// Ack Transfer complete
 			usbd.epBank0AckTransferComplete(ep);
+			//usbd.epBank0AckTransferFailed(ep);
 
 			// Update counters and swap banks
 			if (incoming == 0) {
 				last0 = usbd.epBank0ByteCount(ep);
-				ready0 = true;
 				incoming = 1;
+				usbd.epBank0SetAddress(ep, data1);
+				ready0 = true;
+				if (ready1) {
+					notify = true;
+					return;
+				}
+				notify = false;
 			} else {
 				last1 = usbd.epBank0ByteCount(ep);
-				ready1 = true;
 				incoming = 0;
+				usbd.epBank0SetAddress(ep, data0);
+				ready1 = true;
+				if (ready0) {
+					notify = true;
+					return;
+				}
+				notify = false;
 			}
 			release();
 		}
@@ -295,28 +314,11 @@ public:
 	}
 
 	void release() {
-		if (incoming == 0) {
-			if (ready0) {
-				notify = true;
-				return;
-			}
-			usbd.epBank0SetAddress(ep, data0);
-		} else {
-			if (ready1) {
-				notify = true;
-				return;
-			}
-			usbd.epBank0SetAddress(ep, data1);
-		}
-		usbd.epBank0AckTransferComplete(ep);
-		//usbd.epBank0AckTransferFailed(ep);
-		usbd.epBank0EnableTransferComplete(ep);
-
 		// Release OUT EP
+		usbd.epBank0EnableTransferComplete(ep);
 		usbd.epBank0SetMultiPacketSize(ep, size);
 		usbd.epBank0SetByteCount(ep, 0);
 		usbd.epBank0ResetReady(ep);
-		notify = false;
 	}
 
 private:
