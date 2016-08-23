@@ -196,6 +196,32 @@ void USBDevice_SAMD21G18x::calibrate() {
 }
 
 /*
+ * Synchronization primitives.
+ * TODO: Move into a separate header file and make an API out of it
+ */
+
+class __Guard {
+public:
+	__Guard() : primask(__get_PRIMASK()), loops(1) {
+		__disable_irq();
+	}
+	~__Guard() {
+		if (primask == 0) {
+			__enable_irq();
+			// http://infocenter.arm.com/help/topic/com.arm.doc.dai0321a/BIHBFEIB.html
+			__ISB();
+		}
+	}
+	uint32_t enter() { return loops--; }
+private:
+	uint32_t primask;
+	uint32_t loops;
+};
+
+#define synchronized for (__Guard __guard; __guard.enter(); )
+
+
+/*
  * USB EP generic handlers.
  */
 
@@ -222,39 +248,51 @@ public:
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetType(ep, 3); // BULK OUT
 
-		usbd.epBank0SetAddress(ep, data0);
+		usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
 
 		release();
 	}
 
 	// Read one byte from the buffer, if the buffer is empty -1 is returned
 	int read() {
+		// R/W: current, first0/1, ready0/1, notify
+		// R  : last0/1, data0/1
 		if (current == 0) {
-			if (!ready0) {
-				return -1;
+			synchronized {
+				if (!ready0) {
+					return -1;
+				}
 			}
+			// when ready0==true the buffer is not being filled and last0 is constant
 			if (first0 == last0) {
 				first0 = 0;
 				current = 1;
-				ready0 = false;
-				if (notify) {
-					notify = false;
-					release();
+				synchronized {
+					ready0 = false;
+					if (notify) {
+						notify = false;
+						release();
+					}
 				}
 				return -1;
 			}
 			return data0[first0++];
 		} else {
-			if (!ready1) {
-				return -1;
+			synchronized {
+				if (!ready1) {
+					return -1;
+				}
 			}
+			// when ready1==true the buffer is not being filled and last1 is constant
 			if (first1 == last1) {
 				first1 = 0;
 				current = 0;
-				ready1 = false;
-				if (notify) {
-					notify = false;
-					release();
+				synchronized {
+					ready1 = false;
+					if (notify) {
+						notify = false;
+						release();
+					}
 				}
 				return -1;
 			}
@@ -264,33 +302,39 @@ public:
 
 	virtual void handleEndpoint()
 	{
+		// R/W : incoming, ready0/1
+		//   W : last0/1, notify
 		if (usbd.epBank0IsTransferComplete(ep))
 		{
 			// Ack Transfer complete
 			usbd.epBank0AckTransferComplete(ep);
-			//usbd.epBank0AckTransferFailed(ep);
+			//usbd.epBank0AckTransferFailed(ep); // XXX
 
 			// Update counters and swap banks
 			if (incoming == 0) {
 				last0 = usbd.epBank0ByteCount(ep);
 				incoming = 1;
-				usbd.epBank0SetAddress(ep, data1);
+				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
 				ready0 = true;
-				if (ready1) {
-					notify = true;
-					return;
+				synchronized {
+					if (ready1) {
+						notify = true;
+						return;
+					}
+					notify = false;
 				}
-				notify = false;
 			} else {
 				last1 = usbd.epBank0ByteCount(ep);
 				incoming = 0;
-				usbd.epBank0SetAddress(ep, data0);
-				ready1 = true;
-				if (ready0) {
-					notify = true;
-					return;
+				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
+				synchronized {
+					ready1 = true;
+					if (ready0) {
+						notify = true;
+						return;
+					}
+					notify = false;
 				}
-				notify = false;
 			}
 			release();
 		}
@@ -298,6 +342,7 @@ public:
 
 	virtual uint32_t recv(void *_data, uint32_t len)
 	{
+		// TODO Write an optimized version of this one
 		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
 		uint32_t i;
 		for (i=0; i<len; i++) {
@@ -328,14 +373,16 @@ private:
 	const uint32_t size;
 	uint32_t current, incoming;
 
-	uint8_t *data0;
-	uint32_t first0, last0;
-	bool ready0;
+	volatile uint8_t *data0;
+	uint32_t first0;
+	volatile uint32_t last0;
+	volatile bool ready0;
 
-	uint8_t *data1;
-	uint32_t first1, last1;
-	bool ready1;
+	volatile uint8_t *data1;
+	uint32_t first1;
+	volatile uint32_t last1;
+	volatile bool ready1;
 
-	bool notify;
+	volatile bool notify;
 };
 
