@@ -253,17 +253,23 @@ public:
 		release();
 	}
 
-	// Read one byte from the buffer, if the buffer is empty -1 is returned
-	int read() {
+	virtual uint32_t recv(void *_data, uint32_t len)
+	{
+		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
+
 		// R/W: current, first0/1, ready0/1, notify
 		// R  : last0/1, data0/1
 		if (current == 0) {
 			synchronized {
 				if (!ready0) {
-					return -1;
+					return 0;
 				}
 			}
 			// when ready0==true the buffer is not being filled and last0 is constant
+			uint32_t i;
+			for (i=0; i<len && first0 < last0; i++) {
+				data[i] = data0[first0++];
+			}
 			if (first0 == last0) {
 				first0 = 0;
 				current = 1;
@@ -274,16 +280,19 @@ public:
 						release();
 					}
 				}
-				return -1;
 			}
-			return data0[first0++];
+			return i;
 		} else {
 			synchronized {
 				if (!ready1) {
-					return -1;
+					return 0;
 				}
 			}
 			// when ready1==true the buffer is not being filled and last1 is constant
+			uint32_t i;
+			for (i=0; i<len && first1 < last1; i++) {
+				data[i] = data1[first1++];
+			}
 			if (first1 == last1) {
 				first1 = 0;
 				current = 0;
@@ -294,9 +303,8 @@ public:
 						release();
 					}
 				}
-				return -1;
 			}
-			return data1[first1++];
+			return i;
 		}
 	}
 
@@ -338,19 +346,6 @@ public:
 			}
 			release();
 		}
-	}
-
-	virtual uint32_t recv(void *_data, uint32_t len)
-	{
-		// TODO Write an optimized version of this one
-		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
-		uint32_t i;
-		for (i=0; i<len; i++) {
-			int c = read();
-			if (c == -1) break;
-			data[i] = c;
-		}
-		return i;
 	}
 
 	// Returns how many bytes are stored in the buffers
