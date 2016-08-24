@@ -184,6 +184,20 @@ int Serial_::read(void)
 	return usb.recv(CDC_ENDPOINT_OUT);
 }
 
+size_t Serial_::readBytes(char *buffer, size_t length)
+{
+	size_t count = 0;
+	_startMillis = millis();
+	while (count < length)
+	{
+		uint32_t n = usb.recv(CDC_ENDPOINT_OUT, buffer+count, length-count);
+		if (n == 0 && (millis() - _startMillis) >= _timeout)
+			break;
+		count += n;
+	}
+	return count;
+}
+
 void Serial_::flush(void)
 {
 	usb.flush(CDC_ENDPOINT_IN);
