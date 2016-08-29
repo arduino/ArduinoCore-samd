@@ -526,17 +526,19 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 	if (!_usbConfiguration)
 		return -1;
 
+#ifdef PIN_LED_RXL
+	if (rxLEDPulse == 0)
+		digitalWrite(PIN_LED_RXL, LOW);
+
+	rxLEDPulse = TX_RX_LED_PULSE_MS;
+#endif
+
 	if (epHandlers[ep]) {
 		return epHandlers[ep]->recv(_data, len);
 	}
 
 	if (available(ep) < len)
 		len = available(ep);
-
-#ifdef PIN_LED_RXL
-	digitalWrite(PIN_LED_RXL, LOW);
-	rxLEDPulse = TX_RX_LED_PULSE_MS;
-#endif
 
 	armRecv(ep);
 
