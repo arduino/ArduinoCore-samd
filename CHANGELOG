@@ -1,4 +1,4 @@
-SAMD CORE
+SAMD CORE 1.6.7
 
 * Fixed Serial.flush() blocking before any writes. Thanks @hangmoh
 * Added snprintf_P to avr/pgmspace.h stub. Thanks @jantje
@@ -13,6 +13,9 @@ SAMD CORE
 * Fixed glitch in PWM generation that may happen when calling analogWrite()
 * PWM frequency is now 732.4Hz (before it was 187500.0Hz)
 * Fixed PWM/analogwrite() not working on pin 13 on the Zero
+* Improved reliability of SerialUSB under heavy load (this should solve
+  all issues with MKR1000/WiFi101 firmware updater on MacOSX)
+* Improved SerialUSB.read() performance
 
 SAMD CORE 1.6.6 2016.05.19
 
