@@ -610,7 +610,9 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		return -1;
 
 #ifdef PIN_LED_TXL
-	digitalWrite(PIN_LED_TXL, LOW);
+	if (txLEDPulse == 0)
+		digitalWrite(PIN_LED_TXL, LOW);
+
 	txLEDPulse = TX_RX_LED_PULSE_MS;
 #endif
 
@@ -824,13 +826,19 @@ void USBDeviceClass::ISRHandler()
 
 		// check whether the one-shot period has elapsed.  if so, turn off the LED
 #ifdef PIN_LED_TXL
-		if (txLEDPulse && !(--txLEDPulse))
-			digitalWrite(PIN_LED_TXL, HIGH);
+		if (txLEDPulse > 0) {
+			txLEDPulse--;
+			if (txLEDPulse == 0)
+				digitalWrite(PIN_LED_TXL, HIGH);
+		}
 #endif
 
 #ifdef PIN_LED_RXL
-		if (rxLEDPulse && !(--rxLEDPulse))
-			digitalWrite(PIN_LED_RXL, HIGH);
+		if (rxLEDPulse > 0) {
+			rxLEDPulse--;
+			if (rxLEDPulse == 0)
+				digitalWrite(PIN_LED_RXL, HIGH);
+		}
 #endif
 	}
 
