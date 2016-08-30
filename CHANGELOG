@@ -1,3 +1,34 @@
+SAMD CORE 1.6.7
+
+* Fixed Serial.flush() blocking before any writes. Thanks @hangmoh
+* Added snprintf_P to avr/pgmspace.h stub. Thanks @jantje
+* Another small fix to String iterators. Thanks @Ivan-Perez @Chris--A
+* Fixes SerialUSB.write(...) returning 0 instead of byte written
+* Added Uart::availableForWrite()
+* Added defines for RAMSTART, RAMSIZE, RAMEND
+* Fixed writing LOW to a digital input pin blocking subsequent digitalRead attempts
+* Fixed digitalWrite() unnecessarily activating the pull-up resistor
+* Wire: Slave writes now use TX buffer
+* Added getTimeout() method to Stream.
+* Fixed glitch in PWM generation that may happen when calling analogWrite()
+* PWM frequency is now 732.4Hz (before it was 187500.0Hz)
+* Fixed PWM/analogwrite() not working on pin 13 on the Zero
+* Improved reliability of SerialUSB under heavy load (this should solve
+  all issues with MKR1000/WiFi101 firmware updater on MacOSX)
+* Improved SerialUSB.read() performance
+
+SAMD CORE 1.6.6 2016.05.19
+
+* Fixed digitalPinToInterrupt() macro, now it works as documented.
+* Added analogInputToDigitalPin macro
+* Fixed NUM_DIGITAL_PINS for Zero Board.
+* On-board RX-TX LEDs now blinks when there is activity on the native USB port
+* Fixed platform.txt, the core now compiles again with Arduino IDE <=1.6.5. Thanks @per1234
+* Fixed Wire.write(0x00) "ambiguos method" error
+* String class now supports iterators. Thanks @Chris--A
+* Remove enabling bootloader protection when burning bootloader. This enables WDT, so sketches do not work.
+* Added remote upload for Yun-Shield
+
 SAMD CORE 1.6.5 2016.04.02
 
 * Added Arduino/Genuino MKR1000 board

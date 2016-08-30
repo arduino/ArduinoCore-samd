@@ -1,0 +1,8 @@
+SAMD CORE 1.6.6
+
+* digitalPinToInterrupt #define moved to Arduino.h, variant.h must no longer define it
+
+SAMD CORE 1.6.3
+
+* Timer for pin PWM selected based on value of PIN_ATTR_TIMER_ALT or PIN_ATTR_TIMER,
+  prior to this "pin type" (ulPinType) was used

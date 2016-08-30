@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2016 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -28,6 +28,14 @@
 
 USBDevice_SAMD21G18x usbd;
 
+/** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
+#define TX_RX_LED_PULSE_MS 100
+#ifdef PIN_LED_TXL
+static volatile uint8_t txLEDPulse; /**< Milliseconds remaining for data Tx LED pulse */
+#endif
+#ifdef PIN_LED_RXL
+static volatile uint8_t rxLEDPulse; /**< Milliseconds remaining for data Rx LED pulse */
+#endif
 static char isRemoteWakeUpEnabled = 0;
 static char isEndpointHalt = 0;
 
@@ -37,8 +45,6 @@ extern void (*gpf_isr)(void);
 extern "C" void UDD_Handler(void) {
 	USBDevice.ISRHandler();
 }
-
-
 
 const uint16_t STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
@@ -79,6 +85,11 @@ uint8_t udd_ep_out_cache_buffer[7][64];
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
 uint8_t udd_ep_in_cache_buffer[7][64];
+
+// Some EP are handled using EPHanlders.
+// Possibly all the sparse EP handling subroutines will be
+// converted into reusable EPHandlers in the future.
+static EPHandler *epHandlers[7];
 
 //==================================================================
 
@@ -239,19 +250,9 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 	return true;
 }
 
-
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
 #if defined(CDC_ENABLED)
-	if (ep == CDC_ENDPOINT_OUT)
-	{
-		// The RAM Buffer is empty: we can receive data
-		//usbd.epBank0ResetReady(CDC_ENDPOINT_OUT);
-
-		// Handle received bytes
-		if (available(CDC_ENDPOINT_OUT))
-			SerialUSB.accept();
-	}
 	if (ep == CDC_ENDPOINT_IN)
 	{
 		// NAK on endpoint IN, the bank is not yet filled in.
@@ -273,6 +274,18 @@ void USBDeviceClass::handleEndpoint(uint8_t ep)
 
 void USBDeviceClass::init()
 {
+#ifdef PIN_LED_TXL
+	txLEDPulse = 0;
+	pinMode(PIN_LED_TXL, OUTPUT);
+	digitalWrite(PIN_LED_TXL, HIGH);
+#endif
+
+#ifdef PIN_LED_RXL
+	rxLEDPulse = 0;
+	pinMode(PIN_LED_RXL, OUTPUT);
+	digitalWrite(PIN_LED_RXL, HIGH);
+#endif
+
 	// Enable USB clock
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
@@ -414,13 +427,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0)))
 	{
-		usbd.epBank0SetSize(ep, 64);
-		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
-		usbd.epBank0SetType(ep, 3); // BULK OUT
-
-		// Release OUT EP
-		usbd.epBank0SetMultiPacketSize(ep, 64);
-		usbd.epBank0SetByteCount(ep, 0);
+		epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, 256);
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{
@@ -434,10 +441,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	}
 	else if (config == USB_ENDPOINT_TYPE_CONTROL)
 	{
-		// XXX: Needed?
-// 		usbd.epBank0DisableAutoZLP(ep);
-// 		usbd.epBank1DisableAutoZLP(ep);
-
 		// Setup Control OUT
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
@@ -509,7 +512,11 @@ uint32_t USBDeviceClass::recvControl(void *_data, uint32_t len)
 // Number of bytes, assumes a rx endpoint
 uint32_t USBDeviceClass::available(uint32_t ep)
 {
-	return usbd.epBank0ByteCount(ep);
+	if (epHandlers[ep]) {
+		return epHandlers[ep]->available();
+	} else {
+		return usbd.epBank0ByteCount(ep);
+	}
 }
 
 // Non Blocking receive
@@ -518,6 +525,17 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 {
 	if (!_usbConfiguration)
 		return -1;
+
+#ifdef PIN_LED_RXL
+	if (rxLEDPulse == 0)
+		digitalWrite(PIN_LED_RXL, LOW);
+
+	rxLEDPulse = TX_RX_LED_PULSE_MS;
+#endif
+
+	if (epHandlers[ep]) {
+		return epHandlers[ep]->recv(_data, len);
+	}
 
 	if (available(ep) < len)
 		len = available(ep);
@@ -535,13 +553,16 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 
 		// Clear Transfer complete 0 flag
 		usbd.epBank0AckTransferComplete(ep);
+
+		// Enable Transfer complete 0 interrupt
+		usbd.epBank0EnableTransferComplete(ep);
 	}
 
 	return len;
 }
 
 // Recv 1 byte if ready
-uint32_t USBDeviceClass::recv(uint32_t ep)
+int USBDeviceClass::recv(uint32_t ep)
 {
 	uint8_t c;
 	if (recv(ep, &c, 1) != 1) {
@@ -580,6 +601,7 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep)
 // Blocking Send of data to an endpoint
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
+	uint32_t written = 0;
 	uint32_t length = 0;
 
 	if (!_usbConfiguration)
@@ -587,44 +609,18 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 	if (len > 16384)
 		return -1;
 
-#if 0
-// This shortcut has some issues:
-// - sometimes it fails when sending an odd number of bytes (may be
-//   due to memory alignment?)
-// - the data pointer should point to "stable" data (and this is not
-//   guaranteed by caller, it may be some sort of temporary buffer)
-// - the SRAM is not guaranteed to start at 0x20000000
+#ifdef PIN_LED_TXL
+	if (txLEDPulse == 0)
+		digitalWrite(PIN_LED_TXL, LOW);
 
-// All the above problems must be properly fixed before reenabling
-// this part
-
-	if ((unsigned int)data > 0x20000000)
-	{
-		// Buffer in RAM
-		usbd.epBank1SetAddress(ep, (void *)data);
-		usbd.epBank1SetMultiPacketSize(ep, 0);
-
-		usbd.epBank1SetByteCount(ep, len);
-
-		// Clear the transfer complete flag
-		usbd.epBank1AckTransferComplete(ep);
-
-		// RAM buffer is full, we can send data (IN)
-		usbd.epBank1SetReady(ep);
-
-		// Wait for transfer to complete
-		while (!usbd.epBank1IsTransferComplete(ep)) {
-			;  // need fire exit.
-		}
-		return 0;
-	}
+	txLEDPulse = TX_RX_LED_PULSE_MS;
 #endif
 
 	// Flash area
 	while (len != 0)
 	{
-		if (len >= 64) {
-			length = 64;
+		if (len >= EPX_SIZE) {
+			length = EPX_SIZE - 1;
 		} else {
 			length = len;
 		}
@@ -645,10 +641,11 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		while (!usbd.epBank1IsTransferComplete(ep)) {
 			;  // need fire exit.
 		}
+		written += length;
 		len -= length;
 		data = (char *)data + length;
 	}
-	return len;
+	return written;
 }
 
 uint32_t USBDeviceClass::armSend(uint32_t ep, const void* data, uint32_t len)
@@ -826,6 +823,23 @@ void USBDeviceClass::ISRHandler()
 	if (usbd.isStartOfFrameInterrupt())
 	{
 		usbd.ackStartOfFrameInterrupt();
+
+		// check whether the one-shot period has elapsed.  if so, turn off the LED
+#ifdef PIN_LED_TXL
+		if (txLEDPulse > 0) {
+			txLEDPulse--;
+			if (txLEDPulse == 0)
+				digitalWrite(PIN_LED_TXL, HIGH);
+		}
+#endif
+
+#ifdef PIN_LED_RXL
+		if (rxLEDPulse > 0) {
+			rxLEDPulse--;
+			if (rxLEDPulse == 0)
+				digitalWrite(PIN_LED_RXL, HIGH);
+		}
+#endif
 	}
 
 	// Endpoint 0 Received Setup interrupt
@@ -875,7 +889,11 @@ void USBDeviceClass::ISRHandler()
 			if (usbd.epBank0IsTransferComplete(i) ||
 			    usbd.epBank1IsTransferComplete(i))
 			{
-				handleEndpoint(i);
+				if (epHandlers[i]) {
+					epHandlers[i]->handleEndpoint();
+				} else {
+					handleEndpoint(i);
+				}
 			}
 			ept_int &= ~(1 << i);
 		}
@@ -893,7 +911,3 @@ void USBDeviceClass::ISRHandler()
 // USBDevice class instance
 USBDeviceClass USBDevice;
 
-// USB_Handler ISR
-// extern "C" void USB_Handler(void) {
-// 	USBDevice.ISRHandler();
-// }

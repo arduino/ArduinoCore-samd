@@ -26,8 +26,6 @@
 #include "SERCOM.h"
 #include "RingBuffer.h"
 
-#define BUFFER_LENGTH 32
-
  // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
@@ -57,6 +55,10 @@ class TwoWire : public Stream
     void onReceive(void(*)(int));
     void onRequest(void(*)(void));
 
+    inline size_t write(unsigned long n) { return write((uint8_t)n); }
+    inline size_t write(long n) { return write((uint8_t)n); }
+    inline size_t write(unsigned int n) { return write((uint8_t)n); }
+    inline size_t write(int n) { return write((uint8_t)n); }
     using Print::write;
 
     void onService(void);
@@ -75,35 +77,12 @@ class TwoWire : public Stream
     RingBuffer txBuffer;
     uint8_t txAddress;
 
-
-    // Service buffer
-    //uint8_t srvBuffer[BUFFER_LENGTH];
-    //uint8_t srvBufferIndex;
-    //uint8_t srvBufferLength;
-
     // Callback user functions
     void (*onRequestCallback)(void);
     void (*onReceiveCallback)(int);
 
-    // TWI state
-    //enum TwoWireStatus
-    //{
-    //  UNINITIALIZED,
-    //  MASTER_IDLE,
-    //  MASTER_SEND,
-    //  MASTER_RECV,
-    //  SLAVE_IDLE,
-    //  SLAVE_RECV,
-    //  SLAVE_SEND
-    //};
-    //TwoWireStatus status;
-
     // TWI clock frequency
     static const uint32_t TWI_CLOCK = 100000;
-
-    // Timeouts
-    //static const uint32_t RECV_TIMEOUT = 100000;
-    //static const uint32_t XMIT_TIMEOUT = 100000;
 };
 
 #if WIRE_INTERFACES_COUNT > 0

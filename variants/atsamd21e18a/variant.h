@@ -19,8 +19,8 @@
 #ifndef _VARIANT_ATSAMD21E18A_
 #define _VARIANT_ATSAMD21E18A_
 
-// The definitions here needs a SAMD core >=1.6.3
-#define ARDUINO_SAMD_VARIANT_COMPLIANCE 10603
+// The definitions here needs a SAMD core >=1.6.6
+#define ARDUINO_SAMD_VARIANT_COMPLIANCE 10606
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -75,9 +75,6 @@ extern "C"
  * https://github.com/arduino/Arduino/issues/1833
  */
 // #define digitalPinToTimer(P)
-
-// Interrupts
-#define digitalPinToInterrupt(P)   ( g_APinDescription[P].ulExtInt )
 
 // LEDs
 // #define PIN_LED_10           (10u)
@@ -159,6 +156,9 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_WIRE_SCL         (17u)
 #define PERIPH_WIRE          sercom3
 #define WIRE_IT_HANDLER      SERCOM3_Handler
+
+static const uint8_t SDA = PIN_WIRE_SDA;
+static const uint8_t SCL = PIN_WIRE_SCL;
 
 /*
  * USB

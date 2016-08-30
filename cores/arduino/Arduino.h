@@ -35,6 +35,7 @@ typedef uint16_t word;
 //
 #include "avr/pgmspace.h"
 #include "avr/interrupt.h"
+#include "avr/io.h"
 
 #include "binary.h"
 #include "itoa.h"
@@ -113,6 +114,11 @@ void loop( void ) ;
 #define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
 
 #define bit(b) (1UL << (b))
+
+#if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606)
+// Interrupts
+#define digitalPinToInterrupt(P)   ( P )
+#endif
 
 // USB Device
 #include "USB/USBDesc.h"

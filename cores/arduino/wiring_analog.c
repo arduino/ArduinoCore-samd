@@ -53,47 +53,36 @@ static void syncTCC(Tcc* TCCx) {
   while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK);
 }
 
-void analogReadResolution( int res )
+void analogReadResolution(int res)
 {
-  _readResolution = res ;
-  if (res > 10)
-  {
+  _readResolution = res;
+  if (res > 10) {
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
     _ADCResolution = 12;
-  }
-  else if (res > 8)
-  {
+  } else if (res > 8) {
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
     _ADCResolution = 10;
-  }
-  else
-  {
+  } else {
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
     _ADCResolution = 8;
   }
   syncADC();
 }
 
-void analogWriteResolution( int res )
+void analogWriteResolution(int res)
 {
-  _writeResolution = res ;
+  _writeResolution = res;
 }
 
-static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to )
+static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 {
-  if ( from == to )
-  {
-    return value ;
+  if (from == to) {
+    return value;
   }
-
-  if ( from > to )
-  {
-    return value >> (from-to) ;
+  if (from > to) {
+    return value >> (from-to);
   }
-  else
-  {
-    return value << (to-from) ;
-  }
+  return value << (to-from);
 }
 
 /*
@@ -102,10 +91,10 @@ static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to
  *
  * Warning : On Arduino Zero board the input/output voltage for SAMD21G18 is 3.3 volts maximum
  */
-void analogReference( eAnalogReference ulMode )
+void analogReference(eAnalogReference mode)
 {
   syncADC();
-  switch ( ulMode )
+  switch (mode)
   {
     case AR_INTERNAL:
     case AR_INTERNAL2V23:
@@ -136,19 +125,17 @@ void analogReference( eAnalogReference ulMode )
   }
 }
 
-uint32_t analogRead( uint32_t ulPin )
+uint32_t analogRead(uint32_t pin)
 {
   uint32_t valueRead = 0;
 
-  if ( ulPin < A0 )
-  {
-    ulPin += A0 ;
+  if (pin < A0) {
+    pin += A0;
   }
 
-  pinPeripheral(ulPin, PIO_ANALOG);
+  pinPeripheral(pin, PIO_ANALOG);
 
-  if (ulPin == A0) // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
-  {
+  if (pin == A0) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
     syncDAC();
     DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
     //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
@@ -156,7 +143,7 @@ uint32_t analogRead( uint32_t ulPin )
   }
 
   syncADC();
-  ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[ulPin].ulADCChannelNumber; // Selection for the positive ADC input
+  ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
 
   // Control A
   /*
@@ -185,7 +172,7 @@ uint32_t analogRead( uint32_t ulPin )
   ADC->SWTRIG.bit.START = 1;
 
   // Store the value
-  while ( ADC->INTFLAG.bit.RESRDY == 0 );   // Waiting for conversion to complete
+  while (ADC->INTFLAG.bit.RESRDY == 0);   // Waiting for conversion to complete
   valueRead = ADC->RESULT.reg;
 
   syncADC();
@@ -200,143 +187,134 @@ uint32_t analogRead( uint32_t ulPin )
 // hardware support.  These are defined in the appropriate
 // pins_*.c file.  For the rest of the pins, we default
 // to digital output.
-void analogWrite( uint32_t ulPin, uint32_t ulValue )
+void analogWrite(uint32_t pin, uint32_t value)
 {
-  uint32_t attr = g_APinDescription[ulPin].ulPinAttribute ;
+  PinDescription pinDesc = g_APinDescription[pin];
+  uint32_t attr = pinDesc.ulPinAttribute;
 
-  if ( (attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG )
+  if ((attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG)
   {
-    if ( ulPin != PIN_A0 )  // Only 1 DAC on A0 (PA02)
-    {
+    // DAC handling code
+
+    if (pin != PIN_A0) { // Only 1 DAC on A0 (PA02)
       return;
     }
 
-    ulValue = mapResolution(ulValue, _writeResolution, 10);
+    value = mapResolution(value, _writeResolution, 10);
 
     syncDAC();
-    DAC->DATA.reg = ulValue & 0x3FF;  // DAC on 10 bits.
+    DAC->DATA.reg = value & 0x3FF;  // DAC on 10 bits.
     syncDAC();
     DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
     syncDAC();
-    return ;
+    return;
   }
 
-  if ( (attr & PIN_ATTR_PWM) == PIN_ATTR_PWM )
+  if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM)
   {
-    if (attr & PIN_ATTR_TIMER) {
-      #if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
-      // Compatibility for cores based on SAMD core <=1.6.2
-      if (g_APinDescription[ulPin].ulPinType == PIO_TIMER_ALT) {
-        pinPeripheral(ulPin, PIO_TIMER_ALT);
-      } else
-      #endif
-      {
-        pinPeripheral(ulPin, PIO_TIMER);
+    value = mapResolution(value, _writeResolution, 8);
+
+    uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
+    uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
+    static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
+
+    if (!tcEnabled[tcNum]) {
+      tcEnabled[tcNum] = true;
+
+      if (attr & PIN_ATTR_TIMER) {
+        #if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
+        // Compatibility for cores based on SAMD core <=1.6.2
+        if (pinDesc.ulPinType == PIO_TIMER_ALT) {
+          pinPeripheral(pin, PIO_TIMER_ALT);
+        } else
+        #endif
+        {
+          pinPeripheral(pin, PIO_TIMER);
+        }
+      } else {
+        // We suppose that attr has PIN_ATTR_TIMER_ALT bit set...
+        pinPeripheral(pin, PIO_TIMER_ALT);
+      }
+
+      uint16_t GCLK_CLKCTRL_IDs[] = {
+        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
+        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
+        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TCC2
+        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TC3
+        GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC4
+        GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC5
+        GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC6
+        GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC7
+      };
+      GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_IDs[tcNum]);
+      while (GCLK->STATUS.bit.SYNCBUSY == 1);
+
+      // Set PORT
+      if (tcNum >= TCC_INST_NUM) {
+        // -- Configure TC
+        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+        // Disable TCx
+        TCx->COUNT8.CTRLA.bit.ENABLE = 0;
+        syncTC_8(TCx);
+        // Set Timer counter Mode to 8 bits, normal PWM, prescaler 1/256
+        TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_WAVEGEN_NPWM | TC_CTRLA_PRESCALER_DIV256;
+        syncTC_8(TCx);
+        // Set the initial value
+        TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
+        syncTC_8(TCx);
+        // Set PER to maximum counter value (resolution : 0xFF)
+        TCx->COUNT8.PER.reg = 0xFF;
+        syncTC_8(TCx);
+        // Enable TCx
+        TCx->COUNT8.CTRLA.bit.ENABLE = 1;
+        syncTC_8(TCx);
+      } else {
+        // -- Configure TCC
+        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+        // Disable TCCx
+        TCCx->CTRLA.bit.ENABLE = 0;
+        syncTCC(TCCx);
+        // Set prescaler to 1/256
+        TCCx->CTRLA.reg |= TCC_CTRLA_PRESCALER_DIV256;
+        syncTCC(TCCx);
+        // Set TCx as normal PWM
+        TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
+        syncTCC(TCCx);
+        // Set the initial value
+        TCCx->CC[tcChannel].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        // Set PER to maximum counter value (resolution : 0xFF)
+        TCCx->PER.reg = 0xFF;
+        syncTCC(TCCx);
+        // Enable TCCx
+        TCCx->CTRLA.bit.ENABLE = 1;
+        syncTCC(TCCx);
       }
     } else {
-      // We suppose that attr has PIN_ATTR_TIMER_ALT bit set...
-      pinPeripheral(ulPin, PIO_TIMER_ALT);
+      if (tcNum >= TCC_INST_NUM) {
+        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+        TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
+        syncTC_8(TCx);
+    } else {
+        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+        TCCx->CTRLBSET.bit.LUPD = 1;
+        syncTCC(TCCx);
+        TCCx->CCB[tcChannel].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        TCCx->CTRLBCLR.bit.LUPD = 1;
+        syncTCC(TCCx);
+      }
     }
-
-    Tc*  TCx  = 0 ;
-    Tcc* TCCx = 0 ;
-    uint8_t Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulPWMChannel ) ;
-    if ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) >= TCC_INST_NUM )
-    {
-      TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
-    }
-    else
-    {
-      TCCx = (Tcc*) GetTC( g_APinDescription[ulPin].ulPWMChannel ) ;
-    }
-
-    // Enable clocks according to TCCx instance to use
-    switch ( GetTCNumber( g_APinDescription[ulPin].ulPWMChannel ) )
-    {
-      case 0: // TCC0
-      case 1: // TCC1
-        // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC0_TCC1 )) ;
-      break ;
-
-      case 2: // TCC2
-      case 3: // TC3
-        // Enable GCLK for TCC2 and TC3 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC2_TC3 )) ;
-      break ;
-
-      case 4: // TC4
-      case 5: // TC5
-        // Enable GCLK for TC4 and TC5 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 ));
-      break ;
-
-      case 6: // TC6 (not available on Zero)
-      case 7: // TC7 (not available on Zero)
-        // Enable GCLK for TC6 and TC7 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC6_TC7 ));
-      break ;
-    }
-
-    while ( GCLK->STATUS.bit.SYNCBUSY == 1 ) ;
-
-    ulValue = mapResolution(ulValue, _writeResolution, 8);
-
-    // Set PORT
-    if ( TCx )
-    {
-      // -- Configure TC
-
-      // Disable TCx
-      TCx->COUNT8.CTRLA.reg &= ~TC_CTRLA_ENABLE;
-      syncTC_8(TCx);
-      // Set Timer counter Mode to 8 bits
-      TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8;
-      // Set TCx as normal PWM
-      TCx->COUNT8.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
-      // Set TCx in waveform mode Normal PWM
-      TCx->COUNT8.CC[Channelx].reg = (uint8_t) ulValue;
-      syncTC_8(TCx);
-      // Set PER to maximum counter value (resolution : 0xFF)
-      TCx->COUNT8.PER.reg = 0xFF;
-      syncTC_8(TCx);
-      // Enable TCx
-      TCx->COUNT8.CTRLA.reg |= TC_CTRLA_ENABLE;
-      syncTC_8(TCx);
-    }
-    else
-    {
-      // -- Configure TCC
-      // Disable TCCx
-      TCCx->CTRLA.reg &= ~TCC_CTRLA_ENABLE;
-      syncTCC(TCCx);
-      // Set TCx as normal PWM
-      TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
-      syncTCC(TCCx);
-      // Set TCx in waveform mode Normal PWM
-      TCCx->CC[Channelx].reg = (uint32_t)ulValue;
-      syncTCC(TCCx);
-      // Set PER to maximum counter value (resolution : 0xFF)
-      TCCx->PER.reg = 0xFF;
-      syncTCC(TCCx);
-      // Enable TCCx
-      TCCx->CTRLA.reg |= TCC_CTRLA_ENABLE ;
-      syncTCC(TCCx);
-    }
-
-    return ;
+    return;
   }
 
   // -- Defaults to digital write
-  pinMode( ulPin, OUTPUT ) ;
-  ulValue = mapResolution(ulValue, _writeResolution, 8);
-  if ( ulValue < 128 )
-  {
-    digitalWrite( ulPin, LOW ) ;
-  }
-  else
-  {
-    digitalWrite( ulPin, HIGH ) ;
+  pinMode(pin, OUTPUT);
+  value = mapResolution(value, _writeResolution, 8);
+  if (value < 128) {
+    digitalWrite(pin, LOW);
+  } else {
+    digitalWrite(pin, HIGH);
   }
 }
 
