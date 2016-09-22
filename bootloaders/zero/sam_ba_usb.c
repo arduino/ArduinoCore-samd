@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "board_definitions.h"
 #include "sam_ba_usb.h"
 #include "board_driver_usb.h"
 #include "sam_ba_cdc.h"

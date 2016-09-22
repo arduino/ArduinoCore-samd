@@ -56,7 +56,12 @@ NM=$(ARM_GCC_PATH)nm
 SIZE=$(ARM_GCC_PATH)size
 
 # -----------------------------------------------------------------------------
+# Boards definitions
+BOARD_ID?=arduino_zero
+
+# -----------------------------------------------------------------------------
 # Compiler options
+CFLAGS_EXTRA=-D__SAMD21G18A__ -DBOARD_ID_$(BOARD_ID)
 CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
 ifdef DEBUG
   CFLAGS+=-g3 -O1 -DDEBUG=1
@@ -64,17 +69,9 @@ else
   CFLAGS+=-Os -DDEBUG=0
 endif
 
-ifeq ($(GENUINO),)
-  # Arduino Zero (PID == 0x004D)
-  CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
-  # Arduino MKR1000 (PID == 0x004E)
-  # CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4E -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23 -DSTRING_PRODUCT="\"Arduino MKR1000\""
-else
-  # Genuino Zero (PID == 0x024D)
-  CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23 -DSTRING_PRODUCT="\"Genuino Zero\""
-  # Genuino MKR1000 (PID == 0x024E)
-  # CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4E -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23 -DSTRING_PRODUCT="\"Genuino MKR1000\""
-endif
+ELF=$(NAME).elf
+BIN=$(NAME).bin
+HEX=$(NAME).hex
 
 INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
 
@@ -99,15 +96,6 @@ SOURCES= \
 
 OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
 DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
-
-ifeq ($(GENUINO),)
-  NAME=samd21_sam_ba
-else
-  NAME=samd21_sam_ba_genuino
-endif
-ELF=$(NAME).elf
-BIN=$(NAME).bin
-HEX=$(NAME).hex
 
 ifneq "test$(AVRSTUDIO_EXE_PATH)" "test"
   AS_BUILD=copy_for_atmel_studio

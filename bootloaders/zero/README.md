@@ -80,22 +80,16 @@ Before jumping to the application, the bootloader changes the VTOR register to u
 
 ## 5- How to build
 
-**Arduino Zero**
+If not specified the makefile builds for **Arduino Zero**:
 
 ```
 make
 ```
 
-**Genuino Zero**
+if you want to make a custom bootloader for a derivative board you must supply all the necessary information in a `board_definitions_xxx.h` file, and add the corresponding case in `board_definitions.h`.
+For example for the **Arduino MKR1000** we use `board_definitions_arduino_mkr1000.h` and it is build with the following command:
 
 ```
-make GENUINO=1
+BOARD_ID=arduino_mkr1000 NAME=samd21_sam_ba_arduino_mkr1000 make clean all
 ```
 
-**Others (derivatives)**
-
-```
-make CFLAGS_EXTRA="-D__SAMD21G18A__ -DUSB_PID_HIGH=<your USB PID> -DUSB_PID_LOW=<your USB PID> -DUSB_VID_LOW=<your USB VID> -DUSB_VID_HIGH=<your USB VID>"
-```
-
-You can also check https://github.com/ameltech/sme-arduino-core/blob/master/hardware/AMEL/samd/bootloaders/sme/Makefile for reference.
