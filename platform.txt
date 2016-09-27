@@ -125,7 +125,7 @@ tools.bossac_remote.upload.pattern=/usr/bin/run-bossac {upload.verbose} --port=t
 # OpenOCD sketch upload
 #
 
-tools.openocd.path={runtime.tools.openocd.path}
+tools.openocd.path={runtime.tools.openocd-0.9.0-arduino.path}
 tools.openocd.cmd=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 
