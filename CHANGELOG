@@ -1,4 +1,7 @@
-SAMD CORE 1.6.7
+SAMD CORE 1.6.8
+
+
+SAMD CORE 1.6.7 2016.09.28
 
 * Fixed Serial.flush() blocking before any writes. Thanks @hangmoh
 * Added snprintf_P to avr/pgmspace.h stub. Thanks @jantje
