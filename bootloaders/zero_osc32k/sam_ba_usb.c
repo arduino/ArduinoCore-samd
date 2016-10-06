@@ -1,17 +1,14 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
   Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
-
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
   License as published by the Free Software Foundation; either
   version 2.1 of the License, or (at your option) any later version.
-
   This library is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
   See the GNU Lesser General Public License for more details.
-
   You should have received a copy of the GNU Lesser General Public
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
@@ -167,7 +164,7 @@ USB_CDC sam_ba_cdc;
 void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
 {
   Usb *pUsb = pCdc->pUsb;
-  static volatile uint8_t bmRequestType, bRequest, dir, requestSwitchValue;
+  static volatile uint8_t bmRequestType, bRequest, dir;
   static volatile uint16_t wValue, wIndex, wLength, wStatus;
 
   /* Clear the Received Setup flag */
@@ -185,8 +182,6 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
 
   /* Clear the Bank 0 ready flag on Control OUT */
   pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK0RDY;
-
-  requestSwitchValue = (bRequest << 8) | bmRequestType;
 
   /* Handle supported standard device request Cf Table 9-3 in USB specification Rev 1.1 */
   switch ((bRequest << 8) | bmRequestType)
@@ -213,14 +208,11 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
             {
               case STRING_INDEX_LANGUAGES:
                 uint16_t STRING_LANGUAGE[2] = { (STD_GET_DESCRIPTOR_STRING<<8) | 4, 0x0409 };
-
                 USB_Write(pCdc->pUsb, (const char*)STRING_LANGUAGE, SAM_BA_MIN(sizeof(STRING_LANGUAGE), wLength), USB_EP_CTRL);
               break;
-
               case STRING_INDEX_MANUFACTURER:
                 USB_SendString(pCdc->pUsb, STRING_MANUFACTURER, strlen(STRING_MANUFACTURER), wLength );
               break;
-
               case STRING_INDEX_PRODUCT:
                 USB_SendString(pCdc->pUsb, STRING_PRODUCT, strlen(STRING_PRODUCT), wLength );
               break;
@@ -442,17 +434,13 @@ uint32_t USB_SendString(Usb *pUsb, const char* ascii_string, uint8_t length, uin
 {
   uint8_t string_descriptor[255]; // Max USB-allowed string length
   uint16_t* unicode_string=(uint16_t*)(string_descriptor+2); // point on 3 bytes of descriptor
-
   int resulting_length = 1;
-
   for ( ; *ascii_string && (length>=0) && (resulting_length<(maxLength>>1)) ; ascii_string++, length--, resulting_length++ )
   {
     *unicode_string++ = (uint16_t)(*ascii_string);
   }
-
   string_descriptor[0] = (resulting_length<<1);
   string_descriptor[1] = STD_GET_DESCRIPTOR_STRING;
-
   return USB_Write(pUsb, (const char*)unicode_string, resulting_length, USB_EP_CTRL);
 }
 #endif // 0

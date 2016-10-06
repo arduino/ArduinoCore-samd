@@ -55,12 +55,13 @@ void board_init(void)
   /* Turn on the digital interface clock */
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK; //| PM_APBAMASK_RTC;
 
-  //board_init_osc32k();
-//  board_init_osc8m();
-  board_init_xosc();
-  board_init_dfll48_closed( GCLK_CLKCTRL_GEN_GCLK1 );
+  //board_init_osc32k(); // This is too troublesome to use for DFLL48M source)
+  //board_init_osc8m(); // This gets set up by Arduino core later on.
+  //board_init_xosc(); // We don't actually need this clock during bootloader mode.
 
-  board_init_set_dfll48_as_master();
+  board_init_dfll48_closed( GCLK_CLKCTRL_GEN_GCLK2 ); // Clock 2 is internal OSCULP32K (32.768KHz)
+
+  board_init_set_dfll48_as_master(); // Run CPU at 48MHz!
 
 
   /*
@@ -71,6 +72,8 @@ void board_init(void)
   PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val;
   PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val;
   PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val;
+
+  //board_init_usb_clock();
 }
 
 void board_init_osc32k(void)
@@ -80,8 +83,8 @@ void board_init_osc32k(void)
      */
     SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_STARTUP( 0x7u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
                            SYSCTRL_XOSC32K_ENABLE | 
-                           SYSCTRL_XOSC32K_EN32K |
-                           SYSCTRL_OSC32K_CALIB( 0x12u ) ;
+                           SYSCTRL_XOSC32K_EN32K ; // |
+                           // SYSCTRL_OSC32K_CALIB( 0x12u ) ;
     SYSCTRL->OSC32K.bit.ENABLE = 1; /* separate call, as described in chapter 15.6.3 */
 
     while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 )
@@ -128,7 +131,7 @@ void board_init_osc8m(void)
      * 1) Enable internal OSC8M clock
      */
     SYSCTRL->OSC8M.bit.ENABLE = 1;
-    SYSCTRL->OSC8M.bit.PRESC = 0;
+    SYSCTRL->OSC8M.bit.PRESC = 0x0; // Prescale of 0x0 = 1, 8MHz
     SYSCTRL->OSC8M.bit.ONDEMAND = 0;
 
 
@@ -192,8 +195,8 @@ void board_init_xosc(void)
       /* Wait for reset to complete */
     }
 
-    /* Write Generic Clock Generator 3 configuration */
-    GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_XOSC ) | // Generic Clock Generator 1
+    /* Write Generic Clock Generator # configuration */
+    GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_XOSC ) | // Generic Clock Generator #
 		    GCLK_GENCTRL_SRC_XOSC | // Selected source is External XOSC (12MHz) Oscillator
     //                    GCLK_GENCTRL_OE | // Output clock to a pin for tests
 		    GCLK_GENCTRL_GENEN ;
@@ -280,7 +283,7 @@ void board_init_dfll48(unsigned int SOURCE)
 void board_init_dfll48_closed(unsigned int SOURCE)
 {
     /* ----------------------------------------------------------------------------------------------
-     * 3) Put Generic Clock Generator 3 as source for Generic Clock Multiplexer 0 (DFLL48M reference)
+     * 3) Put Generic Clock Generator SOURCE as source for Generic Clock Multiplexer 0 (DFLL48M reference)
      */
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GENERIC_CLOCK_MULTIPLEXER_DFLL48M ) | // Generic Clock Multiplexer 0
 			SOURCE |
@@ -306,17 +309,21 @@ void board_init_dfll48_closed(unsigned int SOURCE)
     }
 
     /* get the coarse and fine values stored in NVM */
-    uint32_t coarse = (*(uint32_t *)(0x806024) >> 26);
-    uint32_t fine = (*(uint32_t *)(0x806028) & 0x3FF);
+    uint32_t coarse = 0x1f; //(*(uint32_t *)(0x806024) >> 26); // Chip has 0x18 (24), SMART says 0x1f (31)
+    uint32_t fine = 0x0200; //(*(uint32_t *)(0x806028) & 0x3FF); // Chip has 0x0200 (512), SMART says 0xff (512)
 
     SYSCTRL->DFLLVAL.bit.COARSE = coarse;
     SYSCTRL->DFLLVAL.bit.FINE = fine;
 
 
     // This is required when using closed-loop mode. I'm not sure if it's needed in open loop mode...
-    SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step
-			   SYSCTRL_DFLLMUL_FSTEP( (0xff / 4) ) | // Fine step
-			   SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) );
+    // SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (0x1f / 4) ) | // Coarse step
+			 //   SYSCTRL_DFLLMUL_FSTEP( (0xff / 4) ) | // Fine step
+			 //   SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) );
+    SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( (8ul) ) | // Coarse step
+         SYSCTRL_DFLLMUL_FSTEP( (64ul) ) | // Fine step
+         SYSCTRL_DFLLMUL_MUL( (1465ul) );
+
 
     while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
     {
@@ -373,6 +380,28 @@ void board_init_set_dfll48_as_master(void)
     {
       /* Wait for synchronization */
     }
+}
+
+void board_init_usb_clock(void)
+{
+  /* ----------------------------------------------------------------------------------------------
+   * Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
+   */
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( 6 ) | // Generic Clock Multiplexer 6
+              GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+              GCLK_CLKCTRL_CLKEN ;
+
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
+  {
+    /* Wait for synchronization */
+  }
+
+  /* Reset */
+  USB->DEVICE.CTRLA.bit.SWRST = 1;
+  while (USB->DEVICE.SYNCBUSY.bit.SWRST)
+  {
+    /* Sync wait */
+  }
 }
 
 void board_init_set_osc8m_as_master(void)

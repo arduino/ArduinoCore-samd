@@ -55,8 +55,8 @@ void SystemInit( void )
 
   // board_init_osc32k();
   // board_init_osc8m();
-  board_init_xosc();
-  board_init_dfll48_closed( GCLK_CLKCTRL_GEN_GCLK1 );
+  // board_init_xosc();
+  board_init_dfll48_closed( GCLK_CLKCTRL_GEN_GCLK2 ); // Clock 2 is internal OSCULP32K (32.768KHz)
 
   board_init_set_dfll48_as_master();
 

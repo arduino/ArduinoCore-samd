@@ -37,8 +37,8 @@
 //#define BOOT_LOAD_PIN                     PIN_PA15 // Pin 5
 #define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
 
-#define CPU_FREQUENCY                     (48000000ul) // SAM R21E XOSC max is 32MHz, not 48MHz like the SAM D21E.
-//#define CPU_FREQUENCY                     (32000000ul) // SAM R21E XOSC max is 32MHz, not 48MHz like the SAM D21E.
+#define CPU_FREQUENCY                     (48000000ul)
+//#define CPU_FREQUENCY                     (32000000ul) // SAM R21E XOSC max is 32MHz on XTAL, not 48MHz like the SAM D21E.
 
 #define BOOT_USART_MODULE                 SERCOM1
 #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM1
@@ -59,9 +59,9 @@
 // #define BOOT_USART_PAD0                   PINMUX_UNUSED
 
 /* Frequency of the board main oscillator */
-//#define VARIANT_MAINOSC                        (32768ul)
+#define VARIANT_MAINOSC                        (32768ul)
 //#define VARIANT_MAINOSC                      (8000000ul)
-#define VARIANT_MAINOSC			                (12000000ul)
+//#define VARIANT_MAINOSC			                (12000000ul)
 
 /* Master clock frequency */
 #define VARIANT_MCK                       CPU_FREQUENCY
