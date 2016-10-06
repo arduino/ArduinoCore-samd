@@ -598,6 +598,19 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep)
 	return usbd.epBank0ByteCount(ep);
 }
 
+// Timeout for sends
+#define TX_TIMEOUT_MS 70
+
+static char LastTransmitTimedOut[7] = {
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
 // Blocking Send of data to an endpoint
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
@@ -619,6 +632,29 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 	// Flash area
 	while (len != 0)
 	{
+		if (usbd.epBank1IsReady(ep)) {
+			// previous transfer is still not complete
+
+			// convert the timeout from microseconds to a number of times through
+			// the wait loop; it takes (roughly) 23 clock cycles per iteration.
+			uint32_t timeout = microsecondsToClockCycles(TX_TIMEOUT_MS * 1000) / 23;
+
+			// Wait for (previous) transfer to complete
+			// inspired by Paul Stoffregen's work on Teensy
+			while (!usbd.epBank1IsTransferComplete(ep)) {
+				if (LastTransmitTimedOut[ep] || timeout-- == 0) {
+					LastTransmitTimedOut[ep] = 1;
+
+					// set byte count to zero, so that ZLP is sent
+					// instead of stale data
+					usbd.epBank1SetByteCount(ep, 0);
+					return -1;
+				}
+			}
+		}
+
+		LastTransmitTimedOut[ep] = 0;
+
 		if (len >= EPX_SIZE) {
 			length = EPX_SIZE - 1;
 		} else {
@@ -637,10 +673,6 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		// RAM buffer is full, we can send data (IN)
 		usbd.epBank1SetReady(ep);
 
-		// Wait for transfer to complete
-		while (!usbd.epBank1IsTransferComplete(ep)) {
-			;  // need fire exit.
-		}
 		written += length;
 		len -= length;
 		data = (char *)data + length;
