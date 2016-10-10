@@ -1,5 +1,6 @@
 SAMD CORE 1.6.8
 
+* Fixed regression on analogWrite. Thanks @bose-mdellisanti!
 
 SAMD CORE 1.6.7 2016.09.28
 
