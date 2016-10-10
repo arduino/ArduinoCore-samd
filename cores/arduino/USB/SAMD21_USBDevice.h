@@ -350,7 +350,19 @@ public:
 
 	// Returns how many bytes are stored in the buffers
 	virtual uint32_t available() const {
-		return (last0 - first0) + (last1 - first1);
+		if (current == 0) {
+			bool ready = false;
+			synchronized {
+				ready = ready0;
+			}
+			return ready ? (last0 - first0) : 0;
+		} else {
+			bool ready = false;
+			synchronized {
+				ready = ready1;
+			}
+			return ready ? (last1 - first1) : 0;
+		}
 	}
 
 	void release() {
