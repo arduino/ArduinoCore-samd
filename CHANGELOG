@@ -1,7 +1,8 @@
-SAMD CORE 1.6.8
+SAMD CORE 1.6.8 2016.10.12
 
 * Fixed regression on analogWrite. Thanks @bose-mdellisanti!
 * Fixed regression on SerialUSB.available()
+* C++ global constructors (if any) are now run after hardware initalization.
 
 SAMD CORE 1.6.7 2016.09.28
 
