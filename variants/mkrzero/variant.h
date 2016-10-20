@@ -106,7 +106,6 @@ static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
 // SPI1: Connected to SD
-#define USE_SPI1
 #define PIN_SPI1_MISO (29u)
 #define PIN_SPI1_MOSI (26u)
 #define PIN_SPI1_SCK  (27u)
@@ -118,6 +117,13 @@ static const uint8_t SS1   = PIN_SPI1_SS;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI;
 static const uint8_t MISO1 = PIN_SPI1_MISO;
 static const uint8_t SCK1  = PIN_SPI1_SCK;
+
+// Needed for SD library
+#define SDCARD_SPI      SPI1
+#define SDCARD_MISO_PIN PIN_SPI1_MISO
+#define SDCARD_MOSI_PIN PIN_SPI1_MOSI
+#define SDCARD_SCK_PIN  PIN_SPI1_SCK
+#define SDCARD_SS_PIN   PIN_SPI1_SS
 
 // Wire Interfaces
 // ---------------
