@@ -74,9 +74,10 @@
     #endif
 
     // Address must be set to 1 for the first device, and to 2 for the second one.
-    #define APP_ADDRESS         1
-    #define APP_ENDPOINT        1
-    #define APP_PANID                 0x4567
+    #define APP_ADDRESS         2 // Each coin (node) should have a unique integer address > 1
+    #define DEST_ADDRESS        1 // The RF Dongle node uses Address 1 (this is of course, for simplicity's sake)
+    #define APP_ENDPOINT        1 // What callback endpoint number we are using.
+    #define APP_PANID                 0x01
     #define APP_SECURITY_KEY          "TestSecurityKey0"
     
     char                        bufferData[APP_BUFFER_SIZE];
@@ -126,7 +127,7 @@ void setup() {
 }
 
 void setupSerialComms() {
-    while(!Serial);
+    //while(!Serial);
     
     Serial.begin(115200);
     Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
@@ -150,10 +151,10 @@ void setupMeshNetworking() {
 
     SYS_Init();
     NWK_SetAddr(APP_ADDRESS);
-    NWK_SetPanId(0x01);
+    NWK_SetPanId(APP_PANID);
     PHY_SetChannel(0x1a);
     PHY_SetRxState(true);
-    NWK_OpenEndpoint(1, receiveMessage);
+    NWK_OpenEndpoint(APP_ENDPOINT, receiveMessage);
 }
 
 void setupSensors() {
@@ -165,47 +166,42 @@ void setupSensors() {
 }
 
 void loop() {
-  //float fNumber = 123.01;
-  //char chrNumber[5];
-  
-  //dtostrf(fNumber, 1, 1, chrNumber);
-  // put your main code here, to run repeatedly:
   
   handleSensors();
-  delay(20);
   handleNetworking();
-  //String str(chrNumber);
-  //Serial.print(str);
-  Serial.println("----");
-  
-  delay(1000);
 }
 
 void handleNetworking()
 {
     SYS_TaskHandler();
     
-    if(APP_ADDRESS == 1) {
-      Serial.println("handleNetworking() ->sendMessage()");
-        sendMessage();
-    }
+    if(APP_ADDRESS > 1) {
 
-    /*if(pingCounter % 2) {
-        //analogWrite(LED_GREEN, 128);
-        Serial.println("-");
-    } else {
-        //analogWrite(LED_GREEN, 255);
-        Serial.println("*");
-    }*/
-    Serial.println("handleNetworking()");
+      #ifdef DEBUG
+      
+      Serial.print("Node #");
+      Serial.print(APP_ADDRESS);
+      Serial.println(" handleNetworking() ->sendMessage()");
+      
+      #endif
+      
+      sendMessage();
+    }
 }
 
 void handleSensors()
 {
-    //sprintf (bufferData, "\r\nLIGHT LAMP AT ADDRESS %d!\r\n", APP_ADDRESS);
+    #ifdef DEBUG
+    
     Serial.println("handleSensors()");
+    
+    #endif
+    
     sensors.getYawPitchRoll(ypr);
 
+
+    #ifdef DEBUG
+    
     Serial.println("...getting YPR string");
     Serial.print("Buffer size is ");
     Serial.println(APP_BUFFER_SIZE);
@@ -216,7 +212,8 @@ void handleSensors()
     Serial.print(ypr[1]);
     Serial.print(',');
     Serial.println(ypr[2]);
-
+    
+    #endif
 
     //// Use dtostrf?
     // Copy ypr to buffer.
@@ -232,8 +229,7 @@ void handleSensors()
     bufferData[8] = ',';
     bufferData[17] = ',';
     
-
-    Serial.print("Got ");
+    Serial.print("TX data: ");
     Serial.println(bufferData);
 }
 
@@ -241,27 +237,27 @@ void handleSensors()
 static void sendMessage(void) {
 
   if (send_message_busy) {
+    #ifdef DEBUG
+    
+    Serial.println("...sendMessage() busy");
+    
+    #endif
+    
     return;
   }
-  //pingCounter++;
-  //char sensorData[5] = "    ";
-  //byte i = 0;
 
-  //if (ypr[0] != NULL)
-  //{
-  //  dtostrf(ypr[0], 1, 1, sensorData);
-  //}
-
-  // we just leak for now
-  //NWK_DataReq_t *message = (NWK_DataReq_t*)malloc(sizeof(NWK_DataReq_t));
-
+  #ifdef DEBUG
+  
   Serial.println("sendMessage()");
-  sendRequest.dstAddr       = 2;//1 - APP_ADDRESS;
-  sendRequest.dstEndpoint   = 1;//APP_ENDPOINT;
-  sendRequest.srcEndpoint   = 1;//APP_ENDPOINT;
-  //sendRequest.options       = NWK_OPT_ACK_REQUEST;
+  
+  #endif
+  
+  sendRequest.dstAddr       = DEST_ADDRESS;
+  sendRequest.dstEndpoint   = APP_ENDPOINT; // Endpoint number on destination device
+  sendRequest.srcEndpoint   = APP_ENDPOINT; // Local Endpoint number
+  sendRequest.options       = NWK_IND_OPT_BROADCAST_PAN_ID; // Broadcast to the PAN ID group.
   sendRequest.data          = (uint8_t*)&bufferData;
-  sendRequest.size          = min(APP_BUFFER_SIZE, sizeof(bufferData));
+  sendRequest.size          = sizeof(bufferData);
   sendRequest.confirm       = sendMessageConfirm;
   
   NWK_DataReq(&sendRequest);
@@ -271,7 +267,10 @@ static void sendMessage(void) {
 
 static void sendMessageConfirm(NWK_DataReq_t *req)
 {
+  #ifdef DEBUG
+  
   Serial.print("sendMessageConfirm() req->status is ");
+  
   if (NWK_NO_ACK_STATUS == req->status)
   {
     Serial.println("NWK_NO_ACK_STATUS");
@@ -281,9 +280,11 @@ static void sendMessageConfirm(NWK_DataReq_t *req)
     Serial.println("NWK_ERROR_STATUS");
   }
   
+  #endif
+  send_message_busy = false;
   if (NWK_SUCCESS_STATUS == req->status)
   {
-    send_message_busy = false;
+    //send_message_busy = false;
     Serial.println("NWK_SUCCESS_STATUS");
   }
   (void) req;
@@ -302,44 +303,14 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     Serial.print(ind->rssi, DEC);
     Serial.print("  ");
 
-    Serial.print("ping: ");
-
-    //sensorData = (char) &ind->data;
-    //memcpy();
+    Serial.print("data: ");
     
-    //String str((char*)ind->data);
+    String str((char*)ind->data);
 
-    //Serial.println(str);
-
-    //pingCounter = (byte)*(ind->data);
-    //Serial.println(pingCounter);
-
-    //Serial.print("my Yaw:");
-    //Serial.print(ypr[0]);
-    //Serial.print(", Pitch:");
-    //Serial.print(ypr[1]);
-    //Serial.print(", Roll:");
-    //Serial.println(ypr[2]);
+    Serial.println(str);
     
     return true;
 }
-
-//static void setYPRToBytes(float* arrYPR, uint8_t* bytes) {
-
-    //dtostrf(arrYPR[0], 1, 1, &bufferData[0]);
-    //dtostrf(arrYPR[1], 1, 1, &bufferData[6]);
-    //dtostrf(arrYPR[2], 1, 1, &bufferData[11]);
-
-
-    //bufferData[5]   = '|';
-    //bufferData[10]  = '|';
-
-    //bufferSize  = min(20, sizeof(buffer));
-
-    //BTLEserial.write((byte*)chrData, sendbuffersize);
-    //bytes = (byte*)bufferData;
-//}
-
 
 /*
  * SEE http://forum.arduino.cc/index.php?topic=368720.0
