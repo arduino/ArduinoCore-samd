@@ -3,7 +3,7 @@
  * Mesh networked IMU demo.
  *
  * @author A. Alibno <aalbino@femtoduino.com>
- * @version 1.0.0
+ * @version 1.0.1
  */
 
 #include <stdio.h>
@@ -23,7 +23,9 @@
     #include "lwm/nwk/nwk.h"
 /** END Atmel's LightWeight Mesh stack. **/
 
-/** BEGIN mjs513/FreeIMU-Updates library. **/
+/** BEGIN mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
+    #include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
+    
     //These are optional depending on your IMU configuration
 
     //#include <ADXL345.h>
@@ -60,7 +62,7 @@
 
     // Arduino Zero: no eeprom 
     #define HAS_EEPPROM 0
-/** END mjs513/FreeIMU-Updates library. **/
+/** END mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
 
 /** BEGIN Networking vars **/
     extern "C" {
@@ -74,7 +76,7 @@
     #endif
 
     // Address must be set to 1 for the first device, and to 2 for the second one.
-    #define APP_ADDRESS         2 // Each coin (node) should have a unique integer address > 1
+    #define APP_ADDRESS         5 // Each coin (node) should have a unique integer address > 1
     #define DEST_ADDRESS        1 // The RF Dongle node uses Address 1 (this is of course, for simplicity's sake)
     #define APP_ENDPOINT        1 // What callback endpoint number we are using.
     #define APP_PANID                 0x01
@@ -101,12 +103,26 @@
 
     // Set the FreeIMU object
     FreeIMU sensors = FreeIMU();
+
+    // FemtoBeacon FSYNC pin is PA19 (not PA18, which is mislabeled in the silkscreen of FemtoBeacon rev 2.0.0)
+    // Must connect to GND if FSYNC is unused.
+    byte PIN_FSYNC = 4;
+
+    // FemtoBeacon INT pin is PA18 (not PA19, which is mislabeled in the silkscreen of FemtoBeacon r2.0.0)
+    byte PIN_INT = 3;
 /** END Sensor vars **/
 
 byte delimeter = (byte) '|';
 byte filler = (byte) ' ';
 
 void setup() {
+
+  pinMode(PIN_INT, INPUT);
+  pinMode(PIN_FSYNC, OUTPUT);
+  digitalWrite(PIN_FSYNC, HIGH);
+  delay(10);
+  digitalWrite(PIN_FSYNC, LOW);
+  
   // put your setup code here, to run once:
   setupSerialComms();
   Serial.print("Starting LwMesh...");
