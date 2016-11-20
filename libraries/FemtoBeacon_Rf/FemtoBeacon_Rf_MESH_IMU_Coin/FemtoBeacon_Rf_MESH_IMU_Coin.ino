@@ -104,11 +104,11 @@
     // Set the FreeIMU object
     FreeIMU sensors = FreeIMU();
 
-    // FemtoBeacon FSYNC pin is PA19 (not PA18, which is mislabeled in the silkscreen of FemtoBeacon rev 2.0.0)
+    // FemtoBeacon FSYNC pin is PA18 (not PA19, which is mislabeled in the silkscreen of FemtoBeacon rev 2.0.0)
     // Must connect to GND if FSYNC is unused.
     byte PIN_FSYNC = 4;
 
-    // FemtoBeacon INT pin is PA18 (not PA19, which is mislabeled in the silkscreen of FemtoBeacon r2.0.0)
+    // FemtoBeacon INT pin is PA19 (not PA18, which is mislabeled in the silkscreen of FemtoBeacon r2.0.0)
     byte PIN_INT = 3;
 /** END Sensor vars **/
 
