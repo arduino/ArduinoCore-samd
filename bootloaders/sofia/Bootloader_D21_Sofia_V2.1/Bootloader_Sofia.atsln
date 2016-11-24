@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Atmel Studio Solution File, Format Version 11.00
+Project("{54F91283-7BC4-4236-8FF9-10F437C3AD48}") = "Bootloader_Sofia", "Bootloader_Sofia.cproj", "{7ABD2862-543D-4184-845E-8DC3E340E2CC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|ARM = Debug|ARM
+		Release|ARM = Release|ARM
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7ABD2862-543D-4184-845E-8DC3E340E2CC}.Debug|ARM.ActiveCfg = Debug|ARM
+		{7ABD2862-543D-4184-845E-8DC3E340E2CC}.Debug|ARM.Build.0 = Debug|ARM
+		{7ABD2862-543D-4184-845E-8DC3E340E2CC}.Release|ARM.ActiveCfg = Release|ARM
+		{7ABD2862-543D-4184-845E-8DC3E340E2CC}.Release|ARM.Build.0 = Release|ARM
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
