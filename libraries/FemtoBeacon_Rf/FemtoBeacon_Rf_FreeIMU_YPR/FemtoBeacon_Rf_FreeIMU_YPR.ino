@@ -1,11 +1,11 @@
 /**
  * FreeIMU library serial communication protocol
  * 
- * Note, we use MARG 3 in FreeIMU.h
- * You will need to add the following #define to libraries/FreeIMUUtils/CommunicationUtils.h
+ * This sketch assumes the following FreeIMU.h values:
  * 
- * #define Serial SERIAL_PORT_USBVIRTUAL
- * 
+ *   - MARG should be 4 (DCM)
+ *   - MAG_DEC needs to be set to your location's magnetic declination (degrees)
+ *   - Calibrate your IMU using the FreeIMU GUI tool (should generate a calibration.h file, include alongside this sketch)
  */
 #include <Wire.h>
 #include <SPI.h>
@@ -43,7 +43,7 @@
 //#define DEBUG
 #include "DebugUtils.h"
 #include "CommunicationUtils.h"
-//#include "DCM.h"
+#include "DCM.h"
 #include "FilteringScheme.h"
 #include "RunningAverage.h"
 #include "FreeIMU.h"
@@ -82,7 +82,7 @@ void setup() {
   Wire.begin();
   
   delay(5);
-  my3IMU.init(); // the parameter enable or disable fast mode
+  my3IMU.init(false); // the parameter enable or disable fast mode
   delay(5);
 }
 

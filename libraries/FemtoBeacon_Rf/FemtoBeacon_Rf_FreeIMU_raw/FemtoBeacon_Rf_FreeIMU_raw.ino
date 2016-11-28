@@ -1,16 +1,19 @@
 /**
  * FreeIMU library serial communication protocol
  * 
- * Note, we use MARG 3 in FreeIMU.h
+ * This sketch assumes the following FreeIMU.h values:
+ * 
+ *   - MARG should be 4 (DCM)
+ *   - MAG_DEC needs to be set to your location's magnetic declination (degrees)
+ *   - Calibrate your IMU using the FreeIMU GUI tool (should generate a calibration.h file, include alongside this sketch)
  */
-// See mjs513 fork https://github.com/femtoduino/FreeIMU-Updates
 
 #include <Wire.h>
 #include <SPI.h>
 
 #define Serial SERIAL_PORT_USBVIRTUAL
 
-#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
+//#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
 
 //These are optional depending on your IMU configuration
 //#include <ADXL345.h>
@@ -40,7 +43,7 @@
 //#define DEBUG
 #include "DebugUtils.h"
 #include "CommunicationUtils.h"
-//#include "DCM.h"
+#include "DCM.h"
 #include "FilteringScheme.h"
 #include "RunningAverage.h"
 #include "FreeIMU.h"
@@ -80,7 +83,7 @@ void setup() {
   Wire.begin();
   
   delay(500);
-  my3IMU.init(true); // the parameter enable or disable fast mode
+  my3IMU.init(false); // the parameter enable or disable fast mode
   delay(500);
 }
 

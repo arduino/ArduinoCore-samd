@@ -5,6 +5,13 @@
  * @author A. Alibno <aalbino@femtoduino.com>
  * @version 1.0.1
  */
+/**
+ * This sketch assumes the following FreeIMU.h values:
+ * 
+ *   - MARG should be 4 (DCM)
+ *   - MAG_DEC needs to be set to your location's magnetic declination (degrees)
+ *   - Calibrate your IMU using the FreeIMU GUI tool (should generate a calibration.h file, include alongside this sketch)
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -55,7 +62,7 @@
     //#define DEBUG
     #include "DebugUtils.h"
     #include "CommunicationUtils.h"
-    //#include "DCM.h"
+    #include "DCM.h"
     #include "FilteringScheme.h"
     #include "RunningAverage.h"
     #include "FreeIMU.h"
@@ -76,7 +83,7 @@
     #endif
 
     // Address must be set to 1 for the first device, and to 2 for the second one.
-    #define APP_ADDRESS         5 // Each coin (node) should have a unique integer address > 1
+    #define APP_ADDRESS         2 // Each coin (node) should have a unique integer address > 1
     #define DEST_ADDRESS        1 // The RF Dongle node uses Address 1 (this is of course, for simplicity's sake)
     #define APP_ENDPOINT        1 // What callback endpoint number we are using.
     #define APP_PANID                 0x01

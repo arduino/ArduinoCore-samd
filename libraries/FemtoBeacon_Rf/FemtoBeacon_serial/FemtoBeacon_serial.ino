@@ -1,7 +1,13 @@
 /**
  * FreeIMU library serial communication protocol
  */
-// See mjs513 fork https://github.com/femtoduino/FreeIMU-Updates
+/**
+ * This sketch assumes the following FreeIMU.h values:
+ * 
+ *   - MARG should be 4 (DCM)
+ *   - MAG_DEC needs to be set to your location's magnetic declination (degrees)
+ * 
+ */
 
 
 #define Serial SERIAL_PORT_USBVIRTUAL
@@ -13,7 +19,7 @@
 //#include <LPS.h> 
 //#include <ITG3200.h> //note LPS library must come before ITG lib
 //#include <bma180.h>
-#include <MS561101BA.h> //Comment out for APM 2.5
+//#include <MS561101BA.h> //Comment out for APM 2.5
 //#include <BMP085.h>
 #include <I2Cdev.h>
 #include <MPU60X0.h>
@@ -45,7 +51,7 @@
 
 
 //Intel Edison, Arduino 101, Arduino Due, Arduino Zero: no eeprom 
-#if defined(__SAMD21G18A__) || defined(__SAMR21G18A__) || defined(_VARIANT_ATSAMR21E18A_) || defined(__SAM3X8E__) || defined(__ARDUINO_ARC__) || defined(__SAMD21G18A__)
+#if defined(__SAMD21G18A__) || defined(__SAMR21G18A__) || defined(_VARIANT_ATSAMR21E18A_) || defined(__SAM3X8E__) || defined(__ARDUINO_ARC__)
   #define HAS_EEPPROM 0
 #else
   #include <EEPROM.h>
