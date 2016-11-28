@@ -4,6 +4,7 @@ SAMD CORE 1.6.9
  * SPI: Optimized SPI.transfer(...)
  * Added linker flags for the ARM Math library
  * Added new I2S library
+ * Bootloader: Check sketch vectors before waiting for double tap
 
 SAMD CORE 1.6.8 2016.10.12
 
