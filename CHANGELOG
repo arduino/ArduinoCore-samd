@@ -2,6 +2,8 @@ SAMD CORE 1.6.9
 
  * MKR1000: Enabled PWM on pin 11, it is shared with pin A4
  * SPI: Optimized SPI.transfer(...)
+ * Added linker flags for the ARM Math library
+ * Added new I2S library
 
 SAMD CORE 1.6.8 2016.10.12
 
