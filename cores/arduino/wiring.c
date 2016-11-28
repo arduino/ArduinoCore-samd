@@ -65,6 +65,7 @@ void init( void )
     // Capture error
     while ( 1 ) ;
   }
+  NVIC_SetPriority (SysTick_IRQn,  (1 << __NVIC_PRIO_BITS) - 2);  /* set Priority for Systick Interrupt (2nd lowest) */
 
   // Clock PORT for Digital I/O
 //	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;

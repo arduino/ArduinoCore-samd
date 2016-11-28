@@ -135,6 +135,16 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_USB_DP          (23ul)
 #define PIN_USB_HOST_ENABLE (24ul)
 
+// I2S Interfaces
+// --------------
+#define I2S_INTERFACES_COUNT 1
+
+#define I2S_DEVICE          0
+#define I2S_CLOCK_GENERATOR 3
+#define PIN_I2S_SD          (PIN_A6)
+#define PIN_I2S_SCK         (2u)
+#define PIN_I2S_FS          (3u)
+
 // Needed for WINC1501B (WiFi101) library
 // --------------------------------------
 #define WINC1501_RESET_PIN   (30u)
