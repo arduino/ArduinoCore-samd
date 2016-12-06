@@ -165,7 +165,7 @@ uint32_t analogRead(uint32_t pin)
   ADC->SWTRIG.bit.START = 1;
 
   // Clear the Data Ready flag
-  ADC->INTFLAG.bit.RESRDY = 1;
+  ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
 
   // Start conversion again, since The first conversion after the reference is changed must not be used.
   syncADC();
