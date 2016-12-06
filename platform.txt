@@ -74,6 +74,10 @@ build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANU
 # numeric vendor ID if available or by board's specific value.
 build.usb_manufacturer="Unknown"
 
+# Sketch and bootloader start section
+# -----------------------------------
+build.sketch.start=0x2000
+build.bootloader.start=0x0000
 
 # Compile patterns
 # ----------------
@@ -150,8 +154,10 @@ tools.openocd.cmd.windows=bin/openocd.exe
 
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset {build.section.start}; shutdown"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset {build.sketch.start}; shutdown"
 
+
+# Program flashes the binary at 0x0000, so use the linker script without_bootloader
 tools.openocd.program.params.verbose=-d2
 tools.openocd.program.params.quiet=-d0
 tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.elf}} verify reset; shutdown"
