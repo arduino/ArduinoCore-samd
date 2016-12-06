@@ -24,7 +24,9 @@ extern "C" {
 #endif
 
 #define NVM_MEMORY ((volatile uint16_t *)0x000000)
-#define APP_START 0x00002004
+#ifndef APP_START
+# define APP_START 0x00002004
+#endif
 
 static inline bool nvmReady(void) {
         return NVMCTRL->INTFLAG.reg & NVMCTRL_INTFLAG_READY;
