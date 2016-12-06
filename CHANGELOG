@@ -5,6 +5,7 @@ SAMD CORE 1.6.9
  * Added linker flags for the ARM Math library
  * Added new I2S library
  * Bootloader: Check sketch vectors before waiting for double tap
+ * Upgraded CMSIS version to 4.5.0, and use new CMSIS-Atmel package
 
 SAMD CORE 1.6.8 2016.10.12
 
