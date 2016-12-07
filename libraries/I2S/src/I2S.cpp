@@ -60,7 +60,7 @@ int I2SClass::begin(int mode, int bitsPerSample)
 int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveClock)
 {
   if (_state != I2S_STATE_IDLE) {
-    return 1;
+    return 0;
   }
 
   switch (mode) {
@@ -71,7 +71,7 @@ int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveCloc
 
     default:
       // invalid mode
-      return 1;
+      return 0;
   }
 
   switch (bitsPerSample) {
@@ -83,7 +83,7 @@ int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveCloc
 
     default:
       // invalid bits per sample
-      return 1;
+      return 0;
   }
 
   // try to allocate a DMA channel
@@ -93,7 +93,7 @@ int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveCloc
 
   if (_dmaChannel < 0) {
     // no DMA channel available
-    return 1;
+    return 0;
   }
 
   if (_beginCount == 0) {
@@ -148,7 +148,7 @@ int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveCloc
 
   _doubleBuffer.reset();
 
-  return 0;
+  return 1;
 }
 
 void I2SClass::end()

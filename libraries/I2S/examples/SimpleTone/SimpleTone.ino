@@ -32,7 +32,7 @@ void setup() {
   Serial.println("I2S simple tone");
 
   // start I2S at the sample rate with 16-bits per sample
-  if (I2S.begin(I2S_PHILIPS_MODE, sampleRate, 16)) {
+  if (!I2S.begin(I2S_PHILIPS_MODE, sampleRate, 16)) {
     Serial.println("Failed to initialize I2S!");
     while (1); // do nothing
   }
