@@ -1,11 +1,12 @@
-SAMD CORE 1.6.9
+SAMD CORE 1.6.9 2016.12.12
 
- * MKR1000: Enabled PWM on pin 11, it is shared with pin A4
- * SPI: Optimized SPI.transfer(...)
- * Added linker flags for the ARM Math library
- * Added new I2S library
- * Bootloader: Check sketch vectors before waiting for double tap
- * Upgraded CMSIS version to 4.5.0, and use new CMSIS-Atmel package
+* MKR1000: Enabled PWM on pin 11, it is shared with pin A4
+* SPI: Optimized SPI.transfer(...)
+* Added linker flags for the ARM Math library
+* Added new I2S library
+* Bootloader: Check sketch vectors before waiting for double tap
+* Upgraded CMSIS version to 4.5.0, and use new CMSIS-Atmel package
+* Added Arduino MKRZero board.
 
 SAMD CORE 1.6.8 2016.10.12
 
