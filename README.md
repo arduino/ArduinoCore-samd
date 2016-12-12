@@ -1,7 +1,7 @@
 # Arduino Core for SAMD21 CPU
 
 This repository containts the source code and configuration files of the Arduino Core
-for Atmel's SAMD21 processor (used on the Arduino Zero board).
+for Atmel's SAMD21 processor (used on the Arduino/Genuino Zero, MKR1000 and MKRZero boards).
 
 ## Installation on Arduino IDE
 
