@@ -5,13 +5,13 @@
  data (Tools -> Serial Plotter)
 
  Circuit:
- * Arduino/Genuino Zero or MKR1000 board
+ * Arduino/Genuino Zero, MKRZero or MKR1000 board
  * ICS43432:
    * GND connected GND
-   * 3.3V connected 3.3V
-   * WS connected to pin 0 (Zero) or pin 3 (MKR1000)
-   * CLK connected to pin 1 (Zero) or pin 2 (MKR1000)
-   * SD connected to pin 9 (Zero) or pin A6 (MKR1000)
+   * 3.3V connected 3.3V (Zero) or VCC (MKR1000, MKRZero)
+   * WS connected to pin 0 (Zero) or pin 3 (MKR1000, MKRZero)
+   * CLK connected to pin 1 (Zero) or pin 2 (MKR1000, MKRZero)
+   * SD connected to pin 9 (Zero) or pin A6 (MKR1000, MKRZero)
 
  created 17 November 2016
  by Sandeep Mistry
