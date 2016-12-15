@@ -341,3 +341,4 @@ tian_cons.vid.0=0x10C4
 tian_cons.pid.0=0xEA70
 tian_cons.descriptor.0=Standard Com Port
 tian_cons.hide=true
+tian_cons.build.board=SAMD_TIAN
