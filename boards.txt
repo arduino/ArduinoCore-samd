@@ -304,7 +304,7 @@ tian.name=Arduino Tian
 tian.upload.via_ssh=true
 tian.vid.0=0x10C4
 tian.pid.0=0xEA70
-tian.descriptor.0="Extended Port"
+tian.descriptor.0=Enhanced Com Port
 
 tian.upload.tool=avrdude
 #tian.upload.protocol=stk500v2
@@ -336,8 +336,8 @@ tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
 ######################################################
 #ARDUINO TIAN CONSOLE PORT (NOT FOR UPLOAD)
 
-tian_cons.name=Arduino Tian (Console port)
+tian_cons.name=Arduino Tian (MIPS Console port)
 tian_cons.vid.0=0x10C4
 tian_cons.pid.0=0xEA70
-tian_cons.descriptor.0="Primary Port"
->>>>>>> Harmonize build rules for cc+org boards
+tian_cons.descriptor.0=Standard Com Port
+tian_cons.hide=true
