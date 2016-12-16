@@ -50,6 +50,7 @@ compiler.elf2hex.cmd=arm-none-eabi-objcopy
 compiler.ldflags=-mcpu={build.mcu} -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align
 compiler.size.cmd=arm-none-eabi-size
 compiler.define=-DARDUINO=
+compiler.readelf.cmd=arm-none-eabi-readelf
 
 # this can be overriden in boards.txt
 build.extra_flags=
@@ -73,11 +74,6 @@ build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANU
 # Default usb manufacturer will be replaced at compile time using
 # numeric vendor ID if available or by board's specific value.
 build.usb_manufacturer="Unknown"
-
-# Sketch and bootloader start section
-# -----------------------------------
-build.sketch.start=0x2000
-build.bootloader.start=0x0000
 
 # Compile patterns
 # ----------------
@@ -114,7 +110,6 @@ recipe.output.save_file={build.project_name}.{build.variant}.{build.preferred_ou
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
 recipe.size.regex=\.text\s+([0-9]+).*
-
 
 # Uploader tools
 # --------------
@@ -154,8 +149,7 @@ tools.openocd.cmd.windows=bin/openocd.exe
 
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset {build.sketch.start}; shutdown"
-
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset 0x2000; shutdown"
 
 # Program flashes the binary at 0x0000, so use the linker script without_bootloader
 tools.openocd.program.params.verbose=-d2
@@ -169,3 +163,29 @@ tools.openocd.erase.pattern=
 tools.openocd.bootloader.params.verbose=-d2
 tools.openocd.bootloader.params.quiet=-d0
 tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
+
+#
+# OpenOCD sketch upload - version with configurable bootloader size
+# FIXME: this programmer is a workaround for default options being overwritten by uploadUsingPreferences
+#
+
+tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino.path}
+tools.openocd-withbootsize.cmd=bin/openocd
+tools.openocd-withbootsize.cmd.windows=bin/openocd.exe
+
+tools.openocd-withbootsize.upload.params.verbose=-d2
+tools.openocd-withbootsize.upload.params.quiet=-d0
+tools.openocd-withbootsize.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset {bootloader.size}; shutdown"
+
+# Program flashes the binary at 0x0000, so use the linker script without_bootloader
+tools.openocd-withbootsize.program.params.verbose=-d2
+tools.openocd-withbootsize.program.params.quiet=-d0
+tools.openocd-withbootsize.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.elf}} verify reset; shutdown"
+
+tools.openocd-withbootsize.erase.params.verbose=-d3
+tools.openocd-withbootsize.erase.params.quiet=-d0
+tools.openocd-withbootsize.erase.pattern=
+
+tools.openocd-withbootsize.bootloader.params.verbose=-d2
+tools.openocd-withbootsize.bootloader.params.quiet=-d0
+tools.openocd-withbootsize.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
