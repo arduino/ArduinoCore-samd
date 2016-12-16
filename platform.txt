@@ -44,11 +44,13 @@ compiler.ar.cmd=arm-none-eabi-ar
 compiler.ar.flags=rcs
 compiler.objcopy.cmd=arm-none-eabi-objcopy
 compiler.objcopy.eep.flags=-O ihex -j .eeprom --set-section-flags=.eeprom=alloc,load --no-change-warnings --change-section-lma .eeprom=0
-compiler.elf2hex.flags=-O binary
+compiler.elf2hex.bin.flags=-O binary
+compiler.elf2hex.hex.flags=-O ihex -R .eeprom
 compiler.elf2hex.cmd=arm-none-eabi-objcopy
 compiler.ldflags=-mcpu={build.mcu} -mthumb -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all -Wl,--warn-common -Wl,--warn-section-align
 compiler.size.cmd=arm-none-eabi-size
 compiler.define=-DARDUINO=
+compiler.readelf.cmd=arm-none-eabi-readelf
 
 # this can be overriden in boards.txt
 build.extra_flags=
@@ -73,7 +75,6 @@ build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANU
 # numeric vendor ID if available or by board's specific value.
 build.usb_manufacturer="Unknown"
 
-
 # Compile patterns
 # ----------------
 
@@ -95,19 +96,35 @@ recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compil
 recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}"  "-L{build.path}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" --specs=nano.specs --specs=nosys.specs {compiler.ldflags} -o "{build.path}/{build.project_name}.elf" {object_files} -Wl,--start-group {compiler.arm.cmsis.ldflags} -lm "{build.path}/{archive_file}" -Wl,--end-group
 
 ## Create output (bin file)
-recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
+recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.bin.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
+
+## Create output (hex file)
+recipe.objcopy.hex.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.hex"
+
+build.preferred_out_format=bin
 
 ## Save hex
-recipe.output.tmp_file={build.project_name}.bin
-recipe.output.save_file={build.project_name}.{build.variant}.bin
+recipe.output.tmp_file={build.project_name}.{build.preferred_out_format}
+recipe.output.save_file={build.project_name}.{build.variant}.{build.preferred_out_format}
 
 ## Compute size
 recipe.size.pattern="{compiler.path}{compiler.size.cmd}" -A "{build.path}/{build.project_name}.elf"
 recipe.size.regex=\.text\s+([0-9]+).*
 
-
 # Uploader tools
 # --------------
+
+#
+# AVRDUDE
+#
+tools.avrdude.path={runtime.tools.avrdude.path}
+tools.avrdude.cmd={path}/bin/avrdude
+tools.avrdude.config.path={path}/etc/avrdude.conf
+
+tools.avrdude.upload.params.verbose=-v -v
+tools.avrdude.upload.params.quiet=-q -q
+tools.avrdude.upload.params.noverify=-V
+tools.avrdude.upload.pattern="{cmd}" "-C{config.path}" {upload.verbose} -p{build.emu.mcu} -c{upload.protocol} -P{serial.port} -b{upload.speed} "-Uflash:w:{build.path}/{build.project_name}.hex:i"
 
 #
 # BOSSA
@@ -132,8 +149,9 @@ tools.openocd.cmd.windows=bin/openocd.exe
 
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset 0x00002000; shutdown"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset 0x2000; shutdown"
 
+# Program flashes the binary at 0x0000, so use the linker script without_bootloader
 tools.openocd.program.params.verbose=-d2
 tools.openocd.program.params.quiet=-d0
 tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.elf}} verify reset; shutdown"
@@ -145,3 +163,29 @@ tools.openocd.erase.pattern=
 tools.openocd.bootloader.params.verbose=-d2
 tools.openocd.bootloader.params.quiet=-d0
 tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
+
+#
+# OpenOCD sketch upload - version with configurable bootloader size
+# FIXME: this programmer is a workaround for default options being overwritten by uploadUsingPreferences
+#
+
+tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino.path}
+tools.openocd-withbootsize.cmd=bin/openocd
+tools.openocd-withbootsize.cmd.windows=bin/openocd.exe
+
+tools.openocd-withbootsize.upload.params.verbose=-d2
+tools.openocd-withbootsize.upload.params.quiet=-d0
+tools.openocd-withbootsize.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset {bootloader.size}; shutdown"
+
+# Program flashes the binary at 0x0000, so use the linker script without_bootloader
+tools.openocd-withbootsize.program.params.verbose=-d2
+tools.openocd-withbootsize.program.params.quiet=-d0
+tools.openocd-withbootsize.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.elf}} verify reset; shutdown"
+
+tools.openocd-withbootsize.erase.params.verbose=-d3
+tools.openocd-withbootsize.erase.params.quiet=-d0
+tools.openocd-withbootsize.erase.pattern=
+
+tools.openocd-withbootsize.bootloader.params.verbose=-d2
+tools.openocd-withbootsize.bootloader.params.quiet=-d0
+tools.openocd-withbootsize.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
