@@ -43,6 +43,13 @@ static void banzai() {
 	// Disable all interrupts
 	__disable_irq();
 
+	// Avoid erasing the application if APP_START is < than the minimum bootloader size
+	// This could happen if without_bootloader linker script was chosen
+	// Minimum bootloader size in SAMD21 family is 512bytes (RM section 22.6.5)
+	if (APP_START < (0x200 + 4)) {
+		goto reset;
+	}
+
 	// Erase application
 	while (!nvmReady())
 		;
@@ -52,6 +59,7 @@ static void banzai() {
 	while (!nvmReady())
 		;
 
+reset:
 	// Reset the device
 	NVIC_SystemReset() ;
 
