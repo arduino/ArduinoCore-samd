@@ -161,3 +161,33 @@ mkrzero.build.vid=0x2341
 mkrzero.build.pid=0x804f
 mkrzero.bootloader.tool=openocd
 mkrzero.bootloader.file=mkrzero/samd21_sam_ba_arduino_mkrzero.bin
+
+# Adafruit Circuit Playground M0
+# ------------------------------
+adafruit_circuitplayground_m0.name=Adafruit Circuit Playground Express
+adafruit_circuitplayground_m0.vid.0=0x239A
+adafruit_circuitplayground_m0.pid.0=0x8018
+adafruit_circuitplayground_m0.vid.1=0x239A
+adafruit_circuitplayground_m0.pid.1=0x0018
+adafruit_circuitplayground_m0.upload.tool=bossac
+adafruit_circuitplayground_m0.upload.protocol=sam-ba
+adafruit_circuitplayground_m0.upload.maximum_size=262144
+adafruit_circuitplayground_m0.upload.use_1200bps_touch=true
+adafruit_circuitplayground_m0.upload.wait_for_upload_port=true
+adafruit_circuitplayground_m0.upload.native_usb=true
+adafruit_circuitplayground_m0.build.mcu=cortex-m0plus
+adafruit_circuitplayground_m0.build.f_cpu=48000000L
+adafruit_circuitplayground_m0.build.usb_product="Circuit Playground Express"
+adafruit_circuitplayground_m0.build.usb_manufacturer="Adafruit"
+adafruit_circuitplayground_m0.build.board=SAMD_CIRCUITPLAYGROUND_EXPRESS
+adafruit_circuitplayground_m0.build.core=arduino
+adafruit_circuitplayground_m0.build.extra_flags=-DCRYSTALLESS -DARDUINO_SAMD_ZERO -D__SAMD21G18A__ {build.usb_flags}
+adafruit_circuitplayground_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_circuitplayground_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_circuitplayground_m0.build.variant=circuitplay
+adafruit_circuitplayground_m0.build.variant_system_lib=
+adafruit_circuitplayground_m0.build.vid=0x239A
+adafruit_circuitplayground_m0.build.pid=0x8018
+adafruit_circuitplayground_m0.bootloader.tool=openocd
+adafruit_circuitplayground_m0.bootloader.file=circuitplay/circuitplay_m0_samd21g18_sam_ba.bin
+
