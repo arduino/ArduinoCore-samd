@@ -59,7 +59,7 @@ void SystemInit( void )
    * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
    */
 
-  uint32_t calib = (*((uint32_t *) SYSCTRL_FUSES_OSC32K_ADDR) & SYSCTRL_FUSES_OSC32K_Msk) >> SYSCTRL_FUSES_OSC32K_Pos;
+  uint32_t calib = (*((uint32_t *) FUSES_OSC32K_CAL_ADDR) & FUSES_OSC32K_CAL_Msk) >> FUSES_OSC32K_CAL_Pos;
 
   SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_CALIB(calib) |
                         SYSCTRL_OSC32K_STARTUP( 0x6u ) | // cf table 15.10 of product datasheet in chapter 15.8.6
@@ -161,7 +161,6 @@ void SystemInit( void )
   #define NVM_SW_CALIB_DFLL48M_FINE_VAL   64
 
   // Turn on DFLL
-  SYSCTRL_DFLLVAL_Type dfllval_conf = {0};
   uint32_t coarse =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_COARSE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_COARSE_VAL % 32) )
                    & ((1 << 6) - 1);
   if (coarse == 0x3f) {
@@ -172,10 +171,9 @@ void SystemInit( void )
   if (fine == 0x3ff) {
     fine = 0x1ff;
   }
-  dfllval_conf.bit.COARSE  = coarse;
-  dfllval_conf.bit.FINE    = fine;
 
-  SYSCTRL->DFLLVAL.reg = dfllval_conf.reg;
+  SYSCTRL->DFLLVAL.bit.COARSE = coarse;
+  SYSCTRL->DFLLVAL.bit.FINE = fine;
   /* Write full configuration to DFLL control register */
   SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
                            SYSCTRL_DFLLCTRL_CCDIS |
