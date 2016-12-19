@@ -55,7 +55,7 @@ bool cdc_is_rx_ready(/*P_USB_CDC pCdc*/void)
     return 0;
 
   /* Return transfer complete 0 flag status */
-  return (pCdc->pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0));
+  return (pCdc->pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0);
 }
 
 uint32_t cdc_write_buf(/*P_USB_CDC pCdc,*/ void const* data, uint32_t length)
