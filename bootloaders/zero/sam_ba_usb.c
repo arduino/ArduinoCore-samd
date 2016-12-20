@@ -344,7 +344,7 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
             pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ1;
             if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL1)
             {
-              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL1;
+              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL1;
               // The Stall has occurred, then reset data toggle
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSSET_DTGLIN;
             }
@@ -358,7 +358,7 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
             pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ0;
             if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL0)
             {
-              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL0;
+              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL0;
               // The Stall has occurred, then reset data toggle
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSSET_DTGLOUT;
             }
