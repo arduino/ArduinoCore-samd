@@ -1,3 +1,7 @@
+SAMD CORE 1.6.11 2016.12.23
+
+* Temporarily disabled support for Arduino Tian until an upload issue is fixed
+
 SAMD CORE 1.6.10 2016.12.23
 
 * Added .org boards

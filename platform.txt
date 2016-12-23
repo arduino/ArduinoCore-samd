@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino SAMD (32-bits ARM Cortex-M0+) Boards
-version=1.6.10
+version=1.6.11
 
 # Compile variables
 # -----------------
@@ -126,7 +126,8 @@ tools.avrdude.upload.params.quiet=-q -q
 tools.avrdude.upload.params.noverify=-V
 tools.avrdude.upload.pattern="{cmd}" "-C{config.path}" {upload.verbose} -p{build.emu.mcu} -c{upload.protocol} -P{serial.port} -b{upload.speed} "-Uflash:w:{build.path}/{build.project_name}.hex:i"
 
-tools.avrdude_remote.upload.pattern=/usr/bin/run-avrdude /tmp/sketch.hex
+#temporary disabled remote upload
+tools.avrdude_remote.upload.pattern=/usr/bin/XXX-run-avrdude /tmp/sketch.hex
 
 #
 # BOSSA
