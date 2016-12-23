@@ -1,3 +1,15 @@
+SAMD CORE 1.6.10 2016.12.23
+
+* Added .org boards
+* Fixed MKRZero `build.board` property
+* linker: .data section is now aligned to 16 bytes address
+* Added support for CRYSTALLESS configurations (thanks @ladyada)
+* Added Circuits Playground board
+* Added method to automatically retrieve sketch start via linker variable
+  (see https://github.com/arduino/ArduinoCore-samd/pull/185)
+* Fixed USBDevice.epBank1EnableTransferComplete method
+* Adapted bootloader source code to CMSIS 4.5
+
 SAMD CORE 1.6.9 2016.12.12
 
 * MKR1000: Enabled PWM on pin 11, it is shared with pin A4
