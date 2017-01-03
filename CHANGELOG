@@ -1,3 +1,7 @@
+SAMD CORE ?.?.?? ????.??.??
+
+* Fixed type conflict of utoa function. Thanks @kbumsik
+
 SAMD CORE 1.6.11 2016.12.23
 
 * Temporarily disabled support for Arduino Tian until an upload issue is fixed
