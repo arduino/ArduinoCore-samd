@@ -42,9 +42,6 @@ typedef void (*voidFuncPtr)(void);
  */
 void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode);
 
-voidFuncPtr* getISRcallback();// for debug only, remove
-EExt_Interrupts* getISRlist();//for debug only, remove
-
 /*
  * \brief Turns off the given interrupt.
  */
