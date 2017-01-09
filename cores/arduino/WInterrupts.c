@@ -88,6 +88,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 
   // Configure the interrupt mode
   pos = (in - (8 * config)) << 2;
+  EIC->CONFIG[config].reg &=~ (EIC_CONFIG_SENSE0_Msk << pos);//reset sense mode, important when changing trigger mode during runtime
   switch (mode)
   {
     case LOW:
