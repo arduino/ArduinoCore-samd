@@ -293,3 +293,49 @@ mzero_bl.build.emu.mcu=atmega2560
 mzero_bl.bootloader.tool=avrdude
 mzero_bl.bootloader.low_fuses=0xff
 
+######################################################
+#ARDUINO TIAN (WITH) BOOTLOADER
+
+tian.name=Arduino Tian
+tian.upload.via_ssh=true
+tian.vid.0=0x10C4
+tian.pid.0=0xEA70
+tian.descriptor.0=Enhanced Com Port
+
+tian.upload.tool=avrdude
+#tian.upload.protocol=stk500v2
+tian.upload.protocol=wiring
+tian.upload.maximum_size=262144
+tian.upload.use_1200bps_touch=true
+tian.upload.wait_for_upload_port=true
+tian.upload.native_usb=true
+tian.upload.speed=57600
+tian.build.mcu=cortex-m0plus
+tian.build.f_cpu=48000000L
+tian.build.usb_product="Arduino Tian"
+tian.build.board=SAMD_TIAN
+tian.build.core=arduino
+tian.build.extra_flags=-D__SAMD21G18A__ -mthumb {build.usb_flags}
+tian.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+tian.build.openocdscript=openocd_scripts/arduino_zero.cfg
+tian.build.variant=arduino_mzero
+tian.build.variant_system_lib=
+tian.build.vid=0x2a03
+tian.build.pid=0x8052
+tian.build.preferred_out_format=hex
+tian.bootloader.size=0x4000
+tian.build.emu.mcu=atmega2560
+tian.bootloader.tool=openocd-withbootsize
+tian.bootloader.low_fuses=0xff
+tian.bootloader.file=sofia/Sofia_Tian_151118.hex
+tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
+
+######################################################
+#ARDUINO TIAN CONSOLE PORT (NOT FOR UPLOAD)
+
+tian_cons.name=Arduino Tian (MIPS Console port)
+tian_cons.vid.0=0x10C4
+tian_cons.pid.0=0xEA70
+tian_cons.descriptor.0=Standard Com Port
+tian_cons.hide=true
+tian_cons.build.board=SAMD_TIAN
