@@ -1,12 +1,19 @@
 /**
  * FreeIMU library serial communication protocol
  * 
- * Note, we use MARG 4 in FreeIMU.h
-*/
+ * This sketch assumes the following FreeIMU.h values:
+ * 
+ *   - MARG should be 4 (DCM)
+ *   - MAG_DEC needs to be set to your location's magnetic declination (degrees)
+ *   - Calibrate your IMU using the FreeIMU GUI tool (should generate a calibration.h file, include alongside this sketch)
+ */
+
 #include <Wire.h>
 #include <SPI.h>
 
 #define Serial SERIAL_PORT_USBVIRTUAL
+
+//#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
 
 //These are optional depending on your IMU configuration
 //#include <ADXL345.h>
@@ -36,7 +43,7 @@
 //#define DEBUG
 #include "DebugUtils.h"
 #include "CommunicationUtils.h"
-//#include "DCM.h"
+#include "DCM.h"
 #include "FilteringScheme.h"
 #include "RunningAverage.h"
 #include "FreeIMU.h"
@@ -57,14 +64,31 @@ float val[9];
 // Set the default object
 FreeIMU my3IMU = FreeIMU();
 
+// FemtoBeacon FSYNC pin is PA18 (not PA19, which is mislabeled in the silkscreen of FemtoBeacon rev 2.0.0)
+// Must connect to GND if FSYNC is unused.
+byte PIN_FSYNC = 4;
+
+// FemtoBeacon INT pin is PA19 (not PA18, which is mislabeled in the silkscreen of FemtoBeacon r2.0.0)
+byte PIN_INT = 3;
+
 void setup() {
+  
+  pinMode(PIN_INT, INPUT);
+  pinMode(PIN_FSYNC, OUTPUT);
+  digitalWrite(PIN_FSYNC, HIGH);
+  delay(10);
+  digitalWrite(PIN_FSYNC, LOW);
+  while (!Serial);
   
   Serial.begin(115200);
   Wire.begin();
+
+  Serial.println("Begin IMU...");
   
   delay(500);
-  my3IMU.init(true); // the parameter enable or disable fast mode
+  my3IMU.init(false); // the parameter enable or disable fast mode
   delay(500);
+  Serial.println("Ok!");
 }
 
 void loop() {

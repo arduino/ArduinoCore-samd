@@ -19,6 +19,8 @@
 
 /*
  * Pins descriptions
+ * Note: FSYNC is mislabeled as "18/INT" on FemtoBeacon coins r2.0.0 silkscreen
+ * Note: INT is mislabeled as "19/FSYNC" on FemtoBeacon coins r2.0.0 silkscreen
  */
 const PinDescription g_APinDescription[]=
 {
@@ -36,7 +38,7 @@ const PinDescription g_APinDescription[]=
 /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | LEDs & button    |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 2          | N/A              |  PA19  | LED0/FSYNC      | EIC/EXTINT[3]  PTC/X[7]  SERCOM1/PAD[3]  SERCOM3_ALT/PAD[3] *TC3/WO[1]  TCC0_ALT/WO[3]  I2S/SD[0]  AC/CMP[1]
+ * | 2          | N/A              |  PA19  | LED0/INTA       | EIC/EXTINT[3]  PTC/X[7]  SERCOM1/PAD[3]  SERCOM3_ALT/PAD[3] *TC3/WO[1]  TCC0_ALT/WO[3]  I2S/SD[0]  AC/CMP[1]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
   { PORTA, 19, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM3_CH1, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // TC3/WO[1]
@@ -44,8 +46,8 @@ const PinDescription g_APinDescription[]=
 /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | Digital/PWM      |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 3         | PWM+/INTA        |  PA18  | EXT1_7          | EIC/EXTINT[2]  PTC/X[6]  SERCOM1/PAD[2]  SERCOM3_ALT/PAD[2]  TC3/WO[0] *TCC0_ALT/WO[2]  AC/CMP[0]
- * | 4         | PWM-/FSYNC       |  PA19  | EXT1_8          | EIC/EXTINT[3]  PTC/X[7]  SERCOM1/PAD[3]  SERCOM3_ALT/PAD[3]  TC3/WO[1] *TCC0_ALT/WO[3]  I2S/SD[0]  AC/CMP[1]
+ * | 3         | PWM+/FSYNC        |  PA18  | EXT1_7          | EIC/EXTINT[2]  PTC/X[6]  SERCOM1/PAD[2]  SERCOM3_ALT/PAD[2]  TC3/WO[0] *TCC0_ALT/WO[2]  AC/CMP[0]
+ * | 4         | PWM-/INTA         |  PA19  | EXT1_8          | EIC/EXTINT[3]  PTC/X[7]  SERCOM1/PAD[3]  SERCOM3_ALT/PAD[3]  TC3/WO[1] *TCC0_ALT/WO[3]  I2S/SD[0]  AC/CMP[1]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
   { PORTA, 18, PIO_TIMER, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, PWM0_CH2, TCC0_CH2, EXTERNAL_INT_2 }, // TCC0/WO[2]
