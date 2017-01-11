@@ -78,13 +78,17 @@ void setup() {
   digitalWrite(PIN_FSYNC, HIGH);
   delay(10);
   digitalWrite(PIN_FSYNC, LOW);
+  while (!Serial);
   
   Serial.begin(115200);
   Wire.begin();
+
+  Serial.println("Begin IMU...");
   
   delay(500);
   my3IMU.init(false); // the parameter enable or disable fast mode
   delay(500);
+  Serial.println("Ok!");
 }
 
 void loop() {

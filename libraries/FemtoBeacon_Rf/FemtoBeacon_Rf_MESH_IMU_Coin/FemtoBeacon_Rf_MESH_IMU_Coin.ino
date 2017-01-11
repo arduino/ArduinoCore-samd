@@ -31,7 +31,7 @@
 /** END Atmel's LightWeight Mesh stack. **/
 
 /** BEGIN mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
-    #include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
+    //#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
     
     //These are optional depending on your IMU configuration
 
