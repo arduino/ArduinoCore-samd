@@ -83,10 +83,10 @@ void init( void )
   PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
 
   // Setup all pins (digital and analog) in INPUT mode (default is nothing)
-  for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
-  {
-	  pinMode( ul, INPUT ) ;
-  }
+//  for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
+//  {
+//	  pinMode( ul, INPUT ) ;
+//  }
 
   // Initialize Analog Controller
   // Setting clock
