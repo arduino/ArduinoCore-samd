@@ -96,7 +96,7 @@ class SPIClass {
 
   byte transfer(uint8_t data);
   uint16_t transfer16(uint16_t data);
-  inline void transfer(void *buf, size_t count);
+  void transfer(void *buf, size_t count);
 
   // Transaction Functions
   void usingInterrupt(int interruptNumber);
@@ -131,14 +131,6 @@ class SPIClass {
   char interruptSave;
   uint32_t interruptMask;
 };
-
-void SPIClass::transfer(void *buf, size_t count)
-{
-  // TODO: Optimize for faster block-transfer
-  uint8_t *buffer = reinterpret_cast<uint8_t *>(buf);
-  for (size_t i=0; i<count; i++)
-    buffer[i] = transfer(buffer[i]);
-}
 
 #if SPI_INTERFACES_COUNT > 0
   extern SPIClass SPI;

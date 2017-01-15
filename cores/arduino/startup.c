@@ -38,6 +38,7 @@
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
 #define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
+#define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
 #define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
 #define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
 // Constants for Clock multiplexers
@@ -51,6 +52,24 @@ void SystemInit( void )
   /* Turn on the digital interface clock */
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK ;
 
+
+#if defined(CRYSTALLESS)
+
+  /* ----------------------------------------------------------------------------------------------
+   * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
+   */
+
+  uint32_t calib = (*((uint32_t *) FUSES_OSC32K_CAL_ADDR) & FUSES_OSC32K_CAL_Msk) >> FUSES_OSC32K_CAL_Pos;
+
+  SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_CALIB(calib) |
+                        SYSCTRL_OSC32K_STARTUP( 0x6u ) | // cf table 15.10 of product datasheet in chapter 15.8.6
+                        SYSCTRL_OSC32K_EN32K |
+                        SYSCTRL_OSC32K_ENABLE;
+
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 ); // Wait for oscillator stabilization
+
+#else // has crystal
+
   /* ----------------------------------------------------------------------------------------------
    * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
    */
@@ -62,6 +81,8 @@ void SystemInit( void )
   {
     /* Wait for oscillator stabilization */
   }
+
+#endif
 
   /* Software reset the module to ensure it is re-initialized correctly */
   /* Note: Due to synchronization, there is a delay from writing CTRL.SWRST until the reset is complete.
@@ -85,8 +106,12 @@ void SystemInit( void )
   }
 
   /* Write Generic Clock Generator 1 configuration */
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_XOSC32K ) | // Generic Clock Generator 1
+  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
+#if defined(CRYSTALLESS)
+                      GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
+#else
                       GCLK_GENCTRL_SRC_XOSC32K | // Selected source is External 32KHz Oscillator
+#endif
 //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
                       GCLK_GENCTRL_GENEN ;
 
@@ -130,6 +155,41 @@ void SystemInit( void )
     /* Wait for synchronization */
   }
 
+#if defined(CRYSTALLESS)
+
+  #define NVM_SW_CALIB_DFLL48M_COARSE_VAL 58
+  #define NVM_SW_CALIB_DFLL48M_FINE_VAL   64
+
+  // Turn on DFLL
+  uint32_t coarse =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_COARSE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_COARSE_VAL % 32) )
+                   & ((1 << 6) - 1);
+  if (coarse == 0x3f) {
+    coarse = 0x1f;
+  }
+  uint32_t fine =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_FINE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_FINE_VAL % 32) )
+                 & ((1 << 10) - 1);
+  if (fine == 0x3ff) {
+    fine = 0x1ff;
+  }
+
+  SYSCTRL->DFLLVAL.bit.COARSE = coarse;
+  SYSCTRL->DFLLVAL.bit.FINE = fine;
+  /* Write full configuration to DFLL control register */
+  SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
+                           SYSCTRL_DFLLCTRL_CCDIS |
+                           SYSCTRL_DFLLCTRL_WAITLOCK |
+                           SYSCTRL_DFLLCTRL_QLDIS ; /* Disable Quick lock */
+
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+  {
+    /* Wait for synchronization */
+  }
+
+  /* Enable the DFLL */
+  SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
+
+#else   // has crystal
+
   /* Write full configuration to DFLL control register */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
                            SYSCTRL_DFLLCTRL_WAITLOCK |
@@ -148,6 +208,8 @@ void SystemInit( void )
   {
     /* Wait for locks flags */
   }
+
+#endif
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {

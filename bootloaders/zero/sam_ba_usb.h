@@ -66,11 +66,9 @@
 #define FEATURE_DEVICE_REMOTE_WAKEUP   (1u)
 #define FEATURE_TEST_MODE              (2u)
 
-#if 0 // TODO: pending validation
 #define STRING_INDEX_LANGUAGES         (0x00u)
 #define STRING_INDEX_MANUFACTURER      (0x01u)
 #define STRING_INDEX_PRODUCT           (0x02u)
-#endif // 0
 
 #define SAM_BA_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
@@ -96,9 +94,7 @@ P_USB_CDC usb_init(void);
 
 void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc);
 
-#if 0 // TODO: pending validation
-uint32_t USB_SendString(Usb *pUsb, const char* ascii_string, uint8_t length, uint8_t maxLength);
-#endif // 0
+uint32_t USB_SendString(Usb *pUsb, const char* ascii_string, uint8_t maxLength);
 
 extern USB_CDC sam_ba_cdc;
 

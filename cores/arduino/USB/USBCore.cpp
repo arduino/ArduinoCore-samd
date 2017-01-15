@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2016 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -55,8 +55,6 @@ extern "C" void UDD_Handler(void) {
 	USBDevice.ISRHandler();
 }
 
-
-
 const uint16_t STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
 	0x0409	// English
@@ -96,6 +94,11 @@ uint8_t udd_ep_out_cache_buffer[7][64];
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
 uint8_t udd_ep_in_cache_buffer[7][64];
+
+// Some EP are handled using EPHanlders.
+// Possibly all the sparse EP handling subroutines will be
+// converted into reusable EPHandlers in the future.
+static EPHandler *epHandlers[7];
 
 //==================================================================
 
@@ -256,16 +259,9 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 	return true;
 }
 
-
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
 #if defined(CDC_ENABLED)
-	if (ep == CDC_ENDPOINT_OUT)
-	{
-		// Handle received bytes
-		if (available(CDC_ENDPOINT_OUT))
-			Serial.accept();
-	}
 	if (ep == CDC_ENDPOINT_IN)
 	{
 		// NAK on endpoint IN, the bank is not yet filled in.
@@ -440,13 +436,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0)))
 	{
-		usbd.epBank0SetSize(ep, 64);
-		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
-		usbd.epBank0SetType(ep, 3); // BULK OUT
-
-		// Release OUT EP
-		usbd.epBank0SetMultiPacketSize(ep, 64);
-		usbd.epBank0SetByteCount(ep, 0);
+		epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, 256);
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{
@@ -531,7 +521,11 @@ uint32_t USBDeviceClass::recvControl(void *_data, uint32_t len)
 // Number of bytes, assumes a rx endpoint
 uint32_t USBDeviceClass::available(uint32_t ep)
 {
-	return usbd.epBank0ByteCount(ep);
+	if (epHandlers[ep]) {
+		return epHandlers[ep]->available();
+	} else {
+		return usbd.epBank0ByteCount(ep);
+	}
 }
 
 // Non Blocking receive
@@ -541,13 +535,19 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 	if (!_usbConfiguration)
 		return -1;
 
-	if (available(ep) < len)
-		len = available(ep);
-
 #ifdef PIN_LED_RXL
-	digitalWrite(PIN_LED_RXL, LOW);
+	if (rxLEDPulse == 0)
+		digitalWrite(PIN_LED_RXL, LOW);
+
 	rxLEDPulse = TX_RX_LED_PULSE_MS;
 #endif
+
+	if (epHandlers[ep]) {
+		return epHandlers[ep]->recv(_data, len);
+	}
+
+	if (available(ep) < len)
+		len = available(ep);
 
 	armRecv(ep);
 
@@ -562,13 +562,16 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 
 		// Clear Transfer complete 0 flag
 		usbd.epBank0AckTransferComplete(ep);
+
+		// Enable Transfer complete 0 interrupt
+		usbd.epBank0EnableTransferComplete(ep);
 	}
 
 	return len;
 }
 
 // Recv 1 byte if ready
-uint32_t USBDeviceClass::recv(uint32_t ep)
+int USBDeviceClass::recv(uint32_t ep)
 {
 	uint8_t c;
 	if (recv(ep, &c, 1) != 1) {
@@ -604,6 +607,19 @@ uint8_t USBDeviceClass::armRecv(uint32_t ep)
 	return usbd.epBank0ByteCount(ep);
 }
 
+// Timeout for sends
+#define TX_TIMEOUT_MS 70
+
+static char LastTransmitTimedOut[7] = {
+	0,
+	0,
+	0,
+	0,
+	0,
+	0,
+	0
+};
+
 // Blocking Send of data to an endpoint
 uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 {
@@ -616,15 +632,40 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		return -1;
 
 #ifdef PIN_LED_TXL
-	digitalWrite(PIN_LED_TXL, LOW);
+	if (txLEDPulse == 0)
+		digitalWrite(PIN_LED_TXL, LOW);
+
 	txLEDPulse = TX_RX_LED_PULSE_MS;
 #endif
 
 	// Flash area
 	while (len != 0)
 	{
-		if (len >= 64) {
-			length = 64;
+		if (usbd.epBank1IsReady(ep)) {
+			// previous transfer is still not complete
+
+			// convert the timeout from microseconds to a number of times through
+			// the wait loop; it takes (roughly) 23 clock cycles per iteration.
+			uint32_t timeout = microsecondsToClockCycles(TX_TIMEOUT_MS * 1000) / 23;
+
+			// Wait for (previous) transfer to complete
+			// inspired by Paul Stoffregen's work on Teensy
+			while (!usbd.epBank1IsTransferComplete(ep)) {
+				if (LastTransmitTimedOut[ep] || timeout-- == 0) {
+					LastTransmitTimedOut[ep] = 1;
+
+					// set byte count to zero, so that ZLP is sent
+					// instead of stale data
+					usbd.epBank1SetByteCount(ep, 0);
+					return -1;
+				}
+			}
+		}
+
+		LastTransmitTimedOut[ep] = 0;
+
+		if (len >= EPX_SIZE) {
+			length = EPX_SIZE - 1;
 		} else {
 			length = len;
 		}
@@ -641,10 +682,6 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		// RAM buffer is full, we can send data (IN)
 		usbd.epBank1SetReady(ep);
 
-		// Wait for transfer to complete
-		while (!usbd.epBank1IsTransferComplete(ep)) {
-			;  // need fire exit.
-		}
 		written += length;
 		len -= length;
 		data = (char *)data + length;
@@ -830,13 +867,19 @@ void USBDeviceClass::ISRHandler()
 
 		// check whether the one-shot period has elapsed.  if so, turn off the LED
 #ifdef PIN_LED_TXL
-		if (txLEDPulse && !(--txLEDPulse))
-			digitalWrite(PIN_LED_TXL, HIGH);
+		if (txLEDPulse > 0) {
+			txLEDPulse--;
+			if (txLEDPulse == 0)
+				digitalWrite(PIN_LED_TXL, HIGH);
+		}
 #endif
 
 #ifdef PIN_LED_RXL
-		if (rxLEDPulse && !(--rxLEDPulse))
-			digitalWrite(PIN_LED_RXL, HIGH);
+		if (rxLEDPulse > 0) {
+			rxLEDPulse--;
+			if (rxLEDPulse == 0)
+				digitalWrite(PIN_LED_RXL, HIGH);
+		}
 #endif
 	}
 
@@ -887,7 +930,11 @@ void USBDeviceClass::ISRHandler()
 			if (usbd.epBank0IsTransferComplete(i) ||
 			    usbd.epBank1IsTransferComplete(i))
 			{
-				handleEndpoint(i);
+				if (epHandlers[i]) {
+					epHandlers[i]->handleEndpoint();
+				} else {
+					handleEndpoint(i);
+				}
 			}
 			ept_int &= ~(1 << i);
 		}
@@ -905,7 +952,3 @@ void USBDeviceClass::ISRHandler()
 // USBDevice class instance
 USBDeviceClass USBDevice;
 
-// USB_Handler ISR
-// extern "C" void USB_Handler(void) {
-// 	USBDevice.ISRHandler();
-// }

@@ -55,6 +55,10 @@ extern "C"{
 
 void yield( void ) ;
 
+/* system functions */
+int main( void );
+void init( void );
+
 /* sketch */
 void setup( void ) ;
 void loop( void ) ;

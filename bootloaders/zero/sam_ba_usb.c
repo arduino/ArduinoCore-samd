@@ -19,6 +19,7 @@
 
 #include <stdint.h>
 #include <string.h>
+#include "board_definitions.h"
 #include "sam_ba_usb.h"
 #include "board_driver_usb.h"
 #include "sam_ba_cdc.h"
@@ -44,13 +45,8 @@ const char devDescriptor[] =
   USB_PID_HIGH,  // idProduct H
   0x00,   // bcdDevice L, here matching SAM-BA version
   0x02,   // bcdDevice H
-#if 0 // TODO: pending validation
   STRING_INDEX_MANUFACTURER,   // iManufacturer
   STRING_INDEX_PRODUCT,        // iProduct
-#else
-  0x00,   // iManufacturer
-  0x00,   // iProduct
-#endif // 0
   0x00,   // SerialNumber, should be based on product unique ID
   0x01    // bNumConfigs
 };
@@ -171,7 +167,7 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
   static volatile uint16_t wValue, wIndex, wLength, wStatus;
 
   /* Clear the Received Setup flag */
-  pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.RXSTP = true;
+  pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_RXSTP;
 
   /* Read the USB request parameters */
   bmRequestType = udd_ep_out_cache_buffer[0][0];
@@ -195,46 +191,39 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
         /* Return Device Descriptor */
         USB_Write(pCdc->pUsb, devDescriptor, SAM_BA_MIN(sizeof(devDescriptor), wLength), USB_EP_CTRL);
       }
-      else
+      else if (wValue>>8 == STD_GET_DESCRIPTOR_CONFIGURATION)
       {
-        if (wValue>>8 == STD_GET_DESCRIPTOR_CONFIGURATION)
+        /* Return Configuration Descriptor */
+        USB_Write(pCdc->pUsb, cfgDescriptor, SAM_BA_MIN(sizeof(cfgDescriptor), wLength), USB_EP_CTRL);
+      }
+      else if (wValue>>8 == STD_GET_DESCRIPTOR_STRING)
+      {
+        switch ( wValue & 0xff )
         {
-          /* Return Configuration Descriptor */
-          USB_Write(pCdc->pUsb, cfgDescriptor, SAM_BA_MIN(sizeof(cfgDescriptor), wLength), USB_EP_CTRL);
-        }
-        else
-        {
-#if 0 // TODO: pending validation
-          if (wValue>>8 == STD_GET_DESCRIPTOR_STRING)
-          {
-            switch ( wValue & 0xff )
-            {
-              case STRING_INDEX_LANGUAGES:
-                uint16_t STRING_LANGUAGE[2] = { (STD_GET_DESCRIPTOR_STRING<<8) | 4, 0x0409 };
+          case STRING_INDEX_LANGUAGES: {
+            uint16_t STRING_LANGUAGE[2] = { (STD_GET_DESCRIPTOR_STRING<<8) | 4, 0x0409 };
 
-                USB_Write(pCdc->pUsb, (const char*)STRING_LANGUAGE, SAM_BA_MIN(sizeof(STRING_LANGUAGE), wLength), USB_EP_CTRL);
-              break;
-
-              case STRING_INDEX_MANUFACTURER:
-                USB_SendString(pCdc->pUsb, STRING_MANUFACTURER, strlen(STRING_MANUFACTURER), wLength );
-              break;
-
-              case STRING_INDEX_PRODUCT:
-                USB_SendString(pCdc->pUsb, STRING_PRODUCT, strlen(STRING_PRODUCT), wLength );
-              break;
-              default:
-                /* Stall the request */
-                USB_SendStall(pUsb, true);
-              break;
-            }
+            USB_Write(pCdc->pUsb, (const char*)STRING_LANGUAGE, SAM_BA_MIN(sizeof(STRING_LANGUAGE), wLength), USB_EP_CTRL);
           }
-          else
-#endif // 0
-          {
+          break;
+
+          case STRING_INDEX_MANUFACTURER:
+            USB_SendString(pCdc->pUsb, STRING_MANUFACTURER, wLength );
+          break;
+
+          case STRING_INDEX_PRODUCT:
+            USB_SendString(pCdc->pUsb, STRING_PRODUCT, wLength );
+          break;
+          default:
             /* Stall the request */
             USB_SendStall(pUsb, true);
-          }
+          break;
         }
+      }
+      else
+      {
+        /* Stall the request */
+        USB_SendStall(pUsb, true);
       }
     break;
 
@@ -279,13 +268,11 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
       {
         if (dir)
         {
-          //wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ1) ? 1 : 0;
-          wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<1)) ? 1 : 0;
+          wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ1) ? 1 : 0;
         }
         else
         {
-          //wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ0) ? 1 : 0;
-          wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<0)) ? 1 : 0;
+          wStatus = (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.reg & USB_DEVICE_EPSTATUSSET_STALLRQ0) ? 1 : 0;
         }
         /* Return current status of endpoint */
         USB_Write(pCdc->pUsb, (char *) &wStatus, sizeof(wStatus), USB_EP_CTRL);
@@ -315,13 +302,11 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
         /* Set STALL request for the endpoint */
         if (dir)
         {
-          //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
-          pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.bit.STALLRQ = (1<<1);
+          pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
         }
         else
         {
-          //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
-          pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.bit.STALLRQ = (1<<0);
+          pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
         }
 
         /* Send ZLP */
@@ -353,14 +338,13 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
       {
         if (dir)
         {
-          if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<1))
+          if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ1)
           {
             // Remove stall request
-            //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ1;
-            pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.bit.STALLRQ = (1<<1);
-            if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL & (1<<1))
+            pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ1;
+            if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL1)
             {
-              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL = (1<<1);
+              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL1;
               // The Stall has occurred, then reset data toggle
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSSET_DTGLIN;
             }
@@ -368,14 +352,13 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
         }
         else
         {
-          if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ & (1<<0))
+          if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUS.bit.STALLRQ0)
           {
             // Remove stall request
-            //pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ0;
-            pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.bit.STALLRQ = (1<<0);
-            if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL & (1<<0))
+            pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_STALLRQ0;
+            if (pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL0)
             {
-              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.bit.STALL = (1<<0);
+              pUsb->DEVICE.DeviceEndpoint[wIndex].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL0;
               // The Stall has occurred, then reset data toggle
               pUsb->DEVICE.DeviceEndpoint[wIndex].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSSET_DTGLOUT;
             }
@@ -430,27 +413,24 @@ P_USB_CDC usb_init(void)
   return &sam_ba_cdc;
 }
 
-#if 0 // TODO: pending validation
 /*----------------------------------------------------------------------------
  * \brief Send a USB descriptor string.
  *
  * The input string is plain ASCII but is sent out as UTF-16 with the correct 2-byte prefix.
  */
-uint32_t USB_SendString(Usb *pUsb, const char* ascii_string, uint8_t length, uint8_t maxLength)
+uint32_t USB_SendString(Usb *pUsb, const char* ascii_string, uint8_t maxLength)
 {
   uint8_t string_descriptor[255]; // Max USB-allowed string length
   uint16_t* unicode_string=(uint16_t*)(string_descriptor+2); // point on 3 bytes of descriptor
+  int resulting_length;
 
-  int resulting_length = 1;
-
-  for ( ; *ascii_string && (length>=0) && (resulting_length<(maxLength>>1)) ; ascii_string++, length--, resulting_length++ )
-  {
-    *unicode_string++ = (uint16_t)(*ascii_string);
-  }
-
-  string_descriptor[0] = (resulting_length<<1);
+  string_descriptor[0] = (strlen(ascii_string)<<1) + 2;
   string_descriptor[1] = STD_GET_DESCRIPTOR_STRING;
 
-  return USB_Write(pUsb, (const char*)unicode_string, resulting_length, USB_EP_CTRL);
+  for ( resulting_length = 1 ; *ascii_string && (resulting_length<maxLength>>1) ; resulting_length++ )
+  {
+    *unicode_string++ = (uint16_t)(*ascii_string++);
+  }
+
+  return USB_Write(pUsb, (const char*)string_descriptor, resulting_length<<1, USB_EP_CTRL);
 }
-#endif // 0

@@ -300,24 +300,11 @@ void SERCOM::setClockModeSPI(SercomSpiClockMode clockMode)
   enableSPI();
 }
 
-void SERCOM::writeDataSPI(uint8_t data)
+uint8_t SERCOM::transferDataSPI(uint8_t data)
 {
-  while( sercom->SPI.INTFLAG.bit.DRE == 0 )
-  {
-    // Waiting Data Registry Empty
-  }
-
   sercom->SPI.DATA.bit.DATA = data; // Writing data into Data register
 
-  while( sercom->SPI.INTFLAG.bit.TXC == 0 || sercom->SPI.INTFLAG.bit.DRE == 0 )
-  {
-    // Waiting Complete Transmission
-  }
-}
-
-uint16_t SERCOM::readDataSPI()
-{
-  while( sercom->SPI.INTFLAG.bit.DRE == 0 || sercom->SPI.INTFLAG.bit.RXC == 0 )
+  while( sercom->SPI.INTFLAG.bit.RXC == 0 )
   {
     // Waiting Complete Reception
   }

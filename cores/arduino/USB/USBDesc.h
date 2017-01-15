@@ -41,7 +41,7 @@
 #define CDC_TX CDC_ENDPOINT_IN
 #endif
 
-#define ISERIAL_MAX_LEN        20
+#define ISERIAL_MAX_LEN        33
 
 // Defined string description
 #define IMANUFACTURER	1

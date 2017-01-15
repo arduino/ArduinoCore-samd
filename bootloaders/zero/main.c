@@ -44,37 +44,6 @@ static void check_start_application(void)
 //  LED_init();
 //  LED_off();
 
-#if defined(BOOT_DOUBLE_TAP_ADDRESS)
-  #define DOUBLE_TAP_MAGIC 0x07738135
-  if (PM->RCAUSE.bit.POR)
-  {
-    /* On power-on initialize double-tap */
-    BOOT_DOUBLE_TAP_DATA = 0;
-  }
-  else
-  {
-    if (BOOT_DOUBLE_TAP_DATA == DOUBLE_TAP_MAGIC)
-    {
-      /* Second tap, stay in bootloader */
-      BOOT_DOUBLE_TAP_DATA = 0;
-      return;
-    }
-
-    /* First tap */
-    BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
-
-    /* Wait 0.5sec to see if the user tap reset again.
-     * The loop value is based on SAMD21 default 1MHz clock @ reset.
-     */
-    for (uint32_t i=0; i<125000; i++) /* 500ms */
-      /* force compiler to not optimize this... */
-      __asm__ __volatile__("");
-
-    /* Timeout happened, continue boot... */
-    BOOT_DOUBLE_TAP_DATA = 0;
-  }
-#endif
-
 #if (!defined DEBUG) || ((defined DEBUG) && (DEBUG == 0))
 uint32_t* pulSketch_Start_Address;
 #endif
@@ -107,6 +76,37 @@ uint32_t* pulSketch_Start_Address;
     /* Stay in bootloader */
     return;
   }
+
+#if defined(BOOT_DOUBLE_TAP_ADDRESS)
+  #define DOUBLE_TAP_MAGIC 0x07738135
+  if (PM->RCAUSE.bit.POR)
+  {
+    /* On power-on initialize double-tap */
+    BOOT_DOUBLE_TAP_DATA = 0;
+  }
+  else
+  {
+    if (BOOT_DOUBLE_TAP_DATA == DOUBLE_TAP_MAGIC)
+    {
+      /* Second tap, stay in bootloader */
+      BOOT_DOUBLE_TAP_DATA = 0;
+      return;
+    }
+
+    /* First tap */
+    BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
+
+    /* Wait 0.5sec to see if the user tap reset again.
+     * The loop value is based on SAMD21 default 1MHz clock @ reset.
+     */
+    for (uint32_t i=0; i<125000; i++) /* 500ms */
+      /* force compiler to not optimize this... */
+      __asm__ __volatile__("");
+
+    /* Timeout happened, continue boot... */
+    BOOT_DOUBLE_TAP_DATA = 0;
+  }
+#endif
 
 /*
 #if defined(BOOT_LOAD_PIN)
@@ -179,6 +179,16 @@ int main(void)
 
   DEBUG_PIN_LOW;
 
+  /* Initialize LEDs */
+  LED_init();
+  LEDRX_init();
+  LEDRX_off();
+  LEDTX_init();
+  LEDTX_off();
+
+  /* Start the sys tick (1 ms) */
+  SysTick_Config(1000);
+
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
   {
@@ -213,4 +223,11 @@ int main(void)
     }
 #endif
   }
+}
+
+void SysTick_Handler(void)
+{
+  LED_pulse();
+
+  sam_ba_monitor_sys_tick();
 }
