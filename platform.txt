@@ -170,8 +170,6 @@ tools.openocd.bootloader.params.quiet=-d0
 
 tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
 
-<<<<<<< HEAD
-=======
 #
 # OpenOCD sketch upload - version with configurable bootloader size
 # FIXME: this programmer is a workaround for default options being overwritten by uploadUsingPreferences
@@ -197,4 +195,3 @@ tools.openocd-withbootsize.erase.pattern=
 tools.openocd-withbootsize.bootloader.params.verbose=-d2
 tools.openocd-withbootsize.bootloader.params.quiet=-d0
 tools.openocd-withbootsize.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
->>>>>>> upstream/master
