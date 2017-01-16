@@ -240,13 +240,13 @@ void SERCOM::enableSPI()
 
 void SERCOM::disableSPI()
 {
-  //Setting the enable bit to 0
-  sercom->SPI.CTRLA.bit.ENABLE = 0;
-
   while(sercom->SPI.SYNCBUSY.bit.ENABLE)
   {
     //Waiting then enable bit from SYNCBUSY is equal to 0;
   }
+
+  //Setting the enable bit to 0
+  sercom->SPI.CTRLA.bit.ENABLE = 0;
 }
 
 void SERCOM::setDataOrderSPI(SercomDataOrder dataOrder)
