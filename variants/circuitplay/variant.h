@@ -51,6 +51,7 @@
 #define portInputRegister(port)  (&(port->IN.reg))
 #define portModeRegister(port)   (&(port->DIR.reg))
 #define digitalPinHasPWM(P)      (g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER)
+#define digitalPinToInterrupt(P) (g_APinDescription[P].ulExtInt)
 
 /*
  * digitalPinToTimer(..) is AVR-specific and is not defined for SAMD
@@ -68,28 +69,31 @@
 #define LED_BUILTIN PIN_LED
 
 
-#define PIN_LED_RXL          (25u)
-#define PIN_LED_TXL          (26u)
-#define PIN_LED2             PIN_LED_RXL
-#define PIN_LED3             PIN_LED_TXL
+//#define PIN_LED_RXL          (25u)
+//#define PIN_LED_TXL          (26u)
+#define PIN_LED              PIN_LED_13
+//#define PIN_LED2             PIN_LED_RXL
+//#define PIN_LED3             PIN_LED_TXL
+#define LED_BUILTIN          PIN_LED_13
 
 /*
  * Analog pins
  */
 #define PIN_A0               (14ul)
-#define PIN_A1               (15ul)
-#define PIN_A2               (16ul)
-#define PIN_A3               (17ul)
-#define PIN_A4               (18ul)
-#define PIN_A5               (19ul)
-#define PIN_A6               (20ul)
-#define PIN_A7               (21ul)
-#define PIN_A8               (22ul)
-#define PIN_A9               (23ul)
-#define PIN_A10              (24ul)
-#define PIN_A11              (25ul)
+#define PIN_A1               (PIN_A0 + 1)
+#define PIN_A2               (PIN_A0 + 2)
+#define PIN_A3               (PIN_A0 + 3)
+#define PIN_A4               (PIN_A0 + 4)
+#define PIN_A5               (PIN_A0 + 5)
+#define PIN_A6               (PIN_A0 + 6)
+#define PIN_A7               (PIN_A0 + 7)
+#define PIN_A8               (PIN_A0 + 8)
+#define PIN_A9               (PIN_A0 + 9)
+#define PIN_A10              (PIN_A0 + 10)
+#define PIN_A11              (PIN_A0 + 11)
 
-#define PIN_DAC0             (14ul)
+#define PIN_DAC0             (PIN_A0)
+
 
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
@@ -112,14 +116,14 @@ static const uint8_t DAC0 = PIN_DAC0;
  */
 #define SPI_INTERFACES_COUNT 1
 
-#define PIN_SPI_MISO         (10u)  // pa18
-#define PIN_SPI_MOSI         (11u)  // pa16
-#define PIN_SPI_SCK          (12u)  // pa19
+#define PIN_SPI_MISO         (32u)
+#define PIN_SPI_SCK          (33u)
+#define PIN_SPI_MOSI         (34u)
 #define PERIPH_SPI           sercom3
-#define PAD_SPI_TX           SPI_PAD_0_SCK_3  // MOSI / SCK
-#define PAD_SPI_RX           SERCOM_RX_PAD_2  // MISO
+#define PAD_SPI_TX           SPI_PAD_2_SCK_3  // MOSI / SCK
+#define PAD_SPI_RX           SERCOM_RX_PAD_0  // MISO
 
-static const uint8_t SS	  = PIN_A2 ;	// SERCOM4 last PAD is present on A2 but HW SS isn't used. Set here only for reference.
+static const uint8_t SS	  = 35 ;
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
@@ -131,31 +135,30 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define WIRE_INTERFACES_COUNT 2
 
   // "external" public i2c interface
-#define PIN_WIRE_SDA         (19u)
-#define PIN_WIRE_SCL         (31u)
+#define PIN_WIRE_SDA         (2u)
+#define PIN_WIRE_SCL         (3u)
 #define PERIPH_WIRE          sercom5
 #define WIRE_IT_HANDLER      SERCOM5_Handler
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
   // "internal" lis3dh i2c interface
-#define PIN_WIRE1_SDA         (49u)
-#define PIN_WIRE1_SCL         (50u)
+#define PIN_WIRE1_SDA         (30u)
+#define PIN_WIRE1_SCL         (31u)
 #define PERIPH_WIRE1          sercom1
 #define WIRE1_IT_HANDLER      SERCOM1_Handler
 static const uint8_t SDA1 = PIN_WIRE1_SDA;
 static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
-
 // USB
 // ---
-#define PIN_USB_HOST_ENABLE (27ul)
-#define PIN_USB_DM          (28ul)
-#define PIN_USB_DP          (29ul)
+#define PIN_USB_HOST_ENABLE (26ul)
+#define PIN_USB_DM          (27ul)
+#define PIN_USB_DP          (28ul)
 
 // I2S Interfaces
 // --------------
-#define I2S_INTERFACES_COUNT 1
+#define I2S_INTERFACES_COUNT 0
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
@@ -180,8 +183,8 @@ extern SERCOM sercom5;
 
 // Serial1
 extern Uart Serial1;
-#define PIN_SERIAL1_RX       (16ul)
-#define PIN_SERIAL1_TX       (15ul)
+#define PIN_SERIAL1_RX       (0ul)
+#define PIN_SERIAL1_TX       (1ul)
 #define PAD_SERIAL1_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
 #endif // __cplusplus
