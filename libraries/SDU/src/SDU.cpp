@@ -32,15 +32,3 @@ unsigned char sduBoot[0x4000] = {
   #error "Unsupported board!"
 #endif
 };
-
-SDUClass::SDUClass() {
-}
-
-void SDUClass::reset() {
-  // Reset the device
-  NVIC_SystemReset() ;
-
-  while (true);
-}
-
-SDUClass SDU;

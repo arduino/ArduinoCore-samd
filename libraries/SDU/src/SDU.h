@@ -19,13 +19,6 @@
 #ifndef _SDU_H_INCLUDED
 #define _SDU_H_INCLUDED
 
-class SDUClass {
-public:
-  SDUClass();
-
-  void reset();
-};
-
-extern SDUClass SDU;
+// nothing for now
 
 #endif

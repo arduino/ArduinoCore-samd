@@ -12,8 +12,6 @@ SDU	KEYWORD1
 # Methods and Functions (KEYWORD2)
 #######################################
 
-reset	KEYWORD2
-
 #######################################
 # Constants (LITERAL1)
 #######################################
