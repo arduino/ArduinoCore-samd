@@ -58,11 +58,8 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
     break ;
 
     case OUTPUT:
-      // enable input, to support reading back values
-      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].bit.INEN = 1 ;
-
-      // disable pullups
-      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].bit.PULLEN = 0 ;
+      // enable input, to support reading back values, with pullups disabled
+      PORT->Group[g_APinDescription[ulPin].ulPort].PINCFG[g_APinDescription[ulPin].ulPin].reg=(uint8_t)(PORT_PINCFG_INEN) ;
 
       // Set pin to output mode
       PORT->Group[g_APinDescription[ulPin].ulPort].DIRSET.reg = (uint32_t)(1<<g_APinDescription[ulPin].ulPin) ;
