@@ -25,7 +25,7 @@
  */
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00400000
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00040000
   RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
 
@@ -66,6 +66,8 @@ SECTIONS
 {
     .text :
     {
+        __text_start__ = .;
+
         KEEP(*(.isr_vector))
         *(.text*)
 
@@ -167,7 +169,7 @@ SECTIONS
         PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(4);
+        . = ALIGN(16);
         /* All data end */
         __data_end__ = .;
 
