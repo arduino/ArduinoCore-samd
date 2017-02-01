@@ -463,10 +463,6 @@ void UHD_Pipe_Send(uint32_t ul_pipe, uint32_t ul_token_type)
     uhd_unfreeze_pipe(ul_pipe);
 }
 
-#define USB_HOST_PINTFLAG_TRCPT_Pos 0            /**< \brief (USB_HOST_PINTFLAG) Transfer Complete 0/1 Interrupt Flag */
-#define USB_HOST_PINTFLAG_TRCPT_Msk (0x3u << USB_HOST_PINTFLAG_TRCPT_Pos)
-#define USB_HOST_PINTFLAG_TRCPT(value) ((USB_HOST_PINTFLAG_TRCPT_Msk & ((value) << USB_HOST_PINTFLAG_TRCPT_Pos)))
-
 /**
  * \brief Check for pipe transfer completion.
  *

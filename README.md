@@ -58,6 +58,7 @@ to avoid duplicates.
 Contributions are always welcome. The preferred way to receive code cotribution is by submitting a 
 Pull Request on github.
 
+
 ## License and credits
 
 The original Arduino Zero core has been developed by Arduino LLC in collaboration with Atmel.

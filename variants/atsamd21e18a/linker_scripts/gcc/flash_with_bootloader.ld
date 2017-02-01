@@ -65,6 +65,8 @@ SECTIONS
 {
     .text :
     {
+        __text_start__ = .;
+
         KEEP(*(.isr_vector))
         *(.text*)
 
@@ -166,7 +168,7 @@ SECTIONS
         PROVIDE_HIDDEN (__fini_array_end = .);
 
         KEEP(*(.jcr*))
-        . = ALIGN(4);
+        . = ALIGN(16);
         /* All data end */
         __data_end__ = .;
 

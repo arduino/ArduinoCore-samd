@@ -1,5 +1,39 @@
-SAMD CORE 1.6.8
+SAMD CORE ?.?.?? ????.??.??
 
+* Fixed type conflict of utoa function. Thanks @kbumsik
+* Fixed pinMode(pin, OUTPUT) not working after analogRead(pin)
+
+SAMD CORE 1.6.11 2016.12.23
+
+* Temporarily disabled support for Arduino Tian until an upload issue is fixed
+
+SAMD CORE 1.6.10 2016.12.23
+
+* Added .org boards
+* Fixed MKRZero `build.board` property
+* linker: .data section is now aligned to 16 bytes address
+* Added support for CRYSTALLESS configurations (thanks @ladyada)
+* Added Circuits Playground board
+* Added method to automatically retrieve sketch start via linker variable
+  (see https://github.com/arduino/ArduinoCore-samd/pull/185)
+* Fixed USBDevice.epBank1EnableTransferComplete method
+* Adapted bootloader source code to CMSIS 4.5
+
+SAMD CORE 1.6.9 2016.12.12
+
+* MKR1000: Enabled PWM on pin 11, it is shared with pin A4
+* SPI: Optimized SPI.transfer(...)
+* Added linker flags for the ARM Math library
+* Added new I2S library
+* Bootloader: Check sketch vectors before waiting for double tap
+* Upgraded CMSIS version to 4.5.0, and use new CMSIS-Atmel package
+* Added Arduino MKRZero board.
+
+SAMD CORE 1.6.8 2016.10.12
+
+* Fixed regression on analogWrite. Thanks @bose-mdellisanti!
+* Fixed regression on SerialUSB.available()
+* C++ global constructors (if any) are now run after hardware initalization.
 
 SAMD CORE 1.6.7 2016.09.28
 

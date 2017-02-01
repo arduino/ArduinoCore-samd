@@ -104,6 +104,10 @@ void SERCOM::enableUART()
 
 void SERCOM::flushUART()
 {
+  // Skip checking transmission completion if data register is empty
+  if(isDataRegisterEmptyUART())
+    return;
+
   // Wait for transmission to complete
   while(!sercom->USART.INTFLAG.bit.TXC);
 }
@@ -296,24 +300,11 @@ void SERCOM::setClockModeSPI(SercomSpiClockMode clockMode)
   enableSPI();
 }
 
-void SERCOM::writeDataSPI(uint8_t data)
+uint8_t SERCOM::transferDataSPI(uint8_t data)
 {
-  while( sercom->SPI.INTFLAG.bit.DRE == 0 )
-  {
-    // Waiting Data Registry Empty
-  }
-
   sercom->SPI.DATA.bit.DATA = data; // Writing data into Data register
 
-  while( sercom->SPI.INTFLAG.bit.TXC == 0 || sercom->SPI.INTFLAG.bit.DRE == 0 )
-  {
-    // Waiting Complete Transmission
-  }
-}
-
-uint16_t SERCOM::readDataSPI()
-{
-  while( sercom->SPI.INTFLAG.bit.DRE == 0 || sercom->SPI.INTFLAG.bit.RXC == 0 )
+  while( sercom->SPI.INTFLAG.bit.RXC == 0 )
   {
     // Waiting Complete Reception
   }
@@ -409,7 +400,7 @@ void SERCOM::initSlaveWIRE( uint8_t ucAddress )
   sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION ;
 
   sercom->I2CS.ADDR.reg = SERCOM_I2CS_ADDR_ADDR( ucAddress & 0x7Ful ) | // 0x7F, select only 7 bits
-                          SERCOM_I2CS_ADDR_ADDRMASK( 0x3FFul ) ;    // 0x3FF all bits set
+                          SERCOM_I2CS_ADDR_ADDRMASK( 0x00ul ) ;         // 0x00, only match exact address
 
   // Set the interrupt register
   sercom->I2CS.INTENSET.reg = SERCOM_I2CS_INTENSET_PREC |   // Stop
@@ -553,11 +544,8 @@ bool SERCOM::sendDataSlaveWIRE(uint8_t data)
   //Send data
   sercom->I2CS.DATA.bit.DATA = data;
 
-  //Wait data transmission successful
-  while(!sercom->I2CS.INTFLAG.bit.DRDY);
-
   //Problems on line? nack received?
-  if(sercom->I2CS.STATUS.bit.RXNACK)
+  if(!sercom->I2CS.INTFLAG.bit.DRDY || sercom->I2CS.STATUS.bit.RXNACK)
     return false;
   else
     return true;

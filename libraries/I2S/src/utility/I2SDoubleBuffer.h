@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2016 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,20 +16,35 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#pragma once
+#ifndef _I2S_DOUBLE_BUFFER_H_INCLUDED
+#define _I2S_DOUBLE_BUFFER_H_INCLUDED
 
-#ifdef __cplusplus
-extern "C"{
+#include <stddef.h>
+#include <stdint.h>
+
+#define I2S_BUFFER_SIZE 512
+
+class I2SDoubleBuffer
+{
+public:
+  I2SDoubleBuffer();
+  virtual ~I2SDoubleBuffer();
+
+  void reset();
+
+  size_t availableForWrite();
+  size_t write(const void *buffer, size_t size);
+  size_t read(void *buffer, size_t size);
+  size_t peek(void *buffer, size_t size);
+  void* data();
+  size_t available();
+  void swap(int length = 0);
+
+private:
+  uint8_t _buffer[2][I2S_BUFFER_SIZE];
+  volatile int _length[2];
+  volatile int _readOffset[2];
+  volatile int _index; 
+};
+
 #endif
-
-//extern void itoa( int n, char s[] ) ;
-
-extern char* itoa( int value, char *string, int radix ) ;
-extern char* ltoa( long value, char *string, int radix ) ;
-extern char* utoa( unsigned int value, char *string, int radix ) ;
-extern char* ultoa( unsigned long value, char *string, int radix ) ;
-
-#ifdef __cplusplus
-} // extern "C"
-#endif
-

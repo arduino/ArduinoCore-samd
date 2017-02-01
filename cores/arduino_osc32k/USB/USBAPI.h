@@ -88,7 +88,7 @@ public:
 	uint32_t send(uint32_t ep, const void *data, uint32_t len);
 	void sendZlp(uint32_t ep);
 	uint32_t recv(uint32_t ep, void *data, uint32_t len);
-	uint32_t recv(uint32_t ep);
+	int recv(uint32_t ep);
 	uint32_t available(uint32_t ep);
 	void flush(uint32_t ep);
 	void stall(uint32_t ep);
@@ -112,13 +112,13 @@ extern USBDeviceClass USBDevice;
 class Serial_ : public Stream
 {
 public:
-	Serial_(USBDeviceClass &_usb) : usb(_usb) { }
+	Serial_(USBDeviceClass &_usb) : usb(_usb), stalled(false) { }
 	void begin(uint32_t baud_count);
 	void begin(unsigned long, uint8_t);
 	void end(void);
 
 	virtual int available(void);
-	virtual void accept(void);
+	virtual int availableForWrite(void);
 	virtual int peek(void);
 	virtual int read(void);
 	virtual void flush(void);
@@ -126,6 +126,8 @@ public:
 	virtual size_t write(const uint8_t *buffer, size_t size);
 	using Print::write; // pull in write(str) from Print
 	operator bool();
+
+	size_t readBytes(char *buffer, size_t length);
 
 	// This method allows processing "SEND_BREAK" requests sent by
 	// the USB host. Those requests indicate that the host wants to
@@ -167,8 +169,11 @@ public:
 	};
 
 private:
+	int availableForStore(void);
+
 	USBDeviceClass &usb;
 	RingBuffer *_cdc_rx_buffer;
+	bool stalled;
 };
 extern Serial_ SerialUSB;
 
