@@ -202,7 +202,6 @@ extern SERCOM sercom3;
 extern SERCOM sercom4;
 extern SERCOM sercom5;
 
-extern Uart Serial5;
 extern Uart Serial1;
 
 #endif

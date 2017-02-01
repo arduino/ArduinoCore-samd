@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Adafruit SAMD (32-bits ARM Cortex-M0+) Boards
-version=1.6.11
+version=1.6.12
 
 # Compile variables
 # -----------------
@@ -126,8 +126,7 @@ tools.avrdude.upload.params.quiet=-q -q
 tools.avrdude.upload.params.noverify=-V
 tools.avrdude.upload.pattern="{cmd}" "-C{config.path}" {upload.verbose} -p{build.emu.mcu} -c{upload.protocol} -P{serial.port} -b{upload.speed} "-Uflash:w:{build.path}/{build.project_name}.hex:i"
 
-#temporary disabled remote upload
-tools.avrdude_remote.upload.pattern=/usr/bin/XXX-run-avrdude /tmp/sketch.hex
+tools.avrdude_remote.upload.pattern="openocd --version 2>&1 | grep 2017 && /usr/bin/run-avrdude /tmp/sketch.hex || echo Can't upload; update your Tian first 1>&2; exit 1"
 
 #
 # BOSSA
@@ -148,7 +147,7 @@ tools.bossac_remote.upload.pattern=/usr/bin/run-bossac {upload.verbose} --port=t
 # OpenOCD sketch upload
 #
 
-tools.openocd.path={runtime.tools.openocd-0.9.0-arduino.path}
+tools.openocd.path={runtime.tools.openocd-0.9.0-arduino5-static.path}
 tools.openocd.cmd=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 
@@ -175,7 +174,7 @@ tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/
 # FIXME: this programmer is a workaround for default options being overwritten by uploadUsingPreferences
 #
 
-tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino.path}
+tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino5-static.path}
 tools.openocd-withbootsize.cmd=bin/openocd
 tools.openocd-withbootsize.cmd.windows=bin/openocd.exe
 
