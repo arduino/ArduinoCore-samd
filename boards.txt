@@ -71,8 +71,6 @@ atsamd21e18a.build.variant=atsamd21e18a
 atsamd21e18a.build.variant_system_lib=
 atsamd21e18a.build.vid=0x03eb
 atsamd21e18a.build.pid=0x6124
-atsamd21e18a.bootloader.tool=openocd
-atsamd21e18a.bootloader.file=zero/samd21_sam_ba.bin
 
 
 # Atmel ATSAMR21E18A (Prorgamming Port)

@@ -1,9 +1,9 @@
 {
   "packages": [
     {
-      "name": "femtoio-beta",
-      "maintainer": "FemtoIO Betatesting",
-      "websiteURL": "https://github.com/femtoio",
+      "name": "femtoduino",
+      "maintainer": "FemtoDuino",
+      "websiteURL": "https://github.com/femtoduino/ArduinoCore-atsamd21e18a",
       "email": "support@femtoduino.com",
       "help": {
         "online": "http://www.arduino.cc/en/Reference/HomePage"
