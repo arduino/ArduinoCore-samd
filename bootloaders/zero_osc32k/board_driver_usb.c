@@ -169,13 +169,12 @@ uint32_t USB_Write(Usb *pUsb, const char *pData, uint32_t length, uint8_t ep_num
   /* Set the multi packet size as zero for multi-packet transfers where length > ep size */
   usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
   /* Clear the transfer complete flag  */
-  //pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT1 = true;
-  pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT |= (1<<1);
+  pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
   /* Set the bank as ready */
   pUsb->DEVICE.DeviceEndpoint[ep_num].EPSTATUSSET.bit.BK1RDY = true;
 
   /* Wait for transfer to complete */
-  while ( (pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT & (1<<1)) == 0 );
+  while ( (pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT1) == 0 );
 
   return length;
 }
@@ -202,15 +201,14 @@ uint32_t USB_Read(Usb *pUsb, char *pData, uint32_t length)
   }
 
   /* Check for Transfer Complete 0 flag */
-  if ( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0) )
+  if ( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 )
   {
     /* Set packet size */
     packetSize = SAM_BA_MIN(usb_endpoint_table[USB_EP_OUT].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT, length);
     /* Copy read data to user buffer */
     memcpy(pData, udd_ep_out_cache_buffer[USB_EP_OUT-1], packetSize);
     /* Clear the Transfer Complete 0 flag */
-    //pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 = true;
-    pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT |= (1 << 0);
+    pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
     /* Clear the user flag */
     read_job = false;
   }
@@ -237,10 +235,9 @@ uint32_t USB_Read_blocking(Usb *pUsb, char *pData, uint32_t length)
   /* Clear the bank 0 ready flag */
   pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPSTATUSCLR.bit.BK0RDY = true;
   /* Wait for transfer to complete */
-  while (!( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0) ));
+  while (!( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 ));
   /* Clear Transfer complete 0 flag */
-  //pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 = true;
-  pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT |= (1 << 0);
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
 
   return length;
 }
@@ -256,7 +253,7 @@ uint8_t USB_IsConfigured(P_USB_CDC pCdc)
   if (pUsb->DEVICE.INTFLAG.reg & USB_DEVICE_INTFLAG_EORST)
   {
     /* Clear the flag */
-    pUsb->DEVICE.INTFLAG.bit.EORST = true;
+    pUsb->DEVICE.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST;
     /* Set Device address as 0 */
     pUsb->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | 0;
     /* Configure endpoint 0 */
@@ -300,14 +297,12 @@ void USB_SendStall(Usb *pUsb, bool direction_in)
   if (direction_in)
   {
     /* Set STALL request on IN direction */
-    //pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
-    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ = (1<<1);
+    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ1 = 1;
   }
   else
   {
     /* Set STALL request on OUT direction */
-    //pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
-    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ = (1<<0);
+    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ0 = 1;
   }
 }
 
@@ -319,12 +314,11 @@ void USB_SendZlp(Usb *pUsb)
   /* Set the byte count as zero */
   usb_endpoint_table[0].DeviceDescBank[1].PCKSIZE.bit.BYTE_COUNT = 0;
   /* Clear the transfer complete flag  */
-  //pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1 = true;
-  pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT |= (1 << 1);
+  pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
   /* Set the bank as ready */
   pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = true;
   /* Wait for transfer to complete */
-  while (!( pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT & (1<<1) ));
+  while (!( pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1 ));
 }
 
 /*----------------------------------------------------------------------------

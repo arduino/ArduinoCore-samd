@@ -19,8 +19,8 @@
 #ifndef _VARIANT_ATSAMD21E18A_
 #define _VARIANT_ATSAMD21E18A_
 
-// The definitions here needs a SAMD core >=1.6.6
-#define ARDUINO_SAMD_VARIANT_COMPLIANCE 10606
+// The definitions here needs a SAMD core >=1.6.10
+#define ARDUINO_SAMD_VARIANT_COMPLIANCE 10610
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -166,6 +166,17 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_USB_HOST_ENABLE (22ul)
 #define PIN_USB_DM          (23ul)
 #define PIN_USB_DP          (24ul)
+
+/*
+ * I2S Interfaces
+ */
+#define I2S_INTERFACES_COUNT 1
+
+#define I2S_DEVICE          0
+#define I2S_CLOCK_GENERATOR 3
+#define PIN_I2S_SD          (9u)
+#define PIN_I2S_SCK         (1u)
+#define PIN_I2S_FS          (0u)
 
 #ifdef __cplusplus
 }
