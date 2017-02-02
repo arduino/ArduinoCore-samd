@@ -4,6 +4,7 @@ SAMD CORE 1.6.12 2017.02.02
 * Fixed pinMode(pin, OUTPUT) not working after analogRead(pin)
 * Reenabled support for Tian
 * Fixed signature for Adafruit Circuit Playground Express board
+* Added CMSIS headers for SAML21 chip series. Thanks @aethaniel
 
 SAMD CORE 1.6.11 2016.12.23
 
