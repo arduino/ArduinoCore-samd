@@ -37,7 +37,7 @@
             {
               "packager": "arduino",
               "name": "openocd",
-              "version": "0.9.0-arduino"
+              "version": "0.9.0-arduino5-static"
             },
             {
               "packager": "arduino",
