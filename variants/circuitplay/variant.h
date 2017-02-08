@@ -158,13 +158,13 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 // I2S Interfaces
 // --------------
-#define I2S_INTERFACES_COUNT 0
+#define I2S_INTERFACES_COUNT 1
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
-#define PIN_I2S_SD          (PIN_A6)
-#define PIN_I2S_SCK         (2u)
-#define PIN_I2S_FS          (3u)
+#define PIN_I2S_SD          (9u)
+#define PIN_I2S_SCK         (37u)
+#define PIN_I2S_FS          (15u)
 
 
 // Serial ports
