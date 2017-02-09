@@ -1,4 +1,4 @@
-SAMD CORE 1.6.12 2017.02.02
+SAMD CORE 1.6.12 2017.02.07
 
 * Fixed type conflict of utoa function. Thanks @kbumsik
 * Fixed pinMode(pin, OUTPUT) not working after analogRead(pin)
