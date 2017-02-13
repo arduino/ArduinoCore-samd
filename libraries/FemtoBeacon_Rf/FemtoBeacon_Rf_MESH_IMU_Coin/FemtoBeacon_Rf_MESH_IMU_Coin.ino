@@ -191,7 +191,7 @@ void setupSensors() {
 
 void loop() {
   
-  handleSensors();
+  //handleSensors();
   handleNetworking();
 }
 
@@ -208,8 +208,15 @@ void handleNetworking()
       Serial.println(" handleNetworking() ->sendMessage()");
       
       #endif
-      
-      sendMessage();
+
+      if (!send_message_busy) {
+
+        // We are reading the sensors only when we can send data.
+        // @TODO implement FIFO Stack of sensor data to transmit.
+        handleSensors();
+        
+        sendMessage();
+      }
     }
 }
 
@@ -223,26 +230,9 @@ void handleSensors()
     
     sensors.getYawPitchRoll(ypr);
 
-
-    #ifdef DEBUG
-    
-    Serial.println("...getting YPR string");
-    Serial.print("Buffer size is ");
-    Serial.println(APP_BUFFER_SIZE);
-    
-    Serial.print("sensor data is ");
-    Serial.print(ypr[0]);
-    Serial.print(',');
-    Serial.print(ypr[1]);
-    Serial.print(',');
-    Serial.println(ypr[2]);
-    
-    #endif
-
     //// Use dtostrf?
     // Copy ypr to buffer.
-    memset(bufferData, ' ', APP_BUFFER_SIZE);
-    bufferData[APP_BUFFER_SIZE] = '\0';
+    resetBuffer();
 
     // ...We need a wide enough size (8 should be enough to cover negative symbol and decimal). 
     // ...Precision is 2 decimal places.
@@ -255,6 +245,11 @@ void handleSensors()
     
     Serial.print("TX data: ");
     Serial.println(bufferData);
+}
+
+void resetBuffer() {
+  memset(bufferData, ' ', APP_BUFFER_SIZE);
+  bufferData[APP_BUFFER_SIZE] = '\0';
 }
 
 
