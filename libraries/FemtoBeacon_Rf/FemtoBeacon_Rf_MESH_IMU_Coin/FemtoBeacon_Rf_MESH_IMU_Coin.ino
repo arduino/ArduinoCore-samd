@@ -19,6 +19,7 @@
 
 #include <Arduino.h>
 #include <Wire.h>
+#include <avr/dtostrf.h>
 #include <SPI.h>
 
 
@@ -355,7 +356,7 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+/*
 #include <stdio.h>
 
 #if 0
@@ -412,3 +413,4 @@ char *dtostrf(double val, int width, unsigned int prec, char *sout)
   return sout;
 }
 #endif
+*/
