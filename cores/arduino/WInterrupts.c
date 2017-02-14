@@ -84,23 +84,12 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 #else
   EExt_Interrupts in = digitalPinToInterrupt(pin);
 #endif
-  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
-    return;
+  if (in == NOT_AN_INTERRUPT) return;
 
   if (!enabled) {
     __initialize();
     enabled = 1;
   }
-
-  // Enable wakeup capability on pin in case being used during sleep
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
-	//TODO: find how to do
-#else
-  EIC->WAKEUP.reg |= (1 << in);
-#endif
-
-  // Assign pin to EIC
-  pinPeripheral(pin, PIO_EXTINT);
 
   // Only store when there is really an ISR to call.
   // This allow for calling attachInterrupt(pin, NULL, mode), we set up all needed register
@@ -123,18 +112,60 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     }
     ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
     ISRcallback[current] = callback; // List of callback adresses
+  }
+
+  if (in == EXTERNAL_INT_NMI) {
+    EIC->NMIFLAG.bit.NMI = 1; // Clear flag
+    switch (mode) {
+      case LOW:
+        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_LOW;
+        break;
+
+      case HIGH:
+        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_HIGH;
+        break;
+
+      case CHANGE:
+        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_BOTH_Val << pos;
+        break;
+
+      case CHANGE:
+        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_BOTH;
+        break;
+
+      case FALLING:
+        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_FALL;
+        break;
+
+      case RISING:
+        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_RISE;
+        break;
+    }
+
+    // Assign callback to interrupt
+    callbacksInt[EXTERNAL_INT_NMI] = callback;
+
+  } else { // Not NMI, is external interrupt
+
+    // Enable wakeup capability on pin in case being used during sleep
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	  //TODO: find how to do
+#else
+    EIC->WAKEUP.reg |= (1 << in);
+#endif
+
+    // Assign pin to EIC
+    pinPeripheral(pin, PIO_EXTINT);
 
     // Look for right CONFIG register to be addressed
     if (in > EXTERNAL_INT_7) {
       config = 1;
-      pos = (in - 8) << 2;
     } else {
       config = 0;
-      pos = in << 2;
     }
 
     // Configure the interrupt mode
-    EIC->CONFIG[config].reg &=~ (EIC_CONFIG_SENSE0_Msk << pos); // Reset sense mode, important when changing trigger mode during runtime
+    pos = (in - (8 * config)) << 2;
     switch (mode)
     {
       case LOW:
@@ -164,6 +195,10 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   // Enable the interrupt
   EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
 #endif
+
+    // Assign callback to interrupt
+    callbacksInt[in] = callback;
+  }
 }
 
 /*
@@ -176,18 +211,21 @@ void detachInterrupt(uint32_t pin)
 #else
   EExt_Interrupts in = digitalPinToInterrupt(pin);
 #endif 
-  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
-    return;
+  if (in == NOT_AN_INTERRUPT) return;
 
-  uint32_t inMask = 1 << in;
-  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(inMask);
-
+  if(in == EXTERNAL_INT_NMI) {
+    EIC->NMICTRL.bit.NMISENSE = 0; // Turn off detection
+  } else {
+    EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
+  
+    // Disable wakeup capability on pin during sleep
 #if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
-//TODO: find how to do
+    //TODO: find how to do
 #else
     // Disable wakeup capability on pin during sleep
-  EIC->WAKEUP.reg &= ~inMask;
+  EIC->WAKEUP.reg &= ~(1 << in);
 #endif
+  }
 
   // Remove callback from the ISR list
   uint32_t current;
@@ -225,4 +263,13 @@ void EIC_Handler(void)
       EIC->INTFLAG.reg = ISRlist[i];
     }
   }
+}
+
+/*
+ * NMI Interrupt Handler
+ */
+void NMI_Handler(void)
+{
+  if (callbacksInt[EXTERNAL_INT_NMI]) callbacksInt[EXTERNAL_INT_NMI]();
+  EIC->NMIFLAG.bit.NMI = 1; // Clear interrupt
 }
