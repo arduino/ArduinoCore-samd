@@ -11,7 +11,7 @@
 #include <SPI.h>
 
 #define Serial SERIAL_PORT_USBVIRTUAL
-#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
+//#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
 
 // See mjs513 fork https://github.com/femtoduino/FreeIMU-Updates
 
@@ -78,11 +78,11 @@ void setup() {
   delay(10);
   digitalWrite(PIN_FSYNC, LOW);
   
-  Serial.begin(115200);
+  Serial.begin(250000);
   Wire.begin();
   
   delay(5);
-  my3IMU.init(false); // the parameter enable or disable fast mode
+  my3IMU.init(true); // the parameter enable or disable fast mode
   delay(5);
 }
 

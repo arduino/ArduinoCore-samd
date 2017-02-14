@@ -61,6 +61,8 @@
     #include <MovingAvarageFilter.h>
 
     //#define DEBUG
+    //#define OUTPUT_SERIAL
+    
     #include "DebugUtils.h"
     #include "CommunicationUtils.h"
     #include "DCM.h"
@@ -102,13 +104,9 @@
 /** END Networking vars **/
 
 /** BEGIN Sensor vars **/
-    //int raw_values[11];
-    //char str[512];
-    float ypr[3]; // yaw pitch roll
-    //float val[9];
+    // Sensor reading.
+    float ypr[3]; // Hold Yaw-Pitch-Roll (YPR) data.
     
-    
-
     // Set the FreeIMU object
     FreeIMU sensors = FreeIMU();
 
@@ -124,7 +122,15 @@ byte delimeter = (byte) '|';
 byte filler = (byte) ' ';
 
 void setup() {
+  /*int wait = 0;
+  while (!Serial) {
+    wait++;
 
+    if (wait > F_CPU) {
+      break;
+    }
+  }*/
+  
   pinMode(PIN_INT, INPUT);
   pinMode(PIN_FSYNC, OUTPUT);
   digitalWrite(PIN_FSYNC, HIGH);
@@ -132,28 +138,40 @@ void setup() {
   digitalWrite(PIN_FSYNC, LOW);
   
   // put your setup code here, to run once:
+  #ifdef OUTPUT_SERIAL
   setupSerialComms();
+  
   Serial.print("Starting LwMesh...");
+  #endif
   setupMeshNetworking();
-  Serial.println("OK.");
-  delay(500);
-  Serial.print("Starting Sensors...");
-  setupSensors();
+
+  #ifdef OUTPUT_SERIAL
   Serial.println("OK.");
 
+  Serial.print("Starting Sensors...");
+  #endif
+  setupSensors();
+
+  #ifdef OUTPUT_SERIAL
+  Serial.println("OK.");
+  #endif
   // REQUIRED! calls to dtostrf will otherwise fail (optimized out?)
   char cbuff[7];
   dtostrf(123.4567, 6, 2, cbuff);
+
+  #ifdef OUTPUT_SERIAL
   Serial.print("cbuff test is ");
   Serial.println(cbuff);
 
   Serial.println("OK, ready!");
+  #endif
 }
 
 void setupSerialComms() {
     //while(!Serial);
+
     
-    Serial.begin(115200);
+    Serial.begin(250000);
     Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
     Serial.println(APP_ADDRESS);
 }
@@ -174,6 +192,28 @@ void setupMeshNetworking() {
     delay(10);
 
     SYS_Init();
+
+    // Set TX Power for internal at86rf233, default is 0x0 (+4 dbm)
+    // TX_PWR  0x0 ( +4   dBm)
+    // TX_PWR  0x1 ( +3.7 dBm)
+    // TX_PWR  0x2 ( +3.4 dBm)
+    // TX_PWR  0x3 ( +3   dBm)
+    // TX_PWR  0x4 ( +2.5 dBm)
+    // TX_PWR  0x5 ( +2   dBm)
+    // TX_PWR  0x6 ( +1   dBm)
+    // TX_PWR  0x7 (  0   dBm)
+    // TX_PWR  0x8 ( -1   dBm)
+    // TX_PWR  0x9 ( -2   dBm)
+    // TX_PWR  0xA ( -3   dBm)
+    // TX_PWR  0xB ( -4   dBm)
+    // TX_PWR  0xC ( -6   dBm)
+    // TX_PWR  0xD ( -8   dBm)
+    // TX_PWR  0xE (-12   dBm)
+    // TX_PwR  0xF (-17   dBm)
+    
+    // Example:
+    PHY_SetTxPower(0x00); // Set to +4 dBm
+  
     NWK_SetAddr(APP_ADDRESS);
     NWK_SetPanId(APP_PANID);
     PHY_SetChannel(0x1a);
@@ -185,11 +225,14 @@ void setupSensors() {
     Wire.begin();
   
     delay(10);
-    sensors.init(); // the parameter enable or disable fast mode
+    sensors.init(true); // the parameter enable or disable fast mode
     delay(10);
 }
 
 void loop() {
+  
+  digitalWrite(PIN_FSYNC, HIGH);
+  digitalWrite(PIN_FSYNC, LOW);
   
   //handleSensors();
   handleNetworking();
@@ -202,11 +245,11 @@ void handleNetworking()
     if(APP_ADDRESS > 1) {
 
       #ifdef DEBUG
-      
+      #ifdef OUTPUT_SERIAL
       Serial.print("Node #");
       Serial.print(APP_ADDRESS);
       Serial.println(" handleNetworking() ->sendMessage()");
-      
+      #endif
       #endif
 
       if (!send_message_busy) {
@@ -223,9 +266,9 @@ void handleNetworking()
 void handleSensors()
 {
     #ifdef DEBUG
-    
+    #ifdef OUTPUT_SERIAL
     Serial.println("handleSensors()");
-    
+    #endif
     #endif
     
     sensors.getYawPitchRoll(ypr);
@@ -242,9 +285,11 @@ void handleSensors()
     // ...Delimeters
     bufferData[8] = ',';
     bufferData[17] = ',';
-    
+
+    #ifdef OUTPUT_SERIAL
     Serial.print("TX data: ");
     Serial.println(bufferData);
+    #endif
 }
 
 void resetBuffer() {
@@ -257,18 +302,18 @@ static void sendMessage(void) {
 
   if (send_message_busy) {
     #ifdef DEBUG
-    
+    #ifdef OUTPUT_SERIAL
     Serial.println("...sendMessage() busy");
-    
+    #endif
     #endif
     
     return;
   }
 
   #ifdef DEBUG
-  
+  #ifdef OUTPUT_SERIAL
   Serial.println("sendMessage()");
-  
+  #endif
   #endif
   
   sendRequest.dstAddr       = DEST_ADDRESS;
@@ -287,7 +332,7 @@ static void sendMessage(void) {
 static void sendMessageConfirm(NWK_DataReq_t *req)
 {
   #ifdef DEBUG
-  
+  #ifdef OUTPUT_SERIAL
   Serial.print("sendMessageConfirm() req->status is ");
   
   if (NWK_NO_ACK_STATUS == req->status)
@@ -298,20 +343,22 @@ static void sendMessageConfirm(NWK_DataReq_t *req)
   } else if (NWK_ERROR_STATUS) {
     Serial.println("NWK_ERROR_STATUS");
   }
-  
+  #endif
   #endif
   send_message_busy = false;
   if (NWK_SUCCESS_STATUS == req->status)
   {
     //send_message_busy = false;
+    #ifdef OUTPUT_SERIAL
     Serial.println("NWK_SUCCESS_STATUS");
+    #endif
   }
   (void) req;
 }
 
 static bool receiveMessage(NWK_DataInd_t *ind) {
     //char sensorData[5];
-
+    #ifdef OUTPUT_SERIAL
     Serial.print("receiveMessage() ");
     Serial.print("lqi: ");
     Serial.print(ind->lqi, DEC);
@@ -327,85 +374,8 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     String str((char*)ind->data);
 
     Serial.println(str);
+    #endif
     
     return true;
 }
 
-/*
- * SEE http://forum.arduino.cc/index.php?topic=368720.0
- * 
-  dtostrf - Emulation for dtostrf function from avr-libc
-  Copyright (c) 2015 Arduino LLC.  All rights reserved.
-
-  This library is free software; you can redistribute it and/or
-  modify it under the terms of the GNU Lesser General Public
-  License as published by the Free Software Foundation; either
-  version 2.1 of the License, or (at your option) any later version.
-
-  This library is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-  Lesser General Public License for more details.
-
-  You should have received a copy of the GNU Lesser General Public
-  License along with this library; if not, write to the Free Software
-  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
-*/
-/*
-#include <stdio.h>
-
-#if 0
-char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
-  char fmt[20];
-  sprintf(fmt, "%%%d.%df", width, prec);
-  sprintf(sout, fmt, val);
-  return sout;
-}
-#else
-
-char *dtostrf(double val, int width, unsigned int prec, char *sout)
-{
-  int decpt, sign, reqd, pad;
-  const char *s, *e;
-  char *p;
-  s = fcvtf(val, prec, &decpt, &sign);
-  if (prec == 0 && decpt == 0) {
-  s = (*s < '5') ? "0" : "1";
-    reqd = 1;
-  } else {
-    reqd = strlen(s);
-    if (reqd > decpt) reqd++;
-    if (decpt == 0) reqd++;
-  }
-  if (sign) reqd++;
-  p = sout;
-  e = p + reqd;
-  pad = width - reqd;
-  if (pad > 0) {
-    e += pad;
-    while (pad-- > 0) *p++ = ' ';
-  }
-  if (sign) *p++ = '-';
-  if (decpt <= 0 && prec > 0) {
-    *p++ = '0';
-    *p++ = '.';
-    e++;
-    while ( decpt < 0 ) {
-      decpt++;
-      *p++ = '0';
-    }
-  }    
-  while (p < e) {
-    *p++ = *s++;
-    if (p == e) break;
-    if (--decpt == 0) *p++ = '.';
-  }
-  if (width < 0) {
-    pad = (reqd + width) * -1;
-    while (pad-- > 0) *p++ = ' ';
-  }
-  *p = 0;
-  return sout;
-}
-#endif
-*/

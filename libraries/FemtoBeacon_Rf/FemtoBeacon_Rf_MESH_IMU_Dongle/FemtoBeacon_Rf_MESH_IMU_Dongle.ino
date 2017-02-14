@@ -63,7 +63,7 @@ void setup() {
 void setupSerialComms() {
     //while(!Serial);
     
-    Serial.begin(115200);
+    Serial.begin(250000);
     Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
     Serial.println(APP_ADDRESS);
 }
@@ -84,6 +84,28 @@ void setupMeshNetworking() {
     delay(10);
 
     SYS_Init();
+
+    // Set TX Power for internal at86rf233, default is 0x0 (+4 dbm)
+    // TX_PWR  0x0 ( +4   dBm)
+    // TX_PWR  0x1 ( +3.7 dBm)
+    // TX_PWR  0x2 ( +3.4 dBm)
+    // TX_PWR  0x3 ( +3   dBm)
+    // TX_PWR  0x4 ( +2.5 dBm)
+    // TX_PWR  0x5 ( +2   dBm)
+    // TX_PWR  0x6 ( +1   dBm)
+    // TX_PWR  0x7 (  0   dBm)
+    // TX_PWR  0x8 ( -1   dBm)
+    // TX_PWR  0x9 ( -2   dBm)
+    // TX_PWR  0xA ( -3   dBm)
+    // TX_PWR  0xB ( -4   dBm)
+    // TX_PWR  0xC ( -6   dBm)
+    // TX_PWR  0xD ( -8   dBm)
+    // TX_PWR  0xE (-12   dBm)
+    // TX_PwR  0xF (-17   dBm)
+    
+    // Example:
+    PHY_SetTxPower(0x00); // Set to +4 dBm
+    
     NWK_SetAddr(APP_ADDRESS);
     NWK_SetPanId(APP_PANID);
     PHY_SetChannel(0x1a);
