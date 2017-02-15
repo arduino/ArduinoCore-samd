@@ -25,6 +25,10 @@
 
 #define Serial SERIAL_PORT_USBVIRTUAL
 
+//#define DEBUG
+//#define OUTPUT_SERIAL
+    
+
 /** BEGIN Atmel's LightWeight Mesh stack. **/
     #include "lwm.h"
     #include "lwm/sys/sys.h"
@@ -59,9 +63,6 @@
     #include <Butter.h>    // Butterworth filter
     #include <iCompass.h>
     #include <MovingAvarageFilter.h>
-
-    //#define DEBUG
-    //#define OUTPUT_SERIAL
     
     #include "DebugUtils.h"
     #include "CommunicationUtils.h"
@@ -100,12 +101,16 @@
 
     static bool                 send_message_busy = false;
 
-    byte pingCounter            = 0;
+    byte pingCounter            = -2147483648; // Minimum value as a starting point
+    long tickCounter            = 0;
 /** END Networking vars **/
 
 /** BEGIN Sensor vars **/
     // Sensor reading.
     float ypr[3]; // Hold Yaw-Pitch-Roll (YPR) data.
+    float baro; // Hold Barometer Altitude data
+    float temp; // Hold Temperature data
+    float pressure; // Hold Pressure data
     
     // Set the FreeIMU object
     FreeIMU sensors = FreeIMU();
@@ -118,8 +123,8 @@
     byte PIN_INT = 3;
 /** END Sensor vars **/
 
-byte delimeter = (byte) '|';
-byte filler = (byte) ' ';
+char delimeter = ',';
+char filler = (char) 0;
 
 void setup() {
   /*int wait = 0;
@@ -154,6 +159,8 @@ void setup() {
 
   #ifdef OUTPUT_SERIAL
   Serial.println("OK.");
+  Serial.print("App buffer size is ");
+  Serial.println(APP_BUFFER_SIZE);
   #endif
   // REQUIRED! calls to dtostrf will otherwise fail (optimized out?)
   char cbuff[7];
@@ -171,7 +178,7 @@ void setupSerialComms() {
     //while(!Serial);
 
     
-    Serial.begin(250000);
+    Serial.begin(500000);
     Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
     Serial.println(APP_ADDRESS);
 }
@@ -271,7 +278,11 @@ void handleSensors()
     #endif
     #endif
     
-    sensors.getYawPitchRoll(ypr);
+    sensors.getYawPitchRoll180(ypr);
+    baro = sensors.getBaroAlt();
+    temp = sensors.getBaroTemperature();
+    pressure = sensors.getBaroPressure();
+    
 
     //// Use dtostrf?
     // Copy ypr to buffer.
@@ -279,12 +290,31 @@ void handleSensors()
 
     // ...We need a wide enough size (8 should be enough to cover negative symbol and decimal). 
     // ...Precision is 2 decimal places.
+
+    // Yaw
     dtostrf(ypr[0], 8, 2, &bufferData[0]);
+    bufferData[8] = delimeter;
+
+    // Pitch
     dtostrf(ypr[1], 8, 2, &bufferData[9]);
+    bufferData[17] = delimeter;
+
+    // Roll
     dtostrf(ypr[2], 8, 2, &bufferData[18]);
-    // ...Delimeters
-    bufferData[8] = ',';
-    bufferData[17] = ',';
+    //bufferData[26] = delimeter;
+
+    /*
+    // BaroAlt
+    dtostrf(baro, 8, 2, &bufferData[27]);
+    bufferData[35] = delimeter;
+
+    // Temperature
+    dtostrf(temp, 8, 2, &bufferData[36]);
+    bufferData[44] = delimeter;
+
+    // Pressure
+    dtostrf(pressure, 8, 2, &bufferData[45]);
+    */
 
     #ifdef OUTPUT_SERIAL
     Serial.print("TX data: ");
@@ -293,7 +323,7 @@ void handleSensors()
 }
 
 void resetBuffer() {
-  memset(bufferData, ' ', APP_BUFFER_SIZE);
+  memset(bufferData, filler, APP_BUFFER_SIZE);
   bufferData[APP_BUFFER_SIZE] = '\0';
 }
 

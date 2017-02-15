@@ -63,7 +63,7 @@ void setup() {
 void setupSerialComms() {
     //while(!Serial);
     
-    Serial.begin(250000);
+    Serial.begin(500000);
     Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
     Serial.println(APP_ADDRESS);
 }
@@ -132,24 +132,48 @@ void handleNetworking()
 }
 
 static bool receiveMessage(NWK_DataInd_t *ind) {
-    Serial.print("Node #");
+    /*
+    // My Node address
     Serial.print(APP_ADDRESS);
-    Serial.print(" receiveMessage() from Node #");
+    Serial.print(' ');
+
+    // Incomming mesh node address
     Serial.print(ind->srcAddr);
-    Serial.print(" = lqi: ");
+    Serial.print(' ');
+
+    // RF Link quality index
     Serial.print(ind->lqi, DEC);
+    Serial.print(' ');
 
-    Serial.print("  ");
-
-    Serial.print("rssi: ");
+    // RSSI
     Serial.print(ind->rssi, DEC);
-    Serial.print("  ");
-
-    Serial.print("data: ");
+    Serial.print(" ");
+    */
     
-    String str((char*)ind->data);
+    // Data
+    char* data = (char*) ind->data;
 
-    Serial.println(str);
+    String str(data);
+
+    int splitIndex = str.indexOf(',');
+    int secondSplitIndex = str.indexOf(',', splitIndex + 1);
+    
+    float yaw_value;
+    float pitch_value;
+    float roll_value;
+
+    yaw_value = str.substring(0, splitIndex).toFloat();
+    pitch_value = str.substring(splitIndex + 1, secondSplitIndex).toFloat();
+    roll_value = str.substring(secondSplitIndex + 1).toFloat();
+    
+    Serial.print(yaw_value);
+    Serial.print(' ');
+    Serial.print(pitch_value);
+    Serial.print(' ');
+    Serial.println(roll_value);
+    
+    //String str((char*)ind->data);
+    //Serial.println(str);
     
     return true;
 }
