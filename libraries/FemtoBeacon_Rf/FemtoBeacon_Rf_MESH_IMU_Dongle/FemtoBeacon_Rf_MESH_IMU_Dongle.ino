@@ -36,8 +36,9 @@
     #define APP_ADDRESS         1
     #define DEST_ADDRESS        1
     #define APP_ENDPOINT        1
-    #define APP_PANID                 0x01
-    #define APP_SECURITY_KEY          "TestSecurityKey0"
+    #define APP_PANID           0x01
+    #define APP_SECURITY_KEY    "TestSecurityKey0"
+    #define APP_CHANNEL         0x1a
     
     static char                 bufferData[APP_BUFFER_SIZE];
     static NWK_DataReq_t        sendRequest;
@@ -108,7 +109,7 @@ void setupMeshNetworking() {
     
     NWK_SetAddr(APP_ADDRESS);
     NWK_SetPanId(APP_PANID);
-    PHY_SetChannel(0x1a);
+    PHY_SetChannel(APP_CHANNEL);
     PHY_SetRxState(true);
     NWK_OpenEndpoint(APP_ENDPOINT, receiveMessage);
 }
@@ -157,20 +158,53 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
 
     int splitIndex = str.indexOf(',');
     int secondSplitIndex = str.indexOf(',', splitIndex + 1);
+    int thirdSplitIndex = str.indexOf(',', secondSplitIndex + 1);
+    int fourthSplitIndex = str.indexOf(',', thirdSplitIndex + 1);
+    int fifthSplitIndex = str.indexOf(',', fourthSplitIndex + 1);
+    int sixthSplitIndex = str.indexOf(',', fifthSplitIndex + 1);
+    unsigned long timestamp;
     
     float yaw_value;
     float pitch_value;
     float roll_value;
+    float euler1;
+    float euler2;
+    float euler3;
 
-    yaw_value = str.substring(0, splitIndex).toFloat();
-    pitch_value = str.substring(splitIndex + 1, secondSplitIndex).toFloat();
-    roll_value = str.substring(secondSplitIndex + 1).toFloat();
+    
+
+    timestamp = str.substring(0, splitIndex).toInt();
+    yaw_value = str.substring(splitIndex + 1, secondSplitIndex).toFloat();
+    pitch_value = str.substring(secondSplitIndex + 1, thirdSplitIndex).toFloat();
+    roll_value = str.substring(thirdSplitIndex + 1).toFloat();
+    euler1 = str.substring(fourthSplitIndex + 1).toFloat();
+    euler2 = str.substring(fifthSplitIndex + 1).toFloat();
+    euler3 = str.substring(sixthSplitIndex +1).toFloat();
+
+    Serial.print(APP_ADDRESS);
+    Serial.print(',');
+    Serial.print(APP_PANID);
+    Serial.print(',');
+    Serial.print(APP_CHANNEL);
+    Serial.print(',');
+
+    Serial.print(ind->srcAddr);
+    Serial.print(',');
+
+    Serial.print(timestamp);
+    Serial.print(',');
     
     Serial.print(yaw_value);
-    Serial.print(' ');
+    Serial.print(',');
     Serial.print(pitch_value);
-    Serial.print(' ');
-    Serial.println(roll_value);
+    Serial.print(',');
+    Serial.print(roll_value);
+    Serial.print(',');
+    Serial.print(euler1);
+    Serial.print(',');
+    Serial.print(euler2);
+    Serial.print(',');
+    Serial.println(euler3);
     
     //String str((char*)ind->data);
     //Serial.println(str);
