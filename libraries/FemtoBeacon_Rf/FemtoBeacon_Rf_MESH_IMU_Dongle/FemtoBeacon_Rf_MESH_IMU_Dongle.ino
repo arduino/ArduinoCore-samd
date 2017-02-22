@@ -36,8 +36,9 @@
     #define APP_ADDRESS         1
     #define DEST_ADDRESS        1
     #define APP_ENDPOINT        1
-    #define APP_PANID                 0x01
-    #define APP_SECURITY_KEY          "TestSecurityKey0"
+    #define APP_PANID           0x01
+    #define APP_SECURITY_KEY    "TestSecurityKey0"
+    #define APP_CHANNEL         0x1a
     
     static char                 bufferData[APP_BUFFER_SIZE];
     static NWK_DataReq_t        sendRequest;
@@ -63,7 +64,7 @@ void setup() {
 void setupSerialComms() {
     //while(!Serial);
     
-    Serial.begin(115200);
+    Serial.begin(500000);
     Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
     Serial.println(APP_ADDRESS);
 }
@@ -84,9 +85,31 @@ void setupMeshNetworking() {
     delay(10);
 
     SYS_Init();
+
+    // Set TX Power for internal at86rf233, default is 0x0 (+4 dbm)
+    // TX_PWR  0x0 ( +4   dBm)
+    // TX_PWR  0x1 ( +3.7 dBm)
+    // TX_PWR  0x2 ( +3.4 dBm)
+    // TX_PWR  0x3 ( +3   dBm)
+    // TX_PWR  0x4 ( +2.5 dBm)
+    // TX_PWR  0x5 ( +2   dBm)
+    // TX_PWR  0x6 ( +1   dBm)
+    // TX_PWR  0x7 (  0   dBm)
+    // TX_PWR  0x8 ( -1   dBm)
+    // TX_PWR  0x9 ( -2   dBm)
+    // TX_PWR  0xA ( -3   dBm)
+    // TX_PWR  0xB ( -4   dBm)
+    // TX_PWR  0xC ( -6   dBm)
+    // TX_PWR  0xD ( -8   dBm)
+    // TX_PWR  0xE (-12   dBm)
+    // TX_PwR  0xF (-17   dBm)
+    
+    // Example:
+    PHY_SetTxPower(0x00); // Set to +4 dBm
+    
     NWK_SetAddr(APP_ADDRESS);
     NWK_SetPanId(APP_PANID);
-    PHY_SetChannel(0x1a);
+    PHY_SetChannel(APP_CHANNEL);
     PHY_SetRxState(true);
     NWK_OpenEndpoint(APP_ENDPOINT, receiveMessage);
 }
@@ -110,24 +133,81 @@ void handleNetworking()
 }
 
 static bool receiveMessage(NWK_DataInd_t *ind) {
-    Serial.print("Node #");
+    /*
+    // My Node address
     Serial.print(APP_ADDRESS);
-    Serial.print(" receiveMessage() from Node #");
+    Serial.print(' ');
+
+    // Incomming mesh node address
     Serial.print(ind->srcAddr);
-    Serial.print(" = lqi: ");
+    Serial.print(' ');
+
+    // RF Link quality index
     Serial.print(ind->lqi, DEC);
+    Serial.print(' ');
 
-    Serial.print("  ");
-
-    Serial.print("rssi: ");
+    // RSSI
     Serial.print(ind->rssi, DEC);
-    Serial.print("  ");
-
-    Serial.print("data: ");
+    Serial.print(" ");
+    */
     
-    String str((char*)ind->data);
+    // Data
+    char* data = (char*) ind->data;
 
-    Serial.println(str);
+    String str(data);
+
+    int splitIndex = str.indexOf(',');
+    int secondSplitIndex = str.indexOf(',', splitIndex + 1);
+    int thirdSplitIndex = str.indexOf(',', secondSplitIndex + 1);
+    int fourthSplitIndex = str.indexOf(',', thirdSplitIndex + 1);
+    int fifthSplitIndex = str.indexOf(',', fourthSplitIndex + 1);
+    int sixthSplitIndex = str.indexOf(',', fifthSplitIndex + 1);
+    unsigned long timestamp;
+    
+    float yaw_value;
+    float pitch_value;
+    float roll_value;
+    float euler1;
+    float euler2;
+    float euler3;
+
+    
+
+    timestamp = str.substring(0, splitIndex).toInt();
+    yaw_value = str.substring(splitIndex + 1, secondSplitIndex).toFloat();
+    pitch_value = str.substring(secondSplitIndex + 1, thirdSplitIndex).toFloat();
+    roll_value = str.substring(thirdSplitIndex + 1).toFloat();
+    euler1 = str.substring(fourthSplitIndex + 1).toFloat();
+    euler2 = str.substring(fifthSplitIndex + 1).toFloat();
+    euler3 = str.substring(sixthSplitIndex +1).toFloat();
+
+    Serial.print(APP_ADDRESS);
+    Serial.print(',');
+    Serial.print(APP_PANID);
+    Serial.print(',');
+    Serial.print(APP_CHANNEL);
+    Serial.print(',');
+
+    Serial.print(ind->srcAddr);
+    Serial.print(',');
+
+    Serial.print(timestamp);
+    Serial.print(',');
+    
+    Serial.print(yaw_value);
+    Serial.print(',');
+    Serial.print(pitch_value);
+    Serial.print(',');
+    Serial.print(roll_value);
+    Serial.print(',');
+    Serial.print(euler1);
+    Serial.print(',');
+    Serial.print(euler2);
+    Serial.print(',');
+    Serial.println(euler3);
+    
+    //String str((char*)ind->data);
+    //Serial.println(str);
     
     return true;
 }
