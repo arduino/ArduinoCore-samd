@@ -141,6 +141,9 @@ tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.
 
 tools.bossac_remote.upload.pattern=/usr/bin/run-bossac {upload.verbose} --port=ttyATH0 -U {upload.native_usb} -e -w -v /tmp/sketch.bin -R
 
+tools.bossac.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.bossac.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
+
 #
 # OpenOCD sketch upload
 #
@@ -152,6 +155,9 @@ tools.openocd.cmd.windows=bin/openocd.exe
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
 tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset 0x2000; shutdown"
+
+tools.openocd.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.openocd.upload.network_pattern={network_cmd} -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
 
 # Program flashes the binary at 0x0000, so use the linker script without_bootloader
 tools.openocd.program.params.verbose=-d2
