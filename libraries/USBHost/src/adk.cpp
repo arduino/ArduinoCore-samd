@@ -222,15 +222,15 @@ uint32_t ADK::Init(uint32_t parent, uint32_t port, uint32_t lowspeed) {
 		USBTRACE("\r\nEP0:");
 		USBTRACE2("\r\nAddr: ", epInfo[0].epAddr);
 		USBTRACE2("\r\nMax.pkt.size: ", epInfo[0].maxPktSize);
-		USBTRACE2("\r\nAttr: ", epInfo[0].epAttribs);
+		USBTRACE2("\r\nAttr: ", epInfo[0].bmNakPower);
 		USBTRACE("\r\nEpout:");
 		USBTRACE2("\r\nAddr: ", epInfo[epDataOutIndex].epAddr);
 		USBTRACE2("\r\nMax.pkt.size: ", epInfo[epDataOutIndex].maxPktSize);
-		USBTRACE2("\r\nAttr: ", epInfo[epDataOutIndex].epAttribs);
+		USBTRACE2("\r\nAttr: ", epInfo[epDataOutIndex].bmNakPower);
 		USBTRACE("\r\nEpin:");
 		USBTRACE2("\r\nAddr: ", epInfo[epDataInIndex].epAddr);
 		USBTRACE2("\r\nMax.pkt.size: ", epInfo[epDataInIndex].maxPktSize);
-		USBTRACE2("\r\nAttr: ", epInfo[epDataInIndex].epAttribs);
+		USBTRACE2("\r\nAttr: ", epInfo[epDataInIndex].bmNakPower);
 	
 
 		USBTRACE("\r\nConfiguration successful");
