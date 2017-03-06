@@ -46,6 +46,7 @@ void banzai() {
 	// Disable all interrupts
 	__disable_irq();
 
+#if !defined(__NO_BOOTLOADER__)
 	// Erase application
 	while (!nvmReady())
 		;
@@ -54,6 +55,7 @@ void banzai() {
 	NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMD_ER | NVMCTRL_CTRLA_CMDEX_KEY;
 	while (!nvmReady())
 		;
+#endif
 
 	// Reset the device
 	NVIC_SystemReset() ;

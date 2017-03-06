@@ -43,11 +43,14 @@ void PendSV_Handler   (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SysTick_Handler  (void);
 
 /* Peripherals handlers */
+void SYSTEM_Handler   (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void PM_Handler       (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SYSCTRL_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void WDT_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void RTC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void EIC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void FREQM_Handler    (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TSENS_Handler    (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void NVMCTRL_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void DMAC_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void USB_Handler      (void) __attribute__ ((weak));
@@ -58,21 +61,29 @@ void SERCOM2_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM3_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM4_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM5_Handler  (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void CAN0_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void CAN1_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC0_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC1_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC2_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TC0_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC1_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC2_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC3_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC4_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
-void TC5_Handler      (void) __attribute__ ((weak)); // Used in Tone.cpp
+void TC5_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC6_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void TC7_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void ADC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void ADC0_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void ADC1_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void AC_Handler       (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void DAC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void SDADC_Handler    (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void PTC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void I2S_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void AES_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
+void TRNG_Handler     (void) __attribute__ ((weak, alias("Dummy_Handler")));
 
 /* Initialize segments */
 extern uint32_t __etext;
@@ -105,6 +116,7 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) SysTick_Handler,
 
   /* Configurable interrupts */
+#if (SAMD21_SERIES || SAMD11_SERIES)
   (void*) PM_Handler,             /*  0 Power Manager */
   (void*) SYSCTRL_Handler,        /*  1 System Control */
   (void*) WDT_Handler,            /*  2 Watchdog Timer */
@@ -117,17 +129,13 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) SERCOM0_Handler,        /*  9 Serial Communication Interface 0 */
   (void*) SERCOM1_Handler,        /* 10 Serial Communication Interface 1 */
   (void*) SERCOM2_Handler,        /* 11 Serial Communication Interface 2 */
-#if defined(__SAMD21E15A__) || defined(__SAMD21E16A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__) || \
-  defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
-  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
+#if (SAMD21_SERIES)
   (void*) SERCOM3_Handler,        /* 12 Serial Communication Interface 3 */
   (void*) SERCOM4_Handler,        /* 13 Serial Communication Interface 4 */
   (void*) SERCOM5_Handler,        /* 14 Serial Communication Interface 5 */
 #endif
   (void*) TCC0_Handler,           /* 15 / 12 Timer Counter Control 0 */
-#if defined(__SAMD21E15A__) || defined(__SAMD21E16A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__) || \
-  defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
-  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
+#if (SAMD21_SERIES)
   (void*) TCC1_Handler,           /* 16 Timer Counter Control 1 */
   (void*) TCC2_Handler,           /* 17 Timer Counter Control 2 */
   (void*) TC3_Handler,            /* 18 Basic Timer Counter 3 */
@@ -143,10 +151,62 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) AC_Handler,             /* 24 / 16 Analog Comparators */
   (void*) DAC_Handler,            /* 25 / 17 Digital Analog Converter */
   (void*) PTC_Handler,            /* 26 / 18 Peripheral Touch Controller */
-#if defined(__SAMD21E15A__) || defined(__SAMD21E16A__) || defined(__SAMD21E17A__) || defined(__SAMD21E18A__) || \
-  defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
-  defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
+#if (SAMD21_SERIES)
   (void*) I2S_Handler             /* 27 Inter-IC Sound Interface */
+#endif
+
+#elif (SAML21_SERIES || SAMC21_SERIES)
+  (void*) SYSTEM_Handler,         /*  0 SYSTEM handler (includes SYSTEM, MCLK, OSCCTRL, OSC32KCTRL, PAC, PM, SUPC, and TAL) */
+  (void*) WDT_Handler,            /*  1 Watchdog Timer */
+  (void*) RTC_Handler,            /*  2 Real-Time Counter */
+  (void*) EIC_Handler,            /*  3 External Interrupt Controller */
+#if (SAMC21_SERIES)
+  (void*) FREQM_Handler,          /*  4 FREQM */
+  (void*) TSENS_Handler,          /*  5 TSENS */
+#endif
+  (void*) NVMCTRL_Handler,        /*  4 / 6 Non-Volatile Memory Controller */
+  (void*) DMAC_Handler,           /*  5 / 7 Direct Memory Access Controller */
+#if (SAML21_SERIES)
+  (void*) USB_Handler,            /*  6 Universal Serial Bus */
+#endif
+  (void*) EVSYS_Handler,          /*  7 / 8 Event System Interface */
+  (void*) SERCOM0_Handler,        /*  8 / 9 Serial Communication Interface 0 */
+  (void*) SERCOM1_Handler,        /*  9 / 10 Serial Communication Interface 1 */
+  (void*) SERCOM2_Handler,        /* 10 / 11 Serial Communication Interface 2 */
+  (void*) SERCOM3_Handler,        /* 11 / 12 Serial Communication Interface 3 */
+  (void*) SERCOM4_Handler,        /* 12 / 13 Serial Communication Interface 4 */
+  (void*) SERCOM5_Handler,        /* 13 / 14 Serial Communication Interface 5 */
+#if (SAMC21_SERIES)
+  (void*) CAN0_Handler,           /* 15 CAN0 */
+  (void*) CAN1_Handler,           /* 16 CAN1 */
+#endif
+  (void*) TCC0_Handler,           /* 14 / 17 Timer Counter Control 0 */
+  (void*) TCC1_Handler,           /* 15 / 18 Timer Counter Control 1 */
+  (void*) TCC2_Handler,           /* 16 / 19 Timer Counter Control 2 */
+  (void*) TC0_Handler,            /* 17 / 20 Basic Timer Counter 0 */
+  (void*) TC1_Handler,            /* 18 / 21 Basic Timer Counter 1 */
+  (void*) TC2_Handler,            /* 19 / 22 Basic Timer Counter 2 */
+  (void*) TC3_Handler,            /* 20 / 23 Basic Timer Counter 3 */
+  (void*) TC4_Handler,            /* 21 / 24 Basic Timer Counter 4 */
+#if (SAMC21_SERIES)
+  (void*) ADC0_Handler,           /* 25 ADC0 */
+  (void*) ADC1_Handler,           /* 26 ADC1 */
+#else
+  (void*) ADC_Handler,            /* 22 Analog Digital Converter */
+#endif
+  (void*) AC_Handler,             /* 23 / 27 Analog Comparators */
+  (void*) DAC_Handler,            /* 24 / 28 Digital Analog Converter */
+#if (SAMC21_SERIES)
+  (void*) SDADC_Handler,          /* 29 SDADC */
+#endif
+  (void*) PTC_Handler,            /* 25 / 30 Peripheral Touch Controller */
+#if (SAML21_SERIES)
+  (void*) AES_Handler,            /* 26 AES */
+  (void*) TRNG_Handler,           /* 27 TRNG */
+#endif
+
+#else
+#error "cortex_handlers.c: Unsupported chip"
 #endif
 };
 
@@ -173,6 +233,20 @@ void Reset_Handler(void)
       *pDest = 0;
   }
 
+  /* Change default QOS values to have the best performance and correct USB behaviour (applies to D21/D11). From startup_samd21.c from ASF 3.32. */
+#if (SAMD21_SERIES || SAMD11_SERIES)
+  SBMATRIX->SFR[SBMATRIX_SLAVE_HMCRAMC0].reg = 2;
+#endif
+
+#if defined(ID_USB)
+  USB->DEVICE.QOSCTRL.bit.CQOS = 2;
+  USB->DEVICE.QOSCTRL.bit.DQOS = 2;
+#endif
+
+  DMAC->QOSCTRL.bit.DQOS = 2;
+  DMAC->QOSCTRL.bit.FQOS = 2;
+  DMAC->QOSCTRL.bit.WRBQOS = 2;
+
   /* Initialize the C library */
   __libc_init_array();
 
@@ -194,6 +268,7 @@ void SysTick_Handler(void)
   SysTick_DefaultHandler();
 }
 
+#if !defined(USB_DISABLED)
 static void (*usb_isr)(void) = NULL;
 
 void USB_Handler(void)
@@ -206,3 +281,4 @@ void USB_SetHandler(void (*new_usb_isr)(void))
 {
   usb_isr = new_usb_isr;
 }
+#endif

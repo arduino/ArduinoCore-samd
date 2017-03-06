@@ -18,6 +18,7 @@
 
 #define ARDUINO_MAIN
 #include "Arduino.h"
+#include "sam.h"
 
 // Weak empty variant initialization function.
 // May be redefined by variant files.
@@ -34,11 +35,9 @@ int main( void )
   initVariant();
 
   delay(1);
-#if defined(USBCON)
-  #if !defined(ARDUINO_USB_UART_DISABLED) && !defined(ARDUINO_UART_ONLY)
+#if defined(USBCON) && !defined(USB_DISABLED)
   USBDevice.init();
   USBDevice.attach();
-  #endif
 #endif
 
   setup();

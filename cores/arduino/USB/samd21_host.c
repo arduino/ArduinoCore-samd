@@ -23,6 +23,7 @@
 
 #include "../Arduino.h"
 #include "variant.h"
+#include "WVariant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
 #include "sam.h"
@@ -67,7 +68,14 @@ void UHD_Init(void)
 	USB_SetHandler(&UHD_Handler);
 
 	/* Enable USB clock */
+#if (SAMD21 || SAMD11)
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
+#elif (SAML21)
+	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
+#else
+	#error "samd21_host.c: Unsupported chip"
+#endif
+	
 
 	/* Set up the USB DP/DM pins */
 	pinPeripheral( PIN_USB_DM, PIO_COM );
@@ -82,14 +90,13 @@ void UHD_Init(void)
 	/* ----------------------------------------------------------------------------------------------
 	* Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
 	*/
-	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(6) |        // Generic Clock Multiplexer 6
-						GCLK_CLKCTRL_GEN_GCLK0 |    // Generic Clock Generator 0 is source
-						GCLK_CLKCTRL_CLKEN;
-
-	while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY)
-	{
-		/* Wait for synchronization */
-	}
+#if (SAMD21 || SAMD11)
+	GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_USB ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
+	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#else
+	GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+	while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#endif
 
 	/* Reset */
 	USB->HOST.CTRLA.bit.SWRST = 1;

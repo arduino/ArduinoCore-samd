@@ -18,13 +18,12 @@
 
 #include <Arduino.h>
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
-#include "USBDesc.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 
-#ifdef CDC_ENABLED
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 
 #define CDC_SERIAL_BUFFER_SIZE	256
 

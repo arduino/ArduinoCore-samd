@@ -21,6 +21,8 @@
 #include "SAMD21_USBDevice.h"
 #include "PluggableUSB.h"
 #include "USBDesc.h"
+#include "WVariant.h"
+#include "sam.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -134,7 +136,7 @@ uint8_t USBDeviceClass::SendInterfaces(uint32_t* total)
 {
 	uint8_t interfaces = 0;
 
-#if defined(CDC_ENABLED)
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 	total[0] += CDC_GetInterface(&interfaces);
 #endif
 
@@ -198,16 +200,12 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 
 	if (t == USB_DEVICE_DESCRIPTOR_TYPE)
 	{
-		//if (setup.wLength == 8)
-		//	_cdcComposite = 1;
-
-		//desc_addr = _cdcComposite ?  (const uint8_t*)&USB_DeviceDescriptorB : (const uint8_t*)&USB_DeviceDescriptor;
-#if defined(IAD_PRESENT)
-		desc_addr = (const uint8_t*)&USB_DeviceDescriptorB;
-#elif defined(CDC_ONLY)
+#if defined(CDC_ONLY)
 		desc_addr = (const uint8_t*)&USB_DeviceDescriptorC;
-#else
+#elif defined(HID_ONLY)
 		desc_addr = (const uint8_t*)&USB_DeviceDescriptor;
+#else
+		desc_addr = (const uint8_t*)&USB_DeviceDescriptorB;
 #endif
 
 		if (*desc_addr > setup.wLength) {
@@ -259,7 +257,7 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
-#if defined(CDC_ENABLED)
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 	if (ep == CDC_ENDPOINT_OUT)
 	{
 		// The RAM Buffer is empty: we can receive data
@@ -303,7 +301,13 @@ void USBDeviceClass::init()
 #endif
 
 	// Enable USB clock
+#if (SAMD21 || SAMD11)
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
+#elif (SAML21)
+	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
+#else
+	#error "USBCore.cpp: Unsupported chip"
+#endif
 
 	// Set up the USB DP/DN pins
 	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
@@ -314,11 +318,13 @@ void USBDeviceClass::init()
 	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
 
 	// Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
-	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(6)     | // Generic Clock Multiplexer 6
-	                    GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-	                    GCLK_CLKCTRL_CLKEN;
-	while (GCLK->STATUS.bit.SYNCBUSY)
-		;
+#if (SAMD21 || SAMD11)
+	GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_USB ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
+	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#else
+	GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+	while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#endif
 
 	USB_SetHandler(&UDD_Handler);
 
@@ -385,7 +391,7 @@ bool USBDeviceClass::handleClassInterfaceSetup(USBSetup& setup)
 {
 	uint8_t i = setup.wIndex;
 
-	#if defined(CDC_ENABLED)
+	#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 	if (CDC_ACM_INTERFACE == i)
 	{
 		if (CDC_Setup(setup) == false) {
@@ -410,7 +416,7 @@ uint32_t EndPoints[] =
 {
 	USB_ENDPOINT_TYPE_CONTROL,
 
-#ifdef CDC_ENABLED
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 	USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0),           // CDC_ENDPOINT_ACM
 	USB_ENDPOINT_TYPE_BULK      | USB_ENDPOINT_OUT(0),               // CDC_ENDPOINT_OUT
 	USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0),                // CDC_ENDPOINT_IN
@@ -825,7 +831,7 @@ bool USBDeviceClass::handleStandardSetup(USBSetup &setup)
 			initEndpoints();
 			_usbConfiguration = setup.wValueL;
 
-			#if defined(CDC_ENABLED)
+			#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 			// Enable interrupt for CDC reception from host (OUT packet)
 			usbd.epBank1EnableTransferComplete(CDC_ENDPOINT_ACM);
 			usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);

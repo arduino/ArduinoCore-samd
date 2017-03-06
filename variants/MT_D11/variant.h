@@ -17,12 +17,20 @@
 */
 
 /*
- * Modified 20 May 2016 by Justin Mattair
- *   for MattairTech MT-D11 boards (www.mattairtech.com)
+ * Modified 9 December 2016 by Justin Mattair
+ *   for MattairTech boards (www.mattairtech.com)
+ *
+ * See README.md for documentation and pin mapping information
  */
 
 #ifndef _VARIANT_MATTAIRTECH_MT_D11_
 #define _VARIANT_MATTAIRTECH_MT_D11_
+
+/* The definitions here need the MattairTech SAMD core >=1.6.8.
+ * The format is different than the stock Arduino SAMD core,
+ * which uses ARDUINO_SAMD_VARIANT_COMPLIANCE instead.
+ */
+#define MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE 10608
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -32,13 +40,14 @@
 #define VARIANT_MAINOSC		(32768ul)
 
 /** Master clock frequency */
-#define VARIANT_MCK			  (48000000ul)
+#define VARIANT_MCK		(48000000ul)
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "WVariant.h"
+#include "sam.h"
 
 #ifdef __cplusplus
 #include "SERCOM.h"
@@ -66,8 +75,8 @@ extern "C"
   #error "variant.h: You must set PIN_MAP_STANDARD or PIN_MAP_COMPACT"
 #endif
 
-#define PINS_COUNT           (32u)
-#define NUM_DIGITAL_PINS     (32u)
+#define PINS_COUNT           NUM_PIN_DESCRIPTION_ENTRIES
+#define NUM_DIGITAL_PINS     PINS_COUNT
 #define NUM_ANALOG_INPUTS    (10u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 #define analogInputToDigitalPin(p)  (p)
@@ -95,9 +104,16 @@ extern "C"
  * The RX and TX LEDs are not present.
  * You may optionally add them to any free pins.
  */
+#if defined PIN_MAP_STANDARD
 #define PIN_LED_13           (16u)
 #define PIN_LED_RXL          (10u)
 #define PIN_LED_TXL          (11u)
+#elif defined PIN_MAP_COMPACT
+#define PIN_LED_13           (10u)
+#define PIN_LED_RXL          (6u)
+#define PIN_LED_TXL          (7u)
+#endif
+
 #define PIN_LED              PIN_LED_13
 #define PIN_LED2             PIN_LED_RXL
 #define PIN_LED3             PIN_LED_TXL
@@ -109,13 +125,19 @@ extern "C"
  * Thre is a debouncing capacitor connected, so delay reading the pin
  * at least 6ms after turning on the pullup to allow the capacitor to charge.
  */
+#if defined PIN_MAP_STANDARD
 #define BUTTON               (15u)
+#elif defined PIN_MAP_COMPACT
+#define BUTTON               (9u)
+#endif
+
 #define BUTTON_BUILTIN       BUTTON
 
 
 /*
  * Analog pins
  */
+#if defined PIN_MAP_STANDARD
 #define PIN_A2               (2ul)
 #define PIN_A3               (3ul)
 #define PIN_A4               (4ul)
@@ -127,6 +149,19 @@ extern "C"
 #define PIN_A14              (14ul)
 #define PIN_A15              (15ul)
 #define PIN_DAC0             (2ul)
+#elif defined PIN_MAP_COMPACT
+#define PIN_A2               (0ul)
+#define PIN_A3               (1ul)
+#define PIN_A4               (2ul)
+#define PIN_A5               (3ul)
+#define PIN_A6               (4ul)
+#define PIN_A7               (5ul)
+#define PIN_A10              (6ul)
+#define PIN_A11              (7ul)
+#define PIN_A14              (8ul)
+#define PIN_A15              (9ul)
+#define PIN_DAC0             (0ul)
+#endif
 
 static const uint8_t A2   = PIN_A2;
 static const uint8_t A3   = PIN_A3;
@@ -149,13 +184,22 @@ static const uint8_t DAC0 = PIN_DAC0;
 #define VARIANT_AR_DEFAULT	AR_DEFAULT
 
 /* Reference voltage pins (define even if not enabled with PIN_ATTR_REF in the PinDescription table) */
+#if defined PIN_MAP_STANDARD
 #define REFA_PIN    (3ul)
 #define REFB_PIN    (4ul)
+#elif defined PIN_MAP_COMPACT
+#define REFA_PIN    (1ul)
+#define REFB_PIN    (2ul)
+#endif
 
 
 // The ATN pin may be used in the future as the first SPI chip select.
 // On boards that do not have the Arduino physical form factor, it can to set to any free pin.
+#if defined PIN_MAP_STANDARD
 #define PIN_ATN              (15ul)
+#elif defined PIN_MAP_COMPACT
+#define PIN_ATN              (9ul)
+#endif
 static const uint8_t ATN = PIN_ATN;
 
 
@@ -163,12 +207,30 @@ static const uint8_t ATN = PIN_ATN;
  * Serial interfaces
  */
 // Serial1
+#if defined PIN_MAP_STANDARD
 #define PIN_SERIAL1_RX       (31ul)
 #define PIN_SERIAL1_TX       (30ul)
+#elif defined PIN_MAP_COMPACT
+#define PIN_SERIAL1_RX       (16ul)
+#define PIN_SERIAL1_TX       (15ul)
+#endif
+
 #define PAD_SERIAL1_TX       (UART_TX_PAD_2)
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
-
 #define SERCOM_INSTANCE_SERIAL1       &sercom1
+
+// Serial2
+#if defined PIN_MAP_STANDARD
+#define PIN_SERIAL2_RX       (11ul)
+#define PIN_SERIAL2_TX       (10ul)
+#elif defined PIN_MAP_COMPACT
+#define PIN_SERIAL2_RX       (7ul)
+#define PIN_SERIAL2_TX       (6ul)
+#endif
+
+#define PAD_SERIAL2_TX       (UART_TX_PAD_2)
+#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_3)
+#define SERCOM_INSTANCE_SERIAL2       &sercom0
 
 
 /*
@@ -176,10 +238,18 @@ static const uint8_t ATN = PIN_ATN;
  */
 #define SPI_INTERFACES_COUNT 1
 
+#if defined PIN_MAP_STANDARD
 #define PIN_SPI_MISO         (14u)
 #define PIN_SPI_MOSI         (10u)
 #define PIN_SPI_SCK          (11u)
 #define PIN_SPI_SS           (15u)
+#elif defined PIN_MAP_COMPACT
+#define PIN_SPI_MISO         (8u)
+#define PIN_SPI_MOSI         (6u)
+#define PIN_SPI_SCK          (7u)
+#define PIN_SPI_SS           (9u)
+#endif
+
 #define PERIPH_SPI           sercom0
 #define PAD_SPI_TX           SPI_PAD_2_SCK_3
 #define PAD_SPI_RX           SERCOM_RX_PAD_0
@@ -195,8 +265,14 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
  */
 #define WIRE_INTERFACES_COUNT 1
 
+#if defined PIN_MAP_STANDARD
 #define PIN_WIRE_SDA         (22u)
 #define PIN_WIRE_SCL         (23u)
+#elif defined PIN_MAP_COMPACT
+#define PIN_WIRE_SDA         (12u)
+#define PIN_WIRE_SCL         (13u)
+#endif
+
 #define PERIPH_WIRE          sercom2
 #define WIRE_IT_HANDLER      SERCOM2_Handler
 
@@ -207,9 +283,17 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * USB
  */
+#if defined PIN_MAP_STANDARD
 #define PIN_USB_DM                      (24ul)
 #define PIN_USB_DP                      (25ul)
 #define PIN_USB_HOST_ENABLE             (17ul)
+#elif defined PIN_MAP_COMPACT
+// USB pins not directly accessible using PIN_MAP_COMPACT
+#define PIN_USB_DM                      (0ul)
+#define PIN_USB_DP                      (0ul)
+#define PIN_USB_HOST_ENABLE             (0ul)
+#endif
+
 #define PIN_USB_HOST_ENABLE_VALUE	HIGH
 
 #ifdef __cplusplus
@@ -232,6 +316,7 @@ extern SERCOM sercom1;
 extern SERCOM sercom2;
 
 extern Uart Serial1;
+extern Uart Serial2;
 
 #endif
 

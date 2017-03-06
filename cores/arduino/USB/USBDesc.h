@@ -19,37 +19,11 @@
 #ifndef __USBDESC_H__
 #define __USBDESC_H__
 
-#if !defined(ARDUINO_USB_UART_DISABLED) && !defined(ARDUINO_UART_ONLY)
+#if !defined(USB_DISABLED)
 #define PLUGGABLE_USB_ENABLED
 #endif
 
-// These are controlled by the boards.txt menu system.
-// Now that there is Pluggable USB, these will be eliminated
-// once an alternate method for USB PID allocation is found.
-#if defined(ARDUINO_CDC_ONLY) || defined(ARDUINO_CDC_UART) || defined(ARDUINO_CDC_HID) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
-#define CDC_ENABLED
-#if defined(ARDUINO_CDC_ONLY) || defined(ARDUINO_CDC_UART)
-#define CDC_ONLY
-#else
-#define IAD_PRESENT
-#endif
-#endif
-
-#if defined(ARDUINO_HID_ONLY) || defined(ARDUINO_HID_UART) || defined(ARDUINO_CDC_HID) || defined(ARDUINO_CDC_HID_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
-#define HID_ENABLED
-#endif
-
-#if defined(ARDUINO_MIDI_ONLY) || defined(ARDUINO_MIDI_UART) || defined(ARDUINO_CDC_MIDI_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
-#define MIDI_ENABLED
-#define IAD_PRESENT
-#endif
-
-#if defined(ARDUINO_MSD_ONLY) || defined(ARDUINO_MSD_UART) || defined(ARDUINO_CDC_MSD_HID_UART) || defined(ARDUINO_CDC_MSD_MIDI_HID_UART)
-#define MSD_ENABLED
-#endif
-
-
-#ifdef CDC_ENABLED
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 #define CDC_INTERFACE_COUNT 2
 #define CDC_ENPOINT_COUNT 3
 #else
@@ -65,7 +39,7 @@
 #define CDC_ENDPOINT_OUT	2
 #define CDC_ENDPOINT_IN		3
 
-#ifdef CDC_ENABLED
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 #define CDC_RX CDC_ENDPOINT_OUT
 #define CDC_TX CDC_ENDPOINT_IN
 #endif

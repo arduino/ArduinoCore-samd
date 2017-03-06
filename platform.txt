@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=MattairTech SAM M0+ Boards
-version=1.6.7
+version=1.6.8
 
 # Compile variables
 # -----------------
@@ -79,13 +79,13 @@ build.usb_manufacturer="Unknown"
 # ----------------
 
 ## Compile c files
-recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.c.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.c.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
 
 ## Compile c++ files
-recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
 
 ## Compile S files
-recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.S.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
+recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.S.extra_flags} {build.extra_flags} {compiler.arm.cmsis.path} {includes} "{source_file}" -o "{object_file}"
 
 ## Create archives
 # archive_file_path is needed for backwards compatibility with IDE 1.6.5 or older, IDE 1.6.6 or newer overrides this value
@@ -93,7 +93,7 @@ archive_file_path={build.path}/{archive_file}
 recipe.ar.pattern="{compiler.path}{compiler.ar.cmd}" {compiler.ar.flags} {compiler.ar.extra_flags} "{archive_file_path}" "{object_file}"
 
 ## Combine gc-sections, archives, and objects
-recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}"  "-L{build.path}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} "-T{build.variant.path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" --specs=nano.specs --specs=nosys.specs {compiler.ldflags} -o "{build.path}/{build.project_name}.elf" {object_files} -Wl,--start-group -lm "{build.path}/{archive_file}" -Wl,--end-group
+recipe.c.combine.pattern="{compiler.path}{compiler.c.elf.cmd}"  "-L{build.path}" {compiler.c.elf.flags} {compiler.c.elf.extra_flags} "-T{build.variant.path}/{build.ldscript_path}/{build.ldscript}" "-Wl,-Map,{build.path}/{build.project_name}.map" --specs=nano.specs --specs=nosys.specs {compiler.ldflags} -o "{build.path}/{build.project_name}.elf" {object_files} -Wl,--start-group -lm "{build.path}/{archive_file}" -Wl,--end-group
 
 ## Create output (bin file)
 recipe.objcopy.bin.pattern="{compiler.path}{compiler.elf2hex.cmd}" {compiler.elf2hex.flags} {compiler.elf2hex.extra_flags} "{build.path}/{build.project_name}.elf" "{build.path}/{build.project_name}.bin"
@@ -152,3 +152,17 @@ tools.openocd.erase.pattern=
 tools.openocd.bootloader.params.verbose=-d3
 tools.openocd.bootloader.params.quiet=-d0
 tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{{runtime.platform.path}/bootloaders/{bootloader.file}}} verify reset; shutdown"
+
+#
+# AVRDUDE
+#
+tools.avrdude.path={runtime.tools.avrdude.path}
+tools.avrdude.cmd.path={path}/bin/avrdude
+tools.avrdude.config.path={path}/etc/avrdude.conf
+
+tools.avrdude.upload.params.verbose=-v -v
+tools.avrdude.upload.params.quiet=-q -q
+# tools.avrdude.upload.verify is needed for backwards compatibility with IDE 1.6.8 or older, IDE 1.6.9 or newer overrides this value
+tools.avrdude.upload.verify=
+tools.avrdude.upload.params.noverify=-V
+tools.avrdude.upload.pattern="{cmd.path}" "-C{config.path}" {upload.verbose} {upload.verify} -p{build.emu.mcu} -c{upload.protocol} -P{serial.port} -b{upload.speed} "-Uflash:w:{build.path}/{build.project_name}.hex:i"

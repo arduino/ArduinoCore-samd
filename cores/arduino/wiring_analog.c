@@ -18,10 +18,45 @@
 
 #include "Arduino.h"
 #include "wiring_private.h"
+#include "variant.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+/* Mapping of timer numbers (array index) to generic clock IDs
+ * GCM_* values are defined in WVariant.h in the core.
+ */
+const uint8_t timerClockIDs[] = 
+{
+#if (SAMD11)
+	GCM_TCC0,
+	GCM_TC1_TC2,
+	GCM_TC1_TC2,
+#elif (SAMD21)
+	GCM_TCC0_TCC1,
+	GCM_TCC0_TCC1,
+	GCM_TCC2_TC3,
+	GCM_TCC2_TC3,
+	GCM_TC4_TC5,
+	GCM_TC4_TC5,
+	#if (SAMD21J)
+	GCM_TC6_TC7,
+	GCM_TC6_TC7,
+	#endif
+#elif (SAML21 || SAMC21)
+	GCM_TCC0_TCC1,
+	GCM_TCC0_TCC1,
+	GCM_TCC2,
+	GCM_TC0_TC1,
+	GCM_TC0_TC1,
+	GCM_TC2_TC3,
+	GCM_TC2_TC3,
+	GCM_TC4,
+#else
+#error "wiring_analog.c: Unsupported chip"
+#endif
+};
 
 static int _readResolution = 10;
 static int _ADCResolution = 10;
@@ -30,21 +65,34 @@ static int _writeResolution = 8;
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncADC() __attribute__((always_inline, unused));
 static void syncADC() {
-  while (ADC->STATUS.bit.SYNCBUSY == 1)
-    ;
+#if (SAMD)
+  while ( ADC->STATUS.bit.SYNCBUSY == 1 );
+#elif (SAML21)
+  while ( ADC->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
+#elif (SAMC21)
+  while ( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
+  while ( ADC1->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
+#endif
 }
 
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncDAC() __attribute__((always_inline, unused));
 static void syncDAC() {
-  while (DAC->STATUS.bit.SYNCBUSY == 1)
-    ;
+#if (SAMD)
+  while ( DAC->STATUS.bit.SYNCBUSY == 1 );
+#elif (SAML21 || SAMC21)
+  while ( DAC->SYNCBUSY.reg & DAC_SYNCBUSY_MASK );
+#endif
 }
 
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncTC_8(Tc* TCx) __attribute__((always_inline, unused));
 static void syncTC_8(Tc* TCx) {
+#if (SAMD)
   while (TCx->COUNT8.STATUS.bit.SYNCBUSY);
+#elif (SAML21 || SAMC21)
+  while (TCx->SYNCBUSY.reg);
+#endif
 }
 
 // Wait for synchronization of registers between the clock domains
@@ -58,17 +106,38 @@ void analogReadResolution( int res )
   _readResolution = res ;
   if (res > 10)
   {
+#if (SAMD)
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
+#elif (SAML21)
+    ADC->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_12BIT_Val;
+#elif (SAMC21)
+    ADC0->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_12BIT_Val;
+    ADC1->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_12BIT_Val;
+#endif
     _ADCResolution = 12;
   }
   else if (res > 8)
   {
+#if (SAMD)
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+#elif (SAML21)
+    ADC->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_10BIT_Val;
+#elif (SAMC21)
+    ADC0->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_10BIT_Val;
+    ADC1->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_10BIT_Val;
+#endif
     _ADCResolution = 10;
   }
   else
   {
+#if (SAMD)
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
+#elif (SAML21)
+    ADC->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_8BIT_Val;
+#elif (SAMC21)
+    ADC0->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_8BIT_Val;
+    ADC1->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_8BIT_Val;
+#endif
     _ADCResolution = 8;
   }
   syncADC();
@@ -97,48 +166,54 @@ static inline uint32_t mapResolution( uint32_t value, uint32_t from, uint32_t to
 }
 
 /*
- * Default Internal Reference is at 1.65V (with ADC gain of 1/2)
- * External Reference should be between 1v and VDDANA-0.6v=2.7v
+ * Default Internal Reference for the SAMD is at 1.65V (with ADC gain of 1/2)
+ * External Reference for the SAMD should be between 1v and VDDANA-0.6v=2.7v
  *
- * Warning : On Arduino Zero board the input/output voltage for SAMD21G18 is 3.3 volts maximum
+ * Warning : The maximum IO voltage is Vcc (for SAMD/SAML Vcc can be up to 3.6 volts)
  */
 void analogReference( eAnalogReference ulMode )
 {
-  uint32_t gain = ADC_INPUTCTRL_GAIN_1X_Val;      // Default Gain Factor Selection
-  uint32_t refsel;
-
   syncADC();
-  switch ( ulMode )
-  {
-    case AR_INTERNAL:
-    case AR_INTERNAL2V23:
-      refsel = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
-      break;
 
-    case AR_EXTERNAL:
-      if ( pinPeripheral(REFA_PIN, PIO_ANALOG_REF) == RET_STATUS_OK )
-      {
-        refsel = ADC_REFCTRL_REFSEL_AREFA_Val;
-      }
-      break;
-
-    case AR_INTERNAL1V0:
-      refsel = ADC_REFCTRL_REFSEL_INT1V_Val;   // 1.0V voltage reference
-      break;
-
-    case AR_INTERNAL1V65:
-      refsel = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
-      break;
-
-    case AR_DEFAULT:
-    default:
-      gain = ADC_INPUTCTRL_GAIN_DIV2_Val;    // This allows values up to VDDANA (3.3V) on the pin
-      refsel = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
-      break;
+  if (ulMode == AR_EXTERNAL_REFA) {
+    if ( pinPeripheral(REFA_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
+        return;
+    }
   }
 
-  ADC->INPUTCTRL.bit.GAIN = gain;
-  ADC->REFCTRL.bit.REFSEL = refsel;
+#if (SAMD || SAML21)
+  if (ulMode == AR_EXTERNAL_REFB) {
+    if ( pinPeripheral(REFB_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
+        return;
+    }
+  }
+#endif
+
+#if (SAMD)
+  if (ulMode == AR_DEFAULT) {
+    ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;    // GAIN_DIV2 allows values up to VDDANA on the pin
+    ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA
+  } else {
+    ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;
+    ADC->REFCTRL.bit.REFSEL = ulMode;
+  }
+#elif (SAML21 || SAMC21)
+  if (ulMode == 0) {		// Set to 1.0V for the SAML, 1.024V for the SAMC
+    SUPC->VREF.reg &= ~SUPC_VREF_SEL_Msk;
+  } else if (ulMode > 5) {		// Values above 5 are used for the Supply Controller reference (AR_INTREF)
+    SUPC->VREF.reg &= ~SUPC_VREF_SEL_Msk;
+    SUPC->VREF.reg |= SUPC_VREF_SEL(ulMode - 6);	// 
+    ulMode = 0;
+  }
+  #if (SAML21)
+  ADC->REFCTRL.bit.REFSEL = ulMode;
+  #elif (SAMC21)
+  ADC0->REFCTRL.bit.REFSEL = ulMode;
+  ADC1->REFCTRL.bit.REFSEL = ulMode;
+  #endif
+#endif
+
+  syncADC();
 }
 
 uint32_t analogRead( uint32_t ulPin )
@@ -147,14 +222,35 @@ uint32_t analogRead( uint32_t ulPin )
 
   REMAP_ANALOG_PIN_ID ;
 
+#if (SAMC21)
+  Adc* ADC;
+  if ( (g_APinDescription[ulPin].ulPeripheralAttribute & PER_ATTR_ADC_MASK) == PER_ATTR_ADC_STD ) {
+    ADC = ADC0;
+  } else {
+    ADC = ADC1;
+  }
+#endif
+
   if ( pinPeripheral(ulPin, PIO_ANALOG_ADC) == RET_STATUS_OK )
   {
     // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
     if ( (g_APinDescription[ulPin].ulPinAttribute & PIN_ATTR_DAC) == PIN_ATTR_DAC )
     {
       syncDAC();
+#if (SAMD || SAMC21)
       DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
       //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
+#elif (SAML21)
+      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller
+      uint8_t DACNumber = 0x00;
+      if ( (g_APinDescription[ulPin].ulPort == 0) && (g_APinDescription[ulPin].ulPin == 5) ) {
+        DACNumber = 0x01;
+      }
+      syncDAC();
+      DAC->DACCTRL[DACNumber].bit.ENABLE = 0x00; // The DACx output is turned off.
+      syncDAC();
+      DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller (in case other DACx is in use)
+#endif
       syncDAC();
     }
 
@@ -208,12 +304,27 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
 {
   if ( pinPeripheral(ulPin, PIO_ANALOG_DAC) == RET_STATUS_OK )
   {
-    ulValue = mapResolution(ulValue, _writeResolution, 10);
-
     syncDAC();
+#if (SAMD || SAMC21)
+    ulValue = mapResolution(ulValue, _writeResolution, 10);
     DAC->DATA.reg = ulValue & 0x3FF;  // DAC on 10 bits.
     syncDAC();
     DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
+#elif (SAML21)
+    DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller (so that DACCTRL can be modified)
+    uint8_t DACNumber = 0x00;
+    if ( (g_APinDescription[ulPin].ulPort == 0) && (g_APinDescription[ulPin].ulPin == 5) ) {
+        DACNumber = 0x01;
+    }
+    ulValue = mapResolution(ulValue, _writeResolution, 12);
+    syncDAC();
+    DAC->DATA[DACNumber].reg = ulValue & 0xFFF;  // DACx on 12 bits.
+    syncDAC();
+    DAC->DACCTRL[DACNumber].bit.ENABLE = 0x01; // The DACx output is turned on.
+    syncDAC();
+    while ( (DAC->STATUS.reg & (1 << DACNumber)) == 0 );   // Must wait for DACx to start
+    DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller
+#endif
     syncDAC();
     return ;
   }
@@ -222,58 +333,37 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     Tc*  TCx  = 0 ;
     Tcc* TCCx = 0 ;
     uint8_t Channelx = GetTCChannelNumber( g_APinDescription[ulPin].ulTCChannel ) ;
-    if ( GetTCNumber( g_APinDescription[ulPin].ulTCChannel ) >= TCC_INST_NUM )
-    {
+    uint8_t Timerx = GetTCNumber( g_APinDescription[ulPin].ulTCChannel ) ;
+    uint8_t Typex = GetTCType( g_APinDescription[ulPin].ulTCChannel ) ;
+    
+    if ( Typex == 1 ) {
       TCx = (Tc*) GetTC( g_APinDescription[ulPin].ulTCChannel ) ;
-    }
-    else
-    {
+    } else {
       TCCx = (Tcc*) GetTC( g_APinDescription[ulPin].ulTCChannel ) ;
     }
 
-    // Enable clocks according to TCCx instance to use
-    switch ( GetTCNumber( g_APinDescription[ulPin].ulTCChannel ) )
-    {
-#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
-      case 0: // TCC0
-        // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC0 )) ;
-      break ;
-
-      case 1: // TC1
-      case 2: // TC2
-        // Enable GCLK for TCC2 and TC3 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC1_TC2 )) ;
-      break ;
+    // Enable peripheral clock
+    if ( TCx ) {
+#if (SAML21)
+      if (TCx == TC4) {
+        timerIndex = 7;	// TC4 is on a different lower-power bridge on the SAML
+      } else {
+        timerIndex = (uint8_t)(((uint32_t)TCx - (uint32_t)TCC0) >> 10);
+      }
 #else
-      case 0: // TCC0
-      case 1: // TCC1
-        // Enable GCLK for TCC0 and TCC1 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC0_TCC1 )) ;
-      break ;
-
-      case 2: // TCC2
-      case 3: // TC3
-        // Enable GCLK for TCC2 and TC3 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TCC2_TC3 )) ;
-      break ;
-
-      case 4: // TC4
-      case 5: // TC5
-        // Enable GCLK for TC4 and TC5 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 ));
-      break ;
+      timerIndex = (uint8_t)(((uint32_t)TCx - (uint32_t)TCC0) >> 10);
 #endif
-#if defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
-      case 6: // TC6 (not available on Zero)
-      case 7: // TC7 (not available on Zero)
-        // Enable GCLK for TC6 and TC7 (timer counter input clock)
-        GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC6_TC7 ));
-      break ;
-#endif
+    } else {
+      timerIndex = (uint8_t)(((uint32_t)TCCx - (uint32_t)TCC0) >> 10);
     }
 
+#if (SAMD)
+    GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( timerClockIDs[timerIndex] )) ;
     while ( GCLK->STATUS.bit.SYNCBUSY == 1 ) ;
+#elif (SAML21 || SAMC21)
+    GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+    while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#endif
 
     ulValue = mapResolution(ulValue, _writeResolution, 8);
 
@@ -281,14 +371,18 @@ void analogWrite( uint32_t ulPin, uint32_t ulValue )
     if ( TCx )
     {
       // -- Configure TC
-
       // Disable TCx
       TCx->COUNT8.CTRLA.reg &= ~TC_CTRLA_ENABLE;
       syncTC_8(TCx);
       // Set Timer counter Mode to 8 bits
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8;
       // Set TCx as normal PWM
+#if (SAMD)
       TCx->COUNT8.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
+#elif (SAML21 || SAMC21)
+      TCx->WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
+#endif
+      syncTC_8(TCx);
       // Set TCx in waveform mode Normal PWM
       TCx->COUNT8.CC[Channelx].reg = (uint8_t) ulValue;
       syncTC_8(TCx);

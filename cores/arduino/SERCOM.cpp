@@ -55,6 +55,14 @@ static uint64_t divide64(uint64_t n, uint64_t d)
 */
 void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint32_t baudrate)
 {
+#if (SAML21)
+  // On the SAML21, SERCOM5 is on PD0, which is a low power domain on a different bridge than the other SERCOMs.
+  // SERCOM5 does not support SAMPLE_RATE_x8 or SAMPLE_RATE_x3.
+  if (sercom == SERCOM5) {
+    sampleRate = SAMPLE_RATE_x16;
+  }
+#endif
+
   initClockNVIC();
   resetUART();
 
@@ -691,22 +699,21 @@ void SERCOM::initClockNVIC( void )
     clockId = GCM_SERCOM1_CORE;
     IdNvic = SERCOM1_IRQn;
   }
-#if !defined(__SAMD11C14A__)
+#if !(SAMD11C14)
   else if(sercom == SERCOM2)
   {
     clockId = GCM_SERCOM2_CORE;
     IdNvic = SERCOM2_IRQn;
   }
 #endif
-#if !defined(__SAMD11D14AM__) && !defined(__SAMD11C14A__) && !defined(__SAMD11D14AS__)
+#if !(SAMD11_SERIES)
   else if(sercom == SERCOM3)
   {
     clockId = GCM_SERCOM3_CORE;
     IdNvic = SERCOM3_IRQn;
   }
 #endif
-#if defined(__SAMD21G15A__) || defined(__SAMD21G16A__) || defined(__SAMD21G17A__) || defined(__SAMD21G18A__) || \
-    defined(__SAMD21J15A__) || defined(__SAMD21J16A__) || defined(__SAMD21J17A__) || defined(__SAMD21J18A__)
+#if !(SAMD11_SERIES) && !(SAMD21E) && !(SAMC21E)
   else if(sercom == SERCOM4)
   {
     clockId = GCM_SERCOM4_CORE;
@@ -730,12 +737,13 @@ void SERCOM::initClockNVIC( void )
   NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
 
   //Setting clock
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
-                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-                      GCLK_CLKCTRL_CLKEN ;
-
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
-  {
-    /* Wait for synchronization */
-  }
+#if (SAMD21 || SAMD11)
+  GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( clockId ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#elif (SAML21 || SAMC21)
+  GCLK->PCHCTRL[clockId].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#else
+  #error "SERCOM.cpp: Unsupported chip"
+#endif
 }

@@ -19,8 +19,6 @@
 #ifndef __USBCORE_H__
 #define __USBCORE_H__
 
-#include "USBDesc.h"
-
 //	Standard requests
 #define GET_STATUS					0
 #define CLEAR_FEATURE				1

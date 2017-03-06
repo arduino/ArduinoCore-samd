@@ -45,50 +45,71 @@
 
 void waitForSync( void )
 {
-	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
-	{
-		/* Wait for synchronization */
-	}
+#if (SAMD)
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#elif (SAML21 || SAMC21)
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#else
+  #error "startup.c: Unsupported chip"
+#endif
 }
 
+#if (SAMD || SAML21)
 void waitForDFLL( void )
 {
-	while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
-	{
-		/* Wait for synchronization */
-	}
+#if (SAMD)
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 );
+#elif (SAML21)
+  while ( (OSCCTRL->STATUS.reg & OSCCTRL_STATUS_DFLLRDY) == 0 );
+#endif
 }
+#endif
 
 void SystemInit( void )
 {
   /* Set 1 Flash Wait State for 48MHz, cf tables 20.9 and 35.27 in SAMD21 Datasheet */
-  NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ;
+#if (SAMD)
+  NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ;	// one wait state
+#elif (SAML21 || SAMC21)
+  NVMCTRL->CTRLB.reg |= NVMCTRL_CTRLB_RWS_DUAL ; // two wait states
+#endif
 
   /* Turn on the digital interface clock */
+#if (SAMD)
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK ;
+#elif (SAML21 || SAMC21)
+  MCLK->APBAMASK.reg |= MCLK_APBAMASK_GCLK ;
+#endif
 
   /* ----------------------------------------------------------------------------------------------
-   * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
+   * 0) Software reset the GCLK module to ensure it is re-initialized correctly
    */
+#if (SAMD)
+  GCLK->CTRL.reg = GCLK_CTRL_SWRST ;
+
+  while ( (GCLK->CTRL.reg & GCLK_CTRL_SWRST) && (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) );	/* Wait for reset to complete */
+#elif (SAML21 || SAMC21)
+  GCLK->CTRLA.reg = GCLK_CTRLA_SWRST ;
+
+  while ( (GCLK->CTRLA.reg & GCLK_CTRLA_SWRST) && (GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK) );	/* Wait for reset to complete */
+#endif
+
+  /* ----------------------------------------------------------------------------------------------
+   * 1) Enable XOSC32K clock (External on-board 32.768Hz crystal oscillator)
+   */
+#if (SAMD)
   SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP( 0x6u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
                          SYSCTRL_XOSC32K_XTALEN | SYSCTRL_XOSC32K_EN32K ;
   SYSCTRL->XOSC32K.bit.ENABLE = 1 ; /* separate call, as described in chapter 15.6.3 */
 
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSC32KRDY) == 0 )
-  {
-    /* Wait for oscillator stabilization */
-  }
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSC32KRDY) == 0 );	/* Wait for oscillator stabilization */
+#elif (SAML21 || SAMC21)
+  OSC32KCTRL->XOSC32K.reg = OSC32KCTRL_XOSC32K_STARTUP( 0x4u ) | OSC32KCTRL_XOSC32K_XTALEN | OSC32KCTRL_XOSC32K_EN32K ;
+  OSC32KCTRL->XOSC32K.bit.ENABLE = 1 ; /* separate call, as described in chapter 15.6.3 */
 
-  /* Software reset the module to ensure it is re-initialized correctly */
-  /* Note: Due to synchronization, there is a delay from writing CTRL.SWRST until the reset is complete.
-   * CTRL.SWRST and STATUS.SYNCBUSY will both be cleared when the reset is complete, as described in chapter 13.8.1
-   */
-  GCLK->CTRL.reg = GCLK_CTRL_SWRST ;
-
-  while ( (GCLK->CTRL.reg & GCLK_CTRL_SWRST) && (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) )
-  {
-    /* Wait for reset to complete */
-  }
+  while ( (OSC32KCTRL->STATUS.reg & OSC32KCTRL_STATUS_XOSC32KRDY) == 0 );	/* Wait for oscillator stabilization */
+  #error "SAML and SAMC porting is not yet complete. I still need to modify the clock code (adding support for more sources). See later commit."
+#endif
 
   /* ----------------------------------------------------------------------------------------------
    * 2) Put XOSC32K as source of Generic Clock Generator 1
@@ -98,19 +119,14 @@ void SystemInit( void )
   waitForSync();
 
   /* Write Generic Clock Generator 1 configuration */
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_XOSC32K ) | // Generic Clock Generator 1
-                      GCLK_GENCTRL_SRC_XOSC32K | // Selected source is External 32KHz Oscillator
-//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_GENEN ;
+  GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_XOSC32K ) | GCLK_GENCTRL_SRC_XOSC32K | GCLK_GENCTRL_GENEN );
 
   waitForSync();
 
   /* ----------------------------------------------------------------------------------------------
    * 3) Put Generic Clock Generator 1 as source for Generic Clock Multiplexer 0 (DFLL48M reference)
    */
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GENERIC_CLOCK_MULTIPLEXER_DFLL48M ) | // Generic Clock Multiplexer 0
-                      GCLK_CLKCTRL_GEN_GCLK1 | // Generic Clock Generator 1 is source
-                      GCLK_CLKCTRL_CLKEN ;
+  GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GENERIC_CLOCK_MULTIPLEXER_DFLL48M ) | GCLK_CLKCTRL_GEN_GCLK1 | GCLK_CLKCTRL_CLKEN );
 
   waitForSync();
 
@@ -142,10 +158,7 @@ void SystemInit( void )
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
-          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
-  {
-    /* Wait for locks flags */
-  }
+	  (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 );	/* Wait for locks flags */
 
   waitForDFLL();
 
@@ -157,11 +170,7 @@ void SystemInit( void )
   waitForSync();
 
   /* Write Generic Clock Generator 0 configuration */
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | // Generic Clock Generator 0
-                      GCLK_GENCTRL_SRC_DFLL48M | // Selected source is DFLL 48MHz
-//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_IDC | // Set 50/50 duty cycle
-                      GCLK_GENCTRL_GENEN ;
+  GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
 
   waitForSync();
 
@@ -177,21 +186,23 @@ void SystemInit( void )
   GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) ; // Generic Clock Generator 3
 
   /* Write Generic Clock Generator 3 configuration */
-  GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | // Generic Clock Generator 3
-                      GCLK_GENCTRL_SRC_OSC8M | // Selected source is RC OSC 8MHz (already enabled at reset)
-//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_GENEN ;
+  GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC8M ) | GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_GENEN );
 
   waitForSync();
+
 
   /*
    * Now that all system clocks are configured, we can set CPU and APBx BUS clocks.
    * There values are normally the one present after Reset.
    */
+#if (SAMD)
   PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
   PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;
   PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val ;
   PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
+#elif (SAML21 || SAMC21)
+  MCLK->CPUDIV.reg  = MCLK_CPUDIV_CPUDIV_DIV1 ;
+#endif
 
   SystemCoreClock=VARIANT_MCK ;
 
@@ -199,6 +210,7 @@ void SystemInit( void )
    * 8) Load ADC factory calibration values
    */
 
+#if (SAMD)
   // ADC Bias Calibration
   uint32_t bias = (*((uint32_t *) ADC_FUSES_BIASCAL_ADDR) & ADC_FUSES_BIASCAL_Msk) >> ADC_FUSES_BIASCAL_Pos;
 
@@ -210,8 +222,24 @@ void SystemInit( void )
 
   ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
 
+#elif (SAML21)
+  uint32_t biasrefbuf = (*((uint32_t *) ADC_FUSES_BIASREFBUF_ADDR) & ADC_FUSES_BIASREFBUF_Msk) >> ADC_FUSES_BIASREFBUF_Pos;
+  uint32_t biascomp = (*((uint32_t *) ADC_FUSES_BIASCOMP_ADDR) & ADC_FUSES_BIASCOMP_Msk) >> ADC_FUSES_BIASCOMP_Pos;
+
+  ADC->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
+
+#elif (SAMC21)
+  uint32_t biasrefbuf = (*((uint32_t *) ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
+  uint32_t biascomp = (*((uint32_t *) ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
+  ADC0->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
+  
+  biasrefbuf = (*((uint32_t *) ADC1_FUSES_BIASREFBUF_ADDR) & ADC1_FUSES_BIASREFBUF_Msk) >> ADC1_FUSES_BIASREFBUF_Pos;
+  biascomp = (*((uint32_t *) ADC1_FUSES_BIASCOMP_ADDR) & ADC1_FUSES_BIASCOMP_Msk) >> ADC1_FUSES_BIASCOMP_Pos;
+  ADC1->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
+#endif
+
   /*
-   * 9) Disable automatic NVM write operations
+   * 9) Disable automatic NVM write operations (errata reference 13134, applies to D21/D11/L21, but not C21)
    */
   NVMCTRL->CTRLB.bit.MANW = 1;
 }

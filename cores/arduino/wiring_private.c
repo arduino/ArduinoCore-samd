@@ -1,5 +1,6 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2015-2016, Justin Mattair (justin@mattair.net)
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -176,23 +177,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     case PIO_SERCOM:
     case PIO_COM:
     case PIO_AC_GCLK:
-#if 0
-      // Is the pio pin in the lower 16 ones?
-      // The WRCONFIG register allows update of only 16 pin max out of 32
-      if ( g_APinDescription[ulPin].ulPin < 16 )
-      {
-        PORT->Group[g_APinDescription[ulPin].ulPort].WRCONFIG.reg = PORT_WRCONFIG_WRPMUX | PORT_WRCONFIG_PMUXEN | PORT_WRCONFIG_PMUX( ulPeripheral ) |
-                                                                    PORT_WRCONFIG_WRPINCFG |
-                                                                    PORT_WRCONFIG_PINMASK( g_APinDescription[ulPin].ulPin ) ;
-      }
-      else
-      {
-        PORT->Group[g_APinDescription[ulPin].ulPort].WRCONFIG.reg = PORT_WRCONFIG_HWSEL |
-                                                                    PORT_WRCONFIG_WRPMUX | PORT_WRCONFIG_PMUXEN | PORT_WRCONFIG_PMUX( ulPeripheral ) |
-                                                                    PORT_WRCONFIG_WRPINCFG |
-                                                                    PORT_WRCONFIG_PINMASK( g_APinDescription[ulPin].ulPin - 16 ) ;
-      }
-#else
+
       if ( pinNum & 1 ) // is pin odd?
       {
         uint32_t temp ;
@@ -212,7 +197,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
 	PORT->Group[pinPort].PMUX[pinNum >> 1].reg = temp|PORT_PMUX_PMUXE( peripheral ) ;
 	PORT->Group[pinPort].PINCFG[pinNum].reg |= PORT_PINCFG_PMUXEN ; // Enable port mux
       }
-#endif
+
     break ;
 
     default:

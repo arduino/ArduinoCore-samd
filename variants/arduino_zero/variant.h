@@ -19,6 +19,12 @@
 #ifndef _VARIANT_ARDUINO_ZERO_
 #define _VARIANT_ARDUINO_ZERO_
 
+/* The definitions here need the MattairTech SAMD core >=1.6.8.
+ * The format is different than the stock Arduino SAMD core,
+ * which uses ARDUINO_SAMD_VARIANT_COMPLIANCE instead.
+ */
+#define MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE 10608
+
 /*----------------------------------------------------------------------------
  *        Definitions
  *----------------------------------------------------------------------------*/
@@ -27,13 +33,14 @@
 #define VARIANT_MAINOSC		(32768ul)
 
 /** Master clock frequency */
-#define VARIANT_MCK			  (48000000ul)
+#define VARIANT_MCK		(48000000ul)
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "WVariant.h"
+#include "sam.h"
 
 #ifdef __cplusplus
 #include "SERCOM.h"
@@ -139,7 +146,13 @@ static const uint8_t ATN = PIN_ATN;
 /*
  * SPI Interfaces
  */
+#if defined(TWO_SPI)
 #define SPI_INTERFACES_COUNT 2
+#elif defined(THREE_SPI)
+#define SPI_INTERFACES_COUNT 3
+#else
+#define SPI_INTERFACES_COUNT 1
+#endif
 
 #define PIN_SPI_MISO         (22u)
 #define PIN_SPI_MOSI         (23u)
@@ -163,7 +176,13 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 /*
  * Wire Interfaces
  */
+#if defined(TWO_WIRE)
 #define WIRE_INTERFACES_COUNT 2
+#elif defined(THREE_WIRE)
+#define WIRE_INTERFACES_COUNT 3
+#else
+#define WIRE_INTERFACES_COUNT 1
+#endif
 
 #define PIN_WIRE_SDA         (20u)
 #define PIN_WIRE_SCL         (21u)
@@ -184,7 +203,7 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_USB_DM          (28ul)
 #define PIN_USB_DP          (29ul)
 #define PIN_USB_HOST_ENABLE (27ul)
-#define PIN_USB_HOST_ENABLE_VALUE	HIGH
+#define PIN_USB_HOST_ENABLE_VALUE	1
 
 #ifdef __cplusplus
 }

@@ -17,12 +17,20 @@
 */
 
 /*
-  Modified 20 May 2016 by Justin Mattair
-     for MattairTech MT-D21E boards (www.mattairtech.com)
-*/
+ * Modified 9 December 2016 by Justin Mattair
+ *   for MattairTech boards (www.mattairtech.com)
+ *
+ * See README.md for documentation and pin mapping information
+ */
 
 #ifndef _VARIANT_MATTAIRTECH_MT_D21E_
 #define _VARIANT_MATTAIRTECH_MT_D21E_
+
+/* The definitions here need the MattairTech SAMD core >=1.6.8.
+ * The format is different than the stock Arduino SAMD core,
+ * which uses ARDUINO_SAMD_VARIANT_COMPLIANCE instead.
+ */
+#define MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE 10608
 
 /*----------------------------------------------------------------------------
  *        Definitions
@@ -32,13 +40,14 @@
 #define VARIANT_MAINOSC		(32768ul)
 
 /** Master clock frequency */
-#define VARIANT_MCK			  (48000000ul)
+#define VARIANT_MCK		(48000000ul)
 
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
 
 #include "WVariant.h"
+#include "sam.h"
 
 #ifdef __cplusplus
 #include "SERCOM.h"
@@ -57,8 +66,8 @@ extern "C"
 // Number of pins defined in PinDescription array
 #define NUM_PIN_DESCRIPTION_ENTRIES     (32u)
 
-#define PINS_COUNT           (32u)
-#define NUM_DIGITAL_PINS     (32u)
+#define PINS_COUNT           NUM_PIN_DESCRIPTION_ENTRIES
+#define NUM_DIGITAL_PINS     PINS_COUNT
 #define NUM_ANALOG_INPUTS    (10u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 #define analogInputToDigitalPin(p)  (p)
@@ -97,8 +106,8 @@ extern "C"
 /* Buttons
  * Note that Button B is connected to Reset by default.
  * A solder jumper can be changed to route Button B to pin 31 instead.
- * If the debouncing capacitor is connected (default), delay reading the
- * pin at least 6ms after turning on the pullup to allow the capacitor to charge.
+ * There is a debouncing capacitor connected, so delay reading the pin for
+ * at least 6ms after turning on the pullup to allow the capacitor to charge.
  */
 #define BUTTON_A             (27u)
 #define BUTTON_B             (31u)

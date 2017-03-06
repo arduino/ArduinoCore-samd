@@ -120,9 +120,11 @@ void loop( void ) ;
 #define digitalPinToInterrupt(P)   ( P )
 
 // USB Device
+#if defined(USBCON)
 #include "USB/USBDesc.h"
 #include "USB/USBCore.h"
 #include "USB/USBAPI.h"
 #include "USB/USB_host.h"
+#endif
 
 #endif // Arduino_h

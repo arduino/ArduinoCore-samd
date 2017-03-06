@@ -19,22 +19,64 @@
 #pragma once
 
 #include <stdint.h>
+#include "sam.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 /*
- * \brief SAMD products have only one reference for ADC
+ * \brief TODO Analog reference selection.
+ * For values <= 5, the actual register value is used.
+ * For values > 5 (SAML and SAMC only), the SUPC_VREF_SEL register value is: (ulMode - 6).
+ * Values for the Supply Controller (SUPC) reference on the L21 or C21.
+ * Used when AR_INTREF is selected as the reference.
  */
 typedef enum _eAnalogReference
 {
-  AR_DEFAULT,
-  AR_INTERNAL,
-  AR_EXTERNAL,
-  AR_INTERNAL1V0,
-  AR_INTERNAL1V65,
-  AR_INTERNAL2V23
+#if (SAMD)
+  AR_INTERNAL1V0 = 0,
+  AR_INTERNAL_INTVCC0 = 1,
+  AR_INTERNAL_INTVCC1 = 2,
+  AR_EXTERNAL_REFA = 3,
+  AR_EXTERNAL_REFB = 4,
+  AR_DEFAULT = 5,	// On the SAMD, this also uses 1/2 gain on each input
+#elif (SAML21)
+  AR_INTREF = 0,
+  AR_INTERNAL_INTVCC0 = 1,
+  AR_INTERNAL_INTVCC1 = 2,
+  AR_EXTERNAL_REFA = 3,
+  AR_EXTERNAL_REFB = 4,
+  AR_INTERNAL_INTVCC2 = 5,
+  AR_INTREF_1V0 = 6,
+  AR_INTREF_1V1 = 7,
+  AR_INTREF_1V2 = 8,
+  AR_INTREF_1V25 = 9,
+  AR_INTREF_2V0 = 10,
+  AR_INTREF_2V2 = 11,
+  AR_INTREF_2V4 = 12,
+  AR_INTREF_2V5 = 13,
+  AR_DEFAULT = AR_INTERNAL_INTVCC2,
+  AR_INTERNAL1V0 = AR_INTREF,		// Default INTREF for SAML is 1.0V
+#elif (SAMC21)
+  AR_INTREF = 0,
+  AR_INTERNAL_INTVCC0 = 1,
+  AR_INTERNAL_INTVCC1 = 2,
+  AR_EXTERNAL_REFA = 3,
+  AR_EXTERNAL_DAC = 4,
+  AR_INTERNAL_INTVCC2 = 5,
+  AR_INTREF_1V024 = 6,
+  AR_INTREF_2V048 = 7,
+  AR_INTREF_4V096 = 8,
+  AR_DEFAULT = AR_INTERNAL_INTVCC2,
+  AR_INTERNAL1V0 = AR_INTREF,		// Default INTREF for SAMC is 1.024V
+#else
+  #error "wiring_analog.c: Unsupported chip"
+#endif
+  AR_INTERNAL = AR_INTERNAL_INTVCC0,
+  AR_INTERNAL2V23 = AR_INTERNAL_INTVCC0,	// 2.23V only when Vcc = 3.3V
+  AR_INTERNAL1V65 = AR_INTERNAL_INTVCC1,	// 1.65V only when Vcc = 3.3V
+  AR_EXTERNAL = AR_EXTERNAL_REFA,
 } eAnalogReference ;
 
 

@@ -1,0 +1,12 @@
+* 1.6.8-beta-b0:
+* Introduced MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE define and VARIANT_COMPLIANCE_CHANGELOG file.
+  The definitions in the variants files need the MattairTech SAMD core >= the listed version.
+  The format is different than the stock Arduino SAMD core, which uses ARDUINO_SAMD_VARIANT_COMPLIANCE instead.
+  If using board variant files with the old format, the new core will still read the table the old way, losing
+  any new features introduced by the new column.
+* The GCLKCCL column was added. It is not yet used. It will eventually support the Analog Comparators (AC),
+  the Configurable Custom Logic (CCL) units of the L21 and C21, and the GCLK outputs (inputs).
+* New definitions have been added for L21 and C21 support.
+* The C21 has two ADC instances, which is selected in the PeripheralAttribute column.
+* the timer type is now encoded in this column to support the L21 and C21, which use TC numbers starting at 0
+  (rather than 3 as on the D21).
