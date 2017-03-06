@@ -28,4 +28,4 @@ break main
 # End of 'reset' command
 end
 
-target remote | openocd -c "interface cmsis-dap" -c "set CHIPNAME at91samd11d14as" -f target/at91samdXX.cfg -c "gdb_port pipe; log_output openocd.log"
+target remote | openocd -c "interface cmsis-dap" -c "set CHIPNAME at91samc21g17" -f target/at91samcXX.cfg -c "gdb_port pipe; log_output openocd.log"
