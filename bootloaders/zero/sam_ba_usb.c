@@ -205,13 +205,13 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
         else
         {
 #if 0 // TODO: pending validation
+          uint16_t STRING_LANGUAGE[2] = { (STD_GET_DESCRIPTOR_STRING<<8) | 4, 0x0409 };
+
           if (wValue>>8 == STD_GET_DESCRIPTOR_STRING)
           {
             switch ( wValue & 0xff )
             {
               case STRING_INDEX_LANGUAGES:
-                uint16_t STRING_LANGUAGE[2] = { (STD_GET_DESCRIPTOR_STRING<<8) | 4, 0x0409 };
-
                 USB_Write(pCdc->pUsb, (const char*)STRING_LANGUAGE, SAM_BA_MIN(sizeof(STRING_LANGUAGE), wLength), USB_EP_CTRL);
               break;
 

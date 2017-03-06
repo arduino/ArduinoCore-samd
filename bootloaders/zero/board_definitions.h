@@ -58,8 +58,13 @@
 /*
  * LEDs definitions
  */
+#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
+#define BOARD_LED_PORT                    (0)
+#define BOARD_LED_PIN                     (16)
+#else
 #define BOARD_LED_PORT                    (0)
 #define BOARD_LED_PIN                     (28)
+#endif
 
 #define BOARD_LEDRX_PORT                  (0)
 #define BOARD_LEDRX_PIN                   (28)
