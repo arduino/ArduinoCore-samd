@@ -1,0 +1,20 @@
+# udev rules for USB CDC devices on MattairTech development boards
+#
+# Copy this file to the location of your distribution's udev rules, for example on Ubuntu:
+#   sudo cp 99-mattairtech-USB-CDC.rules /etc/udev/rules.d/
+# Then reload udev configuration by executing:
+#   sudo reload udev
+# Or if that doesn't work try:
+#   sudo udevadm control --reload-rules
+#   sudo udevadm trigger
+
+# Rule to access MattairTech USB CDC devices without running Arduino as root.
+# Should work as-is for Ubuntu. Other distributions might need to change
+# GROUP="dialout" to another group (ie: "users").
+SUBSYSTEM=="usb", ATTR{idProduct}=="0557", ATTRS{idVendor}=="16D0", MODE="0660", GROUP="dialout"
+SUBSYSTEM=="usb", ATTR{idProduct}=="0856", ATTRS{idVendor}=="16D0", MODE="0660", GROUP="dialout"
+SUBSYSTEM=="usb", ATTR{idProduct}=="0B41", ATTRS{idVendor}=="16D0", MODE="0660", GROUP="dialout"
+
+# Rule to blacklist MattairTech USB CDC devices from being manipulated by ModemManager.
+# Fixes issue with hanging references to /dev/ttyACM* devices.
+ATTRS{idVendor}=="16D0", ENV{ID_MM_DEVICE_IGNORE}="1"

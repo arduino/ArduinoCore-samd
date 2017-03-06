@@ -30,7 +30,7 @@ previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then cl
 ## What's New Beta (1.6.7-beta)
 
 * 1.6.7-beta-b0:
-  * OS X support added (bossac for OS X can now upload to all supported chips) (Thanks @joseangeljimenez for testing)
+  * OS X support added (bossac can now upload to all supported chips) (Thanks @joseangeljimenez for testing)
   * New bossac upload tool (added support for SAML and SAMC)
   * New bootloader from upstream SAMD CORE (see bootloaders/zero/README.md)
   * New beta release method (see README.md)
@@ -148,6 +148,78 @@ SCK                   11  11(ADC9) | A11           A17 | 17  17(TC11)
 MISO  14(INTNMI)      14  14(ADC6) | A14           A16 | 16  16(TC10)  16(INT0)  LED
 BTN/SS  15(INT1)      15  15(ADC7) | A15           RST |                         Reset
                                     -------------------
+```
+
+# MattairTech MT-D21J (ATsamX21JXXX)
+
+```
+============================= MattairTech MT-D21J (ATsamX21JXXX) ========================
+Other  COM   PWM  Analog  INT  Arduino*           Arduino*  INT  Analog  PWM   COM  Other
+=========================================================================================
+                                   -------------------
+         Board Variant:           | (no external pin) |
+ B=Basic, S=Standard, A=Advanced  |            |-- B3 | 49   I   O       VBAT(L)/SDCD(+B)
+    M=Memory device installed     |            |-- B5 | 48   I                   INT1(+B)
+                                  |            |-- B4 | 47                       3SEN(+B)
+                                  |                   |
+XBDS(B)                O        0 | B0            RST |                          BOOT(+B)
+MECS(+M)               O        1 | B1            A31 | 31            RX1  SWDIO/XBDO(+B)
+DAC0                   O   I    2 | A2            A30 | 30                     SWDCLK(+B)
+REFA(B)                O        3 | A3        A28(D/C)| 28                      SHCS(D/C)
+3SVO(S)/REFB           O        4 | A4            A27 | 27   I                       INT2
+DAC1(L)                O        5 | A5        X34 (B2)| 34       O   TC60~   LED(+B)/XBRT
+CMVO(A)                O        6 | B6        X33(B16)| 33   I               INT0(+B)/BTN
+ASEN(+A)               O        7 | B7        X32(B17)| 32   I       TC61~       MOPS(+S)
+          TX3          O   I    8 | B8            A23 | 23           TC41~
+          RX3          O   I    9 | B9            A22 | 22           TC40~
+VHDV(A)   MOSI1        O   I   10 | A10           A21 | 21           TC71~
+VBDV(+A)  SCK1         O   I   11 | A11           A20 | 20   I       TC70~
+XBCT(B) SDA1/MISO1 TCC20   I   12 | A12           A19 | 19           TC31~        CMRI(S)
+        SCL1/SS1  TCC21    I   13 | A13           A18 | 18           TC30~  TX1  XBDI(+B)
+HSEN(A)         TC50~      I   14 | B14           A17 | 17                  SCL   SCL(+B)
+BKFS(+A)        TC51~          15 | B15           A16 | 16                  SDA   SDA(+B)
+                                  | Vaux         3.3V |
+USB D- (D/L)+B, CAN TX (C)        | A24   _____  VccL |   ! VccL is 3.3V by default.
+USB D+ (D/L)+B, CAN RX (C)        | A25  |     | VccH |     DO NOT exceed 3.6V on VccL or
+                                  | Gnd  | USB |  Gnd |     on any IO pin with the D21 or
+       Chip Variant:               -------------------      L21 installed. 5V is allowed
+    D=D21, L=L21, C=C21                                     ONLY with the C21 installed.
+                                  1-------------------      By default, VccH is 5V.
+MISO(+B)                       43 | B30          Vcon |
+SCK(+B)                        44 | B23    SPI    B22 | 45                       MOSI(+B)
+SHCS(D/C) or (SDCS(+B))     28(46)| A28(B31)      Gnd |
+                                   -------------------
+
+                                  1-------------------
+LVL_SHIFT_0(+S) TX2    O   I   35 | A6             A7 | 36   I   O    RX2 LVL_SHIFT_1(+S)
+LVL_SHIFT_2(+S)  TCC12 O  NMI  37 | A8    LEVEL    A9 | 38       O TCC13  LVL_SHIFT_3(+S)
+                                  | VccH  SHIFT  VccH |
+                                  | Gnd           Gnd |
+MOTOR_BOUT1(+S)    TCC04       39 | B10           B11 | 40       TCC05    MOTOR_BOUT2(+S)
+MOTOR_AOUT1(+S)    TCC06       41 | B12   MOTOR   B13 | 42       TCC07    MOTOR_AOUT2(+S)
+                                  | Vmotor        Gnd |
+                                   -------------------
+
+* Most pins can be used for more than one function. The same port pin number printed on
+  the board is also used in Arduino (without the 'A') for all of the supported functions
+  (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
+
+* Different variants have different hardware installed onboard. The alternate functions
+  column shows for which board variant(s) the associated hardware is installed: B=Basic,
+  S=Standard, A=Advanced, and M=Memory device installed. The Advanced variant has all of
+  the hardware that the Standard and Basic have installed, and the Standard variant has
+  all of the Basic hardware.
+
++ This function is enabled by default depending on the variant indicated by the letter.
+  Thus, the associated header pin cannot be used. In most cases (except most +A pins),
+  solder jumpers can be used to enable or disable the alternate onboard function.
+
+~ TC3, TC4, TC5, TC6, and TC7 on the D21 are instead
+  TC4, TC0, TC1, TC2, and TC3 respectively on the L21 and C21.
+
+Silkscreen Legend:
+  Top: A circle around pin is analog function, '~' is timer, small 'I' is interrupt
+  Bottom: A box around pin means 'Other' function enabled by default depending on variant
 ```
 
 #### All pins operate at 3.3 volts. DO NOT connect voltages higher than 3.3V!
@@ -294,11 +366,13 @@ Vista, 7, 8, and 10.
 #### Linux
 
 0. No driver installation is needed.
-1. On some distros, you may need to add your user to the same group as the port (ie: dialout) and/or set udev rules.
+1. On some distros, you may need to add your user to the same group as the port (ie: dialout) or set udev rules:
+   * See the file https://github.com/mattairtech/ArduinoCore-samd/tree/master/drivers/99-mattairtech-USB-CDC.rules.
 2. You MAY have to install and use Arduino as the root user in order to get reliable access to the serial port.
    * This is true even when group permissions are set correctly, and it may fail after previously working.
    * You can also create/modify a udev rule to set permissions on the port so *everyone* can read / write.
-3. Continue with SAM M0+ Core Installation below.
+3. If you are running modemmanager (ie: Ubuntu), disable it, or use the udev rules file above.
+4. Continue with SAM M0+ Core Installation below.
 
 #### OS X
 
@@ -454,86 +528,105 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 
 ## New PinDescription Table
 
-```
-/*   The PinDescription table describes how each of the pins can be used by the Arduino
- *   core. Each pin can have multiple functions (ie: ADC input, digital output, PWM,
- *   communications, etc.), and the PinDescription table configures which functions can
- *   be used for each pin. This table is mainly accessed by the pinPeripheral function in
- *   wiring_private.c, which is used to attach a pin to a particular peripheral function.
- *   The communications drivers (ie: SPI, I2C, and UART), analogRead(), analogWrite(),
- *   analogReference(), attachInterrupt(), and pinMode() all call pinPeripheral() to
- *   verify that the pin can perform the function requested, and to configure the pin for
- *   that function. Most of the contents of pinMode() are now in pinPeripheral().
- * 
- *   There are two ways that pins can be mapped. The first is to map pins contiguously
- *   (no PIO_NOT_A_PIN entries) in the table. This results in the least amount of space
- *   used by the table. A second method, used by default by the MT-D21E and MT-D11, maps
- *   Arduino pin numbers to the actual port pin number (ie: Arduino pin 28 = Port A28).
- *   This only works when there is one port. Because not all port pins are available,
- *   PIO_NOT_A_PIN entries must be added for these pins and more FLASH space is consumed.
- *   For an example of both types, see variant.cpp from the MT-D11 variant.
- * 
- *   Explanation of PinDescription table:
- * 
- *   Port                  This is the port (ie: PORTA).
- *   Pin                   This is the pin (bit) within the port. Valid values are 0-31.
- *   PinType               This indicates what peripheral function the pin can be
- *                         attached to. In most cases, this is PIO_MULTI, which means
- *                         that the pin can be anything listed in the PinAttribute field.
- *                         It can also be set to a specific peripheral. In this case, any
- *                         attempt to configure the pin (using pinPeripheral or pinMode)
- *                         as anything else will fail (and pinPeripheral will return -1).
- *                         This can be used to prevent accidental re-configuration of a
- *                         pin that is configured for only one function (ie: USB D- and
- *                         D+ pins). If a pin is not used or does not exist,
- *                         PIO_NOT_A_PIN must be entered in this field. See WVariant.h
- *                         for valid entries. These entries are also used as a parameter
- *                         to pinPeripheral() with the exception of PIO_NOT_A_PIN and
- *                         PIO_MULTI. The pinMode function now calls pinPeripheral() with
- *                         the desired mode. Note that this field is not used to select
- *                         between the two peripherals possible with each of the SERCOM
- *                         and TIMER functions. PeripheralAttribute is now used for this.
- *   PeripheralAttribute   This is an 8-bit bitfield used for various peripheral
- *                         configuration. It is primarily used to select between the two
- *                         peripherals possible with each of the SERCOM and TIMER
- *                         functions. TIMER pins are individual, while SERCOM uses a
- *                         group of two to four pins. This group of pins can span both
- *                         peripherals. For example, pin 19 (SPI1 SCK) on the MT-D21E
- *                         uses PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses
- *                         PER_ATTR_SERCOM_STD. Both TIMER and SERCOM can exist for each
- *                         pin. This bitfield is also used to set the pin drive strength.
- *                         In the future, other attributes (like input buffer
- *                         configuration) may be added. See WVariant.h for valid entries.
- *   PinAttribute          This is a 32-bit bitfield used to list all of the valid
- *                         peripheral functions that a pin can attach to. This includes
- *                         GPIO functions like PIN_ATTR_OUTPUT. Certain attributes are
- *                         shorthand for a combination of other attributes.
- *                         PIN_ATTR_DIGITAL includes all of the GPIO functions, while
- *                         PIN_ATTR_TIMER includes both PIN_ATTR_TIMER_PWM and
- *                         PIN_ATTR_TIMER_CAPTURE (capture is not used yet).
- *                         PIN_ATTR_ANALOG is an alias to PIN_ATTR_ANALOG_ADC. There is
- *                         only one DAC channel, so PIN_ATTR_DAC appears only once. This
- *                         bitfield is useful for limiting a pin to only input related
- *                         functions or output functions. This allows a pin to have a
- *                         more flexible configuration, while restricting the direction
- *                         (ie: to avoid contention). See WVariant.h for valid entries.
- *   TCChannel             This is the TC(C) channel (if any) assigned to the pin. Some
- *                         TC channels are available on multiple pins (ie: TCC0/WO[0] is
- *                         available on pin A4 or pin A8 on the MT-D21E). In general,
- *                         only one pin should be configured (in the pinDescription
- *                         table) per TC channel. See WVariant.h for valid entries.
- *                         The tone library uses TC5 (MT-D21E) or TC2 (MT-D11).
- *   ADCChannelNumber      This is the ADC channel (if any) assigned to the pin. See
- *                         WVariant.h for valid entries.
- *   ExtInt                This is the interrupt (if any) assigned to the pin. Some
- *                         interrupt numbers are available on multiple pins (ie:
- *                         EIC/EXTINT[2] is available on pin A2 or pin A18 on the
- *                         MT-D21E). In general, only one pin should be configured (in
- *                         the pinDescription table) per interrupt number. Thus, if an
- *                         interrupt was needed on pin 2, EXTERNAL_INT_2 can be moved
- *                         from pin 18. See WVariant.h for valid entries.
- */
-```
+### Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.
+MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE in variant.h is used to track versions.
+If using board variant files with the old format, the new core will still read the
+table the old way, losing any new features introduced by the new column. Additionally,
+new definitions have been added for L21 and C21 support.
+
+### Each pin can have multiple functions.
+The PinDescription table describes how each of the pins can be used by the Arduino
+core. Each pin can have multiple functions (ie: ADC input, digital output, PWM,
+communications, etc.), and the PinDescription table configures which functions can
+be used for each pin. This table is mainly accessed by the pinPeripheral function in
+wiring_private.c, which is used to attach a pin to a particular peripheral function.
+The communications drivers (ie: SPI, I2C, and UART), analogRead(), analogWrite(),
+analogReference(), attachInterrupt(), and pinMode() all call pinPeripheral() to
+verify that the pin can perform the function requested, and to configure the pin for
+that function. Most of the contents of pinMode() are now in pinPeripheral().
+
+### Pin Mapping
+There are different ways that pins can be mapped. Typically, there is no relation
+between the arduino pin number used, and the actual port pin designator. Thus, the 
+pcb must be printed with the arduino numbering, otherwise, if the port pin is printed,
+a cross reference table is needed to find the arduino pin number. However, this results
+in the least amount of space used by the table. Another method, used by default by the
+MT-D21E and MT-D11, maps Arduino pin numbers to the actual port pin number (ie: Arduino
+pin 28 = Port A28). This works well when there is only one port (or if the PORTB pins
+are used for onboard functions and not broken out). PIO_NOT_A_PIN entries must be added
+for pins that are used for other purposes or for pins that do not exist (especially the
+D11), so some FLASH space may be wasted. For an example of both types, see variant.cpp
+from the MT-D11 variant. The MT-D21J combines both methods, using the actual port pin 
+designators from both PORTA and PORTB for arduino numbers 0-31 (ie: B1=1, A2=2), then
+using arduino numbering only above 31. For 0-31 only one pin from PORTA or PORTB can be
+used, leaving the other pin for some number above 31.
+
+### See WVariant.h in cores/arduino for the definitions used in the table.
+
+#### Port:
+This is the port (ie: PORTA).
+
+#### Pin:
+This is the pin (bit) within the port. Valid values are 0-31.
+
+#### PinType:
+This indicates what peripheral function the pin can be attached to. In most cases,
+this is PIO_MULTI, which means that the pin can be anything listed in the PinAttribute
+field. It can also be set to a specific peripheral. In this case, any attempt to
+configure the pin (using pinPeripheral or pinMode) as anything else will fail (and
+pinPeripheral will return -1). This can be used to prevent accidental re-configuration
+of a pin that is configured for only one function (ie: USB D- and D+ pins). If a pin
+is not used or does not exist, PIO_NOT_A_PIN must be entered in this field. See
+WVariant.h for valid entries. These entries are also used as a parameter to
+pinPeripheral() with the exception of PIO_NOT_A_PIN and PIO_MULTI. The pinMode function
+now calls pinPeripheral() with the desired mode. Note that this field is not used to
+select between the two peripherals possible with each of the SERCOM and TIMER functions.
+PeripheralAttribute is now used for this.
+
+#### PeripheralAttribute:
+This is an 8-bit bitfield used for various peripheral configuration. It is primarily
+used to select between the two peripherals possible with each of the SERCOM and TIMER
+functions. TIMER pins are individual, while SERCOM uses a group of two to four pins.
+This group of pins can span both peripherals. For example, pin 19 (SPI1 SCK) on the
+MT-D21E uses PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses PER_ATTR_SERCOM_STD.
+Both TIMER and SERCOM can exist for each pin. This bitfield is also used to set the
+pin drive strength. In the future, other attributes (like input buffer configuration)
+may be added. Starting with 1.6.8, the ADC instance on the C21 (there are two) is also
+selected here. See WVariant.h for valid entries.
+
+#### PinAttribute
+This is a 32-bit bitfield used to list all of the valid peripheral functions that a
+pin can attach to. This includes GPIO functions like PIN_ATTR_OUTPUT. Certain
+attributes are shorthand for a combination of other attributes. PIN_ATTR_DIGITAL
+includes all of the GPIO functions, while PIN_ATTR_TIMER includes both
+PIN_ATTR_TIMER_PWM and PIN_ATTR_TIMER_CAPTURE (capture is not used yet).
+PIN_ATTR_ANALOG is an alias to PIN_ATTR_ANALOG_ADC. This bitfield is useful for
+limiting a pin to only input related functions or output functions. This allows a pin
+to have a more flexible configuration, while restricting the direction (ie: to avoid
+contention). See WVariant.h for valid entries.
+
+#### TCChannel
+This is the TC/TCC channel (if any) assigned to the pin. Some TC channels are available
+on multiple pins. In general, only one pin should be configured in the pinDescription
+table per TC channel. Starting with 1.6.8, the timer type is now encoded in this column
+to support the L21 and C21, which use TC numbers starting at 0 (rather than 3 as on the
+D21). See WVariant.h for valid entries.
+
+#### ADCChannelNumber
+This is the ADC channel (if any) assigned to the pin. The C21 has two ADC instances,
+which is selected in the PeripheralAttribute column. See WVariant.h for valid entries.
+
+#### ExtInt
+This is the interrupt (if any) assigned to the pin. Some interrupt numbers are
+available on multiple pins. In general, only one pin should be configured in the
+pinDescription table per interrupt number. Thus, for example, if an interrupt was
+needed on pin 2, EXTERNAL_INT_2 can be moved from pin 18. See WVariant.h for valid
+entries.
+
+#### GCLKCCL
+This column was added in 1.6.8-beta-b0. It is not yet used. It will eventually support
+the Analog Comparators (AC), the Configurable Custom Logic (CCL) units of the L21 and
+C21, and the GCLK outputs (inputs).
 
 
 ## Possible Future Additions
