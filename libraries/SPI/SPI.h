@@ -22,6 +22,7 @@
 
 #include <Arduino.h>
 #include <WVariant.h>
+#include "sam.h"
 
 // SPI_HAS_TRANSACTION means SPI has
 //   - beginTransaction()
@@ -35,14 +36,16 @@
 #define SPI_MODE2 0x03
 #define SPI_MODE3 0x01
 
-#if defined(__SAMD21G18A__)
+#if (SAMD || SAML21)
   // Even if not specified on the datasheet, the SAMD21G18A MCU
   // doesn't operate correctly with clock dividers lower than 4.
   // This allows a theoretical maximum SPI clock speed of 12Mhz
-  #define SPI_MIN_CLOCK_DIVIDER 4
   // Other SAMD21xxxxx MCU may be affected as well
-#else
   #define SPI_MIN_CLOCK_DIVIDER 4
+#elif (SAMC21)
+  #define SPI_MIN_CLOCK_DIVIDER 8
+#else
+  #error "SPI.h: Unsupported chip"
 #endif
 
 class SPISettings {
