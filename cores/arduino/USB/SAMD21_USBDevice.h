@@ -48,6 +48,7 @@ public:
 
 	inline void runInStandby()   { usb.CTRLA.bit.RUNSTDBY = 1; }
 	inline void noRunInStandby() { usb.CTRLA.bit.RUNSTDBY = 0; }
+	inline void wakeupHost()     { usb.CTRLB.bit.UPRSM = 1; }
 
 	// USB speed
 	inline void setFullSpeed()       { usb.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_FS_Val;   }

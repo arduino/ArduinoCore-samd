@@ -250,6 +250,11 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 	return true;
 }
 
+void USBDeviceClass::standby() {
+	usbd.noRunInStandby();
+}
+
+
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
 #if defined(CDC_ENABLED)
