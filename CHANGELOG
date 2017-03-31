@@ -1,4 +1,4 @@
-SAMD CORE 1.6.13
+SAMD CORE 1.6.13 2017.03.31
 
 * Added SDU (SD card Updater) library.
 * Fixed 8MHz clock being generated incorrectly. Thanks @keestux
