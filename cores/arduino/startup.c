@@ -148,7 +148,7 @@ void SystemInit( void )
 
   SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
                          SYSCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
-                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ) ; // External 32KHz is the reference
+                         SYSCTRL_DFLLMUL_MUL( round((double)VARIANT_MCK/(double)VARIANT_MAINOSC) ) ; // External 32KHz is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
