@@ -1,6 +1,15 @@
-SAMD CORE ?.?.?? ????.??.??
+SAMD CORE 1.6.13 2017.03.31
+
+* Added SDU (SD card Updater) library.
+* Fixed 8MHz clock being generated incorrectly. Thanks @keestux
+
+SAMD CORE 1.6.12 2017.02.07
 
 * Fixed type conflict of utoa function. Thanks @kbumsik
+* Fixed pinMode(pin, OUTPUT) not working after analogRead(pin)
+* Reenabled support for Tian
+* Fixed signature for Adafruit Circuit Playground Express board
+* Added CMSIS headers for SAML21 chip series. Thanks @aethaniel
 
 SAMD CORE 1.6.11 2016.12.23
 

@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino SAMD (32-bits ARM Cortex-M0+) Boards
-version=1.6.11
+version=1.6.13
 
 # Compile variables
 # -----------------
@@ -64,7 +64,7 @@ compiler.S.extra_flags=
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
 
-compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0.path}/CMSIS/Device/ATMEL/"
+compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.1.0.path}/CMSIS/Device/ATMEL/"
 compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 # USB Flags
@@ -126,8 +126,7 @@ tools.avrdude.upload.params.quiet=-q -q
 tools.avrdude.upload.params.noverify=-V
 tools.avrdude.upload.pattern="{cmd}" "-C{config.path}" {upload.verbose} -p{build.emu.mcu} -c{upload.protocol} -P{serial.port} -b{upload.speed} "-Uflash:w:{build.path}/{build.project_name}.hex:i"
 
-#temporary disabled remote upload
-tools.avrdude_remote.upload.pattern=/usr/bin/XXX-run-avrdude /tmp/sketch.hex
+tools.avrdude_remote.upload.pattern="openocd --version 2>&1 | grep 2016 && if opkg update; then opkg upgrade openocd; exit 1; else echo 'Please connect your board to the Internet in order to upgrade tools' >&2; exit 1; fi || /usr/bin/run-avrdude /tmp/sketch.hex"
 
 #
 # BOSSA
@@ -142,17 +141,23 @@ tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.
 
 tools.bossac_remote.upload.pattern=/usr/bin/run-bossac {upload.verbose} --port=ttyATH0 -U {upload.native_usb} -e -w -v /tmp/sketch.bin -R
 
+tools.bossac.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.bossac.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
+
 #
 # OpenOCD sketch upload
 #
 
-tools.openocd.path={runtime.tools.openocd-0.9.0-arduino.path}
+tools.openocd.path={runtime.tools.openocd-0.9.0-arduino5-static.path}
 tools.openocd.cmd=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
 tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{{build.path}/{build.project_name}.bin}} verify reset 0x2000; shutdown"
+
+tools.openocd.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.openocd.upload.network_pattern={network_cmd} -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
 
 # Program flashes the binary at 0x0000, so use the linker script without_bootloader
 tools.openocd.program.params.verbose=-d2
@@ -172,7 +177,7 @@ tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/
 # FIXME: this programmer is a workaround for default options being overwritten by uploadUsingPreferences
 #
 
-tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino.path}
+tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino5-static.path}
 tools.openocd-withbootsize.cmd=bin/openocd
 tools.openocd-withbootsize.cmd.windows=bin/openocd.exe
 

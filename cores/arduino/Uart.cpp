@@ -31,7 +31,7 @@ Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, Serco
 
 void Uart::begin(unsigned long baudrate)
 {
-  begin(baudrate, (uint8_t)SERIAL_8N1);
+  begin(baudrate, SERIAL_8N1);
 }
 
 void Uart::begin(unsigned long baudrate, uint16_t config)

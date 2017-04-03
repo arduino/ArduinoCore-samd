@@ -205,5 +205,8 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE        Serial1
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
+// Legacy way to describe serial port on pins 0-1
+#define Serial5   Serial1
+
 #endif /* _VARIANT_ARDUINO_ZERO_ */
 

@@ -57,8 +57,6 @@ void calibrateADC()
  */
 void init( void )
 {
-  uint32_t ul ;
-
   // Set Systick to 1ms interval, common to all Cortex-M variants
   if ( SysTick_Config( SystemCoreClock / 1000 ) )
   {
@@ -68,10 +66,10 @@ void init( void )
   NVIC_SetPriority (SysTick_IRQn,  (1 << __NVIC_PRIO_BITS) - 2);  /* set Priority for Systick Interrupt (2nd lowest) */
 
   // Clock PORT for Digital I/O
-//	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
+//  PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
 //
 //  // Clock EIC for I/O interrupts
-//	PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
+//  PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
 
   // Clock SERCOM for Serial
   PM->APBCMASK.reg |= PM_APBCMASK_SERCOM0 | PM_APBCMASK_SERCOM1 | PM_APBCMASK_SERCOM2 | PM_APBCMASK_SERCOM3 | PM_APBCMASK_SERCOM4 | PM_APBCMASK_SERCOM5 ;
@@ -83,9 +81,9 @@ void init( void )
   PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
 
   // Setup all pins (digital and analog) in INPUT mode (default is nothing)
-  for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
+  for (uint32_t ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
   {
-	  pinMode( ul, INPUT ) ;
+    pinMode( ul, INPUT ) ;
   }
 
   // Initialize Analog Controller
