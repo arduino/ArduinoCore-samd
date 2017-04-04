@@ -148,7 +148,7 @@ tools.bossac.upload.network_pattern="{network_cmd}" -address {serial.port} -port
 # OpenOCD sketch upload
 #
 
-tools.openocd.path={runtime.tools.openocd-0.9.0-arduino5-static.path}
+tools.openocd.path={runtime.tools.openocd-0.9.0-arduino6-static.path}
 tools.openocd.cmd=bin/openocd
 tools.openocd.cmd.windows=bin/openocd.exe
 
@@ -177,7 +177,7 @@ tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/
 # FIXME: this programmer is a workaround for default options being overwritten by uploadUsingPreferences
 #
 
-tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino5-static.path}
+tools.openocd-withbootsize.path={runtime.tools.openocd-0.9.0-arduino6-static.path}
 tools.openocd-withbootsize.cmd=bin/openocd
 tools.openocd-withbootsize.cmd.windows=bin/openocd.exe
 
