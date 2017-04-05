@@ -175,8 +175,7 @@ class SERCOM
 		SercomDataOrder getDataOrderSPI( void ) ;
 		void setBaudrateSPI(uint8_t divider) ;
 		void setClockModeSPI(SercomSpiClockMode clockMode) ;
-		void writeDataSPI(uint8_t data) ;
-		uint16_t readDataSPI( void ) ;
+		uint8_t transferDataSPI(uint8_t data) ;
 		bool isBufferOverflowErrorSPI( void ) ;
 		bool isDataRegisterEmptySPI( void ) ;
 		bool isTransmitCompleteSPI( void ) ;

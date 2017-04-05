@@ -1,5 +1,6 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2017 MattairTech LLC. All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -78,20 +79,19 @@ void calibrateADC()
  */
 void init( void )
 {
-  uint32_t ul ;
-
   // Set Systick to 1ms interval, common to all Cortex-M variants
   if ( SysTick_Config( SystemCoreClock / 1000 ) )
   {
     // Capture error
     while ( 1 ) ;
   }
+  NVIC_SetPriority (SysTick_IRQn,  (1 << __NVIC_PRIO_BITS) - 2);  /* set Priority for Systick Interrupt (2nd lowest) */
 
   // Clock PORT for Digital I/O
-//	PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
+//  PM->APBBMASK.reg |= PM_APBBMASK_PORT ;
 //
 //  // Clock EIC for I/O interrupts
-//	PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
+//  PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
 
   // Clock SERCOM for Serial, TC/TCC for Pulse and Analog, and ADC/DAC for Analog
 #if (SAMD21 || SAMD11)
@@ -148,10 +148,10 @@ void init( void )
   #error "wiring.c: Unsupported chip"
 #endif
 
-  //Setup all pins (digital and analog) in STARTUP mode (enable INEN only)
-  for ( ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
+  //Setup all pins (digital and analog) in STARTUP mode (enable INEN and set default pull direction to pullup (pullup will not be enabled))
+  for (uint32_t ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
   {
-  	pinMode( ul, PIO_STARTUP ) ;
+    pinMode( ul, PIO_STARTUP ) ;
   }
 
   // Initialize Analog Controller
@@ -226,6 +226,7 @@ void init( void )
   while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
 
   GCLK->PCHCTRL[GCM_DAC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+  while ( (GCLK->PCHCTRL[GCM_DAC].reg & GCLK_PCHCTRL_CHEN) == 0 );	// wait for sync
 
   while ( DAC->SYNCBUSY.reg & DAC_SYNCBUSY_MASK );
 

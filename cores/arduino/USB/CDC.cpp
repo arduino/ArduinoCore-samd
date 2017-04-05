@@ -33,14 +33,6 @@
 
 #define CDC_LINESTATE_READY		(CDC_LINESTATE_RTS | CDC_LINESTATE_DTR)
 
-struct ring_buffer {
-	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
-	volatile uint32_t head;
-	volatile uint32_t tail;
-	volatile bool full;
-};
-ring_buffer cdc_rx_buffer = {{0}, 0, 0, false};
-
 typedef struct {
 	uint32_t dwDTERate;
 	uint8_t bCharFormat;
@@ -148,7 +140,6 @@ bool CDC_Setup(USBSetup& setup)
 	return false;
 }
 
-uint32_t _serialPeek = -1;
 void Serial_::begin(uint32_t /* baud_count */)
 {
 	// uart config is ignored in USB-CDC
@@ -163,85 +154,50 @@ void Serial_::end(void)
 {
 }
 
-void Serial_::accept(void)
-{
-	uint8_t buffer[CDC_SERIAL_BUFFER_SIZE];
-	uint32_t len = usb.recv(CDC_ENDPOINT_OUT, &buffer, CDC_SERIAL_BUFFER_SIZE);
-
-	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
-	__disable_irq();
-
-	ring_buffer *ringBuffer = &cdc_rx_buffer;
-	uint32_t i = ringBuffer->head;
-
-	// if we should be storing the received character into the location
-	// just before the tail (meaning that the head would advance to the
-	// current location of the tail), we're about to overflow the buffer
-	// and so we don't write the character or advance the head.
-	uint32_t k = 0;
-	while (len > 0 && !ringBuffer->full) {
-		len--;
-		ringBuffer->buffer[i++] = buffer[k++];
-		i %= CDC_SERIAL_BUFFER_SIZE;
-		if (i == ringBuffer->tail)
-			ringBuffer->full = true;
-	}
-	ringBuffer->head = i;
-	if (enableInterrupts) {
-		__enable_irq();
-	}
-}
-
 int Serial_::available(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
-	if (buffer->full) {
-		return CDC_SERIAL_BUFFER_SIZE;
-	}
-	if (buffer->head == buffer->tail) {
-		USB->DEVICE.DeviceEndpoint[CDC_ENDPOINT_OUT].EPINTENSET.reg = USB_DEVICE_EPINTENCLR_TRCPT(1);
-	}
-	return (uint32_t)(CDC_SERIAL_BUFFER_SIZE + buffer->head - buffer->tail) % CDC_SERIAL_BUFFER_SIZE;
+	return usb.available(CDC_ENDPOINT_OUT);
 }
+
+int Serial_::availableForWrite(void)
+{
+	// return the number of bytes left in the current bank,
+	// always EP size - 1, because bank is flushed on every write
+	return (EPX_SIZE - 1);
+}
+
+int _serialPeek = -1;
 
 int Serial_::peek(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
-	if (buffer->head == buffer->tail && !buffer->full) {
-		return -1;
-	} else {
-		return buffer->buffer[buffer->tail];
-	}
+	if (_serialPeek != -1)
+		return _serialPeek;
+	_serialPeek = read();
+	return _serialPeek;
 }
 
-
-// if the ringBuffer is empty: try to fill it
-// if it's still empty: return -1
-// else return the last char
-// so the buffer is filled only when needed
 int Serial_::read(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
+	if (_serialPeek != -1) {
+		int res = _serialPeek;
+		_serialPeek = -1;
+		return res;
+	}
+	return usb.recv(CDC_ENDPOINT_OUT);
+}
 
-	// if the head isn't ahead of the tail, we don't have any characters
-	if (buffer->head == buffer->tail && !buffer->full)
+size_t Serial_::readBytes(char *buffer, size_t length)
+{
+	size_t count = 0;
+	_startMillis = millis();
+	while (count < length)
 	{
-		if (usb.available(CDC_ENDPOINT_OUT))
-			accept();
+		uint32_t n = usb.recv(CDC_ENDPOINT_OUT, buffer+count, length-count);
+		if (n == 0 && (millis() - _startMillis) >= _timeout)
+			break;
+		count += n;
 	}
-	if (buffer->head == buffer->tail && !buffer->full)
-	{
-		return -1;
-	}
-	else
-	{
-		unsigned char c = buffer->buffer[buffer->tail];
-		buffer->tail = (uint32_t)(buffer->tail + 1) % CDC_SERIAL_BUFFER_SIZE;
-		buffer->full = false;
-// 		if (usb.available(CDC_ENDPOINT_OUT))
-// 			accept();
-		return c;
-	}
+	return count;
 }
 
 void Serial_::flush(void)
@@ -251,28 +207,14 @@ void Serial_::flush(void)
 
 size_t Serial_::write(const uint8_t *buffer, size_t size)
 {
-	/* only try to send bytes if the high-level CDC connection itself
-	 is open (not just the pipe) - the OS should set lineState when the port
-	 is opened and clear lineState when the port is closed.
-	 bytes sent before the user opens the connection or after
-	 the connection is closed are lost - just like with a UART. */
+	uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);
 
-	// TODO - ZE - check behavior on different OSes and test what happens if an
-	// open connection isn't broken cleanly (cable is yanked out, host dies
-	// or locks up, or host virtual serial port hangs)
-	if (_usbLineInfo.lineState > 0)  // Problem with Windows(R)
-	{
-		uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);
-
-		if (r == 0) {
-			return r;
-		} else {
-			setWriteError();
-			return 0;
-		}
+	if (r > 0) {
+		return r;
+	} else {
+		setWriteError();
+		return 0;
 	}
-	setWriteError();
-	return 0;
 }
 
 size_t Serial_::write(uint8_t c) {

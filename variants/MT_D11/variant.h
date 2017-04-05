@@ -177,8 +177,7 @@ static const uint8_t DAC0 = PIN_DAC0;
 
 #define ADC_RESOLUTION		12
 
-#define REMAP_ANALOG_PIN_ID	while(0)
-// #define REMAP_ANALOG_PIN_ID	if ( ulPin < A0 ) ulPin += A0
+// #define REMAP_ANALOG_PIN_ID(pin)	if ( pin < A0 ) pin += A0
 
 /* Set default analog voltage reference */
 #define VARIANT_AR_DEFAULT	AR_DEFAULT

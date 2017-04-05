@@ -106,6 +106,18 @@ void Reset_Handler( void )
     }
   }
 
+  /* Change default QOS values to have the best performance and correct USB behaviour (applies to D21/D11). From startup_samd21.c from ASF 3.32. */
+#if (SAMD21_SERIES || SAMD11_SERIES)
+  SBMATRIX->SFR[SBMATRIX_SLAVE_HMCRAMC0].reg = 2;
+  
+  USB->DEVICE.QOSCTRL.bit.CQOS = 2;
+  USB->DEVICE.QOSCTRL.bit.DQOS = 2;
+  
+  DMAC->QOSCTRL.bit.DQOS = 2;
+  DMAC->QOSCTRL.bit.FQOS = 2;
+  DMAC->QOSCTRL.bit.WRBQOS = 2;
+#endif
+
 //  board_init(); // will be done in main() after app check
 
   /* Initialize the C library */
@@ -137,11 +149,5 @@ void SVC_Handler(void)
 void PendSV_Handler(void)
 {
   __BKPT(2);
-  while (1);
-}
-
-void SysTick_Handler(void)
-{
-  __BKPT(1);
   while (1);
 }

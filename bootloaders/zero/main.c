@@ -23,8 +23,10 @@
 #include "sam_ba_serial.h"
 #include "board_definitions.h"
 #include "board_driver_led.h"
-#include "sam_ba_usb.h"
-#include "sam_ba_cdc.h"
+#if (SAMD21 || SAMD11 || SAML21)
+  #include "sam_ba_usb.h"
+  #include "sam_ba_cdc.h"
+#endif
 
 extern uint32_t __sketch_vectors_ptr; // Exported value from linker script
 extern void board_init(void);
@@ -41,40 +43,6 @@ static volatile bool main_b_cdc_enable = false;
  */
 static void check_start_application(void)
 {
-//  LED_init();
-//  LED_off();
-
-#if defined(BOOT_DOUBLE_TAP_ADDRESS)
-  #define DOUBLE_TAP_MAGIC 0x07738135
-  if (PM->RCAUSE.bit.POR)
-  {
-    /* On power-on initialize double-tap */
-    BOOT_DOUBLE_TAP_DATA = 0;
-  }
-  else
-  {
-    if (BOOT_DOUBLE_TAP_DATA == DOUBLE_TAP_MAGIC)
-    {
-      /* Second tap, stay in bootloader */
-      BOOT_DOUBLE_TAP_DATA = 0;
-      return;
-    }
-
-    /* First tap */
-    BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
-
-    /* Wait 0.5sec to see if the user tap reset again.
-     * The loop value is based on SAMD21 default 1MHz clock @ reset.
-     */
-    for (uint32_t i=0; i<125000; i++) /* 500ms */
-      /* force compiler to not optimize this... */
-      __asm__ __volatile__("");
-
-    /* Timeout happened, continue boot... */
-    BOOT_DOUBLE_TAP_DATA = 0;
-  }
-#endif
-
 #if (!defined DEBUG) || ((defined DEBUG) && (DEBUG == 0))
 uint32_t* pulSketch_Start_Address;
 #endif
@@ -108,6 +76,51 @@ uint32_t* pulSketch_Start_Address;
     return;
   }
 
+#if defined(BOOT_DOUBLE_TAP_ENABLED)
+  #define DOUBLE_TAP_MAGIC 0x07738135
+
+#if (SAMD21 || SAMD11)
+  if (PM->RCAUSE.bit.POR)
+#elif (SAML21 || SAMC21)
+  if (RSTC->RCAUSE.bit.POR)
+#else
+  #error "main.c: Unsupported chip"
+#endif
+
+  {
+    /* On power-on initialize double-tap */
+    BOOT_DOUBLE_TAP_DATA = 0;
+  }
+  else
+  {
+    if (BOOT_DOUBLE_TAP_DATA == DOUBLE_TAP_MAGIC)
+    {
+      /* Second tap, stay in bootloader */
+      BOOT_DOUBLE_TAP_DATA = 0;
+      return;
+    }
+
+    /* First tap */
+    BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
+
+    /* Wait 0.5sec to see if the user tap reset again.
+     * The loop value is based on SAMD21 default 1MHz clock @ reset.
+     * SAML21 and SAMC21 have a default 4MHz clock @ reset.
+     */
+#if (SAMD21 || SAMD11)
+  #define numLoops 125000UL
+#elif (SAML21 || SAMC21)
+  #define numLoops 500000UL
+#endif
+    for (uint32_t i=0; i<numLoops; i++) /* 500ms */
+      /* force compiler to not optimize this... */
+      __asm__ __volatile__("");
+
+    /* Timeout happened, continue boot... */
+    BOOT_DOUBLE_TAP_DATA = 0;
+  }
+#endif
+
 #if defined(BOOT_LOAD_PIN)
   volatile PortGroup *boot_port = (volatile PortGroup *)(&(PORT->Group[BOOT_LOAD_PIN / 32]));
   volatile bool boot_en;
@@ -117,9 +130,15 @@ uint32_t* pulSketch_Start_Address;
   boot_port->PINCFG[BOOT_LOAD_PIN & 0x1F].reg = PORT_PINCFG_INEN | PORT_PINCFG_PULLEN;
   boot_port->OUTSET.reg = BOOT_PIN_MASK;
 
-  /* Allow time for debouncing capacitor to charge (10ms, 1MHz clock is default after reset) */
+  /* Allow time for debouncing capacitor to charge (10ms) */
   /* Needed when BOOT_DOUBLE_TAP is not used */
-  for (uint32_t i=0; i<2500; i++) /* 10ms */
+
+#if (SAMD21 || SAMD11)
+  #define numLoopsDebounce 2500UL
+#elif (SAML21 || SAMC21)
+  #define numLoopsDebounce 10000UL
+#endif
+  for (uint32_t i=0; i<numLoopsDebounce; i++) /* 10ms */
     /* force compiler to not optimize this... */
     __asm__ __volatile__("");
 
@@ -133,8 +152,6 @@ uint32_t* pulSketch_Start_Address;
     return;
   }
 #endif
-
-//  LED_on();
 
   /* Rebase the Stack Pointer */
   __set_MSP( (uint32_t)(__sketch_vectors_ptr) );
@@ -173,11 +190,6 @@ int main(void)
   board_init();
   __enable_irq();
 
-#if defined(BOARD_LED_PIN)
-  LED_init();
-  LED_on();
-#endif
-
 #if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
   /* UART is enabled in all cases */
   serial_open();
@@ -188,6 +200,19 @@ int main(void)
 #endif
 
   DEBUG_PIN_LOW;
+
+  /* Initialize LEDs */
+  LED_init();
+  #if !defined(BOARD_LED_FADE_ENABLED)
+    LED_on();
+  #endif
+  LEDRX_init();
+  LEDRX_off();
+  LEDTX_init();
+  LEDTX_off();
+
+  /* Start the sys tick (20 us) */
+  SysTick_Config(VARIANT_MCK / 50000);
 
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
@@ -223,4 +248,13 @@ int main(void)
     }
 #endif
   }
+}
+
+void SysTick_Handler(void)
+{
+#if defined BOARD_LED_FADE_ENABLED
+  LED_pulse();
+#endif
+
+  sam_ba_monitor_sys_tick();
 }

@@ -149,6 +149,10 @@ void SERCOM::enableUART()
 
 void SERCOM::flushUART()
 {
+  // Skip checking transmission completion if data register is empty
+  if(isDataRegisterEmptyUART())
+    return;
+
   // Wait for transmission to complete
   while(!sercom->USART.INTFLAG.bit.TXC);
 }
@@ -281,13 +285,13 @@ void SERCOM::enableSPI()
 
 void SERCOM::disableSPI()
 {
-  //Setting the enable bit to 0
-  sercom->SPI.CTRLA.bit.ENABLE = 0;
-
   while(sercom->SPI.SYNCBUSY.bit.ENABLE)
   {
     //Waiting then enable bit from SYNCBUSY is equal to 0;
   }
+
+  //Setting the enable bit to 0
+  sercom->SPI.CTRLA.bit.ENABLE = 0;
 }
 
 void SERCOM::setDataOrderSPI(SercomDataOrder dataOrder)
@@ -341,24 +345,11 @@ void SERCOM::setClockModeSPI(SercomSpiClockMode clockMode)
   enableSPI();
 }
 
-void SERCOM::writeDataSPI(uint8_t data)
+uint8_t SERCOM::transferDataSPI(uint8_t data)
 {
-  while( sercom->SPI.INTFLAG.bit.DRE == 0 )
-  {
-    // Waiting Data Registry Empty
-  }
-
   sercom->SPI.DATA.bit.DATA = data; // Writing data into Data register
 
-  while( sercom->SPI.INTFLAG.bit.TXC == 0 || sercom->SPI.INTFLAG.bit.DRE == 0 )
-  {
-    // Waiting Complete Transmission
-  }
-}
-
-uint16_t SERCOM::readDataSPI()
-{
-  while( sercom->SPI.INTFLAG.bit.DRE == 0 || sercom->SPI.INTFLAG.bit.RXC == 0 )
+  while( sercom->SPI.INTFLAG.bit.RXC == 0 )
   {
     // Waiting Complete Reception
   }
@@ -598,11 +589,8 @@ bool SERCOM::sendDataSlaveWIRE(uint8_t data)
   //Send data
   sercom->I2CS.DATA.bit.DATA = data;
 
-  //Wait data transmission successful
-  while(!sercom->I2CS.INTFLAG.bit.DRDY);
-
   //Problems on line? nack received?
-  if(sercom->I2CS.STATUS.bit.RXNACK)
+  if(!sercom->I2CS.INTFLAG.bit.DRDY || sercom->I2CS.STATUS.bit.RXNACK)
     return false;
   else
     return true;

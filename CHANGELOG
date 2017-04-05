@@ -1,4 +1,66 @@
-* 1.6.7-beta-b0:
+1.6.8-beta-b0:
+* Added L21 and C21 support. Improved D11D and D11C support.
+  * Use Tools->Microcontroller menu to select mcu.
+* Both the core and bootloader have added support for:
+  * external high-speed crystal (400KHz - 32MHz) using PLL
+  * external 32.768KHz crystal using PLL
+  * internal oscillator with USB calibration using DFLL
+  * internal oscillator using DFLL in open-loop mode (or 48MHz RC oscillator with C21)
+  * PLL_FRACTIONAL_ENABLED and PLL_FAST_STARTUP options
+  * The clock source is selectable in the Tools->Clock Source menu
+* New Tools->Serial Config menu for selecting different combinations of serial peripherals
+* New Tools->Bootloader Size menu allows selection of bootloader size
+* New Tools->USB Config menu simplifies USB configuration compared to previous core
+* Updated variant.cpp table format for future CCL and GCLK use. See VARIANT_COMPLIANCE_CHANGELOG.
+* Updated bossac upload tool (fixed support for SAML and SAMC)
+* New CMSIS-Atmel package (this is different than from Arduino)
+* Merged in changes from upstream SAMD CORE 1.6.14: (not relevant)
+* Merged in changes from upstream SAMD CORE 1.6.13 2017.03.31:
+  * Added SDU (SD card Updater) library. Not set up yet for MattairTech boards.
+  * Fixed 8MHz clock being generated incorrectly. Thanks @keestux
+* Merged in changes from upstream SAMD CORE 1.6.12 2017.02.07:
+  * Fixed type conflict of utoa function. Thanks @kbumsik
+  * Fixed pinMode(pin, OUTPUT) not working after analogRead(pin)
+* Merged in changes from upstream SAMD CORE 1.6.11 2016.12.23 (not relevant)
+* Merged in changes from upstream SAMD CORE 1.6.10 2016.12.23:
+  * Added .org boards
+  * linker: .data section is now aligned to 16 bytes address
+  * Added method to automatically retrieve sketch start via linker variable
+  (see https://github.com/arduino/ArduinoCore-samd/pull/185)
+  * Fixed USBDevice.epBank1EnableTransferComplete method
+  * Adapted bootloader source code to CMSIS 4.5
+* Merged in changes from upstream SAMD CORE 1.6.9 2016.12.12:
+  * SPI: Optimized SPI.transfer(...)
+  * Added linker flags for the ARM Math library
+  * Added new I2S library
+  * Bootloader: Check sketch vectors before waiting for double tap
+  * Upgraded CMSIS version to 4.5.0, and use new CMSIS-Atmel package
+* Merged in changes from upstream SAMD CORE 1.6.8 2016.10.12:
+  * Fixed regression on analogWrite. Thanks @bose-mdellisanti!
+  * Fixed regression on SerialUSB.available()
+  * C++ global constructors (if any) are now run after hardware initalization.
+ * Merged in changes from upstream SAMD CORE 1.6.7 2016.09.28:
+  * Fixed Serial.flush() blocking before any writes. Thanks @hangmoh
+  * Added snprintf_P to avr/pgmspace.h stub. Thanks @jantje
+  * Another small fix to String iterators. Thanks @Ivan-Perez @Chris--A
+  * Fixes SerialUSB.write(...) returning 0 instead of byte written
+  * Added Uart::availableForWrite()
+  * Added defines for RAMSTART, RAMSIZE, RAMEND
+  * Fixed writing LOW to a digital input pin blocking subsequent digitalRead attempts
+  * Fixed digitalWrite() unnecessarily activating the pull-up resistor
+  * Wire: Slave writes now use TX buffer
+  * Added getTimeout() method to Stream.
+  * Fixed glitch in PWM generation that may happen when calling analogWrite()
+  * PWM frequency is now 732.4Hz (before it was 187500.0Hz)
+  * Improved reliability of SerialUSB under heavy load (this should solve
+  all issues with MKR1000/WiFi101 firmware updater on MacOSX)
+  * Improved SerialUSB.read() performance
+  * Added String::toDouble()
+  * Bootloader: LED now pulses and USB TX/RX blink on transfer (like Leonardo)
+  * Bootloader: enabled USB string descriptors
+
+1.6.7:
+1.6.7-beta-b0:
 * OS X support added (bossac for OS X can now upload to all supported chips) (Thanks @joseangeljimenez for testing)
 * New bossac upload tool (added support for SAML and SAMC)
 * New bootloader from upstream SAMD CORE (see bootloaders/zero/README.md)
@@ -39,13 +101,13 @@
   * Fixed Wire.write(0x00) "ambiguos method" error
   * String class now supports iterators. Thanks @Chris--A
 
-* 1.6.6-mt3:
+1.6.6-mt3:
 * Fixes compilation with CDC_UART and CDC_ONLY settings
 
-* 1.6.6-mt2:
+1.6.6-mt2:
 * Changes the default Communication setting to CDC_UART (from CDC_HID_UART)
 
-* 1.6.6-mt1:
+1.6.6-mt1:
 * New documentation section 'Special Notes'. Please read!
 * Updated ASCII pinouts to be more readable and less ambiguous.
 * Updated the Signed driver for Windows (extras directory).
@@ -71,7 +133,7 @@
   * USB Device: big refactoring and bug fix
   * USB Device: added PluggableUSB interface
 
-* 1.6.5-mt2:
+1.6.5-mt2:
 * Added support for the MT-D11 (ATSAMD11D14AM).
 * Reduced code size (see 'Code Size and RAM Usage' below).
 * Any combination of CDC, HID, or UART can be used (or no combination), by using the Tools->Communication menu.
@@ -80,5 +142,5 @@
 * Merged in upstream updates. Fixed Wire interrupt.
 * Tested all ADC, DAC, external interrupts, PWM outputs, serial, SPI, and Wire instances/pins.
 
-* 1.6.5-mt1:
+1.6.5-mt1:
 * Initial release

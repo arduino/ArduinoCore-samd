@@ -17,83 +17,149 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _BOARD_DEFINITIONS_H_
-#define _BOARD_DEFINITIONS_H_
-
 #include <sam.h>
 
+#if defined(BOARD_ID_arduino_zero)
+  #include "board_definitions/board_definitions_arduino_zero.h"
+#elif defined(BOARD_ID_genuino_zero)
+  #include "board_definitions/board_definitions_genuino_zero.h"
+#elif defined(BOARD_ID_arduino_mkr1000)
+  #include "board_definitions/board_definitions_arduino_mkr1000.h"
+#elif defined(BOARD_ID_genuino_mkr1000)
+  #include "board_definitions/board_definitions_genuino_mkr1000.h"
+#elif defined(BOARD_ID_arduino_mkrzero)
+  #include "board_definitions/board_definitions_arduino_mkrzero.h"
+#elif defined(BOARD_ID_MT_D21E_rev_A)
+  #include "board_definitions/board_definitions_MT_D21E_rev_A.h"
+#elif defined(BOARD_ID_MT_D21E_rev_B)
+  #include "board_definitions/board_definitions_MT_D21E_rev_B.h"
+#elif defined(BOARD_ID_MT_D11)
+  #include "board_definitions/board_definitions_MT_D11.h"
+#elif defined(BOARD_ID_Generic_x21E)
+  #include "board_definitions/board_definitions_Generic_x21E.h"
+#elif defined(BOARD_ID_Generic_x21G)
+  #include "board_definitions/board_definitions_Generic_x21G.h"
+#elif defined(BOARD_ID_Generic_x21J)
+  #include "board_definitions/board_definitions_Generic_x21J.h"
+#elif defined(BOARD_ID_Generic_D11D14AM)
+  #include "board_definitions/board_definitions_Generic_D11D14AM.h"
+#elif defined(BOARD_ID_Generic_D11D14AS)
+  #include "board_definitions/board_definitions_Generic_D11D14AS.h"
+#elif defined(BOARD_ID_Generic_D11C14A)
+  #include "board_definitions/board_definitions_Generic_D11C14A.h"
+#elif defined(BOARD_ID_arduino_m0)
+  #include "board_definitions/board_definitions_arduino_m0.h"
+#elif defined(BOARD_ID_arduino_m0_pro)
+  #include "board_definitions/board_definitions_arduino_m0_pro.h"
+#else
+  #error You must define a BOARD_ID and add the corresponding definitions in board_definitions.h
+#endif
+
+// Common definitions
+// ------------------
+
+#define BOOT_PIN_MASK (1U << (BOOT_LOAD_PIN & 0x1f))
+
+// These are undefined in CMSIS for L21 and C21
+#if (SAML21)
+#ifndef GCLK_CLKCTRL_ID_SERCOM0_CORE_Val
+  #define GCLK_CLKCTRL_ID_SERCOM0_CORE_Val	18
+  #define GCLK_CLKCTRL_ID_SERCOM1_CORE_Val	19
+  #define GCLK_CLKCTRL_ID_SERCOM2_CORE_Val	20
+  #define GCLK_CLKCTRL_ID_SERCOM3_CORE_Val	21
+  #define GCLK_CLKCTRL_ID_SERCOM4_CORE_Val	22
+  #define GCLK_CLKCTRL_ID_SERCOM5_CORE_Val	24
+#endif
+#elif (SAMC21)
+#ifndef GCLK_CLKCTRL_ID_SERCOM0_CORE_Val
+  #define GCLK_CLKCTRL_ID_SERCOM0_CORE_Val	19
+  #define GCLK_CLKCTRL_ID_SERCOM1_CORE_Val	20
+  #define GCLK_CLKCTRL_ID_SERCOM2_CORE_Val	21
+  #define GCLK_CLKCTRL_ID_SERCOM3_CORE_Val	22
+  #define GCLK_CLKCTRL_ID_SERCOM4_CORE_Val	23
+  #define GCLK_CLKCTRL_ID_SERCOM5_CORE_Val	25
+#endif
+#endif
+
+#define LED_POLARITY_LOW_ON	0
+#define LED_POLARITY_HIGH_ON	1
+
 /*
- * If BOOT_DOUBLE_TAP_ADDRESS is defined the bootloader is started by
+ * If BOOT_DOUBLE_TAP_ENABLED is defined the bootloader is started by
  * quickly tapping two times on the reset button.
  * BOOT_DOUBLE_TAP_ADDRESS must point to a free SRAM cell that must not
- * be touched from the loaded application.
+ * be touched from the loaded application. By default, the SRAM
+ * location is the last 4 bytes.
  */
-#if defined(FLASH_SIZE)
-  #if (FLASH_SIZE == 0x04000)
-    #define BOOT_DOUBLE_TAP_ADDRESS           (0x20000FFCul)
-  #elif (FLASH_SIZE == 0x08000)
-    #define BOOT_DOUBLE_TAP_ADDRESS           (0x20000FFCul)
-  #elif (FLASH_SIZE == 0x10000)
-    #define BOOT_DOUBLE_TAP_ADDRESS           (0x20001FFCul)
-  #elif (FLASH_SIZE == 0x20000)
-    #define BOOT_DOUBLE_TAP_ADDRESS           (0x20003FFCul)
-  #else
-    #define BOOT_DOUBLE_TAP_ADDRESS           (0x20007FFCul)
-  #endif
+#if (SAMD21 || SAMD11)
+  #define BOOT_DOUBLE_TAP_ADDRESS           (HMCRAMC0_ADDR + HMCRAMC0_SIZE - 4)
+#elif (SAML21 || SAMC21)
+  #define BOOT_DOUBLE_TAP_ADDRESS           (HSRAM_ADDR + HSRAM_SIZE - 4)
 #else
-  #error "board_definitions.h: FLASH_SIZE must be defined"
+  #error "board_definitions.h: Unsupported chip"
 #endif
 
 #define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
 
-/*
- * If BOOT_LOAD_PIN is defined the bootloader is started if the selected
- * pin is tied LOW.
- */
-//#define BOOT_LOAD_PIN                     PIN_PA21 // Pin 7
-//#define BOOT_LOAD_PIN                     PIN_PA15 // Pin 5
-#define BOOT_LOAD_PIN                     PIN_PA27
-#define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
-
-/*
- * LEDs definitions
- */
-#if defined(__SAMD11D14AM__) || defined(__SAMD11C14A__) || defined(__SAMD11D14AS__)
-#define BOARD_LED_PORT                    (0)
-#define BOARD_LED_PIN                     (16)
-#else
-#define BOARD_LED_PORT                    (0)
-#define BOARD_LED_PIN                     (28)
+#if (BOOT_USART_SERCOM_INSTANCE == 0)
+  #define BOOT_USART_MODULE                   SERCOM0
+  #define BOOT_USART_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM0_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM0
+  #elif (SAML21 || SAMC21)
+    #define BOOT_USART_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM0
+  #endif
+#elif (BOOT_USART_SERCOM_INSTANCE == 1)
+  #define BOOT_USART_MODULE                   SERCOM1
+  #define BOOT_USART_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM1_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM1
+  #elif (SAML21 || SAMC21)
+    #define BOOT_USART_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM1
+  #endif
+#elif (BOOT_USART_SERCOM_INSTANCE == 2)
+  #define BOOT_USART_MODULE                   SERCOM2
+  #define BOOT_USART_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM2_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM2
+  #elif (SAML21 || SAMC21)
+    #define BOOT_USART_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM2
+  #endif
+#elif (BOOT_USART_SERCOM_INSTANCE == 3)
+  #define BOOT_USART_MODULE                   SERCOM3
+  #define BOOT_USART_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM3_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM3
+  #elif (SAML21 || SAMC21)
+    #define BOOT_USART_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM3
+  #endif
+#elif (BOOT_USART_SERCOM_INSTANCE == 4)
+  #define BOOT_USART_MODULE                   SERCOM4
+  #define BOOT_USART_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM4_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM4
+  #elif (SAML21 || SAMC21)
+    #define BOOT_USART_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM4
+  #endif
+#elif (BOOT_USART_SERCOM_INSTANCE == 5)
+  #define BOOT_USART_MODULE                   SERCOM5
+  #define BOOT_USART_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM5_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM5
+  #elif (SAML21 || SAMC21)
+    #define BOOT_USART_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM5
+  #endif
 #endif
 
-#define BOARD_LEDRX_PORT                  (0)
-#define BOARD_LEDRX_PIN                   (28)
+#ifndef SAM_BA_INTERFACE
+  #define SAM_BA_INTERFACE    SAM_BA_BOTH_INTERFACES
+#endif
 
-#define BOARD_LEDTX_PORT                  (0)
-#define BOARD_LEDTX_PIN                   (28)
+#ifndef ARDUINO_EXTENDED_CAPABILITIES
+  #define ARDUINO_EXTENDED_CAPABILITIES		1
+#endif
 
-/*
- * USART configuration
- */
-#define BOOT_USART_MODULE                 SERCOM0
-#define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM0
-#define BOOT_USART_PER_CLOCK_INDEX        GCLK_ID_SERCOM0_CORE
-#define BOOT_USART_PAD_SETTINGS           UART_RX_PAD3_TX_PAD2
-#define BOOT_USART_PAD3                   PINMUX_PA11C_SERCOM0_PAD3
-#define BOOT_USART_PAD2                   PINMUX_PA10C_SERCOM0_PAD2
-#define BOOT_USART_PAD1                   PINMUX_UNUSED
-#define BOOT_USART_PAD0                   PINMUX_UNUSED
-
-
-#define CPU_FREQUENCY                     (48000000ul)
-
-/* Frequency of the board main oscillator */
-#define VARIANT_MAINOSC	                  (32768ul)
-
-/* Master clock frequency */
-#define VARIANT_MCK			                  CPU_FREQUENCY
-
-#define NVM_SW_CALIB_DFLL48M_COARSE_VAL   (58)
-#define NVM_SW_CALIB_DFLL48M_FINE_VAL     (64)
-
-#endif // _BOARD_DEFINITIONS_H_
+#define CLOCKCONFIG_32768HZ_CRYSTAL	0
+#define CLOCKCONFIG_HS_CRYSTAL		1
+#define CLOCKCONFIG_INTERNAL		2
+#define CLOCKCONFIG_INTERNAL_USB	3

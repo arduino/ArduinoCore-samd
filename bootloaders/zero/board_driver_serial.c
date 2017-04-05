@@ -23,36 +23,36 @@ bool uart_drv_error_flag = false;
 
 void uart_basic_init(Sercom *sercom, uint16_t baud_val, enum uart_pad_settings pad_conf)
 {
-	/* Wait for synchronization */
-	while(sercom->USART.SYNCBUSY.bit.ENABLE);
+	while(sercom->USART.SYNCBUSY.reg);
+	
 	/* Disable the SERCOM UART module */
 	sercom->USART.CTRLA.bit.ENABLE = 0;
-	/* Wait for synchronization */
-	while(sercom->USART.SYNCBUSY.bit.SWRST);
+	while(sercom->USART.SYNCBUSY.reg);
+	
 	/* Perform a software reset */
 	sercom->USART.CTRLA.bit.SWRST = 1;
-	/* Wait for synchronization */
 	while(sercom->USART.CTRLA.bit.SWRST);
-	/* Wait for synchronization */
-	while(sercom->USART.SYNCBUSY.bit.SWRST || sercom->USART.SYNCBUSY.bit.ENABLE);
+	while(sercom->USART.SYNCBUSY.reg);
+	
 	/* Update the UART pad settings, mode and data order settings */
 	sercom->USART.CTRLA.reg = pad_conf | SERCOM_USART_CTRLA_MODE(1) | SERCOM_USART_CTRLA_DORD;
-	/* Wait for synchronization */
-	while(sercom->USART.SYNCBUSY.bit.CTRLB);
+	while(sercom->USART.SYNCBUSY.reg);
+	
 	/* Enable transmit and receive and set data size to 8 bits */
 	sercom->USART.CTRLB.reg = SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN | SERCOM_USART_CTRLB_CHSIZE(0);
+	
 	/* Load the baud value */
 	sercom->USART.BAUD.reg = baud_val;
-	/* Wait for synchronization */
-	while(sercom->USART.SYNCBUSY.bit.ENABLE);
+	while(sercom->USART.SYNCBUSY.reg);
+	
 	/* Enable SERCOM UART */
 	sercom->USART.CTRLA.bit.ENABLE = 1;
 }
 
 void uart_disable(Sercom *sercom)
 {
-	/* Wait for synchronization */
-	while(sercom->USART.SYNCBUSY.bit.ENABLE);
+	while(sercom->USART.SYNCBUSY.reg);
+	
 	/* Disable SERCOM UART */
 	sercom->USART.CTRLA.bit.ENABLE = 0;
 }

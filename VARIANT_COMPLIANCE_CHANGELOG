@@ -1,4 +1,4 @@
-* 1.6.8-beta-b0:
+1.6.8-beta-b0:
 * Introduced MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE define and VARIANT_COMPLIANCE_CHANGELOG file.
   The definitions in the variants files need the MattairTech SAMD core >= the listed version.
   The format is different than the stock Arduino SAMD core, which uses ARDUINO_SAMD_VARIANT_COMPLIANCE instead.
@@ -10,3 +10,5 @@
 * The C21 has two ADC instances, which is selected in the PeripheralAttribute column.
 * the timer type is now encoded in this column to support the L21 and C21, which use TC numbers starting at 0
   (rather than 3 as on the D21).
+* From SAMD CORE 1.6.10 merge: The linker script must define `__text_start__` symbol at the beginning of .text section.
+  This symbol is used to automatically determine the bootloader size.

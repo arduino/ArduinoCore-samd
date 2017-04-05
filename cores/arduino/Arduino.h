@@ -37,6 +37,7 @@ typedef uint16_t word;
 //
 #include "avr/pgmspace.h"
 #include "avr/interrupt.h"
+#include "avr/io.h"
 
 #include "binary.h"
 #include "itoa.h"
@@ -55,6 +56,10 @@ extern "C"{
 #define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
 
 void yield( void ) ;
+
+/* system functions */
+int main( void );
+void init( void );
 
 /* sketch */
 void setup( void ) ;

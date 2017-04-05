@@ -1,5 +1,6 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2017 MattairTech LLC. All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -61,7 +62,7 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
      PORT->Group[pinPort].PINCFG[pinNum].reg = pinConfig ;
   }
   // Set or clear OUT register only when pin DIR is set to output.
-  // Pull direction (pullup or pulldown) is now set with pinMode only.
+  // Pull direction (pullup or pulldown) is now set with pinMode only (defaults to pullup if pinMode never called).
   else
   {
     if ( ulVal == HIGH ) {
@@ -83,7 +84,7 @@ int digitalRead( uint32_t ulPin )
   {
     return LOW ;
   }
-
+  
   if ( (PORT->Group[g_APinDescription[ulPin].ulPort].IN.reg & (1ul << g_APinDescription[ulPin].ulPin)) != 0 )
   {
     return HIGH ;

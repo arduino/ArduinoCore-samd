@@ -143,8 +143,7 @@ static const uint8_t DAC0 = PIN_DAC0;
 
 #define ADC_RESOLUTION		12
 
-#define REMAP_ANALOG_PIN_ID	while(0)
-// #define REMAP_ANALOG_PIN_ID	if ( ulPin < A0 ) ulPin += A0
+// #define REMAP_ANALOG_PIN_ID(pin)	if ( pin < A0 ) pin += A0
 
 /* Set default analog voltage reference */
 #define VARIANT_AR_DEFAULT	AR_DEFAULT
@@ -220,6 +219,17 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_USB_DP                      (25ul)
 #define PIN_USB_HOST_ENABLE             (14ul)
 #define PIN_USB_HOST_ENABLE_VALUE	HIGH
+
+/*
+ * I2S Interfaces
+ */
+#define I2S_INTERFACES_COUNT 1
+
+#define I2S_DEVICE          0
+#define I2S_CLOCK_GENERATOR 3
+#define PIN_I2S_SD          (9u)
+#define PIN_I2S_SCK         (1u)
+#define PIN_I2S_FS          (0u)
 
 #ifdef __cplusplus
 }

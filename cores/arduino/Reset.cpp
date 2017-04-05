@@ -25,6 +25,16 @@ extern "C" {
 
 #define NVM_MEMORY ((volatile uint16_t *)0x000000)
 
+/* The definitions here need the MattairTech SAMD core >=1.6.8.
+ * The format is different than the stock Arduino SAMD core,
+ * which uses ARDUINO_SAMD_VARIANT_COMPLIANCE instead.
+ */
+#if (MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10608)
+
+extern const uint32_t __text_start__;
+#define APP_START ((volatile uint32_t)(&__text_start__) + 4)
+
+#else
 #if defined(__NO_BOOTLOADER__)
 	#define APP_START 0x00000004
 #elif defined(__4KB_BOOTLOADER__)
@@ -36,6 +46,7 @@ extern "C" {
 #else
 	#error "Reset.cpp: You must define bootloader size in boards.txt build.extra_flags (ie: -D__8KB_BOOTLOADER__)"
 #endif
+#endif
 
 static inline bool nvmReady(void) {
         return NVMCTRL->INTFLAG.reg & NVMCTRL_INTFLAG_READY;
@@ -46,7 +57,13 @@ void banzai() {
 	// Disable all interrupts
 	__disable_irq();
 
-#if !defined(__NO_BOOTLOADER__)
+	// Avoid erasing the application if APP_START is < than the minimum bootloader size
+	// This could happen if without_bootloader linker script was chosen
+	// Minimum bootloader size in SAMD21 family is 512bytes (RM section 22.6.5)
+	if (APP_START < (0x200 + 4)) {
+		goto reset;
+	}
+
 	// Erase application
 	while (!nvmReady())
 		;
@@ -55,8 +72,8 @@ void banzai() {
 	NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMD_ER | NVMCTRL_CTRLA_CMDEX_KEY;
 	while (!nvmReady())
 		;
-#endif
 
+reset:
 	// Reset the device
 	NVIC_SystemReset() ;
 

@@ -1,5 +1,6 @@
 # Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
 # Copyright (c) 2015 Arduino LLC.  All right reserved.
+# Copyright (c) 2017 Justin Mattair.  All right reserved.
 #
 # This library is free software; you can redistribute it and/or
 # modify it under the terms of the GNU Lesser General Public
@@ -17,80 +18,86 @@
 
 # Begin Config ###############################
 
+# -----------------------------------------------------------------------------
+# Boards definitions:
+# MT_D21E_rev_A, MT_D21E_rev_B, MT_D11
+# arduino_zero, arduino_mkrzero, arduino_mkr1000, genuino_mkr1000, genuino_zero, arduino_m0, arduino_m0_pro
+# Generic_x21E, Generic_x21G, Generic_x21J, Generic_D11D14AM, Generic_D11D14AS, Generic_D11C14A
+BOARD_ID?=MT_D21E_rev_B
+
+# -----------------------------------------------------------------------------
+# MCU definitions:
 # SAMD21J: SAMD21J18A, SAMD21J17A, SAMD21J16A, SAMD21J15A
-# SAMD21G: SAMD21G18A (Arduino Zero), SAMD21G17A, SAMD21G16A, SAMD21G15A
-# SAMD21E (MT-D21E): SAMD21E18A, SAMD21E17A, SAMD21E16A, SAMD21E15A
-# SAMD11:  SAMD11D14AM (MT-D11), SAMD11C14A, SAMD11D14AS
+# SAMD21G: SAMD21G18A, SAMD21G17A, SAMD21G16A, SAMD21G15A
+# SAMD21E: SAMD21E18A, SAMD21E17A, SAMD21E16A, SAMD21E15A
+# SAML21J: SAML21J18B, SAML21J17B, SAML21J16B
+# SAML21G: SAML21G18B, SAML21G17B, SAML21G16B
+# SAML21E: SAML21E18B, SAML21E17B, SAML21E16B, SAML21E15B
+# SAMC21J: SAMC21J18A, SAMC21J17A, SAMC21J16A, SAMC21J15A
+# SAMC21G: SAMC21G18A, SAMC21G17A, SAMC21G16A, SAMC21G15A
+# SAMC21E: SAMC21E18A, SAMC21E17A, SAMC21E16A, SAMC21E15A
+# SAMD11:  SAMD11D14AM, SAMD11C14A, SAMD11D14AS
 MCU?=SAMD21E18A
 
-# Size of FLASH: 16KB, 32KB, 64KB, 128KB, 256KB
-FLASHSIZE?=256KB
+# Note that the makefile can be invoked with values that override the above two settings.
+# For example: BOARD_ID=Generic_D11C14A MCU=SAMD11C14A make
 
-# The rest of this Config is optional ########
+# End Config ###############################
 
-ifeq ($(FLASHSIZE),16KB)
-# set to 0 when building a 4KB bootloader
-ARDUINO_EXTENDED_CAPABILITIES_MK?=0
-# set to only one interface when building a 4KB bootloader
-SAM_BA_INTERFACE_MK?=SAM_BA_USBCDC_ONLY
-else
-ARDUINO_EXTENDED_CAPABILITIES_MK?=1
-SAM_BA_INTERFACE_MK?=SAM_BA_BOTH_INTERFACES
+NAME=sam_ba_$(BOARD_ID)_$(MCU)
+
+ifeq ($(findstring 18,$(MCU)),18)
+FLASHSIZE=256KB
+endif
+ifeq ($(findstring 17,$(MCU)),17)
+FLASHSIZE=128KB
+endif
+ifeq ($(findstring 16,$(MCU)),16)
+FLASHSIZE=64KB
+endif
+ifeq ($(findstring 15,$(MCU)),15)
+FLASHSIZE=32KB
+endif
+ifeq ($(findstring 14,$(MCU)),14)
+FLASHSIZE=16KB
 endif
 
 LINKER_SCRIPT?=bootloader_sam_m0p_$(FLASHSIZE).ld
 
-# MattairTech SAM M0+ Boards (PID == 0x0557)
-CFLAGS_EXTRA?=-D__$(MCU)__ -DUSB_PID_HIGH=0x05 -DUSB_PID_LOW=0x57 -DUSB_VID_LOW=0xD0 -DUSB_VID_HIGH=0x16
-CFLAGS_EXTRA+=-DARDUINO_EXTENDED_CAPABILITIES=$(ARDUINO_EXTENDED_CAPABILITIES_MK) -DSAM_BA_INTERFACE=$(SAM_BA_INTERFACE_MK) '-DSTRING_MANUFACTURER="MattairTech LLC"' '-DSTRING_PRODUCT="M0+ Boards"'
-
-# Arduino Zero (PID == 0x004D)
-# CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
-# Genuino Zero (PID == 0x024D)
-# CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
-# Arduino MKR1000 (PID == 0x004E)
-# CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4E -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
-# Genuino MKR1000 (PID == 0x024E)
-# CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4E -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
-
-# End Config ###############################
-
+# CORE_VENDOR?=arduino
+CORE_VENDOR?=MattairTech_Arduino
 
 # -----------------------------------------------------------------------------
 # Paths
 ifeq ($(OS),Windows_NT)
-
   # Are we using mingw/msys/msys2/cygwin?
   ifeq ($(TERM),xterm)
-		T=$(shell cygpath -u $(LOCALAPPDATA))
-    MODULE_PATH?=$(T)/Arduino15/packages/arduino
-    ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+    T=$(shell cygpath -u $(LOCALAPPDATA))
+    MODULE_PATH?=$(T)/Arduino15/packages/$(CORE_VENDOR)
     RM=rm
     SEP=/
   else
-    MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/arduino
-    ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+    MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/$(CORE_VENDOR)
     RM=rm
     SEP=\\
   endif
 else
-    UNAME_S := $(shell uname -s)
+  UNAME_S := $(shell uname -s)
 
-    ifeq ($(UNAME_S),Linux)
-			MODULE_PATH?=$(HOME)/.arduino15/packages/arduino
-			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
-      RM=rm
-	    SEP=/
-    endif
+  ifeq ($(UNAME_S),Linux)
+    MODULE_PATH?=$(HOME)/.arduino15/packages/$(CORE_VENDOR)
+    RM=rm
+    SEP=/
+  endif
 
-    ifeq ($(UNAME_S),Darwin)
-			MODULE_PATH?=$(HOME)/Library/Arduino15/packages/arduino/
-			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
-      RM=rm
-	    SEP=/
-    endif
+  ifeq ($(UNAME_S),Darwin)
+    MODULE_PATH?=$(HOME)/Library/Arduino15/packages/$(CORE_VENDOR)/
+    RM=rm
+    SEP=/
+  endif
 endif
 
+ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
 BUILD_PATH=build
 
 # -----------------------------------------------------------------------------
@@ -102,14 +109,20 @@ SIZE=$(ARM_GCC_PATH)size
 
 # -----------------------------------------------------------------------------
 # Compiler options
-CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
+CFLAGS_EXTRA=-D__$(MCU)__ -DBOARD_ID_$(BOARD_ID)
+CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500 -Wa,-adhlns=$(<:%.c=$(BUILD_PATH)/%.lst)
 ifdef DEBUG
-CFLAGS+=-g3 -O1 -DDEBUG=1
+  CFLAGS+=-g3 -O1 -DDEBUG=1
 else
-CFLAGS+=-Os -DDEBUG=0
+  CFLAGS+=-Os -DDEBUG=0
 endif
 
-INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
+ELF=$(NAME).elf
+BIN=$(NAME).bin
+HEX=$(NAME).hex
+
+
+INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.0.0-mattairtech-1/CMSIS/Device/ATMEL/"
 
 # -----------------------------------------------------------------------------
 # Linker options
@@ -118,32 +131,39 @@ LDFLAGS+=-Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbol
 
 # -----------------------------------------------------------------------------
 # Source files and objects
+ifeq ($(findstring SAMC21,$(MCU)),SAMC21)
 SOURCES= \
-board_driver_led.c \
-board_driver_serial.c \
-board_driver_usb.c \
-board_init.c \
-board_startup.c \
-main.c \
-sam_ba_usb.c \
-sam_ba_cdc.c \
-sam_ba_monitor.c \
-sam_ba_serial.c
+  board_driver_led.c \
+  board_driver_serial.c \
+  board_init.c \
+  board_startup.c \
+  main.c \
+  sam_ba_monitor.c \
+  sam_ba_serial.c
+
+else
+SOURCES= \
+  board_driver_led.c \
+  board_driver_serial.c \
+  board_driver_usb.c \
+  board_init.c \
+  board_startup.c \
+  main.c \
+  sam_ba_usb.c \
+  sam_ba_cdc.c \
+  sam_ba_monitor.c \
+  sam_ba_serial.c
+endif
 
 OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
 DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
 
-NAME=sam_m0p_sam_ba_$(MCU)
-ELF=$(NAME).elf
-BIN=$(NAME).bin
-HEX=$(NAME).hex
-
 ifneq "test$(AVRSTUDIO_EXE_PATH)" "test"
-AS_BUILD=copy_for_atmel_studio
-AS_CLEAN=clean_for_atmel_studio
+  AS_BUILD=copy_for_atmel_studio
+  AS_CLEAN=clean_for_atmel_studio
 else
-AS_BUILD=
-AS_CLEAN=
+  AS_BUILD=
+  AS_CLEAN=
 endif
 
 
@@ -202,6 +222,13 @@ clean: $(AS_CLEAN)
 	@echo ----------------------------------------------------------
 	@echo Cleaning project
 	-$(RM) $(BIN)
+	-$(RM) $(HEX)
+	-$(RM) $(BUILD_PATH)/*.*
+	-rmdir $(BUILD_PATH)
+
+mostly_clean: $(AS_CLEAN)
+	@echo ----------------------------------------------------------
+	@echo Cleaning project except bin
 	-$(RM) $(HEX)
 	-$(RM) $(BUILD_PATH)/*.*
 	-rmdir $(BUILD_PATH)

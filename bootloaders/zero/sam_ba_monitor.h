@@ -27,16 +27,6 @@
 #define SAM_BA_UART_ONLY            1
 #define SAM_BA_USBCDC_ONLY          2
 
-/* Set to only one interface in makefile when building a 4KB bootloader */
-#ifndef SAM_BA_INTERFACE
-#define SAM_BA_INTERFACE    SAM_BA_BOTH_INTERFACES
-#endif
-
-/* Set to 0 in makefile when building a 4KB bootloader */
-#ifndef ARDUINO_EXTENDED_CAPABILITIES
-#define ARDUINO_EXTENDED_CAPABILITIES		1
-#endif
-
 /* Selects USB as the communication interface of the monitor */
 #define SAM_BA_INTERFACE_USBCDC     0
 /* Selects USART as the communication interface of the monitor */
@@ -50,6 +40,12 @@
  *
  */
 void sam_ba_monitor_init(uint8_t com_interface);
+
+/**
+ * \brief System tick function of the SAM-BA Monitor
+ *
+ */
+void sam_ba_monitor_sys_tick(void);
 
 /**
  * \brief Main function of the SAM-BA Monitor

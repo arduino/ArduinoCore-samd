@@ -96,17 +96,29 @@ void serial_open(void)
 	}
 
 	/* Enable clock for BOOT_USART_MODULE */
-	PM->APBCMASK.reg |= BOOT_USART_BUS_CLOCK_INDEX ;
+#if (SAMD21 || SAMD11)
+  PM->APBCMASK.reg |= BOOT_USART_BUS_CLOCK_INDEX;
+#elif (SAML21)
+  MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM0 | MCLK_APBCMASK_SERCOM1 | MCLK_APBCMASK_SERCOM2 | MCLK_APBCMASK_SERCOM3 | MCLK_APBCMASK_SERCOM4 ;
+  MCLK->APBDMASK.reg |= MCLK_APBDMASK_SERCOM5;	// On the SAML, SERCOM5 is on the low power bridge
+#elif (SAMC21)
+  #if (SAMC21E)
+  MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM0 | MCLK_APBCMASK_SERCOM1 | MCLK_APBCMASK_SERCOM2 | MCLK_APBCMASK_SERCOM3 ;
+  #elif (SAMC21G) || (SAMC21J)
+  MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM0 | MCLK_APBCMASK_SERCOM1 | MCLK_APBCMASK_SERCOM2 | MCLK_APBCMASK_SERCOM3 | MCLK_APBCMASK_SERCOM4 | MCLK_APBCMASK_SERCOM5 ;
+  #endif
+#else
+  #error "sam_ba_serial.c: Unsupported chip"
+#endif
 
 	/* Set GCLK_GEN0 as source for GCLK_ID_SERCOMx_CORE */
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( BOOT_USART_PER_CLOCK_INDEX ) | // Generic Clock 0 (SERCOMx)
-                      GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-                      GCLK_CLKCTRL_CLKEN ;
-
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
-  {
-    /* Wait for synchronization */
-  }
+#if (SAMD21 || SAMD11)
+  GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( BOOT_USART_PER_CLOCK_INDEX ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#elif (SAML21 || SAMC21)
+  GCLK->PCHCTRL[BOOT_USART_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#endif
 
 	/* Baud rate 115200 - clock 48MHz -> BAUD value-63018 */
 	uart_basic_init(BOOT_USART_MODULE, 63018, BOOT_USART_PAD_SETTINGS);
@@ -457,7 +469,7 @@ uint32_t serial_getdata_xmd(void* data, uint32_t length)
 	uint32_t data_transfered = 0;
 
 	//Copied from legacy source code ... might need some tweaking
-	uint32_t loops_per_second = CPU_FREQUENCY/60;
+	uint32_t loops_per_second = VARIANT_MCK/60;
 
 	error_timeout = 0;
 

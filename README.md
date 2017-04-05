@@ -10,6 +10,27 @@ This core is intended to be installed using Boards Manager (see below). To updat
 previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.
 
 
+## What's New Beta (1.6.8-beta)
+
+1.6.8-beta-b0:
+* Added L21 and C21 support. Improved D11D and D11C support.
+  * Use Tools->Microcontroller menu to select mcu.
+* Both the core and bootloader have added support for:
+  * external high-speed crystal (400KHz - 32MHz) using PLL
+  * external 32.768KHz crystal using PLL
+  * internal oscillator with USB calibration using DFLL
+  * internal oscillator using DFLL in open-loop mode (or 48MHz RC oscillator with C21)
+  * PLL_FRACTIONAL_ENABLED and PLL_FAST_STARTUP options
+  * The clock source is selectable in the Tools->Clock Source menu
+* New Tools->Serial Config menu for selecting different combinations of serial peripherals
+* New Tools->Bootloader Size menu allows selection of bootloader size
+* New Tools->USB Config menu simplifies USB configuration compared to previous core
+* Updated variant.cpp table format for future CCL and GCLK use. See VARIANT_COMPLIANCE_CHANGELOG.
+* Updated bossac upload tool (fixed support for SAML and SAMC)
+* New CMSIS-Atmel package (this is different than from Arduino)
+* Merged in all changes from upstream through SAMD CORE 1.6.13 (2017.03.31)
+
+
 ## What's New Release (1.6.6)
 
 * 1.6.6-mt3:
@@ -25,20 +46,6 @@ previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then cl
   * Merged in changes from upstream (see CHANGELOG for details)
   * Fix warnings about deprecated recipe.ar.pattern
   * Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03 (see CHANGELOG for details)
-
-
-## What's New Beta (1.6.7-beta)
-
-* 1.6.7-beta-b0:
-  * OS X support added (bossac can now upload to all supported chips) (Thanks @joseangeljimenez for testing)
-  * New bossac upload tool (added support for SAML and SAMC)
-  * New bootloader from upstream SAMD CORE (see bootloaders/zero/README.md)
-  * New beta release method (see README.md)
-  * Changing some names from 'SAMD' to 'SAM M0+'. The core will add L21 and C21 support soon.
-  * Merged in changes from upstream SAMD CORE 1.6.3 2016.02.15 (see CHANGELOG for details)
-  * Merged in changes from upstream SAMD CORE 1.6.4 2016.02.19 (see CHANGELOG for details)
-  * Merged in changes from upstream SAMD CORE 1.6.5 2016.04.02 (see CHANGELOG for details)
-  * Merged in changes from upstream SAMD 1.6.6 2016.05.19 (see CHANGELOG for details)
 
 
 ## Summary
@@ -100,35 +107,52 @@ Most pins have multiple configurations available (even analog pins). For example
 input, a PWM output, Digital I/O, or the TX pin of 'Serial1'. These always reference the pin number printed on the board
 but without the 'A' (with the usable pins starting at 2). DO NOT connect voltages higher than 3.3V!
 
-### SAMD21 (MT-D21E)
+
+# MattairTech MT-D21E (rev B) (ATSAMx21Exxx)
 
 ```
-============================= MattairTech MT-D21E (ATsamd21eXXa) ========================
-Other  INT     PWM   Digital  Analog                     Digital  PWM      INT      Other
+========================== MattairTech MT-D21E rev B (ATSAMx21Exxx) =====================
+Other  COM    PWM   Analog  INT  Arduino*             Arduino*  INT   PWM     COM   Other
 =========================================================================================
                                       -------------------
-Xin32                                | A0            RST |                          Reset
-Xout32                               | A1            NC  |
-DAC                     2   2(ADC0)  | A2            NC  |
-REF                     3   3(ADC1)  | A3            A31 | 31  31(TCC11) 31(INT11) SWDIO*
-     4(INT4)            4   4(ADC4)  | A4            A30 | 30  30(TCC10) 30(INT10) SWDCLK
-     5(INT5)            5   5(ADC5)  | A5            NC  |
-                        6   6(ADC6)  | A6            A28 | 28            28(INT8)   LED
-VDIV                    7   7(ADC7)  | A7            A27 | 27            27(INT15)  BTNA
-    8(INTNMI) 8(TCC00)  8   8(ADC16) | A8            A23 | 23  23(TC41)  23(INT7)   SS
-    9(INT9)   9(TCC01)  9   9(ADC17) | A9            A22 | 22  22(TC40)  22(INT6)   MISO
-TX1          10(TCC02)  10  10(ADC18)| A10           A19 | 19            19(INT3)   SCK
-RX1          11(TCC03)  11  11(ADC19)| A11           A18 | 18            18(INT2)   MOSI
-TX2 14(INT14) 14(TC30)  14           | A14           A17 | 17  17(TCC21)  17(INT1)  SCL
-RX2           15(TC31)  15           | A15           A16 | 16  16(TCC20)  16(INT0)  SDA
+XI32(+)                              | A0            RST |                        BOOT(+)
+XO32(+)                              | A1            Gnd |
+DAC                   *            2 | A2           Vbat |
+REFA                  *            3 | A3            A31 | 31    *                IO/B(+)
+REFB                  *      *     4 | A4            A30 | 30    *                 CLK(+)
+DAC1(L)               *      *     5 | A5            NC  |
+LED(+)       TCC10    *            6 | A6       A28 (D/C)| 28    *
+VM           TCC11    *            7 | A7            A27 | 27    *               A/CS(+M)
+             TCC00    *     NMI    8 | A8            A23 | 23    * TC41/TC01~ SS
+             TCC01    *      *     9 | A9            A22 | 22    * TC40/TC00~ MISO(+M)
+       TX1   TCC02    *           10 | A10           A19 | 19    *            SCK(+M)
+       RX1   TCC03    *           11 | A11           A18 | 18    *            MOSI(+M)
+       TX2 TC30/TC40~        *    14 | A14           A17 | 17    *   TCC21    SCL(+)
+       RX2 TC31/TC41~             15 | A15           A16 | 16    *   TCC20    SDA(+)
                                      | NC            NC  |
-                                     | NC            NC  |
-                                     | Vbus          3.3V|   * Button B available on 31
-USB D-                               | A24-  _____   Vcc |
-USB D+                               | A25+ |     |  Vin |
-                                     | Gnd  | USB |  Gnd |
-                                      -------------------
+     M=Memory device installed       | NC            NC  | ! Vcc is 3.3V by default.
+                                     | Vbus          3.3V|   DO NOT exceed 3.6V on Vcc or
+USB D- (D/L)(+), CAN TX (C)  TC50 24 | A24   _____   Vcc |   any IO pin with the D21 or
+USB D+ (D/L)(+), CAN RX (C)  TC51 25 | A25  |     |  Vin |   L21 installed. 5V is allowed
+                                     | Gnd  | USB |  Gnd |   ONLY with the C21 installed.
+           Chip Variant:              -------------------
+        D=D21, L=L21, C=C21
+
+* Most pins can be used for more than one function. The same port pin number printed on
+  the board is also used in Arduino (without the 'A') for all of the supported functions
+  (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
+
++ This alternate function is enabled by default (+M functions enabled only when a memory
+  device is installed). Thus, the associated header pin cannot be used. Solder jumpers
+  can be used to enable or disable the alternate onboard function.
+
+~ When two timers are shown, the second is for L21/C21. TC5 is TC1 on the L21/C21.
+
+Silkscreen Legend:
+  Top: A circled pin means analog function and '*' means alternate function (see + above)
+  Bottom: A circled pin means analog function
 ```
+
 
 ### SAMD11 (MT-D11)
 
@@ -150,77 +174,6 @@ BTN/SS  15(INT1)      15  15(ADC7) | A15           RST |                        
                                     -------------------
 ```
 
-# MattairTech MT-D21J (ATsamX21JXXX)
-
-```
-============================= MattairTech MT-D21J (ATsamX21JXXX) ========================
-Other  COM   PWM  Analog  INT  Arduino*           Arduino*  INT  Analog  PWM   COM  Other
-=========================================================================================
-                                   -------------------
-         Board Variant:           | (no external pin) |
- B=Basic, S=Standard, A=Advanced  |            |-- B3 | 49   I   O       VBAT(L)/SDCD(+B)
-    M=Memory device installed     |            |-- B5 | 48   I                   INT1(+B)
-                                  |            |-- B4 | 47                       3SEN(+B)
-                                  |                   |
-XBDS(B)                O        0 | B0            RST |                          BOOT(+B)
-MECS(+M)               O        1 | B1            A31 | 31            RX1  SWDIO/XBDO(+B)
-DAC0                   O   I    2 | A2            A30 | 30                     SWDCLK(+B)
-REFA(B)                O        3 | A3        A28(D/C)| 28                      SHCS(D/C)
-3SVO(S)/REFB           O        4 | A4            A27 | 27   I                       INT2
-DAC1(L)                O        5 | A5        X34 (B2)| 34       O   TC60~   LED(+B)/XBRT
-CMVO(A)                O        6 | B6        X33(B16)| 33   I               INT0(+B)/BTN
-ASEN(+A)               O        7 | B7        X32(B17)| 32   I       TC61~       MOPS(+S)
-          TX3          O   I    8 | B8            A23 | 23           TC41~
-          RX3          O   I    9 | B9            A22 | 22           TC40~
-VHDV(A)   MOSI1        O   I   10 | A10           A21 | 21           TC71~
-VBDV(+A)  SCK1         O   I   11 | A11           A20 | 20   I       TC70~
-XBCT(B) SDA1/MISO1 TCC20   I   12 | A12           A19 | 19           TC31~        CMRI(S)
-        SCL1/SS1  TCC21    I   13 | A13           A18 | 18           TC30~  TX1  XBDI(+B)
-HSEN(A)         TC50~      I   14 | B14           A17 | 17                  SCL   SCL(+B)
-BKFS(+A)        TC51~          15 | B15           A16 | 16                  SDA   SDA(+B)
-                                  | Vaux         3.3V |
-USB D- (D/L)+B, CAN TX (C)        | A24   _____  VccL |   ! VccL is 3.3V by default.
-USB D+ (D/L)+B, CAN RX (C)        | A25  |     | VccH |     DO NOT exceed 3.6V on VccL or
-                                  | Gnd  | USB |  Gnd |     on any IO pin with the D21 or
-       Chip Variant:               -------------------      L21 installed. 5V is allowed
-    D=D21, L=L21, C=C21                                     ONLY with the C21 installed.
-                                  1-------------------      By default, VccH is 5V.
-MISO(+B)                       43 | B30          Vcon |
-SCK(+B)                        44 | B23    SPI    B22 | 45                       MOSI(+B)
-SHCS(D/C) or (SDCS(+B))     28(46)| A28(B31)      Gnd |
-                                   -------------------
-
-                                  1-------------------
-LVL_SHIFT_0(+S) TX2    O   I   35 | A6             A7 | 36   I   O    RX2 LVL_SHIFT_1(+S)
-LVL_SHIFT_2(+S)  TCC12 O  NMI  37 | A8    LEVEL    A9 | 38       O TCC13  LVL_SHIFT_3(+S)
-                                  | VccH  SHIFT  VccH |
-                                  | Gnd           Gnd |
-MOTOR_BOUT1(+S)    TCC04       39 | B10           B11 | 40       TCC05    MOTOR_BOUT2(+S)
-MOTOR_AOUT1(+S)    TCC06       41 | B12   MOTOR   B13 | 42       TCC07    MOTOR_AOUT2(+S)
-                                  | Vmotor        Gnd |
-                                   -------------------
-
-* Most pins can be used for more than one function. The same port pin number printed on
-  the board is also used in Arduino (without the 'A') for all of the supported functions
-  (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
-
-* Different variants have different hardware installed onboard. The alternate functions
-  column shows for which board variant(s) the associated hardware is installed: B=Basic,
-  S=Standard, A=Advanced, and M=Memory device installed. The Advanced variant has all of
-  the hardware that the Standard and Basic have installed, and the Standard variant has
-  all of the Basic hardware.
-
-+ This function is enabled by default depending on the variant indicated by the letter.
-  Thus, the associated header pin cannot be used. In most cases (except most +A pins),
-  solder jumpers can be used to enable or disable the alternate onboard function.
-
-~ TC3, TC4, TC5, TC6, and TC7 on the D21 are instead
-  TC4, TC0, TC1, TC2, and TC3 respectively on the L21 and C21.
-
-Silkscreen Legend:
-  Top: A circle around pin is analog function, '~' is timer, small 'I' is interrupt
-  Bottom: A box around pin means 'Other' function enabled by default depending on variant
-```
 
 #### All pins operate at 3.3 volts. DO NOT connect voltages higher than 3.3V!
 

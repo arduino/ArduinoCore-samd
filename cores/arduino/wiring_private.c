@@ -1,6 +1,6 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
-  Copyright (c) 2015-2016, Justin Mattair (justin@mattair.net)
+  Copyright (c) 2017 MattairTech LLC. All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -111,6 +111,10 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
       peripheral = PER_AC_CLK;
     break ;
 
+    case PIO_CCL:
+      peripheral = PER_CCL;
+    break ;
+
     case PIO_NOT_A_PIN:
     case PIO_MULTI:
       return -1l ;
@@ -129,21 +133,18 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
   switch ( ulPeripheral )
   {
     case PIO_STARTUP:
-      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ; // Just enable INEN
+      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ; // Enable INEN. If pin is floating, you should enable pull resistor to minimize input buffer power consumption
+      PORT->Group[pinPort].OUTSET.reg = (uint32_t)(1<<pinNum) ;	// set default pull direction to pullup (will not be enabled)
     break;
     
-    // Set pin mode according to chapter '22.6.3 I/O Pin Configuration'
+    // Set pin mode according to chapter '22.6.3 I/O Pin Configuration', the out register stores the pull direction
     case PIO_INPUT:
     case PIO_INPUT_PULLUP:
     case PIO_INPUT_PULLDOWN:
-      if (ulPeripheral != PIO_INPUT)
-      {
-	pinCfg |= PORT_PINCFG_PULLEN;
-      }
-      // Set pin to input mode with pull-up resistor enabled, disable the port mux
-      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ;
       PORT->Group[pinPort].DIRCLR.reg = (uint32_t)(1<<pinNum) ;
-      if (ulPeripheral == PIO_INPUT_PULLUP)
+      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ;
+      
+      if (ulPeripheral == PIO_INPUT_PULLUP || ulPeripheral == PIO_INPUT)	// default pull direction for PIO_INPUT is pullup
       {
         // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.7 Data Output Value Set')
         PORT->Group[pinPort].OUTSET.reg = (uint32_t)(1<<pinNum) ;
@@ -153,6 +154,10 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
         // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.6 Data Output Value Clear')
         PORT->Group[pinPort].OUTCLR.reg = (uint32_t)(1<<pinNum) ;
       }
+      if (ulPeripheral != PIO_INPUT)
+      {
+	      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)(pinCfg | PORT_PINCFG_PULLEN) ;
+      }
     break ;
 
     case PIO_OUTPUT:
@@ -160,7 +165,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
       {
         pinCfg |= PORT_PINCFG_DRVSTR;
       }
-      // Set pin to output mode, set pin drive strength, disable the port mux
+      // Set pin to output mode, set pin drive strength, disable the port mux, INEN will be set
       PORT->Group[pinPort].PINCFG[pinNum].reg = (uint8_t)pinCfg ;
       PORT->Group[pinPort].DIRSET.reg = (uint32_t)(1<<pinNum) ;
     break ;
@@ -177,6 +182,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     case PIO_SERCOM:
     case PIO_COM:
     case PIO_AC_GCLK:
+    case PIO_CCL:
 
       if ( pinNum & 1 ) // is pin odd?
       {

@@ -1,6 +1,7 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
   Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
+  Copyright (c) 2017 MattairTech LLC. All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -19,4 +20,37 @@
 
 #include "board_driver_led.h"
 
+#define LED_TARGET_VALUE_MIN_1	5
+#define LED_TARGET_VALUE_MIN_2	70
+#define LED_TARGET_VALUE_MAX	240
 
+volatile uint8_t ledKeepValue = 0;
+volatile uint8_t ledTargetValue = 20;
+volatile int8_t ledDirection = 4;
+volatile uint8_t ledTargetValueMin = LED_TARGET_VALUE_MIN_1;
+
+inline void LED_pulse()
+{
+  if (ledKeepValue == 0) {
+    ledTargetValue += ledDirection;
+    LED_toggle();
+  }
+  ledKeepValue ++;
+
+  if (ledTargetValue > LED_TARGET_VALUE_MAX) {
+    ledDirection = -ledDirection;
+    ledTargetValue += ledDirection;
+  } else if ((ledTargetValue < ledTargetValueMin) && ledDirection < 0) {
+    if (ledTargetValueMin == LED_TARGET_VALUE_MIN_1) {
+      ledTargetValueMin = LED_TARGET_VALUE_MIN_2;
+    } else {
+      ledTargetValueMin = LED_TARGET_VALUE_MIN_1;
+    }
+    ledDirection = -ledDirection;
+    ledTargetValue += ledDirection;
+  }
+
+  if (ledKeepValue == ledTargetValue) {
+    LED_toggle();
+  }
+}

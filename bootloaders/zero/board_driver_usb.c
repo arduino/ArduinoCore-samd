@@ -29,6 +29,16 @@
 #define NVM_USB_PAD_TRIM_POS              (55)
 #define NVM_USB_PAD_TRIM_SIZE             (3)
 
+/* Generic Clock Multiplexer IDs */
+#if (SAMD21 || SAMD11)
+  #define GCM_USB                   (0x06U)
+#elif (SAML21)
+  #define GCM_USB                   (0x04U)
+#else
+  #error "board_driver_usb.c: Unsupported chip"
+#endif
+
+
 __attribute__((__aligned__(4))) UsbDeviceDescriptor usb_endpoint_table[MAX_EP]; // Initialized to zero in USB_Init
 __attribute__((__aligned__(4))) uint8_t udd_ep_out_cache_buffer[2][64]; //1 for CTRL, 1 for BULK
 __attribute__((__aligned__(4))) uint8_t udd_ep_in_cache_buffer[2][64]; //1 for CTRL, 1 for BULK
@@ -47,7 +57,7 @@ P_USB_CDC USB_Open(P_USB_CDC pCdc, Usb *pUsb)
 //  pCdc->Write        = USB_Write;
 //  pCdc->Read         = USB_Read;
 
-  pCdc->pUsb->HOST.CTRLA.bit.ENABLE = true;
+  pCdc->pUsb->DEVICE.CTRLA.bit.ENABLE = true;
 
   return pCdc;
 }
@@ -60,7 +70,11 @@ void USB_Init(void)
   uint32_t pad_transn, pad_transp, pad_trim;
 
   /* Enable USB clock */
+#if (SAMD21 || SAMD11)
   PM->APBBMASK.reg |= PM_APBBMASK_USB;
+#elif (SAML21)
+  MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
+#endif
 
   /* Set up the USB DP/DN pins */
   PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
@@ -73,14 +87,13 @@ void USB_Init(void)
   /* ----------------------------------------------------------------------------------------------
    * Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
    */
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( 6 ) | // Generic Clock Multiplexer 6
-              GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-              GCLK_CLKCTRL_CLKEN ;
-
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
-  {
-    /* Wait for synchronization */
-  }
+#if (SAMD21 || SAMD11)
+  GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_USB ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#else
+  GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#endif
 
   /* Reset */
   USB->DEVICE.CTRLA.bit.SWRST = 1;
@@ -100,7 +113,7 @@ void USB_Init(void)
     pad_transn = 5;
   }
 
-  USB->HOST.PADCAL.bit.TRANSN = pad_transn;
+  USB->DEVICE.PADCAL.bit.TRANSN = pad_transn;
 
   pad_transp =( *((uint32_t *)(NVMCTRL_OTP4)
       + (NVM_USB_PAD_TRANSP_POS / 32))
@@ -112,7 +125,7 @@ void USB_Init(void)
     pad_transp = 29;
   }
 
-  USB->HOST.PADCAL.bit.TRANSP = pad_transp;
+  USB->DEVICE.PADCAL.bit.TRANSP = pad_transp;
   pad_trim =( *((uint32_t *)(NVMCTRL_OTP4)
       + (NVM_USB_PAD_TRIM_POS / 32))
       >> (NVM_USB_PAD_TRIM_POS % 32))
@@ -123,15 +136,15 @@ void USB_Init(void)
     pad_trim = 3;
   }
 
-  USB->HOST.PADCAL.bit.TRIM = pad_trim;
+  USB->DEVICE.PADCAL.bit.TRIM = pad_trim;
 
   /* Set the configuration */
   /* Set mode to Device mode */
-  USB->HOST.CTRLA.bit.MODE = 0;
+  USB->DEVICE.CTRLA.bit.MODE = 0;
   /* Enable Run in Standby */
-  USB->HOST.CTRLA.bit.RUNSTDBY = true;
+  USB->DEVICE.CTRLA.bit.RUNSTDBY = true;
   /* Set the descriptor address */
-  USB->HOST.DESCADD.reg = (uint32_t)(&usb_endpoint_table[0]);
+  USB->DEVICE.DESCADD.reg = (uint32_t)(&usb_endpoint_table[0]);
   /* Set speed configuration to Full speed */
   USB->DEVICE.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_FS_Val;
   /* Attach to the USB host */
@@ -172,13 +185,12 @@ uint32_t USB_Write(Usb *pUsb, const char *pData, uint32_t length, uint8_t ep_num
   /* Set the multi packet size as zero for multi-packet transfers where length > ep size */
   usb_endpoint_table[ep_num].DeviceDescBank[1].PCKSIZE.bit.MULTI_PACKET_SIZE = 0;
   /* Clear the transfer complete flag  */
-  //pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT1 = true;
-  pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT |= (1<<1);
+  pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
   /* Set the bank as ready */
   pUsb->DEVICE.DeviceEndpoint[ep_num].EPSTATUSSET.bit.BK1RDY = true;
 
   /* Wait for transfer to complete */
-  while ( (pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT & (1<<1)) == 0 );
+  while ( (pUsb->DEVICE.DeviceEndpoint[ep_num].EPINTFLAG.bit.TRCPT1) == 0 );
 
   return length;
 }
@@ -205,15 +217,14 @@ uint32_t USB_Read(Usb *pUsb, char *pData, uint32_t length)
   }
 
   /* Check for Transfer Complete 0 flag */
-  if ( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0) )
+  if ( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 )
   {
     /* Set packet size */
     packetSize = SAM_BA_MIN(usb_endpoint_table[USB_EP_OUT].DeviceDescBank[0].PCKSIZE.bit.BYTE_COUNT, length);
     /* Copy read data to user buffer */
     memcpy(pData, udd_ep_out_cache_buffer[USB_EP_OUT-1], packetSize);
     /* Clear the Transfer Complete 0 flag */
-    //pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 = true;
-    pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT |= (1 << 0);
+    pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
     /* Clear the user flag */
     read_job = false;
   }
@@ -240,10 +251,9 @@ uint32_t USB_Read_blocking(Usb *pUsb, char *pData, uint32_t length)
   /* Clear the bank 0 ready flag */
   pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPSTATUSCLR.bit.BK0RDY = true;
   /* Wait for transfer to complete */
-  while (!( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT & (1<<0) ));
+  while (!( pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 ));
   /* Clear Transfer complete 0 flag */
-  //pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT0 = true;
-  pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.bit.TRCPT |= (1 << 0);
+  pUsb->DEVICE.DeviceEndpoint[USB_EP_OUT].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT0;
 
   return length;
 }
@@ -259,7 +269,7 @@ uint8_t USB_IsConfigured(P_USB_CDC pCdc)
   if (pUsb->DEVICE.INTFLAG.reg & USB_DEVICE_INTFLAG_EORST)
   {
     /* Clear the flag */
-    pUsb->DEVICE.INTFLAG.bit.EORST = true;
+    pUsb->DEVICE.INTFLAG.reg = USB_DEVICE_INTFLAG_EORST;
     /* Set Device address as 0 */
     pUsb->DEVICE.DADD.reg = USB_DEVICE_DADD_ADDEN | 0;
     /* Configure endpoint 0 */
@@ -303,14 +313,12 @@ void USB_SendStall(Usb *pUsb, bool direction_in)
   if (direction_in)
   {
     /* Set STALL request on IN direction */
-    //pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ1;
-    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ = (1<<1);
+    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ1 = 1;
   }
   else
   {
     /* Set STALL request on OUT direction */
-    //pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.reg = USB_DEVICE_EPSTATUSSET_STALLRQ0;
-    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ = (1<<0);
+    pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.STALLRQ0 = 1;
   }
 }
 
@@ -322,12 +330,11 @@ void USB_SendZlp(Usb *pUsb)
   /* Set the byte count as zero */
   usb_endpoint_table[0].DeviceDescBank[1].PCKSIZE.bit.BYTE_COUNT = 0;
   /* Clear the transfer complete flag  */
-  //pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1 = true;
-  pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT |= (1 << 1);
+  pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT1;
   /* Set the bank as ready */
   pUsb->DEVICE.DeviceEndpoint[0].EPSTATUSSET.bit.BK1RDY = true;
   /* Wait for transfer to complete */
-  while (!( pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT & (1<<1) ));
+  while (!( pUsb->DEVICE.DeviceEndpoint[0].EPINTFLAG.bit.TRCPT1 ));
 }
 
 /*----------------------------------------------------------------------------
