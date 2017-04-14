@@ -65,16 +65,15 @@
 
 // LEDs
 // ----
-#define PIN_LED     (13u)
+#define PIN_LED_13  (13u)
+#define PIN_LED     PIN_LED_13
 #define LED_BUILTIN PIN_LED
 
 
 //#define PIN_LED_RXL          (25u)
 //#define PIN_LED_TXL          (26u)
-#define PIN_LED              PIN_LED_13
 //#define PIN_LED2             PIN_LED_RXL
 //#define PIN_LED3             PIN_LED_TXL
-#define LED_BUILTIN          PIN_LED_13
 
 /*
  * Analog pins
@@ -158,7 +157,7 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 // I2S Interfaces
 // --------------
-#define I2S_INTERFACES_COUNT 1
+#define I2S_INTERFACES_COUNT 0
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
