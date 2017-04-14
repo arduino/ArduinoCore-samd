@@ -159,7 +159,7 @@ const PinDescription g_APinDescription[]=
   { PORTA, 24, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB/DM
   { PORTA, 25, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB/DP
 
-  // GPIO 29 / Capacitive push
+  // GPIO 29 / IR Transmit
   { PORTA, 23, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_7 }, 
 
   // GPIO 30 31 internal I2C (original xtal pins)
@@ -182,6 +182,8 @@ const PinDescription g_APinDescription[]=
   // GPIO 38 (I2S Datain)
   { PORTA,  8, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER|PIN_ATTR_ANALOG), ADC_Channel16, PWM0_CH0, TCC0_CH0, EXTERNAL_INT_NMI },  // ADC/AIN[3] / Microphone
 
+  // GPIO 39 (IR Remote in)
+  { PORTA, 12, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_12 }, // IR remote input in
 
 
   // 26..27 
