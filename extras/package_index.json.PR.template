@@ -23,7 +23,11 @@
           "size": "%%SIZE%%",
           "boards": [
             {"name": "MT-D21E"},
-            {"name": "MT-D11"}
+            {"name": "MT-D21E_revB"},
+            {"name": "MT-D11"},
+            {"name": "Generic_D11C14A"},
+            {"name": "arduino_zero"},
+            {"name": "arduino_mzero"}
           ],
           "toolsDependencies": [
             {
@@ -39,7 +43,7 @@
             {
               "packager": "arduino",
               "name": "openocd",
-              "version": "0.9.0-arduino6-static"
+              "version": "0.9.0-arduino"
             },
             {
               "packager": "arduino",

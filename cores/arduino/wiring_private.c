@@ -20,6 +20,18 @@
 #include "Arduino.h"
 #include "wiring_private.h"
 
+bool dacEnabled[] = {false, false};
+
+// Wait for synchronization of registers between the clock domains
+static __inline__ void syncDAC() __attribute__((always_inline, unused));
+static void syncDAC() {
+#if (SAMD)
+  while ( DAC->STATUS.bit.SYNCBUSY == 1 );
+#elif (SAML21 || SAMC21)
+  while ( DAC->SYNCBUSY.reg & DAC_SYNCBUSY_MASK );
+#endif
+}
+
 int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
 {
   // Prevent out of bounds access
@@ -124,11 +136,51 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     break ;
   }
 
-  noInterrupts(); // Avoid possible invalid interim pin state
-
   uint8_t pinPort = g_APinDescription[ulPin].ulPort;
   uint8_t pinNum = g_APinDescription[ulPin].ulPin;
   uint8_t pinCfg = PORT_PINCFG_INEN;	// INEN should be enabled for both input and output (but not analog)
+
+  // Disable DAC, if analogWrite() used previously the DAC is enabled
+  // Note that on the L21, the DAC output would interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected
+  if ((pinAttribute & PIN_ATTR_DAC) && !((1UL << ulPeripheral) & PIN_ATTR_DAC))
+  {
+#if (SAMD || SAMC21)
+    if (dacEnabled[0]) {
+      dacEnabled[0] = false;
+      syncDAC();
+      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
+      //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
+      syncDAC();
+    }
+#elif (SAML21)
+    uint8_t DACNumber = 0x00;
+
+    if ( (pinPort == 0) && (pinNum == 5) ) {
+      DACNumber = 0x01;
+    }
+
+    if (dacEnabled[DACNumber]) {
+      dacEnabled[DACNumber] = false;
+      syncDAC();
+      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller (so that DACCTRL can be modified)
+      delayMicroseconds(40);	// Must delay for at least 30us when turning off while refresh is on due to DAC errata
+
+      DAC->DACCTRL[DACNumber].bit.ENABLE = 0x00; // The DACx output is turned off.
+
+      if (dacEnabled[0] || dacEnabled[1]) {
+        DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller, so that the other DAC can function
+        syncDAC();
+        if (DACNumber == 0) {
+          while ( (DAC->STATUS.reg & (1 << 1)) == 0 );   // Must wait for DACx to start
+        } else {
+          while ( (DAC->STATUS.reg & (1 << 0)) == 0 );   // Must wait for DACx to start
+        }
+      }
+    }
+#endif
+  }
+
+  noInterrupts(); // Avoid possible invalid interim pin state
 
   switch ( ulPeripheral )
   {

@@ -35,7 +35,7 @@ void Dummy_Handler(void)
 }
 
 /* Cortex-M0+ core handlers */
-void HardFault_Handler(void) __attribute__ ((weak, alias("Dummy_Handler")));
+void HardFault_Handler(void);
 void Reset_Handler    (void);
 void NMI_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
 void SVC_Handler      (void) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -152,7 +152,7 @@ __attribute__ ((section(".isr_vector"))) const DeviceVectors exception_table =
   (void*) DAC_Handler,            /* 25 / 17 Digital Analog Converter */
   (void*) PTC_Handler,            /* 26 / 18 Peripheral Touch Controller */
 #if (SAMD21)
-  (void*) I2S_Handler             /* 27 Inter-IC Sound Interface */
+  (void*) I2S_Handler,             /* 27 Inter-IC Sound Interface */
   (void*) (0UL),                  /* Reserved */
 #endif
 
@@ -234,18 +234,16 @@ void Reset_Handler(void)
   }
 
   /* Change default QOS values to have the best performance and correct USB behaviour (applies to D21/D11). From startup_samd21.c from ASF 3.32. */
-#if (SAMD21_SERIES || SAMD11_SERIES)
+#if (SAMD21 || SAMD11)
   SBMATRIX->SFR[SBMATRIX_SLAVE_HMCRAMC0].reg = 2;
-#endif
-
-#if defined(ID_USB)
+  
   USB->DEVICE.QOSCTRL.bit.CQOS = 2;
   USB->DEVICE.QOSCTRL.bit.DQOS = 2;
-#endif
-
+  
   DMAC->QOSCTRL.bit.DQOS = 2;
   DMAC->QOSCTRL.bit.FQOS = 2;
   DMAC->QOSCTRL.bit.WRBQOS = 2;
+#endif
 
   SystemInit();
 
@@ -279,3 +277,28 @@ void USB_SetHandler(void (*new_usb_isr)(void))
   usb_isr = new_usb_isr;
 }
 #endif
+
+void HardFault_Handler(void)
+{
+  __BKPT(13);
+  while (1);
+}
+/*
+void NMI_Handler(void)
+{
+  __BKPT(14);
+  while (1);
+}
+
+void SVC_Handler(void)
+{
+  __BKPT(5);
+  while (1);
+}
+
+void PendSV_Handler(void)
+{
+  __BKPT(2);
+  while (1);
+}
+*/

@@ -24,7 +24,7 @@
 #if (SAMD21 || SAMD11)
 #define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.STATUS.bit.SYNCBUSY);
 #elif (SAML21 || SAMC21)
-#define WAIT_TC16_REGS_SYNC(x) while(x->SYNCBUSY.reg);
+#define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.SYNCBUSY.reg);
 #else
 #error "Tone.cpp: Unsupported chip"
 #endif
@@ -39,20 +39,20 @@ volatile int64_t toggleCount;
 volatile bool toneIsActive = false;
 volatile bool firstTimeRunning = false;
 
-/* TC5 does not exist on the D11. Using TC2 instead (TC1 on the D11C14A as TC2 is not routed to pins). It will conflict with the 2 associated TC analogWrite() pins. */
-#if (SAMD11D14A)
+/* TC5 does not exist on the D11. Using TC2 instead (TC1 on the D11C14 as TC2 is not routed to pins). It will conflict with the 2 associated TC analogWrite() pins. */
+#if (SAMD11D)
 #define TONE_TC         TC2
 #define TONE_TC_IRQn    TC2_IRQn
 void TC2_Handler (void) __attribute__ ((alias("Tone_Handler")));
-#elif (SAMD11C14)
+#elif (SAMD11C)
 #define TONE_TC         TC1
 #define TONE_TC_IRQn    TC1_IRQn
 void TC1_Handler (void) __attribute__ ((alias("Tone_Handler")));
-/* TC5 does not exist on the SAML or SAMC. Using TC3 instead. It will conflict with the 2 associated TC analogWrite() pins. */
-#elif (SAML_SERIES || SAMC_SERIES)
-#define TONE_TC         TC3
-#define TONE_TC_IRQn    TC3_IRQn
-void TC3_Handler (void) __attribute__ ((alias("Tone_Handler")));
+/* TC5 does not exist on the SAML or SAMC. Using TC1 instead. */
+#elif (SAML || SAMC)
+#define TONE_TC         TC1
+#define TONE_TC_IRQn    TC1_IRQn
+void TC1_Handler (void) __attribute__ ((alias("Tone_Handler")));
 #else
 #define TONE_TC         TC5
 #define TONE_TC_IRQn    TC5_IRQn
@@ -161,7 +161,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
   WAIT_TC16_REGS_SYNC(TONE_TC)
 
 #if (SAML21 || SAMC21)
-  TONE_TC->WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
+  TONE_TC->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
   WAIT_TC16_REGS_SYNC(TONE_TC)
 #endif
 

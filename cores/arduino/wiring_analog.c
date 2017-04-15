@@ -20,6 +20,7 @@
 #include "Arduino.h"
 #include "wiring_private.h"
 #include "variant.h"
+#include "delay.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,10 +42,8 @@ const uint8_t timerClockIDs[] =
 	GCM_TCC2_TC3,
 	GCM_TC4_TC5,
 	GCM_TC4_TC5,
-	#if (SAMD21J)
 	GCM_TC6_TC7,
 	GCM_TC6_TC7,
-	#endif
 #elif (SAML21 || SAMC21)
 	GCM_TCC0_TCC1,
 	GCM_TCC0_TCC1,
@@ -62,6 +61,7 @@ const uint8_t timerClockIDs[] =
 static int _readResolution = 10;
 static int _ADCResolution = 10;
 static int _writeResolution = 8;
+extern bool dacEnabled[];
 
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncADC() __attribute__((always_inline, unused));
@@ -92,7 +92,7 @@ static void syncTC_8(Tc* TCx) {
 #if (SAMD)
   while (TCx->COUNT8.STATUS.bit.SYNCBUSY);
 #elif (SAML21 || SAMC21)
-  while (TCx->SYNCBUSY.reg);
+  while (TCx->COUNT8.SYNCBUSY.reg & (TC_SYNCBUSY_SWRST | TC_SYNCBUSY_ENABLE | TC_SYNCBUSY_CTRLB | TC_SYNCBUSY_STATUS | TC_SYNCBUSY_COUNT));
 #endif
 }
 
@@ -164,19 +164,24 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 void analogReference(eAnalogReference mode)
 {
   syncADC();
-
-  if (mode == AR_EXTERNAL_REFA) {
-    if ( pinPeripheral(REFA_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
-        return;
+#if (!SAMD11C)
+  #if defined(REFA_PIN)
+    if (mode == AR_EXTERNAL_REFA) {
+      if ( pinPeripheral(REFA_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
+          return;
+      }
     }
-  }
+  #endif
+#endif
 
 #if (SAMD || SAML21)
-  if (mode == AR_EXTERNAL_REFB) {
-    if ( pinPeripheral(REFB_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
-        return;
+  #if defined(REFB_PIN)
+    if (mode == AR_EXTERNAL_REFB) {
+      if ( pinPeripheral(REFB_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
+          return;
+      }
     }
-  }
+  #endif
 #endif
 
 #if (SAMD)
@@ -202,7 +207,30 @@ void analogReference(eAnalogReference mode)
   ADC1->REFCTRL.bit.REFSEL = mode;
   #endif
 #endif
+  syncADC();
 
+  // Start conversion, since The first conversion after the reference is changed must not be used.
+#if (SAMC21)
+  ADC0->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+  ADC1->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+  syncADC();
+  ADC0->SWTRIG.bit.START = 1;
+  ADC1->SWTRIG.bit.START = 1;
+  syncADC();
+  while ((ADC0->INTFLAG.bit.RESRDY == 0) || (ADC1->INTFLAG.bit.RESRDY == 0));     // Waiting for conversion to complete
+  ADC0->INTFLAG.reg = ADC_INTFLAG_RESRDY;    // Clear the Data Ready flag
+  ADC1->INTFLAG.reg = ADC_INTFLAG_RESRDY;    // Clear the Data Ready flag
+  ADC0->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
+  ADC1->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
+#else
+  ADC->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+  syncADC();
+  ADC->SWTRIG.bit.START = 1;
+  syncADC();
+  while (ADC->INTFLAG.bit.RESRDY == 0);     // Waiting for conversion to complete
+  ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;    // Clear the Data Ready flag
+  ADC->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
+#endif
   syncADC();
 }
 
@@ -223,63 +251,23 @@ uint32_t analogRead( uint32_t pin )
   }
 #endif
 
+  // pinPeripheral now handles disabling the DAC (if active)
   if ( pinPeripheral(pin, PIO_ANALOG_ADC) == RET_STATUS_OK )
   {
-    // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
-    if ( (g_APinDescription[pin].ulPinAttribute & PIN_ATTR_DAC) == PIN_ATTR_DAC )
-    {
-      syncDAC();
-#if (SAMD || SAMC21)
-      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
-      //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
-#elif (SAML21)
-      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller
-      uint8_t DACNumber = 0x00;
-      if ( (g_APinDescription[pin].ulPort == 0) && (g_APinDescription[pin].ulPin == 5) ) {
-        DACNumber = 0x01;
-      }
-      syncDAC();
-      DAC->DACCTRL[DACNumber].bit.ENABLE = 0x00; // The DACx output is turned off.
-      syncDAC();
-      DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller (in case other DACx is in use)
-#endif
-      syncDAC();
-    }
-
-    syncADC();
     ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
-
-    // Control A
-    /*
-     * Bit 1 ENABLE: Enable
-     *   0: The ADC is disabled.
-     *   1: The ADC is enabled.
-     * Due to synchronization, there is a delay from writing CTRLA.ENABLE until the peripheral is enabled/disabled. The
-     * value written to CTRL.ENABLE will read back immediately and the Synchronization Busy bit in the Status register
-     * (STATUS.SYNCBUSY) will be set. STATUS.SYNCBUSY will be cleared when the operation is complete.
-     *
-     * Before enabling the ADC, the asynchronous clock source must be selected and enabled, and the ADC reference must be
-     * configured. The first conversion after the reference is changed must not be used.
-     */
     syncADC();
+
     ADC->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+    syncADC();
 
     // Start conversion
-    syncADC();
     ADC->SWTRIG.bit.START = 1;
-
-    // Clear the Data Ready flag
-    ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;
-
-    // Start conversion again, since The first conversion after the reference is changed must not be used.
     syncADC();
-    ADC->SWTRIG.bit.START = 1;
 
     // Store the value
     while (ADC->INTFLAG.bit.RESRDY == 0);   // Waiting for conversion to complete
     valueRead = ADC->RESULT.reg;
 
-    syncADC();
     ADC->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
     syncADC();
   }
@@ -301,31 +289,47 @@ void analogWrite(uint32_t pin, uint32_t value)
     value = mapResolution(value, _writeResolution, 10);
     DAC->DATA.reg = value & 0x3FF;  // DAC on 10 bits.
     syncDAC();
-    DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
+    if (!dacEnabled[0]) {
+      dacEnabled[0] = true;
+      DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
+      syncDAC();
+    }
 #elif (SAML21)
-    DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller (so that DACCTRL can be modified)
     uint8_t DACNumber = 0x00;
+    value = mapResolution(value, _writeResolution, 12);
+
     if ( (g_APinDescription[pin].ulPort == 0) && (g_APinDescription[pin].ulPin == 5) ) {
         DACNumber = 0x01;
     }
-    value = mapResolution(value, _writeResolution, 12);
-    syncDAC();
-    DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
-    syncDAC();
-    DAC->DACCTRL[DACNumber].bit.ENABLE = 0x01; // The DACx output is turned on.
-    syncDAC();
-    while ( (DAC->STATUS.reg & (1 << DACNumber)) == 0 );   // Must wait for DACx to start
-    DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller
+
+    if (!dacEnabled[DACNumber]) {
+      dacEnabled[DACNumber] = true;
+      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller (so that DACCTRL can be modified)
+      delayMicroseconds(40);	// Must delay for at least 30us when turning off while refresh is on due to DAC errata
+
+      DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
+      syncDAC();
+      DAC->DACCTRL[DACNumber].bit.ENABLE = 0x01; // The DACx output is turned on.
+      DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller
+      syncDAC();
+      while ( (DAC->STATUS.reg & (1 << DACNumber)) == 0 );   // Must wait for DACx to start
+
+      DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
+      syncDAC();
+    } else {
+      DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
+      syncDAC();
+    }
 #endif
-    syncDAC();
     return;
   }
   else if ( pinPeripheral(pin, PIO_TIMER_PWM) == RET_STATUS_OK )
   {
     Tc*  TCx  = 0 ;
     Tcc* TCCx = 0 ;
+    uint8_t timerIndex;
     uint8_t Channelx = GetTCChannelNumber( g_APinDescription[pin].ulTCChannel ) ;
-    uint8_t Timerx = GetTCNumber( g_APinDescription[pin].ulTCChannel ) ;
+    // uint8_t Timerx = GetTCNumber( g_APinDescription[pin].ulTCChannel ) ;
     uint8_t Typex = GetTCType( g_APinDescription[pin].ulTCChannel ) ;
     static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
 
@@ -377,7 +381,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 #if (SAMD)
         TCx->COUNT8.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
 #elif (SAML21 || SAMC21)
-        TCx->WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
+	TCx->COUNT8.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
 #endif
         syncTC_8(TCx);
         // Set the initial value
@@ -418,19 +422,21 @@ void analogWrite(uint32_t pin, uint32_t value)
         TCx->COUNT8.CC[Channelx].reg = (uint8_t) value;
 #elif (SAML21 || SAMC21)
         // SAML and SAMC have double-buffered TCs
-	TCx->CTRLBSET.bit.LUPD = 1;
-	syncTC_8(TCx);
 	TCx->COUNT8.CCBUF[Channelx].reg = (uint32_t) value;
-	syncTC_8(TCx);
-	TCx->CTRLBCLR.bit.LUPD = 1;
 #endif
         syncTC_8(TCx);
       } else {
+#if (SAMD)
         TCCx->CTRLBSET.bit.LUPD = 1;
         syncTCC(TCCx);
 	TCCx->CCB[Channelx].reg = (uint32_t) value;
-        syncTCC(TCCx);
-        TCCx->CTRLBCLR.bit.LUPD = 1;
+	syncTCC(TCCx);
+	TCCx->CTRLBCLR.bit.LUPD = 1;
+// LUPD caused endless spinning in syncTCC() on SAML (and probably SAMC). Note that CCBUF writes are already
+// atomic. The LUPD bit is intended for updating several registers at once, which analogWrite() does not do.
+#elif (SAML21 || SAMC21)
+	TCCx->CCBUF[Channelx].reg = (uint32_t) value;
+#endif
         syncTCC(TCCx);
       }
     }

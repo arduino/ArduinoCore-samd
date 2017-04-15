@@ -82,7 +82,9 @@ void SysTick_DefaultHandler(void)
 {
   // Increment tick count each ms
   _ulTickCount++;
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
   tickReset();
+#endif
 }
 
 #ifdef __cplusplus

@@ -76,6 +76,38 @@ uint32_t* pulSketch_Start_Address;
     return;
   }
 
+#if defined(BOOT_LOAD_PIN)
+  volatile PortGroup *boot_port = (volatile PortGroup *)(&(PORT->Group[BOOT_LOAD_PIN / 32]));
+  volatile bool boot_en;
+
+  // Enable the input mode in Boot GPIO Pin
+  boot_port->DIRCLR.reg = BOOT_PIN_MASK;
+  boot_port->PINCFG[BOOT_LOAD_PIN & 0x1F].reg = PORT_PINCFG_INEN | PORT_PINCFG_PULLEN;
+  boot_port->OUTSET.reg = BOOT_PIN_MASK;
+
+  /* Allow time for debouncing capacitor to charge (10ms) */
+  /* Needed when BOOT_DOUBLE_TAP is not used */
+
+#if (SAMD21 || SAMD11)
+  #define numLoopsDebounce 2500UL
+#elif (SAML21 || SAMC21)
+  #define numLoopsDebounce 10000UL
+#endif
+  for (uint32_t i=0; i<numLoopsDebounce; i++) /* 10ms */
+    /* force compiler to not optimize this... */
+    __asm__ __volatile__("");
+
+  // Read the BOOT_LOAD_PIN status
+  boot_en = (boot_port->IN.reg) & BOOT_PIN_MASK;
+
+  // Check the bootloader enable condition
+  if (!boot_en)
+  {
+    // Stay in bootloader
+    return;
+  }
+#endif
+
 #if defined(BOOT_DOUBLE_TAP_ENABLED)
   #define DOUBLE_TAP_MAGIC 0x07738135
 
@@ -118,38 +150,6 @@ uint32_t* pulSketch_Start_Address;
 
     /* Timeout happened, continue boot... */
     BOOT_DOUBLE_TAP_DATA = 0;
-  }
-#endif
-
-#if defined(BOOT_LOAD_PIN)
-  volatile PortGroup *boot_port = (volatile PortGroup *)(&(PORT->Group[BOOT_LOAD_PIN / 32]));
-  volatile bool boot_en;
-
-  // Enable the input mode in Boot GPIO Pin
-  boot_port->DIRCLR.reg = BOOT_PIN_MASK;
-  boot_port->PINCFG[BOOT_LOAD_PIN & 0x1F].reg = PORT_PINCFG_INEN | PORT_PINCFG_PULLEN;
-  boot_port->OUTSET.reg = BOOT_PIN_MASK;
-
-  /* Allow time for debouncing capacitor to charge (10ms) */
-  /* Needed when BOOT_DOUBLE_TAP is not used */
-
-#if (SAMD21 || SAMD11)
-  #define numLoopsDebounce 2500UL
-#elif (SAML21 || SAMC21)
-  #define numLoopsDebounce 10000UL
-#endif
-  for (uint32_t i=0; i<numLoopsDebounce; i++) /* 10ms */
-    /* force compiler to not optimize this... */
-    __asm__ __volatile__("");
-
-  // Read the BOOT_LOAD_PIN status
-  boot_en = (boot_port->IN.reg) & BOOT_PIN_MASK;
-
-  // Check the bootloader enable condition
-  if (!boot_en)
-  {
-    // Stay in bootloader
-    return;
   }
 #endif
 

@@ -101,8 +101,8 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #define GetTCChannelNumber( x ) ( (x) & 0x07 )
 #if (SAMD)
 #define GetTC( x ) ( g_apTCInstances[((x) >> 4) & 0x07] )
-#elif (SAML21 || SAMC21)
-#define GetTC( x ) ( ( ((x) >> 3) & 0x01 ) == 0 ? g_apTCInstances[((x) >> 4) & 0x07] : g_apTCInstances[(((x) >> 4) & 0x07) + TCC_INST_NUM] )
+#elif (SAML || SAMC)
+#define GetTC( x ) ( (((x) >> 3) & 0x01 ) == 0 ? g_apTCInstances[((x) >> 4) & 0x07] : (((((x) >> 4) & 0x07) == 4) ? TC4 : g_apTCInstances[(((x) >> 4) & 0x07) + TCC_INST_NUM]) )
 #else
 #error "WVariant.h: Unsupported chip"
 #endif
@@ -279,9 +279,10 @@ typedef struct _PinDescription
   uint8_t         ulExtInt ;	                // Must be 8 bits
   uint8_t         ulGCLKCCL ;	                // Must be 8 bits
 #else
-  uint16_t        ulTCChannel ;	        	// Must be 16 bits
-  uint8_t         ulADCChannelNumber ;	        // Must be 8 bits
-  uint8_t         ulExtInt ;	                // Must be 8 bits
+#error "The PinDescription table in the variant.cpp file of your board variant must be updated so that MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10608. See VARIANT_COMPLIANCE_CHANGELOG."
+//  uint16_t        ulTCChannel ;	        	// Must be 16 bits
+//  uint8_t         ulADCChannelNumber ;	        // Must be 8 bits
+//  uint8_t         ulExtInt ;	                // Must be 8 bits
 #endif
 } PinDescription ;
 

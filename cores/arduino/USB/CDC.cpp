@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <stdint.h>
 
+#if (!SAMC)
 #if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 
 #define CDC_SERIAL_BUFFER_SIZE	256
@@ -291,4 +292,5 @@ bool Serial_::rts() {
 
 Serial_ SerialUSB(USBDevice);
 
+#endif
 #endif

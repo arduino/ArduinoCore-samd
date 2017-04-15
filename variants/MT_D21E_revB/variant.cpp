@@ -128,7 +128,7 @@ const PinDescription g_APinDescription[]=
 #if (SAMD)
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 } ;
 #elif (SAML21 || SAMC21)
-const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC0, TC1, TC2 } ;
+const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC0, TC1, TC4 } ;
 #endif
 
 // Multi-serial objects instantiation

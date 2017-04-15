@@ -16,13 +16,16 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "sam.h"
+
+#if (!SAMC)
+
 #include <Arduino.h>
 
 #include "SAMD21_USBDevice.h"
 #include "PluggableUSB.h"
 #include "USBDesc.h"
 #include "WVariant.h"
-#include "sam.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -968,3 +971,4 @@ void USBDeviceClass::ISRHandler()
 // USBDevice class instance
 USBDeviceClass USBDevice;
 
+#endif

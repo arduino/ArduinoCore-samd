@@ -30,10 +30,6 @@
 #define GENERIC_CLOCK_GENERATOR_XOSC      (1u)
 #define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT (D21/D11) */
 #define GENERIC_CLOCK_GENERATOR_OSC_HS    (3u)
-#define GENERIC_CLOCK_GENERATOR_FDPLL96M  (4u)
-#define GENERIC_CLOCK_GENERATOR_XOSC32K   (5u)
-#define GENERIC_CLOCK_GENERATOR_OSC32K    (6u) /* GCLK6 not available on D11 */
-#define GENERIC_CLOCK_GENERATOR_DFLL48M   (7u) /* only D and L have the DFLL48M, GCLK7 not available on D11 */
 
 // Constants for Clock multiplexers
 #if (SAMD || SAML21)
@@ -374,10 +370,7 @@ void board_init( void )
   waitForSync();
 #endif
 
-  /*
-   * Now that all system clocks are configured, we can set CPU and APBx BUS clocks.
-   * There values are normally the one present after Reset.
-   */
+  /* Set CPU and APB dividers before switching the CPU/APB clocks to the new clock source */
 #if (SAMD)
   PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
   PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;

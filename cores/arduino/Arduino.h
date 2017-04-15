@@ -65,8 +65,6 @@ void init( void );
 void setup( void ) ;
 void loop( void ) ;
 
-#include "WVariant.h"
-
 #ifdef __cplusplus
 } // extern "C"
 #endif
@@ -75,6 +73,11 @@ void loop( void ) ;
 #ifdef __cplusplus
   #include "WCharacter.h"
   #include "WString.h"
+
+extern "C"{
+#include "WVariant.h"
+} // extern "C"
+
   #include "Tone.h"
   #include "WMath.h"
   #include "HardwareSerial.h"
@@ -129,7 +132,9 @@ void loop( void ) ;
 #include "USB/USBDesc.h"
 #include "USB/USBCore.h"
 #include "USB/USBAPI.h"
-#include "USB/USB_host.h"
+#if (SAMD21 || SAML21)
+  #include "USB/USB_host.h"
+#endif
 #endif
 
 #endif // Arduino_h

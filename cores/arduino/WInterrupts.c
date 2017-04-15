@@ -40,12 +40,14 @@ static void __initialize()
   GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_EIC ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
 #elif (SAML21 || SAMC21)
+  MCLK->APBAMASK.reg |= MCLK_APBAMASK_EIC;
   GCLK->PCHCTRL[GCM_EIC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+  while ( (GCLK->PCHCTRL[GCM_EIC].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );	// wait for sync
 #else
   #error "WInterrupts.c: Unsupported chip"
 #endif
 
+// SAML and SAMC EIC.CONFIG registers are enable-protected, thus must be disabled/enabled for each config change
 #if (SAMD21 || SAMD11)
 /* Shall we do that?
   // Do a software reset on EIC
@@ -56,16 +58,6 @@ static void __initialize()
   // Enable EIC
   EIC->CTRL.bit.ENABLE = 1;
   while (EIC->STATUS.bit.SYNCBUSY == 1) { }
-#elif (SAML21 || SAMC21)
-/* Shall we do that?
-  // Do a software reset on EIC
-  EIC->CTRLA.SWRST.bit = 1 ;
-  while ((EIC->CTRLA.SWRST.bit == 1) && (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK)) { }
-*/
-
-  // Enable EIC
-  EIC->CTRLA.bit.ENABLE = 1;
-  while (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK) { }
 #endif
 }
 
@@ -88,6 +80,12 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     enabled = 1;
   }
 
+#if (SAML21)
+  // The CHANGE and RISING interrupt modes on pin A31 on the SAML21 do not seem to work properly
+  if ((g_APinDescription[pin].ulPort == 0) && (g_APinDescription[pin].ulPin == 31) && ((mode == CHANGE) || (mode == RISING)))
+    return;
+#endif
+
   // Assign pin to EIC
   if (pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK)
     return;
@@ -109,12 +107,26 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 
   // Configure the interrupt mode
   pos = (in - (8 * config)) << 2;				// compute position (ie: 0, 4, 8, 12, ...)
-  uint32_t regConfig = EIC->CONFIG[config].reg;			// copy register to variable
+
+#if (SAML21 || SAMC21)
+  EIC->CTRLA.reg = 0;	// disable EIC before changing CONFIG
+  while (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK) { }
+#endif
+
+  uint32_t regConfig = (~(EIC_CONFIG_SENSE0_Msk << pos) & EIC->CONFIG[config].reg);		// copy register to variable, clearing mode bits
   // insert new mode and write to register (the hardware numbering for the 5 interrupt modes is in reverse order to the arduino numbering, so using '5-mode').
   EIC->CONFIG[config].reg = (regConfig | ((5-mode) << pos));
 
+#if (SAML21 || SAMC21)
+  EIC->CTRLA.reg = EIC_CTRLA_ENABLE;	// enable EIC
+  while (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK) { }
+#endif
+
+  // Clear the interrupt flag
+  EIC->INTFLAG.reg = (1 << in);
+
   // Enable the interrupt
-  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
+  EIC->INTENSET.reg = (1 << in);
 }
 
 /*
@@ -127,7 +139,7 @@ void detachInterrupt(uint32_t pin)
     return;
 
   EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
-  
+
   // Disable wakeup capability on pin during sleep (WAKEUP always enabled on SAML and SAMC)
 #if (SAMD21 || SAMD11)
   EIC->WAKEUP.reg &= ~(1 << in);
@@ -140,7 +152,7 @@ void detachInterrupt(uint32_t pin)
 void EIC_Handler(void)
 {
   // Test the normal interrupts
-  for (uint32_t i=EXTERNAL_INT_0; i<=EXTERNAL_INT_15; i++)
+ for (uint32_t i=EXTERNAL_INT_0; i<=EXTERNAL_INT_15; i++)
   {
     if ((EIC->INTFLAG.reg & (1 << i)) != 0)
     {

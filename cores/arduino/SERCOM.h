@@ -23,6 +23,11 @@
 
 #define SERCOM_FREQ_REF F_CPU
 
+// Not defined in CMSIS for SAML or SAMC
+#ifndef SERCOM_SPI_CTRLA_MODE_SPI_MASTER
+#define SERCOM_SPI_CTRLA_MODE_SPI_MASTER	(0x3ul << SERCOM_SPI_CTRLA_MODE_Pos)
+#endif
+
 typedef enum
 {
 	UART_EXT_CLOCK = 0,

@@ -33,14 +33,36 @@
 #define MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE 10608
 
 /*----------------------------------------------------------------------------
- *        Definitions
+ *        Clock Configuration
  *----------------------------------------------------------------------------*/
 
-/** Frequency of the board main oscillator */
-#define VARIANT_MAINOSC		(32768ul)
-
-/** Master clock frequency */
+/** Master clock frequency (also Fcpu frequency) */
 #define VARIANT_MCK		(48000000ul)
+
+/* If CLOCKCONFIG_HS_CRYSTAL is defined, then HS_CRYSTAL_FREQUENCY_HERTZ
+ * must also be defined with the external crystal frequency in Hertz.
+ */
+#define HS_CRYSTAL_FREQUENCY_HERTZ	16000000UL
+
+/* If the PLL is used (CLOCKCONFIG_32768HZ_CRYSTAL, or CLOCKCONFIG_HS_CRYSTAL
+ * defined), then PLL_FRACTIONAL_ENABLED can be defined, which will result in
+ * a more accurate 48MHz output frequency at the expense of increased jitter.
+ */
+//#define PLL_FRACTIONAL_ENABLED
+
+/* If both PLL_FAST_STARTUP and CLOCKCONFIG_HS_CRYSTAL are defined, the crystal
+ * will be divided down to 1MHz - 2MHz, rather than 32KHz - 64KHz, before being
+ * multiplied by the PLL. This will result in a faster lock time for the PLL,
+ * however, it will also result in a less accurate PLL output frequency if the
+ * crystal is not divisible (without remainder) by 1MHz. In this case, define
+ * PLL_FRACTIONAL_ENABLED as well.
+ */
+//#define PLL_FAST_STARTUP
+
+/* The fine calibration value for DFLL open-loop mode is defined here.
+ * The coarse calibration value is loaded from NVM OTP (factory calibration values).
+ */
+#define NVM_SW_CALIB_DFLL48M_FINE_VAL     (512)
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -285,22 +307,38 @@ extern Uart Serial2;
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#define SERIAL_PORT_USBVIRTUAL      SerialUSB
+#if (!SAMC)
+  #define SERIAL_PORT_USBVIRTUAL      SerialUSB
+#endif
 // SERIAL_PORT_MONITOR seems to be used only by the USB Host library (as of 1.6.5).
 // It normally allows debugging output on the USB programming port, while the USB host uses the USB native port.
 // The programming port is connected to a hardware UART through a USB-Serial bridge (EDBG chip) on the Zero.
 // Boards that do not have the EDBG chip will have to connect a USB-TTL serial adapter to 'Serial' to get
 // the USB Host debugging output.
-#define SERIAL_PORT_MONITOR         Serial1
+#if (SAMC)
+  #define SERIAL_PORT_MONITOR         Serial2
+#else
+  #define SERIAL_PORT_MONITOR         Serial1
+#endif
+
 // Serial has no physical pins broken out, so it's not listed as HARDWARE port
-#define SERIAL_PORT_HARDWARE        Serial1
-#define SERIAL_PORT_HARDWARE_OPEN   Serial1
+#if (SAMC)
+  #define SERIAL_PORT_HARDWARE        Serial2
+  #define SERIAL_PORT_HARDWARE_OPEN   Serial2
+#else
+  #define SERIAL_PORT_HARDWARE        Serial1
+  #define SERIAL_PORT_HARDWARE_OPEN   Serial1
+#endif
 
 // The MT-D21E does not have the EDBG support chip, which provides a USB-UART bridge
 // accessible using Serial (the Arduino serial monitor is normally connected to this).
 // So, the USB virtual serial port (SerialUSB) must be used to communicate with the host.
 // Because most sketches use Serial to print to the monitor, it is aliased to SerialUSB.
 // Remember to use while(!Serial); to wait for a connection before Serial printing.
-#define Serial                      SerialUSB
+#if (SAMC)
+  #define Serial		      Serial1
+#else
+  #define Serial                      SerialUSB
+#endif
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */
