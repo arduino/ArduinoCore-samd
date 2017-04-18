@@ -191,6 +191,9 @@ class SERCOM
     void prepareNackBitWIRE( void ) ;
     void prepareAckBitWIRE( void ) ;
     void prepareCommandBitsWire(uint8_t cmd);
+    void clearStopBitsWire(void);
+    void clearAddrMatchBitsWire(void);
+    void clearDrdyBitsWire(void);
 		bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag) ;
 		bool sendDataMasterWIRE(uint8_t data) ;
 		bool sendDataSlaveWIRE(uint8_t data) ;

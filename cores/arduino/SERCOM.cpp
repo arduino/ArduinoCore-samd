@@ -399,6 +399,11 @@ void SERCOM::initSlaveWIRE( uint8_t ucAddress )
   // Set slave mode
   sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION ;
 
+  // Enable I2C Slave with SW handling after auto Ack
+  sercom->I2CS.CTRLA.bit.SCLSM = 1;
+  sercom->I2CS.CTRLB.bit.SMEN = 1;
+  sercom->I2CS.CTRLB.bit.AMODE = 0;
+
   sercom->I2CS.ADDR.reg = SERCOM_I2CS_ADDR_ADDR( ucAddress & 0x7Ful ) | // 0x7F, select only 7 bits
                           SERCOM_I2CS_ADDR_ADDRMASK( 0x00ul ) ;         // 0x00, only match exact address
 
@@ -438,9 +443,11 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 void SERCOM::prepareNackBitWIRE( void )
 {
   if(isMasterWIRE()) {
-    // Send a NACK
+    // Send a NACK - Updated with notes from Errata in datasheet
+	sercom->I2CM.STATUS.reg = 0;
     sercom->I2CM.CTRLB.bit.ACKACT = 1;
   } else {
+	sercom->I2CS.STATUS.reg = 0;
     sercom->I2CS.CTRLB.bit.ACKACT = 1;
   }
 }
@@ -448,9 +455,11 @@ void SERCOM::prepareNackBitWIRE( void )
 void SERCOM::prepareAckBitWIRE( void )
 {
   if(isMasterWIRE()) {
-    // Send an ACK
+    // Send an ACK - Updated with notes from Errata in datasheet
+	sercom->I2CM.STATUS.reg = 0;
     sercom->I2CM.CTRLB.bit.ACKACT = 0;
   } else {
+	sercom->I2CS.STATUS.reg = 0;
     sercom->I2CS.CTRLB.bit.ACKACT = 0;
   }
 }
@@ -465,8 +474,25 @@ void SERCOM::prepareCommandBitsWire(uint8_t cmd)
       // Waiting for synchronization
     }
   } else {
-    sercom->I2CS.CTRLB.bit.CMD = cmd;
+	  clearStopBitsWire();
+	  clearAddrMatchBitsWire();
   }
+}
+
+void SERCOM::clearStopBitsWire(void)
+{
+	if (sercom->I2CS.INTFLAG.bit.PREC)
+		sercom->I2CS.INTFLAG.reg = SERCOM_I2CS_INTFLAG_PREC; // Clear stop received interrupt flag
+}
+
+void SERCOM::clearAddrMatchBitsWire(void)
+{
+	sercom->I2CS.INTFLAG.reg = SERCOM_I2CS_INTFLAG_AMATCH; // Clear the address match flag
+}
+
+void SERCOM::clearDrdyBitsWire(void)
+{
+	sercom->I2CS.INTFLAG.reg = SERCOM_I2CS_INTFLAG_DRDY; // Clear the data ready bits
 }
 
 bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
