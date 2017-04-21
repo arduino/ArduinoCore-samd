@@ -309,6 +309,12 @@ extern Uart Serial2;
 // So, the USB virtual serial port (SerialUSB) must be used to communicate with the host.
 // Because most sketches use Serial to print to the monitor, it is aliased to SerialUSB.
 // Remember to use while(!Serial); to wait for a connection before Serial printing.
+
+// When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 #define Serial                      SerialUSB
+#else
+#define Serial                      Serial1
+#endif
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */

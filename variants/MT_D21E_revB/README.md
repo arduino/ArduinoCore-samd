@@ -28,9 +28,12 @@ USB D+ (D/L)(+), CAN RX (C)  TC51 25 | A25  |     |  Vin |   L21 installed. 5V i
            Chip Variant:              -------------------
         D=D21, L=L21, C=C21
 
-* Most pins can be used for more than one function. The same port pin number printed on
-  the board is also used in Arduino (without the 'A') for all of the supported functions
-  (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
+* Most pins can be used for more than one function. The port pin number printed
+  on the board is also used in Arduino (but without the 'A') for all of the supported
+  functions (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
+* When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
+* Leave pin A30 floating (or use external pullup) during reset.
+* Tone available on TC5. DO NOT connect voltages higher than 3.3V!
 
 + This alternate function is enabled by default (+M functions enabled only when a memory
   device is installed). Thus, the associated header pin cannot be used. Solder jumpers
@@ -83,15 +86,14 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 --	| RST	| ----	|			| Reset, BOOT (double tap bootloader entry)
 ============================================================================================================================================
 
-* Most pins can be used for more than one function. The same port pin number printed on the board is also used in Arduino (without the 'A')
-  for all of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
-
+* Most pins can be used for more than one function. The port pin number printed
+  on the board is also used in Arduino (but without the 'A') for all of the supported
+  functions (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
 * The following Arduino pin numbers are not mapped to a physical pin: 12, 13, 20, 21, 26, and 29.
-
-* Pins 24 and 25 are by default in use by USB (USB_NEGATIVE and USB_POSITIVE). TC5(D21) is available on these pins otherwise.
-  The tone library uses TC5.
-
+* Pins 24 and 25 are by default in use by USB (USB_NEGATIVE and USB_POSITIVE).
+* TC5(D21) is available on these pins otherwise. The tone library uses TC5.
 * A0 and A1 are by default connected to the 32.768KHz crystal.
+* Leave pin A30 floating (or use external pullup) during reset.
 
 
 

@@ -4,21 +4,26 @@
 ====================================== ATsamD11C14A =====================================
 Other  COM   PWM  Analog  INT  Arduino*           Arduino*  INT  Analog  PWM   COM  Other
 =========================================================================================
-                                   -------------------
-     RX2*    TCC01    *    *    5 | A5             A4 | 4    *    *     TCC00  TX2*   REF
- TX1 / MOSI  TCC02         *    8 | A8             A2 | 2    *    *                   DAC
- RX1 / SCK   TCC03         *    9 | A9            Vdd |
-     SDA     TC10     *   NMI  14 | A14           Gnd |
-     SCL     TC11     *    *   15 | A15           A25 | 25                    USB/DP
+                                  1-------------------
+  SCK*/RX2  TCC01    *     *    5 | A5             A4 | 4    *    *  TCC00 MOSI*/TX2  REF
+    MOSI*   TCC02          *    8 | A8             A2 | 2    *    *                   DAC
+    SCK*    TCC03          *    9 | A9            Vdd |
+  SDA/MISO*  TC10    *    NMI  14 | A14           Gnd |
+   SCL/SS*   TC11    *     *   15 | A15           A25 | 25                    USB/DP
 BOOT                           28 | A28/RST       A24 | 24                    USB/DM
-SWDCLK  MISO                   30 | A30           A31 | 31   *                SS    SWDIO
+SWDCLK  TX1/MISO*              30 | A30           A31 | 31   *            RX1/SS*   SWDIO
                                    -------------------
 
-* Some pins can be used for more than one function. The same port pin number printed on
-  the board is also used in Arduino (without the 'A') for all of the supported functions
-  (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
-* When using ONE_UART_NO_WIRE_ONE_SPI, Serial1() refers to TX2/RX2 instead of TX1/RX1.
-* Tone available on TC2. TC2 is not routed to pins with the D11C14A.
+* Most pins can be used for more than one function. When using PIN_MAP_STANDARD, the port
+  pin number printed on the board is also used in Arduino (but without the 'A') for all
+  of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.). When
+  using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the top
+  left pin (A2). PIN_MAP_COMPACT uses less RAM.
+* When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
+* When using NO_UART_ONE_WIRE_ONE_SPI, use SPI on pins 4, 5, 14, and 15.
+  When using ONE_UART_NO_WIRE_ONE_SPI, use SPI on pins 8, 9, 30, and 31.
+* Tone available on TC2. TC2 is not routed to pins in the D11C14A.
+* Leave pin A30 floating (or use external pullup) during reset.
 * DO NOT connect voltages higher than 3.3V!
 ```
 
@@ -80,13 +85,16 @@ Arduino	| Port	| Alternate Function	| Comments (! means not used with this perip
 11	| PA31	| SS / SWD IO		| EIC/EXTINT[3] SERCOM1/PAD[1] !SERCOM1/PAD[3] !TC2/WO[1] !TCC0/WO[3] SWD IO
 ====================================================================================================================================
 
-* Most pins can be used for more than one function. The same port pin number printed on the board is also used in Arduino (without the 'A')
-  for all of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
+* Most pins can be used for more than one function. When using PIN_MAP_STANDARD, the port
+  pin number printed on the board is also used in Arduino (but without the 'A') for all
+  of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.). When
+  using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the top
+  left pin (A2). PIN_MAP_COMPACT uses less RAM.
 * NOT A PIN means the Arduino pin number is not mapped to a physical pin.
 * Pins 24 and 25 are in use by USB (USB_NEGATIVE and USB_POSITIVE).
-* The tone library uses TC2. TC2 is not routed to pins with the D11C14A (14-pin).
-* Pins 8 and 9 are by default connected to the 32.768KHz crystal.
-* When using ONE_UART_NO_WIRE_ONE_SPI, Serial1() refers to TX2/RX2 instead of TX1/RX1.
+* The tone library uses TC2. TC2 is not routed to pins in the D11C14A (14-pin).
+* When using ONE_UART_NO_WIRE_ONE_SPI, Serial1 refers to TX2/RX2 instead of TX1/RX1.
+* Leave pin A30 floating (or use external pullup) during reset.
 * SERCOM2 does not exist on the D11C14A.
 
 

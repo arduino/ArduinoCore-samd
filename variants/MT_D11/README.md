@@ -17,9 +17,13 @@ REF                   *            | A3   |     |  Vcc |
 BTN   SS              *      *     | A15           RST |                             BOOT
                                     -------------------
 
-* Some pins can be used for more than one function. The same port pin number printed on
-  the board is also used in Arduino (without the 'A') for all of the supported functions
-  (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
+* Most pins can be used for more than one function. When using PIN_MAP_STANDARD, the port
+  pin number printed on the board is also used in Arduino (but without the 'A') for all
+  of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.). When
+  using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the top
+  left pin (A2). PIN_MAP_COMPACT uses less RAM.
+* When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
+* Leave pin A30 floating (or use external pullup) during reset.
 * Tone available on TC2. DO NOT connect voltages higher than 3.3V!
 ```
 
@@ -86,12 +90,16 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 16	| A31	| PA31	| RX1 / SWD IO		| EIC/EXTINT[3] !SERCOM1/PAD[1] SERCOM1/PAD[3] TC2/WO[1] !TCC0/WO[3] SWD IO
 ============================================================================================================================================
 
-* Most pins can be used for more than one function. The same port pin number printed on the board is also used in Arduino (without the 'A')
-  for all of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
+* Most pins can be used for more than one function. When using PIN_MAP_STANDARD, the port
+  pin number printed on the board is also used in Arduino (but without the 'A') for all
+  of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.). When
+  using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the top
+  left pin (A2). PIN_MAP_COMPACT uses less RAM.
 * The following Arduino pin numbers are not mapped to a physical pin: 0, 1, 8, 9, 12, 13, 18, 19, 20, 21, 24, 25, 26, 28, and 29.
 * Pins 24 and 25 are in use by USB (USB_NEGATIVE and USB_POSITIVE).
-* The tone library uses TC2.
+* Leave pin A30 floating (or use external pullup) during reset.
 * Pins 8 and 9 are by default connected to the 32.768KHz crystal.
+* The tone library uses TC2.
 
 
 

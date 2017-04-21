@@ -257,7 +257,11 @@ static const uint8_t ATN = PIN_ATN;
 /*
  * SPI Interfaces
  */
+#if defined(ONE_SPI)
 #define SPI_INTERFACES_COUNT 1
+#else
+#define SPI_INTERFACES_COUNT 0
+#endif
 
 #if defined PIN_MAP_STANDARD
 #define PIN_SPI_MISO         (14u)
@@ -284,7 +288,11 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 /*
  * Wire Interfaces
  */
+#if defined(ONE_WIRE)
 #define WIRE_INTERFACES_COUNT 1
+#else
+#define WIRE_INTERFACES_COUNT 0
+#endif
 
 #if defined PIN_MAP_STANDARD
 #define PIN_WIRE_SDA         (22u)
@@ -367,11 +375,17 @@ extern Uart Serial2;
 #define SERIAL_PORT_HARDWARE        Serial1
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
-// The MT-D21E does not have the EDBG support chip, which provides a USB-UART bridge
+// The MT-D11 does not have the EDBG support chip, which provides a USB-UART bridge
 // accessible using Serial (the Arduino serial monitor is normally connected to this).
 // So, the USB virtual serial port (SerialUSB) must be used to communicate with the host.
 // Because most sketches use Serial to print to the monitor, it is aliased to SerialUSB.
 // Remember to use while(!Serial); to wait for a connection before Serial printing.
+
+// When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
+#if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
 #define Serial                      SerialUSB
+#else
+#define Serial                      Serial1
+#endif
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */

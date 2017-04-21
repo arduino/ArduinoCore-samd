@@ -92,17 +92,10 @@ SERCOM sercom1( SERCOM1 ) ;
 #if defined(ONE_UART) || defined(TWO_UART)
 Uart Serial1( SERCOM_INSTANCE_SERIAL1, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX ) ;
 
-#if defined (ONE_SPI)
-void SERCOM0_Handler()
-{
-  Serial1.IrqHandler();
-}
-#else
 void SERCOM1_Handler()
 {
   Serial1.IrqHandler();
 }
-#endif
 #endif
 
 #if defined(TWO_UART)

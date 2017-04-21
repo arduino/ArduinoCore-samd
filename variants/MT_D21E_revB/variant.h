@@ -338,7 +338,12 @@ extern Uart Serial2;
 #if (SAMC)
   #define Serial		      Serial1
 #else
-  #define Serial                      SerialUSB
+  // When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
+  #if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
+    #define Serial                      SerialUSB
+  #else
+    #define Serial                      Serial1
+  #endif
 #endif
 
 #endif /* _VARIANT_ARDUINO_ZERO_ */
