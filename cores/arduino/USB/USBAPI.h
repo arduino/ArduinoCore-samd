@@ -65,6 +65,8 @@ public:
 	bool configured();
 	bool connected();
 
+	void standby();
+
 	// Setup API
 	bool handleClassInterfaceSetup(USBSetup &setup);
 	bool handleStandardSetup(USBSetup &setup);

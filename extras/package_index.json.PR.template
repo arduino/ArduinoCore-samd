@@ -32,12 +32,12 @@
             {
               "packager": "arduino",
               "name": "bossac",
-              "version": "1.6.1-arduino"
+              "version": "1.7.0"
             },
             {
               "packager": "arduino",
               "name": "openocd",
-              "version": "0.9.0-arduino5-static"
+              "version": "0.9.0-arduino6-static"
             },
             {
               "packager": "arduino",
@@ -48,6 +48,11 @@
               "packager": "arduino",
               "name": "CMSIS-Atmel",
               "version": "1.1.0"
+            },
+            {
+              "packager": "arduino",
+              "name": "arduinoOTA",
+              "version": "1.2.0"
             }
           ]
         }

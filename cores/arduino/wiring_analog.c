@@ -308,7 +308,7 @@ void analogWrite(uint32_t pin, uint32_t value)
         Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
         TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
         syncTC_8(TCx);
-    } else {
+      } else {
         Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
         TCCx->CTRLBSET.bit.LUPD = 1;
         syncTCC(TCCx);
