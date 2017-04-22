@@ -141,7 +141,7 @@ extern "C"
  */
 #define JUMPER_A             (27u)
 #define BUTTON_B             (31u)
-#define BUTTON_BUILTIN       BUTTON_A
+#define BUTTON_BUILTIN       BUTTON_B
 
 
 /*

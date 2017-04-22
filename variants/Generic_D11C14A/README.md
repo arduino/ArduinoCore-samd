@@ -98,6 +98,57 @@ Arduino	| Port	| Alternate Function	| Comments (! means not used with this perip
 * SERCOM2 does not exist on the D11C14A.
 
 
+# Board Configuration Notes
+
+TODO: Update this for Generic D11C14A
+
+* Either the 32.768KHz crystal or the 16MHz crystal can be used.
+* The bootloader does not use an external crystal by default. Double-tap the reset button to enter.
+
+* **Digital: All pins can be used for general purpose I/O** 
+  * Supports INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
+  * Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
+  * Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
+  * Use the pinMode(), digitalWrite(), and digitalRead() functions.
+* **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
+  * These are available using the analogRead() function.
+  * All pins can be used for GPIO and some pins can be used for other digital functions (ie. pwm or serial).
+  * Each pin provides 10 bits of resolution (1024 values) by default.
+  * 12-bit resolution supported by using the analogReadResolution() function.
+  * Each pin measures from ground to 3.3 volts.
+  * The upper end of the measurement range can be changed using the AREF pin and the analogReference() function.
+* **DAC: One analog output is available on pin 2.**
+  * Provides a 10-bit voltage output with the analogWrite() function.
+* **PWM: 12 pins (MT-D21E) or 8 pins (MT-D11) can be configured as PWM outputs.**
+  * Available using the analogWrite() function.
+  * Each pin provides 8 bits of resolution (256 values) by default.
+  * 12-bit resolution supported by using the analogWriteResolution() function.
+* **External Interrupts: 15 pins (MT-D21E) or 9 pins (MT-D11) can be configured with external interrupts.**
+  * Available using the attachInterrupt() function.
+* **Serial: 2 pairs of pins (MT-D21E) or 1 pair (MT-D11) can be configured for TTL serial I/O.**
+  * MT-D21E: Serial1: pin 11 (RX) and pin 10 (TX). Serial2: pin 15 (RX) and pin 14 (TX).
+  * MT-D11: Serial1: pin 31 (RX) and pin 30 (TX).
+* **SPI: 3 or 4 pins can be configured for SPI I/O (SPI).**
+  * MT-D21E: Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
+  * MT-D11: Pin 10 (MOSI), pin 11 (SCK), pin 14 (MISO), and optionally pin 15 (SS, not currently used).
+  * SPI communication using the SPI library.
+  * Note that the SPI library will set SS as an output.
+  * On the MT-D11, the button must be configured as reset (default) when using SPI.
+* **TWI (I2C): 2 pins can be configured for TWI I/O (Wire).**
+  * MT-D21E: Pin 16 (SDA) and pin 17 (SCL).
+  * MT-D11: Pin 22 (SDA) and pin 23 (SCL).
+  * TWI communication using the Wire library.
+* **LED: One pin can be configured to light the onboard LED (LED_BUILTIN).**
+  * Pin 28 (MT-D21E) or pin 16 (MT-D11). Bring the pin HIGH to turn the LED on. The pullup is disabled on this pin.
+* **Button: One pin can be configured to read the onboard Button A (BUTTON_BUILTIN).**
+  * Pin 27 (MT-D21E) or pin 15 (MT-D11). Pressing the button will bring the pin LOW. The pullup must be enabled first.
+  * If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
+* **AREF: One pin can be configured as an AREF analog input.**
+  * The upper end of the analog measurement range can be changed using the analogReference() function.
+* **Reset: Bring this line LOW to reset the microcontroller.**
+
+
+
 # PinDescription table format
 
 ## Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.

@@ -4,9 +4,6 @@ This directory contains the SAM-BA m0+ bootloaders built by the
 build_all_bootloaders.sh script from the 'MattairTech SAM M0+
 Boards' Arduino core, which is available at
 https://github.com/mattairtech/ArduinoCore-samd.
-Note that the link above might not correspond to these binaries.
-I've released the binaries before the core. These binaries are from
-core version 1.6.8-beta-b0.
 
 ## MattairTech Boards
 MattairTech boards are all configured with only one interface:
