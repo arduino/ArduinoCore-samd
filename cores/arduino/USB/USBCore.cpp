@@ -635,10 +635,6 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 	uint32_t written = 0;
 	uint32_t length = 0;
 
-	// if len is a multiple of EPX_SIZE an ZLP needs to be sent
-	// to indicate end of transfer
-	bool sendZlp = (len % EPX_SIZE) == 0;
-
 	if (!_usbConfiguration)
 		return -1;
 	if (len > 16384)
@@ -652,7 +648,7 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 #endif
 
 	// Flash area
-	while (len != 0 || sendZlp)
+	while (len != 0)
 	{
 		if (usbd.epBank1IsReady(ep)) {
 			// previous transfer is still not complete
@@ -697,12 +693,6 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 
 		written += length;
 		len -= length;
-		
-		if (len == 0 && sendZlp) {
-			// empty transfer sent
-			sendZlp = false;
-		}
-
 		data = (char *)data + length;
 	}
 	return written;

@@ -172,7 +172,7 @@ void SystemInit( void )
    */
 
 #if ((HS_CRYSTAL_FREQUENCY_HERTZ < 400000UL) || (HS_CRYSTAL_FREQUENCY_HERTZ > 32000000UL))
-  #error "board.init.c: HS_CRYSTAL_FREQUENCY_HERTZ must be between 4000000UL and 32000000UL"
+  #error "board.init.c: HS_CRYSTAL_FREQUENCY_HERTZ must be between 400000UL and 32000000UL"
 #endif
 
 #if defined(PLL_FAST_STARTUP)
