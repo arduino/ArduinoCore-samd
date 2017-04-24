@@ -47,7 +47,8 @@ Silkscreen Legend:
 ```
 
 
-# Pins descriptions for the MattairTech MT-D21E (rev B)
+## Pins descriptions for the MattairTech MT-D21E (rev B)
+```
 ============================================================================================================================================
 Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with this peripheral assignment)
 --------|-------|-------|-----------------------|-------------------------------------------------------------------------------------------
@@ -94,73 +95,74 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 * TC5(D21) is available on these pins otherwise. The tone library uses TC5.
 * A0 and A1 are by default connected to the 32.768KHz crystal.
 * Leave pin A30 floating (or use external pullup) during reset.
+```
 
 
-# Board Configuration Notes
+## Board Configuration Notes
 
-TODO: Update this
+* **Crystals**
+  * Either the 32.768KHz crystal or the 16MHz crystal can be used. Be sure to set the correct solder jumpers.
+  * The bootloader does not use an external crystal by default. Double-tap the reset button to enter manually.
 
-* Either the 32.768KHz crystal or the 16MHz crystal can be used. Be sure to set the correct solder jumpers.
-* The bootloader does not use an external crystal by default. Double-tap the reset button to enter.
-* The button is connected to the Reset pin by default, but can be connected to pin 15 via the solder jumper.
-* BTN pin is shared with SPI SS, so the button must be configured as reset (default) when using SPI.
-* A reference voltage can be connected to REFA or REFB. In these cases, the capacitors should be enabled via the solder jumpers.
-* The I2C (TWI) pullup resistors are enabled by default.
-* The LED is enabled by default.
+* **LED (LED_BUILTIN)**
+  * Bring the pin HIGH to turn the LED on.
+  * The LED is enabled (solder jumper) by default.
 
-* **Digital: All pins can be used for general purpose I/O** 
-  * Supports INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
-  * Each pin can source or sink a maximum of 7 mA (when PER_ATTR_DRIVE_STRONG is set for the pin).
+* **Button (BUTTON_BUILTIN)**
+  * Button (B) is connected to the Reset pin by default, but can be connected to pin 31 via the solder jumper.
+  * Pressing the button will bring the pin LOW. The pullup must be enabled first.
+  * If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
+
+* **Jumper**
+  * Jumper (A) is connected (solder jumper) to pin 27 by default.
+  * Since this pin is shared with the optional memory device CD pin, **leave the jumper off** when a memory device is installed.
+
+* **GPIO** 
+  * All pins (including analog) support INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
+  * When PER_ATTR_DRIVE_STRONG is set for the pin (enabled by default), each pin can source or sink a maximum of:
+    * **D21:** 7mA high, 10mA low
+    * **L21:** 5mA high, 6mA low (8 high drive pins: 10mA high, 12mA low)
+    * **C21:** 6mA high, 10mA low (2 high drive pins (A10, A11): 12mA high, 20mA low)
   * Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
-  * Use the pinMode(), digitalWrite(), and digitalRead() functions.
-* **Analog Inputs: 10 pins can be configured as ADC analog inputs.**
-  * These are available using the analogRead() function.
-  * All pins can be used for GPIO and some pins can be used for other digital functions (ie. pwm or serial).
+
+* **Analog Inputs**
+  * 10 pins can be configured as ADC analog inputs.
+  * Each pin measures from ground to 3.3 volts by default.
   * Each pin provides 10 bits of resolution (1024 values) by default.
   * 12-bit resolution supported by using the analogReadResolution() function.
-  * Each pin measures from ground to 3.3 volts.
-  * The upper end of the measurement range can be changed using the AREF pin and the analogReference() function.
-* **DAC: One analog output is available on pin 2.**
-  * Provides a 10-bit voltage output with the analogWrite() function.
-* **PWM: 12 pins (MT-D21E) or 8 pins (MT-D11) can be configured as PWM outputs.**
-  * Available using the analogWrite() function.
+  * The upper end of the measurement range can be changed using the analogReference() function.
+  * A reference voltage can be connected to REFA or REFB. In these cases, the capacitors should be enabled via the solder jumpers.
+
+* **DAC**
+  * D21/C21: One 10-bit 350Ksps analog output is available on pin 2.
+  * L21: Two 12-bit 1Msps analog outputs are available on pins 2 and 5.
+
+* **PWM**
+  * 12 pins can be configured as PWM outputs.
   * Each pin provides 8 bits of resolution (256 values) by default.
   * 12-bit resolution supported by using the analogWriteResolution() function.
-* **External Interrupts: 15 pins (MT-D21E) or 9 pins (MT-D11) can be configured with external interrupts.**
-  * Available using the attachInterrupt() function.
-* **Serial: 2 pairs of pins (MT-D21E) or 1 pair (MT-D11) can be configured for TTL serial I/O.**
-  * MT-D21E: Serial1: pin 11 (RX) and pin 10 (TX). Serial2: pin 15 (RX) and pin 14 (TX).
-  * MT-D11: Serial1: pin 31 (RX) and pin 30 (TX).
-* **SPI: 3 or 4 pins can be configured for SPI I/O (SPI).**
-  * MT-D21E: Pin 18 (MOSI), pin 19 (SCK), pin 22 (MISO), and optionally pin 23 (SS, not currently used).
-  * MT-D11: Pin 10 (MOSI), pin 11 (SCK), pin 14 (MISO), and optionally pin 15 (SS, not currently used).
-  * SPI communication using the SPI library.
-  * Note that the SPI library will set SS as an output.
-  * On the MT-D11, the button must be configured as reset (default) when using SPI.
-* **TWI (I2C): 2 pins can be configured for TWI I/O (Wire).**
-  * MT-D21E: Pin 16 (SDA) and pin 17 (SCL).
-  * MT-D11: Pin 22 (SDA) and pin 23 (SCL).
-  * TWI communication using the Wire library.
-* **LED: One pin can be configured to light the onboard LED (LED_BUILTIN).**
-  * Pin 28 (MT-D21E) or pin 16 (MT-D11). Bring the pin HIGH to turn the LED on. The pullup is disabled on this pin.
-* **Button: One pin can be configured to read the onboard Button A (BUTTON_BUILTIN).**
-  * Pin 27 (MT-D21E) or pin 15 (MT-D11). Pressing the button will bring the pin LOW. The pullup must be enabled first.
-  * If the debouncing capacitor is connected, delay reading the pin at least 6ms after turning on the pullup.
-* **AREF: One pin can be configured as an AREF analog input.**
-  * The upper end of the analog measurement range can be changed using the analogReference() function.
-* **Reset: Bring this line LOW to reset the microcontroller.**
+
+* **External Interrupts**
+  * 14 pins can be configured with external interrupts.
+
+* **SERCOM**
+  * 4 SERCOM are available.
+  * Up to 2 UART instances
+  * 1 SPI instance
+  * 1 WIRE (I2C) instance
+  * The WIRE pullup resistors are enabled by default.
 
 
 
-# PinDescription table format
+## PinDescription table format
 
-## Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.
+### Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.
 MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE in variant.h is used to track versions.
 If using board variant files with the old format, the new core will still read the
 table the old way, losing any new features introduced by the new column. Additionally,
 new definitions have been added for L21 and C21 support.
 
-## Each pin can have multiple functions.
+### Each pin can have multiple functions.
 The PinDescription table describes how each of the pins can be used by the Arduino
 core. Each pin can have multiple functions (ie: ADC input, digital output, PWM,
 communications, etc.), and the PinDescription table configures which functions can
@@ -171,7 +173,7 @@ analogReference(), attachInterrupt(), and pinMode() all call pinPeripheral() to
 verify that the pin can perform the function requested, and to configure the pin for
 that function. Most of the contents of pinMode() are now in pinPeripheral().
 
-## Pin Mapping
+### Pin Mapping
 There are different ways that pins can be mapped. Typically, there is no relation
 between the arduino pin number used, and the actual port pin designator. Thus, the 
 pcb must be printed with the arduino numbering, otherwise, if the port pin is printed,
@@ -187,15 +189,15 @@ designators from both PORTA and PORTB for arduino numbers 0-31 (ie: B1=1, A2=2),
 using arduino numbering only above 31. For 0-31 only one pin from PORTA or PORTB can be
 used, leaving the other pin for some number above 31.
 
-## See WVariant.h in cores/arduino for the definitions used in the table.
+**See [WVariant.h](https://github.com/mattairtech/ArduinoCore-samd/tree/master/cores/arduino/WVariant.h) for the definitions used in the table.**
 
-### Port:
+### Port
 This is the port (ie: PORTA).
 
-### Pin:
+### Pin
 This is the pin (bit) within the port. Valid values are 0-31.
 
-### PinType:
+### PinType
 This indicates what peripheral function the pin can be attached to. In most cases,
 this is PIO_MULTI, which means that the pin can be anything listed in the PinAttribute
 field. It can also be set to a specific peripheral. In this case, any attempt to

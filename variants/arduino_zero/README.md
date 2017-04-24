@@ -92,15 +92,15 @@
 
 
 
-# PinDescription table format
+## PinDescription table format
 
-## Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.
+### Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.
 MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE in variant.h is used to track versions.
 If using board variant files with the old format, the new core will still read the
 table the old way, losing any new features introduced by the new column. Additionally,
 new definitions have been added for L21 and C21 support.
 
-## Each pin can have multiple functions.
+### Each pin can have multiple functions.
 The PinDescription table describes how each of the pins can be used by the Arduino
 core. Each pin can have multiple functions (ie: ADC input, digital output, PWM,
 communications, etc.), and the PinDescription table configures which functions can
@@ -111,7 +111,7 @@ analogReference(), attachInterrupt(), and pinMode() all call pinPeripheral() to
 verify that the pin can perform the function requested, and to configure the pin for
 that function. Most of the contents of pinMode() are now in pinPeripheral().
 
-## Pin Mapping
+### Pin Mapping
 There are different ways that pins can be mapped. Typically, there is no relation
 between the arduino pin number used, and the actual port pin designator. Thus, the 
 pcb must be printed with the arduino numbering, otherwise, if the port pin is printed,
@@ -127,15 +127,15 @@ designators from both PORTA and PORTB for arduino numbers 0-31 (ie: B1=1, A2=2),
 using arduino numbering only above 31. For 0-31 only one pin from PORTA or PORTB can be
 used, leaving the other pin for some number above 31.
 
-## See WVariant.h in cores/arduino for the definitions used in the table.
+**See [WVariant.h](https://github.com/mattairtech/ArduinoCore-samd/tree/master/cores/arduino/WVariant.h) for the definitions used in the table.**
 
-### Port:
+### Port
 This is the port (ie: PORTA).
 
-### Pin:
+### Pin
 This is the pin (bit) within the port. Valid values are 0-31.
 
-### PinType:
+### PinType
 This indicates what peripheral function the pin can be attached to. In most cases,
 this is PIO_MULTI, which means that the pin can be anything listed in the PinAttribute
 field. It can also be set to a specific peripheral. In this case, any attempt to

@@ -1,6 +1,6 @@
 # Arduino Zero Bootloader
 
-## 1- Prerequisites
+## Prerequisites for Building
 
 The project build is based on Makefile system.
 Makefile is present at project root and try to handle multi-platform cases.
@@ -40,30 +40,30 @@ Make is usually available by default.
 Make is available through XCode package.
 
 
-## 2- Makefile Configuration
+## Makefile Configuration
 
 The section between 'Begin Configuration' and 'End Configuration' in the Makefile should be edited.
 Set BOARD_ID and MCU to a chip listed in the comments.
 
-# Boards definitions:
-# MT_D21E_rev_A, MT_D21E_rev_B, MT_D11, MT_D21J
-# arduino_zero, arduino_mkrzero, arduino_mkr1000, genuino_mkr1000, genuino_zero
-# Generic_x21E, Generic_x21G, Generic_x21J, Generic_D11D14AM, Generic_D11D14AS, Generic_D11C14A
+### Boards definitions:
+* MT_D21E_rev_A, MT_D21E_rev_B, MT_D11, MT_D21J
+* arduino_zero, arduino_mkrzero, arduino_mkr1000, genuino_mkr1000, genuino_zero
+* Generic_x21E, Generic_x21G, Generic_x21J, Generic_D11D14AM, Generic_D11D14AS, Generic_D11C14A
 
-# MCU definitions:
-# SAMD21J: SAMD21J18A, SAMD21J17A, SAMD21J16A, SAMD21J15A
-# SAMD21G: SAMD21G18A, SAMD21G17A, SAMD21G16A, SAMD21G15A
-# SAMD21E: SAMD21E18A, SAMD21E17A, SAMD21E16A, SAMD21E15A
-# SAML21J: SAML21J18B, SAML21J17B, SAML21J16B
-# SAML21G: SAML21G18B, SAML21G17B, SAML21G16B
-# SAML21E: SAML21E18B, SAML21E17B, SAML21E16B, SAML21E15B
-# SAMC21J: SAMC21J18A, SAMC21J17A, SAMC21J16A, SAMC21J15A
-# SAMC21G: SAMC21G18A, SAMC21G17A, SAMC21G16A, SAMC21G15A
-# SAMC21E: SAMC21E18A, SAMC21E17A, SAMC21E16A, SAMC21E15A
-# SAMD11:  SAMD11D14AM, SAMD11C14A, SAMD11D14AS
+### MCU definitions:
+* SAMD21J: SAMD21J18A, SAMD21J17A, SAMD21J16A, SAMD21J15A
+* SAMD21G: SAMD21G18A, SAMD21G17A, SAMD21G16A, SAMD21G15A
+* SAMD21E: SAMD21E18A, SAMD21E17A, SAMD21E16A, SAMD21E15A
+* SAML21J: SAML21J18B, SAML21J17B, SAML21J16B
+* SAML21G: SAML21G18B, SAML21G17B, SAML21G16B
+* SAML21E: SAML21E18B, SAML21E17B, SAML21E16B, SAML21E15B
+* SAMC21J: SAMC21J18A, SAMC21J17A, SAMC21J16A, SAMC21J15A
+* SAMC21G: SAMC21G18A, SAMC21G17A, SAMC21G16A, SAMC21G15A
+* SAMC21E: SAMC21E18A, SAMC21E17A, SAMC21E16A, SAMC21E15A
+* SAMD11:  SAMD11D14AM, SAMD11C14A, SAMD11D14AS
 
 
-## 3- Behaviour / Board Configuration
+## Board Configuration
 
 Configuration for each board is available in the board_definitions directory.
 Each board has a file named board_definitions_BOARD_NAME.h, where BOARD_NAME is
@@ -181,7 +181,7 @@ so no crystal is required. No LEDs are defined. BOOT_LOAD_PIN is not
 defined, but BOOT_DOUBLE_TAP_ENABLED is, since it uses the reset pin.
 
 
-## Boot condition test sequence
+## Boot Condition Test Sequence
 First, the start location of the sketch is fetched and checked. If it
 is empty (0xFFFFFFFF), then bootloader execution is resumed. Note that
 when Arduino auto-reset (into bootloader) is initiated, the first flash
@@ -198,7 +198,27 @@ should not be defined. USB_VENDOR_STRINGS_ENABLED also should not be
 defined in most cases, as well as BOOT_LOAD_PIN.
 
 
-## 4- Details
+## Building
+
+If not specified the makefile builds for **MT_D21E_rev_B**:
+
+```
+make
+```
+
+if you want to make a custom bootloader for a derivative board you must supply all the
+necessary information in a `board_definitions_xxx.h` file, and add the corresponding case in
+`board_definitions.h`. For example for the **Generic_x21J** board with a **SAMD21J18A** MCU,
+we use `board_definitions_Generic_x21J.h` and it is build with the following command:
+
+```
+BOARD_ID=Generic_x21J MCU=SAMD21J18A make clean all
+```
+
+which will produce a binary named sam_ba_Generic_x21J_SAMD21J18A.bin
+
+
+## Technical Details
 
 **Pinmap**
 
@@ -228,23 +248,3 @@ of the system stack. The applet in this case is a very simple word copy function
 1KB is reserved for the applet, and there are two 64 byte data buffers placed after it. The
 applet has its own stack at the top of RAM, but the word copy applet uses little/none of this.
 The bossac tool is responsible for loading the applet. See Devices.h from the Bossa source.
-
-
-## 5- How to build
-
-If not specified the makefile builds for **MT_D21E_rev_B**:
-
-```
-make
-```
-
-if you want to make a custom bootloader for a derivative board you must supply all the
-necessary information in a `board_definitions_xxx.h` file, and add the corresponding case in
-`board_definitions.h`. For example for the **Generic_x21J** board with a **SAMD21J18A** MCU,
-we use `board_definitions_Generic_x21J.h` and it is build with the following command:
-
-```
-BOARD_ID=Generic_x21J MCU=SAMD21J18A make clean all
-```
-
-which will produce a binary named sam_ba_Generic_x21J_SAMD21J18A.bin
