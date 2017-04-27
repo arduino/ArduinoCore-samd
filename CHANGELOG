@@ -1,3 +1,14 @@
+SAMD CORE 1.6.15 2017.04.27
+
+* Added missing Windows driver for MKRFox1200
+* Added SDU support for MKRFox1200
+
+SAMD CORE 1.6.14 2017.04.04
+
+* Fixed platform definition for openocd
+* Added bootloader definitions for MKRFox1200
+* Added lowpower function on USB subsystem
+
 SAMD CORE 1.6.13 2017.03.31
 
 * Added SDU (SD card Updater) library.
