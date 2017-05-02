@@ -1,3 +1,7 @@
+SAMD CORE 1.6.16 ????.??.??
+
+* USB CDC: fixed issue of available() getting stuck when receiving ZLP's
+
 SAMD CORE 1.6.15 2017.04.27
 
 * Added missing Windows driver for MKRFox1200
