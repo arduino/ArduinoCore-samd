@@ -27,6 +27,8 @@
 // location from which to read.
 #define SERIAL_BUFFER_SIZE 64
 
+#define RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+
 class RingBuffer
 {
   public:
@@ -35,16 +37,23 @@ class RingBuffer
     int _iTail ;
 
   public:
-    RingBuffer( void ) ;
-    void store_char( uint8_t c ) ;
+	RingBuffer( void ) ;
+	void store_char( uint8_t c ) ;
 	void clear();
 	int read_char();
 	int available();
 	int peek();
 	bool isFull();
+	void addStorage(uint8_t* _buffer, int _size) {
+		additionalSize = _size;
+		additionalBuffer = _buffer;
+	};
 
   private:
 	int nextIndex(int index);
+	uint8_t* additionalBuffer;
+	int additionalSize = 0;
+	int size;
 } ;
 
 #endif /* _RING_BUFFER_ */
