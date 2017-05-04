@@ -29,6 +29,23 @@
 
 #define RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
 
+class RxBuffer {
+public:
+  RxBuffer(uint8_t* _buf, int _size) : buf(_buf), size(_size) {}
+  uint8_t* buf;
+  int size;
+};
+
+class TxBuffer {
+public:
+  TxBuffer(uint8_t* _buf, int _size) : buf(_buf), size(_size) {}
+  uint8_t* buf;
+  int size;
+};
+
+#define TXBUFFER(x) TxBuffer(x, sizeof(x))
+#define RXBUFFER(x) RxBuffer(x, sizeof(x))
+
 class RingBuffer
 {
   public:
