@@ -52,6 +52,24 @@ void TwoWire::begin(uint8_t address) {
   pinPeripheral(_uc_pinSCL, g_APinDescription[_uc_pinSCL].ulPinType);
 }
 
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+
+void TwoWire::begin(uint8_t* extraTxBuffer, uint8_t* extraRxBuffer)
+{
+  begin();
+  rxBuffer.addStorage(extraRxBuffer, sizeof(extraRxBuffer));
+  txBuffer.addStorage(extraTxBuffer, sizeof(extraTxBuffer));
+}
+
+void TwoWire::begin(uint8_t address, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer)
+{
+  begin(address);
+  rxBuffer.addStorage(extraRxBuffer, sizeof(extraRxBuffer));
+  txBuffer.addStorage(extraTxBuffer, sizeof(extraTxBuffer));
+}
+
+#endif
+
 void TwoWire::setClock(uint32_t baudrate) {
   sercom->disableWIRE();
   sercom->initMasterWIRE(baudrate);

@@ -35,6 +35,10 @@ class TwoWire : public Stream
     TwoWire(SERCOM *s, uint8_t pinSDA, uint8_t pinSCL);
     void begin();
     void begin(uint8_t);
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+    void begin(uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+    void begin(uint8_t address, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+#endif
     void end();
     void setClock(uint32_t);
 
