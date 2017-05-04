@@ -69,6 +69,10 @@ class HardwareSerial : public Stream
   public:
     virtual void begin(unsigned long);
     virtual void begin(unsigned long baudrate, uint16_t config);
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+    virtual void begin(unsigned long baudrate, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+    virtual void begin(unsigned long baudrate, uint16_t config, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+#endif
     virtual void end();
     virtual int available(void) = 0;
     virtual int peek(void) = 0;

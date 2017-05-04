@@ -46,6 +46,20 @@ void Uart::begin(unsigned long baudrate, uint16_t config)
   sercom->enableUART();
 }
 
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+void Uart::begin(unsigned long baudrate, uint16_t config, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer)
+{
+  begin(baudrate, config);
+  rxBuffer.addStorage(extraRxBuffer, sizeof(extraRxBuffer));
+  // No tx buffer implemented
+  //txBuffer.addStorage(extraTxBuffer, sizeof(extraTxBuffer));
+}
+
+void Uart::begin(unsigned long baudrate, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer) {
+  begin(baudrate, SERIAL_8N1, extraTxBuffer, extraRxBuffer);
+}
+#endif
+
 void Uart::end()
 {
   sercom->resetUART();

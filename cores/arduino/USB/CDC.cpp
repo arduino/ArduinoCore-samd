@@ -148,6 +148,21 @@ void Serial_::begin(uint32_t /* baud_count */, uint8_t /* config */)
 	// uart config is ignored in USB-CDC
 }
 
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+void Serial_::begin(unsigned long baudrate, uint16_t config, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer)
+{
+  begin(baudrate, config);
+  _cdc_rx_buffer->addStorage(extraRxBuffer, sizeof(extraRxBuffer));
+  // No tx buffer implemented
+  //_cdc_tx_buffer->addStorage(extraTxBuffer, sizeof(extraTxBuffer));
+}
+
+void Serial_::begin(unsigned long baudrate, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer) {
+  begin(baudrate, SERIAL_8N1, extraTxBuffer, extraRxBuffer);
+}
+#endif
+
+
 void Serial_::end(void)
 {
 }

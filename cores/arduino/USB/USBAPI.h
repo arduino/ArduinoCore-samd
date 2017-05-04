@@ -118,7 +118,10 @@ public:
 	void begin(uint32_t baud_count);
 	void begin(unsigned long, uint8_t);
 	void end(void);
-
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+    void begin(unsigned long baudrate, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+    void begin(unsigned long baudrate, uint16_t config, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+#endif
 	virtual int available(void);
 	virtual int availableForWrite(void);
 	virtual int peek(void);

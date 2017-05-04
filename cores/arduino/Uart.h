@@ -30,6 +30,10 @@ class Uart : public HardwareSerial
     Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX);
     void begin(unsigned long baudRate);
     void begin(unsigned long baudrate, uint16_t config);
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+    void begin(unsigned long baudrate, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+    void begin(unsigned long baudrate, uint16_t config, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+#endif
     void end();
     int available();
     int availableForWrite();
