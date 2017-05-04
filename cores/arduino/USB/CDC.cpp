@@ -149,16 +149,25 @@ void Serial_::begin(uint32_t /* baud_count */, uint8_t /* config */)
 }
 
 #ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
-void Serial_::begin(unsigned long baudrate, uint16_t config, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer)
+void Serial_::begin(unsigned long baudrate, uint16_t config, TxBuffer extraTxBuffer, RxBuffer extraRxBuffer)
 {
   begin(baudrate, config);
-  _cdc_rx_buffer->addStorage(extraRxBuffer, sizeof(extraRxBuffer));
-  // No tx buffer implemented
-  //_cdc_tx_buffer->addStorage(extraTxBuffer, sizeof(extraTxBuffer));
+  uint32_t size = extraRxBuffer.size/2;
+  //usb.resize(CDC_ENDPOINT_OUT, extraRxBuffer.buf, previous_power_of_two(extraRxBuffer.size/2));
+  usb.resize(CDC_ENDPOINT_OUT, extraRxBuffer.buf, size);
 }
 
-void Serial_::begin(unsigned long baudrate, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer) {
+void Serial_::begin(unsigned long baudrate, uint16_t config, RxBuffer extraRxBuffer, TxBuffer extraTxBuffer)
+{
+  begin(baudrate, config, extraTxBuffer, extraRxBuffer);
+}
+
+void Serial_::begin(unsigned long baudrate, TxBuffer extraTxBuffer, RxBuffer extraRxBuffer) {
   begin(baudrate, SERIAL_8N1, extraTxBuffer, extraRxBuffer);
+}
+
+void Serial_::begin(unsigned long baudrate, RxBuffer extraRxBuffer, TxBuffer extraTxBuffer) {
+  begin(baudrate,  extraTxBuffer, extraRxBuffer);
 }
 #endif
 
