@@ -54,18 +54,36 @@ void TwoWire::begin(uint8_t address) {
 
 #ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
 
-void TwoWire::begin(uint8_t* extraTxBuffer, uint8_t* extraRxBuffer)
+void TwoWire::begin(TxBuffer extraTxBuffer, RxBuffer extraRxBuffer)
 {
   begin();
-  rxBuffer.addStorage(extraRxBuffer, sizeof(extraRxBuffer));
-  txBuffer.addStorage(extraTxBuffer, sizeof(extraTxBuffer));
+  if (extraRxBuffer.buf != NULL) {
+    rxBuffer.addStorage(extraRxBuffer.buf, extraRxBuffer.size);
+  }
+  if (extraTxBuffer.buf != NULL) {
+    txBuffer.addStorage(extraTxBuffer.buf, extraTxBuffer.size);
+  }
 }
 
-void TwoWire::begin(uint8_t address, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer)
+void TwoWire::begin(RxBuffer extraRxBuffer, TxBuffer extraTxBuffer)
+{
+  begin(extraTxBuffer, extraRxBuffer);
+}
+
+void TwoWire::begin(uint8_t address, TxBuffer extraTxBuffer, RxBuffer extraRxBuffer)
 {
   begin(address);
-  rxBuffer.addStorage(extraRxBuffer, sizeof(extraRxBuffer));
-  txBuffer.addStorage(extraTxBuffer, sizeof(extraTxBuffer));
+  if (extraRxBuffer.buf != NULL) {
+    rxBuffer.addStorage(extraRxBuffer.buf, extraRxBuffer.size);
+  }
+  if (extraTxBuffer.buf != NULL) {
+    txBuffer.addStorage(extraTxBuffer.buf, extraTxBuffer.size);
+  }
+}
+
+void TwoWire::begin(uint8_t address, RxBuffer extraRxBuffer, TxBuffer extraTxBuffer)
+{
+  begin(address, extraTxBuffer, extraRxBuffer);
 }
 
 #endif
