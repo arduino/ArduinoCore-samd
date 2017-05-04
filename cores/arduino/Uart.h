@@ -31,8 +31,10 @@ class Uart : public HardwareSerial
     void begin(unsigned long baudRate);
     void begin(unsigned long baudrate, uint16_t config);
 #ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
-    void begin(unsigned long baudrate, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
-    void begin(unsigned long baudrate, uint16_t config, uint8_t* extraTxBuffer, uint8_t* extraRxBuffer);
+    void begin(unsigned long baudrate, TxBuffer extraTxBuffer, RxBuffer extraRxBuffer = RxBuffer(NULL,0));
+    void begin(unsigned long baudrate, uint16_t config, TxBuffer extraTxBuffer, RxBuffer extraRxBuffer = RxBuffer(NULL,0));
+    void begin(unsigned long baudrate, RxBuffer extraRxBuffer, TxBuffer extraTxBuffer = TxBuffer(NULL,0));
+    void begin(unsigned long baudrate, uint16_t config, RxBuffer extraRxBuffer, TxBuffer extraTxBuffer = TxBuffer(NULL,0));
 #endif
     void end();
     int available();
