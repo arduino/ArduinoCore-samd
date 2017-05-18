@@ -8,17 +8,17 @@ Other  COM    PWM   Analog  INT  Arduino*             Arduino*  INT   PWM     CO
 XI32(+)                              | A0            RST |                        BOOT(+)
 XO32(+)                              | A1            Gnd |
 DAC                   *            2 | A2           Vbat |
-REFA                  *            3 | A3            A31 | 31    *                IO/B(+)
-REFB                  *      *     4 | A4            A30 | 30    *                 CLK(+)
+REFA                  *            3 | A3            A31 | 31    *           RX3  IO/B(+)
+REFB                  *      *     4 | A4            A30 | 30    *           TX3   CLK(+)
 DAC1(L)               *      *     5 | A5            NC  |
-LED(+)       TCC10    *            6 | A6       A28 (D/C)| 28    *
-VM           TCC11    *            7 | A7            A27 | 27    *               A/CS(+M)
-             TCC00    *     NMI    8 | A8            A23 | 23    * TC41/TC01~ SS
-             TCC01    *      *     9 | A9            A22 | 22    * TC40/TC00~ MISO(+M)
-       TX1   TCC02    *           10 | A10           A19 | 19    *            SCK(+M)
-       RX1   TCC03    *           11 | A11           A18 | 18    *            MOSI(+M)
-       TX2 TC30/TC40~        *    14 | A14           A17 | 17    *   TCC21    SCL(+)
-       RX2 TC31/TC41~             15 | A15           A16 | 16    *   TCC20    SDA(+)
+LED(+)        TCC10   *            6 | A6       A28 (D/C)| 28    *
+VM            TCC11   *            7 | A7            A27 | 27    *               A/CS(+M)
+  SDA1/MISO1  TCC00   *     NMI    8 | A8            A23 | 23    * TC41/TC01~ SS
+   SCL1/SS1   TCC01   *      *     9 | A9            A22 | 22    * TC40/TC00~ MISO(+M)
+      TX1     TCC02   *           10 | A10           A19 | 19    *            SCK(+M)
+      RX1     TCC03   *           11 | A11           A18 | 18    *            MOSI(+M)
+  TX2/MOSI1 TC30/TC40~       *    14 | A14           A17 | 17    *   TCC21    SCL/RX4(+)
+   RX2/SCK1 TC31/TC41~            15 | A15           A16 | 16    *   TCC20    SDA/TX4(+)
                                      | NC            NC  |
      M=Memory device installed       | NC            NC  | ! Vcc is 3.3V by default.
                                      | Vbus          3.3V|   DO NOT exceed 3.6V on Vcc or
@@ -60,30 +60,30 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 5	| A5	| PA05	| DAC1(L21)		| EIC/EXTINT[5] ADC/AIN[5] AC/AIN[1] PTC/Y[3] !SERCOM0/PAD[1] !TCC0/WO[1] DAC1(L21)
 6	| A6	| PA06	| LED			| !EIC/EXTINT[6] ADC/AIN[6] AC/AIN[2] PTC/Y[4] !SERCOM0/PAD[2] !TCC1/WO[0] LED
 7	| A7	| PA07	| Voltage Measurement	| !EIC/EXTINT[7] ADC/AIN[7] AC/AIN[3] PTC/Y[5] !SERCOM0/PAD[3] !TCC1/WO[1]
-8	| A8	| PA08	|			| EIC/NMI ADC/AIN[16] PTC/X[0] !SERCOM0/PAD[0] !SERCOM2/PAD[0] TCC0/WO[0] !TCC1/WO[2]
-9	| A9	| PA09	|			| EIC/EXTINT[9] ADC/AIN[17] PTC/X[1] !SERCOM0/PAD[1] !SERCOM2/PAD[1] TCC0/WO[1] !TCC1/WO[3]
+8	| A8	| PA08	| SDA1/MISO1		| EIC/NMI ADC/AIN[16] PTC/X[0] !SERCOM0/PAD[0] SERCOM2/PAD[0] TCC0/WO[0] !TCC1/WO[2]
+9	| A9	| PA09	| SCL1/SS1		| EIC/EXTINT[9] ADC/AIN[17] PTC/X[1] !SERCOM0/PAD[1] SERCOM2/PAD[1] TCC0/WO[1] !TCC1/WO[3]
 10	| A10	| PA10	| TX1			| !EIC/EXTINT[10] ADC/AIN[18] PTC/X[2] SERCOM0/PAD[2] !SERCOM2/PAD[2] !TCC1/WO[0] TCC0/WO[2]
 11	| A11	| PA11	| RX1			| !EIC/EXTINT[11] ADC/AIN[19] PTC/X[3] SERCOM0/PAD[3] !SERCOM2/PAD[3] !TCC1/WO[1] TCC0/WO[3]
 12	| ---	| ----	| NOT A PIN		| NOT A PIN
 13	| ---	| ----	| NOT A PIN		| NOT A PIN
-14	| A14	| PA14	| Xin, TX2		| EIC/EXTINT[14] SERCOM2/PAD[2] TC3/WO[0] !TCC0/WO[4] Xin, HOST_ENABLE
-15	| A15	| PA15	| Xout, RX2		| !EIC/EXTINT[15] SERCOM2/PAD[3] TC3/WO[1] !TCC0/WO[5] Xout
-16	| A16	| PA16	| I2C/SDA w/pullup	| EIC/EXTINT[0] PTC/X[4] SERCOM1/PAD[0] !SERCOM3/PAD[0] TCC2/WO[0] !TCC0/WO[6]
-17	| A17	| PA17	| I2C/SCL w/pullup	| EIC/EXTINT[1] PTC/X[5] SERCOM1/PAD[1] !SERCOM3/PAD[1] TCC2/WO[1] !TCC0/WO[7]
-18	| A18	| PA18	| SPI MOSI		| EIC/EXTINT[2] PTC/X[6] !SERCOM1/PAD[2] SERCOM3/PAD[2] !TC3/WO[0] !TCC0/WO[2]
-19	| A19	| PA19	| SPI SCK		| EIC/EXTINT[3] PTC/X[7] !SERCOM1/PAD[3] SERCOM3/PAD[3] !TC3/WO[1] !TCC0/WO[3]
+14	| A14	| PA14	| Xin, TX2/MOSI1	| EIC/EXTINT[14] SERCOM2/PAD[2] TC3/WO[0] !TCC0/WO[4] Xin, HOST_ENABLE
+15	| A15	| PA15	| Xout, RX2/SCK1	| !EIC/EXTINT[15] SERCOM2/PAD[3] TC3/WO[1] !TCC0/WO[5] Xout
+16	| A16	| PA16	| SDA/TX4 w/pullup	| EIC/EXTINT[0] PTC/X[4] SERCOM1/PAD[0] SERCOM3/PAD[0] TCC2/WO[0] !TCC0/WO[6]
+17	| A17	| PA17	| SCL/RX4 w/pullup	| EIC/EXTINT[1] PTC/X[5] SERCOM1/PAD[1] SERCOM3/PAD[1] TCC2/WO[1] !TCC0/WO[7]
+18	| A18	| PA18	| SPI			| EIC/EXTINT[2] PTC/X[6] !SERCOM1/PAD[2] SERCOM3/PAD[2] !TC3/WO[0] !TCC0/WO[2]
+19	| A19	| PA19	| SCK			| EIC/EXTINT[3] PTC/X[7] !SERCOM1/PAD[3] SERCOM3/PAD[3] !TC3/WO[1] !TCC0/WO[3]
 20	| ---	| ----	| NOT A PIN		| NOT A PIN
 21	| ---	| ----	| NOT A PIN		| NOT A PIN
-22	| A22	| PA22	| SPI MISO		| EIC/EXTINT[6] PTC/X[10] SERCOM3/PAD[0] TC4/WO[0] !TCC0/WO[4]
-23	| A23	| PA23	| SPI SS		| EIC/EXTINT[7] PTC/X[11] SERCOM3/PAD[1] TC4/WO[1] !TCC0/WO[5]
+22	| A22	| PA22	| MISO			| EIC/EXTINT[6] PTC/X[10] SERCOM3/PAD[0] TC4/WO[0] !TCC0/WO[4]
+23	| A23	| PA23	| SS			| EIC/EXTINT[7] PTC/X[11] SERCOM3/PAD[1] TC4/WO[1] !TCC0/WO[5]
 24	| A24-	| PA24	| USB_NEGATIVE		| USB/DM TC5/WO[0]
 25	| A25+	| PA25	| USB_POSITIVE		| USB/DP TC5/WO[1]
 26	| ---	| ----	| NOT A PIN		| NOT A PIN
 27	| A27	| PA27	| A/CS			| EIC/EXTINT[15] A/CS (Jumper A / memory device chip select)
 28	| A28	| PA28	|			| EIC/EXTINT[8]
 29	| ---	| ----	| NOT A PIN		| NOT A PIN
-30	| A30	| PA30	| SWD CLK		| EIC/EXTINT[10] !SERCOM1/PAD[2] TCC1/WO[0] SWD CLK, leave floating during boot
-31	| A31	| PA31	| Button B / SWD IO	| EIC/EXTINT[11] !SERCOM1/PAD[3] TCC1/WO[1] Button B SWD IO
+30	| A30	| PA30	| SWDCLK / TX3		| EIC/EXTINT[10] SERCOM1/PAD[2] TCC1/WO[0] SWD CLK, leave floating during boot
+31	| A31	| PA31	| Button B / SWDIO / RX3| EIC/EXTINT[11] SERCOM1/PAD[3] TCC1/WO[1] Button B SWD IO
 --	| RST	| ----	|			| Reset, BOOT (double tap bootloader entry)
 ============================================================================================================================================
 
@@ -147,9 +147,9 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 
 * **SERCOM**
   * 4 SERCOM are available.
-  * Up to 2 UART instances
-  * 1 SPI instance
-  * 1 WIRE (I2C) instance
+  * Up to 4 UART instances
+  * Up to 2 SPI instances
+  * Up to 2 WIRE (I2C) instances
   * The WIRE pullup resistors are enabled by default.
 
 

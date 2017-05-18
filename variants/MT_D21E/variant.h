@@ -200,11 +200,31 @@ static const uint8_t ATN = PIN_ATN;
 
 #define SERCOM_INSTANCE_SERIAL2       &sercom2
 
+// Serial3
+#define PIN_SERIAL3_RX       (31ul)
+#define PIN_SERIAL3_TX       (30ul)
+#define PAD_SERIAL3_TX       (UART_TX_PAD_2)
+#define PAD_SERIAL3_RX       (SERCOM_RX_PAD_3)
+
+#define SERCOM_INSTANCE_SERIAL3       &sercom1
+
+// Serial4
+#define PIN_SERIAL4_RX       (17ul)
+#define PIN_SERIAL4_TX       (16ul)
+#define PAD_SERIAL4_TX       (UART_TX_PAD_0)
+#define PAD_SERIAL4_RX       (SERCOM_RX_PAD_1)
+
+#define SERCOM_INSTANCE_SERIAL4       &sercom3
+
 
 /*
  * SPI Interfaces
  */
+#if defined(TWO_SPI)
+#define SPI_INTERFACES_COUNT 2
+#else
 #define SPI_INTERFACES_COUNT 1
+#endif
 
 #define PIN_SPI_MISO         (22u)
 #define PIN_SPI_MOSI         (18u)
@@ -219,11 +239,28 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
+#define PIN_SPI1_MISO         (8u)
+#define PIN_SPI1_MOSI         (14u)
+#define PIN_SPI1_SCK          (15u)
+#define PIN_SPI1_SS           (9u)
+#define PERIPH_SPI1           sercom2
+#define PAD_SPI1_TX           SPI_PAD_2_SCK_3
+#define PAD_SPI1_RX           SERCOM_RX_PAD_0
+
+static const uint8_t SS1   = PIN_SPI1_SS ;	// The SERCOM SS PAD is available on this pin but HW SS isn't used. Set here only for reference.
+static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
+static const uint8_t MISO1 = PIN_SPI1_MISO ;
+static const uint8_t SCK1  = PIN_SPI1_SCK ;
+
 
 /*
  * Wire Interfaces
  */
+#if defined(TWO_WIRE)
+#define WIRE_INTERFACES_COUNT 2
+#else
 #define WIRE_INTERFACES_COUNT 1
+#endif
 
 #define PIN_WIRE_SDA         (16u)
 #define PIN_WIRE_SCL         (17u)
@@ -232,6 +269,14 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
+
+#define PIN_WIRE1_SDA         (8u)
+#define PIN_WIRE1_SCL         (9u)
+#define PERIPH_WIRE1          sercom2
+#define WIRE1_IT_HANDLER      SERCOM2_Handler
+
+static const uint8_t SDA1 = PIN_WIRE1_SDA;
+static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 
 /*

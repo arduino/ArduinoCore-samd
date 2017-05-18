@@ -72,13 +72,14 @@ Analog Outputs	| One 10-bit (two 12-bit on L21)	| One 10-bit (two 12-bit on L21)
 PWM Outputs	| 18					| 14					| 14					| 8 (6 for 14-pin)
 Interrupts	| 16					| 16					| 16					| 8 (7 for 14-pin)
 USB		| Full Speed Device and Host (not C21)	| Full Speed Device and Host (not C21)	| Full Speed Device and Host (not C21)	| Full Speed Device
-SERCOM		| 6					| 6					| 4					| 3 (2 for 14-pin)
-UART (Serial)	| Up to 3				| Up to 3				| Up to 2				| Up to 2
-SPI		| Up to 3				| Up to 2				| 1					| 1
-I2C (WIRE)	| Up to 3				| Up to 2				| 1					| 1
+SERCOM*		| 6					| 6					| 4					| 3 (2 for 14-pin)
+UART (Serial)*	| Up to 6				| Up to 6				| Up to 4				| Up to 2
+SPI*		| Up to 3				| Up to 2				| Up to 2				| Up to 1
+I2C (WIRE)*	| Up to 3				| Up to 2				| Up to 2				| Up to 1
 I2S		| Present on the D21 only		| Present on the D21 only		| Present on the D21 only		| Not present
 Voltage		| 1.62V-3.63V (2.7V-5.5V for the C21)	| 1.62V-3.63V (2.7V-5.5V for the C21)	| 1.62V-3.63V (2.7V-5.5V for the C21)	| 1.62V-3.63V
 I/O Pin	Current	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| 7 mA
+* Note that the maximum number of UART/SPI/I2C is the number of SERCOM. The number listed above for UART/SPI/I2C indicated how many are configurable through the Arduino IDE menu.
 
 
 
@@ -153,10 +154,17 @@ Choose NO_BOOTLOADER if not using a bootloader (an external programmer will be u
 
 ### Serial Config Menu
 
-This menu is used to select different combinations of serial peripherals. This is useful especially for
-the D11, which has a reduced pin count and number of SERCOMs. It can also be used to reduce FLASH and
-SRAM usage by selecting fewer UART peripherals, which are instantiated in the core, rather than only
-when including a library (like SPI and WIRE). Most board variants support two UART as an option.
+This menu is used to select different combinations of serial peripherals. It adds additional UART, SPI,
+and WIRE instances. This is also useful for the D11, which has a reduced pin count and number of SERCOMs.
+It can also be used to reduce FLASH and SRAM usage by selecting fewer UART peripherals, which are
+instantiated in the core, rather than only when including a library (like SPI and WIRE). Note that with
+options where there is more than one SPI or WIRE, the additional instances will consume a small amount
+of RAM, but neither the peripheral nor the pins are configured until begin() method is called (thus, the
+pins can be used for other purposes).
+
+Use the ASCII art rendering at the top of the README.md file of the board variant used in order to
+determine the mapping of instances to pins. When USB CDC is enabled, Serial refers to SerialUSB,
+otherwise it refers to Serial1 (TX1/RX1).
 
 
 ### USB Config Menu
@@ -458,6 +466,8 @@ OS X support currently in beta (see below), the following instructions are only 
 
 ### SAM M0+ Core Installation
 
+**See Beta Builds section below to install the beta, as it uses a different json file**
+
 * To update from a previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.
 
 1. The MattairTech SAM M0+ Core requires Arduino 1.6.7 or above (including 1.8.x).
@@ -516,7 +526,7 @@ several features, including three new commands (Arduino Extended Capabilities) t
 bootloader normally requires 8 KB FLASH, however, a 4 KB version can be used for the D11 chips.
 
 Bossac is a command line utility for uploading firmware to SAM-BA bootloaders. It runs on Windows. Linux, and OS X.
-It is used by Arduino to upload firmware to SAM and SAM M0+ boards. The version Bossac described here adds to the
+It is used by Arduino to upload firmware to SAM and SAM M0+ boards. The version described here adds to the
 Arduino version (https://github.com/shumatech/BOSSA, Arduino branch), which in turn is a fork from the original
 Bossa (http://www.shumatech.com/web/products/bossa). It adds support for more SAM M0+ chips (D21, L21, C21, and D11).
 
@@ -687,13 +697,15 @@ from the MT-D11 variant.
 
 
 
-## Possible Future Additions/Changes
+## Future Additions/Changes
 
-* Timer library is currently under development (like TimerOne, plus input capture, plus ??)
-* OS X support currently in beta testing
-* Reduce SRAM usage by USB endpoint buffers by only allocating endpoints actually used (D11 especially)
+### In-Progress
+* Timer library (like TimerOne, plus input capture, plus ??)
 * Drivers for MT-D21E optional memory devices (SRAM, FLASH, EEPROM)
+* OS X support currently in beta testing
 
+### Possible Future
+* Reduce SRAM usage by USB endpoint buffers by only allocating endpoints actually used (D11 especially)
 * USB Host mode CDC ACM (partially complete; BSD-like license?)
 * Features for lower power consumption (library?)
 * Reliability and security enhancements
@@ -752,6 +764,9 @@ The Changelog has moved to a separate file named CHANGELOG. The most recent chan
 * Do not perform a manual auto-reset (using a terminal program to change baud to 1200)
 
 * Boards Manager must be opened twice to see some updates (only applies to some old IDE versions)
+
+* **Boards manager might not install/uninstall the core or tools properly if the contents of the arduino15 directory has been manually modified**
+  * Be sure to delete all manually installed folders (not just files)
 
 
 ## Bugs or Issues
