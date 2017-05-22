@@ -1,8 +1,9 @@
-1.6.8-beta-b2:
+1.6.8-beta-b2 (in-progress):
 * Added more Serial, SPI, and WIRE options
 * Added MicroSD card firmware loading in the bootloader
 * Fixed SDU library to work with MattairTech boards
 * Fixed auto-detection for Arduino Zero and M0 board variants
+* Fixed bootloader compilation on Windows
 * Documentation updates
 * Merged in changes from upstream SAMD CORE 1.6.15:
   * 

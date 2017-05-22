@@ -72,8 +72,8 @@ Analog Outputs	| One 10-bit (two 12-bit on L21)	| One 10-bit (two 12-bit on L21)
 PWM Outputs	| 18					| 14					| 14					| 8 (6 for 14-pin)
 Interrupts	| 16					| 16					| 16					| 8 (7 for 14-pin)
 USB		| Full Speed Device and Host (not C21)	| Full Speed Device and Host (not C21)	| Full Speed Device and Host (not C21)	| Full Speed Device
-SERCOM*		| 6					| 6					| 4					| 3 (2 for 14-pin)
-UART (Serial)*	| Up to 6				| Up to 6				| Up to 4				| Up to 2
+SERCOM*		| 6					| 6					| 4 (6 for L21)				| 3 (2 for 14-pin)
+UART (Serial)*	| Up to 6				| Up to 6				| Up to 4 (up to 5 for L21)		| Up to 2
 SPI*		| Up to 3				| Up to 2				| Up to 2				| Up to 1
 I2C (WIRE)*	| Up to 3				| Up to 2				| Up to 2				| Up to 1
 I2S		| Present on the D21 only		| Present on the D21 only		| Present on the D21 only		| Not present
@@ -306,6 +306,7 @@ TODO: more info
 * On the L21, SERCOM5 is in a low power domain. The Fm+ and HS modes of I2C (wire) are not supported.
 * The SAML and SAMC have double-buffered TCs, which are supported in the core.
 * The CHANGE and RISING interrupt modes on pin A31 do not seem to work properly on the L21.
+* When using pin A31 as UART RX, in Arduino, pinMode(31, INPUT_PULLUP) must be called before SerialX.begin().
 * The L21 has two performance levels that affect power consumption. During powerup, the L21 starts at the lowest performance level (PL0).
   The startup code changes to the highest performance level (PL2) in order to support 48MHz and USB (among other things).
 * Two Flash Wait States are inserted for the L21 and C21 (the D21/D11 use one wait state).
@@ -475,7 +476,7 @@ OS X support currently in beta (see below), the following instructions are only 
 3. Click the button next to Additional Boards Manager URLs.
 4. Add https://www.mattairtech.com/software/arduino/package_MattairTech_index.json.
 5. Save preferences, then open the Boards Manager.
-6. Install the Arduino SAM M0+ Boards package. Use version 1.6.2 or higher.
+6. Install the Arduino SAMD Boards package. Use version 1.6.2 or higher.
 7. Install the MattairTech SAM M0+ Boards package.
 8. Close Boards Manager, then click Tools->Board->MattairTech MT-D21E (or MT-D11).
 9. Select the MCU with the now visible Tools->Microcontroller menu (if present).

@@ -74,10 +74,12 @@ ifeq ($(OS),Windows_NT)
   ifeq ($(TERM),xterm)
     T=$(shell cygpath -u $(LOCALAPPDATA))
     MODULE_PATH?=$(T)/Arduino15/packages/$(CORE_VENDOR)
+    MODULE_PATH_ARDUINO?=$(T)/Arduino15/packages/arduino
     RM=rm
     SEP=/
   else
     MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/$(CORE_VENDOR)
+    MODULE_PATH_ARDUINO?=$(LOCALAPPDATA)/Arduino15/packages/arduino
     RM=rm
     SEP=\\
   endif
@@ -86,18 +88,20 @@ else
 
   ifeq ($(UNAME_S),Linux)
     MODULE_PATH?=$(HOME)/.arduino15/packages/$(CORE_VENDOR)
+    MODULE_PATH_ARDUINO?=$(HOME)/.arduino15/packages/arduino
     RM=rm
     SEP=/
   endif
 
   ifeq ($(UNAME_S),Darwin)
     MODULE_PATH?=$(HOME)/Library/Arduino15/packages/$(CORE_VENDOR)/
+    MODULE_PATH_ARDUINO?=$(HOME)/Library/Arduino15/packages/arduino/
     RM=rm
     SEP=/
   endif
 endif
 
-ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+ARM_GCC_PATH?=$(MODULE_PATH_ARDUINO)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
 BUILD_PATH=build
 
 # -----------------------------------------------------------------------------
@@ -122,7 +126,7 @@ BIN=$(NAME).bin
 HEX=$(NAME).hex
 
 
-INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.0.0-mattairtech-1/CMSIS/Device/ATMEL/"
+INCLUDES=-I"$(MODULE_PATH_ARDUINO)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.0.0-mattairtech-1/CMSIS/Device/ATMEL/"
 
 # -----------------------------------------------------------------------------
 # Linker options

@@ -1,17 +1,14 @@
 # Arduino Zero Bootloader
 
-## Prerequisites for Building
+This bootloader is based on the Arduino Zero bootloader which is a part of the Arduino SAMD core.
+It provides a USB-CDC and/or TTL serial communications interface to a host running the bossac
+command-line firmware programming utility (or Bossa with a GUI). This version adds support for
+the L21 and C21 microcontrollers. It also adds support for four different clock sources (2 external
+crystals and two internal oscillator options). There are additional boards added, and binaries for
+most board/chip combinations are pre-built. Additionally, MicroSD firmware loading is supported.
 
-The project build is based on Makefile system.
-Makefile is present at project root and try to handle multi-platform cases.
 
-Multi-plaform GCC is provided by ARM here: https://launchpad.net/gcc-arm-embedded/+download
-
-Atmel Studio contains both make and ARM GCC toolchain. You don't need to install them in this specific use case.
-
-For all builds and platforms you will need to have the Arduino IDE installed and the board support
-package for "Arduino SAMD Boards (32-bits ARM Cortex-M0+)". You can install the latter
-from the former's "Boards Manager" UI.
+## Prerequisites for Using
 
 This version of the bootloader requires bossac (1.7.0-mattairtech-1)
 from the package "MattairTech SAM M0+ Boards" or download bossac directly:
@@ -19,17 +16,26 @@ from the package "MattairTech SAM M0+ Boards" or download bossac directly:
 * https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-x86_64-linux-gnu.tar.gz (Linux 64 bit)
 * https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-i686-linux-gnu.tar.gz (Linux 32 bit)
 * https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-x86_64-apple-darwin.tar.gz (OS X 64 bit)
+Note that the SAM-BA tools from Atmel will not work, and the version of bossac from the Arduino
+SAMD Core currently does not support the L21, C21, or D11 (but it does support the D21).
+
+
+## Prerequisites for Building
+
+For all builds and platforms you will need to have the Arduino IDE installed as well as the packages
+for both Arduino SAMD Boards and for MattairTech SAM M0+ Boards, which provides the needed dependencies
+(CMSIS, CMSIS-Atmel, and the compiler toolchain: arm-none-eabi-gcc), which can be installed using the
+Arduino IDE Boards Manager. This project uses a Makefile, which is present in the root (zero) directory.
+However, you will need a make program:
 
 ### Windows
 
 * Native command line
 Make binary can be obtained here: http://gnuwin32.sourceforge.net/packages/make.htm
+Be sure that no other version of make is in your PATH (ie: MinGW).
 
 * Cygwin/MSys/MSys2/Babun/etc...
 It is available natively in all distributions.
-
-* Atmel Studio
-An Atmel Studio **7** Makefile-based project is present at project root, just open samd21_sam_ba.atsln file in AS7.
 
 ### Linux
 
