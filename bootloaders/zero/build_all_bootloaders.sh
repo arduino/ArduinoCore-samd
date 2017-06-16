@@ -16,5 +16,8 @@ mv -v samd21_sam_ba_arduino_mkrzero.* ../mkrzero/
 BOARD_ID=arduino_mkrfox1200 NAME=samd21_sam_ba_arduino_mkrfox1200 make clean all
 mv -v samd21_sam_ba_arduino_mkrfox1200.* ../mkrfox1200/
 
+BOARD_ID=arduino_mkrgsm1400 NAME=samd21_sam_ba_arduino_mkrgsm1400 make clean all
+mv -v samd21_sam_ba_arduino_mkrgsm1400.* ../mkrgsm1400/
+
 echo Done building bootloaders!
 

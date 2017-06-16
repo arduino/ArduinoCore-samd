@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2017 Arduino LLC.  All right reserved.
+  Copyright (c) 2014-2015 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -16,23 +16,6 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include <Arduino.h>
+// API compatibility
+#include "variant.h"
 
-#include "SDU.h"
-
-__attribute__ ((section(".sketch_boot")))
-unsigned char sduBoot[0x4000] = {
-#if defined(ARDUINO_SAMD_ZERO)
-  #include "boot/zero.h"
-#elif defined(ARDUINO_SAMD_MKR1000)
-  #include "boot/mkr1000.h"
-#elif defined(ARDUINO_SAMD_MKRZERO)
-  #include "boot/mkrzero.h"
-#elif defined(ARDUINO_SAMD_MKRFox1200)
-  #include "boot/mkrfox1200.h"
-#elif defined(ARDUINO_SAMD_MKRGSM1400)
-  #include "boot/mkrgsm1400.h"
-#else
-  #error "Unsupported board!"
-#endif
-};
