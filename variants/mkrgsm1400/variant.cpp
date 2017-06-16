@@ -168,26 +168,28 @@ SERCOM sercom5(SERCOM5);
 
 #if defined(USE_BQ24195L_PMIC)
 
-#if 0
-/* generate .o out of this function and attach it to the linker */
+#include "wiring_private.h"
+
 #define PMIC_ADDRESS  0x6B
 #define PMIC_REG02    0x02
 
 static inline void set_pmic_safe_defaults() {
-  Wire.begin();
-  Wire.beginTransmission(PMIC_ADDRESS);
-  Wire.write(PMIC_REG02);
-  Wire.write(0);
-  Wire.endTransmission();
-  Wire.end();
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG02);
+  PERIPH_WIRE.sendDataMasterWIRE(0);
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+  PERIPH_WIRE.disableWIRE();
 }
 
-#else
-__attribute__ ((section(".__init_pmic_variant")))
-unsigned char init_pmic[0x4000] = {
+void initVariant() {
+  set_pmic_safe_defaults();
+}
 
-};
-#endif
 #endif
 
 // Serial1

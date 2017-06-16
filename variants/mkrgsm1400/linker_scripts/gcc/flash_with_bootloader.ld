@@ -69,9 +69,6 @@ SECTIONS
 
 		KEEP(*(.sketch_boot))
 
-		/* After the constructors, call PMIC handling stuff (precompiled) */
-		KEEP(*(.init_pmic_variant))
-
 		. = ALIGN(0x2000);
 		KEEP(*(.isr_vector))
 		*(.text*)
