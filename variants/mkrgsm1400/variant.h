@@ -185,3 +185,6 @@ extern Uart Serial2;
 
 // Alias Serial2 to SerialGSM (useful in libraries)
 #define SerialGSM                   Serial2
+
+#define ARDUINO_GSM_COMPATIBILITY_WRAPPER
+#define GSM_DEFAULT_STREAM          SerialGSM
