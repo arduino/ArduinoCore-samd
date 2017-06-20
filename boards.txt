@@ -220,6 +220,35 @@ mkrgsm1400.build.pid=0x8052
 mkrgsm1400.bootloader.tool=openocd
 mkrgsm1400.bootloader.file=mkrgsm1400/samd21_sam_ba_arduino_mkrgsm1400.bin
 
+# Arduino MKRLoRa1300
+# ---------------
+mkrlora1300.name=Arduino MKRLoRa1300
+mkrlora1300.vid.0=0x2341
+mkrlora1300.pid.0=0x8053
+mkrlora1300.vid.1=0x2341
+mkrlora1300.pid.1=0x0053
+
+mkrlora1300.upload.tool=bossac
+mkrlora1300.upload.protocol=sam-ba
+mkrlora1300.upload.maximum_size=262144
+mkrlora1300.upload.use_1200bps_touch=true
+mkrlora1300.upload.wait_for_upload_port=true
+mkrlora1300.upload.native_usb=true
+mkrlora1300.build.mcu=cortex-m0plus
+mkrlora1300.build.f_cpu=48000000L
+mkrlora1300.build.usb_product="Arduino MKRLoRa1300"
+mkrlora1300.build.usb_manufacturer="Arduino LLC"
+mkrlora1300.build.board=SAMD_MKRLoRa1300
+mkrlora1300.build.core=arduino
+mkrlora1300.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
+mkrlora1300.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrlora1300.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrlora1300.build.variant=mkrlora1300
+mkrlora1300.build.vid=0x2341
+mkrlora1300.build.pid=0x8053
+mkrlora1300.bootloader.tool=openocd
+mkrlora1300.bootloader.file=mkrlora1300/samd21_sam_ba_arduino_mkrlora1300.bin
+
 # Adafruit Circuit Playground M0
 # ------------------------------
 adafruit_circuitplayground_m0.name=Adafruit Circuit Playground Express
