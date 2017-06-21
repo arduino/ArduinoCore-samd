@@ -55,7 +55,7 @@ is running, the LED, if configured, will PWM fade quickly (~4Hz).
    file on the SD card with the already installed firmware. If they already match, then
    the bootloader will jump to the firmware, unless SDCARD_AUTORUN_DISABLED is defined,
    in which case the LED will blink with status code LED_STATUS_FILE_ALREADY_MATCHES.
-   If the update file differs from the installed firmware, it continues to step 5.
+   If the update file differs from the installed firmware, continue to step 5.
 5. The application section of the FLASH is erased. The selected update file is written
    to the FLASH. If the file exceeds the size of the FLASH, the LED will blink with
    status code LED_STATUS_FILE_TOO_LARGE.
@@ -391,14 +391,14 @@ BOOT_LOAD_PIN                           | 84
 SDCARD_USE_PIN1 & SDCARD_USE_PIN2       | 92
 SDCARD_USE_PIN1                         | 60
 ARDUINO_EXTENDED_CAPABILITIES (X/Y/Z)   | 904*
- *X (Chip Erase) & Y (Write FLASH)*     | 120*
- *Z (CRC Verification)*                 | 248*
- *crc16Table*                           | 512*
+*X (Chip Erase) & Y (Write FLASH)*      | 120*
+*Z (CRC Verification)*                  | 248*
+*crc16Table*                            | 512*
 
- *SAM_BA_CDC and SAM_BA_UART automatically pull in SAM-BA Monitor*
- *ARDUINO_EXTENDED_CAPABILITIES and SDCARD_ENABLED include X and Y functions*
- *ARDUINO_EXTENDED_CAPABILITIES and SAM_BA_UART include crc16Table*
- *ARDUINO_EXTENDED_CAPABILITIES includes Z function*
+* SAM_BA_CDC and SAM_BA_UART automatically pull in SAM-BA Monitor
+* ARDUINO_EXTENDED_CAPABILITIES and SDCARD_ENABLED include X and Y functions
+* ARDUINO_EXTENDED_CAPABILITIES and SAM_BA_UART include crc16Table
+* ARDUINO_EXTENDED_CAPABILITIES includes Z function
 
 #### Example Compiled Binary Size
 
@@ -427,12 +427,8 @@ See "SD Card Bootloader" section. This define can also be set from the
 makefile (so it can be used with the build_all_bootloaders.sh script).
 Size: ~2788B. Disabled by default. Available with 4KB bootloader.
 
-#### SDCARD_SPI_SERCOM_INSTANCE
-#### SDCARD_SPI_PAD_SETTINGS
-#### SDCARD_SPI_PAD0
-#### SDCARD_SPI_PAD1
-#### SDCARD_SPI_PAD2
-#### SDCARD_SPI_PAD3
+### SDCARD_SPI_SERCOM_INSTANCE
+#### SDCARD_SPI_PAD_SETTINGS, SDCARD_SPI_PAD0, SDCARD_SPI_PAD1, SDCARD_SPI_PAD2, SDCARD_SPI_PAD3
 
 If SDCARD_ENABLED is defined, then all SDCARD_SPI_* defines must also be set.
 When setting SDCARD_SPI_PADx defines, consult the appropriate header file
@@ -442,23 +438,16 @@ Atmel/1.0.0-mattairtech-1/CMSIS/Device/ATMEL/sam<d21|c21|l21|d11>/include/
 When using SDCARD_USE_PIN1 or SDCARD_USE_PIN2, the SPI peripheral and
 associated pins are only initialized if either pin is active.
 
-### SDCARD_SPI_CS_PORT
-### SDCARD_SPI_CS_PIN
+### SDCARD_SPI_CS_PORT, SDCARD_SPI_CS_PIN
 
 If SDCARD_ENABLED is defined, then SDCARD_SPI_CS_PORT and SDCARD_SPI_CS_PIN
 must also be defined. PORT can be 0 (Port A) or 1 (Port B).
 
 ### SDCARD_USE_PIN1
-#### SDCARD_PIN1_POLARITY
-#### SDCARD_PIN1_PORT
-#### SDCARD_PIN1_PIN
-#### SDCARD_PIN1_CONFIG
+#### SDCARD_PIN1_POLARITY, SDCARD_PIN1_PORT, SDCARD_PIN1_PIN, SDCARD_PIN1_CONFIG
 
 ### SDCARD_USE_PIN2
-#### SDCARD_PIN2_POLARITY
-#### SDCARD_PIN2_PORT
-#### SDCARD_PIN2_PIN
-#### SDCARD_PIN2_CONFIG
+#### SDCARD_PIN2_POLARITY, SDCARD_PIN2_PORT, SDCARD_PIN2_PIN, SDCARD_PIN2_CONFIG
 
 If SDCARD_ENABLED is defined, then SDCARD_USE_PIN1 and SDCARD_USE_PIN2 can
 optionally be defined. When SDCARD_USE_PIN2 is defined, SDCARD_USE_PIN1 must
@@ -492,10 +481,7 @@ lacks USB, so set to SAM_BA_UART_ONLY in this case. By default,
 SAM_BA_USBCDC_ONLY is set (SAM_BA_UART_ONLY with the C21).
 
 ### SAM_BA_INTERFACE_USE_PIN
-#### SAM_BA_INTERFACE_PIN_POLARITY
-#### SAM_BA_INTERFACE_PIN_PORT
-#### SAM_BA_INTERFACE_PIN_PIN
-#### SAM_BA_INTERFACE_PIN_CONFIG
+#### SAM_BA_INTERFACE_PIN_POLARITY, SAM_BA_INTERFACE_PIN_PORT, SAM_BA_INTERFACE_PIN_PIN, SAM_BA_INTERFACE_PIN_CONFIG
 
 If SAM_BA_INTERFACE_USE_PIN is defined, then the associated pin controls which
 SAM-BA interface is used (if SAM_BA_BOTH_INTERFACES is defined). If only one
@@ -568,26 +554,19 @@ The fine calibration value for DFLL open-loop mode is defined here.
 The coarse calibration value is loaded from NVM OTP (factory calibration values).
 
 ### USB_VENDOR_STRINGS_ENABLED
-#### STRING_MANUFACTURER
-#### STRING_PRODUCT
+#### STRING_MANUFACTURER, STRING_PRODUCT
 
 If USB_VENDOR_STRINGS_ENABLED is defined, then STRING_MANUFACTURER and
 STRING_PRODUCT will be sent to the host.
 Size: ~228B. By default, USB_VENDOR_STRINGS_ENABLED is defined (including 4KB).
 
-#### USB_VID_HIGH
-#### USB_VID_LOW
-#### USB_PID_HIGH
-#### USB_PID_LOW
+### USB_VID_HIGH
+#### USB_VID_LOW, USB_PID_HIGH, USB_PID_LOW
 
 If USB CDC is used, then the USB vendor ID (VID) and product ID (PID) must be set.
 
 ### BOOT_USART_SERCOM_INSTANCE
-#### BOOT_USART_PAD_SETTINGS
-#### BOOT_USART_PAD3
-#### BOOT_USART_PAD2
-#### BOOT_USART_PAD1
-#### BOOT_USART_PAD0
+#### BOOT_USART_PAD_SETTINGS, BOOT_USART_PAD3, BOOT_USART_PAD2, BOOT_USART_PAD1, BOOT_USART_PAD0
 
 BOOT_USART_SERCOM_INSTANCE must be a single digit representing the SERCOM number.
 See board_driver_serial.h for BOOT_USART_PAD_SETTINGS values. When setting
@@ -603,10 +582,7 @@ tapping two times on the reset button (within 1/2 second).
 Size: ~96B. Enabled by default.
 
 ### BOOT_LOAD_PIN_ENABLED
-#### BOOT_LOAD_PIN
-#### BOOT_LOAD_PIN_PORT
-#### BOOT_LOAD_PIN_POLARITY
-#### BOOT_LOAD_PIN_CONFIG
+#### BOOT_LOAD_PIN, BOOT_LOAD_PIN_PORT, BOOT_LOAD_PIN_POLARITY, BOOT_LOAD_PIN_CONFIG
 
 If BOOT_LOAD_PIN_ENABLED is defined, the bootloader is started if the selected
 pin is active after reset. There is a 10ms delay before testing the pin to
@@ -622,17 +598,9 @@ If BOARD_LED_FADE_ENABLED is defined, then the main LED produces a PWM fade in a
 is running, the fading will be twice as fast as the SAM-BA interface (USB CDC or UART).
 Size: ~160B. Enabled by default.
 
-### BOARD_LED_PORT
-#### BOARD_LED_PIN
-#### BOARD_LED_POLARITY
-
-### BOARD_LEDRX_PORT
-#### BOARD_LEDRX_PIN
-#### BOARD_LEDRX_POLARITY
-
-### BOARD_LEDTX_PORT
-#### BOARD_LEDTX_PIN
-#### BOARD_LEDTX_POLARITY
+### BOARD_LED_PORT, BOARD_LED_PIN, BOARD_LED_POLARITY
+#### BOARD_LEDRX_PORT, BOARD_LEDRX_PIN, BOARD_LEDRX_POLARITY
+#### BOARD_LEDTX_PORT, BOARD_LEDTX_PIN, BOARD_LEDTX_POLARITY
 
 If the LED PORT is defined, then the LED on the associated pin is enabled.
 Polarity can be either LED_POLARITY_HIGH_ON or LED_POLARITY_LOW_ON.
