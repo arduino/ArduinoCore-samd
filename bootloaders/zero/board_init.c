@@ -20,6 +20,9 @@
 
 #include <sam.h>
 #include "board_definitions.h"
+#include "util.h"
+
+extern uint32_t SystemCoreClock;
 
 /**
  * \brief SystemInit() configures the needed clocks and according Flash Read Wait States.
@@ -43,15 +46,6 @@
   #error "startup.c: Unsupported chip"
 #endif
 
-void waitForSync( void )
-{
-#if (SAMD)
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
-#elif (SAML21 || SAMC21)
-  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
-#endif
-}
-
 #if (SAMD || SAML21)
 void waitForDFLL( void )
 {
@@ -72,6 +66,11 @@ void waitForPLL( void )
 
 void board_init( void )
 {
+  /*
+   * Disable automatic NVM write operations (errata reference 13134, applies to D21/D11/L21, but not C21)
+   */
+  NVMCTRL->CTRLB.bit.MANW = 1;
+
   /* Set 1 Flash Wait State for 48MHz (2 for the L21 and C21), cf tables 20.9 and 35.27 in SAMD21 Datasheet */
 #if (SAMD)
   NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ;	// one wait state
@@ -370,6 +369,8 @@ void board_init( void )
   waitForSync();
 #endif
 
+  SystemCoreClock=VARIANT_MCK;
+
   /* Set CPU and APB dividers before switching the CPU/APB clocks to the new clock source */
 #if (SAMD)
   PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
@@ -379,9 +380,4 @@ void board_init( void )
 #elif (SAML21 || SAMC21)
   MCLK->CPUDIV.reg  = MCLK_CPUDIV_CPUDIV_DIV1 ;
 #endif
-
-  /*
-   * Disable automatic NVM write operations (errata reference 13134, applies to D21/D11/L21, but not C21)
-   */
-  NVMCTRL->CTRLB.bit.MANW = 1;
 }

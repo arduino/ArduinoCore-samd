@@ -22,6 +22,18 @@
 
 #include <sam.h>
 #include "board_definitions.h"
+#include "util.h"
+
+#define LED_STATUS_SUCCESS                      1000
+#define LED_STATUS_FILE_ALREADY_MATCHES         500
+#define LED_STATUS_FILE_NOT_FOUND               250
+#define LED_STATUS_NO_SAM_BA_INTERFACE          125
+#define LED_STATUS_FILE_TOO_LARGE               63
+#define LED_STATUS_VERIFICATION_FAILURE         31
+
+void LED_pulse(void);
+void LED_status(uint32_t periodMS);
+
 
 #if defined(BOARD_LED_PORT)
   #if ((defined BOARD_LED_POLARITY) && BOARD_LED_POLARITY == LED_POLARITY_LOW_ON)
@@ -39,8 +51,6 @@
   inline void LED_off(void) { }
   inline void LED_toggle(void) { }
 #endif
-
-void LED_pulse();
 
 #if defined(BOARD_LEDRX_PORT)
   #if ((defined BOARD_LEDRX_POLARITY) && BOARD_LEDRX_POLARITY == LED_POLARITY_LOW_ON)

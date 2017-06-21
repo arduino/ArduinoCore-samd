@@ -22,6 +22,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include "util.h"
 
 
 /* USART buffer size (must be a power of two) */

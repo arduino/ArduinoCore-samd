@@ -21,6 +21,7 @@
 #define _BOARD_DRIVER_USB_H_
 
 #include "sam_ba_cdc.h"
+#include "util.h"
 
 extern UsbDeviceDescriptor usb_endpoint_table[MAX_EP];
 extern uint8_t udd_ep_out_cache_buffer[2][64]; //1 for CTRL, 1 for BULK

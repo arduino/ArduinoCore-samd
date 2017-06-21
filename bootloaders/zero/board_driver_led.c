@@ -26,10 +26,10 @@
 
 volatile uint8_t ledKeepValue = 0;
 volatile uint8_t ledTargetValue = 20;
-volatile int8_t ledDirection = 4;
+volatile int8_t ledDirection = 8;
 volatile uint8_t ledTargetValueMin = LED_TARGET_VALUE_MIN_1;
 
-inline void LED_pulse()
+inline void LED_pulse(void)
 {
   if (ledKeepValue == 0) {
     ledTargetValue += ledDirection;
@@ -52,5 +52,15 @@ inline void LED_pulse()
 
   if (ledKeepValue == ledTargetValue) {
     LED_toggle();
+  }
+}
+
+void LED_status(uint32_t periodMS)
+{
+  __disable_irq();
+
+  while (1) {
+    LED_toggle();
+    delayUs(periodMS * 500UL);
   }
 }

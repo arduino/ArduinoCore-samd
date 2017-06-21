@@ -26,6 +26,7 @@ void uart_basic_init(Sercom *sercom, uint16_t baud_val, enum uart_pad_settings p
 	while(sercom->USART.SYNCBUSY.reg);
 	
 	/* Disable the SERCOM UART module */
+#if defined(PARANOIA)
 	sercom->USART.CTRLA.bit.ENABLE = 0;
 	while(sercom->USART.SYNCBUSY.reg);
 	
@@ -33,6 +34,7 @@ void uart_basic_init(Sercom *sercom, uint16_t baud_val, enum uart_pad_settings p
 	sercom->USART.CTRLA.bit.SWRST = 1;
 	while(sercom->USART.CTRLA.bit.SWRST);
 	while(sercom->USART.SYNCBUSY.reg);
+#endif
 	
 	/* Update the UART pad settings, mode and data order settings */
 	sercom->USART.CTRLA.reg = pad_conf | SERCOM_USART_CTRLA_MODE(1) | SERCOM_USART_CTRLA_DORD;

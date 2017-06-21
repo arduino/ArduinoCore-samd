@@ -1,6 +1,7 @@
 /*
   Copyright (c) 2015 Arduino LLC.  All right reserved.
   Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
+  Copyright (c) 2017 MattairTech LLC. All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -58,8 +59,6 @@
 // Common definitions
 // ------------------
 
-#define BOOT_PIN_MASK (1U << (BOOT_LOAD_PIN & 0x1f))
-
 // These are undefined in CMSIS for L21 and C21
 #if (SAML21)
 #ifndef GCLK_CLKCTRL_ID_SERCOM0_CORE_Val
@@ -81,8 +80,21 @@
 #endif
 #endif
 
-#define LED_POLARITY_LOW_ON	0
-#define LED_POLARITY_HIGH_ON	1
+#define LED_POLARITY_LOW_ON             0
+#define LED_POLARITY_HIGH_ON            1
+#define PIN_POLARITY_ACTIVE_LOW         0
+#define PIN_POLARITY_ACTIVE_HIGH        1
+#define PIN_POLARITY_USBCDC_LOW         0
+#define PIN_POLARITY_USBCDC_HIGH        1
+
+#define INPUT                   (0x0)
+#define OUTPUT                  (0x1)
+#define INPUT_PULLUP            (0x2)
+#define INPUT_PULLDOWN          (0x3)
+#define OUTPUT_HIGH             (0x4)
+#define OUTPUT_LOW              (0x5)
+
+#define PINMUX_UNUSED          0xFFFFFFFF
 
 /*
  * If BOOT_DOUBLE_TAP_ENABLED is defined the bootloader is started by
@@ -148,6 +160,56 @@
     #define BOOT_USART_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM5
   #elif (SAML21 || SAMC21)
     #define BOOT_USART_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM5
+  #endif
+#endif
+
+#if (SDCARD_SPI_SERCOM_INSTANCE == 0)
+  #define SDCARD_SPI_MODULE                   SERCOM0
+  #define SDCARD_SPI_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM0_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM0
+  #elif (SAML21 || SAMC21)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM0
+  #endif
+#elif (SDCARD_SPI_SERCOM_INSTANCE == 1)
+  #define SDCARD_SPI_MODULE                   SERCOM1
+  #define SDCARD_SPI_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM1_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM1
+  #elif (SAML21 || SAMC21)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM1
+  #endif
+#elif (SDCARD_SPI_SERCOM_INSTANCE == 2)
+  #define SDCARD_SPI_MODULE                   SERCOM2
+  #define SDCARD_SPI_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM2_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM2
+  #elif (SAML21 || SAMC21)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM2
+  #endif
+#elif (SDCARD_SPI_SERCOM_INSTANCE == 3)
+  #define SDCARD_SPI_MODULE                   SERCOM3
+  #define SDCARD_SPI_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM3_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM3
+  #elif (SAML21 || SAMC21)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM3
+  #endif
+#elif (SDCARD_SPI_SERCOM_INSTANCE == 4)
+  #define SDCARD_SPI_MODULE                   SERCOM4
+  #define SDCARD_SPI_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM4_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM4
+  #elif (SAML21 || SAMC21)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM4
+  #endif
+#elif (SDCARD_SPI_SERCOM_INSTANCE == 5)
+  #define SDCARD_SPI_MODULE                   SERCOM5
+  #define SDCARD_SPI_PER_CLOCK_INDEX          GCLK_CLKCTRL_ID_SERCOM5_CORE_Val
+  #if (SAMD21 || SAMD11)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        PM_APBCMASK_SERCOM5
+  #elif (SAML21 || SAMC21)
+    #define SDCARD_SPI_BUS_CLOCK_INDEX        MCLK_APBCMASK_SERCOM5
   #endif
 #endif
 

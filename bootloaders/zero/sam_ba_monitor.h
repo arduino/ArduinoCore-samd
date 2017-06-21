@@ -26,6 +26,7 @@
 #define SAM_BA_BOTH_INTERFACES      0
 #define SAM_BA_UART_ONLY            1
 #define SAM_BA_USBCDC_ONLY          2
+#define SAM_BA_NONE                 3
 
 /* Selects USB as the communication interface of the monitor */
 #define SAM_BA_INTERFACE_USBCDC     0

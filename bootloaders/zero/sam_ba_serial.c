@@ -51,49 +51,11 @@ uint8_t mode_of_transfer;
  */
 void serial_open(void)
 {
-	uint32_t port;
-	uint32_t pin;
-
-	/* Configure the port pins for SERCOM_USART */
-	if (BOOT_USART_PAD0 != PINMUX_UNUSED)
-  {
-		/* Mask 6th bit in pin number to check whether it is greater than 32 i.e., PORTB pin */
-		port = (BOOT_USART_PAD0 & 0x200000) >> 21;
-		pin = (BOOT_USART_PAD0 >> 16);
-		PORT->Group[port].PINCFG[(pin - (port*32))].bit.PMUXEN = 1;
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg &= ~(0xF << (4 * (pin & 0x01u)));
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg |= (BOOT_USART_PAD0 & 0xFF) << (4 * (pin & 0x01u));
-	}
-
-	if (BOOT_USART_PAD1 != PINMUX_UNUSED)
-  {
-		/* Mask 6th bit in pin number to check whether it is greater than 32 i.e., PORTB pin */
-		port = (BOOT_USART_PAD1 & 0x200000) >> 21;
-		pin = BOOT_USART_PAD1 >> 16;
-		PORT->Group[port].PINCFG[(pin - (port*32))].bit.PMUXEN = 1;
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg &= ~(0xF << (4 * (pin & 0x01u)));
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg |= (BOOT_USART_PAD1 & 0xFF) << (4 * (pin & 0x01u));
-	}
-
-	if (BOOT_USART_PAD2 != PINMUX_UNUSED)
-  {
-		/* Mask 6th bit in pin number to check whether it is greater than 32 i.e., PORTB pin */
-		port = (BOOT_USART_PAD2 & 0x200000) >> 21;
-		pin = BOOT_USART_PAD2 >> 16;
-		PORT->Group[port].PINCFG[(pin - (port*32))].bit.PMUXEN = 1;
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg &= ~(0xF << (4 * (pin & 0x01u)));
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg |= (BOOT_USART_PAD2 & 0xFF) << (4 * (pin & 0x01u));
-	}
-
-	if (BOOT_USART_PAD3 != PINMUX_UNUSED)
-  {
-		/* Mask 6th bit in pin number to check whether it is greater than 32 i.e., PORTB pin */
-		port = (BOOT_USART_PAD3 & 0x200000) >> 21;
-		pin = BOOT_USART_PAD3 >> 16;
-		PORT->Group[port].PINCFG[(pin - (port*32))].bit.PMUXEN = 1;
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg &= ~(0xF << (4 * (pin & 0x01u)));
-		PORT->Group[port].PMUX[(pin - (port*32))/2].reg |= (BOOT_USART_PAD3 & 0xFF) << (4 * (pin & 0x01u));
-	}
+        /* Configure the port pins for SERCOM_USART */
+	pinMux(BOOT_USART_PAD0);
+        pinMux(BOOT_USART_PAD1);
+        pinMux(BOOT_USART_PAD2);
+        pinMux(BOOT_USART_PAD3);
 
 	/* Enable clock for BOOT_USART_MODULE */
 #if (SAMD21 || SAMD11)
@@ -114,10 +76,10 @@ void serial_open(void)
 	/* Set GCLK_GEN0 as source for GCLK_ID_SERCOMx_CORE */
 #if (SAMD21 || SAMD11)
   GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( BOOT_USART_PER_CLOCK_INDEX ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+  waitForSync();
 #elif (SAML21 || SAMC21)
   GCLK->PCHCTRL[BOOT_USART_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+  waitForSync();
 #endif
 
 	/* Baud rate 115200 - clock 48MHz -> BAUD value-63018 */

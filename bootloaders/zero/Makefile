@@ -19,6 +19,11 @@
 # Begin Config ###############################
 
 # -----------------------------------------------------------------------------
+# SD Card support. This can also be set in the relevant board_definitions file.
+# SDCARD_DISABLED, SDCARD_ENABLED
+SDCARD?=SDCARD_DISABLED
+
+# -----------------------------------------------------------------------------
 # Boards definitions:
 # MT_D21E_rev_A, MT_D21E_rev_B, MT_D11
 # arduino_zero, arduino_mkrzero, arduino_mkr1000, genuino_mkr1000, genuino_zero, arduino_m0, arduino_m0_pro
@@ -44,7 +49,11 @@ MCU?=SAMD21E18A
 
 # End Config ###############################
 
+ifeq ($(findstring ENABLED,$(SDCARD)),ENABLED)
+NAME=sam_ba_sdcard_$(BOARD_ID)_$(MCU)
+else
 NAME=sam_ba_$(BOARD_ID)_$(MCU)
+endif
 
 ifeq ($(findstring 18,$(MCU)),18)
 FLASHSIZE=256KB
@@ -113,7 +122,8 @@ SIZE=$(ARM_GCC_PATH)size
 
 # -----------------------------------------------------------------------------
 # Compiler options
-CFLAGS_EXTRA=-D__$(MCU)__ -DBOARD_ID_$(BOARD_ID)
+# eliminate PARANOIA define to save a tiny amount of code (~40B)
+CFLAGS_EXTRA=-D$(SDCARD) -D__$(MCU)__ -DBOARD_ID_$(BOARD_ID) -DPARANOIA
 CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500 -Wa,-adhlns=$(<:%.c=$(BUILD_PATH)/%.lst)
 ifdef DEBUG
   CFLAGS+=-g3 -O1 -DDEBUG=1
@@ -141,6 +151,10 @@ SOURCES= \
   board_driver_serial.c \
   board_init.c \
   board_startup.c \
+  util.c \
+  SDCard/sdBootloader.c \
+  SDCard/mmcbbp.c \
+  SDCard/pff.c \
   main.c \
   sam_ba_monitor.c \
   sam_ba_serial.c
@@ -152,6 +166,10 @@ SOURCES= \
   board_driver_usb.c \
   board_init.c \
   board_startup.c \
+  util.c \
+  SDCard/sdBootloader.c \
+  SDCard/mmcbbp.c \
+  SDCard/pff.c \
   main.c \
   sam_ba_usb.c \
   sam_ba_cdc.c \
@@ -200,6 +218,7 @@ $(BUILD_PATH):
 	@echo ----------------------------------------------------------
 	@echo Creating build folder
 	-mkdir $(BUILD_PATH)
+	-mkdir $(BUILD_PATH)/SDCard
 
 print_info:
 	@echo ----------------------------------------------------------
@@ -227,14 +246,18 @@ clean: $(AS_CLEAN)
 	@echo Cleaning project
 	-$(RM) $(BIN)
 	-$(RM) $(HEX)
+	-$(RM) $(BUILD_PATH)/SDCard/*.*
 	-$(RM) $(BUILD_PATH)/*.*
+	-rmdir $(BUILD_PATH)/SDCard
 	-rmdir $(BUILD_PATH)
 
 mostly_clean: $(AS_CLEAN)
 	@echo ----------------------------------------------------------
 	@echo Cleaning project except bin
 	-$(RM) $(HEX)
+	-$(RM) $(BUILD_PATH)/SDCard/*.*
 	-$(RM) $(BUILD_PATH)/*.*
+	-rmdir $(BUILD_PATH)/SDCard
 	-rmdir $(BUILD_PATH)
 
 .phony: print_info $(BUILD_PATH)

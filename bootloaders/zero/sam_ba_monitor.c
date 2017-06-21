@@ -28,6 +28,7 @@
   #include "sam_ba_cdc.h"
 #endif
 #include "board_driver_led.h"
+#include "util.h"
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
 #if (defined ARDUINO_EXTENDED_CAPABILITIES) && (ARDUINO_EXTENDED_CAPABILITIES == 1)
@@ -86,13 +87,19 @@ const t_monitor_if usbcdc_if =
 t_monitor_if * ptr_monitor_if;
 
 /* b_terminal_mode mode (ascii) or hex mode */
+#if defined(TERMINAL_MODE_ENABLED)
 volatile bool b_terminal_mode = false;
+#endif
 volatile bool b_sam_ba_interface_usart = false;
 
 /* Pulse generation counters to keep track of the time remaining for each pulse type */
 #define TX_RX_LED_PULSE_PERIOD 100
+#if defined(BOARD_LEDTX_PORT)
 volatile uint16_t txLEDPulse = 0; // time remaining for Tx LED pulse
+#endif
+#if defined(BOARD_LEDRX_PORT)
 volatile uint16_t rxLEDPulse = 0; // time remaining for Rx LED pulse
+#endif
 
 void sam_ba_monitor_init(uint8_t com_interface)
 {
@@ -121,8 +128,10 @@ static uint32_t sam_ba_putdata(t_monitor_if* pInterface, void const* data, uint3
 
 	result=pInterface->putdata(data, length);
 
+#if defined(BOARD_LEDTX_PORT)
 	LEDTX_on();
 	txLEDPulse = TX_RX_LED_PULSE_PERIOD;
+#endif
 
 	return result;
 }
@@ -136,11 +145,13 @@ static uint32_t sam_ba_getdata(t_monitor_if* pInterface, void* data, uint32_t le
 
 	result=pInterface->getdata(data, length);
 
+#if defined(BOARD_LEDRX_PORT)
 	if (result)
 	{
 		LEDRX_on();
 		rxLEDPulse = TX_RX_LED_PULSE_PERIOD;
 	}
+#endif
 
 	return result;
 }
@@ -154,8 +165,10 @@ static uint32_t sam_ba_putdata_xmd(t_monitor_if* pInterface, void const* data, u
 
 	result=pInterface->putdata_xmd(data, length);
 
+#if defined(BOARD_LEDTX_PORT)
 	LEDTX_on();
 	txLEDPulse = TX_RX_LED_PULSE_PERIOD;
+#endif
 
 	return result;
 }
@@ -169,11 +182,13 @@ static uint32_t sam_ba_getdata_xmd(t_monitor_if* pInterface, void* data, uint32_
 
 	result=pInterface->getdata_xmd(data, length);
 
+#if defined(BOARD_LEDRX_PORT)
 	if (result)
 	{
 		LEDRX_on();
 		rxLEDPulse = TX_RX_LED_PULSE_PERIOD;
 	}
+#endif
 
 	return result;
 }
@@ -186,6 +201,7 @@ static uint32_t sam_ba_getdata_xmd(t_monitor_if* pInterface, void* data, uint32_
  */
 void sam_ba_putdata_term(uint8_t* data, uint32_t length)
 {
+  #if defined(TERMINAL_MODE_ENABLED)
   uint8_t temp, buf[12], *data_ascii;
   uint32_t i, int_value;
 
@@ -220,6 +236,7 @@ void sam_ba_putdata_term(uint8_t* data, uint32_t length)
     sam_ba_putdata(ptr_monitor_if, buf, length * 2 + 4);
   }
   else
+#endif
     sam_ba_putdata(ptr_monitor_if, data, length);
   return;
 }
@@ -249,9 +266,8 @@ uint8_t command, *ptr_data, *ptr, data[SIZEBUFMAX];
 uint8_t j;
 uint32_t u32tmp;
 
-uint32_t PAGE_SIZE, PAGES, MAX_FLASH;
-
 // Prints a 32-bit integer in hex.
+#if ((SAM_BA_INTERFACE != SAM_BA_NONE) && ((defined(ARDUINO_EXTENDED_CAPABILITIES)) && (ARDUINO_EXTENDED_CAPABILITIES == 1)))
 static void put_uint32(uint32_t n)
 {
   char buff[8];
@@ -265,6 +281,7 @@ static void put_uint32(uint32_t n)
   }
   sam_ba_putdata( ptr_monitor_if, buff, 8);
 }
+#endif
 
 static void sam_ba_monitor_loop(void)
 {
@@ -277,10 +294,12 @@ static void sam_ba_monitor_loop(void)
 
     if (*ptr == '#')
     {
+      #if defined(TERMINAL_MODE_ENABLED)
       if (b_terminal_mode)
       {
         sam_ba_putdata(ptr_monitor_if, "\n\r", 2);
       }
+      #endif
       if (command == 'S')
       {
         //Check if some data are remaining in the "data" buffer
@@ -351,10 +370,12 @@ static void sam_ba_monitor_loop(void)
         /* Rebase the Stack Pointer */
         __set_MSP(sp);
         __enable_irq();
+
         if (b_sam_ba_interface_usart) {
           ptr_monitor_if->put_c(0x6);
         }
       }
+      #if defined(TERMINAL_MODE_ENABLED)
       else if (command == 'T')
       {
         b_terminal_mode = 1;
@@ -368,6 +389,7 @@ static void sam_ba_monitor_loop(void)
         }
         b_terminal_mode = 0;
       }
+      #endif
       else if (command == 'V')
       {
         sam_ba_putdata( ptr_monitor_if, "v", 1);
@@ -399,18 +421,7 @@ static void sam_ba_monitor_loop(void)
         // Note: the flash memory is erased in ROWS, that is in block of 4 pages.
         //       Even if the starting address is the last byte of a ROW the entire
         //       ROW is erased anyway.
-
-        uint32_t dst_addr = current_number; // starting address
-
-        while (dst_addr < MAX_FLASH)
-        {
-          // Execute "ER" Erase Row
-          NVMCTRL->ADDR.reg = dst_addr / 2;
-          NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
-          while (NVMCTRL->INTFLAG.bit.READY == 0)
-            ;
-          dst_addr += PAGE_SIZE * 4; // Skip a ROW
-        }
+        flashErase(current_number);
 
         // Notify command completed
         sam_ba_putdata( ptr_monitor_if, "X\n\r", 3);
@@ -435,40 +446,7 @@ static void sam_ba_monitor_loop(void)
         }
         else
         {
-          // Write to flash
-          uint32_t size = current_number/4;
-          uint32_t *src_addr = src_buff_addr;
-          uint32_t *dst_addr = (uint32_t*)ptr_data;
-
-          // Set automatic page write
-          NVMCTRL->CTRLB.bit.MANW = 0;
-
-          // Do writes in pages
-          while (size)
-          {
-            // Execute "PBC" Page Buffer Clear
-            NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
-            while (NVMCTRL->INTFLAG.bit.READY == 0)
-              ;
-
-            // Fill page buffer
-            uint32_t i;
-            for (i=0; i<(PAGE_SIZE/4) && i<size; i++)
-            {
-              dst_addr[i] = src_addr[i];
-            }
-
-            // Execute "WP" Write Page
-            //NVMCTRL->ADDR.reg = ((uint32_t)dst_addr) / 2;
-            NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
-            while (NVMCTRL->INTFLAG.bit.READY == 0)
-              ;
-
-            // Advance to next page
-            dst_addr += i;
-            src_addr += i;
-            size     -= i;
-          }
+          flashWrite(current_number, src_buff_addr, (uint32_t*)ptr_data);
         }
 
         // Notify command completed
@@ -500,10 +478,12 @@ static void sam_ba_monitor_loop(void)
       command = 'z';
       current_number = 0;
 
+      #if defined(TERMINAL_MODE_ENABLED)
       if (b_terminal_mode)
       {
         sam_ba_putdata( ptr_monitor_if, ">", 1);
       }
+      #endif
     }
     else
     {
@@ -535,32 +515,20 @@ static void sam_ba_monitor_loop(void)
 
 void sam_ba_monitor_sys_tick(void)
 {
-	/* Check whether the TX or RX LED one-shot period has elapsed.  if so, turn off the LED */
+  /* Check whether the TX or RX LED one-shot period has elapsed.  if so, turn off the LED */
+  #if defined(BOARD_LEDTX_PORT)
 	if (txLEDPulse && !(--txLEDPulse))
 		LEDTX_off();
+  #endif
+  #if defined(BOARD_LEDRX_PORT)
 	if (rxLEDPulse && !(--rxLEDPulse))
 		LEDRX_off();
+  #endif
 }
 
 /**
  * \brief This function starts the SAM-BA monitor.
  */
-#if (defined ARDUINO_EXTENDED_CAPABILITIES) && (ARDUINO_EXTENDED_CAPABILITIES == 1)
-void sam_ba_monitor_run(void)
-{
-  uint32_t pageSizes[] = { 8, 16, 32, 64, 128, 256, 512, 1024 };
-  PAGE_SIZE = pageSizes[NVMCTRL->PARAM.bit.PSZ];
-  PAGES = NVMCTRL->PARAM.bit.NVMP;
-  MAX_FLASH = PAGE_SIZE * PAGES;
-
-  ptr_data = NULL;
-  command = 'z';
-  while (1)
-  {
-    sam_ba_monitor_loop();
-  }
-}
-#else
 void sam_ba_monitor_run(void)
 {
   ptr_data = NULL;
@@ -570,4 +538,3 @@ void sam_ba_monitor_run(void)
     sam_ba_monitor_loop();
   }
 }
-#endif
