@@ -69,16 +69,20 @@ is running, the LED, if configured, will PWM fade quickly (~4Hz).
 
 ### SD Card External Pins
 
-If SDCARD_USE_PIN1 is defined, then the SD Card bootloader will run depending
+If only SDCARD_USE_PIN1 is defined, then the SD Card bootloader will run depending
 on the state of an external pin and the value of SDCARD_PIN1_POLARITY. The
 SPI peripheral and SPI pins will only be setup if the SD card bootloader runs.
+This is the default setting with the precompiled binaries that include SD Card support.
+
+*Hint: When doing development with an SD card installed, and thus probably using the*
+*SAM-BA interface, either ensure there is no UPDATE.BIN, or use pin 1 to skip the SD card*
 
 Pin1            | Action
 ----------------|---------------------
 Inactive        | Skip SD bootloader
 Active          | Run SD bootloader
 
-If SDCARD_USE_PIN1 and SDCARD_USE_PIN2 are defined, then the SD Card bootloader
+If both SDCARD_USE_PIN1 and SDCARD_USE_PIN2 are defined, then the SD Card bootloader
 will run depending on the state of two external pins and the values of
 SDCARD_PIN1_POLARITY and SDCARD_PIN1_POLARITY. The SPI peripheral and pins
 will only be setup if the SD card bootloader runs. Note that if SDCARD_USE_PIN2
@@ -155,6 +159,7 @@ at https://github.com/mattairtech/ArduinoCore-samd. Each board
 and chip combination has two bootloaders available:
 
 * SAM-BA interface only
+  * This is the bootloader that is installed by the Arduino IDE
   * USB CDC only for all MattairTech boards
   * Both USB CDC and UART for most Arduino boards
   * The Generic board variants minimize external pin usage
@@ -263,8 +268,13 @@ If using Bossac standalone, download bossac directly at:
 * https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-i686-linux-gnu.tar.gz (Linux 32 bit)
 * https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-x86_64-apple-darwin.tar.gz (OS X 64 bit)
 
+Linux 64 bit users can also download Bossa (GUI) and bossash (shell) from:
+
+* https://www.mattairtech.com/software/arduino/Bossa-1.7.0-mattairtech-1-x86_64-linux-gnu.tar.gz (Linux 64 bit)
+
 Note that the SAM-BA tools from Atmel will not work, and the version of bossac from the Arduino
 SAMD Core currently does not support the L21, C21, or D11 (but it does support the D21).
+
 
 #### Using Bossac Standalone
 
@@ -280,17 +290,6 @@ Wl,sectionstart=.text=0x2000
 
 You can also use a linker script. See the MattairTech SAM M0+ package for examples.
 Be sure to generate and use a binary file. Many makefiles are set up to generate an elf, hex, and bin already.
-
-Download Bossac from:
-
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-mingw32.tar.gz (Windows 32 bit and 64 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-x86_64-linux-gnu.tar.gz (Linux 64 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-i686-linux-gnu.tar.gz (Linux 32 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-x86_64-apple-darwin.tar.gz (OS X 64 bit)
-
-Linux 64 bit users can also download Bossa (GUI) and bossash (shell) from:
-
-* https://www.mattairtech.com/software/arduino/Bossa-1.7.0-mattairtech-1-x86_64-linux-gnu.tar.gz (Linux 64 bit)
 
 As an example, bossac will be used to upload the test firmware (blink sketch):
 
