@@ -139,7 +139,7 @@ void SystemInit( void )
   /* DFLL Configuration in Closed Loop mode, cf product datasheet chapter 15.6.7.1 - Closed-Loop Operation */
 
   /* Remove the OnDemand mode, Bug http://avr32.icgroup.norway.atmel.com/bugzilla/show_bug.cgi?id=9905 */
-  SYSCTRL->DFLLCTRL.bit.ONDEMAND = 0 ;
+  SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_ENABLE;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
@@ -158,7 +158,6 @@ void SystemInit( void )
 #if defined(CRYSTALLESS)
 
   #define NVM_SW_CALIB_DFLL48M_COARSE_VAL 58
-  #define NVM_SW_CALIB_DFLL48M_FINE_VAL   64
 
   // Turn on DFLL
   uint32_t coarse =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_COARSE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_COARSE_VAL % 32) )
@@ -166,19 +165,28 @@ void SystemInit( void )
   if (coarse == 0x3f) {
     coarse = 0x1f;
   }
-  uint32_t fine =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_FINE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_FINE_VAL % 32) )
-                 & ((1 << 10) - 1);
-  if (fine == 0x3ff) {
-    fine = 0x1ff;
-  }
+  // TODO(tannewt): Load this value from memory we've written previously. There
+  // isn't a value from the Atmel factory.
+  uint32_t fine = 0x1ff;
 
   SYSCTRL->DFLLVAL.bit.COARSE = coarse;
   SYSCTRL->DFLLVAL.bit.FINE = fine;
   /* Write full configuration to DFLL control register */
-  SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 0x1f / 4 ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( 10 ) |
+                         SYSCTRL_DFLLMUL_MUL( (48000) ) ;
+
+  SYSCTRL->DFLLCTRL.reg = 0;
+
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+  {
+    /* Wait for synchronization */
+  }
+
+  SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_MODE |
                            SYSCTRL_DFLLCTRL_CCDIS |
-                           SYSCTRL_DFLLCTRL_WAITLOCK |
-                           SYSCTRL_DFLLCTRL_QLDIS ; /* Disable Quick lock */
+                           SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
+                           SYSCTRL_DFLLCTRL_BPLCKC;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
