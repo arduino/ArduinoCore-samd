@@ -37,9 +37,9 @@
 // ----
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (52u)
-#define NUM_DIGITAL_PINS     (52u)
-#define NUM_ANALOG_INPUTS    (12u)
+#define PINS_COUNT           (39u)
+#define NUM_DIGITAL_PINS     (39u)
+#define NUM_ANALOG_INPUTS    (11u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 
 // Low-level pin register query macros
@@ -89,7 +89,6 @@
 #define PIN_A8               (PIN_A0 + 8)
 #define PIN_A9               (PIN_A0 + 9)
 #define PIN_A10              (PIN_A0 + 10)
-#define PIN_A11              (PIN_A0 + 11)
 
 #define PIN_DAC0             (PIN_A0)
 
@@ -105,7 +104,6 @@ static const uint8_t A7  = PIN_A7 ;
 static const uint8_t A8  = PIN_A8 ;
 static const uint8_t A9  = PIN_A9 ;
 static const uint8_t A10  = PIN_A10 ;
-static const uint8_t A11  = PIN_A11 ;
 static const uint8_t DAC0 = PIN_DAC0;
 
 #define ADC_RESOLUTION		12
@@ -115,14 +113,14 @@ static const uint8_t DAC0 = PIN_DAC0;
  */
 #define SPI_INTERFACES_COUNT 1
 
-#define PIN_SPI_MISO         (32u)
-#define PIN_SPI_SCK          (33u)
-#define PIN_SPI_MOSI         (34u)
+#define PIN_SPI_MISO         (30u)
+#define PIN_SPI_SCK          (31u)
+#define PIN_SPI_MOSI         (32u)
 #define PERIPH_SPI           sercom3
 #define PAD_SPI_TX           SPI_PAD_2_SCK_3  // MOSI / SCK
 #define PAD_SPI_RX           SERCOM_RX_PAD_0  // MISO
 
-static const uint8_t SS	  = 35 ;
+static const uint8_t SS	  = 33 ;
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
@@ -142,8 +140,8 @@ static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
   // "internal" lis3dh i2c interface
-#define PIN_WIRE1_SDA         (30u)
-#define PIN_WIRE1_SCL         (31u)
+#define PIN_WIRE1_SDA         (28u)
+#define PIN_WIRE1_SCL         (29u)
 #define PERIPH_WIRE1          sercom1
 #define WIRE1_IT_HANDLER      SERCOM1_Handler
 static const uint8_t SDA1 = PIN_WIRE1_SDA;
@@ -151,20 +149,13 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 // USB
 // ---
-#define PIN_USB_HOST_ENABLE (26ul)
-#define PIN_USB_DM          (27ul)
-#define PIN_USB_DP          (28ul)
+#define PIN_USB_HOST_ENABLE (36ul)
+#define PIN_USB_DM          (37ul)
+#define PIN_USB_DP          (38ul)
 
 // I2S Interfaces
 // --------------
 #define I2S_INTERFACES_COUNT 0
-
-#define I2S_DEVICE          0
-#define I2S_CLOCK_GENERATOR 3
-#define PIN_I2S_SD          (9u)
-#define PIN_I2S_SCK         (37u)
-#define PIN_I2S_FS          (15u)
-
 
 // Serial ports
 // ------------
