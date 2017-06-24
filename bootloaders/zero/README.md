@@ -312,8 +312,16 @@ bossac.exe -d --port=COM5 -U true -i -e -w -v Blink_Demo_ATSAMD21E18A.bin -R
 For all builds and platforms you will need to have the Arduino IDE installed as well as the packages
 for both Arduino SAMD Boards and for MattairTech SAM M0+ Boards, which provides the needed dependencies
 (CMSIS, CMSIS-Atmel, and the compiler toolchain: arm-none-eabi-gcc), which can be installed using the
-Arduino IDE Boards Manager. This project uses a Makefile, which is present in the root (zero) directory.
-However, you will need a make program:
+Arduino IDE Boards Manager. If you do not wish to install the MattairTech SAM M0+ Boards core, then the
+arm-none-eabi-gcc, CMSIS, and openocd packages are included with the stock Arduino SAMD. However, you
+will still need to download bossac (see above) and CMSIS-Atmel from MattairTech:
+
+* https://www.mattairtech.com/software/arduino/CMSIS-Atmel-1.0.0-mattairtech-1.tar.gz
+
+Then install to ~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-Atmel (or similar based on your OS)
+and rename the folder in CMSIS-Atmel from CMSIS to 1.0.0-mattairtech-1.
+
+This project uses a Makefile, which is in the root zero directory. However, you will need a make program:
 
 #### Windows
 
