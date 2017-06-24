@@ -38,7 +38,7 @@
 #elif (SAML21)
   #define GCM_USB                   (0x04U)
 #else
-  #error "board_driver_usb.c: Unsupported chip"
+  #error "board_driver_usb.c: Missing dependency or unsupported chip. Please install CMSIS-Atmel from MattairTech (see Prerequisites for Building in README.md)."
 #endif
 
 

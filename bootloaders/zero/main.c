@@ -106,7 +106,7 @@ uint32_t* pulSketch_Start_Address;
 #elif (SAML21 || SAMC21)
   if (RSTC->RCAUSE.bit.POR)
 #else
-  #error "main.c: Unsupported chip"
+  #error "main.c: Missing dependency or unsupported chip. Please install CMSIS-Atmel from MattairTech (see Prerequisites for Building in README.md)."
 #endif
 
   {

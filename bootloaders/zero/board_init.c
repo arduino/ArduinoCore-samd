@@ -43,7 +43,7 @@ extern uint32_t SystemCoreClock;
   #define GENERIC_CLOCK_MULTIPLEXER_FDPLL   (0u)
   #define GENERIC_CLOCK_MULTIPLEXER_FDPLL96M_32K (1u)
 #else
-  #error "startup.c: Unsupported chip"
+  #error "startup.c: Missing dependency or unsupported chip. Please install CMSIS-Atmel from MattairTech (see Prerequisites for Building in README.md)."
 #endif
 
 #if (SAMD || SAML21)

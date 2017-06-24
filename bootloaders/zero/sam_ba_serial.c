@@ -70,7 +70,7 @@ void serial_open(void)
   MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM0 | MCLK_APBCMASK_SERCOM1 | MCLK_APBCMASK_SERCOM2 | MCLK_APBCMASK_SERCOM3 | MCLK_APBCMASK_SERCOM4 | MCLK_APBCMASK_SERCOM5 ;
   #endif
 #else
-  #error "sam_ba_serial.c: Unsupported chip"
+  #error "sam_ba_serial.c: Missing dependency or unsupported chip. Please install CMSIS-Atmel from MattairTech (see Prerequisites for Building in README.md)."
 #endif
 
 	/* Set GCLK_GEN0 as source for GCLK_ID_SERCOMx_CORE */
