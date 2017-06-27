@@ -38,7 +38,9 @@
  * makefile (so it can be used with the build_all_bootloaders.sh script).
  * Size: ~2788B. Disabled by default. Available with 4KB bootloader.
  */
+#ifndef SDCARD_ENABLED
 //#define SDCARD_ENABLED
+#endif
 
 /* If SDCARD_ENABLED is defined, then all SDCARD_SPI_* defines must also be set.
  * When setting SDCARD_SPI_PADx defines, consult the appropriate header file
@@ -95,6 +97,17 @@
  * By default, SDCARD_AUTORUN_DISABLED is defined.
  */
 #define SDCARD_AUTORUN_DISABLED
+
+/* Two different binary files can be loaded, depending on external pin settings.
+ * By default, the filenames are UPDATE.BIN and UPDATE2.BIN, but these can be
+ * overridden by defining SDCARD_FILENAME_PRIMARY and SDCARD_FILENAME_SECONDARY.
+ * If both pins are configured, SDCARD_FILENAME_PRIMARY (UPDATE.BIN) will be
+ * loaded when PIN1 is enabled, and SDCARD_FILENAME_PRIMARY (UPDATE2.BIN) is
+ * loaded when PIN2 is enabled. If only one pin or no pin is configured, only
+ * SDCARD_FILENAME_PRIMARY is loaded.
+ */
+//#define SDCARD_FILENAME_PRIMARY        "UPDATE.BIN"
+//#define SDCARD_FILENAME_SECONDARY      "UPDATE2.BIN"
 
 /* Set SAM_BA_INTERFACE to SAM_BA_USBCDC_ONLY, SAM_BA_UART_ONLY, SAM_BA_NONE, or
  * SAM_BA_BOTH_INTERFACES. With 4KB bootloaders, select only one interface (except

@@ -82,16 +82,13 @@ uint32_t* pulSketch_Start_Address;
   }
 
 #if defined(BOOT_LOAD_PIN_ENABLED)
-  configPin(BOOT_LOAD_PIN_PORT, BOOT_LOAD_PIN, BOOT_LOAD_PIN_CONFIG);
+  pinConfig(BOOT_LOAD_PIN_PORT, BOOT_LOAD_PIN, BOOT_LOAD_PIN_CONFIG);
 
   /* Allow time for debouncing capacitor (if using a button) to charge (10ms) */
   delayUs(10000UL);
 
   // Read the BOOT_LOAD_PIN status
-  volatile bool boot_en = isPinActive(BOOT_LOAD_PIN_PORT, BOOT_LOAD_PIN, BOOT_LOAD_PIN_POLARITY);
-
-  // Check the bootloader enable condition
-  if (!boot_en)
+  if (isPinActive(BOOT_LOAD_PIN_PORT, BOOT_LOAD_PIN, BOOT_LOAD_PIN_POLARITY))
   {
     // Stay in bootloader
     return;

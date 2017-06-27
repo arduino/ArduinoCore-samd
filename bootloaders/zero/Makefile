@@ -89,7 +89,7 @@ ifeq ($(OS),Windows_NT)
   else
     MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/$(CORE_VENDOR)
     MODULE_PATH_ARDUINO?=$(LOCALAPPDATA)/Arduino15/packages/arduino
-    RM=rm
+    RM=del
     SEP=\\
   endif
 else
@@ -110,8 +110,9 @@ else
   endif
 endif
 
+PATHSEP=$(strip $(SEP))
 ARM_GCC_PATH?=$(MODULE_PATH_ARDUINO)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
-BUILD_PATH=build
+BUILD_DIR=build
 
 # -----------------------------------------------------------------------------
 # Tools
@@ -124,7 +125,7 @@ SIZE=$(ARM_GCC_PATH)size
 # Compiler options
 # eliminate PARANOIA define to save a tiny amount of code (~40B)
 CFLAGS_EXTRA=-D$(SDCARD) -D__$(MCU)__ -DBOARD_ID_$(BOARD_ID) -DPARANOIA
-CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500 -Wa,-adhlns=$(<:%.c=$(BUILD_PATH)/%.lst)
+CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500 -Wa,-adhlns=$(<:%.c=$(BUILD_DIR)/%.lst)
 ifdef DEBUG
   CFLAGS+=-g3 -O1 -DDEBUG=1
 else
@@ -177,8 +178,8 @@ SOURCES= \
   sam_ba_serial.c
 endif
 
-OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
-DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
+OBJECTS=$(addprefix $(BUILD_DIR)/, $(SOURCES:.c=.o))
+DEPS=$(addprefix $(BUILD_DIR)/, $(SOURCES:.c=.d))
 
 ifneq "test$(AVRSTUDIO_EXE_PATH)" "test"
   AS_BUILD=copy_for_atmel_studio
@@ -191,34 +192,34 @@ endif
 
 all: print_info $(SOURCES) $(BIN) $(HEX) $(AS_BUILD)
 
-$(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
+$(ELF): Makefile $(BUILD_DIR) $(OBJECTS)
 	@echo ----------------------------------------------------------
 	@echo Creating ELF binary
-	"$(CC)" -L. -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps -Tlinker_scripts/$(LINKER_SCRIPT) -Wl,-Map,"$(BUILD_PATH)/$(NAME).map" -o "$(BUILD_PATH)/$(ELF)" -Wl,--start-group $(OBJECTS) -lm -Wl,--end-group
-	"$(NM)" "$(BUILD_PATH)/$(ELF)" >"$(BUILD_PATH)/$(NAME)_symbols.txt"
-	"$(SIZE)" --format=sysv -t -x $(BUILD_PATH)/$(ELF)
+	"$(CC)" -L. -L$(BUILD_DIR) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps -Tlinker_scripts/$(LINKER_SCRIPT) -Wl,-Map,"$(BUILD_DIR)/$(NAME).map" -o "$(BUILD_DIR)/$(ELF)" -Wl,--start-group $(OBJECTS) -lm -Wl,--end-group
+	"$(NM)" "$(BUILD_DIR)/$(ELF)" >"$(BUILD_DIR)/$(NAME)_symbols.txt"
+	"$(SIZE)" --format=sysv -t -x $(BUILD_DIR)/$(ELF)
 
 $(BIN): $(ELF)
 	@echo ----------------------------------------------------------
 	@echo Creating flash binary
-	"$(OBJCOPY)" -O binary $(BUILD_PATH)/$< $@
+	"$(OBJCOPY)" -O binary $(BUILD_DIR)/$< $@
 
 $(HEX): $(ELF)
 	@echo ----------------------------------------------------------
 	@echo Creating flash binary
-	"$(OBJCOPY)" -O ihex $(BUILD_PATH)/$< $@
+	"$(OBJCOPY)" -O ihex $(BUILD_DIR)/$< $@
 
-$(BUILD_PATH)/%.o: %.c
+$(BUILD_DIR)/%.o: %.c
 	@echo ----------------------------------------------------------
 	@echo Compiling $< to $@
 	"$(CC)" $(CFLAGS) $(CFLAGS_EXTRA) $(INCLUDES) $< -o $@
 	@echo ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-$(BUILD_PATH):
+$(BUILD_DIR):
 	@echo ----------------------------------------------------------
 	@echo Creating build folder
-	-mkdir $(BUILD_PATH)
-	-mkdir $(BUILD_PATH)/SDCard
+	-mkdir $(BUILD_DIR)
+	-mkdir $(BUILD_DIR)$(PATHSEP)SDCard
 
 print_info:
 	@echo ----------------------------------------------------------
@@ -234,30 +235,30 @@ print_info:
 copy_for_atmel_studio: $(BIN) $(HEX)
 	@echo ----------------------------------------------------------
 	@echo Atmel Studio detected, copying ELF to project root for debug
-	cp $(BUILD_PATH)/$(ELF) .
+	cp $(BUILD_DIR)$(PATHSEP)$(ELF) .
 
 clean_for_atmel_studio:
 	@echo ----------------------------------------------------------
 	@echo Atmel Studio detected, cleaning ELF from project root
-	-$(RM) ./$(ELF)
+	-$(RM) .$(PATHSEP)$(ELF)
 
 clean: $(AS_CLEAN)
 	@echo ----------------------------------------------------------
 	@echo Cleaning project
 	-$(RM) $(BIN)
 	-$(RM) $(HEX)
-	-$(RM) $(BUILD_PATH)/SDCard/*.*
-	-$(RM) $(BUILD_PATH)/*.*
-	-rmdir $(BUILD_PATH)/SDCard
-	-rmdir $(BUILD_PATH)
+	-$(RM) $(BUILD_DIR)$(PATHSEP)SDCard$(PATHSEP)*.*
+	-$(RM) $(BUILD_DIR)$(PATHSEP)*.*
+	-rmdir $(BUILD_DIR)$(PATHSEP)SDCard
+	-rmdir $(BUILD_DIR)
 
 mostly_clean: $(AS_CLEAN)
 	@echo ----------------------------------------------------------
 	@echo Cleaning project except bin
 	-$(RM) $(HEX)
-	-$(RM) $(BUILD_PATH)/SDCard/*.*
-	-$(RM) $(BUILD_PATH)/*.*
-	-rmdir $(BUILD_PATH)/SDCard
-	-rmdir $(BUILD_PATH)
+	-$(RM) $(BUILD_DIR)$(PATHSEP)SDCard$(PATHSEP)*.*
+	-$(RM) $(BUILD_DIR)$(PATHSEP)*.*
+	-rmdir $(BUILD_DIR)$(PATHSEP)SDCard
+	-rmdir $(BUILD_DIR)
 
-.phony: print_info $(BUILD_PATH)
+.phony: print_info $(BUILD_DIR)

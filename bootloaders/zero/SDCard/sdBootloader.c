@@ -22,8 +22,15 @@
 FATFS Fatfs;                    /* Petit-FatFs work area */
 BYTE Buff[FLASH_PAGE_SIZE];        /* Page data buffer */
 
-char updateBin[] = "UPDATE.BIN";
-char update2Bin[] = "UPDATE2.BIN";
+#ifndef SDCARD_FILENAME_PRIMARY
+#define SDCARD_FILENAME_PRIMARY "UPDATE.BIN"
+#endif
+#ifndef SDCARD_FILENAME_SECONDARY
+#define SDCARD_FILENAME_SECONDARY "UPDATE2.BIN"
+#endif
+
+char updateBin[] = SDCARD_FILENAME_PRIMARY;
+char update2Bin[] = SDCARD_FILENAME_SECONDARY;
 
 uint8_t sdBootloader (uint8_t mode)
 {

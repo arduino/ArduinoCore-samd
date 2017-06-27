@@ -240,7 +240,7 @@ This driver is the same as the one used by the MattairTech SAM M0+ Core.
 7. Click Tools->Burn Bootloader. Ignore any messages about not supporting shutdown or reset.
 8. Continue with driver installation above.
 
-A running sketch *may* interfere with the bootloader installation process. Be sure you are running the existing bootloader or using a blank chip.
+**A running sketch *may* interfere with the bootloader installation process. Be sure you are running the existing bootloader or using a blank chip.**
 
 #### Bootloader Installation Using Another Tool (ie: Atmel Studio, openocd)
 
@@ -479,6 +479,17 @@ binary file on the SD card already matches the installed firmware. In this
 case, the LED will blink with status code LED_STATUS_FILE_ALREADY_MATCHES.
 By default, SDCARD_AUTORUN_DISABLED is defined.
 
+### SDCARD_FILENAME_PRIMARY
+### SDCARD_FILENAME_SECONDARY
+
+Two different binary files can be loaded, depending on external pin settings.
+By default, the filenames are UPDATE.BIN and UPDATE2.BIN, but these can be
+overridden by defining SDCARD_FILENAME_PRIMARY and SDCARD_FILENAME_SECONDARY.
+If both pins are configured, SDCARD_FILENAME_PRIMARY (UPDATE.BIN) will be
+loaded when PIN1 is enabled, and SDCARD_FILENAME_PRIMARY (UPDATE2.BIN) is
+loaded when PIN2 is enabled. If only one pin or no pin is configured, only
+SDCARD_FILENAME_PRIMARY is loaded.
+
 ### SAM_BA_INTERFACE
 
 Set SAM_BA_INTERFACE to SAM_BA_USBCDC_ONLY, SAM_BA_UART_ONLY, SAM_BA_NONE, or
@@ -651,6 +662,10 @@ which will produce a binary named sam_ba_sdcard_Generic_x21J_SAMD21J18A.bin
 
 ## Technical Details
 
+**TTL Serial**
+
+The TX and RX pins are defined in the relevant board_definitions_* file. The baud rate is 115200 (8N1).
+
 **Arduino IDE Auto-Reset**
 
 When the Arduino IDE initiates the bootloader, the following procedure is used:
@@ -699,6 +714,8 @@ of the system stack. The applet in this case is a very simple word copy function
 1KB is reserved for the applet, and there are two 64 byte data buffers placed after it. The
 applet has its own stack at the top of RAM, but the word copy applet uses little/none of this.
 The bossac tool is responsible for loading the applet. See Devices.h from the Bossa source.
+
+**A running sketch *may* interfere with the bootloader installation process. Be sure you are running the existing bootloader or using a blank chip.**
 
 
 ## License
