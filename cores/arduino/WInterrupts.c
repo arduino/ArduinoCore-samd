@@ -28,6 +28,17 @@ static void __initialize()
 {
   memset(callbacksInt, 0, sizeof(callbacksInt));
 
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__) //TODO: verify the correct interrupts
+	
+	///EIC MCLK is enabled by default
+	
+	NVIC_DisableIRQ(EIC_0_IRQn);
+	NVIC_ClearPendingIRQ(EIC_0_IRQn);
+	NVIC_SetPriority(EIC_0_IRQn, 0);
+	NVIC_EnableIRQ(EIC_0_IRQn);
+	
+	GCLK->PCHCTRL[EIC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+#else
   NVIC_DisableIRQ(EIC_IRQn);
   NVIC_ClearPendingIRQ(EIC_IRQn);
   NVIC_SetPriority(EIC_IRQn, 0);
@@ -35,6 +46,7 @@ static void __initialize()
 
   // Enable GCLK for IEC (External Interrupt Controller)
   GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_EIC));
+#endif
 
 /* Shall we do that?
   // Do a software reset on EIC
@@ -43,8 +55,13 @@ static void __initialize()
 */
 
   // Enable EIC
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	EIC->CTRLA.bit.ENABLE = 1;
+	while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
+#else
   EIC->CTRL.bit.ENABLE = 1;
   while (EIC->STATUS.bit.SYNCBUSY == 1) { }
+#endif
 }
 
 /*
@@ -71,7 +88,11 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   }
 
   // Enable wakeup capability on pin in case being used during sleep
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	//TODO: find how to do
+#else
   EIC->WAKEUP.reg |= (1 << in);
+#endif
 
   // Assign pin to EIC
   pinPeripheral(pin, PIO_EXTINT);
@@ -111,8 +132,12 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
       break;
   }
 
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+//TODO: find how to do
+#else
   // Enable the interrupt
   EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
+#endif
 }
 
 /*
@@ -131,7 +156,11 @@ void detachInterrupt(uint32_t pin)
   EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
   
   // Disable wakeup capability on pin during sleep
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+//TODO: find how to do
+#else
   EIC->WAKEUP.reg &= ~(1 << in);
+#endif
 }
 
 /*

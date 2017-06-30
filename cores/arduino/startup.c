@@ -37,24 +37,37 @@
  */
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#define GENERIC_CLOCK_GENERATOR_XOSC32K   (3u)
+#else
 #define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
+#endif
 #define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
 #define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
 #define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
 // Constants for Clock multiplexers
 #define GENERIC_CLOCK_MULTIPLEXER_DFLL48M (0u)
 
+//#define USE_PLL
+
 void SystemInit( void )
 {
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+  NVMCTRL->CTRLA.reg |= NVMCTRL_CTRLA_RWS(0);
+#else
   /* Set 1 Flash Wait State for 48MHz, cf tables 20.9 and 35.27 in SAMD21 Datasheet */
   NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ;
 
   /* Turn on the digital interface clock */
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK ;
+#endif //(__SAMD51P20A__ || __SAMD51G19A__)
 
 
 #if defined(CRYSTALLESS)
 
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__) 
+	//TODO:
+#else
   /* ----------------------------------------------------------------------------------------------
    * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
    */
@@ -67,24 +80,110 @@ void SystemInit( void )
                         SYSCTRL_OSC32K_ENABLE;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 ); // Wait for oscillator stabilization
+  
+#endif //(__SAMD51P20A__ || __SAMD51G19A__)
 
 #else // has crystal
 
-  /* ----------------------------------------------------------------------------------------------
-   * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
-   */
-  SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP( 0x6u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
-                         SYSCTRL_XOSC32K_XTALEN | SYSCTRL_XOSC32K_EN32K ;
-  SYSCTRL->XOSC32K.bit.ENABLE = 1 ; /* separate call, as described in chapter 15.6.3 */
+	  /* ----------------------------------------------------------------------------------------------
+	   * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
+	   */
 
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSC32KRDY) == 0 )
-  {
-    /* Wait for oscillator stabilization */
-  }
+	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
 
-#endif
+		OSC32KCTRL->XOSC32K.reg = OSC32KCTRL_XOSC32K_ENABLE | OSC32KCTRL_XOSC32K_EN32K | OSC32KCTRL_XOSC32K_EN32K | OSC32KCTRL_XOSC32K_CGM_XT | OSC32KCTRL_XOSC32K_XTALEN;
+	
+		while( (OSC32KCTRL->STATUS.reg & OSC32KCTRL_STATUS_XOSC32KRDY) == 0 ){
+			/* Wait for oscillator to be ready */
+		}
+
+	#else
+
+	  SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP( 0x6u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
+							 SYSCTRL_XOSC32K_XTALEN | SYSCTRL_XOSC32K_EN32K ;
+	  SYSCTRL->XOSC32K.bit.ENABLE = 1 ; /* separate call, as described in chapter 15.6.3 */
+
+	  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSC32KRDY) == 0 )
+	  {
+		/* Wait for oscillator stabilization */
+	  }
+	#endif //(__SAMD51P20A__ || __SAMD51G19A__)
+
+#endif //CRYSTALLESS
 
   /* Software reset the module to ensure it is re-initialized correctly */
+  
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	
+  GCLK->CTRLA.bit.SWRST = 1;
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_SWRST ){
+	  /* wait for reset to complete */
+  }
+  
+  #ifdef USE_PLL
+  
+	  OSCCTRL->Dpll[0].DPLLRATIO.reg = OSCCTRL_DPLLRATIO_LDRFRAC(0) | OSCCTRL_DPLLRATIO_LDR(1499); //120 Mhz
+	  
+	  while(OSCCTRL->Dpll[0].DPLLSYNCBUSY.bit.DPLLRATIO);
+	  
+	  OSCCTRL->Dpll[0].DPLLCTRLB.reg = OSCCTRL_DPLLCTRLB_REFCLK_XOSC32;
+  
+	  OSCCTRL->Dpll[0].DPLLCTRLA.reg = OSCCTRL_DPLLCTRLA_ENABLE;
+  
+	  while( OSCCTRL->Dpll[0].DPLLSTATUS.bit.CLKRDY == 0 || OSCCTRL->Dpll[0].DPLLSTATUS.bit.LOCK == 0 );
+  
+  #else
+	  /* ----------------------------------------------------------------------------------------------
+	   * 2) Put XOSC32K as source of Generic Clock Generator 3
+	   */
+	  GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_XOSC32K].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_XOSC32K) | //generic clock gen 3
+										GCLK_GENCTRL_GENEN;
+
+	  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_GENCTRL3 ){
+		  /* Wait for synchronization */
+	  }
+  
+	  /* ----------------------------------------------------------------------------------------------
+	   * 3) Put Generic Clock Generator 3 as source for Generic Clock Gen 0 (DFLL48M reference)
+	   */
+	  GCLK->GENCTRL[GENERIC_CLOCK_MULTIPLEXER_DFLL48M].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_OSCULP32K) | GCLK_GENCTRL_GENEN;
+
+	  while ( GCLK->SYNCBUSY.bit.GENCTRL0 ){
+		  /* Wait for synchronization */
+	  }
+
+	  /* ----------------------------------------------------------------------------------------------
+	   * 4) Enable DFLL48M clock
+	   */
+
+	  /* DFLL Configuration in Closed Loop mode - Closed-Loop Operation */
+
+	  OSCCTRL->DFLLCTRLA.reg = 0;
+	  GCLK->PCHCTRL[OSCCTRL_GCLK_ID_DFLL48].reg = (1 << GCLK_PCHCTRL_CHEN_Pos) | GCLK_PCHCTRL_GEN(GCLK_PCHCTRL_GEN_GCLK3_Val);
+
+	  OSCCTRL->DFLLMUL.reg = OSCCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
+							OSCCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
+							OSCCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // External 32KHz is the reference
+
+	  while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_DFLLMUL )
+	  {
+		/* Wait for synchronization */
+	  }
+  
+	  OSCCTRL->DFLLCTRLB.reg = 0;
+	  while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_DFLLCTRLB )
+	  {
+		  /* Wait for synchronization */
+	  }
+  
+	  OSCCTRL->DFLLCTRLA.reg |= OSCCTRL_DFLLCTRLA_ENABLE;
+	  while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_ENABLE )
+	  {
+		  /* Wait for synchronization */
+	  }
+  #endif //USE_PLL
+	
+#else
   /* Note: Due to synchronization, there is a delay from writing CTRL.SWRST until the reset is complete.
    * CTRL.SWRST and STATUS.SYNCBUSY will both be cleared when the reset is complete, as described in chapter 13.8.1
    */
@@ -107,13 +206,13 @@ void SystemInit( void )
 
   /* Write Generic Clock Generator 1 configuration */
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
-#if defined(CRYSTALLESS)
-                      GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
-#else
-                      GCLK_GENCTRL_SRC_XOSC32K | // Selected source is External 32KHz Oscillator
-#endif
-//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
-                      GCLK_GENCTRL_GENEN ;
+	#if defined(CRYSTALLESS)
+						  GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
+	#else
+						  GCLK_GENCTRL_SRC_XOSC32K | // Selected source is External 32KHz Oscillator
+	#endif
+	//                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
+						  GCLK_GENCTRL_GENEN ;
 
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
@@ -131,7 +230,6 @@ void SystemInit( void )
   {
     /* Wait for synchronization */
   }
-
   /* ----------------------------------------------------------------------------------------------
    * 4) Enable DFLL48M clock
    */
@@ -139,7 +237,7 @@ void SystemInit( void )
   /* DFLL Configuration in Closed Loop mode, cf product datasheet chapter 15.6.7.1 - Closed-Loop Operation */
 
   /* Remove the OnDemand mode, Bug http://avr32.icgroup.norway.atmel.com/bugzilla/show_bug.cgi?id=9905 */
-  SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_ENABLE;
+  SYSCTRL->DFLLCTRL.bit.ONDEMAND = 0 ;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
@@ -154,10 +252,17 @@ void SystemInit( void )
   {
     /* Wait for synchronization */
   }
+  
+#endif //(__SAMD51P20A__ || __SAMD51G19A__)
 
 #if defined(CRYSTALLESS)
 
   #define NVM_SW_CALIB_DFLL48M_COARSE_VAL 58
+  #define NVM_SW_CALIB_DFLL48M_FINE_VAL   64
+
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	//TODO:
+#else
 
   // Turn on DFLL
   uint32_t coarse =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_COARSE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_COARSE_VAL % 32) )
@@ -165,41 +270,17 @@ void SystemInit( void )
   if (coarse == 0x3f) {
     coarse = 0x1f;
   }
-  // TODO(tannewt): Load this value from memory we've written previously. There
-  // isn't a value from the Atmel factory.
-  uint32_t fine = 0x1ff;
+  uint32_t fine =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_FINE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_FINE_VAL % 32) )
+                 & ((1 << 10) - 1);
+  if (fine == 0x3ff) {
+    fine = 0x1ff;
+  }
 
   SYSCTRL->DFLLVAL.bit.COARSE = coarse;
   SYSCTRL->DFLLVAL.bit.FINE = fine;
   /* Write full configuration to DFLL control register */
-  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 0x1f / 4 ) | // Coarse step is 31, half of the max value
-                         SYSCTRL_DFLLMUL_FSTEP( 10 ) |
-                         SYSCTRL_DFLLMUL_MUL( (48000) ) ;
-
-  SYSCTRL->DFLLCTRL.reg = 0;
-
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
-  {
-    /* Wait for synchronization */
-  }
-
-  SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_MODE |
+  SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
                            SYSCTRL_DFLLCTRL_CCDIS |
-                           SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
-                           SYSCTRL_DFLLCTRL_BPLCKC;
-
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
-  {
-    /* Wait for synchronization */
-  }
-
-  /* Enable the DFLL */
-  SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
-
-#else   // has crystal
-
-  /* Write full configuration to DFLL control register */
-  SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
                            SYSCTRL_DFLLCTRL_WAITLOCK |
                            SYSCTRL_DFLLCTRL_QLDIS ; /* Disable Quick lock */
 
@@ -210,15 +291,80 @@ void SystemInit( void )
 
   /* Enable the DFLL */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
+#endif //(__SAMD51P20A__ || __SAMD51G19A__)
 
-  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
-          (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
+#else   // has crystal
+
+	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+
+		 OSCCTRL->DFLLCTRLB.reg |= OSCCTRL_DFLLCTRLB_MODE | 
+									OSCCTRL_DFLLCTRLB_WAITLOCK |
+									OSCCTRL_DFLLCTRLB_QLDIS;
+
+	#else
+
+	  /* Write full configuration to DFLL control register */
+	  SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
+							   SYSCTRL_DFLLCTRL_WAITLOCK |
+							   SYSCTRL_DFLLCTRL_QLDIS ; /* Disable Quick lock */
+
+	  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+	  {
+		/* Wait for synchronization */
+	  }
+
+	  /* Enable the DFLL */
+	  SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
+
+	  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKC) == 0 ||
+			  (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLLCKF) == 0 )
+	  {
+		/* Wait for locks flags */
+	  }
+  
+	#endif //(__SAMD51P20A__ || __SAMD51G19A__)
+
+#endif //crystalless
+
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+
+  #ifdef USE_PLL
+  
+  /* ----------------------------------------------------------------------------------------------
+   * 5) Switch Generic Clock Generator 0 to DPLL0. CPU will run at 120MHz.
+   */
+	GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DPLL0) |
+					GCLK_GENCTRL_IDC |
+					//GCLK_GENCTRL_OE |
+					GCLK_GENCTRL_GENEN;
+  
+  #else
+	while ( (OSCCTRL->STATUS.reg & (OSCCTRL_STATUS_DFLLRDY | OSCCTRL_STATUS_DFLLLCKC)) != (OSCCTRL_STATUS_DFLLRDY | OSCCTRL_STATUS_DFLLLCKC) )
   {
-    /* Wait for locks flags */
+    /* Wait for synchronization */
   }
 
-#endif
+  /* ----------------------------------------------------------------------------------------------
+   * 5) Switch Generic Clock Generator 0 to DFLL48M. CPU will run at 48MHz.
+   */
+	GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL) |
+					GCLK_GENCTRL_IDC |
+					//GCLK_GENCTRL_OE |
+					GCLK_GENCTRL_GENEN;
 
+  #endif
+
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_GENCTRL0 )
+  {
+    /* Wait for synchronization */
+  }
+  
+  
+  //TODO: steps 6, 7, 8
+  
+  MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV1;
+
+#else
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
     /* Wait for synchronization */
@@ -245,7 +391,7 @@ void SystemInit( void )
   {
     /* Wait for synchronization */
   }
-
+  
   /* ----------------------------------------------------------------------------------------------
    * 6) Modify PRESCaler value of OSC8M to have 8MHz
    */
@@ -298,4 +444,6 @@ void SystemInit( void )
    * 9) Disable automatic NVM write operations
    */
   NVMCTRL->CTRLB.bit.MANW = 1;
+  #endif
 }
+

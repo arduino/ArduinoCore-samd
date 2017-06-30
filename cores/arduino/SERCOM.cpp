@@ -18,6 +18,7 @@
 
 #include "SERCOM.h"
 #include "variant.h"
+#include "Arduino.h"
 
 SERCOM::SERCOM(Sercom* s)
 {
@@ -182,17 +183,25 @@ void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize ch
   resetSPI();
   initClockNVIC();
 
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE(0x3) |  //master mode
+						SERCOM_SPI_CTRLA_DOPO(mosi) |
+						SERCOM_SPI_CTRLA_DIPO(miso) |
+						dataOrder << SERCOM_SPI_CTRLA_DORD_Pos;
+#else
   //Setting the CTRLA register
   sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE_SPI_MASTER |
                           SERCOM_SPI_CTRLA_DOPO(mosi) |
                           SERCOM_SPI_CTRLA_DIPO(miso) |
                           dataOrder << SERCOM_SPI_CTRLA_DORD_Pos;
+#endif
 
   //Setting the CTRLB register
   sercom->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_CHSIZE(charSize) |
                           SERCOM_SPI_CTRLB_RXEN;	//Active the SPI receiver.
 
-
+  while( sercom->SPI.SYNCBUSY.bit.CTRLB == 1 );
+  
 }
 
 void SERCOM::initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate)
@@ -475,7 +484,7 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   address = (address << 0x1ul) | flag;
 
   // Wait idle or owner bus mode
-  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
+   while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
 
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
@@ -629,9 +638,57 @@ uint8_t SERCOM::readDataWIRE( void )
 
 void SERCOM::initClockNVIC( void )
 {
-  uint8_t clockId = 0;
   IRQn_Type IdNvic=PendSV_IRQn ; // Dummy init to intercept potential error later
 
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	uint32_t clk_core;
+	uint32_t clk_slow;
+	
+	if(sercom == SERCOM0)
+	{
+		clk_core = SERCOM0_GCLK_ID_CORE;
+		clk_slow = SERCOM0_GCLK_ID_SLOW;
+		IdNvic = SERCOM0_0_IRQn;
+	}
+	else if(sercom == SERCOM1)
+	{
+		clk_core = SERCOM1_GCLK_ID_CORE;
+		clk_slow = SERCOM1_GCLK_ID_SLOW;
+		IdNvic = SERCOM1_0_IRQn;
+	}
+	else if(sercom == SERCOM2)
+	{
+		clk_core = SERCOM2_GCLK_ID_CORE;
+		clk_slow = SERCOM2_GCLK_ID_SLOW;
+		IdNvic = SERCOM2_2_IRQn;
+	}
+	else if(sercom == SERCOM3)
+	{
+		clk_core = SERCOM3_GCLK_ID_CORE;
+		clk_slow = SERCOM3_GCLK_ID_SLOW;
+		IdNvic = SERCOM3_0_IRQn;
+	}
+	else if(sercom == SERCOM4)
+	{
+		clk_core = SERCOM4_GCLK_ID_CORE;
+		clk_slow = SERCOM4_GCLK_ID_SLOW;
+		IdNvic = SERCOM4_0_IRQn;
+	}
+	else if(sercom == SERCOM5)
+	{
+		clk_core = SERCOM5_GCLK_ID_CORE;
+		clk_slow = SERCOM5_GCLK_ID_SLOW;
+		IdNvic = SERCOM5_0_IRQn;
+	}
+
+	if ( IdNvic == PendSV_IRQn )
+	{
+		// We got a problem here
+		return ;
+	}
+#else
+
+  uint8_t clockId = 0;
   if(sercom == SERCOM0)
   {
     clockId = GCM_SERCOM0_CORE;
@@ -668,11 +725,18 @@ void SERCOM::initClockNVIC( void )
     // We got a problem here
     return ;
   }
+#endif
 
   // Setting NVIC
-  NVIC_EnableIRQ(IdNvic);
+  NVIC_ClearPendingIRQ(IdNvic);
   NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+  NVIC_EnableIRQ(IdNvic);
 
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+  GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+  
+#else
   //Setting clock
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
                       GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
@@ -682,4 +746,5 @@ void SERCOM::initClockNVIC( void )
   {
     /* Wait for synchronization */
   }
+#endif
 }
