@@ -26,6 +26,7 @@
 #else
   #include "SAMD21_USBDevice.h"
 #endif
+
 #include "PluggableUSB.h"
 
 #include <stdlib.h>
@@ -38,6 +39,7 @@ USBDevice_SAMR21G18x usbd;
 #else
 USBDevice_SAMD21G18x usbd;
 #endif
+
 
 /** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
 #define TX_RX_LED_PULSE_MS 100
@@ -331,9 +333,26 @@ void USBDeviceClass::init()
 	digitalWrite(PIN_LED_RXL, HIGH);
 #endif
 
-	// Enable USB clock
+	/* Enable USB clock */
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	// Set up the USB DP/DN pins
+	PORT->Group[0].PINCFG[PIN_PA24H_USB_DM].bit.PMUXEN = 1;
+	PORT->Group[0].PMUX[PIN_PA24H_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24H_USB_DM & 0x01u)));
+	PORT->Group[0].PMUX[PIN_PA24H_USB_DM/2].reg |= MUX_PA24H_USB_DM << (4 * (PIN_PA24H_USB_DM & 0x01u));
+	PORT->Group[0].PINCFG[PIN_PA25H_USB_DP].bit.PMUXEN = 1;
+	PORT->Group[0].PMUX[PIN_PA25H_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25H_USB_DP & 0x01u)));
+	PORT->Group[0].PMUX[PIN_PA25H_USB_DP/2].reg |= MUX_PA25H_USB_DP << (4 * (PIN_PA25H_USB_DP & 0x01u));
+	
+	
+	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
+	while(GCLK->SYNCBUSY.bit.GENCTRL0)
+	{
+		/* Wait for synchronization */
+	}
+#else
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
-
+	
 	// Set up the USB DP/DN pins
 	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
 	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
@@ -344,10 +363,11 @@ void USBDeviceClass::init()
 
 	// Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(6)     | // Generic Clock Multiplexer 6
-	                    GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
-	                    GCLK_CLKCTRL_CLKEN;
+	GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
+	GCLK_CLKCTRL_CLKEN;
 	while (GCLK->STATUS.bit.SYNCBUSY)
-		;
+	;
+#endif
 
 	USB_SetHandler(&UDD_Handler);
 
@@ -360,8 +380,14 @@ void USBDeviceClass::init()
 	usbd.setFullSpeed();
 
 	// Configure interrupts
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__) //TODO: verify the correct interrupts
+	/* Attach to the USB host */
+	NVIC_SetPriority((IRQn_Type) USB_0_IRQn, 0UL);
+	NVIC_EnableIRQ((IRQn_Type) USB_0_IRQn);
+#else
 	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
 	NVIC_EnableIRQ((IRQn_Type) USB_IRQn);
+#endif
 
 	usbd.enable();
 

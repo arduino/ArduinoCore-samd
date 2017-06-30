@@ -39,8 +39,18 @@ public:
 	void reset();
 
 	// Enable
-	inline void enable()  { usb.CTRLA.bit.ENABLE = 1; }
-	inline void disable() { usb.CTRLA.bit.ENABLE = 0; }
+	inline void enable()  { 
+		usb.CTRLA.bit.ENABLE = 1;
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+		while( usb.SYNCBUSY.reg & USB_SYNCBUSY_ENABLE ); //wait for sync
+#endif
+	}
+	inline void disable() { 
+		usb.CTRLA.bit.ENABLE = 0;
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+		while( usb.SYNCBUSY.reg & USB_SYNCBUSY_ENABLE ); //wait for sync
+#endif
+	}
 
 	// USB mode (device/host)
 	inline void setUSBDeviceMode() { usb.CTRLA.bit.MODE = USB_CTRLA_MODE_DEVICE_Val; }
