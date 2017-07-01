@@ -132,11 +132,17 @@ uint32_t analogRead(uint32_t pin)
 {
   uint32_t valueRead = 0;
 
+#if defined(PIN_A6)
   if (pin == 6) {
     pin = PIN_A6;
-  } else if (pin == 7) {
+  } else
+#endif
+#if defined(PIN_A7)
+  if (pin == 7) {
     pin = PIN_A7;
-  } else if (pin <= 5) {
+  } else 
+#endif
+  if (pin <= 5) {
     pin += A0;
   }
 
