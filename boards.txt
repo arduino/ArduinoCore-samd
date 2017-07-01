@@ -153,41 +153,30 @@ adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplay/circuitplay_m0_samd21g18_sam_ba.bin
 
-# Arduino X1
-# ------------------------------
-arduino_x1.name=Adafruit X1
-arduino_x1.vid.0=0x2341
-arduino_x1.pid.0=0x804d
-arduino_x1.vid.1=0x2341
-arduino_x1.pid.1=0x004d
 
-arduino_x1.vid.2=0x2341
-arduino_x1.pid.2=0x824d
-# If the board is a 2341:824d use 2341:824d for build and set other parameters as well
-arduino_x1.vid.2.build.vid=0x2341
-arduino_x1.vid.2.build.pid=0x824d
-arduino_x1.vid.2.build.usb_product="Adafruit X1"
-arduino_x1.vid.2.bootloader.file=x1/samdx1_sam_ba.bin
-
-arduino_x1.upload.tool=bossac
-arduino_x1.upload.protocol=sam-ba
-#TODO: fix
-arduino_x1.upload.maximum_size=262144
-arduino_x1.upload.use_1200bps_touch=true
-arduino_x1.upload.wait_for_upload_port=true
-arduino_x1.upload.native_usb=true
-arduino_x1.build.mcu=cortex-m4
-arduino_x1.build.f_cpu=48000000L
-arduino_x1.build.usb_product="Adafruit X1"
-arduino_x1.build.usb_manufacturer="Adafruit LLC"
-arduino_x1.build.board=SAMD_X1
-arduino_x1.build.core=arduino
-arduino_x1.build.extra_flags=-D__SAMD51G19A__ {build.usb_flags}
-arduino_x1.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-arduino_x1.build.openocdscript=openocd_scripts/arduino_zero.cfg
-arduino_x1.build.variant=arduino_x1
-arduino_x1.build.variant_system_lib=
-arduino_x1.build.vid=0x2341
-arduino_x1.build.pid=0x804d
-arduino_x1.bootloader.tool=openocd
-arduino_x1.bootloader.file=x1/samdx1_sam_ba.bin
+adafruit_gemma_m0.name=Adafruit Gemma M0
+adafruit_gemma_m0.vid.0=0x239A
+adafruit_gemma_m0.pid.0=0x801C
+adafruit_gemma_m0.vid.1=0x239A
+adafruit_gemma_m0.pid.1=0x001C
+adafruit_gemma_m0.upload.tool=bossac
+adafruit_gemma_m0.upload.protocol=sam-ba
+adafruit_gemma_m0.upload.maximum_size=262144
+adafruit_gemma_m0.upload.use_1200bps_touch=true
+adafruit_gemma_m0.upload.wait_for_upload_port=true
+adafruit_gemma_m0.upload.native_usb=true
+adafruit_gemma_m0.build.mcu=cortex-m0plus
+adafruit_gemma_m0.build.f_cpu=48000000L
+adafruit_gemma_m0.build.usb_product="Gemma M0"
+adafruit_gemma_m0.build.usb_manufacturer="Adafruit"
+adafruit_gemma_m0.build.board=GEMMA_M0
+adafruit_gemma_m0.build.core=arduino
+adafruit_gemma_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_GEMMA_M0 -D__SAMD21E18A__ {build.usb_flags}
+adafruit_gemma_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_gemma_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_gemma_m0.build.variant=gemma_m0
+adafruit_gemma_m0.build.variant_system_lib=
+adafruit_gemma_m0.build.vid=0x239A
+adafruit_gemma_m0.build.pid=0x801C
+adafruit_gemma_m0.bootloader.tool=openocd
+adafruit_gemma_m0.bootloader.file=gemma/samd21_sam_ba.bin
