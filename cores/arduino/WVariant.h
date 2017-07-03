@@ -88,6 +88,10 @@ typedef enum _ETCChannel
   TC7_CH0  = (7<<8)|(0),
   TC7_CH1  = (7<<8)|(1),
 #endif // __SAMD21J18A__
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__) //TODO: these
+  TCC1_CH4  = (1<<8)|(2),
+  TCC1_CH5  = (1<<8)|(3),
+#endif
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -128,6 +132,10 @@ typedef enum _EPWMChannel
   PWM7_CH0=TC7_CH0,
   PWM7_CH1=TC7_CH1,
 #endif // __SAMD21J18A__
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+  PWM1_CH4=TCC1_CH4,
+  PWM1_CH5=TCC1_CH5,
+#endif
 } EPWMChannel ;
 
 typedef enum _EPortType

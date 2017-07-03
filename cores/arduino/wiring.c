@@ -79,7 +79,7 @@ void init( void )
 #if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
   MCLK->APBAMASK.reg |= MCLK_APBAMASK_SERCOM0 | MCLK_APBAMASK_SERCOM1;
   
-  MCLK->APBBMASK.reg |= MCLK_APBBMASK_SERCOM2 | MCLK_APBBMASK_SERCOM3 | MCLK_APBBMASK_TCC0 | MCLK_APBBMASK_TCC1;
+  MCLK->APBBMASK.reg |= MCLK_APBBMASK_SERCOM2 | MCLK_APBBMASK_SERCOM3 | MCLK_APBBMASK_TCC0 | MCLK_APBBMASK_TCC1 | MCLK_APBBMASK_TC3;
   
   MCLK->APBCMASK.reg |= MCLK_APBCMASK_TCC2 | MCLK_APBCMASK_TC4 | MCLK_APBCMASK_TC5;
   
@@ -134,9 +134,10 @@ void init( void )
 	while (GCLK->PCHCTRL[DAC_GCLK_ID].bit.CHEN == 0);
 	
 	while ( DAC->SYNCBUSY.bit.SWRST == 1 ); // Wait for synchronization of registers between the clock domains
+	DAC->CTRLA.bit.SWRST = 1;
+	while ( DAC->SYNCBUSY.bit.SWRST == 1 ); // Wait for synchronization of registers between the clock domains
 	
-	DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VDDANA; //Use Analog supply
-	//TODO: enable external output?
+	DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VREFPU; // TODO: make this work with VDDANA
 	
 #else
   while(GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);

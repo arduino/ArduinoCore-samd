@@ -27,6 +27,13 @@ static int _readResolution = 10;
 static int _ADCResolution = 10;
 static int _writeResolution = 8;
 
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+static int _dacResolution = 10;
+#else
+static int _dacResolution = 8;
+#endif
+
+
 #if !defined(__SAMD51P20A__) && !defined(__SAMD51G19A__)
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncADC() __attribute__((always_inline, unused));
@@ -57,6 +64,8 @@ static void syncTCC(Tcc* TCCx) {
   while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK);
 }
 
+#else
+static bool dacEnabled[2];
 #endif
 
 void analogReadResolution(int res)
@@ -151,6 +160,7 @@ void analogReference(eAnalogReference mode)
 		default:
 		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
 		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
+		
 		break;
 	}
 	
@@ -317,6 +327,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 
  // ATSAMR, for example, doesn't have a DAC
 #ifdef DAC
+
 	  if ((attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG)
 	  {
 	    // DAC handling code
@@ -328,27 +339,41 @@ void analogWrite(uint32_t pin, uint32_t value)
 	      return;
 	    }
 
-	    value = mapResolution(value, _writeResolution, 10);
+	    //value = mapResolution(value, _dacResolution, 10);
 
 	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
 
-		while (DAC->SYNCBUSY.bit.ENABLE);
-		DAC->CTRLA.bit.ENABLE = 1;     // Enable DAC
-		while (DAC->SYNCBUSY.bit.ENABLE);
-
-		if(pin == PIN_A0){
-			DAC->DACCTRL[0].bit.ENABLE = 1;
+		pinPeripheral(pin, PIO_ANALOG);
+		
+		if(!dacEnabled[channel]){
+			dacEnabled[channel] = true;
 			
-			while (!(DAC->STATUS.reg & DAC_STATUS_READY0));
-			DAC->DATA[0].reg = value & 0x3FF;  // DAC on 10 bits.
-			while (DAC->SYNCBUSY.bit.DATA0);
+			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+			DAC->CTRLA.bit.ENABLE = 0;     // disable DAC
+			
+			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+			DAC->DACCTRL[channel].bit.ENABLE = 1;
+		
+			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+			DAC->CTRLA.bit.ENABLE = 1;     // enable DAC
 		}
-		else if(pin == PIN_A4){
-			DAC->DACCTRL[1].bit.ENABLE = 1;
+		
+		//ERROR!
+		while(!DAC->DACCTRL[channel].bit.ENABLE);
+		
+		if(channel == 0){
 			
-			while (!(DAC->STATUS.reg & DAC_STATUS_READY1));
-			DAC->DATA[1].reg = value & 0x3FF;  // DAC on 10 bits.
+			while ( !DAC->STATUS.bit.READY0 );
+			
+			while (DAC->SYNCBUSY.bit.DATA0);
+			DAC->DATA[0].reg = value;  // DAC on 10 bits.
+		}
+		else if(channel == 1){
+			while ( !DAC->STATUS.bit.READY1 );
+			
 			while (DAC->SYNCBUSY.bit.DATA1);
+			DAC->DATA[1].reg = value;  // DAC on 10 bits.
 		}
 			
 
@@ -396,24 +421,29 @@ void analogWrite(uint32_t pin, uint32_t value)
 		TCC2_GCLK_ID,
 		TC3_GCLK_ID
 	};
-
-	  GCLK->PCHCTRL[GCLK_CLKCTRL_IDs[tcNum]].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
+	
+	 GCLK->PCHCTRL[GCLK_CLKCTRL_IDs[tcNum]].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
 	  
 	// Set PORT
 	if (tcNum >= TCC_INST_NUM) {
 			// -- Configure TC
 			Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+			
+			//reset
+			TCx->COUNT8.CTRLA.bit.SWRST = 1;
+			while (TCx->COUNT8.SYNCBUSY.bit.SWRST);
+			
 			// Disable TCx
 			TCx->COUNT8.CTRLA.bit.ENABLE = 0;
 			while (TCx->COUNT8.SYNCBUSY.bit.ENABLE);
 			// Set Timer counter Mode to 8 bits, normal PWM, prescaler 1/256
-			TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_PRESCALER_DIV256;
+			TCx->COUNT8.CTRLA.reg = TC_CTRLA_MODE_COUNT8 | TC_CTRLA_PRESCALER_DIV256;
 			TCx->COUNT8.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
 
-			while (TCx->COUNT8.SYNCBUSY.bit.CC0 || TCx->COUNT8.SYNCBUSY.bit.CC1);
+			while (TCx->COUNT8.SYNCBUSY.bit.CC0);
 			// Set the initial value
 			TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
-			while (TCx->COUNT8.SYNCBUSY.bit.CC0 || TCx->COUNT8.SYNCBUSY.bit.CC1);
+			while (TCx->COUNT8.SYNCBUSY.bit.CC0);
 			// Set PER to maximum counter value (resolution : 0xFF)
 			TCx->COUNT8.PER.reg = 0xFF;
 			while (TCx->COUNT8.SYNCBUSY.bit.PER);
@@ -423,14 +453,20 @@ void analogWrite(uint32_t pin, uint32_t value)
 		} else {
 			// -- Configure TCC
 			Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+			
+			TCCx->CTRLA.bit.SWRST = 1;
+			while (TCCx->SYNCBUSY.bit.SWRST);
+			
 			// Disable TCCx
 			TCCx->CTRLA.bit.ENABLE = 0;
 			while (TCCx->SYNCBUSY.bit.ENABLE);
 			// Set prescaler to 1/256
-			TCCx->CTRLA.reg |= TCC_CTRLA_PRESCALER_DIV256;
+			TCCx->CTRLA.reg = TCC_CTRLA_PRESCALER_DIV256 | TCC_CTRLA_PRESCSYNC_GCLK;
 			
 			// Set TCx as normal PWM
-			TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
+			TCCx->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
+			while ( TCCx->SYNCBUSY.bit.WAVE );
+			
 			while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
 			// Set the initial value
 			TCCx->CC[tcChannel].reg = (uint32_t) value;
