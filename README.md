@@ -1,9 +1,8 @@
 # Arduino Core for SAMD21 and SAMD51 CPU
 
 To be fixed soon:
-- Fix DAC
+- AREF must be tied to 3.3V for dac to work
 - Fix tone
-- text PWM
 - USB takes a while to enumerate
 
 This repository contains the source code and configuration files of the Arduino Core
