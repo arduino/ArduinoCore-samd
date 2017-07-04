@@ -17,6 +17,7 @@
 */
 
 #include "variant.h"
+#include "Arduino.h"
 
 const PinDescription g_APinDescription[] = {
 
@@ -172,6 +173,12 @@ SERCOM sercom5(SERCOM5);
 
 #define PMIC_ADDRESS  0x6B
 #define PMIC_REG02    0x02
+#define PMIC_REG00    0x00
+#define INPUT_CURRENT_LIMIT_0A1 (0x0)
+#define INPUT_CURRENT_LIMIT_0A9 (0x3)
+#define INPUT_CURRENT_LIMIT_1A5 (0x5)
+#define VOLTAGE_LIMIT_4V36      (0x6 << 3)
+#define VOLTAGE_LIMIT_4V04      (0x2 << 3)
 
 static inline void set_pmic_safe_defaults() {
   PERIPH_WIRE.initMasterWIRE(100000);
@@ -183,14 +190,19 @@ static inline void set_pmic_safe_defaults() {
   PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG02);
   PERIPH_WIRE.sendDataMasterWIRE(0);
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
   PERIPH_WIRE.disableWIRE();
 }
+
+#else
+
+static inline void set_pmic_safe_defaults() {}
+
+#endif
 
 void initVariant() {
   set_pmic_safe_defaults();
 }
-
-#endif
 
 // Serial1
 Uart Serial1(&sercom5, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX);
