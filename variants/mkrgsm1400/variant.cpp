@@ -173,7 +173,7 @@ SERCOM sercom5(SERCOM5);
 
 #define PMIC_ADDRESS  0x6B
 #define PMIC_REG02    0x02
-#define PMIC_REG00    0x00
+#define PMIC_REG07    0x07
 #define INPUT_CURRENT_LIMIT_0A1 (0x0)
 #define INPUT_CURRENT_LIMIT_0A9 (0x3)
 #define INPUT_CURRENT_LIMIT_1A5 (0x5)
@@ -194,9 +194,24 @@ static inline void set_pmic_safe_defaults() {
   PERIPH_WIRE.disableWIRE();
 }
 
+static inline void disable_battery_charging() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
+  PERIPH_WIRE.sendDataMasterWIRE(1 << 5 | 0x0B);
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
 #else
 
 static inline void set_pmic_safe_defaults() {}
+static inline void disable_battery_charging() {}
 
 #endif
 
@@ -209,6 +224,10 @@ void initVariant() {
   digitalWrite(31, HIGH);
   delay(100);
   digitalWrite(31, LOW);
+  pinMode(32, INPUT_PULLDOWN);
+  if (analogRead(32) < 800) {
+    disable_battery_charging();
+  }
 }
 
 // Serial1
