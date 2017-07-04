@@ -32,6 +32,29 @@ uint32_t millis( void )
   return _ulTickCount ;
 }
 
+// atomically add delta to _ulTickCount. Momentarily disables interrupts, assuming that
+// the systick interrupt is maskable.
+uint32_t adjust_millis_forward(uint32_t delta)
+{
+  // copy old interrupt-enable state to flags.
+  uint32_t const flags = __get_PRIMASK();
+
+  // disable interrupts
+  __set_PRIMASK(1);
+
+  // observe _ulTickCount, and advance it.
+  uint32_t const tickCount = _ulTickCount + delta;
+
+  // save _ulTickCount
+  _ulTickCount = tickCount;
+
+  // restore interrupts (does nothing if ints were disabled on entry)
+  __set_PRIMASK(flags);
+
+  // return the new value of _ulTickCount.
+  return tickCount;
+}
+
 // Interrupt-compatible version of micros
 // Theory: repeatedly take readings of SysTick counter, millis counter and SysTick interrupt pending flag.
 // When it appears that millis counter and pending is stable and SysTick hasn't rolled over, use these
