@@ -146,8 +146,8 @@ const PinDescription g_APinDescription[] = {
                                                                                                                                                // DIPO=3 DOPO=0
   { PORTA, 12, PIO_SERCOM,     (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MOSI: SERCOM2/PAD[0]
   { PORTA, 13, PIO_SERCOM,     (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SCK:  SERCOM2/PAD[1]
-  { PORTA, 14, PIO_SERCOM,     (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SS:   as GPIO
-  { PORTA, 15, PIO_SERCOM,     (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MISO: SERCOM2/PAD[3]
+  { PORTA, 14, PIO_SERCOM,     (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SS:   as GPIO
+  { PORTA, 15, PIO_SERCOM,     (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MISO: SERCOM2/PAD[3]
   { PORTA, 27, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_15 },
   
   { PORTB,  8, PIO_DIGITAL,    (PIN_ATTR_DIGITAL|PIN_ATTR_ANALOG             ), ADC_Channel2,   NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
@@ -202,6 +202,13 @@ static inline void set_pmic_safe_defaults() {}
 
 void initVariant() {
   set_pmic_safe_defaults();
+  // Workaround for RTS not being controlled correctly
+  pinMode(28, OUTPUT);
+  digitalWrite(28, LOW);
+  pinMode(31, OUTPUT);
+  digitalWrite(31, HIGH);
+  delay(100);
+  digitalWrite(31, LOW);
 }
 
 // Serial1
