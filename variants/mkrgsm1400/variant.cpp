@@ -216,7 +216,12 @@ static inline void disable_battery_charging() {}
 #endif
 
 void initVariant() {
-  set_pmic_safe_defaults();
+  pinMode(32, INPUT_PULLDOWN);
+  if (analogRead(32) < 800) {
+    disable_battery_charging();
+  } else {
+    set_pmic_safe_defaults();
+  }
   // Workaround for RTS not being controlled correctly
   pinMode(28, OUTPUT);
   digitalWrite(28, LOW);
@@ -224,10 +229,6 @@ void initVariant() {
   digitalWrite(31, HIGH);
   delay(100);
   digitalWrite(31, LOW);
-  pinMode(32, INPUT_PULLDOWN);
-  if (analogRead(32) < 800) {
-    disable_battery_charging();
-  }
 }
 
 // Serial1
