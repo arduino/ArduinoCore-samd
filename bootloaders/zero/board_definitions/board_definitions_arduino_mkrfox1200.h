@@ -1,7 +1,5 @@
 /*
-  Copyright (c) 2017 MattairTech LLC. All right reserved.
-  Copyright (c) 2015 Arduino LLC.  All right reserved.
-  Copyright (c) 2015 Atmel Corporation/Thibaut VIARD.  All right reserved.
+  Copyright (c) 2016 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -159,13 +157,13 @@
  * not suspended), where it will calibrate against the USB SOF signal.
  */
 #ifndef CLOCKCONFIG_CLOCK_SOURCE
-#define CLOCKCONFIG_CLOCK_SOURCE	CLOCKCONFIG_32768HZ_CRYSTAL
+#define CLOCKCONFIG_CLOCK_SOURCE        CLOCKCONFIG_32768HZ_CRYSTAL
 #endif
 
 /* If CLOCKCONFIG_HS_CRYSTAL is defined, then HS_CRYSTAL_FREQUENCY_HERTZ
  * must also be defined with the external crystal frequency in Hertz.
  */
-//#define HS_CRYSTAL_FREQUENCY_HERTZ	16000000UL
+//#define HS_CRYSTAL_FREQUENCY_HERTZ    16000000UL
 
 /* If the PLL is used (CLOCKCONFIG_32768HZ_CRYSTAL, or CLOCKCONFIG_HS_CRYSTAL
  * defined), then PLL_FRACTIONAL_ENABLED can be defined, which will result in
@@ -195,13 +193,13 @@
  * Size: ~228B. By default, USB_VENDOR_STRINGS_ENABLED is defined (including 4KB).
  */
 #define USB_VENDOR_STRINGS_ENABLED
-#define STRING_PRODUCT "Arduino MKR1000"
+#define STRING_PRODUCT "Arduino MKRFox1200"
 
 /* If USB CDC is used, then the USB vendor ID (VID) and product ID (PID) must be set. */
 #define USB_VID_HIGH   0x23
 #define USB_VID_LOW    0x41
 #define USB_PID_HIGH   0x00
-#define USB_PID_LOW    0x4E
+#define USB_PID_LOW    0x50
 
 /* BOOT_USART_SERCOM_INSTANCE must be a single digit representing the SERCOM number.
  * See board_driver_serial.h for BOOT_USART_PAD_SETTINGS values. When setting
@@ -210,10 +208,10 @@
  * CMSIS/Device/ATMEL/sam<d21|c21|l21|d11>/include/<YOUR_CHIP>.h). Use PINMUX_UNUSED
  * if not used. By default, this interface is not enabled (except with the C21).
  */
-#define BOOT_USART_SERCOM_INSTANCE        0
+#define BOOT_USART_SERCOM_INSTANCE        5
 #define BOOT_USART_PAD_SETTINGS           UART_RX_PAD3_TX_PAD2
-#define BOOT_USART_PAD3                   PINMUX_PA11C_SERCOM0_PAD3
-#define BOOT_USART_PAD2                   PINMUX_PA10C_SERCOM0_PAD2
+#define BOOT_USART_PAD3                   PINMUX_PB23D_SERCOM5_PAD3
+#define BOOT_USART_PAD2                   PINMUX_PB22D_SERCOM5_PAD2
 #define BOOT_USART_PAD1                   PINMUX_UNUSED
 #define BOOT_USART_PAD0                   PINMUX_UNUSED
 
@@ -254,15 +252,15 @@
 // PA20 (digital pin 6)
 #define BOARD_LED_PORT                    (0)
 #define BOARD_LED_PIN                     (20)
-#define BOARD_LED_POLARITY	LED_POLARITY_HIGH_ON
+#define BOARD_LED_POLARITY      LED_POLARITY_HIGH_ON
 
 // No RX/TX led
 //#define BOARD_LEDRX_PORT
 //#define BOARD_LEDRX_PIN
-//#define BOARD_LEDRX_POLARITY	LED_POLARITY_LOW_ON
+//#define BOARD_LEDRX_POLARITY  LED_POLARITY_LOW_ON
 
 //#define BOARD_LEDTX_PORT
 //#define BOARD_LEDTX_PIN
-//#define BOARD_LEDTX_POLARITY	LED_POLARITY_LOW_ON
+//#define BOARD_LEDRX_POLARITY  LED_POLARITY_LOW_ON
 
 #endif // _BOARD_DEFINITIONS_H_

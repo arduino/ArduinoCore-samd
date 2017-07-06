@@ -26,7 +26,7 @@ SDCARD?=SDCARD_DISABLED
 # -----------------------------------------------------------------------------
 # Boards definitions:
 # MT_D21E_rev_A, MT_D21E_rev_B, MT_D11
-# arduino_zero, arduino_mkrzero, arduino_mkr1000, genuino_mkr1000, genuino_zero, arduino_m0, arduino_m0_pro
+# arduino_zero, arduino_mkrzero, arduino_mkr1000, arduino_mkrfox1200, genuino_mkr1000, genuino_zero, arduino_m0, arduino_m0_pro
 # Generic_x21E, Generic_x21G, Generic_x21J, Generic_D11D14AM, Generic_D11D14AS, Generic_D11C14A
 BOARD_ID?=MT_D21E_rev_B
 

@@ -5,8 +5,11 @@
 * Fixed bootloader compilation on Windows
 * Added more Serial, SPI, and WIRE instances to MT-D21E (rev A and B)
 * Added support for up to 6 SERCOM on the L21E (32-pin)
-* Merged in changes from upstream SAMD CORE 1.6.15:
-  * 
+* Merged in changes from upstream SAMD CORE 1.6.16 (not released yet):
+  * USB CDC: fixed issue of available() getting stuck when receiving ZLP's
+* Merged in changes from upstream SAMD CORE 1.6.15 2017.04.27 (not relevant)
+* Merged in changes from upstream SAMD CORE 1.6.14 2017.04.04:
+  * Added lowpower function on USB subsystem
 * Documentation updates
 
 1.6.8-beta-b1:

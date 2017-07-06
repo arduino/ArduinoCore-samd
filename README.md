@@ -20,7 +20,18 @@ CHANGELOG for details on which upstream commits have been merged in to the Matta
 **See Beta Builds section for installation instructions.**
 
 **1.6.8-beta-b2:**
-
+* Added SD Card firmware loading support to the bootloader (4KB and 8KB)
+* Removed SDU library, as the bootloader now supports SD cards directly
+* Removed automatic page writes from bootloader (may have caused bricked board during development)
+* Fixed bootloader compilation on Windows
+* Added more Serial, SPI, and WIRE instances to MT-D21E (rev A and B)
+* Added support for up to 6 SERCOM on the L21E (32-pin)
+* Merged in changes from upstream SAMD CORE 1.6.16 (not released yet):
+  * USB CDC: fixed issue of available() getting stuck when receiving ZLP's
+* Merged in changes from upstream SAMD CORE 1.6.15 2017.04.27 (not relevant)
+* Merged in changes from upstream SAMD CORE 1.6.14 2017.04.04:
+  * Added lowpower function on USB subsystem
+* Documentation updates
 
 **1.6.8-beta-b1:**
 * Fixed auto-reset not working on some versions of Windows
@@ -393,9 +404,10 @@ AR_EXTERNAL = AR_EXTERNAL_REFA
 TODO
 
 
-### Differences Between MattairTech and Arduino Cores
+## Differences Between MattairTech and Arduino Cores
 
 * TODO
+
 * Table summarizing which core files are modified and by how much
 * Communications interfaces are mostly unchanged, including USB
 * Changes due to adding/changing features vs porting to new chip
@@ -407,6 +419,10 @@ TODO
 * Pull resistors enabled only if pin attributes allow and only if pin is not configured as output.
 * Pull direction (pullup or pulldown) is now set with pinMode only (defaults to pullup if pinMode never called).
 
+* At least on the L21, pin A31 must be set as an input. It is possible that debugger probe detection is being falsely
+  detected (even with a pullup on A31 (SWCLK)), which would change the peripheral mux of A31 to COM.
+  This might not normally be a problem, but one strange effect is that Serial2 loses characters if pin A31 is not set as INPUT.
+  So, the startup code calls pinMode(31, INPUT).
 
 
 ## Serial Monitor

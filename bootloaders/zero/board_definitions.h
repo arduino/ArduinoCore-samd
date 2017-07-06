@@ -30,6 +30,8 @@
   #include "board_definitions/board_definitions_genuino_mkr1000.h"
 #elif defined(BOARD_ID_arduino_mkrzero)
   #include "board_definitions/board_definitions_arduino_mkrzero.h"
+#elif defined(BOARD_ID_arduino_mkrfox1200)
+  #include "board_definitions/board_definitions_arduino_mkrfox1200.h"
 #elif defined(BOARD_ID_MT_D21E_rev_A)
   #include "board_definitions/board_definitions_MT_D21E_rev_A.h"
 #elif defined(BOARD_ID_MT_D21E_rev_B)
