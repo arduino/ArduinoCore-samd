@@ -1,12 +1,13 @@
-1.6.8-beta-b2 (in-progress):
-* Added more Serial, SPI, and WIRE options
+1.6.8-beta-b2:
 * Added SD Card firmware loading support to the bootloader (4KB and 8KB)
 * Removed SDU library, as the bootloader now supports SD cards directly
-* Fixed auto-detection for Arduino Zero and M0 board variants
+* Removed automatic page writes from bootloader (may have caused bricked board during development)
 * Fixed bootloader compilation on Windows
-* Documentation updates
+* Added more Serial, SPI, and WIRE instances to MT-D21E (rev A and B)
+* Added support for up to 6 SERCOM on the L21E (32-pin)
 * Merged in changes from upstream SAMD CORE 1.6.15:
   * 
+* Documentation updates
 
 1.6.8-beta-b1:
 * Fixed auto-reset not working on some versions of Windows

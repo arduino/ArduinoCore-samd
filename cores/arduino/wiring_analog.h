@@ -26,11 +26,10 @@ extern "C" {
 #endif
 
 /*
- * \brief TODO Analog reference selection.
- * For values <= 5, the actual register value is used.
- * For values > 5 (SAML and SAMC only), the SUPC_VREF_SEL register value is: (ulMode - 6).
- * Values for the Supply Controller (SUPC) reference on the L21 or C21.
- * Used when AR_INTREF is selected as the reference.
+ * \brief Analog reference selection.
+ * For eAnalogReference values <= 5, the value is written to the REFSEL register.
+ * For values > 5 (SAML and SAMC only), 0 is written into the REFSEL register, and
+ * the SUPC_VREF_SEL (supply controller) register value is: (eAnalogReference - 6).
  */
 typedef enum _eAnalogReference
 {
@@ -42,7 +41,7 @@ typedef enum _eAnalogReference
   AR_EXTERNAL_REFB = 4,
   AR_DEFAULT = 5,	// On the SAMD, this also uses 1/2 gain on each input
 #elif (SAML21)
-  AR_INTREF = 0,
+  AR_INTREF = 0,                // This has the same effect as AR_INTREF_1V0
   AR_INTERNAL_INTVCC0 = 1,
   AR_INTERNAL_INTVCC1 = 2,
   AR_EXTERNAL_REFA = 3,
@@ -57,9 +56,9 @@ typedef enum _eAnalogReference
   AR_INTREF_2V4 = 12,
   AR_INTREF_2V5 = 13,
   AR_DEFAULT = AR_INTERNAL_INTVCC2,
-  AR_INTERNAL1V0 = AR_INTREF,		// Default INTREF for SAML is 1.0V
+  AR_INTERNAL1V0 = AR_INTREF,
 #elif (SAMC21)
-  AR_INTREF = 0,
+  AR_INTREF = 0,                // This has the same effect as AR_INTREF_1V024
   AR_INTERNAL_INTVCC0 = 1,
   AR_INTERNAL_INTVCC1 = 2,
   AR_EXTERNAL_REFA = 3,
@@ -69,7 +68,7 @@ typedef enum _eAnalogReference
   AR_INTREF_2V048 = 7,
   AR_INTREF_4V096 = 8,
   AR_DEFAULT = AR_INTERNAL_INTVCC2,
-  AR_INTERNAL1V0 = AR_INTREF,		// Default INTREF for SAMC is 1.024V
+  AR_INTERNAL1V0 = AR_INTREF,
 #else
   #error "wiring_analog.c: Unsupported chip"
 #endif
