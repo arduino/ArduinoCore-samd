@@ -33,7 +33,7 @@ USB D+ (D/L)(+), CAN RX (C)  TC51 25 | A25  |     |  Vin |   L21 installed. 5V i
   functions (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
 * When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
 * Leave pin A30 floating (or use external pullup) during reset.
-* Tone available on TC5. DO NOT connect voltages higher than 3.3V!
+* Tone available on TC5.
 
 + This alternate function is enabled by default (+M functions enabled only when a memory
   device is installed). Thus, the associated header pin cannot be used. Solder jumpers
@@ -44,6 +44,60 @@ USB D+ (D/L)(+), CAN RX (C)  TC51 25 | A25  |     |  Vin |   L21 installed. 5V i
 Silkscreen Legend:
   Top: A circled pin means analog function and '*' means alternate function (see + above)
   Bottom: A circled pin means analog function
+```
+
+## COM Arrangement When Using "L21 Only" Options
+
+The following applies only to the L21 and only when using menu options with (L21 only).
+If using the L21 with the other options, use the above ASCII diagram.
+
+The additional options are:
+
+* FOUR_UART_ONE_WIRE_ONE_SPI
+* FIVE_UART_NO_WIRE_ONE_SPI
+* FIVE_UART_ONE_WIRE_NO_SPI
+* SIX_UART_NO_WIRE_NO_SPI
+
+```
+         -------------------
+        | A0            RST |
+        | A1            Gnd |
+        | A2           Vbat |
+        | A3            A31 |
+        | A4            A30 |
+        | A5            NC  |
+        | A6            NC  |
+        | A7            A27 | CS (MEM)
+TX3     | A8            A23 | SS/RX5
+RX3     | A9            A22 | MISO/TX5
+TX1     | A10           A19 | SCK
+RX1     | A11           A18 | MOSI
+TX2     | A14           A17 | SCL/RX5/RX6
+RX2     | A15           A16 | SDA/TX5/TX6
+        | NC            NC  |
+        | NC            NC  |
+        | Vbus          3.3V|
+USB/TX4 | A24   _____   Vcc |
+USB/RX4 | A25  |     |  Vin |
+        | Gnd  | USB |  Gnd |
+         -------------------
+
+* If the memory device is installed, it is connected to SPI (A18, A19, and A22).
+  If selecting an option without SPI, then A22 will become TX5. Be sure to keep the
+  memory device CS pin high. You can disconnect A27 from CS by desoldering J13.
+* Serial4 is shared with the USB pins. Thus, USB cannot be used is using Serial4. Be
+  sure to disconnect the USB connector D- and D+ pins by desoldering J4 and J7.
+* It is not necessary to use all serial instances, and they can be skipped. For
+  example, with the FIVE_UART_NO_WIRE_ONE_SPI option, USB can still be used by NOT
+  calling Serial4.begin(), thus not enabling the Serial4 peripheral. However, Serial5
+  can still be used.
+* Serial5 can be located either on pins A16/A17 or A22/A23. If SPI is enabled, then
+  Serial5 is on pins A16/A17, otherwise it is on pins A22/A23.
+* SERCOM5 has low-power capabilities and can run in power domain PD0, at the expense
+  of DMA support and a few other features (see core README.md). It is available in two
+  locations only, A24/A25 and A22/A23. If SPI is enabled, then SERCOM5 is connected to
+  Serial4 on A24/A25 (must disable USB), otherwise, it uses Serial5 on A22/A23.
+* When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
 ```
 
 
@@ -70,7 +124,7 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 15	| A15	| PA15	| Xout, RX2/SCK1	| !EIC/EXTINT[15] SERCOM2/PAD[3] TC3/WO[1] !TCC0/WO[5] Xout
 16	| A16	| PA16	| SDA/TX4 w/pullup	| EIC/EXTINT[0] PTC/X[4] SERCOM1/PAD[0] SERCOM3/PAD[0] TCC2/WO[0] !TCC0/WO[6]
 17	| A17	| PA17	| SCL/RX4 w/pullup	| EIC/EXTINT[1] PTC/X[5] SERCOM1/PAD[1] SERCOM3/PAD[1] TCC2/WO[1] !TCC0/WO[7]
-18	| A18	| PA18	| SPI			| EIC/EXTINT[2] PTC/X[6] !SERCOM1/PAD[2] SERCOM3/PAD[2] !TC3/WO[0] !TCC0/WO[2]
+18	| A18	| PA18	| MOSI			| EIC/EXTINT[2] PTC/X[6] !SERCOM1/PAD[2] SERCOM3/PAD[2] !TC3/WO[0] !TCC0/WO[2]
 19	| A19	| PA19	| SCK			| EIC/EXTINT[3] PTC/X[7] !SERCOM1/PAD[3] SERCOM3/PAD[3] !TC3/WO[1] !TCC0/WO[3]
 20	| ---	| ----	| NOT A PIN		| NOT A PIN
 21	| ---	| ----	| NOT A PIN		| NOT A PIN
@@ -95,6 +149,7 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 * TC5(D21) is available on these pins otherwise. The tone library uses TC5.
 * A0 and A1 are by default connected to the 32.768KHz crystal.
 * Leave pin A30 floating (or use external pullup) during reset.
+* This table does not list "L21 Only" COM configurations.
 ```
 
 
@@ -146,10 +201,10 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
   * 14 pins can be configured with external interrupts.
 
 * **SERCOM**
-  * 4 SERCOM are available.
-  * Up to 4 UART instances
-  * Up to 2 SPI instances
-  * Up to 2 WIRE (I2C) instances
+  * 4 SERCOM are available (6 on the L21E).
+  * Up to 4 UART instances (6 on the L21E).
+  * Up to 2 SPI instances.
+  * Up to 2 WIRE (I2C) instances.
   * The WIRE pullup resistors are enabled by default.
 
 
@@ -211,7 +266,7 @@ now calls pinPeripheral() with the desired mode. Note that this field is not use
 select between the two peripherals possible with each of the SERCOM and TIMER functions.
 PeripheralAttribute is now used for this.
 
-### PeripheralAttribute:
+### PeripheralAttribute
 This is an 8-bit bitfield used for various peripheral configuration. It is primarily
 used to select between the two peripherals possible with each of the SERCOM and TIMER
 functions. TIMER pins are individual, while SERCOM uses a group of two to four pins.

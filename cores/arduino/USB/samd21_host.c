@@ -16,6 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "sam.h"
 
 #if (SAMD21 || SAML21)
 #include <stdio.h>
@@ -27,7 +28,6 @@
 #include "WVariant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
-#include "sam.h"
 #include "wiring_digital.h"
 #include "wiring_private.h"
 

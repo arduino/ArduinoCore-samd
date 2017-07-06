@@ -198,6 +198,17 @@ static const uint8_t ATN = PIN_ATN;
 /*
  * Serial interfaces
  */
+#if ((defined(FOUR_UART) && (defined(ONE_SPI) || defined(ONE_WIRE))) || defined(FIVE_UART) || defined(SIX_UART))
+  #if (SAML)
+    #define USE_SIX_SERCOM
+  #else
+    #error "variant.h: Only the L21E supports configurations with six SERCOM"
+  #endif
+#endif
+
+// All microcontrollers support configurations with four SERCOM
+#if !defined(USE_SIX_SERCOM)
+
 // Serial1
 #define PIN_SERIAL1_RX       (11ul)
 #define PIN_SERIAL1_TX       (10ul)
@@ -229,6 +240,69 @@ static const uint8_t ATN = PIN_ATN;
 #define PAD_SERIAL4_RX       (SERCOM_RX_PAD_1)
 
 #define SERCOM_INSTANCE_SERIAL4       &sercom3
+
+// In addition to the configurations using four SERCOMs, the L21E supports USE_SIX_SERCOM
+#else
+
+// Serial1
+#define PIN_SERIAL1_RX       (11ul)
+#define PIN_SERIAL1_TX       (10ul)
+#define PAD_SERIAL1_TX       (UART_TX_PAD_2)
+#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
+
+#define SERCOM_INSTANCE_SERIAL1       &sercom2
+
+// Serial2
+#define PIN_SERIAL2_RX       (15ul)
+#define PIN_SERIAL2_TX       (14ul)
+#define PAD_SERIAL2_TX       (UART_TX_PAD_2)
+#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_3)
+
+#define SERCOM_INSTANCE_SERIAL2       &sercom4
+
+// Serial3
+#define PIN_SERIAL3_RX       (9ul)
+#define PIN_SERIAL3_TX       (8ul)
+#define PAD_SERIAL3_TX       (UART_TX_PAD_0)
+#define PAD_SERIAL3_RX       (SERCOM_RX_PAD_1)
+
+#define SERCOM_INSTANCE_SERIAL3       &sercom0
+
+// Serial4
+#define PIN_SERIAL4_RX       (25ul)
+#define PIN_SERIAL4_TX       (24ul)
+#define PAD_SERIAL4_TX       (UART_TX_PAD_2)
+#define PAD_SERIAL4_RX       (SERCOM_RX_PAD_3)
+
+#if defined(ONE_SPI)
+  #define SERCOM_INSTANCE_SERIAL4       &sercom5
+#else
+  #define SERCOM_INSTANCE_SERIAL4       &sercom3
+#endif
+
+// Serial5 (L21 only)
+#if defined(ONE_SPI)
+  #define PIN_SERIAL5_RX       (17ul)
+  #define PIN_SERIAL5_TX       (16ul)
+  #define PAD_SERIAL5_TX       (UART_TX_PAD_0)
+  #define PAD_SERIAL5_RX       (SERCOM_RX_PAD_1)
+  #define SERCOM_INSTANCE_SERIAL5       &sercom1
+#else
+  #define PIN_SERIAL5_RX       (23ul)
+  #define PIN_SERIAL5_TX       (22ul)
+  #define PAD_SERIAL5_TX       (UART_TX_PAD_0)
+  #define PAD_SERIAL5_RX       (SERCOM_RX_PAD_1)
+  #define SERCOM_INSTANCE_SERIAL5       &sercom5
+#endif
+
+// Serial6 (L21 only)
+#define PIN_SERIAL6_RX       (17ul)
+#define PIN_SERIAL6_TX       (16ul)
+#define PAD_SERIAL6_TX       (UART_TX_PAD_0)
+#define PAD_SERIAL6_RX       (SERCOM_RX_PAD_1)
+
+#define SERCOM_INSTANCE_SERIAL6       &sercom1
+#endif
 
 
 /*
@@ -308,9 +382,9 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
-#define PIN_I2S_SD          (9u)
-#define PIN_I2S_SCK         (1u)
-#define PIN_I2S_FS          (0u)
+#define PIN_I2S_SD          (7u)
+#define PIN_I2S_SCK         (10u)
+#define PIN_I2S_FS          (11u)
 
 #ifdef __cplusplus
 }
@@ -331,9 +405,19 @@ extern SERCOM sercom0;
 extern SERCOM sercom1;
 extern SERCOM sercom2;
 extern SERCOM sercom3;
+#if (SAML)
+extern SERCOM sercom4;
+extern SERCOM sercom5;
+#endif
 
 extern Uart Serial1;
 extern Uart Serial2;
+extern Uart Serial3;
+extern Uart Serial4;
+#if (SAML)
+extern Uart Serial5;
+extern Uart Serial6;
+#endif
 
 #endif
 
@@ -391,4 +475,4 @@ extern Uart Serial2;
   #endif
 #endif
 
-#endif /* _VARIANT_ARDUINO_ZERO_ */
+#endif /* _VARIANT_MATTAIRTECH_MT_D21E_REVB_ */

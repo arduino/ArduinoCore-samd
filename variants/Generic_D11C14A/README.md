@@ -20,8 +20,8 @@ SWDCLK  TX1/MISO*              30 | A30           A31 | 31   *            RX1/SS
   using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the top
   left pin (A2). PIN_MAP_COMPACT uses less RAM.
 * When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
-* When using NO_UART_ONE_WIRE_ONE_SPI, use SPI on pins 4, 5, 14, and 15.
-  When using ONE_UART_NO_WIRE_ONE_SPI, use SPI on pins 8, 9, 30, and 31.
+* When using ONE_UART_NO_WIRE_ONE_SPI, use SPI on pins 4, 5, 14, and 15.
+  When using NO_UART_ONE_WIRE_ONE_SPI, use SPI on pins 8, 9, 30, and 31.
 * Tone available on TC2. TC2 is not routed to pins in the D11C14A.
 * Leave pin A30 floating (or use external pullup) during reset.
 * DO NOT connect voltages higher than 3.3V!

@@ -24,7 +24,8 @@ BTN   SS              *      *     | A15           RST |                        
   left pin (A2). PIN_MAP_COMPACT uses less RAM.
 * When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
 * Leave pin A30 floating (or use external pullup) during reset.
-* Tone available on TC2. DO NOT connect voltages higher than 3.3V!
+* DO NOT connect voltages higher than 3.3V!
+* Tone available on TC2.
 ```
 
 

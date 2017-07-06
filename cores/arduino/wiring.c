@@ -134,24 +134,29 @@ void init( void )
   regAPBCMASK |= MCLK_APBCMASK_SERCOM0 | MCLK_APBCMASK_SERCOM1 | MCLK_APBCMASK_SERCOM2 | MCLK_APBCMASK_SERCOM3 | MCLK_APBCMASK_SERCOM4 | MCLK_APBCMASK_SERCOM5 ;
   regAPBCMASK |= MCLK_APBCMASK_TCC0 | MCLK_APBCMASK_TCC1 | MCLK_APBCMASK_TCC2 | MCLK_APBCMASK_TC0 | MCLK_APBCMASK_TC1 | MCLK_APBCMASK_TC2 | MCLK_APBCMASK_TC3 | MCLK_APBCMASK_TC4 ;
   #endif
-  
+
   #if (SAML)
   regAPBCMASK |= MCLK_APBCMASK_DAC ;
   MCLK->APBDMASK.reg |= MCLK_APBDMASK_ADC;	// On the SAML, ADC is on the low power bridge
   #elif (SAMC)
   regAPBCMASK |= MCLK_APBCMASK_ADC0 | MCLK_APBCMASK_ADC1 | MCLK_APBCMASK_DAC ;
   #endif
-  
+
   MCLK->APBCMASK.reg |= regAPBCMASK ;
 #else
   #error "wiring.c: Unsupported chip"
 #endif
 
-  //Setup all pins (digital and analog) in STARTUP mode (enable INEN and set default pull direction to pullup (pullup will not be enabled))
+  // Setup all pins (digital and analog) in STARTUP mode (enable INEN and set default pull direction to pullup (pullup will not be enabled))
   for (uint32_t ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
   {
     pinMode( ul, PIO_STARTUP ) ;
   }
+
+  // At least on the L21, pin A31 must be set as an input. It is possible that debugger probe detection is being falsely
+  // detected (even with a pullup on A31 (SWCLK)), which would change the peripheral mux of A31 to COM.
+  // This might not normally be a problem, but one strange effect is that Serial2 loses characters if pin A31 is not set as INPUT.
+  pinMode(31, INPUT);
 
 // I/O mux table footnote for D21 and D11: enable pullups on PA24 and PA24 when using as GPIO to avoid excessive current
 //  Errata: disable pull resistors on PA24 or PA25 manually before switching to peripheral

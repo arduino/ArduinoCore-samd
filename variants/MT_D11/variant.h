@@ -388,4 +388,4 @@ extern Uart Serial2;
 #define Serial                      Serial1
 #endif
 
-#endif /* _VARIANT_ARDUINO_ZERO_ */
+#endif /* _VARIANT_MATTAIRTECH_MT_D11_ */

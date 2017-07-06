@@ -32,7 +32,8 @@ USB D+       TC51                    | A25+ |     |  Vin |
   functions (ie: digitalRead(), analogRead(), analogWrite(), attachInterrupt(), etc.).
 * When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
 * Leave pin A30 floating (or use external pullup) during reset.
-* Tone available on TC5. DO NOT connect voltages higher than 3.3V!
+* DO NOT connect voltages higher than 3.3V!
+* Tone available on TC5.
 ```
 
 ## Pins descriptions for the MattairTech MT-D21E

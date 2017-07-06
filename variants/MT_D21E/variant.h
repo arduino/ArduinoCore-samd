@@ -294,9 +294,9 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
-#define PIN_I2S_SD          (9u)
-#define PIN_I2S_SCK         (1u)
-#define PIN_I2S_FS          (0u)
+#define PIN_I2S_SD          (7u)
+#define PIN_I2S_SCK         (10u)
+#define PIN_I2S_FS          (11u)
 
 #ifdef __cplusplus
 }
@@ -320,6 +320,8 @@ extern SERCOM sercom3;
 
 extern Uart Serial1;
 extern Uart Serial2;
+extern Uart Serial3;
+extern Uart Serial4;
 
 #endif
 
@@ -362,4 +364,4 @@ extern Uart Serial2;
 #define Serial                      Serial1
 #endif
 
-#endif /* _VARIANT_ARDUINO_ZERO_ */
+#endif /* _VARIANT_MATTAIRTECH_MT_D21E_ */
