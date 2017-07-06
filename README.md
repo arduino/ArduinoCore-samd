@@ -207,21 +207,21 @@ and SRAM usage by allowing CDC to be disabled (or USB completely disabled).
 There are up to four clock source choices, depending on board features and microcontroller. Since currently
 the cpu must run at 48MHz, the PLL or DFLL must be used (the SAMC can use OSC48M).
 
-* 32KHZ_CRYSTAL (default)
-  * Uses both XOSC32K and FDPLL96M
-  * High long-term accuracy, slow startup, medium current (PLL)
+### 32KHZ_CRYSTAL (default)
+* Uses both XOSC32K and FDPLL96M
+* High long-term accuracy, slow startup, medium current (PLL)
 
-* HIGH_SPEED_CRYSTAL
-  * Uses both XOSC and FDPLL96M
-  * High accuracy, medium startup, high current (XOSC and PLL)
+### HIGH_SPEED_CRYSTAL
+* Uses both XOSC and FDPLL96M
+* High accuracy, medium startup, high current (XOSC and PLL)
 
-* INTERNAL_OSCILLATOR
-  * Uses DFLL48M in open-loop mode (SAMC uses OSC48M)
-  * Low accuracy, fast startup, medium-low current (low current with SAMC)
+### INTERNAL_OSCILLATOR
+* Uses DFLL48M in open-loop mode (SAMC uses OSC48M)
+* Low accuracy, fast startup, medium-low current (low current with SAMC)
 
-* INTERNAL_USB_CALIBRATED_OSCILLATOR (not available with SAMC)
-  * Uses DFLL48M in closed-loop mode
-  * High accuracy, medium-fast startup, medium current
+### INTERNAL_USB_CALIBRATED_OSCILLATOR (not available with SAMC)
+* Uses DFLL48M in closed-loop mode
+* High accuracy, medium-fast startup, medium current
 
 ### SAMD
 
@@ -307,19 +307,19 @@ NVM OTP (factory calibration values).
 
 ## Analog Reference
 
-* D21
-  * AR_DEFAULT uses 1/2X gain on each input.
-  * The external reference should be between 1.0V and VDDANA-0.6V.
+### D21
+* AR_DEFAULT uses 1/2X gain on each input.
+* The external reference should be between 1.0V and VDDANA-0.6V.
 
-* L21
-  * AR_DEFAULT = AR_INTERNAL_INTVCC2
-  * Both AR_INTREF and AR_INTERNAL1V0 has the same effect as AR_INTREF_1V0.
-  * The external reference should be between 1v and VDDANA-0.6v=2.7v.
+### L21
+* AR_DEFAULT = AR_INTERNAL_INTVCC2
+* Both AR_INTREF and AR_INTERNAL1V0 has the same effect as AR_INTREF_1V0.
+* The external reference should be between 1v and VDDANA-0.6v=2.7v.
 
-* C21
-  * AR_DEFAULT = AR_INTERNAL_INTVCC2
-  * Both AR_INTREF and AR_INTERNAL1V0 has the same effect as AR_INTREF_1V024.
-  * The external reference should be between 1v and VDDANA-0.6v=2.7v.
+### C21
+* AR_DEFAULT = AR_INTERNAL_INTVCC2
+* Both AR_INTREF and AR_INTERNAL1V0 has the same effect as AR_INTREF_1V024.
+* The external reference should be between 1v and VDDANA-0.6v=2.7v.
 
 **Warning : The maximum reference voltage is Vcc (up to 3.6 volts for the SAMD/SAML, 5V for the SAMC)**
 
@@ -333,16 +333,16 @@ AR_INTERNAL_INTVCC0     | 1/1.48 VCC | AR_INTREF_1V0         | 1.00V     | AR_IN
 AR_INTERNAL_INTVCC1     | 1/2 VCC    | AR_INTREF_1V1         | 1.10V     | AR_INTREF_2V048       | 2.048V
 AR_EXTERNAL_REFA        | REFA       | AR_INTREF_1V2         | 1.20V     | AR_INTREF_4V096       | 4.096V
 AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_INTERNAL1V0        | 1.024V
-                        |            | AR_INTREF_2V0         | 2.00V     | AR_INTERNAL_INTVCC0   | 1/1.6 VCC
-                        |            | AR_INTREF_2V2         | 2.20V     | AR_INTERNAL_INTVCC1   | 1/2 VCC
-                        |            | AR_INTREF_2V4         | 2.40V     | AR_INTERNAL_INTVCC2   | VCC
-                        |            | AR_INTREF_2V5         | 2.50V     | AR_EXTERNAL_REFA      | REFA
-                        |            | AR_INTERNAL1V0        | 1.00V     | AR_EXTERNAL_DAC       | DAC
-                        |            | AR_INTERNAL_INTVCC0   | 1/1.6 VCC |                       |
-                        |            | AR_INTERNAL_INTVCC1   | 1/2 VCC   |                       |
-                        |            | AR_INTERNAL_INTVCC2   | VCC       |                       |
-                        |            | AR_EXTERNAL_REFA      | REFA      |                       |
-                        |            | AR_EXTERNAL_REFB      | REFB      |                       |
+---                     |            | AR_INTREF_2V0         | 2.00V     | AR_INTERNAL_INTVCC0   | 1/1.6 VCC
+---                     |            | AR_INTREF_2V2         | 2.20V     | AR_INTERNAL_INTVCC1   | 1/2 VCC
+---                     |            | AR_INTREF_2V4         | 2.40V     | AR_INTERNAL_INTVCC2   | VCC
+---                     |            | AR_INTREF_2V5         | 2.50V     | AR_EXTERNAL_REFA      | REFA
+---                     |            | AR_INTERNAL1V0        | 1.00V     | AR_EXTERNAL_DAC       | DAC
+---                     |            | AR_INTERNAL_INTVCC0   | 1/1.6 VCC |                       |
+---                     |            | AR_INTERNAL_INTVCC1   | 1/2 VCC   |                       |
+---                     |            | AR_INTERNAL_INTVCC2   | VCC       |                       |
+---                     |            | AR_EXTERNAL_REFA      | REFA      |                       |
+---                     |            | AR_EXTERNAL_REFB      | REFB      |                       |
 
 ### Common Settings
 
@@ -404,21 +404,17 @@ AR_EXTERNAL = AR_EXTERNAL_REFA
 TODO
 
 
-## Differences Between MattairTech and Arduino Cores
-
-* TODO
+## Differences Between MattairTech and Arduino Cores (TODO)
 
 * Table summarizing which core files are modified and by how much
 * Communications interfaces are mostly unchanged, including USB
 * Changes due to adding/changing features vs porting to new chip
-
 * All pins (digital and analog) setup in STARTUP mode (enable INEN and set default pull direction to pullup (pullup will not be enabled))
 * INEN enabled for both input and output (but not analog)
 * pinPeripheral now handles disabling the DAC (if active). Note that on the L21, the DAC output would
   interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected.
 * Pull resistors enabled only if pin attributes allow and only if pin is not configured as output.
 * Pull direction (pullup or pulldown) is now set with pinMode only (defaults to pullup if pinMode never called).
-
 * At least on the L21, pin A31 must be set as an input. It is possible that debugger probe detection is being falsely
   detected (even with a pullup on A31 (SWCLK)), which would change the peripheral mux of A31 to COM.
   This might not normally be a problem, but one strange effect is that Serial2 loses characters if pin A31 is not set as INPUT.
@@ -839,6 +835,7 @@ This fork developed by Justin Mattair of MattairTech LLC.
 
 ```
   Copyright (c) 2015 Arduino LLC.  All right reserved.
+  Copyright (c) 2017 MattairTech LLC. All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public
@@ -854,3 +851,16 @@ This fork developed by Justin Mattair of MattairTech LLC.
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 ```
+
+### Petit FatFS
+
+Petit FatFs module is an open source software to implement FAT file system to
+small embedded systems. This is a free software and is opened for education,
+research and commercial developments under license policy of following trems.
+
+Copyright (C) 2014, ChaN, all right reserved.
+
+* The Petit FatFs module is a free software and there is NO WARRANTY.
+* No restriction on use. You can use, modify and redistribute it for
+  personal, non-profit or commercial use UNDER YOUR RESPONSIBILITY.
+* Redistributions of source code must retain the above copyright notice.
