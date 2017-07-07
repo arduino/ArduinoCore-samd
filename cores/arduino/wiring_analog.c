@@ -210,8 +210,6 @@ uint32_t analogRead(uint32_t pin)
   	pin += A0;
   }
 
-
-//TODO: disable only the necessary DAC
   pinPeripheral(pin, PIO_ANALOG);
  //ATSAMR, for example, doesn't have a DAC
 #ifdef DAC

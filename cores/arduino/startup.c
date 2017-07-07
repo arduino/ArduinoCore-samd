@@ -347,7 +347,7 @@ void SystemInit( void )
   /* ----------------------------------------------------------------------------------------------
    * 5) Switch Generic Clock Generator 0 to DFLL48M. CPU will run at 48MHz.
    */
-	GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL) |
+	GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL_Val) |
 					GCLK_GENCTRL_IDC |
 					//GCLK_GENCTRL_OE |
 					GCLK_GENCTRL_GENEN;
