@@ -218,17 +218,28 @@ uint32_t analogRead(uint32_t pin)
 
 	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
 	  if (pin == A0 || pin == A4) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
+		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
+		
+		if(dacEnabled[channel]){
+			dacEnabled[channel] = false;
+			
+			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+			DAC->CTRLA.bit.ENABLE = 0;     // disable DAC
+			
+			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+			DAC->DACCTRL[channel].bit.ENABLE = 0;
+			
+			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+			DAC->CTRLA.bit.ENABLE = 1;     // enable DAC
+		}
+		
 		while (DAC->SYNCBUSY.bit.ENABLE);
 	#else
 	  if (pin == A0) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
 	    syncDAC();
-	#endif
-
-	    DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
-	    //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
-	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
-		while (DAC->SYNCBUSY.bit.ENABLE);
-	#else
+		
+		DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
+		//DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
 		syncDAC();
 	#endif
 	  }
