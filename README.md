@@ -2,7 +2,6 @@
 
 To be fixed soon:
 - AREF must be tied to 3.3V for dac to work
-- Fix tone
 - USB takes a while to enumerate
 
 This repository contains the source code and configuration files of the Arduino Core
