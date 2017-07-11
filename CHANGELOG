@@ -3,6 +3,9 @@ SAMD CORE 1.6.16 ????.??.??
 * Is now possible to use PWM on D7 (though it can't be used with PWM on D12 at the same time). Thanks @Adminius
 * PWMs now can perform real 16-bit resolution if analogWriteResolution(16) is set. Thanks @Adminius
 * USB CDC: fixed issue of available() getting stuck when receiving ZLP's
+* Serial (UART) tx is now buffered.
+* Improved CRYSTALLESS stability. Thanks @tannnewt
+* Some fixes to Adafruit Circuit Playground Express variant. Thanks @ladyada
 
 SAMD CORE 1.6.15 2017.04.27
 
