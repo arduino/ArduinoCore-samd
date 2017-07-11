@@ -733,7 +733,7 @@ void SERCOM::initClockNVIC( void )
   NVIC_EnableIRQ(IdNvic);
 
 #if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
-  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   
 #else

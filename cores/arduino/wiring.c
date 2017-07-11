@@ -24,7 +24,8 @@ extern "C" {
 
 
 #if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
-uint32_t SystemCoreClock=48000000ul ;
+//CHANGE THIS IF YOU CHANGE THE CLOCK SPEED
+uint32_t SystemCoreClock=120000000ul ;
 #else
 /*
  * System Core Clock is at 1MHz (8MHz/8) at Reset.
@@ -107,7 +108,7 @@ void init( void )
   // Initialize Analog Controller
   // Setting clock
 #if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
-	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
+	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
 	
 	ADC0->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV256_Val;
 	ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
@@ -130,7 +131,7 @@ void init( void )
 
 	analogReference( AR_DEFAULT ) ; // Analog Reference is AREF pin (3.3v)
 	
-	GCLK->PCHCTRL[DAC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
+	GCLK->PCHCTRL[DAC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
 	while (GCLK->PCHCTRL[DAC_GCLK_ID].bit.CHEN == 0);
 	
 	while ( DAC->SYNCBUSY.bit.SWRST == 1 ); // Wait for synchronization of registers between the clock domains
