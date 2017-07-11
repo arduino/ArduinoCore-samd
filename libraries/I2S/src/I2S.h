@@ -107,6 +107,8 @@ private:
 
 #if I2S_INTERFACES_COUNT > 0
 extern I2SClass I2S;
+#else
+#error "I2S is not supported on your board!"
 #endif
 
 #endif
