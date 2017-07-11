@@ -89,7 +89,7 @@ void UHD_Init(void)
 	*/
 	
 #if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
-	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
 #else
 	GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID(6) |        // Generic Clock Multiplexer 6
 						GCLK_CLKCTRL_GEN_GCLK0 |    // Generic Clock Generator 0 is source
