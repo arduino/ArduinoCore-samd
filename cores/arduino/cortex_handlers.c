@@ -127,9 +127,9 @@ void SERCOM7_1_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Han
 void SERCOM7_2_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void SERCOM7_3_Handler           ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void USB_0_Handler               ( void ) __attribute__ ((weak));
-void USB_1_Handler               ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void USB_2_Handler               ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
-void USB_3_Handler               ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
+void USB_1_Handler               ( void ) __attribute__ ((weak));
+void USB_2_Handler               ( void ) __attribute__ ((weak));
+void USB_3_Handler               ( void ) __attribute__ ((weak));
 void TCC0_0_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC0_1_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
 void TCC0_2_Handler              ( void ) __attribute__ ((weak, alias("Dummy_Handler")));
@@ -502,6 +502,21 @@ static void (*usb_isr)(void) = NULL;
 
 #if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
 void USB_0_Handler(void)
+{
+	if (usb_isr)
+	usb_isr();
+}
+void USB_1_Handler(void)
+{
+	if (usb_isr)
+	usb_isr();
+}
+void USB_2_Handler(void)
+{
+	if (usb_isr)
+	usb_isr();
+}
+void USB_3_Handler(void)
 {
 	if (usb_isr)
 	usb_isr();
