@@ -349,10 +349,16 @@ void USBDeviceClass::init()
 	usbd.setFullSpeed();
 
 	// Configure interrupts
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__) //TODO: verify the correct interrupts
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
 	/* Attach to the USB host */
-	NVIC_SetPriority((IRQn_Type) USB_0_IRQn, 0UL);
-	NVIC_EnableIRQ((IRQn_Type) USB_0_IRQn);
+	NVIC_SetPriority(USB_0_IRQn, 0UL);
+	NVIC_SetPriority(USB_1_IRQn, 0UL);
+	NVIC_SetPriority(USB_2_IRQn, 0UL);
+	NVIC_SetPriority(USB_3_IRQn, 0UL);
+	NVIC_EnableIRQ(USB_0_IRQn);
+	NVIC_EnableIRQ(USB_1_IRQn);
+	NVIC_EnableIRQ(USB_2_IRQn);
+	NVIC_EnableIRQ(USB_3_IRQn);
 #else
 	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
 	NVIC_EnableIRQ((IRQn_Type) USB_IRQn);
@@ -369,6 +375,7 @@ bool USBDeviceClass::attach()
 		return false;
 
 	usbd.attach();
+
 	usbd.enableEndOfResetInterrupt();
 	usbd.enableStartOfFrameInterrupt();
 
@@ -913,6 +920,20 @@ void USBDeviceClass::ISRHandler()
 		}
 #endif
 	}
+	
+#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	if (usbd.isRamErrInterrupt()){
+		usbd.ackRamErrInterrupt();
+		//TODO: do something about this error
+	}
+	if (usbd.isWakeupInterrupt()){
+		usbd.ackWakeupInterrupt();
+	}
+	
+	if (usbd.isSuspendInterrupt()){
+		usbd.ackSuspendInterrupt();
+	}
+#endif
 
 	// Endpoint 0 Received Setup interrupt
 	if (usbd.epBank0IsSetupReceived(0))
