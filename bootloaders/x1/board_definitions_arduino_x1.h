@@ -71,10 +71,10 @@
 #define NVM_SW_CALIB_DFLL48M_FINE_VAL     (64)
 
 #define BOARD_LED_PORT                    (0)
-#define BOARD_LED_PIN                     (17)
+#define BOARD_LED_PIN                     (21)
 
-#define BOARD_LEDRX_PORT                  (0)
-#define BOARD_LEDRX_PIN                   (31)
+#define BOARD_LEDRX_PORT                  (1)
+#define BOARD_LEDRX_PIN                   (6)
 
 #define BOARD_LEDTX_PORT                  (0)
 #define BOARD_LEDTX_PIN                   (27)

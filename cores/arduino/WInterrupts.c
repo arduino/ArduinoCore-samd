@@ -28,7 +28,7 @@ static void __initialize()
 {
   memset(callbacksInt, 0, sizeof(callbacksInt));
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__) //TODO: verify the correct interrupts
+#if defined(__SAMD51__) //TODO: verify the correct interrupts
 	
 	///EIC MCLK is enabled by default
 	
@@ -55,7 +55,7 @@ static void __initialize()
 */
 
   // Enable EIC
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	EIC->CTRLA.bit.ENABLE = 1;
 	while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
 #else
@@ -88,7 +88,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   }
 
   // Enable wakeup capability on pin in case being used during sleep
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	//TODO: find how to do
 #else
   EIC->WAKEUP.reg |= (1 << in);
@@ -132,7 +132,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
       break;
   }
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 //TODO: find how to do
 #else
   // Enable the interrupt
@@ -156,7 +156,7 @@ void detachInterrupt(uint32_t pin)
   EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
   
   // Disable wakeup capability on pin during sleep
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 //TODO: find how to do
 #else
   EIC->WAKEUP.reg &= ~(1 << in);

@@ -303,7 +303,7 @@ void USBDeviceClass::init()
 #endif
 
 	/* Enable USB clock */
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	// Set up the USB DP/DN pins
 	PORT->Group[0].PINCFG[PIN_PA24H_USB_DM].bit.PMUXEN = 1;
 	PORT->Group[0].PMUX[PIN_PA24H_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24H_USB_DM & 0x01u)));
@@ -349,7 +349,7 @@ void USBDeviceClass::init()
 	usbd.setFullSpeed();
 
 	// Configure interrupts
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	/* Attach to the USB host */
 	NVIC_SetPriority(USB_0_IRQn, 0UL);
 	NVIC_SetPriority(USB_1_IRQn, 0UL);
@@ -921,7 +921,7 @@ void USBDeviceClass::ISRHandler()
 #endif
 	}
 	
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	if (usbd.isRamErrInterrupt()){
 		usbd.ackRamErrInterrupt();
 		//TODO: do something about this error

@@ -34,7 +34,7 @@ void Dummy_Handler(void)
   for (;;) { }
 }
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 
 /* Cortex-M4 processor handlers */
 void Reset_Handler               ( void );
@@ -500,7 +500,7 @@ void SysTick_Handler(void)
 
 static void (*usb_isr)(void) = NULL;
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 void USB_0_Handler(void)
 {
 	if (usb_isr)

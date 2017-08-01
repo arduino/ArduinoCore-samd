@@ -24,7 +24,7 @@
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 #define GENERIC_CLOCK_GENERATOR_XOSC32K   (3u)
 #define GENERIC_CLOCK_GENERATOR_48M		  (1u)
 #define GENERIC_CLOCK_GENERATOR_48M_SYNC	GCLK_SYNCBUSY_GENCTRL1
@@ -48,7 +48,7 @@
 void SystemInit( void )
 {
 //***************** SAMD51 ************************//
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
   NVMCTRL->CTRLA.reg |= NVMCTRL_CTRLA_RWS(0);
   
   #if defined(CRYSTALLESS)

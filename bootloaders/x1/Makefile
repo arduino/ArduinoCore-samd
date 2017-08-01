@@ -61,7 +61,7 @@ BOARD_ID?=arduino_x1
 
 # -----------------------------------------------------------------------------
 # Compiler options
-CFLAGS_EXTRA=-D__SAMD51G19A__ -DBOARD_ID_$(BOARD_ID)
+CFLAGS_EXTRA=-D__SAMD51J20A__ -DBOARD_ID_$(BOARD_ID)
 CFLAGS=-mthumb -mcpu=cortex-m4 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
 ifdef DEBUG
   CFLAGS+=-g3 -O1 -DDEBUG=1
