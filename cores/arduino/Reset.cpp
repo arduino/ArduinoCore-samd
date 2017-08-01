@@ -35,7 +35,7 @@ extern const uint32_t __text_start__;
 #endif
 
 static inline bool nvmReady(void) {
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 		return NVMCTRL->STATUS.reg & NVMCTRL_STATUS_READY;
 #else
         return NVMCTRL->INTFLAG.reg & NVMCTRL_INTFLAG_READY;
@@ -47,7 +47,7 @@ static void banzai() {
 	// Disable all interrupts
 	__disable_irq();
 	
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	//THESE MUST MATCH THE BOOTLOADER
 	#define DOUBLE_TAP_MAGIC 			0x07738135
 	#define BOOT_DOUBLE_TAP_ADDRESS     0x20007FFC

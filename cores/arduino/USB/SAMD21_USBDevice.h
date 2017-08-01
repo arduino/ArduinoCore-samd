@@ -41,13 +41,13 @@ public:
 	// Enable
 	inline void enable()  { 
 		usb.CTRLA.bit.ENABLE = 1;
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 		while( usb.SYNCBUSY.reg & USB_SYNCBUSY_ENABLE ); //wait for sync
 #endif
 	}
 	inline void disable() { 
 		usb.CTRLA.bit.ENABLE = 0;
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 		while( usb.SYNCBUSY.reg & USB_SYNCBUSY_ENABLE ); //wait for sync
 #endif
 	}
@@ -81,7 +81,7 @@ public:
 	inline void enableStartOfFrameInterrupt()  { usb.INTENSET.bit.SOF = 1; }
 	inline void disableStartOfFrameInterrupt() { usb.INTENCLR.bit.SOF = 1; }
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)	
+#if defined(__SAMD51__)	
 	//inline void isLpmSuspInterrupt()		    { return usb.INTFLAG.bit.LPMSUSP; }
 		
 	inline bool isRamErrInterrupt()				{ return usb.INTFLAG.bit.RAMACER; }

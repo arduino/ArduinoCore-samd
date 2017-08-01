@@ -27,14 +27,14 @@ static int _readResolution = 10;
 static int _ADCResolution = 10;
 static int _writeResolution = 8;
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 static int _dacResolution = 10;
 #else
 static int _dacResolution = 8;
 #endif
 
 
-#if !defined(__SAMD51P20A__) && !defined(__SAMD51G19A__)
+#if !defined(__SAMD51__)
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncADC() __attribute__((always_inline, unused));
 static void syncADC() {
@@ -71,7 +71,7 @@ static bool dacEnabled[2];
 void analogReadResolution(int res)
 {
   _readResolution = res;
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 
 	if (res > 10) {
 		ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
@@ -127,7 +127,7 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
  */
 void analogReference(eAnalogReference mode)
 {
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	while(ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_REFCTRL); //wait for sync
 	
 	//TODO: fix gains
@@ -220,7 +220,7 @@ uint32_t analogRead(uint32_t pin)
  //ATSAMR, for example, doesn't have a DAC
 #ifdef DAC
 
-	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	#if defined(__SAMD51__)
 	  if (pin == A0 || pin == A4) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
 		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
 		
@@ -250,7 +250,7 @@ uint32_t analogRead(uint32_t pin)
 
 #endif
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
   while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_INPUTCTRL ); //wait for sync
   ADC0->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
   
@@ -346,7 +346,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 	  if ((attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG)
 	  {
 	    // DAC handling code
-	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	#if defined(__SAMD51__)
 		if (pin != PIN_A0 && pin != PIN_A4) { // 2 DACs on A0 (PA02) and A4 (PA05)
 	#else
 	    if (pin != PIN_A0) { // Only 1 DAC on A0 (PA02)
@@ -356,7 +356,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 
 	    //value = mapResolution(value, _dacResolution, 10);
 
-	#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+	#if defined(__SAMD51__)
 		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
 
 		pinPeripheral(pin, PIO_ANALOG);
@@ -429,7 +429,7 @@ void analogWrite(uint32_t pin, uint32_t value)
     if (!tcEnabled[tcNum]) {
       tcEnabled[tcNum] = true;
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	uint32_t GCLK_CLKCTRL_IDs[] = {
 		TCC0_GCLK_ID,
 		TCC1_GCLK_ID,

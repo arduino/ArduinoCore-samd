@@ -205,7 +205,7 @@ void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize ch
   resetSPI();
   initClockNVIC();
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE(0x3) |  //master mode
 						SERCOM_SPI_CTRLA_DOPO(mosi) |
 						SERCOM_SPI_CTRLA_DIPO(miso) |
@@ -665,7 +665,7 @@ void SERCOM::initClockNVIC( void )
 {
   IRQn_Type IdNvic=PendSV_IRQn ; // Dummy init to intercept potential error later
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	uint32_t clk_core;
 	uint32_t clk_slow;
 	
@@ -761,7 +761,7 @@ void SERCOM::initClockNVIC( void )
   NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
   NVIC_EnableIRQ(IdNvic);
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
   GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   

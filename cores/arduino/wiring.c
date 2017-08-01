@@ -23,7 +23,7 @@ extern "C" {
 #endif
 
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 //CHANGE THIS IF YOU CHANGE THE CLOCK SPEED
 uint32_t SystemCoreClock=120000000ul ;
 #else
@@ -77,7 +77,7 @@ void init( void )
 //  // Clock EIC for I/O interrupts
 //  PM->APBAMASK.reg |= PM_APBAMASK_EIC ;
 
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
   MCLK->APBAMASK.reg |= MCLK_APBAMASK_SERCOM0 | MCLK_APBAMASK_SERCOM1;
   
   MCLK->APBBMASK.reg |= MCLK_APBBMASK_SERCOM2 | MCLK_APBBMASK_SERCOM3 | MCLK_APBBMASK_TCC0 | MCLK_APBBMASK_TCC1 | MCLK_APBBMASK_TC3 | MCLK_APBBMASK_TC2;
@@ -107,7 +107,7 @@ void init( void )
 
   // Initialize Analog Controller
   // Setting clock
-#if defined(__SAMD51P20A__) || defined(__SAMD51G19A__)
+#if defined(__SAMD51__)
 	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
 	
 	ADC0->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV256_Val;
