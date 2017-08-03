@@ -177,21 +177,12 @@ uint32_t USBDeviceClass::sendConfiguration(uint32_t maxlen)
 	return true;
 }
 
-static void utox(uint32_t val, char* s) {
-	// lead zero pad
-	for (uint32_t i = 0x10000000; i > 1; i = i >> 4) {
-		if (val < i) {
-			*s++ = '0';
-		}
-	}
+static void utox8(uint32_t val, char* s) {
+	for (int i = 0; i < 8; i++) {
+		int d = val & 0XF;
+		val = (val >> 4);
 
-	// convert value to hex string
-	utoa(val, s, 16);
-
-	// make string uppercase
-	while (s && *s) {
-		*s = toupper(*s);
-		s++;
+		s[7 - i] = d > 9 ? 'A' + d - 10 : '0' + d;
 	}
 }
 
@@ -246,10 +237,10 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			#define SERIAL_NUMBER_WORD_3	*(volatile uint32_t*)(0x0080A048)
 
 			char name[ISERIAL_MAX_LEN];
-			utox(SERIAL_NUMBER_WORD_0, &name[0]);
-			utox(SERIAL_NUMBER_WORD_1, &name[8]);
-			utox(SERIAL_NUMBER_WORD_2, &name[16]);
-			utox(SERIAL_NUMBER_WORD_3, &name[24]);
+			utox8(SERIAL_NUMBER_WORD_0, &name[0]);
+			utox8(SERIAL_NUMBER_WORD_1, &name[8]);
+			utox8(SERIAL_NUMBER_WORD_2, &name[16]);
+			utox8(SERIAL_NUMBER_WORD_3, &name[24]);
 
 			PluggableUSB().getShortName(&name[32]);
 			return sendStringDescriptor((uint8_t*)name, setup.wLength);
