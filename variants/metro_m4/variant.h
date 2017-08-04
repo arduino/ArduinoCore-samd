@@ -16,8 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VARIANT_ARDUINO_ZERO_
-#define _VARIANT_ARDUINO_ZERO_
+#ifndef _VARIANT_MERTO_M4_
+#define _VARIANT_MERTO_M4_
 
 // The definitions here needs a SAMD core >=1.6.10
 #define ARDUINO_SAMD_VARIANT_COMPLIANCE 10610
@@ -78,8 +78,8 @@ extern "C"
 
 // LEDs
 #define PIN_LED_13           (13u)
-#define PIN_LED_RXL          (31u)
-#define PIN_LED_TXL          (32u)
+#define PIN_LED_RXL          (29u)
+#define PIN_LED_TXL          (30u)
 #define PIN_LED              PIN_LED_13
 #define PIN_LED2             PIN_LED_RXL
 #define PIN_LED3             PIN_LED_TXL
@@ -98,9 +98,8 @@ extern "C"
 #define PIN_A7               (PIN_A0 + 7)
 #define PIN_A8               (PIN_A0 + 8)
 #define PIN_A9               (PIN_A0 + 9)
-#define PIN_A10              (PIN_A0 + 10)
-#define PIN_A11              (PIN_A0 + 11)
 #define PIN_DAC0             (14ul)
+#define PIN_DAC1             PIN_A1
 
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
@@ -112,10 +111,9 @@ static const uint8_t A6  = PIN_A6 ;
 static const uint8_t A7  = PIN_A7 ;
 static const uint8_t A8  = PIN_A8 ;
 static const uint8_t A9  = PIN_A9 ;
-static const uint8_t A10 = PIN_A10 ;
-static const uint8_t A11 = PIN_A11 ;
 
 static const uint8_t DAC0 = PIN_DAC0;
+static const uint8_t DAC1 = PIN_DAC1;
 
 #define ADC_RESOLUTION		12
 
@@ -130,8 +128,8 @@ static const uint8_t ATN = PIN_ATN;
 // Serial1
 #define PIN_SERIAL1_RX       (0ul)
 #define PIN_SERIAL1_TX       (1ul)
-#define PAD_SERIAL1_TX       (UART_TX_PAD_2)
-#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
+#define PAD_SERIAL1_TX       (UART_TX_PAD_0)
+#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
 
 /*
  * SPI Interfaces
@@ -191,6 +189,8 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
+
+//TODO: these
 #define PIN_I2S_SD          (9u)
 #define PIN_I2S_SCK         (1u)
 #define PIN_I2S_FS          (0u)
@@ -241,5 +241,5 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE        Serial1
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
-#endif /* _VARIANT_ARDUINO_ZERO_ */
+#endif /* _VARIANT_MERTO_M4_ */
 

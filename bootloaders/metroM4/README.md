@@ -1,4 +1,4 @@
-# Arduino x1 Bootloader
+# Metro M4 Bootloader
 
 ## 1- Prerequisites
 
@@ -55,9 +55,8 @@ The following pins are used by the program :
 PA25 : input/output (USB DP)
 PA24 : input/output (USB DM)
 
-### TODO: not correct
-PA11 : input (USART RX)
-PA10 : output (USART TX)
+PA23 : input (USART RX)
+PA22 : output (USART TX)
 
 The application board shall avoid driving the PA25, PA24, PB23 and PB22 signals while the boot program is running (after a POR for example).
 
@@ -79,7 +78,7 @@ Before jumping to the application, the bootloader changes the VTOR register to u
 
 ## 5- How to build
 
-If not specified the makefile builds for **Arduino x1**:
+If not specified the makefile builds for **Metro M4**:
 
 ```
 make
