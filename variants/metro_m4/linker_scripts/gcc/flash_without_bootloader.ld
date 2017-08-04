@@ -25,8 +25,8 @@
  */
 MEMORY
 {
-  FLASH (rx) : ORIGIN = 0x00000000+0x2000, LENGTH = 0x00080000-0x2000 /* First 8KB used by bootloader */
-  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00030000
+  FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00100000
+  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00040000
 }
 
 /* Linker script to place sections and symbol values. Should be used together
@@ -58,6 +58,7 @@ MEMORY
  *   __StackLimit
  *   __StackTop
  *   __stack
+ *   __ram_end__
  */
 ENTRY(Reset_Handler)
 
@@ -67,9 +68,6 @@ SECTIONS
 	{
 		__text_start__ = .;
 
-		KEEP(*(.sketch_boot))
-
-		. = ALIGN(0x2000);
 		KEEP(*(.isr_vector))
 		*(.text*)
 
@@ -205,7 +203,7 @@ SECTIONS
 
 	/* Set stack top to end of RAM, and stack limit move down by
 	 * size of stack_dummy section */
-	__StackTop = ORIGIN(RAM) + LENGTH(RAM);
+	__StackTop = ORIGIN(RAM) + LENGTH(RAM) ;
 	__StackLimit = __StackTop - SIZEOF(.stack_dummy);
 	PROVIDE(__stack = __StackTop);
 
