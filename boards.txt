@@ -152,26 +152,17 @@ adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplay/circuitplay_m0_samd21g18_sam_ba.bin
 
-# Adafruit Metro M4
+
+# Adafruit Metro M4 (SAMD51)
 # ------------------------------
-adafruit_metro_m4.name=Adafruit Metro M4
-adafruit_metro_m4.vid.0=0x2341
-adafruit_metro_m4.pid.0=0x804d
-adafruit_metro_m4.vid.1=0x2341
-adafruit_metro_m4.pid.1=0x004d
-
-adafruit_metro_m4.vid.2=0x2341
-adafruit_metro_m4.pid.2=0x824d
-# If the board is a 2341:824d use 2341:824d for build and set other parameters as well
-adafruit_metro_m4.vid.2.build.vid=0x2341
-adafruit_metro_m4.vid.2.build.pid=0x824d
-adafruit_metro_m4.vid.2.build.usb_product="Adafruit Metro M4"
-adafruit_metro_m4.vid.2.bootloader.file=metroM4/samdx1_sam_ba.bin
-
+adafruit_metro_m4.name=Adafruit Metro M4 (SAMD51)
+adafruit_metro_m4.vid.0=0x239A
+adafruit_metro_m4.pid.0=0x8020
+adafruit_metro_m4.vid.1=0x239A
+adafruit_metro_m4.pid.1=0x0020
 adafruit_metro_m4.upload.tool=bossac
 adafruit_metro_m4.upload.protocol=sam-ba
-#TODO: fix
-adafruit_metro_m4.upload.maximum_size=262144
+adafruit_metro_m4.upload.maximum_size=1048576
 adafruit_metro_m4.upload.use_1200bps_touch=true
 adafruit_metro_m4.upload.wait_for_upload_port=true
 adafruit_metro_m4.upload.native_usb=true
@@ -179,7 +170,7 @@ adafruit_metro_m4.build.mcu=cortex-m4
 adafruit_metro_m4.build.f_cpu=48000000L
 adafruit_metro_m4.build.usb_product="Adafruit Metro M4"
 adafruit_metro_m4.build.usb_manufacturer="Adafruit LLC"
-adafruit_metro_m4.build.board=SAMD_METRO_M4
+adafruit_metro_m4.build.board=SAMD_51
 adafruit_metro_m4.build.core=arduino
 adafruit_metro_m4.build.extra_flags=-D__SAMD51J20A__ -D__SAMD51__ {build.usb_flags}
 adafruit_metro_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
