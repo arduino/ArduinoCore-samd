@@ -84,6 +84,7 @@ LDFLAGS+=-Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbol
 # -----------------------------------------------------------------------------
 # Source files and objects
 SOURCES= \
+  board_driver_i2c.c \
   board_driver_led.c \
   board_driver_serial.c \
   board_driver_usb.c \
@@ -106,13 +107,17 @@ else
   AS_CLEAN=
 endif
 
+LD_SCRIPT=bootloader_samd21x18.ld
+ifeq ($(BOOTLOADER_SIZE), 16k)
+LD_SCRIPT=bootloader_samd21x18_16k.ld
+endif
 
 all: print_info $(SOURCES) $(BIN) $(HEX) $(AS_BUILD)
 
 $(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
 	@echo ----------------------------------------------------------
 	@echo Creating ELF binary
-	"$(CC)" -L. -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps -Tbootloader_samd21x18.ld -Wl,-Map,"$(BUILD_PATH)/$(NAME).map" -o "$(BUILD_PATH)/$(ELF)" -Wl,--start-group $(OBJECTS) -lm -Wl,--end-group
+	"$(CC)" -L. -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps -T$(LD_SCRIPT) -Wl,-Map,"$(BUILD_PATH)/$(NAME).map" -o "$(BUILD_PATH)/$(ELF)" -Wl,--start-group $(OBJECTS) -lm -Wl,--end-group
 	"$(NM)" "$(BUILD_PATH)/$(ELF)" >"$(BUILD_PATH)/$(NAME)_symbols.txt"
 	"$(SIZE)" --format=sysv -t -x $(BUILD_PATH)/$(ELF)
 

@@ -71,6 +71,11 @@
 #define BOARD_LED_PORT                    (0)
 #define BOARD_LED_PIN                     (20)
 
+#define CONFIGURE_PMIC                    1
+#define PMIC_PIN_SCL                      12
+#define PMIC_PIN_SDA                      11
+#define PMIC_SERCOM                       SERCOM0                      
+
 // No RX/TX led
 //#define BOARD_LEDRX_PORT
 //#define BOARD_LEDRX_PIN

@@ -160,13 +160,20 @@ int main(void)
 #endif
   DEBUG_PIN_HIGH;
 
+#ifndef CONFIGURE_PMIC
   /* Jump in application if condition is satisfied */
   check_start_application();
+#endif
 
   /* We have determined we should stay in the monitor. */
   /* System initialization */
   board_init();
   __enable_irq();
+
+#ifdef CONFIGURE_PMIC
+  configure_pmic();
+  check_start_application();
+#endif
 
 #if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
   /* UART is enabled in all cases */
