@@ -180,20 +180,6 @@ SERCOM sercom5(SERCOM5);
 #define VOLTAGE_LIMIT_4V36      (0x6 << 3)
 #define VOLTAGE_LIMIT_4V04      (0x2 << 3)
 
-static inline void set_pmic_safe_defaults() {
-  PERIPH_WIRE.initMasterWIRE(100000);
-  PERIPH_WIRE.enableWIRE();
-  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
-  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
-
-  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG02);
-  PERIPH_WIRE.sendDataMasterWIRE(0);
-  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-
-  PERIPH_WIRE.disableWIRE();
-}
-
 static inline void disable_battery_charging() {
   PERIPH_WIRE.initMasterWIRE(100000);
   PERIPH_WIRE.enableWIRE();
@@ -210,18 +196,19 @@ static inline void disable_battery_charging() {
 
 #else
 
-static inline void set_pmic_safe_defaults() {}
 static inline void disable_battery_charging() {}
 
 #endif
 
 void initVariant() {
-  pinMode(32, INPUT_PULLDOWN);
+
+  pinMode(32, OUTPUT);
+  digitalWrite(32, LOW);
+  pinMode(32, INPUT);
   if (analogRead(32) < 800) {
     disable_battery_charging();
-  } else {
-    set_pmic_safe_defaults();
   }
+
   // Workaround for RTS not being controlled correctly
   pinMode(28, OUTPUT);
   digitalWrite(28, LOW);
