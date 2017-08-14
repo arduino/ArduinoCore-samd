@@ -18,7 +18,6 @@
 */
 
 #include "board_driver_i2c.h"
-#include "board_driver_led.h"
 
 #ifdef CONFIGURE_PMIC
 
@@ -617,6 +616,7 @@ bool setChargeVoltage(uint16_t voltage) {
 void apply_pmic_newdefaults()
 {
   disableWatchdog();
+
   //disableDPDM();
   setInputVoltageLimit(4360); // default
   setInputCurrentLimit(900);     // 900mA
