@@ -71,12 +71,6 @@ static inline void pin_set_peripheral_function(uint32_t pinmux)
 //-----------------------------------------------------------------------------
 void i2c_init(int freq)
 {
-  int baud = ((float)F_CPU / freq - (float)F_CPU * T_RISE - 10.0) / 2.0;
-
-  if (baud < 0)
-    baud = 0;
-  else if (baud > 255)
-    baud = 255;
 
   PM->APBCMASK.reg |= I2C_SERCOM_APBCMASK;
 
@@ -89,7 +83,7 @@ void i2c_init(int freq)
   I2C_SERCOM->I2CM.CTRLB.reg = SERCOM_I2CM_CTRLB_SMEN;
   while (I2C_SERCOM->I2CM.SYNCBUSY.reg);
 
-  I2C_SERCOM->I2CM.BAUD.reg = SERCOM_I2CM_BAUD_BAUD(baud);
+  I2C_SERCOM->I2CM.BAUD.reg = SERCOM_I2CM_BAUD_BAUD(48);
   while (I2C_SERCOM->I2CM.SYNCBUSY.reg);
 
   I2C_SERCOM->I2CM.CTRLA.reg = SERCOM_I2CM_CTRLA_ENABLE |

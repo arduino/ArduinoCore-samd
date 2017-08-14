@@ -17,8 +17,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _BOARD_DRIVER_LED_
-#define _BOARD_DRIVER_LED_
+#ifndef _BOARD_DRIVER_I2C_
+#define _BOARD_DRIVER_I2C_
 
 #include <sam.h>
 #include <stdbool.h>
@@ -39,5 +39,7 @@
 #define SYSTEM_STATUS_REGISTER              0x08
 #define FAULT_REGISTER                      0x09
 #define PMIC_VERSION_REGISTER               0x0A
+
+void configure_pmic();
 
 #endif // _BOARD_DRIVER_LED_
