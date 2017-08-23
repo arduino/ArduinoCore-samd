@@ -280,7 +280,7 @@ size_t I2SClass::write(const uint8_t *buffer, size_t size)
   return write((const void*)buffer, size);
 }
 
-size_t I2SClass::availableForWrite()
+int I2SClass::availableForWrite()
 {
   if (_state != I2S_STATE_TRANSMITTER) {
     enableTransmitter();
