@@ -201,21 +201,14 @@ static inline void disable_battery_charging() {}
 #endif
 
 void initVariant() {
-
-  pinMode(32, OUTPUT);
-  digitalWrite(32, LOW);
-  pinMode(32, INPUT);
-  if (analogRead(32) < 800) {
+  pinMode(ADC_BATTERY, INPUT_PULLDOWN);
+  if (analogRead(ADC_BATTERY) < 800) {
     disable_battery_charging();
   }
 
   // Workaround for RTS not being controlled correctly
-  pinMode(28, OUTPUT);
-  digitalWrite(28, LOW);
-  pinMode(31, OUTPUT);
-  digitalWrite(31, HIGH);
-  delay(100);
-  digitalWrite(31, LOW);
+  pinMode(GSM_RTS, OUTPUT);
+  digitalWrite(GSM_RTS, LOW);
 }
 
 // Serial1

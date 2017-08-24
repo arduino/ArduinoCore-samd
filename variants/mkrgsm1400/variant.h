@@ -63,6 +63,11 @@
 //Battery
 #define ADC_BATTERY	(32u)
 
+//GSM
+#define GSM_RTS    (28u)
+#define GSM_CTS    (29u)
+#define GSM_RESETN (31u)
+
 // LEDs
 // ----
 #define PIN_LED     (6u)
