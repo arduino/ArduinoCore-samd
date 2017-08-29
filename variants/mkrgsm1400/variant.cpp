@@ -209,6 +209,10 @@ void initVariant() {
   // Workaround for RTS not being controlled correctly
   pinMode(GSM_RTS, OUTPUT);
   digitalWrite(GSM_RTS, LOW);
+
+  // Hold reset high to prevent cellular modem from starting if not used
+  pinMode(GSM_RESETN, OUTPUT);
+  digitalWrite(GSM_RESETN, HIGH);
 }
 
 // Serial1
