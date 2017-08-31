@@ -165,6 +165,8 @@ class SERCOM
 		void acknowledgeUARTError() ;
 		void enableDataRegisterEmptyInterruptUART();
 		void disableDataRegisterEmptyInterruptUART();
+		void enableReceiveCompleteInterruptUART();
+		void disableReceiveCompleteInterruptUART();
 
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder) ;
