@@ -43,6 +43,9 @@ class Uart : public HardwareSerial
 
     operator bool() { return true; }
 
+    int attachRts(uint8_t pin);
+    int attachCts(uint8_t pin);
+
   private:
     SERCOM *sercom;
     RingBuffer rxBuffer;
@@ -52,6 +55,8 @@ class Uart : public HardwareSerial
     uint8_t uc_pinTX;
     SercomRXPad uc_padRX;
     SercomUartTXPad uc_padTX;
+    uint8_t uc_pinRTS;
+    uint8_t uc_pinCTS;
 
     SercomNumberStopBit extractNbStopBit(uint16_t config);
     SercomUartCharSize extractCharSize(uint16_t config);

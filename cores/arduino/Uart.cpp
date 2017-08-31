@@ -20,13 +20,19 @@
 #include "Arduino.h"
 #include "wiring_private.h"
 
+#define NO_RTS_PIN 255
+#define NO_CTS_PIN 255
+#define RTS_RX_THRESHOLD 10
+
 Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX)
 {
   sercom = _s;
   uc_pinRX = _pinRX;
   uc_pinTX = _pinTX;
-  uc_padRX=_padRX ;
-  uc_padTX=_padTX;
+  uc_padRX = _padRX ;
+  uc_padTX = _padTX;
+  uc_pinRTS = NO_RTS_PIN;
+  uc_pinCTS = NO_CTS_PIN;
 }
 
 void Uart::begin(unsigned long baudrate)
@@ -39,6 +45,15 @@ void Uart::begin(unsigned long baudrate, uint16_t config)
   pinPeripheral(uc_pinRX, g_APinDescription[uc_pinRX].ulPinType);
   pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
 
+  if (uc_pinRTS != NO_RTS_PIN) {
+    pinMode(uc_pinRTS, OUTPUT);
+    digitalWrite(uc_pinRTS, LOW);
+  }
+
+  if (uc_pinCTS != NO_CTS_PIN) {
+    pinMode(uc_pinCTS, INPUT);
+  }
+
   sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
   sercom->initFrame(extractCharSize(config), LSB_FIRST, extractParity(config), extractNbStopBit(config));
   sercom->initPads(uc_padTX, uc_padRX);
@@ -48,6 +63,11 @@ void Uart::begin(unsigned long baudrate, uint16_t config)
 
 void Uart::end()
 {
+  if (uc_pinRTS != NO_RTS_PIN) {
+    digitalWrite(uc_pinRTS, LOW);
+    pinMode(uc_pinRTS, INPUT);
+  }
+
   sercom->resetUART();
   rxBuffer.clear();
   txBuffer.clear();
@@ -64,6 +84,13 @@ void Uart::IrqHandler()
 {
   if (sercom->availableDataUART()) {
     rxBuffer.store_char(sercom->readDataUART());
+
+    if (uc_pinRTS != NO_RTS_PIN) {
+      // if there is NOT enough space in the RX buffer, de-assert RTS
+      if (rxBuffer.availableForStore() < RTS_RX_THRESHOLD) {
+        digitalWrite(uc_pinRTS, HIGH);
+      }
+    }
   }
 
   if (sercom->isDataRegisterEmptyUART()) {
@@ -102,11 +129,30 @@ int Uart::peek()
 
 int Uart::read()
 {
-  return rxBuffer.read_char();
+  int c = rxBuffer.read_char();
+
+  if (uc_pinRTS != NO_RTS_PIN) {
+    // if there is enough space in the RX buffer, assert RTS
+    if (rxBuffer.availableForStore() > RTS_RX_THRESHOLD) {
+      digitalWrite(uc_pinRTS, LOW);
+    }
+  }
+
+  return c;
 }
 
 size_t Uart::write(const uint8_t data)
 {
+  if (uc_pinRTS != NO_RTS_PIN) {
+    // assert RTS
+    digitalWrite(uc_pinRTS, LOW);
+  }
+
+  if (uc_pinCTS != NO_CTS_PIN) {
+    // wait until CTS is asserted
+    while (digitalRead(uc_pinCTS) != LOW);
+  }
+
   if (sercom->isDataRegisterEmptyUART() && txBuffer.available() == 0) {
     sercom->writeDataUART(data);
   } else {
@@ -167,4 +213,18 @@ SercomParityMode Uart::extractParity(uint16_t config)
     case HARDSER_PARITY_ODD:
       return SERCOM_ODD_PARITY;
   }
+}
+
+int Uart::attachRts(uint8_t pin)
+{
+  uc_pinRTS = pin;
+
+  return 1;
+}
+
+int Uart::attachCts(uint8_t pin)
+{
+  uc_pinCTS = pin;
+
+  return 1;
 }
