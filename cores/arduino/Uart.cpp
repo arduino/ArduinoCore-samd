@@ -46,12 +46,11 @@ void Uart::begin(unsigned long baudrate, uint16_t config)
   pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
 
   if (uc_pinRTS != NO_RTS_PIN) {
-    pinMode(uc_pinRTS, OUTPUT);
-    digitalWrite(uc_pinRTS, LOW);
+    pinPeripheral(uc_pinRTS, g_APinDescription[uc_pinRTS].ulPinType);
   }
 
   if (uc_pinCTS != NO_CTS_PIN) {
-    pinMode(uc_pinCTS, INPUT);
+    pinPeripheral(uc_pinCTS, g_APinDescription[uc_pinCTS].ulPinType);
   }
 
   sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
@@ -86,9 +85,10 @@ void Uart::IrqHandler()
     rxBuffer.store_char(sercom->readDataUART());
 
     if (uc_pinRTS != NO_RTS_PIN) {
-      // if there is NOT enough space in the RX buffer, de-assert RTS
+      // if there is NOT enough space in the RX buffer,
+      // diable the receive complete interrupt
       if (rxBuffer.availableForStore() < RTS_RX_THRESHOLD) {
-        digitalWrite(uc_pinRTS, HIGH);
+        sercom->disableReceiveCompleteInterruptUART();
       }
     }
   }
@@ -132,9 +132,10 @@ int Uart::read()
   int c = rxBuffer.read_char();
 
   if (uc_pinRTS != NO_RTS_PIN) {
-    // if there is enough space in the RX buffer, assert RTS
+    // if there is enough space in the RX buffer, 
+    // enable the receive completer interrupt
     if (rxBuffer.availableForStore() > RTS_RX_THRESHOLD) {
-      digitalWrite(uc_pinRTS, LOW);
+      sercom->enableReceiveCompleteInterruptUART();
     }
   }
 
@@ -143,16 +144,6 @@ int Uart::read()
 
 size_t Uart::write(const uint8_t data)
 {
-  if (uc_pinRTS != NO_RTS_PIN) {
-    // assert RTS
-    digitalWrite(uc_pinRTS, LOW);
-  }
-
-  if (uc_pinCTS != NO_CTS_PIN) {
-    // wait until CTS is asserted
-    while (digitalRead(uc_pinCTS) != LOW);
-  }
-
   if (sercom->isDataRegisterEmptyUART() && txBuffer.available() == 0) {
     sercom->writeDataUART(data);
   } else {
@@ -217,14 +208,22 @@ SercomParityMode Uart::extractParity(uint16_t config)
 
 int Uart::attachRts(uint8_t pin)
 {
-  uc_pinRTS = pin;
+  if (uc_padTX == UART_TX_RTS_CTS_PAD_0_2_3) {
+    uc_pinRTS = pin;
 
-  return 1;
+    return 1;
+  }
+
+  return 0;
 }
 
 int Uart::attachCts(uint8_t pin)
 {
-  uc_pinCTS = pin;
+  if (uc_padTX == UART_TX_RTS_CTS_PAD_0_2_3) {
+    uc_pinCTS = pin;
 
-  return 1;
+    return 1;
+  }
+
+  return 0;
 }

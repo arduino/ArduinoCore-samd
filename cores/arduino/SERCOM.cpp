@@ -183,6 +183,16 @@ void SERCOM::disableDataRegisterEmptyInterruptUART()
   sercom->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_DRE;
 }
 
+void SERCOM::enableReceiveCompleteInterruptUART()
+{
+  sercom->USART.INTENSET.reg |= SERCOM_USART_INTENSET_RXC;
+}
+
+void SERCOM::disableReceiveCompleteInterruptUART()
+{
+  sercom->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_RXC;
+}
+
 /*	=========================
  *	===== Sercom SPI
  *	=========================
