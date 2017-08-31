@@ -162,6 +162,8 @@ extern Uart Serial2;
 #define PIN_SERIAL2_TX (26ul)
 #define PAD_SERIAL2_TX (UART_TX_RTS_CTS_PAD_0_2_3)
 #define PAD_SERIAL2_RX (SERCOM_RX_PAD_1)
+#define PIN_SERIAL2_RTS (28u)
+#define PIN_SERIAL2_CTS (29u)
 
 #endif // __cplusplus
 
