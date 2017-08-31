@@ -24,15 +24,20 @@
 #define NO_CTS_PIN 255
 #define RTS_RX_THRESHOLD 10
 
-Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX)
+Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX) :
+  Uart(_s, _pinRX, _pinTX, _padRX, _padTX, NO_RTS_PIN, NO_CTS_PIN)
+{
+}
+
+Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX, uint8_t _pinRTS, uint8_t _pinCTS)
 {
   sercom = _s;
   uc_pinRX = _pinRX;
   uc_pinTX = _pinTX;
   uc_padRX = _padRX ;
   uc_padTX = _padTX;
-  uc_pinRTS = NO_RTS_PIN;
-  uc_pinCTS = NO_CTS_PIN;
+  uc_pinRTS = _pinRTS;
+  uc_pinCTS = _pinCTS;
 }
 
 void Uart::begin(unsigned long baudrate)
@@ -45,11 +50,8 @@ void Uart::begin(unsigned long baudrate, uint16_t config)
   pinPeripheral(uc_pinRX, g_APinDescription[uc_pinRX].ulPinType);
   pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
 
-  if (uc_pinRTS != NO_RTS_PIN) {
+  if (uc_padTX == UART_TX_RTS_CTS_PAD_0_2_3 && uc_pinRTS != NO_RTS_PIN && uc_pinCTS != NO_CTS_PIN) {
     pinPeripheral(uc_pinRTS, g_APinDescription[uc_pinRTS].ulPinType);
-  }
-
-  if (uc_pinCTS != NO_CTS_PIN) {
     pinPeripheral(uc_pinCTS, g_APinDescription[uc_pinCTS].ulPinType);
   }
 
@@ -62,11 +64,6 @@ void Uart::begin(unsigned long baudrate, uint16_t config)
 
 void Uart::end()
 {
-  if (uc_pinRTS != NO_RTS_PIN) {
-    digitalWrite(uc_pinRTS, LOW);
-    pinMode(uc_pinRTS, INPUT);
-  }
-
   sercom->resetUART();
   rxBuffer.clear();
   txBuffer.clear();
@@ -204,26 +201,4 @@ SercomParityMode Uart::extractParity(uint16_t config)
     case HARDSER_PARITY_ODD:
       return SERCOM_ODD_PARITY;
   }
-}
-
-int Uart::attachRts(uint8_t pin)
-{
-  if (uc_padTX == UART_TX_RTS_CTS_PAD_0_2_3) {
-    uc_pinRTS = pin;
-
-    return 1;
-  }
-
-  return 0;
-}
-
-int Uart::attachCts(uint8_t pin)
-{
-  if (uc_padTX == UART_TX_RTS_CTS_PAD_0_2_3) {
-    uc_pinCTS = pin;
-
-    return 1;
-  }
-
-  return 0;
 }

@@ -28,6 +28,7 @@ class Uart : public HardwareSerial
 {
   public:
     Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX);
+    Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX, uint8_t _pinRTS, uint8_t _pinCTS);
     void begin(unsigned long baudRate);
     void begin(unsigned long baudrate, uint16_t config);
     void end();
@@ -42,9 +43,6 @@ class Uart : public HardwareSerial
     void IrqHandler();
 
     operator bool() { return true; }
-
-    int attachRts(uint8_t pin);
-    int attachCts(uint8_t pin);
 
   private:
     SERCOM *sercom;
