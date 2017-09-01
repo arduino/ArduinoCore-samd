@@ -54,6 +54,9 @@ class Uart : public HardwareSerial
     SercomRXPad uc_padRX;
     SercomUartTXPad uc_padTX;
     uint8_t uc_pinRTS;
+    volatile uint32_t* pul_outsetRTS;
+    volatile uint32_t* pul_outclrRTS;
+    uint32_t ul_pinMaskRTS;
     uint8_t uc_pinCTS;
 
     SercomNumberStopBit extractNbStopBit(uint16_t config);
