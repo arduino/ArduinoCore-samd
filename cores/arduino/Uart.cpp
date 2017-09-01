@@ -50,9 +50,21 @@ void Uart::begin(unsigned long baudrate, uint16_t config)
   pinPeripheral(uc_pinRX, g_APinDescription[uc_pinRX].ulPinType);
   pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
 
-  if (uc_padTX == UART_TX_RTS_CTS_PAD_0_2_3 && uc_pinRTS != NO_RTS_PIN && uc_pinCTS != NO_CTS_PIN) {
-    pinPeripheral(uc_pinRTS, g_APinDescription[uc_pinRTS].ulPinType);
-    pinPeripheral(uc_pinCTS, g_APinDescription[uc_pinCTS].ulPinType);
+  if (uc_padTX == UART_TX_RTS_CTS_PAD_0_2_3) { 
+    if (uc_pinCTS != NO_CTS_PIN) {
+      pinPeripheral(uc_pinCTS, g_APinDescription[uc_pinCTS].ulPinType);
+    }
+  }
+
+  if (uc_pinRTS != NO_RTS_PIN) {
+    pinMode(uc_pinRTS, OUTPUT);
+
+    EPortType rtsPort = g_APinDescription[uc_pinRTS].ulPort;
+    pul_outsetRTS = &PORT->Group[rtsPort].OUTSET.reg;
+    pul_outclrRTS = &PORT->Group[rtsPort].OUTCLR.reg;
+    ul_pinMaskRTS = (1ul << g_APinDescription[uc_pinRTS].ulPin);
+
+    *pul_outclrRTS = ul_pinMaskRTS;
   }
 
   sercom->initUART(UART_INT_CLOCK, SAMPLE_RATE_x16, baudrate);
@@ -82,10 +94,9 @@ void Uart::IrqHandler()
     rxBuffer.store_char(sercom->readDataUART());
 
     if (uc_pinRTS != NO_RTS_PIN) {
-      // if there is NOT enough space in the RX buffer,
-      // diable the receive complete interrupt
+      // RX buffer space is below the threshold, de-assert RTS
       if (rxBuffer.availableForStore() < RTS_RX_THRESHOLD) {
-        sercom->disableReceiveCompleteInterruptUART();
+        *pul_outsetRTS = ul_pinMaskRTS;
       }
     }
   }
@@ -129,10 +140,9 @@ int Uart::read()
   int c = rxBuffer.read_char();
 
   if (uc_pinRTS != NO_RTS_PIN) {
-    // if there is enough space in the RX buffer, 
-    // enable the receive completer interrupt
+    // if there is enough space in the RX buffer, assert RTS
     if (rxBuffer.availableForStore() > RTS_RX_THRESHOLD) {
-      sercom->enableReceiveCompleteInterruptUART();
+      *pul_outclrRTS = ul_pinMaskRTS;
     }
   }
 
