@@ -172,23 +172,17 @@ SERCOM sercom5(SERCOM5);
 #include "wiring_private.h"
 
 #define PMIC_ADDRESS  0x6B
-#define PMIC_REG02    0x02
-#define PMIC_REG07    0x07
-#define INPUT_CURRENT_LIMIT_0A1 (0x0)
-#define INPUT_CURRENT_LIMIT_0A9 (0x3)
-#define INPUT_CURRENT_LIMIT_1A5 (0x5)
-#define VOLTAGE_LIMIT_4V36      (0x6 << 3)
-#define VOLTAGE_LIMIT_4V04      (0x2 << 3)
+#define PMIC_REG01    0x01
 
-static inline void disable_battery_charging() {
+static inline void enable_battery_charging() {
   PERIPH_WIRE.initMasterWIRE(100000);
   PERIPH_WIRE.enableWIRE();
   pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
   pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
 
   PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
-  PERIPH_WIRE.sendDataMasterWIRE(1 << 5 | 0x0B);
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
+  PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
   PERIPH_WIRE.disableWIRE();
@@ -202,8 +196,8 @@ static inline void disable_battery_charging() {}
 
 void initVariant() {
   pinMode(ADC_BATTERY, INPUT_PULLDOWN);
-  if (analogRead(ADC_BATTERY) < 800) {
-    disable_battery_charging();
+  if (analogRead(ADC_BATTERY) > 100) {
+    enable_battery_charging();
   }
 
   // Workaround for RTS not being controlled correctly
