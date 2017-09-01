@@ -613,11 +613,22 @@ bool setChargeVoltage(uint16_t voltage) {
     return 1; // value was written successfully
 }
 
+bool disableCharge()
+{
+  uint8_t DATA = readRegister(POWERON_CONFIG_REGISTER);
+  uint8_t mask = DATA & 0b11001111;
+
+  writeRegister(POWERON_CONFIG_REGISTER, mask);
+
+  return 1;
+}
+
 void apply_pmic_newdefaults()
 {
   disableWatchdog();
 
   //disableDPDM();
+  disableCharge();
   setInputVoltageLimit(4360); // default
   setInputCurrentLimit(900);     // 900mA
   setChargeCurrent(0,0,0,0,0,0); // 512mA
