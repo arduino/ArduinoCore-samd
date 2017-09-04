@@ -1,6 +1,7 @@
 SAMD CORE 1.6.17
 
 * More accurate approximation for multiplication factor of PLL to make 48Mhz. Thanks @joverbee
+* Fix changing trigger mode (RISING/FALLING/...) in attachInterrupt(..) during runtime. Thanks @joverbee
 
 SAMD CORE 1.6.16 2017.08.23
 
