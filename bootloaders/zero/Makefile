@@ -109,9 +109,6 @@ else
 endif
 
 LD_SCRIPT=bootloader_samd21x18.ld
-ifeq ($(BOOTLOADER_SIZE), 16k)
-LD_SCRIPT=bootloader_samd21x18_16k.ld
-endif
 
 all: print_info $(SOURCES) $(BIN) $(HEX) $(AS_BUILD)
 
