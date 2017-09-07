@@ -110,7 +110,11 @@ size_t Uart::write(const uint8_t data)
   if (sercom->isDataRegisterEmptyUART() && txBuffer.available() == 0) {
     sercom->writeDataUART(data);
   } else {
-    while(txBuffer.isFull()); // spin lock until a spot opens up in the buffer
+    while (txBuffer.isFull()) {
+      // Pretend an interrupt has happened and
+      // call the handler to free up space for us.
+      IrqHandler();
+    };
 
     txBuffer.store_char(data);
 
