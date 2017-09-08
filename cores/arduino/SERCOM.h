@@ -21,7 +21,8 @@
 
 #include "sam.h"
 
-#define SERCOM_FREQ_REF 48000000
+#define SERCOM_FREQ_REF      48000000
+#define SERCOM_NVIC_PRIORITY ((1<<__NVIC_PRIO_BITS) - 1)
 
 typedef enum
 {
