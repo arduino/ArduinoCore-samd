@@ -21,15 +21,15 @@
 
 #include <string.h>
 
-static voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
+static voidFuncPtr     ISRcallback[EXTERNAL_NUM_INTERRUPTS];
 static EExt_Interrupts ISRlist[EXTERNAL_NUM_INTERRUPTS];
-static uint32_t nints; // Stores total number of attached interrupts
+static uint32_t        nints; // Stores total number of attached interrupts
 
 
 /* Configure I/O interrupt sources */
 static void __initialize()
 {
-  memset(ISRlist, 0, sizeof(ISRlist));
+  memset(ISRlist,     0, sizeof(ISRlist));
   memset(ISRcallback, 0, sizeof(ISRcallback));
   nints = 0;
 
@@ -88,7 +88,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   {
     // Store interrupts to service in order of when they were attached
     // to allow for first come first serve handler
-    uint32_t current=0;
+    uint32_t current = 0;
 
     // Check if we already have this interrupt
     for (current=0; current<nints; current++) {
@@ -100,7 +100,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
       // Need to make a new entry
       nints++;
     }
-    ISRlist[current] = in; // List with nr of interrupt in order of when they were attached
+    ISRlist[current] = in;           // List of interrupt in order of when they were attached
     ISRcallback[current] = callback; // List of callback adresses
 
     // Look for right CONFIG register to be addressed
