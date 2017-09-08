@@ -681,7 +681,7 @@ void SERCOM::initClockNVIC( void )
 
   // Setting NVIC
   NVIC_EnableIRQ(IdNvic);
-  NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+  NVIC_SetPriority (IdNvic, SERCOM_NVIC_PRIORITY);  /* set Priority */
 
   //Setting clock
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
