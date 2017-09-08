@@ -91,18 +91,14 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     uint32_t current=0;
 
     // Check if we already have this interrupt
-    int id = -1;
-    for (uint32_t i=0; i<nints; i++) {
-      if (ISRlist[i] == in) id = in;
+    for (current=0; current<nints; current++) {
+      if (ISRlist[current] == in) {
+        break;
+      }
     }
-
-    if (id == -1) {
+    if (current == nints) {
       // Need to make a new entry
-      current = nints;
       nints++;
-    } else {
-      // We already have an entry for this pin
-      current = id;
     }
     ISRlist[current] = in; // List with nr of interrupt in order of when they were attached
     ISRcallback[current] = callback; // List of callback adresses
@@ -163,16 +159,18 @@ void detachInterrupt(uint32_t pin)
   EIC->WAKEUP.reg &= ~(1 << in);
 
   // Remove callback from the ISR list
-  int id = -1;
-  for (uint32_t i=0; i<nints; i++) {
-      if (ISRlist[i] == in) id = in;
+  uint32_t current;
+  for (current=0; current<nints; current++) {
+    if (ISRlist[current] == in) {
+      break;
+    }
   }
-  if (id == -1) return; // We didn't have it
+  if (current == nints) return; // We didn't have it
 
   // Shift the reminder down
-  for (uint32_t i=id; i<nints-1; i++) {
-      ISRlist[i] = ISRlist[i+1];
-      ISRcallback[i] = ISRcallback[i+1];
+  for (; current<nints-1; current++) {
+    ISRlist[current]     = ISRlist[current+1];
+    ISRcallback[current] = ISRcallback[current+1];
   }
   nints--;
 }
