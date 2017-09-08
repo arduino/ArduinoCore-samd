@@ -106,12 +106,13 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     // Look for right CONFIG register to be addressed
     if (in > EXTERNAL_INT_7) {
       config = 1;
+      pos = (in - 8) << 2;
     } else {
       config = 0;
+      pos = in << 2;
     }
 
     // Configure the interrupt mode
-    pos = (in - (8 * config)) << 2;
     EIC->CONFIG[config].reg &=~ (EIC_CONFIG_SENSE0_Msk << pos); // Reset sense mode, important when changing trigger mode during runtime
     switch (mode)
     {
