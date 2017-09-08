@@ -21,9 +21,9 @@
 
 #include <string.h>
 
-static voidFuncPtr     ISRcallback[EXTERNAL_NUM_INTERRUPTS];
-static EExt_Interrupts ISRlist[EXTERNAL_NUM_INTERRUPTS];
-static uint32_t        nints; // Stores total number of attached interrupts
+static voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t    nints; // Stores total number of attached interrupts
 
 
 /* Configure I/O interrupt sources */
@@ -76,7 +76,8 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   }
 
   // Enable wakeup capability on pin in case being used during sleep
-  EIC->WAKEUP.reg |= (1 << in);
+  uint32_t inMask = 1 << in;
+  EIC->WAKEUP.reg |= inMask;
 
   // Assign pin to EIC
   pinPeripheral(pin, PIO_EXTINT);
@@ -92,7 +93,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 
     // Check if we already have this interrupt
     for (current=0; current<nints; current++) {
-      if (ISRlist[current] == in) {
+      if (ISRlist[current] == inMask) {
         break;
       }
     }
@@ -100,7 +101,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
       // Need to make a new entry
       nints++;
     }
-    ISRlist[current] = in;           // List of interrupt in order of when they were attached
+    ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
     ISRcallback[current] = callback; // List of callback adresses
 
     // Look for right CONFIG register to be addressed
@@ -138,7 +139,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     }
   }
   // Enable the interrupt
-  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
+  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(inMask);
 }
 
 /*
@@ -154,15 +155,16 @@ void detachInterrupt(uint32_t pin)
   if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
-  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
+  uint32_t inMask = 1 << in;
+  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(inMask);
   
   // Disable wakeup capability on pin during sleep
-  EIC->WAKEUP.reg &= ~(1 << in);
+  EIC->WAKEUP.reg &= ~inMask;
 
   // Remove callback from the ISR list
   uint32_t current;
   for (current=0; current<nints; current++) {
-    if (ISRlist[current] == in) {
+    if (ISRlist[current] == inMask) {
       break;
     }
   }
@@ -187,12 +189,12 @@ void EIC_Handler(void)
   // Loop over all enabled interrupts in the list
   for (uint32_t i=0; i<nints; i++)
   {
-    if ((EIC->INTFLAG.reg & 1<<ISRlist[i]) != 0)
+    if ((EIC->INTFLAG.reg & ISRlist[i]) != 0)
     {
       // Call the callback function
       ISRcallback[i]();
       // Clear the interrupt
-      EIC->INTFLAG.reg = 1<<ISRlist[i];
+      EIC->INTFLAG.reg = ISRlist[i];
     }
   }
 }
