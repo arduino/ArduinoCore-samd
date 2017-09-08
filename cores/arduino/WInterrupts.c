@@ -174,9 +174,6 @@ void detachInterrupt(uint32_t pin)
       ISRlist[i] = ISRlist[i+1];
       ISRcallback[i] = ISRcallback[i+1];
   }
-  // And remove the top item
-  ISRlist[nints]=0;
-  ISRcallback[nints]=NULL;
   nints--;
 }
 
