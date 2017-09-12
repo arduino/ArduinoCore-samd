@@ -103,7 +103,7 @@ extern "C" {
 // Address must be set to 1 for the first device, and to 2 for the second one.
 #define APP_ADDRESS         2 // Each coin (node) should have a unique integer address > 1
 #define DEST_ADDRESS        1 // The RF Dongle node uses Address 1 (this is of course, for simplicity's sake)
-#define APP_ENDPOINT        1 // What callback endpoint number we are using.
+#define APP_ENDPOINT        1 // Wha3 callback endpoint number we are using.
 #define APP_PANID           0x01
 #define APP_SECURITY_KEY    "TestSecurityKey0"
 #define APP_CHANNEL         0x1a
@@ -351,7 +351,7 @@ void handleSensors()
 #endif
   current_ms = millis();
 
-  sensors.getYawPitchRoll180(ypr);
+  sensors.getYawPitchRoll(ypr);
   sensors.getEuler360deg(eulers);
   sensors.getValues(values);
 
@@ -389,22 +389,22 @@ void handleSensors()
 
   // ...Yaw
   ++bufferIndex;
-  dtostrf(ypr[0], 8, 2, &bufferData[bufferIndex]);
-  bufferIndex += 8;
+  dtostrf(ypr[0], 16, 2, &bufferData[bufferIndex]);
+  bufferIndex += 16;
   bufferData[bufferIndex] = delimeter;
 
   // ...Pitch
   ++bufferIndex;
-  dtostrf(ypr[1], 8, 2, &bufferData[bufferIndex]);
-  bufferIndex += 8;
+  dtostrf(ypr[1], 16, 2, &bufferData[bufferIndex]);
+  bufferIndex += 16;
   bufferData[bufferIndex] = delimeter;
 
   // ...Roll
   ++bufferIndex;
-  dtostrf(ypr[2], 8, 2, &bufferData[bufferIndex]);
-  bufferIndex += 8;
+  dtostrf(ypr[2], 16, 2, &bufferData[bufferIndex]);
+  bufferIndex += 16;
   bufferData[bufferIndex] = delimeter;
-
+/*
   // Euler 1
   ++bufferIndex;
   dtostrf(eulers[0], 8, 2, &bufferData[bufferIndex]);
@@ -436,6 +436,7 @@ void handleSensors()
   // Values[2] ACCEL Z
   ++bufferIndex;
   dtostrf(values[2], 8, 2, &bufferData[bufferIndex]);
+  */
   
   /*bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;

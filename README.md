@@ -7,6 +7,23 @@ for Atmel's SAM D21 and R21 (E variant) processor (used on the FemtoUSB and Femt
 
 Please use Arduino IDE **1.8.1 or higher**. Install the Arduino SAMD Boards (32-bits ARM Cortex-M0+) board package first.
 
+On Ubuntu, you will need to add your user to the dialout group, and the plugdev group. You will need to add the following to `/etc/udev/rules.d/98-openocd.rules` (create if needed)
+
+```
+ACTION!="add|change", GOTO="openocd_rules_end"
+SUBSYSTEM!="usb|tty|hidraw", GOTO="openocd_rules_end"
+ATTRS{product}=="*CMSIS-DAP*", MODE="664", GROUP="plugdev"                                                                                                                                                                                
+LABEL="openocd_rules_end
+```
+
+Run the following command to reload udev, unplug and plug your board back in after:
+
+```
+sudo udevadm control --reload
+```
+(See [http://arduino.stackexchange.com/questions/28566/arduino-zero-error-unable-to-find-cmsis-dap-device] )
+
+
 Add the following package URL to the Additional Boards Manager URLs field in your Arduino IDE via **File > Preferences** (Settings tab).
 
 The stable release URL is:

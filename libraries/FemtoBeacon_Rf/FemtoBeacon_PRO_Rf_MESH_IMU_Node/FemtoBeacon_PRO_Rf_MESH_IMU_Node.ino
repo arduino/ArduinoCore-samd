@@ -17,6 +17,15 @@
      - MARG should be 4 (DCM)
      - MAG_DEC needs to be set to your location's magnetic declination (degrees)
      - Calibrate your IMU using the FreeIMU GUI tool (should generate a calibration.h file, include alongside this sketch)
+
+
+   On FemtoBeacon PRO:
+   Pin 5    PA06(R) = Red
+   Pin 6    PA07(G) = Green
+   Pin 21   PA27(B) = Blue
+   
+   Pin 19   PA09/DIG1 = RF1
+   Pin 20   PA12/DIG2 = RF2
 */
 
 #include <stdio.h>
@@ -35,9 +44,6 @@
 
 //#define DEBUG
 //#define OUTPUT_SERIAL
-
-// Uncomment if using FemtoBeacon r2.0.2 or below!
-//#define FSYNC_FIX
 
 
 /** BEGIN Atmel's LightWeight Mesh stack. **/
@@ -86,6 +92,102 @@
 #define HAS_EEPPROM 0
 /** END mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
 
+/** BEGIN RGB LED stuff **/
+#define LED_R 5
+#define LED_G 6
+#define LED_B 21
+
+class rgb_color {
+
+  private:
+    int my_r;
+    int my_g;
+    int my_b;
+  public:
+    rgb_color (int red, int green, int blue)
+      :
+        my_r(red),
+        my_g(green),
+        my_b(blue)
+    {
+    }
+
+    int r() const {return my_r;}
+    int b() const {return my_b;}
+    int g() const {return my_g;}
+};
+
+/*instances of fader can fade between two colors*/
+class fader {
+
+  private:
+    int r_pin;
+    int g_pin;
+    int b_pin;
+
+  public:
+    /* construct the fader for the pins to manipulate.
+     * make sure these are pins that support Pulse
+     * width modulation (PWM), these are the digital pins
+     * denoted with a tilde(~) common are ~3, ~5, ~6, ~9, ~10 
+     * and ~11 but check this on your type of arduino. 
+     */ 
+    fader( int red_pin, int green_pin, int blue_pin)
+      :
+        r_pin(red_pin),
+        g_pin(green_pin),
+        b_pin(blue_pin)
+    {
+    }
+
+    /*fade from rgb_in to rgb_out*/
+    void fade( const rgb_color& in,
+               const rgb_color& out,
+               unsigned n_steps = 256,  //default take 256 steps
+               unsigned time    = 10)   //wait 10 ms per step
+    {
+      int red_diff   = out.r() - in.r();
+      int green_diff = out.g() - in.g();
+      int blue_diff  = out.b() - in.b();
+      for ( unsigned i = 0; i < n_steps; ++i){
+        /* output is the color that is actually written to the pins
+         * and output nicely fades from in to out.
+         */
+        rgb_color output ( in.r() + i * red_diff / n_steps,
+                           in.g() + i * green_diff / n_steps,
+                           in.b() + i * blue_diff/ n_steps);
+        /*put the analog pins to the proper output.*/
+        if (output.r() > 0) {
+          analogWrite( r_pin, 255 - output.r() );
+        }
+
+        if (output.g() > 0) {
+          analogWrite( g_pin, 255 - output.g() );
+        }
+
+        if (output.b() > 0) {
+          analogWrite( b_pin, 255 - output.b() );
+        }
+        
+        delay(time);
+      }
+    }
+
+};
+
+fader f (LED_R, LED_G, LED_B);
+/*colors*/
+rgb_color yellow( 255, 128,   0 );
+rgb_color orange( 255,  32,   0 );
+rgb_color red   ( 255,   0,   0 );
+rgb_color cyan  (   0, 128, 255 );
+rgb_color blue  (   0,   0, 255 );
+rgb_color purple( 128,   0, 255 );
+rgb_color pink  ( 255,   0, 255 );
+rgb_color green (   0, 255,   0 );
+/** END RGB LED stuff **/
+
+
 /** BEGIN Networking vars **/
 extern "C" {
   void                      println(char *x) {
@@ -101,7 +203,7 @@ extern "C" {
 #endif
 
 // Address must be set to 1 for the first device, and to 2 for the second one.
-#define APP_ADDRESS         2 // Each coin (node) should have a unique integer address > 1
+#define APP_ADDRESS         3 // Each coin (node) should have a unique integer address > 1
 #define DEST_ADDRESS        1 // The RF Dongle node uses Address 1 (this is of course, for simplicity's sake)
 #define APP_ENDPOINT        1 // What callback endpoint number we are using.
 #define APP_PANID           0x01
@@ -188,13 +290,11 @@ void setup() {
     }
     }*/
 
-#ifdef FSYNC_FIX
-  pinMode(PIN_INT, INPUT);
-  pinMode(PIN_FSYNC, OUTPUT);
-  digitalWrite(PIN_FSYNC, HIGH);
-  delay(10);
-  digitalWrite(PIN_FSYNC, LOW);
-#endif
+//  pinMode(PIN_INT, INPUT);
+//  pinMode(PIN_FSYNC, OUTPUT);
+//  digitalWrite(PIN_FSYNC, HIGH);
+//  delay(10);
+//  digitalWrite(PIN_FSYNC, LOW);
 
   // put your setup code here, to run once:
 #ifdef OUTPUT_SERIAL
@@ -219,6 +319,9 @@ void setup() {
   // Setup interrupt/wake/sleep
   setupSleep();
 
+  // LED setup
+  setupLed();
+
 #ifdef OUTPUT_SERIAL
   Serial.println("OK.");
   Serial.print("App buffer size is ");
@@ -241,7 +344,7 @@ void setupSerialComms() {
   while (!Serial);
 
 
-  Serial.begin(115200);
+  Serial.begin(500000);
   Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
   Serial.println(APP_ADDRESS);
 }
@@ -300,28 +403,44 @@ void setupSensors() {
   delay(10);
 }
 
+void setupLed() {
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);  
+}
+
 
 void loop() {
 
 #ifdef OUTPUT_SERIAL
 //  Serial.print("*");
 #endif
-
-#ifdef FSYNC_FIX
-  digitalWrite(PIN_FSYNC, HIGH);
-  digitalWrite(PIN_FSYNC, LOW);
-#endif
+  //digitalWrite(PIN_FSYNC, HIGH);
+  //digitalWrite(PIN_FSYNC, LOW);
 
 
   handleNetworking();
-
+  
 }
 
+void handleLed() {
+  /*fade colors*/
+//  f.fade( red,    orange,   256, 5);
+//  f.fade( orange, yellow,   256, 5);
+//  f.fade( yellow, green,    256, 5);
+//  f.fade( green,  cyan,     256, 5);
+//  f.fade( cyan,   blue,     256, 5);
+//  f.fade( blue,   pink,     256, 5);
+//  f.fade( pink,   red,      256, 5);
+}
 void handleNetworking()
 {
   SYS_TaskHandler();
-
+  digitalWrite(LED_R, HIGH);
+  digitalWrite(LED_G, HIGH);
+  digitalWrite(LED_B, HIGH);
   if (APP_ADDRESS > 1 && !send_message_busy && !shouldBeSleeping) {
+    digitalWrite(LED_R, LOW);
 
 //      #ifdef DEBUG
 //      #ifdef OUTPUT_SERIAL
@@ -334,10 +453,15 @@ void handleNetworking()
       // @TODO implement FIFO Stack of sensor data to transmit.
 
       if (is_sensor_on == true && is_wireless_ok == true) {
+        digitalWrite(LED_R, HIGH);
+        digitalWrite(LED_G, HIGH);
+        digitalWrite(LED_B, LOW);
         handleSensors();
       }
       sendMessage();
   }
+
+  
 }
 
 void handleSensors()
@@ -377,10 +501,6 @@ void handleSensors()
     //String timestamp = sprintf("%04d", rtc.getYear()); // + "-" + sprintf("%02d", rtc.getMonth()) + "-" + sprintf("%02d", rtc.getDay()) + "T" + sprintf("%02d", rtc.getHours())( + ":" sprintf("%02d", rtc.getMinutes()) + ":" + sprintf("%02d", rtc.getSeconds()) + "." + sprintf("%03d", (int)milliseconds * .001);
   */
 
-  /*String strBuffer = String(current_ms) + "," + String(ypr[0]) + "," + String(ypr[1]) + "," + String(ypr[2]) + "," // Millisecond timestamp, Yaw, Pitch, Roll
-                      + String(eulers[0]) + "," + String(eulers[1]) + "," + String(eulers[2]) + "," // Euler angle 0, angle 1, angle 2
-                      + String(values[0]) + "," + String(values[1]) + "," + String(values[2]); // Accel X, Accel Y, Accel Z
-                      */
   dtostrf(current_ms, 10, 0, &bufferData[bufferIndex]);
   bufferIndex += 10;
   bufferData[bufferIndex] = delimeter;
@@ -421,68 +541,67 @@ void handleSensors()
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[0] ACCEL X
+
+  // Values[0]
   ++bufferIndex;
   dtostrf(values[0], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[1] ACCEL Y
+  // Values[1]
   ++bufferIndex;
   dtostrf(values[1], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[2] ACCEL Z
+  // Values[2]
   ++bufferIndex;
   dtostrf(values[2], 8, 2, &bufferData[bufferIndex]);
-  
-  /*bufferIndex += 8;
+  bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[3] GYRO X
+  // Values[3]
   ++bufferIndex;
   dtostrf(values[3], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[4] GYRO Y
+  // Values[4]
   ++bufferIndex;
   dtostrf(values[4], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[5] GYRO Z
+  // Values[5]
   ++bufferIndex;
   dtostrf(values[5], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[6] MAG X
+  // Values[6]
   ++bufferIndex;
   dtostrf(values[6], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[7] MAG Y
+  // Values[7]
   ++bufferIndex;
   dtostrf(values[7], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[8] MAG Z
+  // Values[8]
   ++bufferIndex;
   dtostrf(values[8], 8, 2, &bufferData[bufferIndex]);
   bufferIndex += 8;
   bufferData[bufferIndex] = delimeter;
 
-  // Values[9] TEMP
+  // Values[9]
   ++bufferIndex;
   dtostrf(values[9], 8, 2, &bufferData[bufferIndex]);
 //  bufferIndex += 8;
 //  bufferData[bufferIndex] = delimeter;
-
-*/
+  
   /*
     // BaroAlt
     dtostrf(baro, 8, 2, &bufferData[27]);
@@ -496,31 +615,9 @@ void handleSensors()
     dtostrf(pressure, 8, 2, &bufferData[45]);
   */
 
-  //strBuffer.toCharArray(bufferData, strBuffer.length() + 1);
-
 #ifdef OUTPUT_SERIAL
   Serial.print("TX data: ");
-  //Serial.println(strBuffer);
   Serial.println(bufferData);
-  /*Serial.print(current_ms);
-  Serial.print(", ");
-  Serial.print(ypr[0]);
-  Serial.print(", ");
-  Serial.print(ypr[1]);
-  Serial.print(", ");
-  Serial.print(ypr[2]);
-  Serial.print(", ");
-  Serial.print(euler[0]);
-  Serial.print(", ");
-  Serial.print(euler[1]);
-  Serial.print(", ");
-  Serial.print(euler[2]);
-  Serial.print(", ");
-  Serial.print(values[0]);
-  Serial.print(", ");
-  Serial.print(values[1]);
-  Serial.print(", ");
-  Serial.print(values[2]);*/
 #endif
 }
 
@@ -741,30 +838,27 @@ void sleepMode() {
   // See https://github.com/arduino-libraries/RTCZero/blob/master/examples/SleepRTCAlarm/SleepRTCAlarm.ino
   // Add alarm to wake up
   // ...set alarm for 10 seconds into the future
-  uint32_t uEpoch = rtc.getEpoch();
-  uint32_t uNextEpoch = uEpoch + 10000; // 10 seconds into the future
+    uint32_t uEpoch = rtc.getEpoch();
+    uint32_t uNextEpoch = uEpoch + 120; // 2 minutes into the future
 
-  //int AlarmTime = rtc.getSeconds() + 10; // Add 10 seconds
-  //AlarmTime = AlarmTime % 60; // Checks for roll over at 60 seconds, and corrects
+//  int CurrentTime = rtc.getSeconds();
+//  int AlarmTime = CurrentTime + 10; // Add 10 seconds
+//  AlarmTime = AlarmTime % 60; // Checks for roll over at 60 seconds, and corrects
 
-
-#ifdef OUTPUT_SERIAL
+  #ifdef OUTPUT_SERIAL
+  Serial.print("Current time is ");
+  Serial.print(uEpoch);
+  Serial.print(". Next alarm time (epoch) is ");
+  Serial.print(uNextEpoch);
+  Serial.println(". Setting alarm...");
+  Serial.end();
+  
   Serial.println("SAM R21 Entering standby mode!");
   Serial.end();
   USBDevice.detach();
   delay(1000);
-#endif
-
-
-  #ifdef OUTPUT_SERIAL
-  Serial.print("Time is ");
-  Serial.print(uEpoch);
-  Serial.print(".Next alarm time (seconds) is ");
-//  Serial.print(AlarmTime);
-  Serial.print(uNextEpoch);
-  Serial.println(". Setting alarm...");
-  Serial.end();
   #endif
+
   //  rtc.setAlarmEpoch(uNextEpoch);
   rtc.attachInterrupt(wakeUp);
 //  rtc.setAlarmSeconds(AlarmTime); // Wake on the 30th second of every minute;
@@ -774,11 +868,17 @@ void sleepMode() {
 
   rtc.standbyMode();
 
+  wakeUp();
+}
+
+void wakeUp() {
+
+
   #ifdef OUTPUT_SERIAL
     USBDevice.attach();
     delay(1000);
     while(!Serial);
-    Serial.begin(500000);
+    Serial.begin(115200);
     Serial.println("Woke up... Continue Mesh networking.");
     Serial.end();
   #endif
@@ -801,12 +901,6 @@ void sleepMode() {
   Serial.println("Sensors reset.");
   Serial.end();
   #endif
-}
-
-void wakeUp() {
-
-  shouldBeSleeping = false;
-  is_sensor_on = true;
   
 /*
   // Setup Serial comms again.
