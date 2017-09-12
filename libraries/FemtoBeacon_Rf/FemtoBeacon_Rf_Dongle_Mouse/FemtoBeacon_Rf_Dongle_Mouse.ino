@@ -127,7 +127,6 @@ void setupMeshNetworking() {
 }
 
 void loop() {
-  Mouse.move(-1, -1, 0);
   handleNetworking();
   
   //Serial.println("----");
