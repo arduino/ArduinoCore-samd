@@ -30,7 +30,7 @@ FILENAME=package_atsamd21e18a-hourly-b${BUILD_NUMBER}.tar.bz2
 rm -f $FILENAME
 
 # Change name in platform.txt
-sed -i "s/name=.*/name=Atmel ATSAMD21E18A Hourly Build ${BUILD_NUMBER} (${CURR_TIME})/" platform.txt
+sed -i "s/name=.*/name=Atmel SAM D21E/R21E Hourly Build ${BUILD_NUMBER} (${CURR_TIME})/" platform.txt
 
 cd ..
 tar --transform "s|$FOLDERNAME|atsamd21e18a-hourly_b${BUILD_NUMBER}|g"  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf $FILENAME $FOLDERNAME

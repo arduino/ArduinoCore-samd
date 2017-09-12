@@ -10,7 +10,7 @@
       },
       "platforms": [
         {
-          "name": "Atmel ATSAMD21E18A core - Pull request #%%PR_NUMBER%% (build %%BUILD_NUMBER%%)",
+          "name": "Atmel SAM D21E/R21E core - Pull request #%%PR_NUMBER%% (build %%BUILD_NUMBER%%)",
           "architecture": "samd",
           "version": "%%VERSION%%",
           "category": "Arduino",
@@ -20,10 +20,13 @@
           "size": "%%SIZE%%",
           "boards": [
             {
-              "name": "Atmel ATSAMD21E18A"
+              "name": "Atmel SAM D21E"
             },
             {
-              "name": "Atmel ATSAMR21E18A"
+              "name": "Atmel SAM R21E"
+            },
+            {
+              "name": "FemtoBeacon PRO (SAM R21E)"
             }
           ],
           "toolsDependencies": [
