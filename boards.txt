@@ -21,7 +21,7 @@
 
 # Atmel ATSAMD21E18A (Prorgamming Port)
 # ---------------------------------------
-atsamd21e18a_ice.name=Atmel ATSAMD21E18A (Programming Port)
+atsamd21e18a_ice.name=Atmel SAM D21E (Programming Port)
 atsamd21e18a_ice.vid.0=0x03eb
 atsamd21e18a_ice.pid.0=0x2157
 
@@ -48,7 +48,7 @@ atsamd21e18a_ice.bootloader.tool=arduino:openocd
 atsamd21e18a_ice.bootloader.file=arduino:zero/samd21_sam_ba.bin
 
 # Atmel ATSAMD21E18A (Native USB Port)
-atsamd21e18a.name=Atmel ATSAMD21E18A (Native USB Port)
+atsamd21e18a.name=Atmel SAM D21E (Native USB Port)
 atsamd21e18a.vid.0=0x03eb
 atsamd21e18a.pid.0=0x6124
 
@@ -75,9 +75,13 @@ atsamd21e18a.build.pid=0x6124
 
 # Atmel ATSAMR21E18A (Prorgamming Port)
 # ---------------------------------------
-atsamr21e18a_ice.name=Atmel ATSAMR21E18A (Programming Port)
-atsamr21e18a_ice.vid.0=0x03eb
-atsamr21e18a_ice.pid.0=0x2157
+atsamr21e18a_ice.name=Atmel SAM R21E (Programming Port)
+#atsamr21e18a_ice.vid.0=0x03eb
+#atsamr21e18a_ice.pid.0=0x2157
+atsamr21e18a_ice.vid.0=0x2341
+atsamr21e18a_ice.pid.0=0x804d
+atsamr21e18a_ice.vid.1=0x2341
+atsamr21e18a_ice.pid.1=0x004d
 
 atsamr21e18a_ice.upload.tool=arduino:openocd
 atsamr21e18a_ice.upload.protocol=sam-ba
@@ -96,15 +100,24 @@ atsamr21e18a_ice.build.ldscript=linker_scripts/gcc/flash_without_bootloader.ld
 atsamr21e18a_ice.build.openocdscript=openocd_scripts/atsamr21e18a.cfg
 atsamr21e18a_ice.build.variant=atsamr21e18a
 atsamr21e18a_ice.build.variant_system_lib=
-atsamr21e18a_ice.build.vid=0x03eb
-atsamr21e18a_ice.build.pid=0x6124
+
+#atsamr21e18a_ice.build.vid=0x03eb
+#atsamr21e18a_ice.build.pid=0x6124
+atsamr21e18a_ice.build.vid=0x2341
+atsamr21e18a_ice.build.pid=0x804d
+
 atsamr21e18a_ice.bootloader.tool=openocd
 atsamr21e18a_ice.bootloader.file=zero_osc32k/samd21_sam_ba.bin
 
 # Atmel ATSAMR21E18A (Native USB Port)
-atsamr21e18a.name=Atmel ATSAMR21E18A (Native USB Port)
-atsamr21e18a.vid.0=0x03eb
-atsamr21e18a.pid.0=0x6124
+atsamr21e18a.name=Atmel SAM R21E (Native USB Port)
+#atsamr21e18a.vid.0=0x03eb
+#atsamr21e18a.pid.0=0x6124
+atsamr21e18a.vid.0=0x2341
+atsamr21e18a.pid.0=0x804d
+atsamr21e18a.vid.1=0x2341
+atsamr21e18a.pid.1=0x004d
+
 atsamr21e18a.upload.tool=arduino:bossac
 atsamr21e18a.upload.protocol=sam-ba
 atsamr21e18a.upload.maximum_size=262144
@@ -122,7 +135,48 @@ atsamr21e18a.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 #atsamr21e18a.build.openocdscript=openocd_scripts/atsamr21e18a.cfg
 atsamr21e18a.build.variant=atsamr21e18a
 atsamr21e18a.build.variant_system_lib=
-atsamr21e18a.build.vid=0x03eb
-atsamr21e18a.build.pid=0x6124
+
+#atsamr21e18a.build.vid=0x03eb
+#atsamr21e18a.build.pid=0x6124
+atsamr21e18a.build.vid=0x2341
+atsamr21e18a.build.pid=0x804d
+
 atsamr21e18a.bootloader.tool=openocd
 atsamr21e18a.bootloader.file=zero_osc32k/samd21_sam_ba.bin
+
+
+
+# FemtoBeacon PRO - SAM R21E (Native USB Port)
+femtobeaconpro.name=FemtoBeacon PRO - SAM R21E (Native USB Port)
+#femtobeaconpro.vid.0=0x03eb
+#femtobeaconpro.pid.0=0x6124
+femtobeaconpro.vid.0=0x2341
+femtobeaconpro.pid.0=0x804d
+femtobeaconpro.vid.1=0x2341
+femtobeaconpro.pid.1=0x004d
+
+femtobeaconpro.upload.tool=arduino:bossac
+femtobeaconpro.upload.protocol=sam-ba
+femtobeaconpro.upload.maximum_size=262144
+femtobeaconpro.upload.use_1200bps_touch=true
+femtobeaconpro.upload.wait_for_upload_port=true
+femtobeaconpro.upload.native_usb=true
+femtobeaconpro.build.mcu=cortex-m0plus
+femtobeaconpro.build.f_cpu=48000000L
+femtobeaconpro.build.usb_product="FemtoBeacon PRO - SAM R21E"
+femtobeaconpro.build.usb_manufacturer="Atmel"
+femtobeaconpro.build.board=SAMD_ZERO
+femtobeaconpro.build.core=arduino_osc32k
+femtobeaconpro.build.extra_flags=-D__SAMR21E18A__ {build.usb_flags}
+femtobeaconpro.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+#femtobeaconpro.build.openocdscript=openocd_scripts/atsamr21e18a.cfg
+femtobeaconpro.build.variant=femtobeaconpro
+femtobeaconpro.build.variant_system_lib=
+
+#femtobeaconpro.build.vid=0x03eb
+#femtobeaconpro.build.pid=0x6124
+femtobeaconpro.build.vid=0x2341
+femtobeaconpro.build.pid=0x804d
+
+femtobeaconpro.bootloader.tool=openocd
+femtobeaconpro.bootloader.file=zero_osc32k/samd21_sam_ba.bin

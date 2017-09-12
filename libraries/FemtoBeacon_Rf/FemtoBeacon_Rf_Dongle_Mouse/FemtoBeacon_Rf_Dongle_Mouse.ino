@@ -12,6 +12,10 @@
 #include <Wire.h>
 #include <SPI.h>
 
+#include <Mouse.h>
+#include <HID.h>
+
+
 #define Serial SERIAL_PORT_USBVIRTUAL
 
 /** BEGIN Atmel's LightWeight Mesh stack. **/
@@ -51,7 +55,15 @@
     byte pingCounter            = 0;
 /** END Networking vars **/
 
+/** Mouse BEGIN **/
+int x = 0;
+int y = 0;
+/** Mouse END **/
+
 void setup() {
+
+  Mouse.begin();
+  
   // put your setup code here, to run once:
   setupSerialComms();
   Serial.print("Starting LwMesh...");
@@ -115,7 +127,7 @@ void setupMeshNetworking() {
 }
 
 void loop() {
-  
+  Mouse.move(-1, -1, 0);
   handleNetworking();
   
   //Serial.println("----");
@@ -159,7 +171,7 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     int splitIndex = str.indexOf(',');
     int secondSplitIndex = str.indexOf(',', splitIndex + 1);
     int thirdSplitIndex = str.indexOf(',', secondSplitIndex + 1);
-    int fourthSplitIndex = str.indexOf(',', thirdSplitIndex + 1);
+    /*int fourthSplitIndex = str.indexOf(',', thirdSplitIndex + 1);
     int fifthSplitIndex = str.indexOf(',', fourthSplitIndex + 1);
     int sixthSplitIndex = str.indexOf(',', fifthSplitIndex + 1);
 
@@ -167,6 +179,7 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     int seventhSplitIndex = str.indexOf(',', sixthSplitIndex + 1);
     int eighthSplitIndex = str.indexOf(',', seventhSplitIndex + 1);
     int ninethSplitIndex = str.indexOf(',', eighthSplitIndex + 1);
+    */
     /*int tenthSplitIndex = str.indexOf(',', ninethSplitIndex + 1);
     int eleventhSplitIndex = str.indexOf(',', tenthSplitIndex + 1);
     int twelvethSplitIndex = str.indexOf(',', eleventhSplitIndex + 1);
@@ -181,13 +194,14 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     float yaw_value;
     float pitch_value;
     float roll_value;
-    float euler1;
+    /*float euler1;
     float euler2;
-    float euler3;
+    float euler3;*/
 
-    float value0;
+    /*float value0;
     float value1;
-    float value2;/*
+    float value2;*/
+    /*
     float value3;
     float value4;
     float value5;
@@ -202,13 +216,13 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     yaw_value = str.substring(splitIndex + 1, secondSplitIndex).toFloat();
     pitch_value = str.substring(secondSplitIndex + 1, thirdSplitIndex).toFloat();
     roll_value = str.substring(thirdSplitIndex + 1).toFloat();
-    euler1 = str.substring(fourthSplitIndex + 1).toFloat();
+    /*euler1 = str.substring(fourthSplitIndex + 1).toFloat();
     euler2 = str.substring(fifthSplitIndex + 1).toFloat();
-    euler3 = str.substring(sixthSplitIndex + 1).toFloat();
+    euler3 = str.substring(sixthSplitIndex + 1).toFloat();*/
     
-    value0 = str.substring(seventhSplitIndex + 1).toFloat();
+    /*value0 = str.substring(seventhSplitIndex + 1).toFloat();
     value1 = str.substring(eighthSplitIndex + 1).toFloat();
-    value2 = str.substring(ninethSplitIndex + 1).toFloat();
+    value2 = str.substring(ninethSplitIndex + 1).toFloat();*/
     /*value3 = str.substring(tenthSplitIndex + 1).toFloat();
     value4 = str.substring(eleventhSplitIndex + 1).toFloat();
     value5 = str.substring(twelvethSplitIndex + 1).toFloat();
@@ -235,8 +249,8 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     Serial.print(',');
     Serial.print(pitch_value);
     Serial.print(',');
-    Serial.print(roll_value);
-    Serial.print(',');
+    Serial.println(roll_value);
+    /*Serial.print(',');
     Serial.print(euler1);
     Serial.print(',');
     Serial.print(euler2);
@@ -248,6 +262,7 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     Serial.print(value1);
     Serial.print(',');
     Serial.println(value2);
+    */
     /*Serial.print(',');
     Serial.print(value3);
     Serial.print(',');
@@ -264,6 +279,20 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
     Serial.println(value9);*/
     //String str((char*)ind->data);
     //Serial.println(str);
+
+
+    // As an example, lets use Mesh node #2 as the Mouse input...
+//    if (2 == toInt(ind->srcAddr) ) {
+
+      // scale angles to mouse movements. You can replace 10 with whatever feels adeguate for you.
+      // biggere values mean faster movements
+      x = map(pitch_value, -90, 90, -10, 10);
+      y = map(roll_value, -90, 90, -10, 10);
+
+      // move mouse
+      Mouse.move(-x, y, 0);
+      
+//    }
     
     return true;
 }

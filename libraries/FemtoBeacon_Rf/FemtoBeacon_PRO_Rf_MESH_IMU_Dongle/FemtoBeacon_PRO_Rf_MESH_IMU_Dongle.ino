@@ -15,6 +15,8 @@
 #define Serial SERIAL_PORT_USBVIRTUAL
 
 /** BEGIN Atmel's LightWeight Mesh stack. **/
+    //#define DEFAULT_ANTENNA 1 // 1 = Chip antenna, 2 = uFL antenna
+    
     #include "lwm.h"
     #include "lwm/sys/sys.h"
     #include "lwm/nwk/nwk.h"
@@ -36,9 +38,9 @@
     #define APP_ADDRESS         1
     #define DEST_ADDRESS        1
     #define APP_ENDPOINT        1
-    #define APP_PANID           0x01
+    #define APP_PANID           0x03
     #define APP_SECURITY_KEY    "TestSecurityKey0"
-    #define APP_CHANNEL         0x1a
+    #define APP_CHANNEL         0x1c
     
     static char                 bufferData[APP_BUFFER_SIZE];
     static NWK_DataReq_t        sendRequest;
@@ -62,7 +64,7 @@ void setup() {
 }
 
 void setupSerialComms() {
-    while(!Serial);
+    //while(!Serial);
     
     Serial.begin(500000);
     Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
@@ -85,6 +87,19 @@ void setupMeshNetworking() {
     delay(10);
 
     SYS_Init();
+
+    // Use u.FL antenna?
+
+    // Set to chip antenna, or uFL antenna?
+    #ifdef DEFAULT_ANTENNA
+
+    if (2 == DEFAULT_ANTENNA) {
+        phyWriteRegister(ANT_DIV_REG, (2 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
+    } else {
+        phyWriteRegister(ANT_DIV_REG, (1 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
+    }
+
+    #endif
 
     // Set TX Power for internal at86rf233, default is 0x0 (+4 dbm)
     // TX_PWR  0x0 ( +4   dBm)

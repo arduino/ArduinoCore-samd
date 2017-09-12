@@ -99,11 +99,14 @@ byte PIN_INT = 3;
 char cmd, tempCorr;
 
 void setup() {
+
+#ifdef FSYNC_FIX
   pinMode(PIN_INT, INPUT);
   pinMode(PIN_FSYNC, OUTPUT);
   digitalWrite(PIN_FSYNC, HIGH);
   delay(10);
   digitalWrite(PIN_FSYNC, LOW);
+#endif
   
   Serial.begin(BaudRate);
   Wire.begin();

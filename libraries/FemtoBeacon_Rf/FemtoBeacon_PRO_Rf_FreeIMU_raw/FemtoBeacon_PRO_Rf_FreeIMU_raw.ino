@@ -75,16 +75,15 @@ void setup() {
   
 #ifdef FSYNC_FIX
   pinMode(PIN_INT, INPUT);
-  pinMode(PIN_FSYNC, INPUT);
   pinMode(PIN_FSYNC, OUTPUT);
   digitalWrite(PIN_FSYNC, HIGH);
   delay(10);
   digitalWrite(PIN_FSYNC, LOW);
 #endif
-
+  
   while (!Serial);
   
-  Serial.begin(115200);
+  Serial.begin(250000);
   Wire.begin();
 
   Serial.println("Begin IMU...");
@@ -101,8 +100,8 @@ void loop() {
   sprintf(str, "%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t%d\t", raw_values[0], raw_values[1], raw_values[2], raw_values[3], raw_values[4], raw_values[5], raw_values[6], raw_values[7], raw_values[8]);
   Serial.print(str);
   #if HAS_PRESS()
-     Serial.print(my3IMU.getBaroTemperature()); Serial.print("\t");
-     Serial.print(my3IMU.getBaroPressure());;
+     Serial.print(my3IMU.getBaroTemperature()); Serial.print(",");
+     Serial.print(my3IMU.getBaroPressure()); Serial.print(",");
   #endif 
   
   Serial.print('\n');

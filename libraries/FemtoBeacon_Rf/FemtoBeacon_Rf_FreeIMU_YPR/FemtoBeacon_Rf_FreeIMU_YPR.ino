@@ -72,23 +72,29 @@ byte PIN_FSYNC = 4;
 byte PIN_INT = 3;
 
 void setup() {
+
+#ifdef FSYNC_FIX
   pinMode(PIN_INT, INPUT);
   pinMode(PIN_FSYNC, OUTPUT);
   digitalWrite(PIN_FSYNC, HIGH);
   delay(10);
   digitalWrite(PIN_FSYNC, LOW);
+#endif
   
   Serial.begin(250000);
+  Serial.println("Starting...");
   Wire.begin();
-  
+  Serial.println("Begin IMU init");
   delay(5);
   my3IMU.init(true); // the parameter enable or disable fast mode
   delay(5);
+
+  Serial.println("IMU init OK.");
 }
 
 void loop() { 
   
-  my3IMU.getYawPitchRoll(ypr);
+  my3IMU.getYawPitchRoll180(ypr);
   Serial.print("Yaw: ");
   Serial.print(ypr[0]);
   Serial.print(" Pitch: ");
