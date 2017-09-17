@@ -116,7 +116,20 @@ static const uint8_t DAC0 = PIN_DAC0;
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 0 // :( not enough pins
+#define SPI_INTERFACES_COUNT 1 // we'll just have SPI CLK and MOSI on sercom 0, no MISO
+
+#define PIN_SPI_MISO         (6u)  // PA06, not actually available
+#define PIN_SPI_MOSI         (0ul) // PA04
+#define PIN_SPI_SCK          (2ul) // PA05
+#define PERIPH_SPI           sercom0
+#define PAD_SPI_TX           SPI_PAD_0_SCK_1
+#define PAD_SPI_RX         SERCOM_RX_PAD_2
+
+static const uint8_t SS	  = 1 ;	// only pin remaining (shrug)
+static const uint8_t MOSI = PIN_SPI_MOSI ;
+static const uint8_t MISO = PIN_SPI_MISO ;
+static const uint8_t SCK  = PIN_SPI_SCK ;
+
 
 /*
  * Wire Interfaces
