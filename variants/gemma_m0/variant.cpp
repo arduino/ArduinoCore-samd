@@ -61,13 +61,13 @@
 const PinDescription g_APinDescription[]=
 {
   // GPIO 0, 1, 2 on external pads
-  // 0 - SERCOM0 for I2C SDA or UART TX, Captouch, IRQ, PWM out TCC0/WO[0], and gen purpose pin
+  // 0 - SERCOM0.0 for I2C SDA, UART TX, SPI MOSI, Captouch, IRQ, PWM out TCC0/WO[0], and gen purpose pin
   { PORTA,  4, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, PWM0_CH0, TCC0_CH0, EXTERNAL_INT_4 },  // TCC0/WO[0]
 
   // 1 - ADC, DAC, IRQ, Captouch and general purpose pin - no timer
   { PORTA,  2, PIO_ANALOG, PIN_ATTR_ANALOG, ADC_Channel0, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_2 }, // ADC/AIN[0]
 
-  // 2 - SERCOM0 for I2C SCL or UART RX, Captouch, IRQ, PWM out TCC0/WO[1], and gen purpose pin
+  // 2 - SERCOM0 for I2C SCL, UART RX, SPI CLK, Captouch, IRQ, PWM out TCC0/WO[1], and gen purpose pin
   { PORTA,  5, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, PWM0_CH1, TCC0_CH1, EXTERNAL_INT_5 }, // TCC0/WO[1]
 
   // GPIO 3 & 4 - DotStar internal data/clock
@@ -101,7 +101,10 @@ const PinDescription g_APinDescription[]=
   { PORTA, 10, PIO_DIGITAL, (PIN_ATTR_DIGITAL), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_10 },
   { PORTA, 11, PIO_DIGITAL, (PIN_ATTR_DIGITAL), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_11 },
 
-  // For unknown reasons we need to have gpio 16-21 so here are 6 extra pins (shrug)
+  // Placeholder #16 - extra Sercom/SPI pin that doesnt actually get used
+  { PORTA,  6, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, PWM1_CH0, TCC1_CH0, EXTERNAL_INT_6 }, // TCC0/WO[1]
+
+  // For unknown reasons we need to have gpio 17-21 so here are extra pins (shrug)
   { PORTA, 14, PIO_DIGITAL, (PIN_ATTR_DIGITAL), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_14 },
   { PORTA, 15, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, PWM3_CH1, TC3_CH1, EXTERNAL_INT_15 },
   { PORTA, 16, PIO_TIMER, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER), No_ADC_Channel, PWM2_CH0, TCC2_CH0, EXTERNAL_INT_0 }, // TCC2/WO[0]
