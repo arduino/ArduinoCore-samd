@@ -480,6 +480,13 @@ void Reset_Handler(void)
       *pDest = 0;
   }
 
+#if defined(__FPU_USED) && defined(__SAMD51__)
+	/* Enable FPU */
+	SCB->CPACR |= (0xFu << 20);
+	__DSB();
+	__ISB();
+#endif
+
   SystemInit();
 
   main();
