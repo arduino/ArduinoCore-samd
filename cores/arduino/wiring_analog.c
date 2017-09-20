@@ -28,7 +28,7 @@ static int _ADCResolution = 10;
 static int _writeResolution = 8;
 
 #if defined(__SAMD51__)
-static int _dacResolution = 10;
+static int _dacResolution = 12;
 #else
 static int _dacResolution = 8;
 #endif
@@ -348,7 +348,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 	      return;
 	    }
 
-	    //value = mapResolution(value, _dacResolution, 10);
+    value = mapResolution(value, _writeResolution, _dacResolution);
 
 	#if defined(__SAMD51__)
 		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
@@ -387,6 +387,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 			
 
 	#else
+	    value = mapResolution(value, _dacResolution, 10);
 		syncDAC();
 	    DAC->DATA.reg = value & 0x3FF;  // DAC on 10 bits.
 	    syncDAC();
@@ -399,7 +400,6 @@ void analogWrite(uint32_t pin, uint32_t value)
 
   if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM)
   {
-    value = mapResolution(value, _writeResolution, 8);
 
     uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
     uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
