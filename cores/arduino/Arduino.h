@@ -130,8 +130,4 @@ void loop( void ) ;
 #include "USB/USBAPI.h"
 #include "USB/USB_host.h"
 
-#define _U(x)          x ## U            /**< C code: Unsigned integer literal constant value */
-#define _L(x)          x ## L            /**< C code: Long integer literal constant value */
-#define _UL(x)         x ## UL           /**< C code: Unsigned Long integer literal constant value */
-
 #endif // Arduino_h

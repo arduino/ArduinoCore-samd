@@ -221,7 +221,7 @@ uint32_t analogRead(uint32_t pin)
 #ifdef DAC
 
 	#if defined(__SAMD51__)
-	  if (pin == A0 || pin == A4) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
+	  if (pin == A0 || pin == A1) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
 		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
 		
 		if(dacEnabled[channel]){
@@ -347,7 +347,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 	  {
 	    // DAC handling code
 	#if defined(__SAMD51__)
-		if (pin != PIN_A0 && pin != PIN_A4) { // 2 DACs on A0 (PA02) and A4 (PA05)
+		if (pin != PIN_A0 && pin != PIN_A1) { // 2 DACs on A0 (PA02) and A1 (PA05)
 	#else
 	    if (pin != PIN_A0) { // Only 1 DAC on A0 (PA02)
 	#endif	
