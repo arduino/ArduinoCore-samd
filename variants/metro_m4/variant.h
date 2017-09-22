@@ -191,9 +191,9 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define I2S_CLOCK_GENERATOR 3
 
 //TODO: these
-#define PIN_I2S_SD          (9u)
-#define PIN_I2S_SCK         (1u)
-#define PIN_I2S_FS          (0u)
+#define PIN_I2S_SD          (13u)
+#define PIN_I2S_SCK         (3u)
+#define PIN_I2S_FS          (12u)
 
 #ifdef __cplusplus
 }

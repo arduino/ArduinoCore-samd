@@ -20,9 +20,20 @@
 #include <wiring_private.h>
 
 #include "utility/DMA.h"
+
+#if defined(__SAMD51__)
+
+#include "utility/SAMD51_I2SDevice.h"
+
+static I2SDevice_SAMD51 i2sd(*I2S);
+
+#else
+
 #include "utility/SAMD21_I2SDevice.h"
 
 static I2SDevice_SAMD21G18x i2sd(*I2S);
+
+#endif
 
 #include "I2S.h"
 
@@ -98,7 +109,11 @@ int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveCloc
 
   if (_beginCount == 0) {
     // enable the I2S interface
+#if defined(__SAMD51__)
+    MCLK->APBDMASK.reg |= MCLK_APBDMASK_I2S;
+#else
     PM->APBCMASK.reg |= PM_APBCMASK_I2S;
+#endif
 
     // reset the device
     i2sd.reset();
@@ -176,7 +191,11 @@ void I2SClass::end()
     i2sd.disable();
 
     // disable the I2S interface
+#if defined(__SAMD51__)
+  MCLK->APBDMASK.reg &= ~(MCLK_APBDMASK_I2S);
+#else
     PM->APBCMASK.reg &= ~PM_APBCMASK_I2S;
+#endif
   }
 }
 
