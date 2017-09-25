@@ -21,6 +21,7 @@
 
 #include "sam.h"
 
+//TODO: sercom should really work up to 100Mhz...
 #define SERCOM_FREQ_REF 48000000
 
 typedef enum
