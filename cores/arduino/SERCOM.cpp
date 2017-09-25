@@ -61,7 +61,11 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
     // Asynchronous fractional mode (Table 24-2 in datasheet)
     //   BAUD = fref / (sampleRateValue * fbaud)
     // (multiply by 8, to calculate fractional piece)
+#if defined(__SAMD51__)
+    uint32_t baudTimes8 = (SERCOM_FREQ_REF * 8) / (sampleRateValue * baudrate);
+#else
     uint32_t baudTimes8 = (SystemCoreClock * 8) / (sampleRateValue * baudrate);
+#endif
 
     sercom->USART.BAUD.FRAC.FP   = (baudTimes8 % 8);
     sercom->USART.BAUD.FRAC.BAUD = (baudTimes8 / 8);
@@ -466,7 +470,11 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 //  sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
 
   // Synchronous arithmetic baudrate
+#if defined(__SAMD51__)
+  sercom->I2CM.BAUD.bit.BAUD = SERCOM_FREQ_REF / ( 2 * baudrate) - 1 ;
+#else
   sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 5 - (((SystemCoreClock / 1000000) * WIRE_RISE_TIME_NANOSECONDS) / (2 * 1000));
+#endif
 }
 
 void SERCOM::prepareNackBitWIRE( void )
@@ -762,7 +770,7 @@ void SERCOM::initClockNVIC( void )
   NVIC_EnableIRQ(IdNvic);
 
 #if defined(__SAMD51__)
-  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //TODO: use 48mhz for now although this should work up to 100mhz
   GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   
 #else
