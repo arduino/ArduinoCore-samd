@@ -35,7 +35,7 @@
 #define MAIN_CLOCK_SOURCE				  GCLK_GENCTRL_SRC_DPLL0
 
 #define GENERIC_CLOCK_GENERATOR_1M		  (5u)
-#define CRYSTALLESS
+//#define CRYSTALLESS
 
 #else
 
