@@ -2,7 +2,7 @@
 
 The MattairTech SAM M0+ Core is a fork from arduino/ArduinoCore-samd on GitHub, which will
 be used to maintain Arduino support for MattairTech branded boards (see
-https://www.mattairtech.com/) as well as "Generic" boards.
+https://www.mattairtech.com/) as well as for "Generic" boards.
 
 * Supports the SAMD21, SAMD11, SAML21, and SAMC21.
 * Supports four clock sources (two crystals, internal oscillator, and USB calibrated).
@@ -11,13 +11,34 @@ https://www.mattairtech.com/) as well as "Generic" boards.
 *This core is intended to be installed using Boards Manager (see below). To update from a*
 *previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.*
 
-**Differences from Arduino in Versioning**  The MattairTech version number does not
-correspond to either the IDE version or to the upstream ArduinoCore-samd version. See the
-CHANGELOG for details on which upstream commits have been merged in to the MattairTech core.
+**New Version Numbering**  The MattairTech version number will now track with the Arduino
+version number, to better understand which upstream changes have been merged in. See the
+CHANGELOG for details on upstream commits and MattairTech additions that have been merged.
 
 
-## What's New Beta (1.6.8-beta)
+## What's New - Release Version (1.6.16)
+
+* Changed version numbering to match Arduino SAMD core to indicate which upstream changes have been merged in.
+  Release version 1.6.7 then skips to 1.6.16. Beta version 1.6.8-beta-b3 became 1.6.16.
+* Added MattairTech Xeno support (64-pin D21, L21, and C21)
+* Merged in changes from upstream SAMD CORE 1.6.17 (not released yet):
+  * Fix changing trigger mode (RISING/FALLING/...) in attachInterrupt(..) during runtime. Thanks @joverbee
+  * Improved ISR response time. Thanks @joverbee
+* Merged in changes from upstream SAMD CORE 1.6.16 2017.08.23:
+  * PWMs now can perform real 16-bit resolution if analogWriteResolution(16) is set. Thanks @Adminius
+  * USB CDC: fixed issue of available() getting stuck when receiving ZLP's
+  * Serial (UART) tx is now buffered.
+  * Updated Stream and Print class
+  * Native USB now supports USB Serial Number
+  * Fixed pgm_read_ptr compatibility macro. Thanks @nkrkv
+* Documentation updates
+
+
+## What's New - Beta Version (1.6.8-beta)
 **See Beta Builds section for installation instructions.**
+
+**1.6.8-beta-b3:**
+*Beta version 1.6.8-beta-b3 became release version 1.6.16. See above*
 
 **1.6.8-beta-b2:**
 * Added SD Card firmware loading support to the bootloader (4KB and 8KB)
@@ -57,47 +78,29 @@ CHANGELOG for details on which upstream commits have been merged in to the Matta
 * Merged in all changes from upstream through SAMD CORE 1.6.14 (April 2017)
 
 
-## What's New Release (1.6.6)
-**This is out of date, use the beta for now.**
-
-* 1.6.6-mt3:
-  * Fixes compilation with CDC_UART and CDC_ONLY settings
-
-* 1.6.6-mt2:
-  * Changes the default Communication setting to CDC_UART (from CDC_HID_UART)
-
-* 1.6.6-mt1:
-  * New documentation section 'Special Notes'. Please read!
-  * Updated ASCII pinouts to be more readable and less ambiguous.
-  * Updated the Signed driver for Windows (extras directory) (see CHANGELOG for details)
-  * Merged in changes from upstream (see CHANGELOG for details)
-  * Fix warnings about deprecated recipe.ar.pattern
-  * Merged in changes from upstream SAMD CORE 1.6.2 2015.11.03 (see CHANGELOG for details)
-
-
 ## Features Summary
 
 Feature		| 21J (64 pin)				| 21G (48 pin)				| 21E (32 pin)				| D11 (24, 20, or 14 pin)
 ----------------|---------------------------------------|---------------------------------------|---------------------------------------|---------------------------------------
-Board Variants	| New board coming June, Generic 21J	| Arduino Zero, Arduino M0, Generic 21G	| MT-D21E, Generic 21E			| MT-D11, Generic D11D14AM, Generic D11D14AS, Generic D11C14A
+Board Variants	| MattairTech Xeno, Generic 21J	        | Arduino Zero, Arduino M0, Generic 21G	| MT-D21E, Generic 21E			| MT-D11, Generic D11D14AM, Generic D11D14AS, Generic D11C14A
 Processor	| 48 MHz 32-bit ARM Cortex M0+		| 48 MHz 32-bit ARM Cortex M0+		| 48 MHz 32-bit ARM Cortex M0+		| 48 MHz 32-bit ARM Cortex M0+
 Flash Memory	| Up to 256KB (L21/C21 have RWW)	| Up to 256KB (L21/C21 have RWW)	| Up to 256KB (L21/C21 have RWW)	| 16 KB (4KB used by bootloader)
 SRAM		| Up to 32KB (plus <=8KB LPSRAM on L21)	| Up to 32KB (plus <=8KB LPSRAM on L21)	| Up to 32KB (plus <=8KB LPSRAM on L21)	| 4 KB
 Digital Pins	| 52 (51 for L21)			| 38 (37 for L21)			| 26 (25 for L21)			| 24-pin: 21, 20-pin: 17, 14-pin: 11
-Analog Inputs	| 20 channels, 12-bit			| 14 channels, 12-bit			| 10 channels, 12-bit			| 24-pin: 10, 20-pin: 8, 14-pin: 5 (12-bit)
+Analog Inputs	| 18 channels, 12-bit			| 14 channels, 12-bit			| 10 channels, 12-bit			| 24-pin: 10, 20-pin: 8, 14-pin: 5 (12-bit)
 Analog Outputs	| One 10-bit (two 12-bit on L21)	| One 10-bit (two 12-bit on L21)	| One 10-bit (two 12-bit on L21)	| One 10-bit
 PWM Outputs	| 18					| 14					| 14					| 8 (6 for 14-pin)
 Interrupts	| 16					| 16					| 16					| 8 (7 for 14-pin)
 USB		| Full Speed Device and Host (not C21)	| Full Speed Device and Host (not C21)	| Full Speed Device and Host (not C21)	| Full Speed Device
 SERCOM*		| 6					| 6					| 4 (6 for L21)				| 3 (2 for 14-pin)
-UART (Serial)*	| Up to 6				| Up to 6				| Up to 4 (up to 6 for L21)		| Up to 2
-SPI*		| Up to 3				| Up to 2				| Up to 2				| Up to 1
-I2C (WIRE)*	| Up to 3				| Up to 2				| Up to 2				| Up to 1
+UART (Serial)*	| Up to 3 (will add more later)		| Up to 6				| Up to 4 (up to 6 for L21)		| Up to 2
+SPI*		| Up to 2 (will add more later)		| Up to 2				| Up to 2				| Up to 1
+I2C (WIRE)*	| Up to 2 (will add more later)		| Up to 2				| Up to 2				| Up to 1
 I2S		| Present on the D21 only		| Present on the D21 only		| Present on the D21 only		| Not present
 Voltage		| 1.62V-3.63V (2.7V-5.5V for the C21)	| 1.62V-3.63V (2.7V-5.5V for the C21)	| 1.62V-3.63V (2.7V-5.5V for the C21)	| 1.62V-3.63V
 I/O Pin	Current	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| 7 mA
 
-*Note that the maximum number of UART/SPI/I2C is the number of SERCOM. The number listed above for UART/SPI/I2C indicated how many are configurable through the Arduino IDE menu.*
+*Note that the maximum number of UART/SPI/I2C is the number of SERCOM. The number listed above for UART/SPI/I2C indicated how many are currently configurable through the Arduino IDE menu.*
 
 
 
@@ -105,6 +108,8 @@ I/O Pin	Current	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| D21: 7mA, L21: 5mA, C21: 6mA
 
 Pin configuration and peripheral assignment information is now in the README.md for each board variant.
 README.md also now includes technical information on the new PinDescription table format.
+
+* [MattairTech Xeno (SAMx21Jxxx)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Xeno/README.md)
 
 * [MattairTech MT-D21E Rev B (SAMx21Exxx)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/MT_D21E_revB/README.md)
 
@@ -114,17 +119,15 @@ README.md also now includes technical information on the new PinDescription tabl
 
 * [MattairTech Generic D11C14A](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Generic_D11C14A/README.md)
 
-* MattairTech x21J based board (coming July)
+* MattairTech Generic D11D14AS (future)
 
-* MattairTech Generic D11D14AS (coming soon)
+* MattairTech Generic D11D14AM (future)
 
-* MattairTech Generic D11D14AM (coming soon)
+* MattairTech Generic x21E (future)
 
-* MattairTech Generic x21E (coming soon)
+* MattairTech Generic x21G (future)
 
-* MattairTech Generic x21G (coming soon)
-
-* MattairTech Generic x21J (coming soon)
+* MattairTech Generic x21J (future)
 
 * [Arduino Zero (arduino.cc)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/arduino_zero/README.md)
 
@@ -207,19 +210,19 @@ and SRAM usage by allowing CDC to be disabled (or USB completely disabled).
 There are up to four clock source choices, depending on board features and microcontroller. Since currently
 the cpu must run at 48MHz, the PLL or DFLL must be used (the SAMC can use OSC48M).
 
-### 32KHZ_CRYSTAL (default)
+#### 32KHZ_CRYSTAL (default)
 * Uses both XOSC32K and FDPLL96M
 * High long-term accuracy, slow startup, medium current (PLL)
 
-### HIGH_SPEED_CRYSTAL
+#### HIGH_SPEED_CRYSTAL
 * Uses both XOSC and FDPLL96M
 * High accuracy, medium startup, high current (XOSC and PLL)
 
-### INTERNAL_OSCILLATOR
+#### INTERNAL_OSCILLATOR
 * Uses DFLL48M in open-loop mode (SAMC uses OSC48M)
 * Low accuracy, fast startup, medium-low current (low current with SAMC)
 
-### INTERNAL_USB_CALIBRATED_OSCILLATOR (not available with SAMC)
+#### INTERNAL_USB_CALIBRATED_OSCILLATOR (not available with SAMC)
 * Uses DFLL48M in closed-loop mode
 * High accuracy, medium-fast startup, medium current
 
@@ -346,10 +349,10 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
 
 ### Common Settings
 
-AR_INTERNAL = AR_INTERNAL_INTVCC0
-AR_INTERNAL2V23 = AR_INTERNAL_INTVCC0
-AR_INTERNAL1V65 = AR_INTERNAL_INTVCC1
-AR_EXTERNAL = AR_EXTERNAL_REFA
+* AR_INTERNAL = AR_INTERNAL_INTVCC0
+* AR_INTERNAL2V23 = AR_INTERNAL_INTVCC0
+* AR_INTERNAL1V65 = AR_INTERNAL_INTVCC1
+* AR_EXTERNAL = AR_EXTERNAL_REFA
 
 *When using AR_INTERNAL2V23 or AR_INTERNAL1V65, these voltages are correct only when Vcc = 3.3V)*
 
@@ -406,9 +409,8 @@ TODO
 
 ## Differences Between MattairTech and Arduino Cores (TODO)
 
-* Table summarizing which core files are modified and by how much
 * Communications interfaces are mostly unchanged, including USB
-* Changes due to adding/changing features vs porting to new chip
+* All pins have high drive strength enabled by default
 * All pins (digital and analog) setup in STARTUP mode (enable INEN and set default pull direction to pullup (pullup will not be enabled))
 * INEN enabled for both input and output (but not analog)
 * pinPeripheral now handles disabling the DAC (if active). Note that on the L21, the DAC output would
@@ -419,6 +421,8 @@ TODO
   detected (even with a pullup on A31 (SWCLK)), which would change the peripheral mux of A31 to COM.
   This might not normally be a problem, but one strange effect is that Serial2 loses characters if pin A31 is not set as INPUT.
   So, the startup code calls pinMode(31, INPUT).
+* Todo: Table summarizing which core files are modified and by how much
+* Todo: List changes due to adding/changing features vs porting to new chip
 
 
 ## Serial Monitor
@@ -754,12 +758,13 @@ from the MT-D11 variant.
 ### Under Development
 
 * PlatformIO support
+* SAM D51 (M4F) support (pin compatible with D21, similar peripherals and pin mapping)
 * Fix programming port for Arduino Zero and M0 board variants
 * Reduce SRAM usage by USB endpoint buffers by only allocating endpoints actually used (D11 especially)
 
 ### Possible Future
 
-* Features for lower power consumption (library?) Summer 2017?
+* Features for lower power consumption (library?) Fall 2017?
 * Reliability and security enhancements
 * USB Host mode CDC ACM (partially complete; BSD-like license?)
 * SD card library? Port of FatFS and/or Petit FatFS?
