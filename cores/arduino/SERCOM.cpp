@@ -218,6 +218,16 @@ int SERCOM::writeDataUART(uint8_t data)
   return 1;
 }
 
+void SERCOM::enableDataRegisterEmptyInterruptUART()
+{
+  sercom->USART.INTENSET.reg |= SERCOM_USART_INTENSET_DRE;
+}
+
+void SERCOM::disableDataRegisterEmptyInterruptUART()
+{
+  sercom->USART.INTENCLR.reg = SERCOM_USART_INTENCLR_DRE;
+}
+
 /*	=========================
  *	===== Sercom SPI
  *	=========================

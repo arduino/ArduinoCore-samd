@@ -87,12 +87,12 @@ static void syncDAC() {
 }
 
 // Wait for synchronization of registers between the clock domains
-static __inline__ void syncTC_8(Tc* TCx) __attribute__((always_inline, unused));
-static void syncTC_8(Tc* TCx) {
+static __inline__ void syncTC_16(Tc* TCx) __attribute__((always_inline, unused));
+static void syncTC_16(Tc* TCx) {
 #if (SAMD)
-  while (TCx->COUNT8.STATUS.bit.SYNCBUSY);
+  while (TCx->COUNT16.STATUS.bit.SYNCBUSY);
 #elif (SAML21 || SAMC21)
-  while (TCx->COUNT8.SYNCBUSY.reg & (TC_SYNCBUSY_SWRST | TC_SYNCBUSY_ENABLE | TC_SYNCBUSY_CTRLB | TC_SYNCBUSY_STATUS | TC_SYNCBUSY_COUNT));
+  while (TCx->COUNT16.SYNCBUSY.reg & (TC_SYNCBUSY_SWRST | TC_SYNCBUSY_ENABLE | TC_SYNCBUSY_CTRLB | TC_SYNCBUSY_STATUS | TC_SYNCBUSY_COUNT));
 #endif
 }
 
@@ -365,52 +365,44 @@ void analogWrite(uint32_t pin, uint32_t value)
       while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
 #endif
 
-      value = mapResolution(value, _writeResolution, 8);
+      value = mapResolution(value, _writeResolution, 16);
 
       // Set PORT
       if ( TCx )
       {
         // -- Configure TC
         // Disable TCx
-        TCx->COUNT8.CTRLA.bit.ENABLE = 0;
-        syncTC_8(TCx);
-        // Set Timer counter Mode to 8 bits, prescaler 1/256
-        TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_PRESCALER_DIV256;
-        syncTC_8(TCx);
+        TCx->COUNT16.CTRLA.bit.ENABLE = 0;
+        syncTC_16(TCx);
+        // Set Timer counter Mode to 16 bits, normal PWM
+        TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16;
+        syncTC_16(TCx);
         // Set TCx as normal PWM
 #if (SAMD)
-        TCx->COUNT8.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
+        TCx->COUNT16.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
 #elif (SAML21 || SAMC21)
-	TCx->COUNT8.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
+        TCx->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
 #endif
-        syncTC_8(TCx);
+        syncTC_16(TCx);
         // Set the initial value
-        TCx->COUNT8.CC[Channelx].reg = (uint8_t) value;
-        syncTC_8(TCx);
-        // Set PER to maximum counter value (resolution : 0xFF)
-        TCx->COUNT8.PER.reg = 0xFF;
-        syncTC_8(TCx);
+        TCx->COUNT16.CC[Channelx].reg = (uint32_t) value;
+        syncTC_16(TCx);
         // Enable TCx
-        TCx->COUNT8.CTRLA.bit.ENABLE = 1;
-        syncTC_8(TCx);
-      }
-      else
-      {
+        TCx->COUNT16.CTRLA.bit.ENABLE = 1;
+        syncTC_16(TCx);
+      } else {
         // -- Configure TCC
         // Disable TCCx
         TCCx->CTRLA.bit.ENABLE = 0;
         syncTCC(TCCx);
-        // Set prescaler to 1/256
-        TCCx->CTRLA.reg |= TCC_CTRLA_PRESCALER_DIV256;
-        syncTCC(TCCx);
-        // Set TCx as normal PWM
+        // Set TCCx as normal PWM
         TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
         syncTCC(TCCx);
         // Set the initial value
         TCCx->CC[Channelx].reg = (uint32_t)value;
         syncTCC(TCCx);
-        // Set PER to maximum counter value (resolution : 0xFF)
-        TCCx->PER.reg = 0xFF;
+        // Set PER to maximum counter value (resolution : 0xFFFF)
+        TCCx->PER.reg = 0xFFFF;
         syncTCC(TCCx);
         // Enable TCCx
         TCCx->CTRLA.bit.ENABLE = 1;
@@ -419,12 +411,12 @@ void analogWrite(uint32_t pin, uint32_t value)
     } else {
       if (TCx) {
 #if (SAMD)
-        TCx->COUNT8.CC[Channelx].reg = (uint8_t) value;
+        TCx->COUNT16.CC[Channelx].reg = (uint32_t) value;
 #elif (SAML21 || SAMC21)
         // SAML and SAMC have double-buffered TCs
-	TCx->COUNT8.CCBUF[Channelx].reg = (uint32_t) value;
+        TCx->COUNT16.CCBUF[Channelx].reg = (uint32_t) value;
 #endif
-        syncTC_8(TCx);
+        syncTC_16(TCx);
       } else {
 #if (SAMD)
         TCCx->CTRLBSET.bit.LUPD = 1;

@@ -355,7 +355,7 @@ allow the build_all_bootloaders.sh script to select SD Card support.
 
 #### Boards definitions:
 
-* MT_D21E_rev_A, MT_D21E_rev_B, MT_D11, MT_D21J
+* Xeno, MT_D21E_rev_A, MT_D21E_rev_B, MT_D11, MT_D21J
 * arduino_zero, arduino_mkrzero, arduino_mkr1000, genuino_mkr1000, genuino_zero
 * Generic_x21E, Generic_x21G, Generic_x21J, Generic_D11D14AM, Generic_D11D14AS, Generic_D11C14A
 

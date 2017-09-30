@@ -1,11 +1,8 @@
-1.6.16: (identical to beta version 1.6.8-beta-b3)
-1.6.8-beta-b3:
-* Changed version numbering to match Arduino SAMD core to indicate which upstream changes have been merged in.
-  Release version 1.6.7 then skips to 1.6.16. Beta version 1.6.8-beta-b3 became release version 1.6.16.
+1.6.16 (release version, same as 1.6.16-beta-b0):
+1.6.16-beta-b0:
 * Added MattairTech Xeno support (64-pin D21, L21, and C21)
-* Merged in changes from upstream SAMD CORE 1.6.17 (not released yet):
-  * Fix changing trigger mode (RISING/FALLING/...) in attachInterrupt(..) during runtime. Thanks @joverbee
-  * Improved ISR response time. Thanks @joverbee
+* Changed version numbering to match Arduino SAMD core to indicate which upstream changes have been merged in.
+  * Release version 1.6.7 then skips to 1.6.16. Beta version 1.6.8-beta-b2 skips to 1.6.16-beta-b0.
 * Merged in changes from upstream SAMD CORE 1.6.16 2017.08.23:
   * PWMs now can perform real 16-bit resolution if analogWriteResolution(16) is set. Thanks @Adminius
   * USB CDC: fixed issue of available() getting stuck when receiving ZLP's
@@ -14,6 +11,8 @@
   * Native USB now supports USB Serial Number
   * Fixed pgm_read_ptr compatibility macro. Thanks @nkrkv
 * Documentation updates
+
+**Version numbering change**
 
 1.6.8-beta-b2:
 * Added SD Card firmware loading support to the bootloader (4KB and 8KB)
