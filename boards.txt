@@ -180,7 +180,7 @@ adafruit_metro_m4.build.variant_system_lib=
 adafruit_metro_m4.build.vid=0x2341
 adafruit_metro_m4.build.pid=0x804d
 adafruit_metro_m4.bootloader.tool=openocd
-adafruit_metro_m4.bootloader.file=metroM4/samdx1_sam_ba.bin
+adafruit_metro_m4.bootloader.file=metroM4/samd51_sam_ba.bin
 adafruit_metro_m4.compiler.c.elf.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_metro_m4.compiler.c.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_metro_m4.compiler.cpp.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16

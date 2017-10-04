@@ -13,7 +13,7 @@
     <OutputFileExtension>.elf</OutputFileExtension>
     <OutputDirectory>$(MSBuildProjectDirectory)\$(Configuration)</OutputDirectory>
     <AssemblyName>samd21_sam_ba</AssemblyName>
-    <Name>samdx1_sam_ba</Name>
+    <Name>samd51_sam_ba</Name>
     <RootNamespace>samd21_sam_ba</RootNamespace>
     <ToolchainFlavour>Native</ToolchainFlavour>
     <KeepTimersRunning>true</KeepTimersRunning>
@@ -133,7 +133,7 @@
       <SubType>compile</SubType>
       <Link>board_definitions.h</Link>
     </Compile>
-    <Compile Include="board_definitions_arduino_x1.h">
+    <Compile Include="board_definitions_metro_m4.h">
       <SubType>compile</SubType>
     </Compile>
     <Compile Include="board_driver_led.c">
@@ -206,7 +206,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="bootloader_samdx1.ld">
+    <None Include="bootloader_samd51.ld">
       <SubType>compile</SubType>
     </None>
     <None Include="Makefile">
