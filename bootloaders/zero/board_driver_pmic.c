@@ -224,7 +224,7 @@ void apply_pmic_newdefaults()
   //disableDPDM();
   disableCharge();
   setInputVoltageLimit(4360); // default
-  setInputCurrentLimit(900);     // 900mA
+  setInputCurrentLimit(2000);     // 2A
   setChargeCurrent(0,0,0,0,0,0); // 512mA
   setChargeVoltage(4112);        // 4.112V termination voltage
 }
