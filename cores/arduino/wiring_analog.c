@@ -354,6 +354,8 @@ void analogWrite(uint32_t pin, uint32_t value)
       timerIndex = (uint8_t)(((uint32_t)TCCx - (uint32_t)TCC0) >> 10);
     }
 
+    value = mapResolution(value, _writeResolution, 16);
+
     if (!tcEnabled[timerIndex]) {
       tcEnabled[timerIndex] = true;
 
@@ -364,8 +366,6 @@ void analogWrite(uint32_t pin, uint32_t value)
       GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
       while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
 #endif
-
-      value = mapResolution(value, _writeResolution, 16);
 
       // Set PORT
       if ( TCx )

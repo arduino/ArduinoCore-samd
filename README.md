@@ -527,10 +527,10 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
 *OS X support was added in version 1.6.7-beta-b0.*
 
 0. No driver installation is needed.
-5. Plug in the board. You may get a dialog box asking if you wish to open the “Network Preferences”:
+1. Plug in the board. You may get a dialog box asking if you wish to open the “Network Preferences”:
    * Click the "Network Preferences..." button, then click "Apply".
    * The board will show up as “Not Configured”, but it will work fine.
-5. Continue with SAM M0+ Core Installation below.
+2. Continue with SAM M0+ Core Installation below.
 
 
 ### SAM M0+ Core Installation
@@ -539,14 +539,14 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
 
 * To update from a previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.
 
-1. The MattairTech SAM M0+ Core requires Arduino 1.6.7 or above (including 1.8.x).
+1. The MattairTech SAM M0+ Core requires Arduino IDE 1.6.7 or above (including 1.8.x).
 2. In the Arduino IDE, click File->Preferences.
 3. Click the button next to Additional Boards Manager URLs.
 4. Add https://www.mattairtech.com/software/arduino/package_MattairTech_index.json.
 5. Save preferences, then open the Boards Manager.
 6. Install the Arduino SAMD Boards package. Use version 1.6.2 or higher.
 7. Install the MattairTech SAM M0+ Boards package.
-8. Close Boards Manager, then click Tools->Board->MattairTech MT-D21E (or MT-D11).
+8. Close Boards Manager, then click Tools->Board->(choose board).
 9. Select the MCU with the now visible Tools->Microcontroller menu (if present).
 10. If you do not already have the bootloader or blink sketch installed, see SAM-BA USB CDC Bootloader below.
 11. Plug in the board. The blink sketch should be running.

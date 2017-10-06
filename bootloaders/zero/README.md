@@ -254,13 +254,15 @@ This driver is the same as the one used by the MattairTech SAM M0+ Core.
 4. Continue with driver installation above.
 
 
-### Bossac Utility Installation
+### Bossac Utility
 
-This version of the bootloader requires bossac (1.7.0-mattairtech-1) from the package "MattairTech SAM M0+ Boards".
-If using the Arduino IDE to upload firmware, then download the core.
+This version of the bootloader requires bossac (1.7.0-mattairtech-1) or above.
 
 **See the MattairTech SAM M0+ Core [README.md](https://github.com/mattairtech/ArduinoCore-samd/tree/master/README.md) "Driver Installation" for installation instructions.).**
 
+#### Bossac Utility Installation
+
+If using the Arduino IDE to upload firmware, then this will be installed automatically when intalling the core.
 If using Bossac standalone, download bossac directly at:
 
 * https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-mingw32.tar.gz (Windows 32 bit and 64 bit)
