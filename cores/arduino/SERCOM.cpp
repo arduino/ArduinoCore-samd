@@ -671,7 +671,6 @@ uint8_t SERCOM::readDataWIRE( void )
 
 void SERCOM::initClockNVIC( void )
 {
-  IRQn_Type IdNvic=PendSV_IRQn ; // Dummy init to intercept potential error later
 
 #if defined(__SAMD51__)
 	uint32_t clk_core;
@@ -681,45 +680,125 @@ void SERCOM::initClockNVIC( void )
 	{
 		clk_core = SERCOM0_GCLK_ID_CORE;
 		clk_slow = SERCOM0_GCLK_ID_SLOW;
-		IdNvic = SERCOM0_0_IRQn;
+
+    NVIC_ClearPendingIRQ(SERCOM0_0_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM0_1_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM0_2_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM0_3_IRQn);
+
+    NVIC_SetPriority (SERCOM0_0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+    NVIC_SetPriority (SERCOM0_1_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM0_2_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM0_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+
+    NVIC_EnableIRQ(SERCOM0_0_IRQn);
+    NVIC_EnableIRQ(SERCOM0_1_IRQn);
+    NVIC_EnableIRQ(SERCOM0_2_IRQn);
+    NVIC_EnableIRQ(SERCOM0_3_IRQn);
 	}
 	else if(sercom == SERCOM1)
 	{
 		clk_core = SERCOM1_GCLK_ID_CORE;
 		clk_slow = SERCOM1_GCLK_ID_SLOW;
-		IdNvic = SERCOM1_0_IRQn;
+
+    NVIC_ClearPendingIRQ(SERCOM1_0_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM1_1_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM1_2_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM1_3_IRQn);
+
+    NVIC_SetPriority (SERCOM1_0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+    NVIC_SetPriority (SERCOM1_1_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM1_2_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM1_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+
+    NVIC_EnableIRQ(SERCOM1_0_IRQn);
+    NVIC_EnableIRQ(SERCOM1_1_IRQn);
+    NVIC_EnableIRQ(SERCOM1_2_IRQn);
+    NVIC_EnableIRQ(SERCOM1_3_IRQn);
 	}
 	else if(sercom == SERCOM2)
 	{
 		clk_core = SERCOM2_GCLK_ID_CORE;
 		clk_slow = SERCOM2_GCLK_ID_SLOW;
-		IdNvic = SERCOM2_2_IRQn;
+
+    NVIC_ClearPendingIRQ(SERCOM2_0_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM2_1_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM2_2_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM2_3_IRQn);
+
+    NVIC_SetPriority (SERCOM2_0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+    NVIC_SetPriority (SERCOM2_1_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM2_2_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM2_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+
+    NVIC_EnableIRQ(SERCOM2_0_IRQn);
+    NVIC_EnableIRQ(SERCOM2_1_IRQn);
+    NVIC_EnableIRQ(SERCOM2_2_IRQn);
+    NVIC_EnableIRQ(SERCOM2_3_IRQn);
 	}
 	else if(sercom == SERCOM3)
 	{
 		clk_core = SERCOM3_GCLK_ID_CORE;
 		clk_slow = SERCOM3_GCLK_ID_SLOW;
-		IdNvic = SERCOM3_0_IRQn;
+
+    NVIC_ClearPendingIRQ(SERCOM3_0_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM3_1_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM3_2_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM3_3_IRQn);
+
+    NVIC_SetPriority (SERCOM3_0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+    NVIC_SetPriority (SERCOM3_1_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM3_2_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM3_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+
+    NVIC_EnableIRQ(SERCOM3_0_IRQn);
+    NVIC_EnableIRQ(SERCOM3_1_IRQn);
+    NVIC_EnableIRQ(SERCOM3_2_IRQn);
+    NVIC_EnableIRQ(SERCOM3_3_IRQn);
 	}
 	else if(sercom == SERCOM4)
 	{
 		clk_core = SERCOM4_GCLK_ID_CORE;
 		clk_slow = SERCOM4_GCLK_ID_SLOW;
-		IdNvic = SERCOM4_0_IRQn;
+
+    NVIC_ClearPendingIRQ(SERCOM4_0_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM4_1_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM4_2_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM4_3_IRQn);
+
+    NVIC_SetPriority (SERCOM4_0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+    NVIC_SetPriority (SERCOM4_1_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM4_2_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM4_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+
+    NVIC_EnableIRQ(SERCOM4_0_IRQn);
+    NVIC_EnableIRQ(SERCOM4_1_IRQn);
+    NVIC_EnableIRQ(SERCOM4_2_IRQn);
+    NVIC_EnableIRQ(SERCOM4_3_IRQn);
 	}
 	else if(sercom == SERCOM5)
 	{
 		clk_core = SERCOM5_GCLK_ID_CORE;
 		clk_slow = SERCOM5_GCLK_ID_SLOW;
-		IdNvic = SERCOM5_0_IRQn;
-	}
 
-	if ( IdNvic == PendSV_IRQn )
-	{
-		// We got a problem here
-		return ;
+    NVIC_ClearPendingIRQ(SERCOM5_0_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM5_1_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM5_2_IRQn);
+    NVIC_ClearPendingIRQ(SERCOM5_3_IRQn);
+
+    NVIC_SetPriority (SERCOM5_0_IRQn, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+    NVIC_SetPriority (SERCOM5_1_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM5_2_IRQn, (1<<__NVIC_PRIO_BITS) - 1); 
+    NVIC_SetPriority (SERCOM5_3_IRQn, (1<<__NVIC_PRIO_BITS) - 1);
+
+    NVIC_EnableIRQ(SERCOM5_0_IRQn);
+    NVIC_EnableIRQ(SERCOM5_1_IRQn);
+    NVIC_EnableIRQ(SERCOM5_2_IRQn);
+    NVIC_EnableIRQ(SERCOM5_3_IRQn);
 	}
 #else
+
+  IRQn_Type IdNvic=PendSV_IRQn ; // Dummy init to intercept potential error later
 
   uint8_t clockId = 0;
   if(sercom == SERCOM0)
@@ -764,16 +843,16 @@ void SERCOM::initClockNVIC( void )
   }
 #endif
 
-  // Setting NVIC
-  NVIC_ClearPendingIRQ(IdNvic);
-  NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
-  NVIC_EnableIRQ(IdNvic);
-
 #if defined(__SAMD51__)
   GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
   
 #else
+    // Setting NVIC
+  NVIC_ClearPendingIRQ(IdNvic);
+  NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+  NVIC_EnableIRQ(IdNvic);
+
   //Setting clock
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)
                       GCLK_CLKCTRL_GEN_GCLK0 | // Generic Clock Generator 0 is source
