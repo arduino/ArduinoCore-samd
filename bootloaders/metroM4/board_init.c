@@ -63,64 +63,62 @@ void board_init(void)
   while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_SWRST ){
 	  /* wait for reset to complete */
   }
-
-  /* ----------------------------------------------------------------------------------------------
-   * 2) Put XOSC32K as source of Generic Clock Generator 3
-   */
-  GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_XOSC32K].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_XOSC32K) | //generic clock gen 3
+  
+	/* ----------------------------------------------------------------------------------------------
+	* 2) Put XOSC32K as source of Generic Clock Generator 3
+	*/
+	GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_XOSC32K].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_XOSC32K) | //generic clock gen 3
 									GCLK_GENCTRL_GENEN;
 
-  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_GENCTRL3 ){
-	  /* Wait for synchronization */
-  }
-
-  /* ----------------------------------------------------------------------------------------------
-   * 3) Put Generic Clock Generator 3 as source for Generic Clock Gen 0 (DFLL48M reference)
-   */
-  GCLK->GENCTRL[GENERIC_CLOCK_MULTIPLEXER_DFLL48M].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_OSCULP32K) | GCLK_GENCTRL_GENEN;
-
-  while ( GCLK->SYNCBUSY.bit.GENCTRL0 ){
-	  /* Wait for synchronization */
-  }
-
-  /* ----------------------------------------------------------------------------------------------
-   * 4) Enable DFLL48M clock
-   */
-
-  /* DFLL Configuration in Closed Loop mode - Closed-Loop Operation */
-
-  OSCCTRL->DFLLCTRLA.reg = 0;
-  GCLK->PCHCTRL[OSCCTRL_GCLK_ID_DFLL48].reg = (1 << GCLK_PCHCTRL_CHEN_Pos) | GCLK_PCHCTRL_GEN(GCLK_PCHCTRL_GEN_GCLK3_Val);
-
-  OSCCTRL->DFLLMUL.reg = OSCCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
-						OSCCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
-						OSCCTRL_DFLLMUL_MUL( (VARIANT_MCK/VARIANT_MAINOSC) ); // External 32KHz is the reference
-
-  while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_DFLLMUL )
-  {
-    /* Wait for synchronization */
-  }
+	while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_GENCTRL3 ){
+		/* Wait for synchronization */
+	}
   
-  OSCCTRL->DFLLCTRLB.reg = 0;
-  while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_DFLLCTRLB )
-  {
-	  /* Wait for synchronization */
-  }
+	/* ----------------------------------------------------------------------------------------------
+	* 3) Put Generic Clock Generator 3 as source for Generic Clock Gen 0 (DFLL48M reference)
+	*/
+	GCLK->GENCTRL[0].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_OSCULP32K) | GCLK_GENCTRL_GENEN;
+	
+	/* ----------------------------------------------------------------------------------------------
+	* 4) Enable DFLL48M clock
+	*/
+
+	/* DFLL Configuration in Open Loop mode */
+
+	OSCCTRL->DFLLCTRLA.reg = 0;
+	//GCLK->PCHCTRL[OSCCTRL_GCLK_ID_DFLL48].reg = (1 << GCLK_PCHCTRL_CHEN_Pos) | GCLK_PCHCTRL_GEN(GCLK_PCHCTRL_GEN_GCLK3_Val);
+
+	OSCCTRL->DFLLMUL.reg = OSCCTRL_DFLLMUL_CSTEP( 0x1 ) |
+						OSCCTRL_DFLLMUL_FSTEP( 0x1 ) |
+						OSCCTRL_DFLLMUL_MUL( 0 );
+
+	while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_DFLLMUL )
+	{
+	/* Wait for synchronization */
+	}
   
-  OSCCTRL->DFLLCTRLA.reg |= OSCCTRL_DFLLCTRLA_ENABLE;
-  while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_ENABLE )
-  {
-	  /* Wait for synchronization */
-  }
-   
-   OSCCTRL->DFLLCTRLB.reg |= OSCCTRL_DFLLCTRLB_MODE | 
-								OSCCTRL_DFLLCTRLB_WAITLOCK |
-								OSCCTRL_DFLLCTRLB_QLDIS;
-								
-  while ( (OSCCTRL->STATUS.reg & (OSCCTRL_STATUS_DFLLRDY | OSCCTRL_STATUS_DFLLLCKC)) != (OSCCTRL_STATUS_DFLLRDY | OSCCTRL_STATUS_DFLLLCKC) )
-  {
-    /* Wait for synchronization */
-  }
+	OSCCTRL->DFLLCTRLB.reg = 0;
+	while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_DFLLCTRLB )
+	{
+		/* Wait for synchronization */
+	}
+  
+	OSCCTRL->DFLLCTRLA.reg |= OSCCTRL_DFLLCTRLA_ENABLE;
+	while ( OSCCTRL->DFLLSYNC.reg & OSCCTRL_DFLLSYNC_ENABLE )
+	{
+		/* Wait for synchronization */
+	}
+	
+	OSCCTRL->DFLLVAL.reg = OSCCTRL->DFLLVAL.reg;
+	while( OSCCTRL->DFLLSYNC.bit.DFLLVAL );
+  
+  OSCCTRL->DFLLCTRLB.reg = OSCCTRL_DFLLCTRLB_WAITLOCK |
+  OSCCTRL_DFLLCTRLB_CCDIS | OSCCTRL_DFLLCTRLB_USBCRM ;
+  
+	while ( !OSCCTRL->STATUS.bit.DFLLRDY )
+	{
+		/* Wait for synchronization */
+	}
 
   /* ----------------------------------------------------------------------------------------------
    * 5) Switch Generic Clock Generator 0 to DFLL48M. CPU will run at 48MHz.
