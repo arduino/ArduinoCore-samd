@@ -67,6 +67,7 @@
 #define GSM_RTS    (28u)
 #define GSM_CTS    (29u)
 #define GSM_RESETN (31u)
+#define GSM_DTR    (35u)
 
 // LEDs
 // ----
@@ -164,6 +165,7 @@ extern Uart Serial2;
 #define PAD_SERIAL2_RX (SERCOM_RX_PAD_1)
 #define PIN_SERIAL2_RTS (28u)
 #define PIN_SERIAL2_CTS (29u)
+#define PIN_SERIAL2_DTR (35u)
 
 #endif // __cplusplus
 
