@@ -199,7 +199,11 @@ static inline void disable_battery_charging() {}
 #endif
 
 void initVariant() {
-  pinMode(ADC_BATTERY, INPUT_PULLDOWN);
+  pinMode(ADC_BATTERY, OUTPUT);
+  digitalWrite(ADC_BATTERY, LOW);
+  delay(1);
+  pinMode(ADC_BATTERY, INPUT);
+  delay(1);
   if (analogRead(ADC_BATTERY) > 100) {
     enable_battery_charging();
   }
