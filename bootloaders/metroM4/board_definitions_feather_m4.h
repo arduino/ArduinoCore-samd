@@ -19,14 +19,15 @@
 
 #ifndef _BOARD_DEFINITIONS_H_
 #define _BOARD_DEFINITIONS_H_
+
 /*
  * USB device definitions
  */
-#define STRING_PRODUCT "Metro M4"
+#define STRING_PRODUCT "Feather M4"
 #define USB_VID_HIGH   0x23
 #define USB_VID_LOW    0x9A
 #define USB_PID_HIGH   0x00
-#define USB_PID_LOW    0x20
+#define USB_PID_LOW    0x22
 
 /*
  * If BOOT_DOUBLE_TAP_ADDRESS is defined the bootloader is started by
@@ -70,10 +71,10 @@
 #define NVM_SW_CALIB_DFLL48M_FINE_VAL     (64)
 
 #define BOARD_LED_PORT                    (0)
-#define BOARD_LED_PIN                     (21)
+#define BOARD_LED_PIN                     (17)
 
 #define BOARD_LEDRX_PORT                  (1)
-#define BOARD_LEDRX_PIN                   (6)
+#define BOARD_LEDRX_PIN                   (3)
 
 #define BOARD_LEDTX_PORT                  (0)
 #define BOARD_LEDTX_PIN                   (27)
