@@ -428,9 +428,11 @@ void analogWrite(uint32_t pin, uint32_t value)
 		TCC0_GCLK_ID,
 		TCC1_GCLK_ID,
 		TCC2_GCLK_ID,
+	#if defined(TCC3)
 		TCC3_GCLK_ID,
 		TCC4_GCLK_ID,
 		TC5_GCLK_ID,
+	#endif
 	};
 	
 	 GCLK->PCHCTRL[GCLK_CLKCTRL_IDs[tcNum]].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
