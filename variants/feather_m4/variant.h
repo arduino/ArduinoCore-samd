@@ -16,8 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VARIANT_MERTO_M4_
-#define _VARIANT_MERTO_M4_
+#ifndef _VARIANT_FEATHER_M4_
+#define _VARIANT_FEATHER_M4_
 
 // The definitions here needs a SAMD core >=1.6.10
 #define ARDUINO_SAMD_VARIANT_COMPLIANCE 10610
@@ -128,13 +128,13 @@ static const uint8_t ATN = PIN_ATN;
 // Serial1
 #define PIN_SERIAL1_RX       (0ul)
 #define PIN_SERIAL1_TX       (1ul)
-#define PAD_SERIAL1_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
+#define PAD_SERIAL1_TX       (UART_TX_PAD_2)
 
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 2
+#define SPI_INTERFACES_COUNT 1
 
 #define PIN_SPI_MISO         (28u)
 #define PIN_SPI_MOSI         (30u)
@@ -167,10 +167,10 @@ static const uint8_t SCK1  = PIN_SPI_SCK ;
  */
 #define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE_SDA         (24u)
-#define PIN_WIRE_SCL         (25u)
-#define PERIPH_WIRE          sercom5
-#define WIRE_IT_HANDLER      SERCOM5_Handler
+#define PIN_WIRE_SDA         (26u)
+#define PIN_WIRE_SCL         (27u)
+#define PERIPH_WIRE          sercom3
+#define WIRE_IT_HANDLER      SERCOM3_Handler
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
@@ -185,7 +185,7 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * I2S Interfaces
  */
-#define I2S_INTERFACES_COUNT 1
+#define I2S_INTERFACES_COUNT 0
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
@@ -241,5 +241,5 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE        Serial1
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
-#endif /* _VARIANT_MERTO_M4_ */
+#endif /* _VARIANT_FEATHER_M4_ */
 
