@@ -58,10 +58,11 @@ SIZE=$(ARM_GCC_PATH)size
 # -----------------------------------------------------------------------------
 # Boards definitions
 BOARD_ID?=FEATHER_M4
+BOARD_CHIP?=__SAMD51G19A__
 
 # -----------------------------------------------------------------------------
 # Compiler options
-CFLAGS_EXTRA=-D__SAMD51G19A__ -DBOARD_ID_$(BOARD_ID)
+CFLAGS_EXTRA=-D$(BOARD_CHIP) -DBOARD_ID_$(BOARD_ID)
 CFLAGS=-mthumb -mcpu=cortex-m4 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
 ifdef DEBUG
   CFLAGS+=-g3 -O1 -DDEBUG=1
@@ -69,11 +70,9 @@ else
   CFLAGS+=-Os -DDEBUG=0
 endif
 
-#DM: hack b/c I don't know how things work
-#ELF=$(NAME).elf
-ELF=samd51_sam_ba.elf
-BIN=samd51_sam_ba.bin
-HEX=samd51_sam_ba.hex
+ELF=$(BOARD_ID)_sam_ba.elf
+BIN=$(BOARD_ID)_ba.bin
+HEX=$(BOARD_ID)_sam_ba.hex
 
 
 INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.1.0/CMSIS/Device/ATMEL/"
@@ -114,7 +113,7 @@ all: print_info $(SOURCES) $(BIN) $(HEX) $(AS_BUILD)
 $(ELF): Makefile $(BUILD_PATH) $(OBJECTS)
 	@echo ----------------------------------------------------------
 	@echo Creating ELF binary
-	"$(CC)" -L. -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps -Tbootloader_samd51.ld -Wl,-Map,"$(BUILD_PATH)/$(NAME).map" -o "$(BUILD_PATH)/$(ELF)" -Wl,--start-group $(OBJECTS) -lm -Wl,--end-group
+	"$(CC)" -L. -L$(BUILD_PATH) $(LDFLAGS) -Os -Wl,--gc-sections -save-temps -Tbootloader_$(BOARD_ID).ld -Wl,-Map,"$(BUILD_PATH)/$(NAME).map" -o "$(BUILD_PATH)/$(ELF)" -Wl,--start-group $(OBJECTS) -lm -Wl,--end-group
 	"$(NM)" "$(BUILD_PATH)/$(ELF)" >"$(BUILD_PATH)/$(NAME)_symbols.txt"
 	"$(SIZE)" --format=sysv -t -x $(BUILD_PATH)/$(ELF)
 
