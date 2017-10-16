@@ -69,8 +69,12 @@ uint8_t TwoWire::sentTo(uint8_t address, uint8_t buffer[], size_t quantity)
 
 uint8_t TwoWire::sentTo(uint8_t address, uint8_t buffer[], size_t quantity, bool stopBit)
 {
-  beginTransmission(address);
-  endTransmission(false);
+  // Start I2C transmission
+  if (!sercom->startTransmissionWIRE(address, WIRE_WRITE_FLAG))
+  {
+    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+    return 2 ;  // Address error
+  }
 
   for (size_t i = 0; i < quantity; i++) {
     // Try to send data
@@ -165,30 +169,13 @@ uint8_t TwoWire::endTransmission(bool stopBit)
 {
   transmissionBegun = false ;
 
-  // Start I2C transmission
-  if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
-  {
-    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-    return 2 ;  // Address error
+  uint8_t result = sentTo(txAddress, txBuffer._aucBuffer, txBuffer.available(), stopBit);
+
+  if (result == 0) {
+    txBuffer.clear();
   }
 
-  // Send all buffer
-  while( txBuffer.available() )
-  {
-    // Trying to send data
-    if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
-    {
-      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-      return 3 ;  // Nack or error
-    }
-  }
-  
-  if (stopBit)
-  {
-    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-  }   
-
-  return 0;
+  return result;
 }
 
 uint8_t TwoWire::endTransmission()
