@@ -162,7 +162,7 @@ adafruit_metro_m4.vid.1=0x239A
 adafruit_metro_m4.pid.1=0x0020
 adafruit_metro_m4.upload.tool=bossac
 adafruit_metro_m4.upload.protocol=sam-ba
-adafruit_metro_m4.upload.maximum_size=1048576
+adafruit_metro_m4.upload.maximum_size=507904
 adafruit_metro_m4.upload.use_1200bps_touch=true
 adafruit_metro_m4.upload.wait_for_upload_port=true
 adafruit_metro_m4.upload.native_usb=true
@@ -172,7 +172,7 @@ adafruit_metro_m4.build.usb_product="Adafruit Metro M4"
 adafruit_metro_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_metro_m4.build.board=METRO_M4
 adafruit_metro_m4.build.core=arduino
-adafruit_metro_m4.build.extra_flags=-D__SAMD51J20A__ -D__SAMD51__ {build.usb_flags}
+adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags}
 adafruit_metro_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_metro_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_metro_m4.build.variant=metro_m4
@@ -180,7 +180,7 @@ adafruit_metro_m4.build.variant_system_lib=
 adafruit_metro_m4.build.vid=0x239A
 adafruit_metro_m4.build.pid=0x8020
 adafruit_metro_m4.bootloader.tool=openocd
-adafruit_metro_m4.bootloader.file=metroM4/samd51_sam_ba.bin
+adafruit_metro_m4.bootloader.file=metroM4/METRO_M4_sam_ba.bin
 adafruit_metro_m4.compiler.c.elf.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_metro_m4.compiler.c.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_metro_m4.compiler.cpp.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
@@ -194,7 +194,7 @@ adafruit_feather_m4.vid.1=0x239A
 adafruit_feather_m4.pid.1=0x0022
 adafruit_feather_m4.upload.tool=bossac
 adafruit_feather_m4.upload.protocol=sam-ba
-adafruit_feather_m4.upload.maximum_size=524288
+adafruit_feather_m4.upload.maximum_size=507904
 adafruit_feather_m4.upload.use_1200bps_touch=true
 adafruit_feather_m4.upload.wait_for_upload_port=true
 adafruit_feather_m4.upload.native_usb=true
@@ -212,7 +212,7 @@ adafruit_feather_m4.build.variant_system_lib=
 adafruit_feather_m4.build.vid=0x239A
 adafruit_feather_m4.build.pid=0x8022
 adafruit_feather_m4.bootloader.tool=openocd
-adafruit_feather_m4.bootloader.file=metroM4/samd51_sam_ba.bin
+adafruit_feather_m4.bootloader.file=metroM4/FEATHER_M4_sam_ba.bin
 adafruit_feather_m4.compiler.c.elf.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_feather_m4.compiler.c.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_feather_m4.compiler.cpp.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16

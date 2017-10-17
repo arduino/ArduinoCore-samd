@@ -5,7 +5,7 @@
     <ProjectVersion>7.0</ProjectVersion>
     <ToolchainName>com.Atmel.ARMGCC.C</ToolchainName>
     <ProjectGuid>dce6c7e3-ee26-4d79-826b-08594b9ad897</ProjectGuid>
-    <avrdevice>ATSAMD51G19A</avrdevice>
+    <avrdevice>ATSAMD51J19A</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>Executable</OutputType>
     <Language>C</Language>
@@ -41,7 +41,7 @@
     </AsfFrameworkConfig>
     <avrtool>com.atmel.avrdbg.tool.edbg</avrtool>
     <avrtoolserialnumber>00000000EZE000006352</avrtoolserialnumber>
-    <avrdeviceexpectedsignature>0x60060007</avrdeviceexpectedsignature>
+    <avrdeviceexpectedsignature>0x60060005</avrdeviceexpectedsignature>
     <avrtoolinterface>SWD</avrtoolinterface>
     <com_atmel_avrdbg_tool_atmelice>
       <ToolOptions>
@@ -130,7 +130,7 @@
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'featherm4' ">
     <ToolchainSettings>
-      <ArmGcc xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+      <ArmGcc>
   <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
   <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
   <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
@@ -159,13 +159,13 @@
     <UsesExternalMakeFile>True</UsesExternalMakeFile>
     <OutputDirectory />
     <BuildTarget>DEBUG=1 all BOARD_ID=FEATHER_M4 BOARD_CHIP=__SAMD51G19A__</BuildTarget>
-    <CleanTarget>clean</CleanTarget>
+    <CleanTarget>clean BOARD_ID=FEATHER_M4</CleanTarget>
     <ExternalMakeFilePath>Makefile</ExternalMakeFilePath>
     <OutputPath>bin\featherm4\</OutputPath>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'metrom4' ">
     <ToolchainSettings>
-      <ArmGcc xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+      <ArmGcc>
   <armgcc.common.outputfiles.hex>True</armgcc.common.outputfiles.hex>
   <armgcc.common.outputfiles.lss>True</armgcc.common.outputfiles.lss>
   <armgcc.common.outputfiles.eep>True</armgcc.common.outputfiles.eep>
@@ -193,8 +193,8 @@
     </ToolchainSettings>
     <UsesExternalMakeFile>True</UsesExternalMakeFile>
     <OutputDirectory />
-    <BuildTarget>DEBUG=1 all BOARD_ID=METRO_M4 BOARD_CHIP=__SAMD51J20A__</BuildTarget>
-    <CleanTarget>clean</CleanTarget>
+    <BuildTarget>DEBUG=1 all BOARD_ID=METRO_M4 BOARD_CHIP=__SAMD51J19A__</BuildTarget>
+    <CleanTarget>clean BOARD_ID=METRO_M4</CleanTarget>
     <ExternalMakeFilePath>Makefile</ExternalMakeFilePath>
     <OutputPath>bin\metrom4\</OutputPath>
   </PropertyGroup>

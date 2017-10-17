@@ -28,7 +28,7 @@
 MEMORY
 {
   FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x4000 /* First 16KB used by bootloader */
-  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00040000-0x0004 /* 4 bytes used by bootloader to keep data between resets */
+  RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00030000-0x0004 /* 4 bytes used by bootloader to keep data between resets */
 }
 
 /* Linker script to place sections and symbol values. Should be used together

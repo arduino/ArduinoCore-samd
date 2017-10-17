@@ -81,25 +81,6 @@ public:
 	inline void enableStartOfFrameInterrupt()  { usb.INTENSET.bit.SOF = 1; }
 	inline void disableStartOfFrameInterrupt() { usb.INTENCLR.bit.SOF = 1; }
 
-#if defined(__SAMD51__)	
-	//inline void isLpmSuspInterrupt()		    { return usb.INTFLAG.bit.LPMSUSP; }
-		
-	inline bool isRamErrInterrupt()				{ return usb.INTFLAG.bit.RAMACER; }
-	inline void ackRamErrInterrupt()			{ usb.INTFLAG.reg = USB_DEVICE_INTFLAG_RAMACER; }
-	inline void enableRamErrInterrupt()			{ usb.INTENSET.reg = USB_DEVICE_INTFLAG_RAMACER; }
-	inline void disableRamErrInterrupt()		{ usb.INTENCLR.reg = USB_DEVICE_INTFLAG_RAMACER; }
-	
-	inline bool isWakeupInterrupt()				{ return usb.INTFLAG.reg & (USB_DEVICE_INTFLAG_UPRSM | USB_DEVICE_INTFLAG_EORSM | USB_DEVICE_INTFLAG_WAKEUP); }
-	inline void ackWakeupInterrupt()			{ usb.INTFLAG.reg = USB_DEVICE_INTFLAG_UPRSM | USB_DEVICE_INTFLAG_EORSM | USB_DEVICE_INTFLAG_WAKEUP; }
-	inline void enableUSBWakeupInterrupts()		{ usb.INTENSET.reg = USB_DEVICE_INTENSET_UPRSM | USB_DEVICE_INTENSET_EORSM | USB_DEVICE_INTENSET_WAKEUP; }
-	inline void disableUSBWakeuptInterrupts()   { usb.INTENCLR.reg = USB_DEVICE_INTENCLR_UPRSM | USB_DEVICE_INTENCLR_EORSM | USB_DEVICE_INTENCLR_WAKEUP; }
-	
-	inline bool isSuspendInterrupt()			{ return usb.INTFLAG.bit.SUSPEND; }
-	inline void ackSuspendInterrupt()			{ usb.INTFLAG.reg = USB_DEVICE_INTFLAG_SUSPEND; }
-	inline void enableUSBSuspendInterrupts()	{ usb.INTENSET.reg = (USB_DEVICE_INTFLAG_LPMSUSP | USB_DEVICE_INTFLAG_SUSPEND); }
-	inline void disableUSBSuspendInterrupts()	{ usb.INTENCLR.reg = (USB_DEVICE_INTFLAG_LPMSUSP | USB_DEVICE_INTFLAG_SUSPEND); }
-#endif
-
 	// USB Address
 	inline void setAddress(uint32_t addr)   { usb.DADD.bit.DADD = addr; usb.DADD.bit.ADDEN = 1; }
 	inline void unsetAddress()              { usb.DADD.bit.DADD = 0;    usb.DADD.bit.ADDEN = 0; }

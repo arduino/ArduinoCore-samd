@@ -304,6 +304,9 @@ void USBDeviceClass::init()
 
 	/* Enable USB clock */
 #if defined(__SAMD51__)
+	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
+	MCLK->AHBMASK.reg |= MCLK_AHBMASK_USB;
+	
 	// Set up the USB DP/DN pins
 	PORT->Group[0].PINCFG[PIN_PA24H_USB_DM].bit.PMUXEN = 1;
 	PORT->Group[0].PMUX[PIN_PA24H_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24H_USB_DM & 0x01u)));
@@ -314,11 +317,6 @@ void USBDeviceClass::init()
 	
 	
 	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
-	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
-	while(GCLK->SYNCBUSY.bit.GENCTRL0)
-	{
-		/* Wait for synchronization */
-	}
 #else
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 	
@@ -920,20 +918,6 @@ void USBDeviceClass::ISRHandler()
 		}
 #endif
 	}
-	
-#if defined(__SAMD51__)
-	if (usbd.isRamErrInterrupt()){
-		usbd.ackRamErrInterrupt();
-		//TODO: do something about this error
-	}
-	if (usbd.isWakeupInterrupt()){
-		usbd.ackWakeupInterrupt();
-	}
-	
-	if (usbd.isSuspendInterrupt()){
-		usbd.ackSuspendInterrupt();
-	}
-#endif
 
 	// Endpoint 0 Received Setup interrupt
 	if (usbd.epBank0IsSetupReceived(0))
