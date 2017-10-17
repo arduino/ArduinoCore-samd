@@ -139,20 +139,19 @@ static const uint8_t ATN = PIN_ATN;
 #define PIN_SPI_MISO         (26u)
 #define PIN_SPI_MOSI         (27u)
 #define PIN_SPI_SCK          (28u)
-#define PERIPH_SPI           sercom4
+#define PERIPH_SPI           sercom2
 #define PAD_SPI_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI_RX           SERCOM_RX_PAD_3
 
-static const uint8_t SS	  = PIN_A2 ;	// SERCOM4 last PAD is present on A2 but HW SS isn't used. Set here only for reference.
+static const uint8_t SS	  = PIN_A2 ;	
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
-//TODO: we may have to move SPI1 (SPI flash) to another sercom
 #define PIN_SPI1_MISO         (34u)
 #define PIN_SPI1_MOSI         (35u)
 #define PIN_SPI1_SCK          (36u)
-#define PERIPH_SPI1           sercom5
+#define PERIPH_SPI1           sercom4
 #define PAD_SPI1_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_3
 
