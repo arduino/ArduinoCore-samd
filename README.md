@@ -1,7 +1,9 @@
 # Arduino Core for SAMD21 and SAMD51 CPU
 
-This is a bug in the SAMD51 silicon:
-- AREF must be tied to 3.3V for dac to work
+## Known Issues:
+* gcc optimizations must be off for sketches to work consistently. We are working to track this down.
+* board must be in bootloader mode to upload sketches. This is related to the above issue and hopefully will be fixed soon.
+* AREF must be tied to 3.3V for dac to work. This is a bug in the SAMD51 silicon.
 
 This repository contains the source code and configuration files of the Arduino Core
 for Atmel's SAMD21 and SAMD51 processor (used on the Arduino/Genuino Zero, MKR1000 and MKRZero boards).
