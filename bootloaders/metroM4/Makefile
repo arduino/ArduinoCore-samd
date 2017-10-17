@@ -56,11 +56,6 @@ NM=$(ARM_GCC_PATH)nm
 SIZE=$(ARM_GCC_PATH)size
 
 # -----------------------------------------------------------------------------
-# Boards definitions
-BOARD_ID?=FEATHER_M4
-BOARD_CHIP?=__SAMD51G19A__
-
-# -----------------------------------------------------------------------------
 # Compiler options
 CFLAGS_EXTRA=-D$(BOARD_CHIP) -DBOARD_ID_$(BOARD_ID)
 CFLAGS=-mthumb -mcpu=cortex-m4 -c -std=gnu99 -MD -MP -MF "$(@:%.o=%.d)" -MT"$(@:%.o=%.d)" -MT"$(@:%.o=%.o)" -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
@@ -71,7 +66,7 @@ else
 endif
 
 ELF=$(BOARD_ID)_sam_ba.elf
-BIN=$(BOARD_ID)_ba.bin
+BIN=$(BOARD_ID)_sam_ba.bin
 HEX=$(BOARD_ID)_sam_ba.hex
 
 

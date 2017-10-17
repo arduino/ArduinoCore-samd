@@ -35,7 +35,7 @@
  * BOOT_DOUBLE_TAP_ADDRESS must point to a free SRAM cell that must not
  * be touched from the loaded application.
  */
-#define BOOT_DOUBLE_TAP_ADDRESS           (0x20007FFCul)
+#define BOOT_DOUBLE_TAP_ADDRESS           (0x2002FFFCul)
 #define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
 
 /*

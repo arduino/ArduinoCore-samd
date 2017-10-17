@@ -73,17 +73,17 @@ typedef enum _ETCChannel
   TCC1_CH1 = (1<<8)|(1),
   TCC1_CH2 = (1<<8)|(0), // Channel 2 is 0!
   TCC1_CH3 = (1<<8)|(1), // Channel 3 is 1!
-#if defined(__SAMD51J20A__)
+#if defined(__SAMD51J19A__)
   TCC1_CH4 = (1<<8)|(2),
   TCC1_CH5 = (1<<8)|(3),
   TCC1_CH6 = (1<<8)|(4),
   TCC1_CH7 = (1<<8)|(5),
-#endif //__SAMD51J20A__
+#endif //__SAMD51J19A__
   TCC2_CH0 = (2<<8)|(0),
   TCC2_CH1 = (2<<8)|(1),
   TCC2_CH2 = (2<<8)|(0), // Channel 2 is 0!
   TCC2_CH3 = (2<<8)|(1), // Channel 3 is 1!
-#if defined(__SAMD51J20A__) //TODO: fix some of these PWM channels
+#if defined(__SAMD51J19A__) //TODO: fix some of these PWM channels
   TCC3_CH0 = (2<<8)|(0),
   TCC3_CH1 = (2<<8)|(1),
   TCC3_CH2 = (2<<8)|(0), // Channel 2 is 0!
@@ -94,14 +94,14 @@ typedef enum _ETCChannel
   TCC4_CH3 = (2<<8)|(1), // Channel 3 is 1
   TC5_CH0  = (5<<8)|(0),
   TC5_CH1  = (5<<8)|(1),
-#else //end __SAMD51J20A__
+#else //end __SAMD51J19A__
   TC3_CH0  = (3<<8)|(0),
   TC3_CH1  = (3<<8)|(1),
   TC4_CH0  = (4<<8)|(0),
   TC4_CH1  = (4<<8)|(1),
   TC5_CH0  = (5<<8)|(0),
   TC5_CH1  = (5<<8)|(1),
-#endif //__SAMD51J20A__
+#endif //__SAMD51J19A__
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -111,7 +111,7 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #define GetTC( x ) ( g_apTCInstances[(x) >> 8] )
 
 
-#if defined(__SAMD51J20A__)
+#if defined(__SAMD51J19A__)
 
   typedef enum _EPWMChannel
   {
@@ -144,7 +144,7 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
     PWM5_CH1=TC5_CH1,
   } EPWMChannel ;
 
-#else //end __SAMD51J20A__
+#else //end __SAMD51J19A__
   // Definitions for PWM channels
   typedef enum _EPWMChannel
   {
