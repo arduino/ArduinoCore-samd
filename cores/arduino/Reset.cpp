@@ -31,7 +31,13 @@ extern const uint32_t __text_start__;
 #define APP_START ((volatile uint32_t)(&__text_start__) + 4)
 
 #else
+
+#if defined(__SAMD51__)
+#define APP_START 0x00004004
+#else
 #define APP_START 0x00002004
+#endif
+
 #endif
 
 static inline bool nvmReady(void) {
@@ -50,7 +56,7 @@ static void banzai() {
 #if defined(__SAMD51__)
 	//THESE MUST MATCH THE BOOTLOADER
 	#define DOUBLE_TAP_MAGIC 			0x07738135
-	#define BOOT_DOUBLE_TAP_ADDRESS     0x20007FFC
+	#define BOOT_DOUBLE_TAP_ADDRESS     0x2002FFFCul
 
 	unsigned long *a = (unsigned long *)BOOT_DOUBLE_TAP_ADDRESS;
 	*a = DOUBLE_TAP_MAGIC;

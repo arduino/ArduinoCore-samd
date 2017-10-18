@@ -193,10 +193,12 @@
     </ToolchainSettings>
     <UsesExternalMakeFile>True</UsesExternalMakeFile>
     <OutputDirectory />
-    <BuildTarget>DEBUG=1 all BOARD_ID=METRO_M4 BOARD_CHIP=__SAMD51J19A__</BuildTarget>
+    <BuildTarget>DEBUG=0 all BOARD_ID=METRO_M4 BOARD_CHIP=__SAMD51J19A__</BuildTarget>
     <CleanTarget>clean BOARD_ID=METRO_M4</CleanTarget>
     <ExternalMakeFilePath>Makefile</ExternalMakeFilePath>
     <OutputPath>bin\metrom4\</OutputPath>
+    <OutputFileName>METRO_M4_sam_ba</OutputFileName>
+    <OutputFileExtension>.elf</OutputFileExtension>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="board_definitions.h">
