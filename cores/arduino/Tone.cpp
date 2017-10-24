@@ -69,7 +69,6 @@ void toneAccurateClock (uint32_t accurateSystemCoreClockFrequency)
   toneMaxFrequency = accurateSystemCoreClockFrequency / 2;
 }
 
-//DM TODO: make this work as a rest when frequency 0 is passed
 void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
 {
   // Configure interrupt request
@@ -90,6 +89,9 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
     while (GCLK->STATUS.bit.SYNCBUSY);
 #endif
   }
+
+  //if it's a rest, set to 1Hz (below audio range)
+  frequency = (frequency > 0 ? frequency : 1);
   
   if (toneIsActive && (outputPin != lastOutputPin))
     noTone(lastOutputPin);
