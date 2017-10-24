@@ -115,11 +115,12 @@ void UHD_Init(void)
 
 
 	/* Load Pad Calibration */
-#if defined(__SAMD51__) //TODO: verify the right address
-	pad_transn = (*((uint32_t *)(NVMCTRL_CBW4)       // Non-Volatile Memory Controller
+#if defined(__SAMD51__)
+	pad_transn = (*((uint32_t *)(NVMCTRL_SW0)       // Non-Volatile Memory Controller
 #else
 	pad_transn = (*((uint32_t *)(NVMCTRL_OTP4)       // Non-Volatile Memory Controller
 #endif
+
 					+ (NVM_USB_PAD_TRANSN_POS / 32))
 					>> (NVM_USB_PAD_TRANSN_POS % 32))
 				& ((1 << NVM_USB_PAD_TRANSN_SIZE) - 1);
@@ -131,8 +132,8 @@ void UHD_Init(void)
 
 	USB->HOST.PADCAL.bit.TRANSN = pad_transn;
 
-#if defined(__SAMD51__) //TODO: verify the right address
-	pad_transp = (*((uint32_t *)(NVMCTRL_CBW4)
+#if defined(__SAMD51__)
+	pad_transp = (*((uint32_t *)(NVMCTRL_SW0)
 #else
 	pad_transp = (*((uint32_t *)(NVMCTRL_OTP4)
 #endif
@@ -147,8 +148,8 @@ void UHD_Init(void)
 
 	USB->HOST.PADCAL.bit.TRANSP = pad_transp;
 
-#if defined(__SAMD51__) //TODO: verify the right address
-	pad_trim = (*((uint32_t *)(NVMCTRL_CBW4)
+#if defined(__SAMD51__)
+	pad_trim = (*((uint32_t *)(NVMCTRL_SW0)
 #else
 	pad_trim = (*((uint32_t *)(NVMCTRL_OTP4)
 #endif
@@ -190,9 +191,16 @@ void UHD_Init(void)
 	USB->HOST.CTRLB.bit.VBUSOK = 1;
 
 	// Configure interrupts
-#if defined(__SAMD51__) //TODO: verify the right interrupts
+#if defined(__SAMD51__)
 	NVIC_SetPriority((IRQn_Type)USB_0_IRQn, 0UL);
+	NVIC_SetPriority((IRQn_Type)USB_1_IRQn, 0UL);
+	NVIC_SetPriority((IRQn_Type)USB_2_IRQn, 0UL);
+	NVIC_SetPriority((IRQn_Type)USB_3_IRQn, 0UL);
+
 	NVIC_EnableIRQ((IRQn_Type)USB_0_IRQn);
+	NVIC_EnableIRQ((IRQn_Type)USB_1_IRQn);
+	NVIC_EnableIRQ((IRQn_Type)USB_2_IRQn);
+	NVIC_EnableIRQ((IRQn_Type)USB_3_IRQn);
 #else
 	NVIC_SetPriority((IRQn_Type)USB_IRQn, 0UL);
 	NVIC_EnableIRQ((IRQn_Type)USB_IRQn);
