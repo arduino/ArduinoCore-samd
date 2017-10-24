@@ -20,12 +20,23 @@
 
 void analogReadCorrection (int offset, uint16_t gain)
 {
+  Adc *adc;
+#if defined (__SAMD51__)
+adc = ADC0;
+#else
+adc = ADC;
+#endif
   // Set correction values
-  ADC->OFFSETCORR.reg = ADC_OFFSETCORR_OFFSETCORR(offset);
-  ADC->GAINCORR.reg = ADC_GAINCORR_GAINCORR(gain);
+  adc->OFFSETCORR.reg = ADC_OFFSETCORR_OFFSETCORR(offset);
+  adc->GAINCORR.reg = ADC_GAINCORR_GAINCORR(gain);
 
   // Enable digital correction logic
-  ADC->CTRLB.bit.CORREN = 1;
-  while(ADC->STATUS.bit.SYNCBUSY);
+  adc->CTRLB.bit.CORREN = 1;
+
+#if defined (__SAMD51__)
+  while(adc->SYNCBUSY.bit.OFFSETCORR || adc->SYNCBUSY.bit.GAINCORR);
+#else
+  while(adc->STATUS.bit.SYNCBUSY);
+#endif
 }
 
