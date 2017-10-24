@@ -11,9 +11,21 @@ In particular, this adds support for the Adafruit SAMD Boards such as the Feathe
 
 ## Installation on Arduino IDE
 
-Install the Adafruit Board Support package json and then install the Adafruit SAMD board package
+This is a detailed process for now!
 
-https://learn.adafruit.com/adafruit-feather-m0-basic-proto/using-with-arduino-ide
+1. Install Arduino IDE 1.8.5 or greater
+2. Remove the Adafruit SAMD board support package if you have installed it
+3. make a folder in your ArduinoSketchFolder called "hardware", then make a folder "hardware/Adafruit"
+4. in "hardware/Adafruit" git clone https://github.com/adafruit/ArduinoCore-samd, and rename the folder "samd"
+5. Check you now have "ArduinoSketcheFolderName/hardware/Adafruit/samd/boards.txt"
+6. git checkout samd51 from within the cloned repo, and check boards.txt contains "# Adafruit Metro M4 (SAMD51)"
+7. Now we need to update CMSIS! Download https://github.com/adafruit/ArduinoModule-CMSIS-Atmel/archive/master.zip and unzip
+8. Find your Arduino CMSIS, in Mac its "~/Library/Arduino15/packages/arduino/tools/CMSIS-Atmel/1.1.0/CMSIS" version # may vary, you'll need "Go to folder..." feature in the Finder to get to " ~/Library/Arduino15" as it is hidden. In Windows it is "C:\Users\yourusername\AppData\Local\Arduino15\packages\arduino\tools\CMSIS-Atmel\1.1.0\CMSIS" Inside is a folder named Device
+9. Inside the downloaded CMSIS zip, go into the CMSIS-Atmel/CMSIS folder, you should see a folder named Device. *DRAG THE DEVICE FOLDER ONLY* from the zip to your arduino Library folder so that Device is merged with Device. It will replace a bunch of files.
+10. You will also need to replace bossac. Go here https://github.com/adafruit/BOSSA/releases and download either windows exe or mac app of latest bossac. unzip
+11. Replace the binary at ".../Library/Arduino15/packages/arduino/tools/bossac/1.7.0/bossac" or "...\AppData\Local\Arduino15\packages\arduino\tools\bossac\1.7.0\bossac"
+12. On Windows 7 you will also need to install the updated serial driver, download https://github.com/adafruit/Adafruit_Windows_Drivers/archive/master.zip to get all the drivers, and point the Device Manager to the unzipped folder. It isn't signed, so just approve the installation manually.
+13. That's it!
 
 ## Bugs or Issues
 
