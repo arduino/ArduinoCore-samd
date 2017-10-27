@@ -24,7 +24,7 @@ This is a detailed process for now!
 7. Now we need to update CMSIS! Download https://github.com/adafruit/ArduinoModule-CMSIS-Atmel/archive/master.zip and unzip
 8. Find your Arduino CMSIS, in Mac its "~/Library/Arduino15/packages/arduino/tools/CMSIS-Atmel/1.1.0/CMSIS" version # may vary, you'll need "Go to folder..." feature in the Finder to get to " ~/Library/Arduino15" as it is hidden. In Windows it is "C:\Users\yourusername\AppData\Local\Arduino15\packages\arduino\tools\CMSIS-Atmel\1.1.0\CMSIS" Inside is a folder named Device
 
-For Linux: the Arduino stuff is located in ~/.arduino15/packagesarduino/tools/CMSIS-Atmel/1.1.0/CMSIS
+For Linux: the Arduino stuff is located in ~/.arduino15/packages/arduino/tools/CMSIS-Atmel/1.1.0/CMSIS
 
 9. Inside the downloaded CMSIS zip, go into the CMSIS-Atmel/CMSIS folder, you should see a folder named Device. *DRAG THE DEVICE FOLDER ONLY* from the zip to your arduino Library folder so that Device is merged with Device. It will replace a bunch of files.
 
