@@ -39,7 +39,7 @@ git clone https://github.com/adafruit/BOSSA.git
 change to the arduino branch
 git checkout arduino
 ```
-Follow the instructions to build bossac inn README.md or at https://github.com/adafruit/BOSSA/tree/arduino.
+Follow the instructions to build bossac in README.md or at https://github.com/adafruit/BOSSA/tree/arduino.
 
 11. Replace the binary at ".../Library/Arduino15/packages/arduino/tools/bossac/1.7.0/bossac" or "...\AppData\Local\Arduino15\packages\arduino\tools\bossac\1.7.0\bossac"
 12. On Windows 7 you will also need to install the updated serial driver, download https://github.com/adafruit/Adafruit_Windows_Drivers/archive/master.zip to get all the drivers, and point the Device Manager to the unzipped folder. It isn't signed, so just approve the installation manually.
