@@ -34,7 +34,8 @@ For Linux, it may be better to just delete the original Device Folder then copy 
 
 For Linux users it is best to build a copy of bossac locally - 
 clone the Adafruit Repostitory to somewhere on your local machine.
-```git clone https://github.com/adafruit/BOSSA.git
+```
+git clone https://github.com/adafruit/BOSSA.git
 change to the arduino branch
 git checkout arduino
 Follow the instructions to build bossac.
