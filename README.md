@@ -28,9 +28,17 @@ For Linux: the Arduino stuff is located in ~/.arduino15/packages/arduino/tools/C
 
 9. Inside the downloaded CMSIS zip, go into the CMSIS-Atmel/CMSIS folder, you should see a folder named Device. *DRAG THE DEVICE FOLDER ONLY* from the zip to your arduino Library folder so that Device is merged with Device. It will replace a bunch of files.
 
-For Linux, it may be better to just delete the original Device Folder then copy over the new one - the drag/drop wokred ok on MACOS, but not so well on my Linux box.  
+For Linux, it may be better to just delete the original Device Folder then copy over the new one - the drag/drop worked ok on MACOS, but not so well on my Linux box.  
 
 10. You will also need to replace bossac. Go here https://github.com/adafruit/BOSSA/releases and download either windows exe or mac app of latest bossac. unzip
+
+For Linux users it is best to build a copy of bossac locally - 
+clone the Adafruit Repostitory to somewhere on your local machine.
+git clone https://github.com/adafruit/BOSSA.git
+change to the arduino branch
+git checkout arduino
+Follow the instructions to build bossac.
+
 11. Replace the binary at ".../Library/Arduino15/packages/arduino/tools/bossac/1.7.0/bossac" or "...\AppData\Local\Arduino15\packages\arduino\tools\bossac\1.7.0\bossac"
 12. On Windows 7 you will also need to install the updated serial driver, download https://github.com/adafruit/Adafruit_Windows_Drivers/archive/master.zip to get all the drivers, and point the Device Manager to the unzipped folder. It isn't signed, so just approve the installation manually.
 13. That's it!
