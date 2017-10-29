@@ -34,11 +34,11 @@ For Linux, it may be better to just delete the original Device Folder then copy 
 
 For Linux users it is best to build a copy of bossac locally - 
 clone the Adafruit Repostitory to somewhere on your local machine.
-git clone https://github.com/adafruit/BOSSA.git
+```git clone https://github.com/adafruit/BOSSA.git
 change to the arduino branch
 git checkout arduino
 Follow the instructions to build bossac.
-
+```
 11. Replace the binary at ".../Library/Arduino15/packages/arduino/tools/bossac/1.7.0/bossac" or "...\AppData\Local\Arduino15\packages\arduino\tools\bossac\1.7.0\bossac"
 12. On Windows 7 you will also need to install the updated serial driver, download https://github.com/adafruit/Adafruit_Windows_Drivers/archive/master.zip to get all the drivers, and point the Device Manager to the unzipped folder. It isn't signed, so just approve the installation manually.
 13. That's it!
