@@ -217,10 +217,9 @@ void initVariant() {
   pinMode(ADC_BATTERY, INPUT);
   delay(100);
 
-  if (analogRead(ADC_BATTERY) > 800) {
+  if (analogRead(ADC_BATTERY) > 600) {
     enable_battery_charging();
-  }
-  else{
+  } else {
     disable_battery_charging();
   }
 
