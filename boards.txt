@@ -41,6 +41,7 @@ adafruit_feather_m0.build.vid=0x239A
 adafruit_feather_m0.build.pid=0x800B
 adafruit_feather_m0.bootloader.tool=openocd
 adafruit_feather_m0.bootloader.file=feather/samd21_sam_ba.bin
+adafruit_feather_m0.compiler.arm.cmsis.ldflags=-larm_cortexM0l_math
 
 adafruit_feather_m0_express.name=Adafruit Feather M0 Express
 adafruit_feather_m0_express.vid.0=0x239A
@@ -172,7 +173,7 @@ adafruit_metro_m4.build.usb_product="Adafruit Metro M4"
 adafruit_metro_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_metro_m4.build.board=METRO_M4
 adafruit_metro_m4.build.core=arduino
-adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags}
+adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags} -DARM_MATH_CM4
 adafruit_metro_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_metro_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_metro_m4.build.variant=metro_m4
