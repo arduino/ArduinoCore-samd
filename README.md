@@ -23,8 +23,24 @@ This is a detailed process for now!
 6. git checkout samd51 from within the cloned repo, and check boards.txt contains "# Adafruit Metro M4 (SAMD51)"
 7. Now we need to update CMSIS! Download https://github.com/adafruit/ArduinoModule-CMSIS-Atmel/archive/master.zip and unzip
 8. Find your Arduino CMSIS, in Mac its "~/Library/Arduino15/packages/arduino/tools/CMSIS-Atmel/1.1.0/CMSIS" version # may vary, you'll need "Go to folder..." feature in the Finder to get to " ~/Library/Arduino15" as it is hidden. In Windows it is "C:\Users\yourusername\AppData\Local\Arduino15\packages\arduino\tools\CMSIS-Atmel\1.1.0\CMSIS" Inside is a folder named Device
+
+For Linux: the Arduino stuff is located in ~/.arduino15/packages/arduino/tools/CMSIS-Atmel/1.1.0/CMSIS
+
 9. Inside the downloaded CMSIS zip, go into the CMSIS-Atmel/CMSIS folder, you should see a folder named Device. *DRAG THE DEVICE FOLDER ONLY* from the zip to your arduino Library folder so that Device is merged with Device. It will replace a bunch of files.
-10. You will also need to replace bossac. Go here https://github.com/adafruit/BOSSA/releases and download either windows exe or mac app of latest bossac. unzip
+
+For Linux, it may be better to just delete the original Device Folder then copy over the new one - the drag/drop worked ok on MACOS, but not so well on my Linux box.  
+
+10. You will also need to replace bossac. For Windows or Mac: Go here https://github.com/adafruit/BOSSA/releases and download either windows exe or mac app of latest bossac. unzip.  Go to Step 12.
+
+For Linux users it is best to build a copy of bossac locally - 
+clone the Adafruit Repostitory to somewhere on your local machine.
+```
+git clone https://github.com/adafruit/BOSSA.git
+change to the arduino branch
+git checkout arduino
+```
+Follow the instructions to build bossac in README.md or at https://github.com/adafruit/BOSSA/tree/arduino.
+
 11. Replace the binary at ".../Library/Arduino15/packages/arduino/tools/bossac/1.7.0/bossac" or "...\AppData\Local\Arduino15\packages\arduino\tools\bossac\1.7.0\bossac"
 12. On Windows 7 you will also need to install the updated serial driver, download https://github.com/adafruit/Adafruit_Windows_Drivers/archive/master.zip to get all the drivers, and point the Device Manager to the unzipped folder. It isn't signed, so just approve the installation manually.
 13. That's it!
