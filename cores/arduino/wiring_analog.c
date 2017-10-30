@@ -25,11 +25,12 @@ extern "C" {
 
 static int _readResolution = 10;
 static int _ADCResolution = 10;
-static int _writeResolution = 8;
 
 #if defined(__SAMD51__)
+static int _writeResolution = 12;
 static int _dacResolution = 12;
 #else
+static int _writeResolution = 8;
 static int _dacResolution = 8;
 #endif
 

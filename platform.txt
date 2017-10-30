@@ -62,7 +62,8 @@ compiler.S.extra_flags=
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
 
-compiler.arm.cmsis.path="-I{runtime.tools.CMSIS.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS.path}/Device/ATMEL/"
+compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.1.0.path}/CMSIS/Device/ATMEL/"
+compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/"
 
 # USB Flags
 # ---------
