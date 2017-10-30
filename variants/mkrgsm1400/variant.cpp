@@ -193,7 +193,7 @@ static inline void enable_battery_charging() {
   PERIPH_WIRE.disableWIRE();
 }
 
-static inline void disable_battery_charging() {
+static inline void disable_battery_fet(bool disabled) {
   PERIPH_WIRE.initMasterWIRE(100000);
   PERIPH_WIRE.enableWIRE();
   pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
@@ -201,27 +201,30 @@ static inline void disable_battery_charging() {
 
   PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
   PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
-  PERIPH_WIRE.sendDataMasterWIRE(0x2B); // Charge Battery + Minimum System Voltage 3.5V
+  // No D+/D– detection + Safety timer not slowed by 2X during input DPM or thermal regulation +
+  // BAT fet disabled/enabled + charge and bat fault INT
+  PERIPH_WIRE.sendDataMasterWIRE(0x0B | (disabled ? 0x20 : 0x00));
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
   PERIPH_WIRE.disableWIRE();
 }
-#else
 
 #endif
 
 void initVariant() {
+#if defined(USE_BQ24195L_PMIC)
   pinMode(ADC_BATTERY, OUTPUT);
   digitalWrite(ADC_BATTERY, LOW);
   delay(10);
   pinMode(ADC_BATTERY, INPUT);
   delay(100);
 
-  if (analogRead(ADC_BATTERY) > 600) {
+  bool batteryPresent = analogRead(ADC_BATTERY) > 600;
+  if (batteryPresent) {
     enable_battery_charging();
-  } else {
-    disable_battery_charging();
   }
+  disable_battery_fet(!batteryPresent);
+#endif
 
   // Workaround for RTS not being controlled correctly
   pinMode(GSM_RTS, OUTPUT);
