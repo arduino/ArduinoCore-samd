@@ -225,10 +225,6 @@ void initVariant() {
   }
   disable_battery_fet(!batteryPresent);
 #endif
-
-  // Workaround for RTS not being controlled correctly
-  pinMode(GSM_RTS, OUTPUT);
-  digitalWrite(GSM_RTS, LOW);
 }
 
 // Serial1
