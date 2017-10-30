@@ -225,6 +225,10 @@ void initVariant() {
   }
   disable_battery_fet(!batteryPresent);
 #endif
+
+  // put GSM modem in reset on start to conserve power if it's not used
+  pinMode(GSM_RESETN, OUTPUT);
+  digitalWrite(GSM_RESETN, HIGH);
 }
 
 // Serial1
