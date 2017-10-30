@@ -229,6 +229,10 @@ void initVariant() {
   // put GSM modem in reset on start to conserve power if it's not used
   pinMode(GSM_RESETN, OUTPUT);
   digitalWrite(GSM_RESETN, HIGH);
+
+  // set GSM DTR to LOW on start
+  pinMode(GSM_DTR, OUTPUT);
+  digitalWrite(GSM_DTR, LOW);
 }
 
 // Serial1
