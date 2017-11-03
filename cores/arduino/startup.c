@@ -50,6 +50,7 @@
 
 void SystemInit( void )
 {
+
 //***************** SAMD51 ************************//
 #if defined(__SAMD51__)
   NVMCTRL->CTRLA.reg |= NVMCTRL_CTRLA_RWS(0);
@@ -96,6 +97,10 @@ void SystemInit( void )
 	/* ----------------------------------------------------------------------------------------------
 	* 4) Enable DFLL48M clock
 	*/
+
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_GENCTRL0 ){
+    /* Wait for synchronization */
+  }
 
 	/* DFLL Configuration in Open Loop mode */
 
@@ -203,6 +208,8 @@ void SystemInit( void )
   /*---------------------------------------------------------------------
   * Set up main clock
   */
+
+
 	GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = GCLK_GENCTRL_SRC(MAIN_CLOCK_SOURCE) |
 					GCLK_GENCTRL_IDC |
 					//GCLK_GENCTRL_OE |
