@@ -35,8 +35,8 @@
  * BOOT_DOUBLE_TAP_ADDRESS must point to a free SRAM cell that must not
  * be touched from the loaded application.
  */
-#define BOOT_DOUBLE_TAP_ADDRESS           (0x2002FFFCul)
-#define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *) BOOT_DOUBLE_TAP_ADDRESS))
+#define BOOT_DOUBLE_TAP_ADDRESS           (HSRAM_ADDR + HSRAM_SIZE - 4)
+#define BOOT_DOUBLE_TAP_DATA              (*((volatile uint32_t *)BOOT_DOUBLE_TAP_ADDRESS))
 
 /*
  * If BOOT_LOAD_PIN is defined the bootloader is started if the selected

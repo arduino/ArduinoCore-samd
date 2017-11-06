@@ -55,8 +55,8 @@ static void banzai() {
 	
 #if defined(__SAMD51__)
 	//THESE MUST MATCH THE BOOTLOADER
-	#define DOUBLE_TAP_MAGIC 			0x07738135
-	#define BOOT_DOUBLE_TAP_ADDRESS     0x2002FFFCul
+	#define DOUBLE_TAP_MAGIC 			0xf01669efUL
+	#define BOOT_DOUBLE_TAP_ADDRESS     (HSRAM_ADDR + HSRAM_SIZE - 4)
 
 	unsigned long *a = (unsigned long *)BOOT_DOUBLE_TAP_ADDRESS;
 	*a = DOUBLE_TAP_MAGIC;
