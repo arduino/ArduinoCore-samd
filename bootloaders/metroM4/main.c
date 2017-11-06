@@ -78,7 +78,7 @@ uint32_t* pulSketch_Start_Address;
   }
 
 #if defined(BOOT_DOUBLE_TAP_ADDRESS)
-  #define DOUBLE_TAP_MAGIC 0x07738135
+  #define DOUBLE_TAP_MAGIC 0xf01669efUL
   //if (PM->RCAUSE.bit.POR)
   if( RSTC->RCAUSE.bit.POR )
   {
