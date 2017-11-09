@@ -100,6 +100,9 @@
 
 // bMaxPower in Configuration Descriptor
 #define USB_CONFIG_POWER_MA(mA)                ((mA)/2)
+#ifndef USB_CONFIG_POWER
+ #define USB_CONFIG_POWER                      (500)
+#endif
 
 #define CDC_V1_10                               0x0110
 #define CDC_COMMUNICATION_INTERFACE_CLASS       0x02
@@ -258,7 +261,7 @@ _Pragma("pack()")
  *    idVendor, idProduct, bcdDevice, iManufacturer, iProduct, iSerialNumber, bNumConfigurations */
 
 #define D_CONFIG(_totalLength,_interfaces) \
-	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_BUS_POWERED | USB_CONFIG_REMOTE_WAKEUP, USB_CONFIG_POWER_MA(500) }
+	{ 9, 2, _totalLength,_interfaces, 1, 0, USB_CONFIG_BUS_POWERED | USB_CONFIG_REMOTE_WAKEUP, USB_CONFIG_POWER_MA(USB_CONFIG_POWER) }
 /* Table 9-10. Standard Configuration Descriptor
  * bLength, bDescriptorType, wTotalLength, bNumInterfaces, bConfigurationValue, iConfiguration
  * bmAttributes, bMaxPower */
