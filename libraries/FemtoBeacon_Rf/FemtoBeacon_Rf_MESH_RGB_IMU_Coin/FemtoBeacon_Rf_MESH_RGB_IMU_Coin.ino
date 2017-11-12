@@ -17,7 +17,21 @@
      - MARG should be 4 (DCM)
      - MAG_DEC needs to be set to your location's magnetic declination (degrees)
      - Calibrate your IMU using the FreeIMU GUI tool (should generate a calibration.h file, include alongside this sketch)
+
+   Credits to github.com "nonsintetic" for the timer code below: 
+   https://gist.github.com/nonsintetic/ad13e70f164801325f5f552f84306d6f
 */
+
+/**
+ * FemtoBeacon Coin (r2.0.5 and higher) 
+ * Arduino Pin  | Chip port   | Color channel
+ * -------------+-------------+--------------
+ * D5~          | PA06        | Red (Fake PWM via timer, as it's not an anlogue pin)
+ * D6~          | PA07        | Green
+ * D21          | PA27        | Blue
+ * 
+ *
+ */
 
 #include <stdio.h>
 #include <string.h>
@@ -41,9 +55,20 @@
 
 
 /** BEGIN Atmel's LightWeight Mesh stack. **/
+
+#define DEFAULT_ANTENNA 1 // 1 = Chip antenna, 2 = uFL antenna
+
 #include "lwm.h"
 #include "lwm/sys/sys.h"
 #include "lwm/nwk/nwk.h"
+#include "lwm/phy/phy.h"
+
+#include "lwm/sys/sysTypes.h"
+#include "lwm/hal/hal.h"
+#include "lwm/hal/halPhy.h"
+
+static void phyWriteRegister(uint8_t reg, uint8_t value);
+
 /** END Atmel's LightWeight Mesh stack. **/
 
 /** BEGIN mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
@@ -87,12 +112,12 @@
 /** END mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
 
 /** BEGIN Networking vars **/
-extern "C" {
-  void                      println(char *x) {
-    Serial.println(x);
-    Serial.flush();
-  }
-}
+//extern "C" {
+//  void                      println(char *x) {
+//    Serial.println(x);
+//    Serial.flush();
+//  }
+//}
 
 #ifdef NWK_ENABLE_SECURITY
 #define APP_BUFFER_SIZE     (NWK_MAX_PAYLOAD_SIZE - NWK_SECURITY_MIC_SIZE)
@@ -119,6 +144,33 @@ static bool                 send_message_busy = false;
 byte pingCounter            = -2147483648; // Minimum value as a starting point
 long tickCounter            = 0;
 /** END Networking vars **/
+
+/** BEGIN RGB Pins **/
+volatile int LED_R = 5;
+volatile int LED_G = 6;
+volatile int LED_B = 21;
+
+volatile bool LED_R_STATE = false;
+volatile bool LED_G_STATE = false;
+volatile bool LED_B_STATE = false;
+
+volatile long LED_R_TICK = 0;
+volatile long LED_G_TICK = 0;
+volatile long LED_B_TICK = 0;
+
+// Vary the Duty Cycle to mix colors!
+volatile long MAX_DUTY_CYCLE = 48; // Should be fast enough to fake PWM the Red pin.
+
+volatile long LED_R_DUTY_CYCLE = MAX_DUTY_CYCLE; // (Brightness: 1 = ON, MAX_DUTY_CYCLE = OFF)
+volatile long LED_G_DUTY_CYCLE = MAX_DUTY_CYCLE;
+volatile long LED_B_DUTY_CYCLE = MAX_DUTY_CYCLE;
+
+volatile long LAST_TICK = 0;
+volatile long CURRENT_TICK = 0;
+
+bool RGB_TIMER_STATE = false;
+
+/** END RGB Pins **/
 
 /** BEGIN Sensor vars **/
 // Sensor reading.
@@ -187,44 +239,49 @@ void setup() {
       break;
     }
     }*/
-
-#ifdef FSYNC_FIX
-  pinMode(PIN_INT, INPUT);
-  pinMode(PIN_FSYNC, OUTPUT);
-  digitalWrite(PIN_FSYNC, HIGH);
-  delay(10);
-  digitalWrite(PIN_FSYNC, LOW);
-#endif
-
+  setupRGB();
+  
+  setRGB(255, 0, 0); // Red
+  
   // put your setup code here, to run once:
 #ifdef OUTPUT_SERIAL
-  setupSerialComms();
 
+  setupSerialComms();
   Serial.print("Starting LwMesh...");
 #endif
-  setupMeshNetworking();
 
+  
+  setupMeshNetworking();
+  setRGB(0, 0, 255); //Blue
+  delay(100);
+#ifdef OUTPUT_SERIAL
+  Serial.println("OK.");
+  
+  Serial.print("Starting RTC...");
+#endif
+  
+  // RTC initialization
+  rtc.begin();
+  setRGB(96, 48, 0); // Yellow
+  delay(100);
+  
 #ifdef OUTPUT_SERIAL
   Serial.println("OK.");
 
   Serial.print("Starting Sensors...");
 #endif
 
-  // RTC initialization
-  rtc.begin();
-
   // Sensor initialization
   setupSensors();
-
-  // Setup interrupt/wake/sleep
-  setupSleep();
+  setRGB(0, 255, 0); // Green
+  delay(100);
 
 #ifdef OUTPUT_SERIAL
   Serial.println("OK.");
   Serial.print("App buffer size is ");
   Serial.println(APP_BUFFER_SIZE);
 #endif
-
+  
   // REQUIRED! calls to dtostrf will otherwise fail (optimized out?)
   char cbuff[7];
   dtostrf(123.4567, 6, 2, cbuff);
@@ -237,11 +294,23 @@ void setup() {
 #endif
 }
 
+static void setupRGB() {
+  tcConfigure(MAX_DUTY_CYCLE);
+  tcStartCounter();
+  
+  CURRENT_TICK = micros();
+  LAST_TICK = CURRENT_TICK;
+  //pins driven by analogWrite do not need to be declared as outputs
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_B, OUTPUT);
+}
+
 void setupSerialComms() {
   while (!Serial);
 
 
-  Serial.begin(115200);
+  Serial.begin(500000);
   Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
   Serial.println(APP_ADDRESS);
 }
@@ -262,6 +331,18 @@ void setupMeshNetworking() {
   delay(10);
 
   SYS_Init();
+
+  // Use u.FL antenna?
+  // Set to chip antenna, or uFL antenna?
+  #ifdef DEFAULT_ANTENNA
+
+  if (2 == DEFAULT_ANTENNA) {
+      phyWriteRegister(ANT_DIV_REG, (2 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
+  } else {
+      phyWriteRegister(ANT_DIV_REG, (1 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
+  }
+
+  #endif
 
   // Set TX Power for internal at86rf233, default is 0x0 (+4 dbm)
   // TX_PWR  0x0 ( +4   dBm)
@@ -293,9 +374,7 @@ void setupMeshNetworking() {
 
 void setupSensors() {
   Wire.begin();
-
   delay(10);
-  
   sensors.init(true); // the parameter enable or disable fast mode
   delay(10);
 }
@@ -303,19 +382,11 @@ void setupSensors() {
 
 void loop() {
 
-#ifdef OUTPUT_SERIAL
-//  Serial.print("*");
-#endif
-
-#ifdef FSYNC_FIX
-  digitalWrite(PIN_FSYNC, HIGH);
-  digitalWrite(PIN_FSYNC, LOW);
-#endif
-
-
   handleNetworking();
-
+  
 }
+
+
 
 void handleNetworking()
 {
@@ -334,9 +405,71 @@ void handleNetworking()
       // @TODO implement FIFO Stack of sensor data to transmit.
 
       if (is_sensor_on == true && is_wireless_ok == true) {
+
         handleSensors();
       }
+      
       sendMessage();
+      
+  }
+}
+
+static void setRGB(byte R, byte G, byte B) {
+  setRGB(R, G, B, true);
+}
+
+static void setRGB(byte R, byte G, byte B, bool forceHandling) {
+  // Map 0-255 to 1000-0
+  LED_R_DUTY_CYCLE = map(R, 0, 255, MAX_DUTY_CYCLE, 1);
+  LED_G_DUTY_CYCLE = map(G, 0, 255, MAX_DUTY_CYCLE, 1);
+  LED_B_DUTY_CYCLE = map(B, 0, 255, MAX_DUTY_CYCLE, 1);
+
+  if (forceHandling) {
+    handleRGB();
+  }
+}
+static void handleRGB() {
+  CURRENT_TICK = micros();
+  
+  if (CURRENT_TICK > LAST_TICK + 1) {
+    LAST_TICK = CURRENT_TICK;
+
+    handleColorPWM(LED_R, LED_R_TICK, LED_R_DUTY_CYCLE, LED_R_STATE);
+    handleColorPWM(LED_G, LED_G_TICK, LED_G_DUTY_CYCLE, LED_G_STATE);
+    handleColorPWM(LED_B, LED_B_TICK, LED_B_DUTY_CYCLE, LED_B_STATE);
+    
+  }
+}
+
+static void handleColorPWM(volatile int &led, volatile long &tick, volatile long &duty_cycle, volatile bool &state) {
+
+  if (duty_cycle >= MAX_DUTY_CYCLE)
+  {
+    digitalWrite(led, HIGH);
+    state = false;
+    tick = 0;
+    return;
+  }
+  
+  if (state) {
+      digitalWrite(led, HIGH);
+      ++tick;
+      if (tick >= duty_cycle) {
+        state = false;
+        tick = 0;
+
+        
+      }
+  } else {
+    digitalWrite(led, LOW);
+    ++tick;
+
+    if (tick >= (MAX_DUTY_CYCLE - duty_cycle)) {
+      state = true;
+      tick = 0;
+
+      
+    }
   }
 }
 
@@ -529,6 +662,11 @@ void resetBuffer() {
   bufferData[APP_BUFFER_SIZE] = '\0';
 }
 
+static void phyWriteRegister(uint8_t reg, uint8_t value)
+{
+  SPI.transfer(RF_CMD_REG_W | reg);
+  SPI.transfer(value);
+}
 
 static void sendMessage(void) {
 
@@ -576,12 +714,14 @@ static void sendMessageConfirm(NWK_DataReq_t *req)
     #ifdef OUTPUT_SERIAL
     Serial.println("NWK_NO_ACK_STATUS");
     #endif;
+    setRGB(0, 0, 0, false); // Off
     
   } else if (NWK_NO_ROUTE_STATUS == req->status) {
     
     #ifdef OUTPUT_SERIAL
     Serial.println("NWK_NO_ROUTE_STATUS");
     #endif
+
   } else if (NWK_SUCCESS_STATUS == req->status) {
     network_error_count = 0;
     is_wireless_ok = true;
@@ -590,18 +730,20 @@ static void sendMessageConfirm(NWK_DataReq_t *req)
     #ifdef OUTPUT_SERIAL
         Serial.println("NWK_SUCCESS_STATUS");
     #endif
-  
+
+    setRGB(0, 48, 48, false); // Cyan (low brightness)
   } else {
     
     #ifdef OUTPUT_SERIAL
-    Serial.print(" . ");
+    Serial.println(" . ");
     #endif
     
     ++network_error_count;
+    setRGB(96, 48, 0); // Red-orange (low brightness)
     if (network_error_count > 1000) {
       #ifdef OUTPUT_SERIAL
       Serial.println("NWK_ERROR_STATUS ...Going to sleep.");
-      
+        
       #endif
       network_error_count = 0;
       sleepMode();
@@ -701,29 +843,18 @@ static bool receiveMessage(NWK_DataInd_t *ind) {
   return true;
 }
 
-void setupSleep() {
-
-
-
-  // Datasheet says when Framebuffer is cleared, PB00 is triggered.
-  //  attachInterrupt(digitalPinToInterrupt(24), wakeUp, LOW); // Connects to PB00 (IRQ to AT86RF233 radio module)
-  //
-  //  // Set EIC (External Interrupt Controller) to wake up the MCU on an external interrupt from EIC channel 0, Pin PB00
-  //  EIC->WAKEUP.reg = EIC_WAKEUP_WAKEUPEN0;
-  //
-  //  // Tie the
-  //  pinMode(24, INPUT); // PB00
-  
-  
-
-}
-
 void sleepMode() {
   // Set internal AT86RF233 tranciever to SLEEP before
   // SAM R21 enters STANDBY
 #ifdef OUTPUT_SERIAL
   Serial.println("Internal AT86RF233 going into standby mode...");
 #endif
+  // Stope the RGB LED timer
+  setRGB(128, 0, 0); // Red (low power)
+  
+  tcDisable();
+  tcReset();
+
   // Set AT86RF233 Radio module to Standby mode.
   NWK_SleepReq();
   delay(1000);
@@ -756,35 +887,37 @@ void sleepMode() {
 #endif
 
 
-  #ifdef OUTPUT_SERIAL
+#ifdef OUTPUT_SERIAL
   Serial.print("Time is ");
   Serial.print(uEpoch);
   Serial.print(".Next alarm time (seconds) is ");
-//  Serial.print(AlarmTime);
   Serial.print(uNextEpoch);
   Serial.println(". Setting alarm...");
   Serial.end();
-  #endif
-  //  rtc.setAlarmEpoch(uNextEpoch);
+#endif
+  setRGB(0, 0, 0); // Off
   rtc.attachInterrupt(wakeUp);
-//  rtc.setAlarmSeconds(AlarmTime); // Wake on the 30th second of every minute;
   rtc.setAlarmEpoch(uNextEpoch);
   rtc.enableAlarm(rtc.MATCH_SS); // Match seconds only
 
-
   rtc.standbyMode();
 
-  #ifdef OUTPUT_SERIAL
-    USBDevice.attach();
-    delay(1000);
-    while(!Serial);
-    Serial.begin(500000);
-    Serial.println("Woke up... Continue Mesh networking.");
-    Serial.end();
-  #endif
+#ifdef OUTPUT_SERIAL
+  USBDevice.attach();
+  delay(1000);
+  while(!Serial);
+  Serial.begin(500000);
+  Serial.println("Woke up... Continue Mesh networking.");
+  Serial.end();
+#endif
 
   shouldBeSleeping = false;
   is_sensor_on = true;
+
+  // RGB LED stuff
+  tcConfigure(MAX_DUTY_CYCLE);
+  tcStartCounter();
+  // Wake up the Network device
   NWK_WakeupReq();
   delay(1000);
 
@@ -801,6 +934,10 @@ void sleepMode() {
   Serial.println("Sensors reset.");
   Serial.end();
   #endif
+
+  // Reset RGB pins, and tick
+  setupRGB();
+  setRGB(255, 255, 0);
 }
 
 void wakeUp() {
@@ -833,4 +970,83 @@ void wakeUp() {
   // Wake up micro controller
   shouldBeSleeping = false;
 */
+}
+
+
+/**
+ * Timer example from "nonintetic"
+ * See gitst https://gist.github.com/nonsintetic/ad13e70f164801325f5f552f84306d6f
+ */
+//this function gets called by the interrupt at <sampleRate>Hertz
+void TC5_Handler (void) {
+
+  handleRGB();
+  // END OF YOUR CODE
+  TC5->COUNT16.INTFLAG.bit.MC0 = 1; //don't change this, it's part of the timer code
+}
+
+/* 
+ *  TIMER SPECIFIC FUNCTIONS FOLLOW
+ *  you shouldn't change these unless you know what you're doing
+ */
+
+//Configures the TC to generate output events at the sample frequency.
+//Configures the TC in Frequency Generation mode, with an event output once
+//each time the audio sample frequency period expires.
+ void tcConfigure(int sampleRate)
+{
+ // Enable GCLK for TCC2 and TC5 (timer counter input clock)
+ GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC4_TC5)) ;
+ while (GCLK->STATUS.bit.SYNCBUSY);
+
+ tcReset(); //reset TC5
+
+ // Set Timer counter Mode to 16 bits
+ TC5->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16;
+ // Set TC5 mode as match frequency
+ TC5->COUNT16.CTRLA.reg |= TC_CTRLA_WAVEGEN_MFRQ;
+ //set prescaler and enable TC5
+ TC5->COUNT16.CTRLA.reg |= TC_CTRLA_PRESCALER_DIV1 | TC_CTRLA_ENABLE;
+ //set TC5 timer counter based off of the system clock and the user defined sample rate or waveform
+ TC5->COUNT16.CC[0].reg = (uint16_t) (SystemCoreClock / sampleRate - 1);
+ while (tcIsSyncing());
+ 
+ // Configure interrupt request
+ NVIC_DisableIRQ(TC5_IRQn);
+ NVIC_ClearPendingIRQ(TC5_IRQn);
+ NVIC_SetPriority(TC5_IRQn, 0);
+ NVIC_EnableIRQ(TC5_IRQn);
+
+ // Enable the TC5 interrupt request
+ TC5->COUNT16.INTENSET.bit.MC0 = 1;
+ while (tcIsSyncing()); //wait until TC5 is done syncing 
+} 
+
+//Function that is used to check if TC5 is done syncing
+//returns true when it is done syncing
+bool tcIsSyncing()
+{
+  return TC5->COUNT16.STATUS.reg & TC_STATUS_SYNCBUSY;
+}
+
+//This function enables TC5 and waits for it to be ready
+void tcStartCounter()
+{
+  TC5->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE; //set the CTRLA register
+  while (tcIsSyncing()); //wait until snyc'd
+}
+
+//Reset TC5 
+void tcReset()
+{
+  TC5->COUNT16.CTRLA.reg = TC_CTRLA_SWRST;
+  while (tcIsSyncing());
+  while (TC5->COUNT16.CTRLA.bit.SWRST);
+}
+
+//disable TC5
+void tcDisable()
+{
+  TC5->COUNT16.CTRLA.reg &= ~TC_CTRLA_ENABLE;
+  while (tcIsSyncing());
 }
