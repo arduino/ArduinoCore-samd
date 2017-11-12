@@ -21,8 +21,11 @@
  * controls the brightness of LEDs on "analog" (PWM) output ports.
  * 
  */
-#define Serial SerialUSB
 
+//#define DEBUG // Uncomment this define statement to see stuff on the Serial Monitor. Comment to disable it.
+#ifdef DEBUG
+#define Serial SerialUSB
+#endif
 class rgb_color {
 
   private:
@@ -146,34 +149,63 @@ int color_index = 0;
 int color_step_index = 0;
 
 
-bool button_pin = 5; // Pin D5 (PA27)
-int button_pin_status = 0;
-int button_pressed = 0;
+const int button_pin = 5; // Pin D5 (PA27)
+volatile int button_reading = 0;
+volatile int button_state = LOW;
+volatile long button_time;
 
-bool play_mode = true;
+static bool play_mode = true;
 
 void setup()
 {
+#ifdef DEBUG 
   while(!Serial);
-  Serial.begin(9600);
-  Serial.println("WHAT HUH!");
+  Serial.begin(115200);
+  Serial.print("Initializing Button input...");
+#endif
+  
   pinMode(button_pin, INPUT);
+
+  
   attachInterrupt(digitalPinToInterrupt(button_pin), buttonEvent, CHANGE);
   
   //pins driven by analogWrite do not need to be declared as outputs
+#ifdef DEBUG
+  Serial.println("OK.");
+#endif
 }
 
 void buttonEvent()
 {
-  // Is the button pressed/released?
-  play_mode = !play_mode;
+  
+  if (millis() > button_time + 100) {
+    button_reading = digitalRead(button_pin);
+
+    button_state = button_reading;
+
+    if (button_state == HIGH) {
+      play_mode = !play_mode;
+
+#ifdef DEBUG
+      if (play_mode == true) {
+        Serial.println("Color is ON");
+      } else {
+        Serial.println("Color is OFF");
+      }
+#endif
+    }
+
+    button_time = millis();
+  }
+  
 }
 
 void loop()
 {
   
   if (play_mode)
-  { 
+  {
+
     f.is_on = true;
     // fade colors
     switch(color_index)
@@ -217,4 +249,5 @@ void loop()
       f.off();
     }
   }
+
 }
