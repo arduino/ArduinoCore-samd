@@ -223,10 +223,10 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			desc_addr = (const uint8_t*)&STRING_LANGUAGE;
 		}
 		else if (setup.wValueL == IPRODUCT) {
-			return sendStringDescriptor(STRING_PRODUCT, setup.wLength);
+			return sendStringDescriptor(STRING_PRODUCT, 2*sizeof(STRING_PRODUCT)); // Unicode is 2 bytes
 		}
 		else if (setup.wValueL == IMANUFACTURER) {
-			return sendStringDescriptor(STRING_MANUFACTURER, setup.wLength);
+			return sendStringDescriptor(STRING_MANUFACTURER, 2*sizeof(STRING_MANUFACTURER));
 		}
 		else if (setup.wValueL == ISERIAL) {
 #ifdef PLUGGABLE_USB_ENABLED
