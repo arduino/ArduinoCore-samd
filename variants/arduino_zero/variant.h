@@ -57,7 +57,7 @@ extern "C"
 #define NUM_DIGITAL_PINS     (20u)
 #define NUM_ANALOG_INPUTS    (12u)
 #define NUM_ANALOG_OUTPUTS   (1u)
-#define analogInputToDigitalPin(p)  ((p < 6u) ? (p) + 14u : (p > 5u) ? (p) + 38u : -1)
+#define analogInputToDigitalPin(p)  ((p < 6u) ? (p) + 14u : (p > 11u) ? -1 : (p) + 38u)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
 #define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
@@ -94,6 +94,12 @@ extern "C"
 #define PIN_A3               (17ul)
 #define PIN_A4               (18ul)
 #define PIN_A5               (19ul)
+#define PIN_A6               (44ul)
+#define PIN_A7               (45ul)
+#define PIN_A8               (46ul)
+#define PIN_A9               (47ul)
+#define PIN_A10              (48ul)
+#define PIN_A11              (49ul)
 #define PIN_DAC0             (14ul)
 
 static const uint8_t A0  = PIN_A0;
@@ -102,6 +108,12 @@ static const uint8_t A2  = PIN_A2;
 static const uint8_t A3  = PIN_A3;
 static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
+static const uint8_t A6  = PIN_A6;
+static const uint8_t A7  = PIN_A7;
+static const uint8_t A8  = PIN_A8;
+static const uint8_t A9  = PIN_A9;
+static const uint8_t A10  = PIN_A10;
+static const uint8_t A11  = PIN_A11;
 static const uint8_t DAC0 = PIN_DAC0;
 #define ADC_RESOLUTION		12
 
