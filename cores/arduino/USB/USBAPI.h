@@ -29,28 +29,12 @@
 
 #if defined __cplusplus
 
-#include "Stream.h"
-#include "RingBuffer.h"
+#include "api/Stream.h"
+#include "api/RingBuffer.h"
+#include "api/USBAPI.h"
 
 //================================================================================
 // USB
-
-// Low level API
-typedef struct {
-	union {
-		uint8_t bmRequestType;
-		struct {
-			uint8_t direction : 5;
-			uint8_t type : 2;
-			uint8_t transferDirection : 1;
-		};
-	};
-	uint8_t bRequest;
-	uint8_t wValueL;
-	uint8_t wValueH;
-	uint16_t wIndex;
-	uint16_t wLength;
-} USBSetup;
 
 class USBDeviceClass {
 public:
@@ -106,8 +90,6 @@ public:
 private:
 	bool initialized;
 };
-
-extern USBDeviceClass USBDevice;
 
 //================================================================================
 //	Serial over CDC (Serial1 is the physical port)

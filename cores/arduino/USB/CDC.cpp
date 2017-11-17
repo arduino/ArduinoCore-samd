@@ -33,6 +33,8 @@
 
 #define CDC_LINESTATE_READY		(CDC_LINESTATE_RTS | CDC_LINESTATE_DTR)
 
+extern USBDeviceClass USBDevice;
+
 typedef struct {
 	uint32_t dwDTERate;
 	uint8_t bCharFormat;

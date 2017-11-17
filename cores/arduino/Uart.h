@@ -18,11 +18,13 @@
 
 #pragma once
 
-#include "HardwareSerial.h"
+#include "api/HardwareSerial.h"
 #include "SERCOM.h"
-#include "RingBuffer.h"
+#include "api/RingBuffer.h"
 
 #include <cstddef>
+
+#define SERIAL_BUFFER_SIZE  64
 
 class Uart : public HardwareSerial
 {

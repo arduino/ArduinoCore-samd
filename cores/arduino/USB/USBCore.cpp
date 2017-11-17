@@ -21,14 +21,21 @@
 #include <Arduino.h>
 
 #include "SAMD21_USBDevice.h"
-#include "PluggableUSB.h"
+#include "api/PluggableUSB.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <limits.h>
 
+
+/*
+ * USB Device instance
+ * -------------------
+ */
+
 USBDevice_SAMD21G18x usbd;
+USBDeviceClass USBDevice;
 
 /** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
 #define TX_RX_LED_PULSE_MS 100
