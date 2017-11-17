@@ -157,7 +157,6 @@ private:
 	int availableForStore(void);
 
 	USBDeviceClass &usb;
-	RingBuffer *_cdc_rx_buffer;
 	bool stalled;
 };
 extern Serial_ SerialUSB;
