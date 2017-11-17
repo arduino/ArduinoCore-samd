@@ -228,14 +228,17 @@ private:
 
 class EPHandler {
 public:
+	EPHandler() {};
+	virtual ~EPHandler() {};
 	virtual void handleEndpoint() = 0;
 	virtual uint32_t recv(void *_data, uint32_t len) = 0;
 	virtual uint32_t available() const = 0;
+	virtual void release() = 0;
 };
 
 class DoubleBufferedEPOutHandler : public EPHandler {
 public:
-	DoubleBufferedEPOutHandler(USBDevice_SAMD21G18x &usbDev, uint32_t endPoint, uint32_t bufferSize) :
+	DoubleBufferedEPOutHandler(USBDevice_SAMD21G18x &usbDev, uint32_t endPoint, uint32_t bufferSize, uint8_t* buf = NULL) :
 		usbd(usbDev),
 		ep(endPoint), size(bufferSize),
 		current(0), incoming(0),
@@ -243,8 +246,15 @@ public:
 		first1(0), last1(0), ready1(false),
 		notify(false)
 	{
-		data0 = reinterpret_cast<uint8_t *>(malloc(size));
-		data1 = reinterpret_cast<uint8_t *>(malloc(size));
+		if (buf != NULL) {
+			data0 = buf;
+			data1 = &buf[size];
+			memset((void*)data0, 0, size);
+			memset((void*)data1, 0, size);
+		} else {
+			data0 = reinterpret_cast<uint8_t *>(malloc(size));
+			data1 = reinterpret_cast<uint8_t *>(malloc(size));
+		}
 
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetType(ep, 3); // BULK OUT
@@ -252,6 +262,15 @@ public:
 		usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
 
 		release();
+	}
+
+	~DoubleBufferedEPOutHandler() {
+		if (data0) {
+			free((void*)data0);
+		}
+		if (data1) {
+			free((void*)data1);
+		}
 	}
 
 	virtual uint32_t recv(void *_data, uint32_t len)
@@ -382,15 +401,15 @@ private:
 	USBDevice_SAMD21G18x &usbd;
 
 	const uint32_t ep;
-	const uint32_t size;
+	uint32_t size;
 	uint32_t current, incoming;
 
-	volatile uint8_t *data0;
+	uint8_t *data0 = NULL;
 	uint32_t first0;
 	volatile uint32_t last0;
 	volatile bool ready0;
 
-	volatile uint8_t *data1;
+	uint8_t *data1 = NULL;
 	uint32_t first1;
 	volatile uint32_t last1;
 	volatile bool ready1;

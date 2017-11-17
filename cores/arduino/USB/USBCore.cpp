@@ -442,6 +442,17 @@ void USBDeviceClass::initEndpoints() {
 	}
 }
 
+void USBDeviceClass::resize(uint32_t ep, uint8_t* buf, uint32_t size)
+{
+	CDC_SERIAL_BUFFER_IN_SIZE = size;
+	CDC_SERIAL_BUFFER_IN = buf;
+
+	if (epHandlers[ep] && size != 0) {
+		delete epHandlers[ep];
+		epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, CDC_SERIAL_BUFFER_IN_SIZE, CDC_SERIAL_BUFFER_IN);
+	}
+}
+
 void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 {
 	if (config == (USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0)))
@@ -452,7 +463,9 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0)))
 	{
-		epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, 256);
+		if (epHandlers[ep] == NULL) {
+			epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, CDC_SERIAL_BUFFER_IN_SIZE, CDC_SERIAL_BUFFER_IN);
+		}
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{

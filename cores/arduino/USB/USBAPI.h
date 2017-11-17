@@ -86,6 +86,7 @@ public:
 	void initEndpoints(void);
 	void initEP(uint32_t ep, uint32_t type);
 	void handleEndpoint(uint8_t ep);
+	void resize(uint32_t ep, uint8_t *buf, uint32_t size);
 
 	uint32_t send(uint32_t ep, const void *data, uint32_t len);
 	void sendZlp(uint32_t ep);
@@ -104,12 +105,15 @@ public:
 
 private:
 	bool initialized;
+	uint32_t CDC_SERIAL_BUFFER_IN_SIZE = 256;
+	uint8_t* CDC_SERIAL_BUFFER_IN = NULL;
 };
 
 extern USBDeviceClass USBDevice;
 
 //================================================================================
 //	Serial over CDC (Serial1 is the physical port)
+
 
 class Serial_ : public Stream
 {
@@ -118,7 +122,12 @@ public:
 	void begin(uint32_t baud_count);
 	void begin(unsigned long, uint8_t);
 	void end(void);
-
+#ifdef RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+    void begin(unsigned long baudrate, TxBuffer extraTxBuffer, RxBuffer extraRxBuffer = RxBuffer(NULL,0));
+    void begin(unsigned long baudrate, uint16_t config, TxBuffer extraTxBuffer, RxBuffer extraRxBuffer = RxBuffer(NULL,0));
+    void begin(unsigned long baudrate, RxBuffer extraRxBuffer, TxBuffer extraTxBuffer = TxBuffer(NULL,0));
+    void begin(unsigned long baudrate, uint16_t config, RxBuffer extraRxBuffer, TxBuffer extraTxBuffer = TxBuffer(NULL,0));
+#endif
 	virtual int available(void);
 	virtual int availableForWrite(void);
 	virtual int peek(void);
@@ -174,7 +183,6 @@ private:
 	int availableForStore(void);
 
 	USBDeviceClass &usb;
-	RingBuffer *_cdc_rx_buffer;
 	bool stalled;
 };
 extern Serial_ SerialUSB;

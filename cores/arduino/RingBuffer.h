@@ -27,6 +27,25 @@
 // location from which to read.
 #define SERIAL_BUFFER_SIZE 64
 
+#define RINGBUFFER_HAS_ADDITIONAL_STORAGE_API
+
+class RxBuffer {
+public:
+  RxBuffer(uint8_t* _buf, int _size) : buf(_buf), size(_size) {}
+  uint8_t* buf;
+  int size;
+};
+
+class TxBuffer {
+public:
+  TxBuffer(uint8_t* _buf, int _size) : buf(_buf), size(_size) {}
+  uint8_t* buf;
+  int size;
+};
+
+#define TXBUFFER(x) TxBuffer(x, sizeof(x))
+#define RXBUFFER(x) RxBuffer(x, sizeof(x))
+
 class RingBuffer
 {
   public:
@@ -35,17 +54,24 @@ class RingBuffer
     int _iTail ;
 
   public:
-    RingBuffer( void ) ;
-    void store_char( uint8_t c ) ;
+	RingBuffer( void ) ;
+	void store_char( uint8_t c ) ;
 	void clear();
 	int read_char();
 	int available();
 	int availableForStore();
 	int peek();
 	bool isFull();
+	void addStorage(uint8_t* _buffer, int _size) {
+		additionalSize = _size;
+		additionalBuffer = _buffer;
+	};
 
   private:
 	int nextIndex(int index);
+	uint8_t* additionalBuffer;
+	int additionalSize = 0;
+	int size;
 } ;
 
 #endif /* _RING_BUFFER_ */
