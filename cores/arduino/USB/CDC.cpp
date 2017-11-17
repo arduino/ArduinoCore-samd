@@ -37,7 +37,9 @@ extern USBDevice_SAMD21G18x usbd;
 
 #define CDC_LINESTATE_READY		(CDC_LINESTATE_RTS | CDC_LINESTATE_DTR)
 
-typedef struct __attribute__((packed)) {
+extern USBDeviceClass USBDevice;
+
+typedef struct {
 	uint32_t dwDTERate;
 	uint8_t bCharFormat;
 	uint8_t bParityType;

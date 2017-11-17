@@ -16,9 +16,16 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+
+#include <stdio.h>
+#include <stdint.h>
+#include <string.h>
+
 #include "Arduino.h"
+#include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
+#include "sam.h"
 #include "wiring_private.h"
 
 #define HOST_DEFINED

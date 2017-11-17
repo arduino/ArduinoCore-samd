@@ -25,6 +25,11 @@ static voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
 static uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
 static uint32_t    nints; // Stores total number of attached interrupts
 
+//      LOW 0
+//      HIGH 1
+#define CHANGE  2
+#define FALLING 3
+#define RISING  4
 
 /* Configure I/O interrupt sources */
 static void __initialize()
@@ -56,7 +61,7 @@ static void __initialize()
  * \brief Specifies a named Interrupt Service Routine (ISR) to call when an interrupt occurs.
  *        Replaces any previous function that was attached to the interrupt.
  */
-void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
+void attachInterrupt(pin_size_t pin, voidFuncPtr callback, InterruptMode mode)
 {
   static int enabled = 0;
   uint32_t config;
@@ -145,7 +150,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 /*
  * \brief Turns off the given interrupt.
  */
-void detachInterrupt(uint32_t pin)
+void detachInterrupt(pin_size_t pin)
 {
 #if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606)
   EExt_Interrupts in = g_APinDescription[pin].ulExtInt;

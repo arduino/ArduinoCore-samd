@@ -22,7 +22,7 @@
  extern "C" {
 #endif
 
-void pinMode( uint32_t ulPin, uint32_t ulMode )
+void pinMode( pin_size_t ulPin, PinMode ulMode )
 {
   // Handle the case the pin isn't usable as PIO
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
@@ -71,7 +71,7 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
   }
 }
 
-void digitalWrite( uint32_t ulPin, uint32_t ulVal )
+void digitalWrite( pin_size_t ulPin, PinStatus ulVal )
 {
   // Handle the case the pin isn't usable as PIO
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
@@ -102,7 +102,7 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
   return ;
 }
 
-int digitalRead( uint32_t ulPin )
+PinStatus digitalRead( pin_size_t ulPin )
 {
   // Handle the case the pin isn't usable as PIO
   if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
