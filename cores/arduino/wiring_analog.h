@@ -79,6 +79,13 @@ extern void analogWriteResolution(int res);
 
 extern void analogOutputInit( void ) ;
 
+/*
+ * \brief Read the internal temperature using the temperature ADC channel.
+ *
+ * \return Temperature (°C)
+ */
+extern float readInternalTemperature();
+
 #ifdef __cplusplus
 }
 #endif

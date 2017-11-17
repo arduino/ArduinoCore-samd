@@ -111,6 +111,10 @@ void init( void )
 
   analogReference( AR_DEFAULT ) ; // Analog Reference is AREF pin (3.3v)
 
+  SYSCTRL->VREF.reg |= SYSCTRL_VREF_TSEN; // Enable the temperature sensor  
+
+  while( ADC->STATUS.bit.SYNCBUSY == 1 ); // Wait for synchronization of registers between the clock domains
+
   // Initialize DAC
   // Setting clock
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
