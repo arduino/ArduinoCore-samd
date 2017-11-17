@@ -926,12 +926,16 @@ void USBDeviceClass::ISRHandler()
 	}
 }
 
-/*
- * USB Device instance
- * -------------------
- */
+// PluggableUSB contructor
+PluggableUSB_::PluggableUSB_() : lastIf(CDC_ACM_INTERFACE + CDC_INTERFACE_COUNT),
+                                 lastEp(CDC_FIRST_ENDPOINT + CDC_ENPOINT_COUNT),
+                                 rootNode(NULL), totalEP(USB_ENDPOINTS)
+{
+	// Empty
+}
 
-// USBDevice class instance
-USBDeviceClass USBDevice;
+void* epBuffer(unsigned int lastEp) {
+	return &(EndPoints[lastEp]);
+}
 
 #endif

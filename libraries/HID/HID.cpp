@@ -16,10 +16,12 @@
 ** SOFTWARE.  
 */
 
-#include "USB/PluggableUSB.h"
+#include "api/PluggableUSB.h"
 #include "HID.h"
 
 #if defined(USBCON)
+
+extern USBDeviceClass USBDevice;
 
 HID_& HID()
 {
