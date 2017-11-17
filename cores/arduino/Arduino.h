@@ -78,8 +78,7 @@ typedef enum _eAnalogReference
 #include "USB/USBAPI.h"
 #include "USB/USB_host.h"
 
-#ifdef __cplusplus
-  #include "USB/CDC.h"
-#endif
+// ARM toolchain doesn't provide itoa etc, provide them
+#include "api/itoa.h"
 
 #endif // Arduino_h
