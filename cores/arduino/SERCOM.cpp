@@ -370,7 +370,7 @@ void SERCOM::enableWIRE()
 {
   // I2C Master and Slave modes share the ENABLE bit function.
 
-  // Enable the I²C master mode
+  // Enable the IÂ²C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 1 ;
 
   while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
@@ -391,7 +391,7 @@ void SERCOM::disableWIRE()
 {
   // I2C Master and Slave modes share the ENABLE bit function.
 
-  // Enable the I²C master mode
+  // Enable the IÂ²C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 0 ;
 
   while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
@@ -662,16 +662,20 @@ void SERCOM::initClockNVIC( void )
     clockId = GCM_SERCOM3_CORE;
     IdNvic = SERCOM3_IRQn;
   }
+  #if defined(SERCOM4)
   else if(sercom == SERCOM4)
   {
     clockId = GCM_SERCOM4_CORE;
     IdNvic = SERCOM4_IRQn;
   }
+  #endif // SERCOM4
+  #if defined(SERCOM5)
   else if(sercom == SERCOM5)
   {
     clockId = GCM_SERCOM5_CORE;
     IdNvic = SERCOM5_IRQn;
   }
+  #endif // SERCOM5
 
   if ( IdNvic == PendSV_IRQn )
   {
