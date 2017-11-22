@@ -62,12 +62,12 @@ void TwoWire::end() {
   sercom->disableWIRE();
 }
 
-uint8_t TwoWire::sentTo(uint8_t address, uint8_t buffer[], size_t quantity)
+uint8_t TwoWire::sendTo(uint8_t address, uint8_t buffer[], size_t quantity)
 {
-  return sentTo(address, buffer, quantity, true);
+  return sendTo(address, buffer, quantity, true);
 }
 
-uint8_t TwoWire::sentTo(uint8_t address, uint8_t buffer[], size_t quantity, bool stopBit)
+uint8_t TwoWire::sendTo(uint8_t address, uint8_t buffer[], size_t quantity, bool stopBit)
 {
   // Start I2C transmission
   if (!sercom->startTransmissionWIRE(address, WIRE_WRITE_FLAG))
@@ -169,7 +169,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
 {
   transmissionBegun = false ;
 
-  uint8_t result = sentTo(txAddress, txBuffer._aucBuffer, txBuffer.available(), stopBit);
+  uint8_t result = sendTo(txAddress, txBuffer._aucBuffer, txBuffer.available(), stopBit);
 
   if (result == 0) {
     txBuffer.clear();

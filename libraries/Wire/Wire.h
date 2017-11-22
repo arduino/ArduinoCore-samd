@@ -42,8 +42,8 @@ class TwoWire : public Stream
     uint8_t endTransmission(bool stopBit);
     uint8_t endTransmission(void);
 
-    uint8_t sentTo(uint8_t address, uint8_t buffer[], size_t quantity);
-    uint8_t sentTo(uint8_t address, uint8_t buffer[], size_t quantity, bool stopBit);
+    uint8_t sendTo(uint8_t address, uint8_t buffer[], size_t quantity);
+    uint8_t sendTo(uint8_t address, uint8_t buffer[], size_t quantity, bool stopBit);
 
     uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit);
     uint8_t requestFrom(uint8_t address, size_t quantity);
