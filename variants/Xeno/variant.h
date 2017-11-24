@@ -309,11 +309,12 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 
 /*
- * USB
+ * USB - Define PIN_USB_HOST_ENABLE to assert the defined pin to
+ * PIN_USB_HOST_ENABLE_VALUE during startup. Leave undefined to disable this pin.
  */
 #define PIN_USB_DM                      (24ul)
 #define PIN_USB_DP                      (25ul)
-#define PIN_USB_HOST_ENABLE             (14ul)
+//#define PIN_USB_HOST_ENABLE             (14ul)
 #define PIN_USB_HOST_ENABLE_VALUE	0
 
 /*

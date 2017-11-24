@@ -2,20 +2,20 @@
 
 ```
 =========================== MattairTech MT-D11 (ATsamD11D14AM) ==========================
-Other  COM    PWM   Analog  INT  Arduino*             Arduino*  INT   PWM     COM   Other
+Other  COM    PWM  Analog  INT  Arduino*             Arduino*  INT   PWM     COM    Other
 =========================================================================================
-                                    -------------------
-DAC                   *            | A2   | USB |  Gnd |
-REF                   *            | A3   |     |  Vcc |
-             TCC00    *      *     | A4    -----   A31 | 31     *    TC21     RX1   SWDIO
-             TCC01    *      *     | A5            A30 | 30          TC20     TX1  SWDCLK
-             TCC02    *            | A6            A27 | 27     *
-             TCC03    *            | A7            A23 | 23                   SCL
-   MOSI / TX2         *      *     | A10           A22 | 22     *             SDA
-   SCK / RX2          *            | A11           A17 | 17          TC11
-      MISO            *     NMI    | A14           A16 | 16     *    TC10             LED
-BTN   SS              *      *     | A15           RST |                             BOOT
-                                    -------------------
+                                     -------------------
+DAC                   *          2  | A2   | USB |  Gnd |
+REF                   *          3  | A3   |     |  Vcc |
+             TCC00    *     *    4  | A4    -----   A31 | 31    *    TC21    RX1    SWDIO
+             TCC01    *     *    5  | A5            A30 | 30         TC20    TX1   SWDCLK
+             TCC02    *          6  | A6            A27 | 27    *
+             TCC03    *          7  | A7            A23 | 23                 SCL
+   MOSI / TX2         *     *    10 | A10           A22 | 22    *            SDA
+   SCK / RX2          *          11 | A11           A17 | 17         TC11
+      MISO            *    NMI   14 | A14           A16 | 16    *    TC10             LED
+BTN   SS              *     *    15 | A15           RST |                            BOOT
+                                     -------------------
 
 * Most pins can be used for more than one function. When using PIN_MAP_STANDARD, the port
   pin number printed on the board is also used in Arduino (but without the 'A') for all
@@ -59,7 +59,7 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 20	| ---	| ----	| NOT A PIN		| NOT A PIN
 21	| ---	| ----	| NOT A PIN		| NOT A PIN
 22	| A22	| PA22	| I2C/SDA w/pullup	| EIC/EXTINT[6] PTC/X[6] PTC/Y[12] !SERCOM1/PAD[0] SERCOM2/PAD[0] !TC1/WO[0] !TCC0/WO[4]
-23	| A23	| PA23	| I2C/SCL w/pullup	| !EIC/EXTINT[7] PTC/X[7] PTC/Y[13] !SERCOM1/PAD[1] SERCOM2/PAD[0] !TC1/WO[1] !TCC0/WO[5]
+23	| A23	| PA23	| I2C/SCL w/pullup	| !EIC/EXTINT[7] PTC/X[7] PTC/Y[13] !SERCOM1/PAD[1] SERCOM2/PAD[1] !TC1/WO[1] !TCC0/WO[5]
 24	| ---	| PA24	| USB_NEGATIVE		| USB/DM
 25	| ---	| PA25	| USB_POSITIVE		| USB/DP
 26	| ---	| ----	| NOT A PIN		| NOT A PIN
@@ -89,7 +89,7 @@ Arduino	| Silk	| Port	| Alternate Function	| Comments (! means not used with thi
 10	| A16	| PA16	| LED			| EIC/EXTINT[0] PTC/X[4] PTC/Y[10] !SERCOM1/PAD[2] !SERCOM2/PAD[2] TC1/WO[0] !TCC0/WO[6] LED
 11	| A17	| PA17	| HOST_ENABLE		| !EIC/EXTINT[1] PTC/X[5] PTC/Y[11] !SERCOM1/PAD[3] !SERCOM2/PAD[3] TC1/WO[1] !TCC0/WO[7] HOST_ENABLE
 12	| A22	| PA22	| I2C/SDA w/pullup	| EIC/EXTINT[6] PTC/X[6] PTC/Y[12] !SERCOM1/PAD[0] SERCOM2/PAD[0] !TC1/WO[0] !TCC0/WO[4]
-13	| A23	| PA23	| I2C/SCL w/pullup	| !EIC/EXTINT[7] PTC/X[7] PTC/Y[13] !SERCOM1/PAD[1] SERCOM2/PAD[0] !TC1/WO[1] !TCC0/WO[5]
+13	| A23	| PA23	| I2C/SCL w/pullup	| !EIC/EXTINT[7] PTC/X[7] PTC/Y[13] !SERCOM1/PAD[1] SERCOM2/PAD[1] !TC1/WO[1] !TCC0/WO[5]
 14	| A27	| PA27	| 			| EIC/EXTINT[7] PTC/X[10]
 15	| A30	| PA30	| TX1 / SWD CLK		| !EIC/EXTINT[2] !SERCOM1/PAD[0] SERCOM1/PAD[2] TC2/WO[0] !TCC0/WO[2] SWD CLK, leave floating during boot
 16	| A31	| PA31	| RX1 / SWD IO		| EIC/EXTINT[3] !SERCOM1/PAD[1] SERCOM1/PAD[3] TC2/WO[1] !TCC0/WO[3] SWD IO

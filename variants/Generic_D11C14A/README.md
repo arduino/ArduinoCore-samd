@@ -6,8 +6,8 @@ Other  COM   PWM  Analog  INT  Arduino*           Arduino*  INT  Analog  PWM   C
 =========================================================================================
                                   1-------------------
   SCK*/RX2  TCC01    *     *    5 | A5             A4 | 4    *    *  TCC00 MOSI*/TX2  REF
-    MOSI*   TCC02          *    8 | A8             A2 | 2    *    *                   DAC
-    SCK*    TCC03          *    9 | A9            Vdd |
+    MOSI*   TCC02          *    8 | A8 (XIN)       A2 | 2    *    *                   DAC
+    SCK*    TCC03          *    9 | A9 (XOUT)     Vdd |
   SDA/MISO*  TC10    *    NMI  14 | A14           Gnd |
    SCL/SS*   TC11    *     *   15 | A15           A25 | 25                    USB/DP
 BOOT                           28 | A28/RST       A24 | 24                    USB/DM
@@ -15,10 +15,10 @@ SWDCLK  TX1/MISO*              30 | A30           A31 | 31   *            RX1/SS
                                    -------------------
 
 * Most pins can be used for more than one function. When using PIN_MAP_STANDARD, the port
-  pin number printed on the board is also used in Arduino (but without the 'A') for all
-  of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.). When
-  using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the top
-  left pin (A2). PIN_MAP_COMPACT uses less RAM.
+  pin number printed on the chip above is also used in Arduino (but without the 'A') for
+  all of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.).
+  When using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the
+  top left pin (A5). PIN_MAP_COMPACT uses less RAM.
 * When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.
 * When using ONE_UART_NO_WIRE_ONE_SPI, use SPI on pins 4, 5, 14, and 15.
   When using NO_UART_ONE_WIRE_ONE_SPI, use SPI on pins 8, 9, 30, and 31.
@@ -91,10 +91,10 @@ Arduino	| Port	| Alternate Function	| Comments (! means not used with this perip
 ====================================================================================================================================
 
 * Most pins can be used for more than one function. When using PIN_MAP_STANDARD, the port
-  pin number printed on the board is also used in Arduino (but without the 'A') for all
-  of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.). When
-  using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the top
-  left pin (A2). PIN_MAP_COMPACT uses less RAM.
+  pin number printed on the chip above is also used in Arduino (but without the 'A') for
+  all of the supported functions (ie: digitalRead(), analogRead(), analogWrite(), etc.).
+  When using PIN_MAP_COMPACT, the Arduino numbering is sequential starting from 0 at the
+  top left pin (A5). PIN_MAP_COMPACT uses less RAM.
 * NOT A PIN means the Arduino pin number is not mapped to a physical pin.
 * Pins 24 and 25 are in use by USB (USB_NEGATIVE and USB_POSITIVE).
 * The tone library uses TC2. TC2 is not routed to pins in the D11C14A (14-pin).
