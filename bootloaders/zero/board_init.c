@@ -283,7 +283,7 @@ void board_init( void )
 #endif
 
 #if defined(PLL_FRACTIONAL_ENABLED)
-  #define DPLLRATIO_LDR		(uint16_t)DPLLRATIO_FLOAT
+  #define DPLLRATIO_LDR		((uint16_t)DPLLRATIO_FLOAT - 1)
   #if (SAMD51)
     #define DPLLRATIO_LDRFRAC   (uint8_t)((DPLLRATIO_FLOAT - (uint16_t)DPLLRATIO_FLOAT) * 32.0)
     #if (VARIANT_MCK == 120000000ul)
@@ -293,10 +293,10 @@ void board_init( void )
     #define DPLLRATIO_LDRFRAC   (uint8_t)((DPLLRATIO_FLOAT - (uint16_t)DPLLRATIO_FLOAT) * 16.0)
   #endif
 #else
-  #define DPLLRATIO_LDR		(uint16_t)DPLLRATIO_FLOAT
+  #define DPLLRATIO_LDR		((uint16_t)DPLLRATIO_FLOAT - 1)
   #define DPLLRATIO_LDRFRAC	0
   #if (SAMD51 && (VARIANT_MCK == 120000000ul))
-    #define DPLL1RATIO_LDR        (uint16_t)DPLLRATIO_FLOAT
+    #define DPLL1RATIO_LDR        ((uint16_t)DPLL1RATIO_FLOAT - 1)
     #define DPLL1RATIO_LDRFRAC    0
   #endif
 #endif
