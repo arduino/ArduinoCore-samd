@@ -69,6 +69,13 @@ void serial_open(void)
   #elif (SAMC21G) || (SAMC21J)
   MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM0 | MCLK_APBCMASK_SERCOM1 | MCLK_APBCMASK_SERCOM2 | MCLK_APBCMASK_SERCOM3 | MCLK_APBCMASK_SERCOM4 | MCLK_APBCMASK_SERCOM5 ;
   #endif
+#elif (SAMD51)
+  MCLK->APBAMASK.reg |= MCLK_APBAMASK_SERCOM0 | MCLK_APBAMASK_SERCOM1 ;
+  MCLK->APBBMASK.reg |= MCLK_APBBMASK_SERCOM2 | MCLK_APBBMASK_SERCOM3 ;
+  MCLK->APBDMASK.reg |= MCLK_APBDMASK_SERCOM4 | MCLK_APBDMASK_SERCOM5 ;
+  #if (SAMD51N) || (SAMD51P)
+  MCLK->APBDMASK.reg |= MCLK_APBDMASK_SERCOM6 | MCLK_APBDMASK_SERCOM7 ;
+  #endif
 #else
   #error "sam_ba_serial.c: Missing dependency or unsupported chip. Please install CMSIS-Atmel from MattairTech (see Prerequisites for Building in README.md)."
 #endif
@@ -77,13 +84,22 @@ void serial_open(void)
 #if (SAMD21 || SAMD11)
   GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( BOOT_USART_PER_CLOCK_INDEX ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
   waitForSync();
-#elif (SAML21 || SAMC21)
-  GCLK->PCHCTRL[BOOT_USART_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+#elif (SAML21 || SAMC21 || SAMD51)
+  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
+    GCLK->PCHCTRL[BOOT_USART_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK6 ); // Use 96MHz SERCOM clock (100MHz maximum) when cpu running at 120MHz
+  #else
+    GCLK->PCHCTRL[BOOT_USART_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+  #endif
   waitForSync();
 #endif
 
-	/* Baud rate 115200 - clock 48MHz -> BAUD value-63018 */
-	uart_basic_init(BOOT_USART_MODULE, 63018, BOOT_USART_PAD_SETTINGS);
+#if (SAMD51 && (VARIANT_MCK == 120000000ul))
+	/* Baud rate 115200 - clock 96MHz -> BAUD value-64278 */
+        uart_basic_init(BOOT_USART_MODULE, 64278, BOOT_USART_PAD_SETTINGS); // Use 96MHz SERCOM clock (100MHz maximum) when cpu running at 120MHz
+#else
+        /* Baud rate 115200 - clock 48MHz -> BAUD value-63018 */
+        uart_basic_init(BOOT_USART_MODULE, 63018, BOOT_USART_PAD_SETTINGS);
+#endif
 
 	//Initialize flag
 	b_sharp_received = false;

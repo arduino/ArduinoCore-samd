@@ -22,7 +22,7 @@
 #include "sam_ba_monitor.h"
 #include "sam_ba_serial.h"
 #include "board_driver_serial.h"
-#if (SAMD21 || SAMD11 || SAML21)
+#if (SAMD21 || SAMD11 || SAML21 || SAMD51)
   #include "board_driver_usb.h"
   #include "sam_ba_usb.h"
   #include "sam_ba_cdc.h"

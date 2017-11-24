@@ -28,15 +28,25 @@ struct ConstVectors
   void* pfnReset_Handler;
   void* pfnNMI_Handler;
   void* pfnHardFault_Handler;
+#if (SAMD51)
+  void* pfnMemManage_Handler;
+  void* pfnBusFault_Handler;
+  void* pfnUsageFault_Handler;
+#else
   void* pfnReservedM12;
   void* pfnReservedM11;
   void* pfnReservedM10;
+#endif
   void* pfnReservedM9;
   void* pfnReservedM8;
   void* pfnReservedM7;
   void* pfnReservedM6;
   void* pfnSVC_Handler;
+#if (SAMD51)
+  void* pfnDebugMon_Handler;
+#else
   void* pfnReservedM4;
+#endif
   void* pfnReservedM3;
   void* pfnPendSV_Handler;
   void* pfnSysTick_Handler;
@@ -63,15 +73,25 @@ const struct ConstVectors exception_table =
   .pfnReset_Handler      = (void*) Reset_Handler,
   .pfnNMI_Handler        = (void*) NMI_Handler,
   .pfnHardFault_Handler  = (void*) HardFault_Handler,
+#if (SAMD51)
+  .pfnMemManage_Handler  = (void*) MemManage_Handler,
+  .pfnBusFault_Handler   = (void*) BusFault_Handler,
+  .pfnUsageFault_Handler = (void*) UsageFault_Handler,
+#else
   .pfnReservedM12        = (void*) (0UL), /* Reserved */
   .pfnReservedM11        = (void*) (0UL), /* Reserved */
   .pfnReservedM10        = (void*) (0UL), /* Reserved */
+#endif
   .pfnReservedM9         = (void*) (0UL), /* Reserved */
   .pfnReservedM8         = (void*) (0UL), /* Reserved */
   .pfnReservedM7         = (void*) (0UL), /* Reserved */
   .pfnReservedM6         = (void*) (0UL), /* Reserved */
   .pfnSVC_Handler        = (void*) SVC_Handler,
+#if (SAMD51)
+  .pfnDebugMon_Handler  = (void*) DebugMon_Handler,
+#else
   .pfnReservedM4         = (void*) (0UL), /* Reserved */
+#endif
   .pfnReservedM3         = (void*) (0UL), /* Reserved */
   .pfnPendSV_Handler     = (void*) PendSV_Handler,
   .pfnSysTick_Handler    = (void*) SysTick_Handler,
@@ -106,18 +126,26 @@ void Reset_Handler( void )
     }
   }
 
-  /* Change default QOS values to have the best performance and correct USB behaviour (applies to D21/D11). From startup_samd21.c from ASF 3.32. */
+  /* Change default QOS values to have the best performance and correct USB behavior (applies to D21/D11). From startup_samd21.c from ASF 3.32. */
 #if (SAMD21_SERIES || SAMD11_SERIES)
   SBMATRIX->SFR[SBMATRIX_SLAVE_HMCRAMC0].reg = 2;
-  
+
   USB->DEVICE.QOSCTRL.bit.CQOS = 2;
   USB->DEVICE.QOSCTRL.bit.DQOS = 2;
-  
+
   DMAC->QOSCTRL.bit.DQOS = 2;
   DMAC->QOSCTRL.bit.FQOS = 2;
   DMAC->QOSCTRL.bit.WRBQOS = 2;
 #endif
 
+#if (SAMD51)
+  #if __FPU_USED
+    /* Enable FPU */
+    SCB->CPACR |=  (0xFu << 20);
+    __DSB();
+    __ISB();
+  #endif
+#endif
 //  board_init(); // will be done in main() after app check
 
   /* Initialize the C library */
@@ -151,3 +179,29 @@ void PendSV_Handler(void)
   __BKPT(2);
   while (1);
 }
+
+#if (SAMD51)
+void MemManage_Handler(void)
+{
+  __BKPT(3);
+  while (1);
+}
+
+void BusFault_Handler(void)
+{
+  __BKPT(4);
+  while (1);
+}
+
+void UsageFault_Handler(void)
+{
+  __BKPT(6);
+  while (1);
+}
+
+void DebugMon_Handler(void)
+{
+  __BKPT(7);
+  while (1);
+}
+#endif

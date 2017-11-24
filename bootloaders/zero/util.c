@@ -25,12 +25,15 @@ extern uint32_t __sketch_vectors_ptr; // Exported value from linker script
 /*
  * The SAMD21 has a default 1MHz clock @ reset.
  * SAML21 and SAMC21 have a default 4MHz clock @ reset.
- * It is switched to 48MHz in board_init.c
+ * SAMD51 has a default 48MHz clock @ reset.
+ * It is switched to 48MHz (optionally to 120MHz for SAMD51) in board_init.c
  */
 #if (SAMD21 || SAMD11)
   #define CLOCK_DEFAULT 1000000ul
 #elif (SAML21 || SAMC21)
   #define CLOCK_DEFAULT 4000000ul
+#elif (SAMD51)
+  #define CLOCK_DEFAULT 48000000ul
 #endif
 uint32_t SystemCoreClock=CLOCK_DEFAULT;
 
@@ -39,20 +42,29 @@ void flashErase (uint32_t startAddress)
   // Syntax: X[ADDR]#
   // Erase the flash memory starting from ADDR to the end of flash.
 
-  // Note: the flash memory is erased in ROWS, that is in block of 4 pages.
-  //       Even if the starting address is the last byte of a ROW the entire
-  //       ROW is erased anyway.
+  // Note: the flash memory is erased in 4 page ROWS (16 page blocks for D51).
+  //       Even if the starting address is the last byte of a ROW/block the
+  //       entire ROW/block is erased anyway.
 
   uint32_t dst_addr = startAddress; // starting address
 
   while (dst_addr < FLASH_SIZE)
   {
+#if (SAMD51)
+    // Execute "EB" Erase Block
+    NVMCTRL->ADDR.reg = dst_addr;   // 8-bit hardware address
+    NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_EB;
+    while (NVMCTRL->STATUS.bit.READY == 0)
+      ;
+    dst_addr += FLASH_PAGE_SIZE * 16; // Skip a Block
+#else
     // Execute "ER" Erase Row
-    NVMCTRL->ADDR.reg = dst_addr / 2;
+    NVMCTRL->ADDR.reg = dst_addr / 2;   // 16-bit hardware address
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
     while (NVMCTRL->INTFLAG.bit.READY == 0)
       ;
     dst_addr += FLASH_PAGE_SIZE * 4; // Skip a ROW
+#endif
   }
 }
 
@@ -76,9 +88,15 @@ void flashWrite (uint32_t numBytes, uint32_t * buffer, uint32_t * ptr_data)
   while (size)
   {
     // Execute "PBC" Page Buffer Clear
+#if (SAMD51)
+    NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_PBC;
+    while (NVMCTRL->STATUS.bit.READY == 0)
+      ;
+#else
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_PBC;
     while (NVMCTRL->INTFLAG.bit.READY == 0)
       ;
+#endif
 
     // Fill page buffer
     uint32_t i;
@@ -88,10 +106,15 @@ void flashWrite (uint32_t numBytes, uint32_t * buffer, uint32_t * ptr_data)
     }
 
     // Execute "WP" Write Page
-    //NVMCTRL->ADDR.reg = ((uint32_t)dst_addr) / 2;
+#if (SAMD51)
+    NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMDEX_KEY | NVMCTRL_CTRLB_CMD_WP;
+    while (NVMCTRL->STATUS.bit.READY == 0)
+      ;
+#else
     NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_WP;
     while (NVMCTRL->INTFLAG.bit.READY == 0)
       ;
+#endif
 
     // Advance to next page
     dst_addr += i;
@@ -156,21 +179,33 @@ void delayUs (uint32_t delay)
 {
   /* The SAMD21 has a default 1MHz clock @ reset.
    * SAML21 and SAMC21 have a default 4MHz clock @ reset.
-   * It is switched to 48MHz in board_init.c
+   * SAMD51 has a default 48MHz clock @ reset.
+   * It is switched to 48MHz (optionally to 120MHz for SAMD51) in board_init.c.
+   * Note that the D51 CMCC cache is not used, and FLASH wait states limit access.
    */
   uint32_t numLoops;
 
   if (SystemCoreClock == VARIANT_MCK) {
+#if (SAMD51)
+  #if (VARIANT_MCK == 120000000ul)
     numLoops = (12 * delay);
+  #else
+    numLoops = (9 * delay);
+  #endif
+#else
+    numLoops = (12 * delay);
+#endif
   } else {
 #if (SAMD21 || SAMD11)
     numLoops = (delay >> 2);
 #elif (SAML21 || SAMC21)
     numLoops = delay;
+#elif (SAMD51)
+    numLoops = (9 * delay);
 #endif
   }
 
-  for (uint32_t i=0; i < numLoops; i++) /* 10ms */
+  for (uint32_t i=0; i < numLoops; i++)
     /* force compiler to not optimize this... */
     __asm__ __volatile__("");
 }
@@ -185,9 +220,9 @@ void systemReset (void)
 
 void waitForSync (void)
 {
-  #if (SAMD)
+  #if (SAMD21 || SAMD11)
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
-  #elif (SAML21 || SAMC21)
+  #elif (SAML21 || SAMC21 || SAMD51)
   while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
   #endif
 }

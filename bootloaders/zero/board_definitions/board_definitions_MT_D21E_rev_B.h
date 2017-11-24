@@ -206,7 +206,13 @@
  */
 #define USB_VENDOR_STRINGS_ENABLED
 #define STRING_MANUFACTURER "MattairTech LLC"
-#define STRING_PRODUCT "MT-D21E Rev B"
+#if (SAMD21)
+  #define STRING_PRODUCT "MT-D21E Rev B D21"
+#elif (SAML21)
+  #define STRING_PRODUCT "MT-D21E Rev B L21"
+#elif (SAMC21)
+  #define STRING_PRODUCT "MT-D21E Rev B C21"
+#endif
 
 /* If USB CDC is used, then the USB vendor ID (VID) and product ID (PID) must be set. */
 #define USB_VID_HIGH   0x16

@@ -104,7 +104,7 @@ bool flashVerify (void)
     pf_read(Buff, FLASH_PAGE_SIZE, &br);       /* Load a page data */
 
     if (br) {
-      for (uint8_t i=0; i<br; i++) {
+      for (uint16_t i=0; i<br; i++) {
         if (Buff[i] != *((BYTE *)(fa + i))) {
           return (false);
         }

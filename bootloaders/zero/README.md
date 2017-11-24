@@ -4,8 +4,8 @@ This bootloader is based on the Arduino Zero bootloader which is a part of the A
 provides a USB-CDC and/or TTL serial communications interface to a host running the bossac command
 line firmware programming utility (or the Arduino IDE) running on Windows, Linux, or OS X. Optionally,
 SD Card firmware loading is supported, using SDSC or SDHC cards with a FAT16 or FAT32 filesystem.
-This version adds support for the D11, L21, and C21 microcontrollers. It also adds support for four
-different clock sources (two external crystals and two internal oscillator options). There are
+This version adds support for the D11, L21, C21, and D51 microcontrollers. It also adds support for
+four different clock sources (two external crystals and two internal oscillator options). There are
 additional board definitions added, and binaries for most board/chip combinations are pre-built.
 
 ## Features
@@ -15,7 +15,7 @@ additional board definitions added, and binaries for most board/chip combination
 * Four different clock sources (two external crystals and two internal oscillator options)
 * Arduino IDE auto-reset and double-tap reset button support
 * Arduino extended commands for faster firmware loading
-* Supports the D21, L21, C21, and D11 SAM M0+ chips
+* Supports the D21, L21, C21, and D11 SAM M0+ chips. Also supports D51 M4F chips.
 * Bossac command line utility for Windows, Linux, and OS X
 
 
@@ -150,6 +150,20 @@ For more information on SAM-BA, see (especially pages 10 and 11):
 http://www.atmel.com/Images/Atmel-42438-SAM-BA-Overview-and-Customization-Process_ApplicationNote_AT09423.pdf
 
 
+## D51 Clock Configuration
+
+The D51 can run at either 120MHz or 48MHz. When running at 120MHz,
+two or three additional clock generators are used. Two of these
+generate 48MHz and 96MHz. The USB peripheral can only run at 48MHz,
+and many peripherals (ie: SERCOM) have a limit of 100MHz, so these
+generators are used for them. Because 120MHz cannot be divided down
+to 48MHz or 96MHz using the GCLK dividers, the second PLL is used.
+Thus, with all clock source configurations, when the cpu runs at
+120MHz both PLLs are enabled. When the cpu runs at 48MHz, only the
+first PLL is enabled and only when using an external crystal. Use
+48MHz to reduce power consumption.
+
+
 ## Bootloader Binaries
 
 The bootloaders/zero/binaries directory contains the SAM-BA m0+
@@ -256,7 +270,7 @@ This driver is the same as the one used by the MattairTech SAM M0+ Core.
 
 ### Bossac Utility
 
-This version of the bootloader requires bossac (1.7.0-mattairtech-1) or above.
+This version of the bootloader requires bossac (1.7.0-mattairtech-2) or above.
 
 **See the MattairTech SAM M0+ Core [README.md](https://github.com/mattairtech/ArduinoCore-samd/tree/master/README.md) "Driver Installation" for installation instructions.).**
 
@@ -265,22 +279,22 @@ This version of the bootloader requires bossac (1.7.0-mattairtech-1) or above.
 If using the Arduino IDE to upload firmware, then this will be installed automatically when intalling the core.
 If using Bossac standalone, download bossac directly at:
 
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-mingw32.tar.gz (Windows 32 bit and 64 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-x86_64-linux-gnu.tar.gz (Linux 64 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-i686-linux-gnu.tar.gz (Linux 32 bit)
-* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-1-x86_64-apple-darwin.tar.gz (OS X 64 bit)
+* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-mingw32.tar.gz (Windows 32 bit and 64 bit)
+* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-x86_64-linux-gnu.tar.gz (Linux 64 bit)
+* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-i686-linux-gnu.tar.gz (Linux 32 bit)
+* https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-x86_64-apple-darwin.tar.gz (OS X 64 bit)
 
 Linux 64 bit users can also download Bossa (GUI) and bossash (shell) from:
 
-* https://www.mattairtech.com/software/arduino/Bossa-1.7.0-mattairtech-1-x86_64-linux-gnu.tar.gz (Linux 64 bit)
+* https://www.mattairtech.com/software/arduino/Bossa-1.7.0-mattairtech-2-x86_64-linux-gnu.tar.gz (Linux 64 bit)
 
 Note that the SAM-BA tools from Atmel will not work, and the version of bossac from the Arduino
-SAMD Core currently does not support the L21, C21, or D11 (but it does support the D21).
+SAMD Core currently only supports the D21.
 
 
 #### Using Bossac Standalone
 
-TODO: Update https://www.mattairtech.com/software/SAM-BA-bootloader-test-firmware.zip with new chips (L21 and C21).
+TODO: Update https://www.mattairtech.com/software/SAM-BA-bootloader-test-firmware.zip with new chips (L21, C21 and D51).
 
 When using Bossac standalone, you will need to ensure that your application starts at 0x00002000 for 8 KB bootloaders,
 and 0x00001000 for 4 KB bootloaders. This is because the bootloader resides at 0x00000000. This can be accomplished
@@ -318,10 +332,10 @@ Arduino IDE Boards Manager. If you do not wish to install the MattairTech SAM M0
 arm-none-eabi-gcc, CMSIS, and openocd packages are included with the stock Arduino SAMD. However, you
 will still need to download bossac (see above) and CMSIS-Atmel from MattairTech:
 
-* https://www.mattairtech.com/software/arduino/CMSIS-Atmel-1.0.0-mattairtech-1.tar.gz
+* https://www.mattairtech.com/software/arduino/CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz
 
 Then install to ~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-Atmel (or similar based on your OS)
-and rename the folder in CMSIS-Atmel from CMSIS to 1.0.0-mattairtech-1.
+and rename the folder in CMSIS-Atmel from CMSIS to 1.0.0-mattairtech-2.
 
 This project uses a Makefile, which is in the root zero directory. However, you will need a make program:
 
@@ -373,6 +387,10 @@ allow the build_all_bootloaders.sh script to select SD Card support.
 * SAMC21G: SAMC21G18A, SAMC21G17A, SAMC21G16A, SAMC21G15A
 * SAMC21E: SAMC21E18A, SAMC21E17A, SAMC21E16A, SAMC21E15A
 * SAMD11:  SAMD11D14AM, SAMD11C14A, SAMD11D14AS
+* SAMD51G: SAMD51G18A, SAMD51G19A
+* SAMD51J: SAMD51J18A, SAMD51J19A, SAMD51J20A
+* SAMD51N: SAMD51N19A, SAMD51N20A
+* SAMD51P: SAMD51P19A, SAMD51P20A
 
 
 ### Board Configuration
@@ -538,7 +556,7 @@ CLOCKCONFIG_HS_CRYSTAL is defined, then HS_CRYSTAL_FREQUENCY_HERTZ must
 also be defined with the crystal frequency in Hertz. CLOCKCONFIG_INTERNAL
 uses the DFLL in open-loop mode, except with the C21 which lacks a DFLL, so
 the internal 48MHz RC oscillator is used instead. CLOCKCONFIG_INTERNAL_USB
-can be defined for the D21, D11, or L21. It will also use the DFLL in
+can be defined for the D21, D11, L21, or D51. It will also use the DFLL in
 open-loop mode, except when connected to a USB port with data lines (and
 not suspended), where it will calibrate against the USB SOF signal.
 
@@ -546,6 +564,7 @@ not suspended), where it will calibrate against the USB SOF signal.
 
 If CLOCKCONFIG_HS_CRYSTAL is defined, then HS_CRYSTAL_FREQUENCY_HERTZ
 must also be defined with the external crystal frequency in Hertz.
+Current MattairTech boards use 16MHz (12MHz or 24MHz on future boards).
 
 ### PLL_FRACTIONAL_ENABLED
 
@@ -566,7 +585,8 @@ characteristics.
 
 ### VARIANT_MCK
 
-Master clock frequency (also Fcpu frequency), set to 48000000ul only for now.
+Master clock frequency (also Fcpu frequency), set to 48000000ul for all MCUs,
+except the D51, which can be either 48000000ul or 120000000ul.
 
 ### NVM_SW_CALIB_DFLL48M_FINE_VAL
 

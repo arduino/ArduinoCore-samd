@@ -22,14 +22,22 @@
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
+#if (SAMD51)
+  #define NVM_CALIBRATION_ADDRESS           NVMCTRL_SW0
+  #define NVM_USB_PAD_TRANSN_POS            (32)
+  #define NVM_USB_PAD_TRANSP_POS            (37)
+  #define NVM_USB_PAD_TRIM_POS              (42)
+#else
+  #define NVM_CALIBRATION_ADDRESS           NVMCTRL_OTP4
+  #define NVM_USB_PAD_TRANSN_POS            (45)
+  #define NVM_USB_PAD_TRANSP_POS            (50)
+  #define NVM_USB_PAD_TRIM_POS              (55)
+#endif
 #define USB_PAD_TRANSN_REG_POS            (6)
-#define NVM_USB_PAD_TRANSN_POS            (45)
 #define NVM_USB_PAD_TRANSN_SIZE           (5)
 #define USB_PAD_TRANSP_REG_POS            (0)
-#define NVM_USB_PAD_TRANSP_POS            (50)
 #define NVM_USB_PAD_TRANSP_SIZE           (5)
 #define USB_PAD_TRIM_REG_POS              (12)
-#define NVM_USB_PAD_TRIM_POS              (55)
 #define NVM_USB_PAD_TRIM_SIZE             (3)
 
 /* Generic Clock Multiplexer IDs */
@@ -37,6 +45,8 @@
   #define GCM_USB                   (0x06U)
 #elif (SAML21)
   #define GCM_USB                   (0x04U)
+#elif (SAMD51)
+  #define GCM_USB                   (0x0AU)
 #else
   #error "board_driver_usb.c: Missing dependency or unsupported chip. Please install CMSIS-Atmel from MattairTech (see Prerequisites for Building in README.md)."
 #endif
@@ -75,24 +85,30 @@ void USB_Init(void)
   /* Enable USB clock */
 #if (SAMD21 || SAMD11)
   PM->APBBMASK.reg |= PM_APBBMASK_USB;
-#elif (SAML21)
+#elif (SAML21 || SAMD51)
   MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
 #endif
 
   /* Set up the USB DP/DN pins */
+#if (SAMD51)
+  pinMux(PINMUX_PA24H_USB_DM);
+  pinMux(PINMUX_PA25H_USB_DP);
+#else
   pinMux(PINMUX_PA24G_USB_DM);
   pinMux(PINMUX_PA25G_USB_DP);
+#endif
 
   /* ----------------------------------------------------------------------------------------------
    * Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
    */
 #if (SAMD21 || SAMD11)
   GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_USB ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
-  waitForSync();
+#elif (SAMD51 && (VARIANT_MCK == 120000000ul))
+  GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5 );  // use 48MHz clock (required for USB) from GCLK5, which was setup in board_init.c
 #else
   GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-  waitForSync();
 #endif
+  waitForSync();
 
   /* Reset */
 #if defined(PARANOIA)
@@ -104,7 +120,7 @@ void USB_Init(void)
 #endif
 
   /* Load Pad Calibration */
-  pad_transn =(uint8_t)( *((uint32_t *)(NVMCTRL_OTP4)
+  pad_transn =(uint8_t)( *((uint32_t *)(NVM_CALIBRATION_ADDRESS)
       + (NVM_USB_PAD_TRANSN_POS / 32))
     >> (NVM_USB_PAD_TRANSN_POS % 32))
     & ((1 << NVM_USB_PAD_TRANSN_SIZE) - 1);
@@ -114,7 +130,7 @@ void USB_Init(void)
     pad_transn = 5;
   }
 
-  pad_transp =(uint8_t)( *((uint32_t *)(NVMCTRL_OTP4)
+  pad_transp =(uint8_t)( *((uint32_t *)(NVM_CALIBRATION_ADDRESS)
       + (NVM_USB_PAD_TRANSP_POS / 32))
       >> (NVM_USB_PAD_TRANSP_POS % 32))
       & ((1 << NVM_USB_PAD_TRANSP_SIZE) - 1);
@@ -124,7 +140,7 @@ void USB_Init(void)
     pad_transp = 29;
   }
 
-  pad_trim =(uint8_t)( *((uint32_t *)(NVMCTRL_OTP4)
+  pad_trim =(uint8_t)( *((uint32_t *)(NVM_CALIBRATION_ADDRESS)
       + (NVM_USB_PAD_TRIM_POS / 32))
       >> (NVM_USB_PAD_TRIM_POS % 32))
       & ((1 << NVM_USB_PAD_TRIM_SIZE) - 1);

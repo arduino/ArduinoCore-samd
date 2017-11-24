@@ -34,8 +34,11 @@ void setBaud (uint32_t baud)
   while(SDCARD_SPI_MODULE->SPI.SYNCBUSY.bit.ENABLE);
 
   //Synchronous arithmetic
-  SDCARD_SPI_MODULE->SPI.BAUD.reg = ((VARIANT_MCK / (2 * baud)) - 1);
-
+  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
+    SDCARD_SPI_MODULE->SPI.BAUD.reg = ((96000000ul / (2 * baud)) - 1); // Use 96MHz SERCOM clock (100MHz maximum) when cpu running at 120MHz
+  #else
+    SDCARD_SPI_MODULE->SPI.BAUD.reg = ((VARIANT_MCK / (2 * baud)) - 1);
+  #endif
 
   SDCARD_SPI_MODULE->SPI.CTRLA.bit.ENABLE = 1;
   while(SDCARD_SPI_MODULE->SPI.SYNCBUSY.bit.ENABLE);
@@ -65,6 +68,13 @@ inline void init_spi (void)
   #elif (SAMC21G) || (SAMC21J)
   MCLK->APBCMASK.reg |= MCLK_APBCMASK_SERCOM0 | MCLK_APBCMASK_SERCOM1 | MCLK_APBCMASK_SERCOM2 | MCLK_APBCMASK_SERCOM3 | MCLK_APBCMASK_SERCOM4 | MCLK_APBCMASK_SERCOM5 ;
   #endif
+#elif (SAMD51)
+  MCLK->APBAMASK.reg |= MCLK_APBAMASK_SERCOM0 | MCLK_APBAMASK_SERCOM1 ;
+  MCLK->APBBMASK.reg |= MCLK_APBBMASK_SERCOM2 | MCLK_APBBMASK_SERCOM3 ;
+  MCLK->APBDMASK.reg |= MCLK_APBDMASK_SERCOM4 | MCLK_APBDMASK_SERCOM5 ;
+  #if (SAMD51N) || (SAMD51P)
+  MCLK->APBDMASK.reg |= MCLK_APBDMASK_SERCOM6 | MCLK_APBDMASK_SERCOM7 ;
+  #endif
 #else
   #error "mmcbbp.c: Unsupported microcontroller"
 #endif
@@ -79,8 +89,12 @@ inline void init_spi (void)
 #if (SAMD21 || SAMD11)
   GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( SDCARD_SPI_PER_CLOCK_INDEX ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
   waitForSync();
-#elif (SAML21 || SAMC21)
-  GCLK->PCHCTRL[SDCARD_SPI_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+#elif (SAML21 || SAMC21 || SAMD51)
+  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
+    GCLK->PCHCTRL[SDCARD_SPI_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK6 ); // Use 96MHz SERCOM clock (100MHz maximum) when cpu running at 120MHz
+  #else
+    GCLK->PCHCTRL[SDCARD_SPI_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+  #endif
   waitForSync();
 #else
   #error "mmcbbp.c: Unsupported microcontroller"

@@ -1,6 +1,6 @@
 # Arduino Zero Bootloader Binaries
 
-The bootloaders/zero/binaries directory contains the SAM-BA m0+
+The bootloaders/zero/binaries directory contains the SAM-BA
 bootloaders built by the build_all_bootloaders.sh script from
 the 'MattairTech SAM M0+ Boards' Arduino core, which is available
 at https://github.com/mattairtech/ArduinoCore-samd. Each board

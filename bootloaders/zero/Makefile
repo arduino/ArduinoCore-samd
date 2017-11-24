@@ -42,10 +42,14 @@ BOARD_ID?=MT_D21E_rev_B
 # SAMC21G: SAMC21G18A, SAMC21G17A, SAMC21G16A, SAMC21G15A
 # SAMC21E: SAMC21E18A, SAMC21E17A, SAMC21E16A, SAMC21E15A
 # SAMD11:  SAMD11D14AM, SAMD11C14A, SAMD11D14AS
+# SAMD51G: SAMD51G18A, SAMD51G19A
+# SAMD51J: SAMD51J18A, SAMD51J19A, SAMD51J20A
+# SAMD51N: SAMD51N19A, SAMD51N20A
+# SAMD51P: SAMD51P19A, SAMD51P20A
 MCU?=SAMD21E18A
 
-# Note that the makefile can be invoked with values that override the above two settings.
-# For example: BOARD_ID=Generic_D11C14A MCU=SAMD11C14A make
+# Note that the makefile can be invoked with values that override the above settings.
+# For example: BOARD_ID=Generic_D11C14A MCU=SAMD11C14A SDCARD=SDCARD_DISABLED make
 
 # End Config ###############################
 
@@ -55,6 +59,12 @@ else
 NAME=sam_ba_$(BOARD_ID)_$(MCU)
 endif
 
+ifeq ($(findstring 20,$(MCU)),20)
+FLASHSIZE=1MB
+endif
+ifeq ($(findstring 19,$(MCU)),19)
+FLASHSIZE=512KB
+endif
 ifeq ($(findstring 18,$(MCU)),18)
 FLASHSIZE=256KB
 endif
@@ -71,7 +81,13 @@ ifeq ($(findstring 14,$(MCU)),14)
 FLASHSIZE=16KB
 endif
 
+ifeq ($(findstring D51,$(MCU)),D51)
+LINKER_SCRIPT?=bootloader_sam_m4f_$(FLASHSIZE).ld
+MCPU=cortex-m4
+else
 LINKER_SCRIPT?=bootloader_sam_m0p_$(FLASHSIZE).ld
+MCPU=cortex-m0plus
+endif
 
 # CORE_VENDOR?=arduino
 CORE_VENDOR?=MattairTech_Arduino
@@ -125,7 +141,8 @@ SIZE=$(ARM_GCC_PATH)size
 # Compiler options
 # eliminate PARANOIA define to save a tiny amount of code (~40B)
 CFLAGS_EXTRA=-D$(SDCARD) -D__$(MCU)__ -DBOARD_ID_$(BOARD_ID) -DPARANOIA
-CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500 -Wa,-adhlns=$(<:%.c=$(BUILD_DIR)/%.lst)
+CFLAGS=-mthumb -mcpu=$(MCPU) -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500 -Wa,-adhlns=$(<:%.c=$(BUILD_DIR)/%.lst)
+
 ifdef DEBUG
   CFLAGS+=-g3 -O1 -DDEBUG=1
 else
@@ -141,7 +158,7 @@ INCLUDES=-I"$(MODULE_PATH_ARDUINO)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE
 
 # -----------------------------------------------------------------------------
 # Linker options
-LDFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all
+LDFLAGS=-mthumb -mcpu=$(MCPU) -Wall -Wl,--cref -Wl,--check-sections -Wl,--gc-sections -Wl,--unresolved-symbols=report-all
 LDFLAGS+=-Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbols --specs=nano.specs --specs=nosys.specs
 
 # -----------------------------------------------------------------------------

@@ -26,7 +26,7 @@
 #include "board_driver_led.h"
 #include "SDCard/sdBootloader.h"
 #include "util.h"
-#if (SAMD21 || SAMD11 || SAML21)
+#if (SAMD21 || SAMD11 || SAML21 || SAMD51)
   #include "sam_ba_usb.h"
   #include "sam_ba_cdc.h"
 #endif
@@ -100,7 +100,7 @@ uint32_t* pulSketch_Start_Address;
 
 #if (SAMD21 || SAMD11)
   if (PM->RCAUSE.bit.POR)
-#elif (SAML21 || SAMC21)
+#elif (SAML21 || SAMC21 || SAMD51)
   if (RSTC->RCAUSE.bit.POR)
 #else
   #error "main.c: Missing dependency or unsupported chip. Please install CMSIS-Atmel from MattairTech (see Prerequisites for Building in README.md)."
