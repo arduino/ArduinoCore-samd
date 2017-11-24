@@ -44,17 +44,23 @@ __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table[USB_EP
 
 extern void (*gpf_isr)(void);
 
-
-// NVM Software Calibration Area Mapping
-// USB TRANSN calibration value. Should be written to the USB PADCAL register.
-#define NVM_USB_PAD_TRANSN_POS     45
-#define NVM_USB_PAD_TRANSN_SIZE    5
-// USB TRANSP calibration value. Should be written to the USB PADCAL register.
-#define NVM_USB_PAD_TRANSP_POS     50
-#define NVM_USB_PAD_TRANSP_SIZE    5
-// USB TRIM calibration value. Should be written to the USB PADCAL register.
-#define NVM_USB_PAD_TRIM_POS       55
-#define NVM_USB_PAD_TRIM_SIZE      3
+#if (SAML21)
+  #define NVM_CALIBRATION_ADDRESS           NVMCTRL_OTP5
+  #define NVM_USB_PAD_TRANSN_POS            (13)
+  #define NVM_USB_PAD_TRANSP_POS            (18)
+  #define NVM_USB_PAD_TRIM_POS              (23)
+#else
+  #define NVM_CALIBRATION_ADDRESS           NVMCTRL_OTP4
+  #define NVM_USB_PAD_TRANSN_POS            (45)
+  #define NVM_USB_PAD_TRANSP_POS            (50)
+  #define NVM_USB_PAD_TRIM_POS              (55)
+#endif
+#define USB_PAD_TRANSN_REG_POS            (6)
+#define NVM_USB_PAD_TRANSN_SIZE           (5)
+#define USB_PAD_TRANSP_REG_POS            (0)
+#define NVM_USB_PAD_TRANSP_SIZE           (5)
+#define USB_PAD_TRIM_REG_POS              (12)
+#define NVM_USB_PAD_TRIM_SIZE             (3)
 
 /**
  * \brief Initialize the SAMD21 host driver.
@@ -112,7 +118,7 @@ void UHD_Init(void)
 	while (USB->HOST.SYNCBUSY.reg == USB_SYNCBUSY_ENABLE);
 
 	/* Load Pad Calibration */
-	pad_transn = (*((uint32_t *)(NVMCTRL_OTP4)       // Non-Volatile Memory Controller
+        pad_transn = (*((uint32_t *)(NVM_CALIBRATION_ADDRESS)       // Non-Volatile Memory Controller
 					+ (NVM_USB_PAD_TRANSN_POS / 32))
 					>> (NVM_USB_PAD_TRANSN_POS % 32))
 				& ((1 << NVM_USB_PAD_TRANSN_SIZE) - 1);
@@ -122,9 +128,7 @@ void UHD_Init(void)
 		pad_transn = 5;
 	}
 
-	USB->HOST.PADCAL.bit.TRANSN = pad_transn;
-
-	pad_transp = (*((uint32_t *)(NVMCTRL_OTP4)
+	pad_transp = (*((uint32_t *)(NVM_CALIBRATION_ADDRESS)
 					+ (NVM_USB_PAD_TRANSP_POS / 32))
 					>> (NVM_USB_PAD_TRANSP_POS % 32))
 				& ((1 << NVM_USB_PAD_TRANSP_SIZE) - 1);
@@ -134,9 +138,7 @@ void UHD_Init(void)
 		pad_transp = 29;
 	}
 
-	USB->HOST.PADCAL.bit.TRANSP = pad_transp;
-
-	pad_trim = (*((uint32_t *)(NVMCTRL_OTP4)
+	pad_trim = (*((uint32_t *)(NVM_CALIBRATION_ADDRESS)
 					+ (NVM_USB_PAD_TRIM_POS / 32))
 				>> (NVM_USB_PAD_TRIM_POS % 32))
 				& ((1 << NVM_USB_PAD_TRIM_SIZE) - 1);
@@ -144,10 +146,9 @@ void UHD_Init(void)
 	if (pad_trim == 0x7)         // maximum value (7)
 	{
 		pad_trim = 3;
-	}
+        }
 
-	USB->HOST.PADCAL.bit.TRIM = pad_trim;
-
+        USB->HOST.PADCAL.reg = (uint16_t)((pad_trim << USB_PAD_TRIM_REG_POS) | (pad_transn << USB_PAD_TRANSN_REG_POS) | (pad_transp << USB_PAD_TRANSP_REG_POS));
 
 	/* Set the configuration */
 	uhd_run_in_standby();

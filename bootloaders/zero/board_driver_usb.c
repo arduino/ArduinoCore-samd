@@ -27,6 +27,11 @@
   #define NVM_USB_PAD_TRANSN_POS            (32)
   #define NVM_USB_PAD_TRANSP_POS            (37)
   #define NVM_USB_PAD_TRIM_POS              (42)
+#elif (SAML21)
+  #define NVM_CALIBRATION_ADDRESS           NVMCTRL_OTP5
+  #define NVM_USB_PAD_TRANSN_POS            (13)
+  #define NVM_USB_PAD_TRANSP_POS            (18)
+  #define NVM_USB_PAD_TRIM_POS              (23)
 #else
   #define NVM_CALIBRATION_ADDRESS           NVMCTRL_OTP4
   #define NVM_USB_PAD_TRANSN_POS            (45)
