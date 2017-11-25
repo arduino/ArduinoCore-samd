@@ -108,29 +108,29 @@
           "host": "i686-mingw32",
           "url": "https://www.mattairtech.com/software/arduino/CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
           "archiveFileName": "CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
-          "checksum": "SHA-256:85a9d3e7d34b5272e46c4ad6943f7375a3bbff7ff2944d35fdfd0cf7778a3c2b",
-          "size": "2009341"
+          "checksum": "SHA-256:d10ca2a14c8db5757d2b1b4c1e52473ae5337f0762c6617a6074373f2f44540d",
+          "size": "2008479"
         },
         {
           "host": "x86_64-pc-linux-gnu",
           "url": "https://www.mattairtech.com/software/arduino/CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
           "archiveFileName": "CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
-          "checksum": "SHA-256:85a9d3e7d34b5272e46c4ad6943f7375a3bbff7ff2944d35fdfd0cf7778a3c2b",
-          "size": "2009341"
+          "checksum": "SHA-256:d10ca2a14c8db5757d2b1b4c1e52473ae5337f0762c6617a6074373f2f44540d",
+          "size": "2008479"
         },
         {
           "host": "i686-pc-linux-gnu",
           "url": "https://www.mattairtech.com/software/arduino/CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
           "archiveFileName": "CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
-          "checksum": "SHA-256:85a9d3e7d34b5272e46c4ad6943f7375a3bbff7ff2944d35fdfd0cf7778a3c2b",
-          "size": "2009341"
+          "checksum": "SHA-256:d10ca2a14c8db5757d2b1b4c1e52473ae5337f0762c6617a6074373f2f44540d",
+          "size": "2008479"
         },
         {
           "host": "x86_64-apple-darwin",
           "url": "https://www.mattairtech.com/software/arduino/CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
           "archiveFileName": "CMSIS-Atmel-1.0.0-mattairtech-2.tar.gz",
-          "checksum": "SHA-256:85a9d3e7d34b5272e46c4ad6943f7375a3bbff7ff2944d35fdfd0cf7778a3c2b",
-          "size": "2009341"
+          "checksum": "SHA-256:d10ca2a14c8db5757d2b1b4c1e52473ae5337f0762c6617a6074373f2f44540d",
+          "size": "2008479"
         }
         ]
       }

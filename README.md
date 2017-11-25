@@ -33,7 +33,7 @@ CHANGELOG for details on upstream commits and MattairTech additions that have be
 * Documentation updates
 
 
-## What's New - Beta Version (1.6.16-beta)
+## What's New - Beta Version (1.6.17-beta)
 **See Beta Builds section for installation instructions.**
 
 **1.6.17-beta-b0:**
