@@ -8,6 +8,7 @@
 * Documentation updates
 * Merged in changes from upstream SAMD CORE 1.6.17 (not released yet)
   * Improved ISR response time. Thanks @joverbee
+  * No fixed value for USB power current.
 
 1.6.16 (release version, same as 1.6.16-beta-b0):
 1.6.16-beta-b0:

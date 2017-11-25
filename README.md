@@ -47,6 +47,7 @@ CHANGELOG for details on upstream commits and MattairTech additions that have be
 * Documentation updates
 * Merged in changes from upstream SAMD CORE 1.6.17 (not released yet)
   * Improved ISR response time. Thanks @joverbee
+  * No fixed value for USB power current.
 
 **1.6.16-beta-b0:**
 *Beta version 1.6.16-beta-b0 became release version 1.6.16. See above*
