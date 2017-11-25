@@ -23,12 +23,16 @@
 
 #include <string.h>
 
-static voidFuncPtr callbacksInt[EXTERNAL_NUM_INTERRUPTS];
+static voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t nints; // Stores total number of attached interrupts
 
 /* Configure I/O interrupt sources */
 static void __initialize()
 {
-  memset(callbacksInt, 0, sizeof(callbacksInt));
+  memset(ISRlist,     0, sizeof(ISRlist));
+  memset(ISRcallback, 0, sizeof(ISRcallback));
+  nints = 0;
 
   NVIC_DisableIRQ(EIC_IRQn);
   NVIC_ClearPendingIRQ(EIC_IRQn);
@@ -86,47 +90,69 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     return;
 #endif
 
+  uint32_t inMask = 1 << in;
+
+  // Enable wakeup capability on pin in case being used during sleep (WAKEUP always enabled on SAML and SAMC)
+#if (SAMD21 || SAMD11)
+  EIC->WAKEUP.reg |= (inMask);
+#endif
+
   // Assign pin to EIC
   if (pinPeripheral(pin, PIO_EXTINT) != RET_STATUS_OK)
     return;
 
-  // Enable wakeup capability on pin in case being used during sleep (WAKEUP always enabled on SAML and SAMC)
-#if (SAMD21 || SAMD11)
-  EIC->WAKEUP.reg |= (1 << in);
-#endif
+  // Only store when there is really an ISR to call.
+  // This allow for calling attachInterrupt(pin, NULL, mode), we set up all needed register
+  // but won't service the interrupt, this way we also don't need to check it inside the ISR.
+  if (callback)
+  {
+    // Store interrupts to service in order of when they were attached
+    // to allow for first come first serve handler
+    uint32_t current = 0;
 
-  // Assign callback to interrupt
-  callbacksInt[in] = callback;
+    // Check if we already have this interrupt
+    for (current=0; current<nints; current++) {
+      if (ISRlist[current] == inMask) {
+        break;
+      }
+    }
+    if (current == nints) {
+      // Need to make a new entry
+      nints++;
+    }
+    ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
+    ISRcallback[current] = callback; // List of callback adresses
 
-  // Look for right CONFIG register to be addressed
-  if (in > EXTERNAL_INT_7) {
-    config = 1;
-  } else {
-    config = 0;
+    // Look for right CONFIG register to be addressed
+    if (in > EXTERNAL_INT_7) {
+      config = 1;
+    } else {
+      config = 0;
+    }
+
+    // Configure the interrupt mode
+    pos = (in - (8 * config)) << 2;                               // compute position (ie: 0, 4, 8, 12, ...)
+
+    #if (SAML21 || SAMC21)
+    EIC->CTRLA.reg = 0;   // disable EIC before changing CONFIG
+    while (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK) { }
+    #endif
+
+    uint32_t regConfig = (~(EIC_CONFIG_SENSE0_Msk << pos) & EIC->CONFIG[config].reg);             // copy register to variable, clearing mode bits
+    // insert new mode and write to register (the hardware numbering for the 5 interrupt modes is in reverse order to the arduino numbering, so using '5-mode').
+    EIC->CONFIG[config].reg = (regConfig | ((5-mode) << pos));
+
+    #if (SAML21 || SAMC21)
+    EIC->CTRLA.reg = EIC_CTRLA_ENABLE;    // enable EIC
+    while (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK) { }
+    #endif
   }
 
-  // Configure the interrupt mode
-  pos = (in - (8 * config)) << 2;				// compute position (ie: 0, 4, 8, 12, ...)
-
-#if (SAML21 || SAMC21)
-  EIC->CTRLA.reg = 0;	// disable EIC before changing CONFIG
-  while (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK) { }
-#endif
-
-  uint32_t regConfig = (~(EIC_CONFIG_SENSE0_Msk << pos) & EIC->CONFIG[config].reg);		// copy register to variable, clearing mode bits
-  // insert new mode and write to register (the hardware numbering for the 5 interrupt modes is in reverse order to the arduino numbering, so using '5-mode').
-  EIC->CONFIG[config].reg = (regConfig | ((5-mode) << pos));
-
-#if (SAML21 || SAMC21)
-  EIC->CTRLA.reg = EIC_CTRLA_ENABLE;	// enable EIC
-  while (EIC->SYNCBUSY.reg & EIC_SYNCBUSY_MASK) { }
-#endif
-
   // Clear the interrupt flag
-  EIC->INTFLAG.reg = (1 << in);
+  EIC->INTFLAG.reg = (inMask);
 
   // Enable the interrupt
-  EIC->INTENSET.reg = (1 << in);
+  EIC->INTENSET.reg = (inMask);
 }
 
 /*
@@ -138,12 +164,29 @@ void detachInterrupt(uint32_t pin)
   if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
-  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
+  uint32_t inMask = 1 << in;
+  EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(inMask);
 
   // Disable wakeup capability on pin during sleep (WAKEUP always enabled on SAML and SAMC)
 #if (SAMD21 || SAMD11)
-  EIC->WAKEUP.reg &= ~(1 << in);
+  EIC->WAKEUP.reg &= ~(inMask);
 #endif
+
+  // Remove callback from the ISR list
+  uint32_t current;
+  for (current=0; current<nints; current++) {
+    if (ISRlist[current] == inMask) {
+      break;
+    }
+  }
+  if (current == nints) return; // We didn't have it
+
+  // Shift the reminder down
+  for (; current<nints-1; current++) {
+    ISRlist[current]     = ISRlist[current+1];
+    ISRcallback[current] = ISRcallback[current+1];
+  }
+  nints--;
 }
 
 /*
@@ -151,18 +194,18 @@ void detachInterrupt(uint32_t pin)
  */
 void EIC_Handler(void)
 {
-  // Test the normal interrupts
- for (uint32_t i=EXTERNAL_INT_0; i<=EXTERNAL_INT_15; i++)
-  {
-    if ((EIC->INTFLAG.reg & (1 << i)) != 0)
-    {
-      // Call the callback function if assigned
-      if (callbacksInt[i]) {
-        callbacksInt[i]();
-      }
+  // Calling the routine directly from -here- takes about 1us
+  // Depending on where you are in the list it will take longer
 
+  // Loop over all enabled interrupts in the list
+  for (uint32_t i=0; i<nints; i++)
+  {
+    if ((EIC->INTFLAG.reg & ISRlist[i]) != 0)
+    {
+      // Call the callback function
+      ISRcallback[i]();
       // Clear the interrupt
-      EIC->INTFLAG.reg = 1 << i;
+      EIC->INTFLAG.reg = ISRlist[i];
     }
   }
 }
