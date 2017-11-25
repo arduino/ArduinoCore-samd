@@ -13,6 +13,7 @@
             {"name": "MT-D21E_revB"},
             {"name": "MT-D11"},
             {"name": "Generic_D11C14A"},
+            {"name": "Generic_D11D14AS"},
             {"name": "arduino_zero"},
             {"name": "arduino_mzero"}
 	],
