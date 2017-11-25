@@ -1,3 +1,14 @@
+1.6.17-beta-b0:
+* Added SAM D51 (m4f) support to bootloader
+* Added Generic D11D14AS (20-pin SOIC) variant
+* Made PIN_USB_HOST_ENABLE optional. Readme updates for MT-D11 and Generic D11C14A
+* Fixed USB pad calibration values for L21 in bootloader and USB host mode
+* Improve accuracy of HS crystal (fixed off-by-one calculation)
+* fixed wrong location for call to mapResolution(), doc updates
+* Documentation updates
+* Merged in changes from upstream SAMD CORE 1.6.17 (not released yet)
+  * Improved ISR response time. Thanks @joverbee
+
 1.6.16 (release version, same as 1.6.16-beta-b0):
 1.6.16-beta-b0:
 * Added MattairTech Xeno support (64-pin D21, L21, and C21)

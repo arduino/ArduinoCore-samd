@@ -258,7 +258,7 @@ This driver is the same as the one used by the MattairTech SAM M0+ Core.
 
 #### Bootloader Installation Using Another Tool (ie: Atmel Studio, openocd)
 
-1. Download the bootloader from https://www.mattairtech.com/software/arduino/SAM-BA-bootloaders-zero-mattairtech.zip.
+1. Download the bootloader from **https://www.mattairtech.com/software/arduino/SAM-BA-bootloaders-zero-mattairtech.zip**.
 2. Unzip to any directory. Be sure that a bootloader is available for your particular MCU.
 3. Follow the procedures for your upload tool to upload the firmware.
    * Perform a chip erase first. Be sure no BOOTPROT bits are set.

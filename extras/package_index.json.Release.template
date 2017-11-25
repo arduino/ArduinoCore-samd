@@ -7,9 +7,14 @@
 	"archiveFileName": "%%FILENAME%%",
 	"checksum": "SHA-256:%%CHECKSUM%%",
 	"size": "%%SIZE%%",
-	"boards": [
-	{"name": "MT-D21E"},
-	{"name": "MT-D11"}
+        "boards": [
+            {"name": "Xeno"},
+            {"name": "MT-D21E"},
+            {"name": "MT-D21E_revB"},
+            {"name": "MT-D11"},
+            {"name": "Generic_D11C14A"},
+            {"name": "arduino_zero"},
+            {"name": "arduino_mzero"}
 	],
 	"toolsDependencies": [
 	{
@@ -20,7 +25,7 @@
 	{
 		"packager": "MattairTech_Arduino",
 		"name": "bossac",
-		"version": "1.7.0-mattairtech-1"
+		"version": "1.7.0-mattairtech-2"
 	},
 	{
 		"packager": "arduino",
@@ -35,7 +40,7 @@
 	{
 		"packager": "MattairTech_Arduino",
 		"name": "CMSIS-Atmel",
-		"version": "1.0.0-mattairtech-1"
+		"version": "1.0.0-mattairtech-2"
 	},
 	{
 		"packager": "arduino",

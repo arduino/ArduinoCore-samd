@@ -6,7 +6,9 @@ https://www.mattairtech.com/) as well as for "Generic" boards.
 
 * Supports the SAMD21, SAMD11, SAML21, and SAMC21.
 * Supports four clock sources (two crystals, internal oscillator, and USB calibrated).
-* USB CDC Bootloader with optional SDCard support
+* USB CDC Bootloader with optional SDCard support. See [bootloaders/zero/README.md](https://github.com/mattairtech/ArduinoCore-samd/tree/master/bootloaders/zero/README.md).
+
+**SAMD51 support coming December**
 
 *This core is intended to be installed using Boards Manager (see below). To update from a*
 *previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.*
@@ -33,6 +35,18 @@ CHANGELOG for details on upstream commits and MattairTech additions that have be
 
 ## What's New - Beta Version (1.6.16-beta)
 **See Beta Builds section for installation instructions.**
+
+**1.6.17-beta-b0:**
+1.6.17-beta-b0:
+* Added SAM D51 (m4f) support to bootloader
+* Added Generic D11D14AS (20-pin SOIC) variant
+* Made PIN_USB_HOST_ENABLE optional. Readme updates for MT-D11 and Generic D11C14A
+* Fixed USB pad calibration values for L21 in bootloader and USB host mode
+* Improve accuracy of HS crystal (fixed off-by-one calculation)
+* fixed wrong location for call to mapResolution(), doc updates
+* Documentation updates
+* Merged in changes from upstream SAMD CORE 1.6.17 (not released yet)
+  * Improved ISR response time. Thanks @joverbee
 
 **1.6.16-beta-b0:**
 *Beta version 1.6.16-beta-b0 became release version 1.6.16. See above*
@@ -118,15 +132,23 @@ README.md also now includes technical information on the new PinDescription tabl
 
 * [MattairTech Generic D11C14A](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Generic_D11C14A/README.md)
 
-* MattairTech Generic D11D14AS (future)
+* [MattairTech Generic D11D14AS](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Generic_D11D14AS/README.md)
 
 * MattairTech Generic D11D14AM (future)
 
-* MattairTech Generic x21E (future)
+* MattairTech Generic x21E (soon)
 
 * MattairTech Generic x21G (future)
 
 * MattairTech Generic x21J (future)
+
+* MattairTech Generic D51G (soon)
+
+* MattairTech Generic D51J (future)
+
+* MattairTech Generic D51N (future)
+
+* MattairTech Generic D51P (future)
 
 * [Arduino Zero (arduino.cc)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/arduino_zero/README.md)
 
@@ -756,22 +778,24 @@ from the MT-D11 variant.
 
 ### Under Development
 
-* PlatformIO support
 * SAM D51 (M4F) support (pin compatible with D21, similar peripherals and pin mapping)
+* PlatformIO support
+* Features for lower power consumption (library?) Q1 2018?
+  * PM, clock system, SUPC, RTC, EVSYS, DMA, sleepwalking, battery backup
+* Reliability and security enhancements (library?) 2018?
+  * MPU (C21, D51), WDT, PAC, cryptography (AES, PKCC, TRNG), ICM, RAMECC, cache config (determinism)
 * Fix programming port for Arduino Zero and M0 board variants
 * Reduce SRAM usage by USB endpoint buffers by only allocating endpoints actually used (D11 especially)
 
 ### Possible Future
 
-* Features for lower power consumption (library?) Fall 2017?
-* Reliability and security enhancements
 * USB Host mode CDC ACM (partially complete; BSD-like license?)
 * SD card library? Port of FatFS and/or Petit FatFS?
 * Optional use of single on-board LED as USB activity LED
 * MSC (Mass Storage) USB Device Class
 * Polyphonic tone
 * Wired-AND, Wired-OR for port pins
-* High-speed port pin access (IOBUS)
+* High-speed port pin access (IOBUS, m0+ only)
 
 ### Feature Requests
 
