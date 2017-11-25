@@ -58,11 +58,11 @@ compiler.readelf.cmd=arm-none-eabi-readelf
 build.extra_flags=
 
 # These can be overridden in platform.local.txt
-compiler.c.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-1.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
+compiler.c.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
 compiler.c.elf.extra_flags=
 #compiler.c.elf.extra_flags=-v
-compiler.cpp.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-1.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
-compiler.S.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-1.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
+compiler.cpp.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
+compiler.S.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
 
@@ -139,7 +139,7 @@ tools.avrdude_remote.upload.pattern="openocd --version 2>&1 | grep 2016 && if op
 #
 # BOSSA
 #
-tools.bossac.path={runtime.tools.bossac-1.7.0-mattairtech-1.path}
+tools.bossac.path={runtime.tools.bossac-1.7.0-mattairtech-2.path}
 tools.bossac.cmd=bossac
 tools.bossac.cmd.windows=bossac.exe
 
