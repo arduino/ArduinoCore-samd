@@ -28,7 +28,7 @@ extern uint16_t makeWord( uint16_t w ) ;
 extern uint16_t makeWord( uint8_t h, uint8_t l ) ;
 
 #define word(...) makeWord(__VA_ARGS__)
-#define map(a,b,c,d,e)  Arduino_map(a,b,c,d,e)
+#define map	Arduino_map
 
 
 #endif /* _WIRING_MATH_ */
