@@ -1,10 +1,11 @@
-SAMD CORE 1.6.17
+SAMD CORE 1.6.17 2017.11.29
 
 * More accurate approximation for multiplication factor of PLL to make 48Mhz. Thanks @joverbee
 * Fix changing trigger mode (RISING/FALLING/...) in attachInterrupt(..) during runtime. Thanks @joverbee
 * Improved ISR response time. Thanks @joverbee
 * USB power current can now be overridden in the variant. Thanks @awatterott
 * UART's now support optional RTS and CTS pins defined in the variant.
+* Added support for MKR GSM 1400 and MKR WAN 1300
 
 SAMD CORE 1.6.16 2017.08.23
 
