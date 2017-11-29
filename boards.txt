@@ -162,9 +162,9 @@ mkrzero.build.pid=0x804f
 mkrzero.bootloader.tool=openocd
 mkrzero.bootloader.file=mkrzero/samd21_sam_ba_arduino_mkrzero.bin
 
-# Arduino MKRFox1200
-# ---------------
-mkrfox1200.name=Arduino MKRFox1200
+# Arduino MKR FOX 1200
+# --------------------
+mkrfox1200.name=Arduino MKR FOX 1200
 mkrfox1200.vid.0=0x2341
 mkrfox1200.pid.0=0x8050
 mkrfox1200.vid.1=0x2341
@@ -191,9 +191,9 @@ mkrfox1200.build.pid=0x8050
 mkrfox1200.bootloader.tool=openocd
 mkrfox1200.bootloader.file=mkrfox1200/samd21_sam_ba_arduino_mkrfox1200.bin
 
-# Arduino MKRGSM1400
-# ---------------
-mkrgsm1400.name=Arduino MKRGSM1400
+# Arduino MKR GSM 1400
+# --------------------
+mkrgsm1400.name=Arduino MKR GSM 1400
 mkrgsm1400.vid.0=0x2341
 mkrgsm1400.pid.0=0x8052
 mkrgsm1400.vid.1=0x2341
