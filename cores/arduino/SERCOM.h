@@ -184,7 +184,7 @@ class SERCOM
 		bool isReceiveCompleteSPI( void ) ;
 
 		/* ========== WIRE ========== */
-		void initSlaveWIRE(uint8_t address) ;
+		void initSlaveWIRE(uint8_t address, bool broadcast = false) ;
 		void initMasterWIRE(uint32_t baudrate) ;
 
 		void resetWIRE( void ) ;
