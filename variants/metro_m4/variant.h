@@ -32,6 +32,10 @@
 /** Master clock frequency */
 #define VARIANT_MCK			  (120000000ul)
 
+#define VARIANT_GCLK0_FREQ (120000000UL)
+#define VARIANT_GCLK1_FREQ (48000000UL)
+#define VARIANT_GCLK2_FREQ (100000000UL)
+
 /*----------------------------------------------------------------------------
  *        Headers
  *----------------------------------------------------------------------------*/
@@ -190,9 +194,11 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define I2S_CLOCK_GENERATOR 3
 
 //TODO: these
-#define PIN_I2S_SD          (13u)
+#define PIN_I2S_SDO          (13u)
+#define PIN_I2S_SDI          (1u)
 #define PIN_I2S_SCK         (3u)
 #define PIN_I2S_FS          (12u)
+#define PIN_I2S_MCK			(2u)
 
 #ifdef __cplusplus
 }
