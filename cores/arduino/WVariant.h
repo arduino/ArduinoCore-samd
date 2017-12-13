@@ -226,8 +226,19 @@ typedef enum _EPioType
   PIO_SERCOM_ALT,       /* The pin is controlled by the associated signal of peripheral D. */
   PIO_TIMER,            /* The pin is controlled by the associated signal of peripheral E. */
   PIO_TIMER_ALT,        /* The pin is controlled by the associated signal of peripheral F. */
+#if defined(__SAMD51__)
+  PIO_TCC_PDEC,			/* The pin is controlled by the associated signal of peripheral G. */
+  PIO_COM,             /* The pin is controlled by the associated signal of peripheral H. */
+  PIO_SDHC,             /* The pin is controlled by the associated signal of peripheral I. */
+  PIO_I2S,              /* The pin is controlled by the associated signal of peripheral J. */
+  PIO_PCC,              /* The pin is controlled by the associated signal of peripheral K. */
+  PIO_GMAC,             /* The pin is controlled by the associated signal of peripheral L. */
+  PIO_AC_CLK,           /* The pin is controlled by the associated signal of peripheral M. */
+  PIO_CCL,              /* The pin is controlled by the associated signal of peripheral N. */
+#else
   PIO_COM,              /* The pin is controlled by the associated signal of peripheral G. */
   PIO_AC_CLK,           /* The pin is controlled by the associated signal of peripheral H. */
+#endif
   PIO_DIGITAL,          /* The pin is controlled by PORT. */
   PIO_INPUT,            /* The pin is controlled by PORT and is an input. */
   PIO_INPUT_PULLUP,     /* The pin is controlled by PORT and is an input with internal pull-up resistor enabled. */

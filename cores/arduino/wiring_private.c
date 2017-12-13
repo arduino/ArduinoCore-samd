@@ -67,8 +67,19 @@ int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral )
     case PIO_TIMER:
     case PIO_TIMER_ALT:
     case PIO_EXTINT:
+#if defined(__SAMD51__)
+    case PIO_TCC_PDEC:
+    case PIO_COM:
+    case PIO_SDHC:
+    case PIO_I2S:
+    case PIO_PCC:
+    case PIO_GMAC:
+    case PIO_AC_CLK:
+    case PIO_CCL:
+#else
     case PIO_COM:
     case PIO_AC_CLK:
+#endif
 #if 0
       // Is the pio pin in the lower 16 ones?
       // The WRCONFIG register allows update of only 16 pin max out of 32
