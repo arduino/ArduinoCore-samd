@@ -400,7 +400,7 @@ void SERCOM::disableWIRE()
   }
 }
 
-void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool broadcast )
+void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool enableGeneralCall )
 {
   // Initialize the peripheral clock and interruption
   initClockNVIC() ;
@@ -411,7 +411,7 @@ void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool broadcast )
 
   sercom->I2CS.ADDR.reg = SERCOM_I2CS_ADDR_ADDR( ucAddress & 0x7Ful ) | // 0x7F, select only 7 bits
                           SERCOM_I2CS_ADDR_ADDRMASK( 0x00ul );          // 0x00, only match exact address
-  if (broadcast) {
+  if (enableGeneralCall) {
     sercom->I2CS.ADDR.reg |= SERCOM_I2CS_ADDR_GENCEN;                   // enable general call (address 0x00)
   }
 
