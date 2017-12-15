@@ -34,7 +34,7 @@ class TwoWire : public Stream
   public:
     TwoWire(SERCOM *s, uint8_t pinSDA, uint8_t pinSCL);
     void begin();
-    void begin(uint8_t);
+    void begin(uint8_t, bool enableGeneralCall = false);
     void end();
     void setClock(uint32_t);
 
