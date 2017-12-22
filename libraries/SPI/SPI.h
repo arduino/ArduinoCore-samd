@@ -29,6 +29,9 @@
 //   - SPISetting(clock, bitOrder, dataMode)
 #define SPI_HAS_TRANSACTION 1
 
+// SPI_HAS_NOTUSINGINTERRUPT means that SPI has notUsingInterrupt() method
+#define SPI_HAS_NOTUSINGINTERRUPT 1
+
 #define SPI_MODE0 0x02
 #define SPI_MODE1 0x00
 #define SPI_MODE2 0x03
@@ -100,6 +103,7 @@ class SPIClass {
 
   // Transaction Functions
   void usingInterrupt(int interruptNumber);
+  void notUsingInterrupt(int interruptNumber);
   void beginTransaction(SPISettings settings);
   void endTransaction(void);
 
