@@ -19,6 +19,12 @@
 #include "SERCOM.h"
 #include "variant.h"
 
+#ifndef WIRE_RISE_TIME_NANOSECONDS
+// Default rise time in nanoseconds, based on 4.7K ohm pull up resistors
+// you can override this value in your variant if needed
+#define WIRE_RISE_TIME_NANOSECONDS 125
+#endif
+
 SERCOM::SERCOM(Sercom* s)
 {
   sercom = s;
@@ -445,7 +451,7 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 //  sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
 
   // Synchronous arithmetic baudrate
-  sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 1 ;
+  sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 5 - (((SystemCoreClock / 1000000) * WIRE_RISE_TIME_NANOSECONDS) / (2 * 1000));
 }
 
 void SERCOM::prepareNackBitWIRE( void )
