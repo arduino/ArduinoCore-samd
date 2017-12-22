@@ -39,11 +39,14 @@ class TwoWire : public Stream
     void setClock(uint32_t);
 
     void beginTransmission(uint8_t);
+    void beginTransmission(uint8_t address, uint8_t buffer[], size_t length, size_t quantity = 0);
     uint8_t endTransmission(bool stopBit);
     uint8_t endTransmission(void);
 
     uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit);
     uint8_t requestFrom(uint8_t address, size_t quantity);
+    uint8_t requestFrom(uint8_t address, uint8_t buffer[], size_t quantity);
+    uint8_t requestFrom(uint8_t address, uint8_t buffer[], size_t quantity, bool stopBit);
 
     size_t write(uint8_t data);
     size_t write(const uint8_t * data, size_t quantity);
@@ -73,9 +76,14 @@ class TwoWire : public Stream
     // RX Buffer
     RingBuffer rxBuffer;
 
-    //TX buffer
+    // TX buffer
     RingBuffer txBuffer;
     uint8_t txAddress;
+
+    // external TX buffer
+    uint8_t* externalTxBuffer;
+    size_t externalTxBufferLength;
+    size_t externalTxBufferQuantity;
 
     // Callback user functions
     void (*onRequestCallback)(void);
