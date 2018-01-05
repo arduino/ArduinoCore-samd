@@ -96,6 +96,7 @@ class SPISettings {
 class SPIClass {
   public:
   SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad, SercomRXPad);
+  SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, uint8_t uc_pinSS, SercomSpiTXPad, SercomRXPad);
 
 
   byte transfer(uint8_t data);
@@ -112,20 +113,27 @@ class SPIClass {
   void detachInterrupt();
 
   void begin();
+  int beginSlave();
   void end();
 
   void setBitOrder(BitOrder order);
   void setDataMode(uint8_t uc_mode);
   void setClockDivider(uint8_t uc_div);
 
+  void onSelect(void(*)(void));
+  void onReceive(byte(*)(byte));
+
+  void onService(void);
+
   private:
   void init();
-  void config(SPISettings settings);
+  void config(SercomSpiMode mode, SPISettings settings);
 
   SERCOM *_p_sercom;
   uint8_t _uc_pinMiso;
   uint8_t _uc_pinMosi;
   uint8_t _uc_pinSCK;
+  uint8_t _uc_pinSS;
 
   SercomSpiTXPad _padTx;
   SercomRXPad _padRx;
@@ -134,6 +142,10 @@ class SPIClass {
   uint8_t interruptMode;
   char interruptSave;
   uint32_t interruptMask;
+
+  // Callback user functions
+  void (*onSelectCallback)(void);
+  byte (*onReceiveCallback)(byte);
 };
 
 #if SPI_INTERFACES_COUNT > 0

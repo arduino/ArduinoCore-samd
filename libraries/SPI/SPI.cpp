@@ -28,7 +28,12 @@
 
 const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
 
-SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad PadTx, SercomRXPad PadRx)
+SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad PadTx, SercomRXPad PadRx) :
+  SPIClass(p_sercom, uc_pinMISO, uc_pinSCK, uc_pinMOSI, (uint8_t)-1, PadTx, PadRx)
+{
+}
+
+SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, uint8_t uc_pinSS, SercomSpiTXPad PadTx, SercomRXPad PadRx)
 {
   initialized = false;
   assert(p_sercom != NULL);
@@ -38,6 +43,7 @@ SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint
   _uc_pinMiso = uc_pinMISO;
   _uc_pinSCK = uc_pinSCK;
   _uc_pinMosi = uc_pinMOSI;
+  _uc_pinSS = uc_pinSS;
 
   // SERCOM pads
   _padTx=PadTx;
@@ -53,7 +59,26 @@ void SPIClass::begin()
   pinPeripheral(_uc_pinSCK, PIO_SERCOM);
   pinPeripheral(_uc_pinMosi, PIO_SERCOM);
 
-  config(DEFAULT_SPI_SETTINGS);
+  config(SPI_MASTER_OPERATION, DEFAULT_SPI_SETTINGS);
+}
+
+int SPIClass::beginSlave()
+{
+  if (_uc_pinSS == (uint8_t)-1) {
+    return 0;
+  }
+
+  init();
+
+  // PIO init
+  pinPeripheral(_uc_pinMiso, g_APinDescription[_uc_pinMiso].ulPinType);
+  pinPeripheral(_uc_pinSCK, g_APinDescription[_uc_pinSCK].ulPinType);
+  pinPeripheral(_uc_pinMosi, g_APinDescription[_uc_pinMosi].ulPinType);
+  pinPeripheral(_uc_pinSS, g_APinDescription[_uc_pinSS].ulPinType);
+
+  config(SPI_SLAVE_OPERATION, DEFAULT_SPI_SETTINGS);
+
+  return 1;
 }
 
 void SPIClass::init()
@@ -66,11 +91,11 @@ void SPIClass::init()
   initialized = true;
 }
 
-void SPIClass::config(SPISettings settings)
+void SPIClass::config(SercomSpiMode mode, SPISettings settings)
 {
   _p_sercom->disableSPI();
 
-  _p_sercom->initSPI(_padTx, _padRx, SPI_CHAR_SIZE_8_BITS, settings.bitOrder);
+  _p_sercom->initSPI(mode, _padTx, _padRx, SPI_CHAR_SIZE_8_BITS, settings.bitOrder);
   _p_sercom->initSPIClock(settings.dataMode, settings.clockFreq);
 
   _p_sercom->enableSPI();
@@ -125,7 +150,7 @@ void SPIClass::beginTransaction(SPISettings settings)
       EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(interruptMask);
   }
 
-  config(settings);
+  config(SPI_MASTER_OPERATION, settings);
 }
 
 void SPIClass::endTransaction(void)
@@ -221,6 +246,40 @@ void SPIClass::attachInterrupt() {
 
 void SPIClass::detachInterrupt() {
   // Should be disableInterrupt()
+}
+
+void SPIClass::onSelect(void(*function)(void))
+{
+  onSelectCallback = function;
+}
+
+void SPIClass::onReceive(byte(*function)(byte))
+{
+  onReceiveCallback = function;
+}
+
+void SPIClass::onService()
+{
+  if (_p_sercom->isReceiveCompleteSPI()) {
+    byte nextOut;
+    byte in = _p_sercom->readDataSPI();
+
+    if (onReceiveCallback) {
+      nextOut = onReceiveCallback(in);
+    } else {
+      nextOut = 0xff;
+    }
+
+    _p_sercom->writeDataSPI(nextOut);
+  }
+
+  if (_p_sercom->isSlaveSelectLowSPI()) {
+    if (onSelectCallback) {
+      onSelectCallback();
+    }
+
+    _p_sercom->acknowledgeSPISlaveSelectLow();
+  }
 }
 
 #if SPI_INTERFACES_COUNT > 0

@@ -172,7 +172,7 @@ class SERCOM
 		void disableDataRegisterEmptyInterruptUART();
 
 		/* ========== SPI ========== */
-		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder) ;
+		void initSPI(SercomSpiMode mode, SercomSpiTXPad txPad, SercomRXPad rxPad, SercomSpiCharSize charSize, SercomDataOrder dataOrder) ;
 		void initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate) ;
 
 		void resetSPI( void ) ;
@@ -183,10 +183,13 @@ class SERCOM
 		void setBaudrateSPI(uint8_t divider) ;
 		void setClockModeSPI(SercomSpiClockMode clockMode) ;
 		uint8_t transferDataSPI(uint8_t data) ;
+		uint8_t readDataSPI( void ) ;
+		void writeDataSPI(uint8_t data) ;
 		bool isBufferOverflowErrorSPI( void ) ;
 		bool isDataRegisterEmptySPI( void ) ;
-		bool isTransmitCompleteSPI( void ) ;
 		bool isReceiveCompleteSPI( void ) ;
+		bool isSlaveSelectLowSPI( void ) ;
+		void acknowledgeSPISlaveSelectLow ( void );
 
 		/* ========== WIRE ========== */
 		void initSlaveWIRE(uint8_t address) ;

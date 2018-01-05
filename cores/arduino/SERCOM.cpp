@@ -232,22 +232,27 @@ void SERCOM::disableDataRegisterEmptyInterruptUART()
  *	===== Sercom SPI
  *	=========================
 */
-void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder)
+void SERCOM::initSPI(SercomSpiMode mode, SercomSpiTXPad txPad, SercomRXPad rxPad, SercomSpiCharSize charSize, SercomDataOrder dataOrder)
 {
   resetSPI();
   initClockNVIC();
 
   //Setting the CTRLA register
-  sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE_SPI_MASTER |
-                          SERCOM_SPI_CTRLA_DOPO(mosi) |
-                          SERCOM_SPI_CTRLA_DIPO(miso) |
+  sercom->SPI.CTRLA.reg =	((mode == SPI_SLAVE_OPERATION) ? SERCOM_SPI_CTRLA_MODE_SPI_SLAVE : SERCOM_SPI_CTRLA_MODE_SPI_MASTER) |
+                          SERCOM_SPI_CTRLA_DOPO(txPad) |
+                          SERCOM_SPI_CTRLA_DIPO(rxPad) |
                           dataOrder << SERCOM_SPI_CTRLA_DORD_Pos;
 
   //Setting the CTRLB register
   sercom->SPI.CTRLB.reg = SERCOM_SPI_CTRLB_CHSIZE(charSize) |
+                          SERCOM_SPI_CTRLB_SSDE |
                           SERCOM_SPI_CTRLB_RXEN;	//Active the SPI receiver.
 
 
+  if (mode == SPI_SLAVE_OPERATION) {
+    sercom->SPI.INTENSET.reg = SERCOM_SPI_INTENSET_RXC |
+                               SERCOM_SPI_INTENSET_SSL ;
+  }
 }
 
 void SERCOM::initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate)
@@ -367,6 +372,26 @@ uint8_t SERCOM::transferDataSPI(uint8_t data)
   return sercom->SPI.DATA.bit.DATA;  // Reading data
 }
 
+uint8_t SERCOM::readDataSPI()
+{
+  while( sercom->SPI.INTFLAG.bit.RXC == 0 )
+  {
+    // Waiting Complete Reception
+  }
+
+  return sercom->SPI.DATA.bit.DATA;  // Reading data
+}
+
+void SERCOM::writeDataSPI(uint8_t data)
+{
+  while( sercom->SPI.INTFLAG.bit.DRE == 0 )
+  {
+    // Waiting Data Register Empty
+  }
+
+  sercom->SPI.DATA.bit.DATA = data; // Writing data into Data register
+}
+
 bool SERCOM::isBufferOverflowErrorSPI()
 {
   return sercom->SPI.STATUS.bit.BUFOVF;
@@ -378,17 +403,22 @@ bool SERCOM::isDataRegisterEmptySPI()
   return sercom->SPI.INTFLAG.bit.DRE;
 }
 
-//bool SERCOM::isTransmitCompleteSPI()
-//{
-//	//TXC : Transmit complete
-//	return sercom->SPI.INTFLAG.bit.TXC;
-//}
-//
-//bool SERCOM::isReceiveCompleteSPI()
-//{
-//	//RXC : Receive complete
-//	return sercom->SPI.INTFLAG.bit.RXC;
-//}
+bool SERCOM::isReceiveCompleteSPI()
+{
+  //RXC : Receive complete
+  return sercom->SPI.INTFLAG.bit.RXC;
+}
+
+bool SERCOM::isSlaveSelectLowSPI()
+{
+  //SSL : Slave select low
+  return sercom->SPI.INTFLAG.bit.SSL;
+}
+
+void SERCOM::acknowledgeSPISlaveSelectLow()
+{
+  sercom->SPI.INTFLAG.bit.SSL = 1;
+}
 
 uint32_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
 {
