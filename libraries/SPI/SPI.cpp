@@ -261,16 +261,13 @@ void SPIClass::onReceive(byte(*function)(byte))
 void SPIClass::onService()
 {
   if (_p_sercom->isReceiveCompleteSPI()) {
-    byte nextOut;
     byte in = _p_sercom->readDataSPI();
 
     if (onReceiveCallback) {
-      nextOut = onReceiveCallback(in);
-    } else {
-      nextOut = 0xff;
-    }
+      byte out = onReceiveCallback(in);
 
-    _p_sercom->writeDataSPI(nextOut);
+      _p_sercom->writeDataSPI(out);
+    }
   }
 
   if (_p_sercom->isSlaveSelectLowSPI()) {
