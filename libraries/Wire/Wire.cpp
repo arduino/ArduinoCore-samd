@@ -32,6 +32,9 @@ TwoWire::TwoWire(SERCOM * s, uint8_t pinSDA, uint8_t pinSCL)
   this->_uc_pinSDA=pinSDA;
   this->_uc_pinSCL=pinSCL;
   transmissionBegun = false;
+  externalTxBuffer = NULL;
+  externalTxBufferLength = 0;
+  externalTxBufferQuantity = 0;
 }
 
 void TwoWire::begin(void) {
@@ -62,7 +65,22 @@ void TwoWire::end() {
   sercom->disableWIRE();
 }
 
+uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
+{
+  return requestFrom(address, quantity, true);
+}
+
 uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
+{
+  return requestFrom(address, NULL, quantity, stopBit);
+}
+
+uint8_t TwoWire::requestFrom(uint8_t address, uint8_t buffer[], size_t quantity)
+{
+  return requestFrom(address, buffer, quantity, true);
+}
+
+uint8_t TwoWire::requestFrom(uint8_t address, uint8_t buffer[], size_t quantity, bool stopBit)
 {
   if(quantity == 0)
   {
@@ -76,14 +94,22 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
   if(sercom->startTransmissionWIRE(address, WIRE_READ_FLAG))
   {
     // Read first data
-    rxBuffer.store_char(sercom->readDataWIRE());
+    if (buffer == NULL) {
+      rxBuffer.store_char(sercom->readDataWIRE());
+    } else {
+      buffer[0] = sercom->readDataWIRE();
+    }
 
     // Connected to slave
     for (byteRead = 1; byteRead < quantity; ++byteRead)
     {
       sercom->prepareAckBitWIRE();                          // Prepare Acknowledge
       sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ); // Prepare the ACK command for the slave
-      rxBuffer.store_char(sercom->readDataWIRE());          // Read data and send the ACK
+      if (buffer == NULL) {
+        rxBuffer.store_char(sercom->readDataWIRE());        // Read data and send the ACK
+      } else {
+        buffer[byteRead] = sercom->readDataWIRE();
+      }
     }
     sercom->prepareNackBitWIRE();                           // Prepare NACK to stop slave transmission
     //sercom->readDataWIRE();                               // Clear data register to send NACK
@@ -97,15 +123,17 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
   return byteRead;
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
-{
-  return requestFrom(address, quantity, true);
+void TwoWire::beginTransmission(uint8_t address) {
+  beginTransmission(address, NULL, 0, 0);
 }
 
-void TwoWire::beginTransmission(uint8_t address) {
+void TwoWire::beginTransmission(uint8_t address, uint8_t buffer[], size_t length, size_t quantity) {
   // save address of target and clear buffer
   txAddress = address;
   txBuffer.clear();
+  externalTxBuffer = buffer;
+  externalTxBufferLength = length;
+  externalTxBufferQuantity = quantity;
 
   transmissionBegun = true;
 }
@@ -127,14 +155,29 @@ uint8_t TwoWire::endTransmission(bool stopBit)
     return 2 ;  // Address error
   }
 
-  // Send all buffer
-  while( txBuffer.available() )
+  if (externalTxBuffer == NULL)
   {
-    // Trying to send data
-    if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
+    // Send all buffer
+    while( txBuffer.available() )
     {
-      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-      return 3 ;  // Nack or error
+      // Trying to send data
+      if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
+      {
+        sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+        return 3 ;  // Nack or error
+      }
+    }
+  }
+  else
+  {
+    for (size_t i = 0; i < externalTxBufferQuantity; i++)
+    {
+      // Trying to send data
+      if ( !sercom->sendDataMasterWIRE( externalTxBuffer[i] ) )
+      {
+        sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+        return 3 ;  // Nack or error
+      }
     }
   }
   
@@ -154,12 +197,29 @@ uint8_t TwoWire::endTransmission()
 size_t TwoWire::write(uint8_t ucData)
 {
   // No writing, without begun transmission or a full buffer
-  if ( !transmissionBegun || txBuffer.isFull() )
+  if ( !transmissionBegun )
   {
     return 0 ;
   }
 
-  txBuffer.store_char( ucData ) ;
+  if (externalTxBuffer == NULL)
+  {
+    if ( txBuffer.isFull() )
+    {
+      return 0;
+    }
+
+    txBuffer.store_char( ucData ) ;
+  }
+  else
+  {
+    if ( externalTxBufferLength == externalTxBufferQuantity )
+    {
+      return 0;
+    }
+
+    externalTxBuffer[externalTxBufferQuantity++] = ucData;
+  }
 
   return 1 ;
 }
