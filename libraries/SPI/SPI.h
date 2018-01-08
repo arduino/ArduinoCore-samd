@@ -31,6 +31,14 @@
 //   - SPISetting(clock, bitOrder, dataMode)
 #define SPI_HAS_TRANSACTION 1
 
+// SPI_HAS_SLAVE means that SPI has
+//   - beginSlave()
+//   - onReceive(callback)
+#define SPI_HAS_SLAVE
+
+// SPI_HAS_ON_SELECT means that SPI has onSelect(callback) method
+#define SPI_HAS_ON_SELECT
+
 #define SPI_MODE0 0x02
 #define SPI_MODE1 0x00
 #define SPI_MODE2 0x03
