@@ -310,7 +310,7 @@ void setupSerialComms() {
   while (!Serial);
 
 
-  Serial.begin(500000);
+  Serial.begin(115200);
   Serial.print("LWP Ping Demo. Serial comms started. ADDRESS is ");
   Serial.println(APP_ADDRESS);
 }

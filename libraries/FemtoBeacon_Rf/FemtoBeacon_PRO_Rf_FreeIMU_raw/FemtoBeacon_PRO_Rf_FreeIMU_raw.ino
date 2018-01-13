@@ -83,7 +83,7 @@ void setup() {
   
   while (!Serial);
   
-  Serial.begin(250000);
+  Serial.begin(115200);
   Wire.begin();
 
   Serial.println("Begin IMU...");
