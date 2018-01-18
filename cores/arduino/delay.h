@@ -36,6 +36,17 @@ extern "C" {
 extern unsigned long millis( void ) ;
 
 /**
+ * \brief Atomically adjust the millis() clock forward.
+ *
+ * \param delta is the value to add to the clock (uint32_t)
+ *
+ * \return New value of the millis() clock.
+ *
+ * \note See also millis(). Overflows are ignored.
+ */
+extern uint32_t adjust_millis_forward( uint32_t );
+
+/**
  * \brief Returns the number of microseconds since the Arduino board began running the current program.
  *
  * This number will overflow (go back to zero), after approximately 70 minutes. On 16 MHz Arduino boards
