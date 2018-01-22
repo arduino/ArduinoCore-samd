@@ -233,6 +233,12 @@ void initVariant() {
   // set GSM DTR to LOW on start
   pinMode(GSM_DTR, OUTPUT);
   digitalWrite(GSM_DTR, LOW);
+
+#ifdef NO_HW_FLOW_CONTROL
+  // set GSM DTR to LOW on start
+  pinMode(PIN_SERIAL2_RTS, OUTPUT);
+  digitalWrite(PIN_SERIAL2_RTS, LOW);
+#endif
 }
 
 // Serial1
@@ -244,10 +250,14 @@ void SERCOM5_Handler()
 }
 
 // SerialGSM
+
+#ifdef NO_HW_FLOW_CONTROL
+Uart Serial2(&sercom2, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX);
+#else
 Uart Serial2(&sercom2, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX, PIN_SERIAL2_RTS, PIN_SERIAL2_CTS);
+#endif
 
 void SERCOM2_Handler()
 {
   Serial2.IrqHandler();
 }
-
