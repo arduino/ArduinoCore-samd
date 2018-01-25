@@ -1,3 +1,13 @@
+SAMD CORE ?.?.?? ????.??.??
+
+* Wire: Added support for general call (broadcast)
+* SPI: Added SPI.notUsingInterrupt(...) API
+* Fixed build errors if variant disabled USB
+* Wire: TX and RX buffers are now 256 bytes (previously was 64 bytes)
+* Added samd21e sercom compatibility. Thanks @mitchellpontague
+* Fixed lock ups when outputting to UART during ISR
+* Wire: correct I2C frequency calculations, and allow variant to overide default pull up resistor rise time
+
 SAMD CORE 1.6.17 2017.11.29
 
 * More accurate approximation for multiplication factor of PLL to make 48Mhz. Thanks @joverbee
