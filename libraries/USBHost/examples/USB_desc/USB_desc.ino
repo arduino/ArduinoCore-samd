@@ -217,13 +217,13 @@ byte getconfdescr( byte addr, byte conf )
   byte rcode;
   byte descr_length;
   byte descr_type;
-  unsigned int total_length;
+  uint16_t total_length;
   rcode = usb.getConfDescr( addr, 0, 4, conf, buf );  //get total length
   LOBYTE( total_length ) = buf[ 2 ];
   HIBYTE( total_length ) = buf[ 3 ];
-  if( total_length > 256 ) {    //check if total length is larger than buffer
+  if( total_length > sizeof(buf)) {    //check if total length is larger than buffer
     printProgStr(Conf_Trunc_str);
-    total_length = 256;
+    total_length = sizeof(buf);
   }
   rcode = usb.getConfDescr( addr, 0, total_length, conf, buf ); //get the whole descriptor
   while( buf_ptr < buf + total_length ) {  //parsing descriptors
