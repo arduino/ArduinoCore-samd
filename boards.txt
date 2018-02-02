@@ -283,11 +283,13 @@ adafruit_feather_m4.compiler.c.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_feather_m4.compiler.cpp.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
-adafruit_itsybitsy_m0.name=Adafruit Itsybitsy M0
+adafruit_itsybitsy_m0.name=Adafruit ItsyBitsy M0
 adafruit_itsybitsy_m0.vid.0=0x239A
-adafruit_itsybitsy_m0.pid.0=0x801E
+adafruit_itsybitsy_m0.pid.0=0x800F
 adafruit_itsybitsy_m0.vid.1=0x239A
-adafruit_itsybitsy_m0.pid.1=0x001E
+adafruit_itsybitsy_m0.pid.1=0x000F
+adafruit_itsybitsy_m0.vid.2=0x239A
+adafruit_itsybitsy_m0.pid.2=0x8012
 adafruit_itsybitsy_m0.upload.tool=bossac
 adafruit_itsybitsy_m0.upload.protocol=sam-ba
 adafruit_itsybitsy_m0.upload.maximum_size=262144
@@ -296,7 +298,7 @@ adafruit_itsybitsy_m0.upload.wait_for_upload_port=true
 adafruit_itsybitsy_m0.upload.native_usb=true
 adafruit_itsybitsy_m0.build.mcu=cortex-m0plus
 adafruit_itsybitsy_m0.build.f_cpu=48000000L
-adafruit_itsybitsy_m0.build.usb_product="Itsybitsy M0"
+adafruit_itsybitsy_m0.build.usb_product="ItsyBitsy M0 Express"
 adafruit_itsybitsy_m0.build.usb_manufacturer="Adafruit"
 adafruit_itsybitsy_m0.build.board=ITSYBITSY_M0
 adafruit_itsybitsy_m0.build.core=arduino
@@ -306,6 +308,6 @@ adafruit_itsybitsy_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_itsybitsy_m0.build.variant=itsybitsy_m0
 adafruit_itsybitsy_m0.build.variant_system_lib=
 adafruit_itsybitsy_m0.build.vid=0x239A
-adafruit_itsybitsy_m0.build.pid=0x801E
+adafruit_itsybitsy_m0.build.pid=0x800F
 adafruit_itsybitsy_m0.bootloader.tool=openocd
 adafruit_itsybitsy_m0.bootloader.file=itsybitsy/samd21_sam_ba.bin
