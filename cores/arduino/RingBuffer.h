@@ -34,8 +34,8 @@ class RingBufferN
 {
   public:
     uint8_t _aucBuffer[N] ;
-    int _iHead ;
-    int _iTail ;
+    volatile int _iHead ;
+    volatile int _iTail ;
 
   public:
     RingBufferN( void ) ;
