@@ -45,17 +45,17 @@
 /* If SDCARD_ENABLED is defined, then all SDCARD_SPI_* defines must also be set.
  * When setting SDCARD_SPI_PADx defines, consult the appropriate header file
  * from CMSIS-Atmel (ie: ~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-
- * Atmel/1.0.0-mattairtech-1/CMSIS/Device/ATMEL/sam<d21|c21|l21|d11>/include/
+ * Atmel/1.0.0-mattairtech-2/CMSIS/Device/ATMEL/sam<d21|d51|c21|l21|d11>/include/
  * <YOUR_CHIP>.h). SDCARD_SPI_PAD_SETTINGS values are in SDCard/diskio.h.
  * When using SDCARD_USE_PIN1 or SDCARD_USE_PIN2, the SPI peripheral and
  * associated pins are only initialized if either pin is active.
  */
-#define SDCARD_SPI_SERCOM_INSTANCE      3
+#define SDCARD_SPI_SERCOM_INSTANCE      1
 #define SDCARD_SPI_PAD_SETTINGS         SPI_RX_PAD0_TX_PAD2_SCK_PAD3
-#define SDCARD_SPI_PAD0                 PINMUX_PA22C_SERCOM3_PAD0
+#define SDCARD_SPI_PAD0                 PINMUX_PA16C_SERCOM1_PAD0
 #define SDCARD_SPI_PAD1                 PINMUX_UNUSED
-#define SDCARD_SPI_PAD2                 PINMUX_PA18D_SERCOM3_PAD2
-#define SDCARD_SPI_PAD3                 PINMUX_PA19D_SERCOM3_PAD3
+#define SDCARD_SPI_PAD2                 PINMUX_PA18C_SERCOM1_PAD2
+#define SDCARD_SPI_PAD3                 PINMUX_PA19C_SERCOM1_PAD3
 
 /* If SDCARD_ENABLED is defined, then SDCARD_SPI_CS_PORT and SDCARD_SPI_CS_PIN
  * must also be defined. PORT can be 0 (Port A) or 1 (Port B).
@@ -160,7 +160,7 @@
  * also be defined with the crystal frequency in Hertz. CLOCKCONFIG_INTERNAL
  * uses the DFLL in open-loop mode, except with the C21 which lacks a DFLL, so
  * the internal 48MHz RC oscillator is used instead. CLOCKCONFIG_INTERNAL_USB
- * can be defined for the D21, D11, or L21. It will also use the DFLL in
+ * can be defined for the D21, D11, L21, or D51. It will also use the DFLL in
  * open-loop mode, except when connected to a USB port with data lines (and
  * not suspended), where it will calibrate against the USB SOF signal.
  */
@@ -192,8 +192,11 @@
  */
 //#define PLL_FAST_STARTUP
 
-/* Master clock frequency (also Fcpu frequency) */
-#define VARIANT_MCK                       (48000000ul)
+/* Master clock frequency (also Fcpu frequency). With the D51,
+ * this can be either 120000000ul or 48000000ul. See README.md.
+ */
+#define VARIANT_MCK                       (120000000ul)
+//#define VARIANT_MCK                       (48000000ul)
 
 /* The fine calibration value for DFLL open-loop mode is defined here.
  * The coarse calibration value is loaded from NVM OTP (factory calibration values).
@@ -206,7 +209,7 @@
  */
 #define USB_VENDOR_STRINGS_ENABLED
 #define STRING_MANUFACTURER "MattairTech LLC"
-#define STRING_PRODUCT "Generic SAMx21J"
+#define STRING_PRODUCT "Generic SAMD51N"
 
 /* If USB CDC is used, then the USB vendor ID (VID) and product ID (PID) must be set. */
 #define USB_VID_HIGH   0x16
@@ -217,8 +220,8 @@
 /* BOOT_USART_SERCOM_INSTANCE must be a single digit representing the SERCOM number.
  * See board_driver_serial.h for BOOT_USART_PAD_SETTINGS values. When setting
  * BOOT_USART_PADx defines, consult the appropriate header file from CMSIS-Atmel (ie:
- * ~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-Atmel/1.0.0-mattairtech-1/
- * CMSIS/Device/ATMEL/sam<d21|c21|l21|d11>/include/<YOUR_CHIP>.h). Use PINMUX_UNUSED
+ * ~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-Atmel/1.0.0-mattairtech-2/
+ * CMSIS/Device/ATMEL/sam<d21|d51|c21|l21|d11>/include/<YOUR_CHIP>.h). Use PINMUX_UNUSED
  * if not used. By default, this interface is not enabled (except with the C21).
  */
 #define BOOT_USART_SERCOM_INSTANCE        0

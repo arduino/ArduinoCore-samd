@@ -21,6 +21,9 @@ and chip combination has two bootloaders available:
   * SDCARD_AUTORUN_DISABLED is defined
   * Filename is: sam_ba_sdcard_$(BOARD_ID)_$(MCU)
 
+Please see the appropriate board_definitions file to see which pins
+are used for the SD card. Note that the D51 uses different pins.
+
 
 ## MattairTech Boards
 

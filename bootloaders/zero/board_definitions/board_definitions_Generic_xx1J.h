@@ -50,12 +50,21 @@
  * When using SDCARD_USE_PIN1 or SDCARD_USE_PIN2, the SPI peripheral and
  * associated pins are only initialized if either pin is active.
  */
-#define SDCARD_SPI_SERCOM_INSTANCE      3
-#define SDCARD_SPI_PAD_SETTINGS         SPI_RX_PAD0_TX_PAD2_SCK_PAD3
-#define SDCARD_SPI_PAD0                 PINMUX_PA22C_SERCOM3_PAD0
-#define SDCARD_SPI_PAD1                 PINMUX_UNUSED
-#define SDCARD_SPI_PAD2                 PINMUX_PA18D_SERCOM3_PAD2
-#define SDCARD_SPI_PAD3                 PINMUX_PA19D_SERCOM3_PAD3
+#if (SAMD51)
+  #define SDCARD_SPI_SERCOM_INSTANCE      1
+  #define SDCARD_SPI_PAD_SETTINGS         SPI_RX_PAD0_TX_PAD2_SCK_PAD3
+  #define SDCARD_SPI_PAD0                 PINMUX_PA16C_SERCOM1_PAD0
+  #define SDCARD_SPI_PAD1                 PINMUX_UNUSED
+  #define SDCARD_SPI_PAD2                 PINMUX_PA18C_SERCOM1_PAD2
+  #define SDCARD_SPI_PAD3                 PINMUX_PA19C_SERCOM1_PAD3
+#else
+  #define SDCARD_SPI_SERCOM_INSTANCE      3
+  #define SDCARD_SPI_PAD_SETTINGS         SPI_RX_PAD0_TX_PAD2_SCK_PAD3
+  #define SDCARD_SPI_PAD0                 PINMUX_PA22C_SERCOM3_PAD0
+  #define SDCARD_SPI_PAD1                 PINMUX_UNUSED
+  #define SDCARD_SPI_PAD2                 PINMUX_PA18D_SERCOM3_PAD2
+  #define SDCARD_SPI_PAD3                 PINMUX_PA19D_SERCOM3_PAD3
+#endif
 
 /* If SDCARD_ENABLED is defined, then SDCARD_SPI_CS_PORT and SDCARD_SPI_CS_PIN
  * must also be defined. PORT can be 0 (Port A) or 1 (Port B).
@@ -115,7 +124,11 @@
  * lacks USB, so set to SAM_BA_UART_ONLY in this case. By default,
  * SAM_BA_USBCDC_ONLY is set (SAM_BA_UART_ONLY with the C21).
  */
-#define SAM_BA_INTERFACE		SAM_BA_USBCDC_ONLY
+#if (SAMC21)
+  #define SAM_BA_INTERFACE              SAM_BA_UART_ONLY
+#else
+  #define SAM_BA_INTERFACE              SAM_BA_USBCDC_ONLY
+#endif
 
 /* If SAM_BA_INTERFACE_USE_PIN is defined, then the associated pin controls which
  * SAM-BA interface is used (if SAM_BA_BOTH_INTERFACES is defined). If only one
@@ -146,7 +159,7 @@
  * IDE or the bossac tool standalone. Set to 0 with 4KB bootloaders.
  * Size: ~904B. This is defined and set to 1 by default (except with 4KB).
  */
-#define ARDUINO_EXTENDED_CAPABILITIES	1
+#define ARDUINO_EXTENDED_CAPABILITIES   1
 
 /* The clock source must be chosen by setting CLOCKCONFIG_CLOCK_SOURCE to
  * CLOCKCONFIG_32768HZ_CRYSTAL, CLOCKCONFIG_HS_CRYSTAL, CLOCKCONFIG_INTERNAL,
@@ -161,7 +174,11 @@
  * not suspended), where it will calibrate against the USB SOF signal.
  */
 #ifndef CLOCKCONFIG_CLOCK_SOURCE
-#define CLOCKCONFIG_CLOCK_SOURCE	CLOCKCONFIG_INTERNAL_USB
+  #if (SAMC21)
+    #define CLOCKCONFIG_CLOCK_SOURCE	CLOCKCONFIG_INTERNAL
+  #else
+    #define CLOCKCONFIG_CLOCK_SOURCE	CLOCKCONFIG_INTERNAL_USB
+  #endif
 #endif
 
 /* If CLOCKCONFIG_HS_CRYSTAL is defined, then HS_CRYSTAL_FREQUENCY_HERTZ
@@ -187,7 +204,12 @@
 /* Master clock frequency (also Fcpu frequency). With the D51,
  * this can be either 120000000ul or 48000000ul. See README.md.
  */
+#if (SAMD51)
+#define VARIANT_MCK                       (120000000ul)
+//#define VARIANT_MCK                       (48000000ul)
+#else
 #define VARIANT_MCK                       (48000000ul)
+#endif
 
 /* The fine calibration value for DFLL open-loop mode is defined here.
  * The coarse calibration value is loaded from NVM OTP (factory calibration values).
@@ -200,7 +222,15 @@
  */
 #define USB_VENDOR_STRINGS_ENABLED
 #define STRING_MANUFACTURER "MattairTech LLC"
-#define STRING_PRODUCT "MT-D21E Rev A"
+#if (SAMD21)
+  #define STRING_PRODUCT "Generic SAMxx1J D21"
+#elif (SAML21)
+  #define STRING_PRODUCT "Generic SAMxx1J L21"
+#elif (SAMC21)
+  #define STRING_PRODUCT "Generic SAMxx1J C21"
+#elif (SAMD51)
+  #define STRING_PRODUCT "Generic SAMxx1J D51"
+#endif
 
 /* If USB CDC is used, then the USB vendor ID (VID) and product ID (PID) must be set. */
 #define USB_VID_HIGH   0x16
@@ -256,16 +286,22 @@
  * Polarity can be either LED_POLARITY_HIGH_ON or LED_POLARITY_LOW_ON.
  * By default, only BOARD_LED is enabled.
  */
-#define BOARD_LED_PORT                    (0)
-#define BOARD_LED_PIN                     (28)
-#define BOARD_LED_POLARITY	LED_POLARITY_HIGH_ON
+#if defined(SDCARD_ENABLED)
+  #define BOARD_LED_PORT                    (0)
+  #define BOARD_LED_PIN                     (6)
+  #define BOARD_LED_POLARITY    LED_POLARITY_HIGH_ON
+#else
+  //#define BOARD_LED_PORT                    (0)
+  //#define BOARD_LED_PIN                     (6)
+  //#define BOARD_LED_POLARITY    LED_POLARITY_HIGH_ON
+#endif
 
-//#define BOARD_LEDRX_PORT                  (0)
-//#define BOARD_LEDRX_PIN                   (28)
+//#define BOARD_LEDRX_PORT                  (1)
+//#define BOARD_LEDRX_PIN                   (2)
 //#define BOARD_LEDRX_POLARITY	LED_POLARITY_HIGH_ON
 
-//#define BOARD_LEDTX_PORT                  (0)
-//#define BOARD_LEDTX_PIN                   (28)
+//#define BOARD_LEDTX_PORT                  (1)
+//#define BOARD_LEDTX_PIN                   (2)
 //#define BOARD_LEDTX_POLARITY	LED_POLARITY_HIGH_ON
 
 #endif // _BOARD_DEFINITIONS_H_

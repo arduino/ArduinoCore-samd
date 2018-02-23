@@ -149,7 +149,7 @@ Arduino	| Port	| Alternate Function	| Comments (! means not used with this perip
 MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE in variant.h is used to track versions.
 If using board variant files with the old format, the new core will still read the
 table the old way, losing any new features introduced by the new column. Additionally,
-new definitions have been added for L21 and C21 support.
+new definitions have been added for D51, L21, and C21 support.
 
 ### Each pin can have multiple functions.
 The PinDescription table describes how each of the pins can be used by the Arduino
@@ -173,7 +173,7 @@ pin 28 = Port A28). This works well when there is only one port (or if the PORTB
 are used for onboard functions and not broken out). PIO_NOT_A_PIN entries must be added
 for pins that are used for other purposes or for pins that do not exist (especially the
 D11), so some FLASH space may be wasted. For an example of both types, see variant.cpp
-from the MT-D11 variant. The MT-D21J combines both methods, using the actual port pin 
+from the MT-D11 variant. The Xeno combines both methods, using the actual port pin 
 designators from both PORTA and PORTB for arduino numbers 0-31 (ie: B1=1, A2=2), then
 using arduino numbering only above 31. For 0-31 only one pin from PORTA or PORTB can be
 used, leaving the other pin for some number above 31.
@@ -197,19 +197,20 @@ is not used or does not exist, PIO_NOT_A_PIN must be entered in this field. See
 WVariant.h for valid entries. These entries are also used as a parameter to
 pinPeripheral() with the exception of PIO_NOT_A_PIN and PIO_MULTI. The pinMode function
 now calls pinPeripheral() with the desired mode. Note that this field is not used to
-select between the two peripherals possible with each of the SERCOM and TIMER functions.
-PeripheralAttribute is now used for this.
+select between the different peripherals possible with each of the SERCOM and TIMER
+functions. PeripheralAttribute is now used for this.
 
-### PeripheralAttribute:
+### PeripheralAttribute
 This is an 8-bit bitfield used for various peripheral configuration. It is primarily
-used to select between the two peripherals possible with each of the SERCOM and TIMER
-functions. TIMER pins are individual, while SERCOM uses a group of two to four pins.
-This group of pins can span both peripherals. For example, pin 19 (SPI1 SCK) on the
-MT-D21E uses PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses PER_ATTR_SERCOM_STD.
+used to select between the different peripherals possible with each of the SERCOM and
+TIMER functions. TIMER pins are individual, while SERCOM uses a group of two to four
+pins. This group of pins can span both peripherals. For example, pin 19 (SPI1 SCK) on
+the MT-D21E uses PER_ATTR_SERCOM_ALT while pin 22 (SPI1 MISO) uses PER_ATTR_SERCOM_STD.
 Both TIMER and SERCOM can exist for each pin. This bitfield is also used to set the
-pin drive strength. In the future, other attributes (like input buffer configuration)
-may be added. Starting with 1.6.8, the ADC instance on the C21 (there are two) is also
-selected here. See WVariant.h for valid entries.
+pin drive strength and the input buffer configuration (ie: totem-pole, open-drain,
+buskeeper, etc.). Starting with 1.6.8, the ADC instance on the D51 and C21 (there are
+two) is also selected here. Note that the D51 adds a third timer attribute and
+requires consultation of the datasheet IOSET tables. See WVariant.h for valid entries.
 
 ### PinAttribute
 This is a 32-bit bitfield used to list all of the valid peripheral functions that a
@@ -226,12 +227,13 @@ contention). See WVariant.h for valid entries.
 This is the TC/TCC channel (if any) assigned to the pin. Some TC channels are available
 on multiple pins. In general, only one pin should be configured in the pinDescription
 table per TC channel. Starting with 1.6.8, the timer type is now encoded in this column
-to support the L21 and C21, which use TC numbers starting at 0 (rather than 3 as on the
-D21). See WVariant.h for valid entries.
+to support the D51, L21 and C21, which use TC numbers starting at 0 (rather than 3 as on
+the D21). See WVariant.h for valid entries.
 
 ### ADCChannelNumber
-This is the ADC channel (if any) assigned to the pin. The C21 has two ADC instances,
-which is selected in the PeripheralAttribute column. See WVariant.h for valid entries.
+This is the ADC channel (if any) assigned to the pin. The D51 and C21 each have two ADC
+instances, which are selected in the PeripheralAttribute column. See WVariant.h for
+valid entries.
 
 ### ExtInt
 This is the interrupt (if any) assigned to the pin. Some interrupt numbers are
@@ -242,5 +244,5 @@ entries.
 
 ### GCLKCCL
 This column was added in 1.6.8-beta-b0. It is not yet used. It will eventually support
-the Analog Comparators (AC), the Configurable Custom Logic (CCL) units of the L21 and
-C21, and the GCLK outputs (inputs).
+the Analog Comparators (AC), the Configurable Custom Logic (CCL) peripherals of the D51,
+L21 and C21, and the GCLK outputs (inputs) of all of the MCUs.
