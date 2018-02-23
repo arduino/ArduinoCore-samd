@@ -181,7 +181,8 @@ void delayUs (uint32_t delay)
    * SAML21 and SAMC21 have a default 4MHz clock @ reset.
    * SAMD51 has a default 48MHz clock @ reset.
    * It is switched to 48MHz (optionally to 120MHz for SAMD51) in board_init.c.
-   * Note that the D51 CMCC cache is not used, and FLASH wait states limit access.
+   * Note that the D51 CMCC cache is not enabled, and the NVM caches are disabled
+   * in the bootloader due to errata, so FLASH wait states apply.
    */
   uint32_t numLoops;
 
@@ -213,9 +214,7 @@ void delayUs (uint32_t delay)
 void systemReset (void)
 {
   /* Request a system reset */
-  SCB->AIRCR = (uint32_t)((1 << SCB_AIRCR_SYSRESETREQ_Pos) | (SCB_AIRCR_VECTKEY_Val << SCB_AIRCR_VECTKEY_Pos));
-
-  while(1);
+  NVIC_SystemReset();
 }
 
 void waitForSync (void)

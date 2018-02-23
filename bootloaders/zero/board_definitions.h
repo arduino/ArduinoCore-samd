@@ -34,6 +34,8 @@
   #include "board_definitions/board_definitions_arduino_mkrfox1200.h"
 #elif defined(BOARD_ID_Xeno)
   #include "board_definitions/board_definitions_Xeno.h"
+#elif defined(BOARD_ID_Xeno_Mini)
+  #include "board_definitions/board_definitions_Xeno_Mini.h"
 #elif defined(BOARD_ID_MT_D21E_rev_A)
   #include "board_definitions/board_definitions_MT_D21E_rev_A.h"
 #elif defined(BOARD_ID_MT_D21E_rev_B)

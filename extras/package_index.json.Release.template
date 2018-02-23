@@ -1,5 +1,5 @@
 {
-	"name": "MattairTech SAM M0+ Boards",
+	"name": "MattairTech SAM D|L|C core for Arduino",
 	"architecture": "samd",
 	"version": "%%VERSION%%",
 	"category": "Contributed",
@@ -8,6 +8,7 @@
 	"checksum": "SHA-256:%%CHECKSUM%%",
 	"size": "%%SIZE%%",
         "boards": [
+            {"name": "Xeno_Mini"},
             {"name": "Xeno"},
             {"name": "MT-D21E"},
             {"name": "MT-D21E_revB"},
@@ -26,7 +27,7 @@
 	{
 		"packager": "MattairTech_Arduino",
 		"name": "bossac",
-		"version": "1.7.0-mattairtech-2"
+		"version": "1.7.0-mattairtech-3"
 	},
 	{
 		"packager": "arduino",

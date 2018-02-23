@@ -132,7 +132,7 @@ extern "C"{
 #include "USB/USBDesc.h"
 #include "USB/USBCore.h"
 #include "USB/USBAPI.h"
-#if (SAMD21 || SAML21)
+#if (SAMD21 || SAMD51 || SAML21)
   #include "USB/USB_host.h"
 #endif
 #endif

@@ -29,13 +29,15 @@ extern uint32_t SystemCoreClock;
  */
 
 // Constants for Clock generators
-#define GENERIC_CLOCK_GENERATOR_MAIN      (0u) /* This is 48MHz (either 48MHz or 120MHz for D51) */
+#define GENERIC_CLOCK_GENERATOR_MAIN      (0u) /* This is the main 48MHz cpu clock (optionally 120MHz for the D51) */
 #define GENERIC_CLOCK_GENERATOR_XOSC      (1u) /* High speed crystal */
 #define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT (D21 and D11 only) */
 #define GENERIC_CLOCK_GENERATOR_OSC_HS    (3u) /* 8MHz internal RC oscillator (D21, D11, and L21 only) */
-#define GENERIC_CLOCK_GENERATOR_DFLL      (4u) /* Used by D51 for 48MHz DFLL output (only used when cpu is 120MHz) */
-#define GENERIC_CLOCK_GENERATOR_48MHz     (5u) /* Used by D51 for USB or any peripheral that has a 60MHz maximum peripheral clock (only used when cpu is 120MHz) */
-#define GENERIC_CLOCK_GENERATOR_96MHz     (6u) /* Used by D51 for any peripheral that has a 100MHz maximum peripheral clock (only used when cpu is 120MHz) */
+#define GENERIC_CLOCK_GENERATOR_DFLL      (4u) /* Used by D51 (at 120MHz only) with CLOCKCONFIG_INTERNAL or CLOCKCONFIG_INTERNAL_USB to generate 2MHz output for the PLL input */
+#define GENERIC_CLOCK_GENERATOR_48MHz     (5u) /* Used by D51 (at 120MHz only) for USB or any peripheral that has a 60MHz maximum peripheral clock */
+#define GENERIC_CLOCK_GENERATOR_96MHz     (6u) /* Used by D51 (at 120MHz only) for any peripheral that has a 100MHz maximum peripheral clock */
+#define GENERIC_CLOCK_GENERATOR_I2S       (7u) /* Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h. */
+#define GENERIC_CLOCK_GENERATOR_I2S1      (8u) /* Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h. */
 
 // Constants for Clock multiplexers
 #if (SAMD21 || SAMD11 || SAML21)
@@ -82,7 +84,7 @@ void board_init( void )
 {
   /*
    * Disable automatic NVM write operations (errata reference 13134, applies to D21/D11/L21, but not C21 or D51)
-   * Disable NVM cache on D51 (errata). Will be re-enabled after reset at and of programming.
+   * Disable NVM cache on D51 (errata). Will be re-enabled after reset at end of programming.
    */
 #if (SAMD51)
   NVMCTRL->CTRLA.reg = (NVMCTRL_CTRLA_CACHEDIS0 | NVMCTRL_CTRLA_CACHEDIS1 | NVMCTRL_CTRLA_WMODE_MAN | NVMCTRL_CTRLA_AUTOWS);
@@ -91,7 +93,7 @@ void board_init( void )
 #endif
 
   /* Set 1 Flash Wait State for 48MHz (2 for the L21 and C21), cf tables 20.9 and 35.27 in SAMD21 Datasheet
-   * The D51 runs at 120MHz with 5 wait states (automatic)
+   * The D51 runs with 5 wait states at 120MHz (automatic)
    */
 #if (SAMD21 || SAMD11)
   NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ;	// one wait state
@@ -590,6 +592,7 @@ void board_init( void )
 
   GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC_HS ) | GCLK_GENCTRL_SRC_OSC8M | GCLK_GENCTRL_GENEN );
   waitForSync();
+
 #elif (SAML21)
   /* Note that after reset, the L21 starts with the OSC16M set to 4MHz, NOT the DFLL@48MHz as stated in some documentation. */
   /* Modify FSEL value of OSC16M to have 8MHz */

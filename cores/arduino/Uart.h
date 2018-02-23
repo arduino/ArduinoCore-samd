@@ -39,7 +39,13 @@ class Uart : public HardwareSerial
     size_t write(const uint8_t data);
     using Print::write; // pull in write(str) and write(buf, size) from Print
 
+#if (SAMD51)
+    void availableDataHandler();
+    void dataRegisterEmptyHandler();
+    void errorHandler();
+#else
     void IrqHandler();
+#endif
 
     operator bool() { return true; }
 

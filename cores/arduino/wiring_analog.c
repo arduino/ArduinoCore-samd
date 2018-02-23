@@ -52,7 +52,25 @@ const uint8_t timerClockIDs[] =
 	GCM_TC0_TC1,
 	GCM_TC2_TC3,
 	GCM_TC2_TC3,
-	GCM_TC4,
+        GCM_TC4,
+#elif (SAMD51)
+        GCM_TCC0_TCC1,
+        GCM_TCC0_TCC1,
+  #if (SAMD51G)
+        GCM_TCC2_TCC3,
+  #else
+        GCM_TCC2_TCC3,
+        GCM_TCC2_TCC3,
+        GCM_TCC4,
+  #endif
+        GCM_TC0_TC1,
+        GCM_TC0_TC1,
+        GCM_TC2_TC3,
+        GCM_TC2_TC3,
+        GCM_TC4_TC5,
+        GCM_TC4_TC5,
+        GCM_TC6_TC7,
+        GCM_TC6_TC7,
 #else
 #error "wiring_analog.c: Unsupported chip"
 #endif
@@ -66,11 +84,11 @@ extern bool dacEnabled[];
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncADC() __attribute__((always_inline, unused));
 static void syncADC() {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
   while ( ADC->STATUS.bit.SYNCBUSY == 1 );
 #elif (SAML21)
   while ( ADC->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
-#elif (SAMC21)
+#elif (SAMC21 || SAMD51)
   while ( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
   while ( ADC1->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
 #endif
@@ -79,9 +97,9 @@ static void syncADC() {
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncDAC() __attribute__((always_inline, unused));
 static void syncDAC() {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
   while ( DAC->STATUS.bit.SYNCBUSY == 1 );
-#elif (SAML21 || SAMC21)
+#elif (SAML21 || SAMC21 || SAMD51)
   while ( DAC->SYNCBUSY.reg & DAC_SYNCBUSY_MASK );
 #endif
 }
@@ -89,9 +107,9 @@ static void syncDAC() {
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncTC_16(Tc* TCx) __attribute__((always_inline, unused));
 static void syncTC_16(Tc* TCx) {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
   while (TCx->COUNT16.STATUS.bit.SYNCBUSY);
-#elif (SAML21 || SAMC21)
+#elif (SAML21 || SAMC21 || SAMD51)
   while (TCx->COUNT16.SYNCBUSY.reg & (TC_SYNCBUSY_SWRST | TC_SYNCBUSY_ENABLE | TC_SYNCBUSY_CTRLB | TC_SYNCBUSY_STATUS | TC_SYNCBUSY_COUNT));
 #endif
 }
@@ -106,33 +124,42 @@ void analogReadResolution(int res)
 {
   _readResolution = res;
   if (res > 10) {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
 #elif (SAML21)
     ADC->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_12BIT_Val;
 #elif (SAMC21)
     ADC0->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_12BIT_Val;
     ADC1->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_12BIT_Val;
+#elif (SAMD51)
+    ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
+    ADC1->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
 #endif
     _ADCResolution = 12;
   } else if (res > 8) {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
 #elif (SAML21)
     ADC->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_10BIT_Val;
 #elif (SAMC21)
     ADC0->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_10BIT_Val;
     ADC1->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_10BIT_Val;
+#elif (SAMD51)
+    ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+    ADC1->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
 #endif
     _ADCResolution = 10;
   } else {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
     ADC->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
 #elif (SAML21)
     ADC->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_8BIT_Val;
 #elif (SAMC21)
     ADC0->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_8BIT_Val;
     ADC1->CTRLC.bit.RESSEL = ADC_CTRLC_RESSEL_8BIT_Val;
+#elif (SAMD51)
+    ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
+    ADC1->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
 #endif
     _ADCResolution = 8;
   }
@@ -156,10 +183,11 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
 }
 
 /*
- * Default Internal Reference for the SAMD is at 1.65V (with ADC gain of 1/2)
- * External Reference for the SAMD should be between 1v and VDDANA-0.6v=2.7v
+ * Default Internal Reference for the D21/D11 is at 1.65V (measurements up to Vcc with ADC gain of 1/2)
+ * Default Internal Reference for the D51/L21/C21 is at Vcc (generally 3.3V)
+ * External Reference should be between 1V and VDDANA-0.6V=2.7V (1V and VDDANA-0.4V=2.9V for D51)
  *
- * Warning : The maximum IO voltage is Vcc (for SAMD/SAML Vcc can be up to 3.6 volts)
+ * Warning : The maximum IO voltage is Vcc (up to 3.6 volts for the SAMD/SAML, 5V for the SAMC)
  */
 void analogReference(eAnalogReference mode)
 {
@@ -174,7 +202,7 @@ void analogReference(eAnalogReference mode)
   #endif
 #endif
 
-#if (SAMD || SAML21)
+#if (SAMD21 || SAMD11 || SAML21 || SAMD51)
   #if defined(REFB_PIN)
     if (mode == AR_EXTERNAL_REFB) {
       if ( pinPeripheral(REFB_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
@@ -184,7 +212,15 @@ void analogReference(eAnalogReference mode)
   #endif
 #endif
 
-#if (SAMD)
+#if (SAMD51) && defined(REFC_PIN)
+    if (mode == AR_EXTERNAL_REFC) {
+      if ( pinPeripheral(REFC_PIN, PIO_ANALOG_REF) != RET_STATUS_OK ) {
+          return;
+      }
+    }
+#endif
+
+#if (SAMD21 || SAMD11)
   if (mode == AR_DEFAULT) {
     ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;    // GAIN_DIV2 allows values up to VDDANA on the pin
     ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA
@@ -192,25 +228,29 @@ void analogReference(eAnalogReference mode)
     ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;
     ADC->REFCTRL.bit.REFSEL = mode;	// Note that mode value can be used with the register. See header file.
   }
-#elif (SAML21 || SAMC21)
+#elif (SAML21 || SAMC21 || SAMD51)
   if (mode == 0) {		// Set to 1.0V for the SAML, 1.024V for the SAMC
     SUPC->VREF.reg &= ~SUPC_VREF_SEL_Msk;
-  } else if (mode > 5) {		// Values above 5 are used for the Supply Controller reference (AR_INTREF)
+  } else if (mode >= AR_INTREF_1V0) {		// Values starting at AR_INTREF_1V0 are used for the Supply Controller reference (AR_INTREF)
     SUPC->VREF.reg &= ~SUPC_VREF_SEL_Msk;
-    SUPC->VREF.reg |= SUPC_VREF_SEL(mode - 6);	// 
+    #if (SAMD51)
+      SUPC->VREF.reg |= SUPC_VREF_SEL(mode - AR_INTREF_1V0);  // See eAnalogReference typedef in wiring_analog.h. AR_INTREF_1V0 = 7.
+    #else
+      SUPC->VREF.reg |= SUPC_VREF_SEL(mode - AR_INTREF_1V0);  // See eAnalogReference typedef in wiring_analog.h. AR_INTREF_1V0 = 6.
+    #endif
     mode = 0;
   }
   #if (SAML21)
-  ADC->REFCTRL.bit.REFSEL = mode;
-  #elif (SAMC21)
-  ADC0->REFCTRL.bit.REFSEL = mode;
-  ADC1->REFCTRL.bit.REFSEL = mode;
+    ADC->REFCTRL.bit.REFSEL = mode;
+  #elif (SAMC21 || SAMD51)
+    ADC0->REFCTRL.bit.REFSEL = mode;
+    ADC1->REFCTRL.bit.REFSEL = mode;
   #endif
 #endif
   syncADC();
 
   // Start conversion, since The first conversion after the reference is changed must not be used.
-#if (SAMC21)
+#if (SAMC21 || SAMD51)
   ADC0->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
   ADC1->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
   syncADC();
@@ -242,12 +282,12 @@ uint32_t analogRead( uint32_t pin )
   REMAP_ANALOG_PIN_ID(pin);
 #endif
 
-#if (SAMC21)
+#if (SAMC21 || SAMD51)
   Adc* ADC;
-  if ( (g_APinDescription[pin].ulPeripheralAttribute & PER_ATTR_ADC_MASK) == PER_ATTR_ADC_STD ) {
-    ADC = ADC0;
-  } else {
+  if ( (g_APinDescription[pin].ulPeripheralAttribute & PER_ATTR_ADC_MASK) == PER_ATTR_ADC_ALT ) {
     ADC = ADC1;
+  } else {
+    ADC = ADC0;
   }
 #endif
 
@@ -285,7 +325,7 @@ void analogWrite(uint32_t pin, uint32_t value)
   if ( pinPeripheral(pin, PIO_ANALOG_DAC) == RET_STATUS_OK )
   {
     syncDAC();
-#if (SAMD || SAMC21)
+#if (SAMD21 || SAMD11 || SAMC21)
     value = mapResolution(value, _writeResolution, 10);
     DAC->DATA.reg = value & 0x3FF;  // DAC on 10 bits.
     syncDAC();
@@ -294,7 +334,7 @@ void analogWrite(uint32_t pin, uint32_t value)
       DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
       syncDAC();
     }
-#elif (SAML21)
+#elif (SAML21 || SAMD51)
     uint8_t DACNumber = 0x00;
     value = mapResolution(value, _writeResolution, 12);
 
@@ -305,7 +345,9 @@ void analogWrite(uint32_t pin, uint32_t value)
     if (!dacEnabled[DACNumber]) {
       dacEnabled[DACNumber] = true;
       DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller (so that DACCTRL can be modified)
-      delayMicroseconds(40);	// Must delay for at least 30us when turning off while refresh is on due to DAC errata
+      #if (SAML21)
+        delayMicroseconds(40);	// Must delay for at least 30us when turning off while refresh is on due to L21 DAC errata
+      #endif
 
       DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
       syncDAC();
@@ -313,13 +355,10 @@ void analogWrite(uint32_t pin, uint32_t value)
       DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller
       syncDAC();
       while ( (DAC->STATUS.reg & (1 << DACNumber)) == 0 );   // Must wait for DACx to start
-
-      DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
-      syncDAC();
-    } else {
-      DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
-      syncDAC();
     }
+
+    DAC->DATA[DACNumber].reg = value & 0xFFF;  // DACx on 12 bits.
+    syncDAC();
 #endif
     return;
   }
@@ -328,43 +367,38 @@ void analogWrite(uint32_t pin, uint32_t value)
     Tc*  TCx  = 0 ;
     Tcc* TCCx = 0 ;
     uint8_t timerIndex;
-    uint8_t Channelx = GetTCChannelNumber( g_APinDescription[pin].ulTCChannel ) ;
-    // uint8_t Timerx = GetTCNumber( g_APinDescription[pin].ulTCChannel ) ;
-    uint8_t Typex = GetTCType( g_APinDescription[pin].ulTCChannel ) ;
-    static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
+    uint8_t timerType = GetTCType( g_APinDescription[pin].ulTCChannel ) ;
+    uint8_t timerNumber = GetTCNumber( g_APinDescription[pin].ulTCChannel ) ;
+    uint8_t timerChannel = GetTCChannelNumber( g_APinDescription[pin].ulTCChannel ) ;
+    static bool timerEnabled[TCC_INST_NUM+TC_INST_NUM];
 
-    if ( Typex == 1 ) {
+    if ( timerType == 1 ) {
       TCx = (Tc*) GetTC( g_APinDescription[pin].ulTCChannel ) ;
-    } else {
-      TCCx = (Tcc*) GetTC( g_APinDescription[pin].ulTCChannel ) ;
-    }
-
-    // Enable peripheral clock, SAML and SAMC have TC numbers starting at 0
-    if ( TCx ) {
-#if (SAML21)
-      if (TCx == TC4) {
-        timerIndex = 7;	// TC4 is on a different lower-power bridge on the SAML
-      } else {
-        timerIndex = (uint8_t)(((uint32_t)TCx - (uint32_t)TCC0) >> 10);
-      }
+#if (SAMD21 || SAMD11)
+        timerIndex = timerNumber;
 #else
-      timerIndex = (uint8_t)(((uint32_t)TCx - (uint32_t)TCC0) >> 10);
+        timerIndex = (timerNumber + TCC_INST_NUM);
 #endif
     } else {
-      timerIndex = (uint8_t)(((uint32_t)TCCx - (uint32_t)TCC0) >> 10);
+      TCCx = (Tcc*) GetTC( g_APinDescription[pin].ulTCChannel ) ;
+      timerIndex = timerNumber;
     }
 
     value = mapResolution(value, _writeResolution, 16);
 
-    if (!tcEnabled[timerIndex]) {
-      tcEnabled[timerIndex] = true;
+    if (!timerEnabled[timerIndex]) {
+      timerEnabled[timerIndex] = true;
 
-#if (SAMD)
+#if (SAMD21 || SAMD11)
       GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( timerClockIDs[timerIndex] )) ;
       while ( GCLK->STATUS.bit.SYNCBUSY == 1 );
-#elif (SAML21 || SAMC21)
-      GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-      while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#elif (SAML21 || SAMC21 || SAMD51)
+  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
+      GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5);  // use 48MHz clock from GCLK5, which was setup in startup.c
+  #else
+      GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0);
+  #endif
+    while ( (GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #endif
 
       // Set PORT
@@ -378,14 +412,14 @@ void analogWrite(uint32_t pin, uint32_t value)
         TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16;
         syncTC_16(TCx);
         // Set TCx as normal PWM
-#if (SAMD)
+#if (SAMD21 || SAMD11)
         TCx->COUNT16.CTRLA.reg |= TC_CTRLA_WAVEGEN_NPWM;
-#elif (SAML21 || SAMC21)
+#elif (SAML21 || SAMC21 || SAMD51)
         TCx->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
 #endif
         syncTC_16(TCx);
         // Set the initial value
-        TCx->COUNT16.CC[Channelx].reg = (uint32_t) value;
+        TCx->COUNT16.CC[timerChannel].reg = (uint32_t) value;
         syncTC_16(TCx);
         // Enable TCx
         TCx->COUNT16.CTRLA.bit.ENABLE = 1;
@@ -399,7 +433,7 @@ void analogWrite(uint32_t pin, uint32_t value)
         TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
         syncTCC(TCCx);
         // Set the initial value
-        TCCx->CC[Channelx].reg = (uint32_t)value;
+        TCCx->CC[timerChannel].reg = (uint32_t)value;
         syncTCC(TCCx);
         // Set PER to maximum counter value (resolution : 0xFFFF)
         TCCx->PER.reg = 0xFFFF;
@@ -410,24 +444,24 @@ void analogWrite(uint32_t pin, uint32_t value)
       }
     } else {
       if (TCx) {
-#if (SAMD)
-        TCx->COUNT16.CC[Channelx].reg = (uint32_t) value;
-#elif (SAML21 || SAMC21)
+#if (SAMD21 || SAMD11)
+        TCx->COUNT16.CC[timerChannel].reg = (uint32_t) value;
+#elif (SAML21 || SAMC21 || SAMD51)
         // SAML and SAMC have double-buffered TCs
-        TCx->COUNT16.CCBUF[Channelx].reg = (uint32_t) value;
+        TCx->COUNT16.CCBUF[timerChannel].reg = (uint32_t) value;
 #endif
         syncTC_16(TCx);
       } else {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
         TCCx->CTRLBSET.bit.LUPD = 1;
         syncTCC(TCCx);
-	TCCx->CCB[Channelx].reg = (uint32_t) value;
-	syncTCC(TCCx);
-	TCCx->CTRLBCLR.bit.LUPD = 1;
+        TCCx->CCB[timerChannel].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        TCCx->CTRLBCLR.bit.LUPD = 1;
 // LUPD caused endless spinning in syncTCC() on SAML (and probably SAMC). Note that CCBUF writes are already
 // atomic. The LUPD bit is intended for updating several registers at once, which analogWrite() does not do.
-#elif (SAML21 || SAMC21)
-	TCCx->CCBUF[Channelx].reg = (uint32_t) value;
+#elif (SAML21 || SAMC21 || SAMD51)
+        TCCx->CCBUF[timerChannel].reg = (uint32_t) value;
 #endif
         syncTCC(TCCx);
       }
@@ -439,9 +473,9 @@ void analogWrite(uint32_t pin, uint32_t value)
   {
     value = mapResolution(value, _writeResolution, 8);
     if (value < 128) {
-	    digitalWrite(pin, LOW);
+      digitalWrite(pin, LOW);
     } else {
-	    digitalWrite(pin, HIGH);
+      digitalWrite(pin, HIGH);
     }
   }
 }

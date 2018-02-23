@@ -18,7 +18,7 @@
 
 #include "sam.h"
 
-#if (SAMD21 || SAML21)
+#if (SAMD21 || SAMD51 || SAML21)
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
@@ -44,7 +44,12 @@ __attribute__((__aligned__(4))) volatile UsbHostDescriptor usb_pipe_table[USB_EP
 
 extern void (*gpf_isr)(void);
 
-#if (SAML21)
+#if (SAMD51)
+  #define NVM_CALIBRATION_ADDRESS           NVMCTRL_SW0
+  #define NVM_USB_PAD_TRANSN_POS            (32)
+  #define NVM_USB_PAD_TRANSP_POS            (37)
+  #define NVM_USB_PAD_TRIM_POS              (42)
+#elif (SAML21)
   #define NVM_CALIBRATION_ADDRESS           NVMCTRL_OTP5
   #define NVM_USB_PAD_TRANSN_POS            (13)
   #define NVM_USB_PAD_TRANSP_POS            (18)
@@ -72,12 +77,17 @@ void UHD_Init(void)
 	uint32_t pad_trim;
 	uint32_t i;
 
-	USB_SetHandler(&UHD_Handler);
+#if (SAMD51)
+        USB_SetMainHandler(&UHD_Main_Handler);
+        USB_SetSOFHandler(&UHD_SOF_Handler);
+#else
+        USB_SetHandler(&UHD_Handler);
+#endif
 
 	/* Enable USB clock */
 #if (SAMD21 || SAMD11)
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
-#elif (SAML21)
+#elif (SAML21 || SAMD51)
 	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
 #else
 	#error "samd21_host.c: Unsupported chip"
@@ -87,12 +97,6 @@ void UHD_Init(void)
 	/* Set up the USB DP/DM pins */
 	pinPeripheral( PIN_USB_DM, PIO_COM );
 	pinPeripheral( PIN_USB_DP, PIO_COM );
-// 	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
-// 	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
-// 	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg |= MUX_PA24G_USB_DM << (4 * (PIN_PA24G_USB_DM & 0x01u));
-// 	PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].bit.PMUXEN = 1;
-// 	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25G_USB_DP & 0x01u)));
-// 	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
 
 	/* ----------------------------------------------------------------------------------------------
 	* Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
@@ -100,9 +104,12 @@ void UHD_Init(void)
 #if (SAMD21 || SAMD11)
 	GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_USB ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
 	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#elif (SAMD51 && (VARIANT_MCK == 120000000ul))
+        GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5 );  // use 48MHz clock (required for USB) from GCLK5, which was setup in board_init.c
+        while ( (GCLK->PCHCTRL[GCM_USB].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #else
 	GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-	while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+        while ( (GCLK->PCHCTRL[GCM_USB].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #endif
 
 	/* Reset */
@@ -175,14 +182,122 @@ void UHD_Init(void)
 	USB->HOST.CTRLB.bit.VBUSOK = 1;
 
 	// Configure interrupts
-	NVIC_SetPriority((IRQn_Type)USB_IRQn, 0UL);
-	NVIC_EnableIRQ((IRQn_Type)USB_IRQn);
+#if (SAMD51)
+        NVIC_SetPriority((IRQn_Type) USB_0_IRQn, 0UL);
+        NVIC_EnableIRQ((IRQn_Type) USB_0_IRQn);
+        NVIC_SetPriority((IRQn_Type) USB_1_IRQn, 0UL);
+        NVIC_EnableIRQ((IRQn_Type) USB_1_IRQn);
+#else
+        NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
+        NVIC_EnableIRQ((IRQn_Type) USB_IRQn);
+#endif
 }
 
 
 /**
  * \brief Interrupt sub routine for USB Host state machine management.
  */
+#if (SAMD51)
+void UHD_Main_Handler(void)
+{
+   uint16_t flags;
+
+        if (USB->HOST.CTRLA.bit.MODE) {
+                /*host mode ISR */
+
+                /* get interrupt flags */
+                flags = USB->HOST.INTFLAG.reg;
+
+                /* host reset interrupt */
+                if (flags & USB_HOST_INTFLAG_RST)
+                {
+                        /* clear the flag */
+                        USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_RST;
+                        uhd_state             = UHD_STATE_DISCONNECTED;    //UHD_STATE_ERROR;
+                        return;
+                }
+
+                /* host upstream resume interrupts */
+                if (flags & USB_HOST_INTFLAG_UPRSM)
+                {
+                        /* clear the flags */
+                        USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_UPRSM;
+                        uhd_state             = UHD_STATE_DISCONNECTED;    //UHD_STATE_ERROR;
+                        return;
+                }
+
+                /* host downstream resume interrupts */
+                if (flags & USB_HOST_INTFLAG_DNRSM)
+                {
+                        /* clear the flags */
+                        USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_DNRSM;
+                        uhd_state             = UHD_STATE_DISCONNECTED;    //UHD_STATE_ERROR;
+                        return;
+                }
+
+                /* host wakeup interrupts */
+                if (flags & USB_HOST_INTFLAG_WAKEUP)
+                {
+                        /* clear the flags */
+                        USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_WAKEUP;
+                        uhd_state             = UHD_STATE_CONNECTED;    //UHD_STATE_ERROR;
+                        return;
+                }
+
+                /* host ram access interrupt  */
+                if (flags & USB_HOST_INTFLAG_RAMACER)
+                {
+                        /* clear the flag */
+                        USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_RAMACER;
+                        uhd_state             = UHD_STATE_DISCONNECTED;    //UHD_STATE_ERROR;
+                        return;
+                }
+
+                /* host connect interrupt */
+                if (flags & USB_HOST_INTFLAG_DCONN)
+                {
+                        TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : Connection INT\r\n");
+                                                        )
+                        /* clear the flag */
+                        uhd_ack_connection();
+                        uhd_disable_connection_int();
+                        uhd_ack_disconnection();
+                        uhd_enable_disconnection_int();
+                        //uhd_enable_sof();
+                        uhd_state = UHD_STATE_CONNECTED;
+                        return;
+                }
+
+                /* host disconnect interrupt  */
+                if (flags & USB_HOST_INTFLAG_DDISC)
+                {
+                        TRACE_UOTGHS_HOST(printf(">>> UHD_ISR : Disconnection INT\r\n");
+                                                        )
+                        /* clear the flag */
+                        uhd_ack_disconnection();
+                        uhd_disable_disconnection_int();
+                        // Stop reset signal, in case of disconnection during reset
+                        uhd_stop_reset();
+                        // Disable wakeup/resumes interrupts,
+                        // in case of disconnection during suspend mode
+                        uhd_ack_connection();
+                        uhd_enable_connection_int();
+                        uhd_state = UHD_STATE_DISCONNECTED;
+                        return;
+                }
+        }
+        else {
+                while(1);
+        }
+}
+
+void UHD_SOF_Handler(void)
+{
+  USB->HOST.INTFLAG.reg = USB_HOST_INTFLAG_HSOF;  /* clear the flag */
+  uhd_state             = UHD_STATE_CONNECTED;
+}
+
+#else
 void UHD_Handler(void)
 {
    uint16_t flags;
@@ -284,6 +399,7 @@ void UHD_Handler(void)
 		while(1);
 	}
 }
+#endif
 
 
 
@@ -528,4 +644,4 @@ uint32_t UHD_Pipe_Is_Transfer_Complete(uint32_t ul_pipe, uint32_t ul_token_type)
 // }
 
 #endif //  HOST_DEFINED
-#endif //  (SAMD21 || SAML21)
+#endif //  (SAMD21 || SAMD51 || SAML21)

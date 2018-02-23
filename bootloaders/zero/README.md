@@ -188,6 +188,9 @@ and chip combination has two bootloaders available:
   * SDCARD_AUTORUN_DISABLED is defined
   * Filename is: sam_ba_sdcard_$(BOARD_ID)_$(MCU)
 
+Please see the appropriate board_definitions file to see which pins
+are used for the SD card. Note that the D51 uses different pins.
+
 
 ### MattairTech Boards
 
@@ -460,7 +463,7 @@ Size: ~2788B. Disabled by default. Available with 4KB bootloader.
 If SDCARD_ENABLED is defined, then all SDCARD_SPI_* defines must also be set.
 When setting SDCARD_SPI_PADx defines, consult the appropriate header file
 from CMSIS-Atmel (ie: ~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-
-Atmel/1.0.0-mattairtech-1/CMSIS/Device/ATMEL/sam<d21|c21|l21|d11>/include/
+Atmel/1.0.0-mattairtech-2/CMSIS/Device/ATMEL/sam<d21|d51|c21|l21|d11>/include/
 <YOUR_CHIP>.h). SDCARD_SPI_PAD_SETTINGS values are in SDCard/diskio.h.
 When using SDCARD_USE_PIN1 or SDCARD_USE_PIN2, the SPI peripheral and
 associated pins are only initialized if either pin is active.
@@ -611,8 +614,8 @@ If USB CDC is used, then the USB vendor ID (VID) and product ID (PID) must be se
 BOOT_USART_SERCOM_INSTANCE must be a single digit representing the SERCOM number.
 See board_driver_serial.h for BOOT_USART_PAD_SETTINGS values. When setting
 BOOT_USART_PADx defines, consult the appropriate header file from CMSIS-Atmel (ie:
-~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-Atmel/1.0.0-mattairtech-1/
-CMSIS/Device/ATMEL/sam<d21|c21|l21|d11>/include/<YOUR_CHIP>.h). Use PINMUX_UNUSED
+~/arduino15/packages/MattairTech_Arduino/tools/CMSIS-Atmel/1.0.0-mattairtech-2/
+CMSIS/Device/ATMEL/sam<d21|d51|c21|l21|d11>/include/<YOUR_CHIP>.h). Use PINMUX_UNUSED
 if not used. By default, this interface is not enabled (except with the C21).
 
 ### BOOT_DOUBLE_TAP_ENABLED

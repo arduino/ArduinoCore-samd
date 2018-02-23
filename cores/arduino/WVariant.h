@@ -64,18 +64,39 @@ typedef enum _ETCChannel
   TCC0_CH1 = (0<<4)|(0<<3)|(1),
   TCC0_CH2 = (0<<4)|(0<<3)|(2),
   TCC0_CH3 = (0<<4)|(0<<3)|(3),
+#if (SAMD51)
+  TCC0_CH4 = (0<<4)|(0<<3)|(4), // There are 6 compare channels on TCC0 on the D51
+  TCC0_CH5 = (0<<4)|(0<<3)|(5), // There are 6 compare channels on TCC0 on the D51
+  TCC0_CH6 = (0<<4)|(0<<3)|(0), // Channel 6 is 0!
+  TCC0_CH7 = (0<<4)|(0<<3)|(1), // Channel 7 is 1!
+#else
   TCC0_CH4 = (0<<4)|(0<<3)|(0), // Channel 4 is 0!
   TCC0_CH5 = (0<<4)|(0<<3)|(1), // Channel 5 is 1!
   TCC0_CH6 = (0<<4)|(0<<3)|(2), // Channel 6 is 2!
   TCC0_CH7 = (0<<4)|(0<<3)|(3), // Channel 7 is 3!
+#endif
   TCC1_CH0 = (1<<4)|(0<<3)|(0),
   TCC1_CH1 = (1<<4)|(0<<3)|(1),
+#if (SAMD51)
+  TCC1_CH2 = (1<<4)|(0<<3)|(2), // There are 4 compare channels on TCC1 on the D51
+  TCC1_CH3 = (1<<4)|(0<<3)|(3), // There are 4 compare channels on TCC1 on the D51
+  TCC1_CH4 = (1<<4)|(0<<3)|(0), // Channel 4 is 0!
+  TCC1_CH5 = (1<<4)|(0<<3)|(1), // Channel 5 is 1!
+  TCC1_CH6 = (1<<4)|(0<<3)|(2), // Channel 6 is 2!
+  TCC1_CH7 = (1<<4)|(0<<3)|(3), // Channel 7 is 3!
+#else
   TCC1_CH2 = (1<<4)|(0<<3)|(0), // Channel 2 is 0!
   TCC1_CH3 = (1<<4)|(0<<3)|(1), // Channel 3 is 1!
+#endif
   TCC2_CH0 = (2<<4)|(0<<3)|(0),
   TCC2_CH1 = (2<<4)|(0<<3)|(1),
-  TCC2_CH2 = (2<<4)|(0<<3)|(0), // Channel 2 is 0!
-  TCC2_CH3 = (2<<4)|(0<<3)|(1), // Channel 3 is 1!
+#if (SAMD51)
+  TCC2_CH2 = (2<<4)|(0<<3)|(2), // There are 3 compare channels on TCC2 on the D51
+  TCC3_CH0 = (3<<4)|(0<<3)|(0),
+  TCC3_CH1 = (3<<4)|(0<<3)|(1),
+  TCC4_CH0 = (4<<4)|(0<<3)|(0),
+  TCC4_CH1 = (4<<4)|(0<<3)|(1),
+#endif
   TC0_CH0  = (0<<4)|(1<<3)|(0),
   TC0_CH1  = (0<<4)|(1<<3)|(1),
   TC1_CH0  = (1<<4)|(1<<3)|(0),
@@ -99,16 +120,18 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #define GetTCNumber( x ) ( ((x) >> 4) & 0x07 )
 #define GetTCType( x ) ( ((x) >> 3) & 0x01 )
 #define GetTCChannelNumber( x ) ( (x) & 0x07 )
-#if (SAMD)
-#define GetTC( x ) ( g_apTCInstances[((x) >> 4) & 0x07] )
-#elif (SAML || SAMC)
-#define GetTC( x ) ( (((x) >> 3) & 0x01 ) == 0 ? g_apTCInstances[((x) >> 4) & 0x07] : (((((x) >> 4) & 0x07) == 4) ? TC4 : g_apTCInstances[(((x) >> 4) & 0x07) + TCC_INST_NUM]) )
+#if (SAMD21 || SAMD11)
+#define GetTC( x ) ( g_apTCInstances[GetTCNumber(x)] )
+#elif (SAML21)
+#define GetTC( x ) ( GetTCType(x) == 0 ? g_apTCInstances[GetTCNumber(x)] : (GetTCNumber(x) == 4 ? TC4 : g_apTCInstances[GetTCNumber(x) + TCC_INST_NUM]) )
+#elif (SAMC21 || SAMD51)
+#define GetTC( x ) ( GetTCType(x) == 0 ? g_apTCInstances[GetTCNumber(x)] : g_apTCInstances[GetTCNumber(x) + TCC_INST_NUM] )
 #else
 #error "WVariant.h: Unsupported chip"
 #endif
 
 // Definitions for GCLK_CCL column TODO, AC?
-// RESERVED (1 bit, used for negative) | GCLK (3 bits: 0-7) | CCL (4 bits: 2 for CCL number, 2 for pin)
+// RESERVED (1 bit, used for negative) | GCLK (3 bits: 0-7) | CCL (4 bits: 2 for CCL number, 2 for pin (or 4 for IN/OUT pin ID on D51))
 typedef enum _EGCLK_CCL
 {
   GCLK_CCL_NONE=-1,
@@ -120,6 +143,7 @@ typedef enum _EPortType
   PORTA=0,
   PORTB=1,
   PORTC=2,
+  PORTD=3,
 } EPortType ;
 
 typedef enum
@@ -168,15 +192,24 @@ typedef enum _EPioType
   PIO_ANALOG_REF=7,                   /* The pin is controlled by the ANALOG peripheral and is a voltage reference input (3.3V MAX). */
   PIO_ANALOG_AC=8,                    /* The pin is controlled by the ANALOG peripheral and is used by the AC (analog comparator). */
   PIO_ANALOG_PTC=9,                   /* The pin is controlled by the ANALOG peripheral and is used by the PTC (peripheral touch controller). */
-  PIO_ANALOG_SDADC=10,                /* The pin is controlled by the ANALOG peripheral and is used by the PTC (peripheral touch controller). */
+  PIO_ANALOG_SDADC=10,                /* The pin is controlled by the ANALOG peripheral and is used by the SDADC (sigma-delta ADC). */
+  PIO_ANALOG_OPAMP=11,                /* The pin is controlled by the ANALOG peripheral and is used by the OPAMP (L21 only). */
 
-  PIO_TIMER_PWM=11,                   /* The pin is controlled by a TIMER peripheral and is a PWM output. */
-  PIO_TIMER_CAPTURE=12,               /* The pin is controlled by a TIMER peripheral and is a capture input. */
+  PIO_TIMER_PWM=12,                   /* The pin is controlled by a TIMER peripheral and is a PWM output. */
+  PIO_TIMER_CAPTURE=13,               /* The pin is controlled by a TIMER peripheral and is a capture input. */
 
-  PIO_SERCOM=13,                      /* The pin is controlled by a SERCOM peripheral (UART, SPI, or I2C). */
-  PIO_COM=14,                         /* The pin is controlled by the COM peripheral (USB or I2S). */
-  PIO_AC_GCLK=15,                     /* The pin is controlled by the AC_GCLK peripheral (I/O). */
-  PIO_CCL=16,                         /* The pin is controlled by the CCL (configurable custom logic) peripheral (I/O). */
+  PIO_SERCOM=14,                      /* The pin is controlled by a SERCOM peripheral (UART, SPI, or I2C). */
+  PIO_COM=15,                         /* The pin is controlled by the COM peripheral (USB, CAN, or CORTEX (I2S on D21 only)). */
+  PIO_USB=16,                         /* The pin is controlled by the COM peripheral (except C21). */
+  PIO_CAN=17,                         /* The pin is controlled by the COM or SDHC peripheral (D51) or the COM peripheral (C21). */
+  PIO_QSPI=18,                        /* The pin is controlled by the COM peripheral (QSPI on D51 only). */
+  PIO_SDHC=19,                        /* The pin is controlled by the SDHC peripheral (SDHC and CAN0 on D51 only). */
+  PIO_I2S=20,                         /* The pin is controlled by the I2S (inter-IC sound) peripheral (D51) or the COM peripheral (D21). */
+  PIO_GMAC=21,                        /* The pin is controlled by the GMAC peripheral (ethernet on D51 only). */
+
+  PIO_PCC=22,                         /* The pin is controlled by the PCC peripheral (parallel capture controller on D51 only). */
+  PIO_AC_GCLK=23,                     /* The pin is controlled by the AC_GCLK peripheral (analog comparator / generic clock). */
+  PIO_CCL=24,                         /* The pin is controlled by the CCL (configurable custom logic) peripheral (I/O). */
 
   PIO_MULTI,                          /* The pin can be configured to any type based on the attributes. */
 
@@ -202,6 +235,7 @@ typedef enum _EPioType
 #define PIN_ATTR_AC                (1UL << PIO_ANALOG_AC)
 #define PIN_ATTR_PTC               (1UL << PIO_ANALOG_PTC)
 #define PIN_ATTR_SDADC             (1UL << PIO_ANALOG_SDADC)
+#define PIN_ATTR_OPAMP             (1UL << PIO_ANALOG_OPAMP)
   #define PIN_ATTR_ANALOG          PIN_ATTR_ADC
 
   #define PIN_ATTR_TIMER_PWM       (1UL << PIO_TIMER_PWM)
@@ -211,12 +245,22 @@ typedef enum _EPioType
 
 #define PIN_ATTR_SERCOM            (1UL << PIO_SERCOM)
 #define PIN_ATTR_COM               (1UL << PIO_COM)
+#define PIN_ATTR_USB               (1UL << PIO_USB)
+#define PIN_ATTR_CAN               (1UL << PIO_CAN)
+#define PIN_ATTR_QSPI              (1UL << PIO_QSPI)
+#define PIN_ATTR_SDHC              (1UL << PIO_SDHC)
+#define PIN_ATTR_I2S               (1UL << PIO_I2S)
+#define PIN_ATTR_GMAC              (1UL << PIO_GMAC)
+
+#define PIN_ATTR_PCC               (1UL << PIO_PCC)
 #define PIN_ATTR_AC_GCLK           (1UL << PIO_AC_GCLK)
 #define PIN_ATTR_CCL               (1UL << PIO_CCL)
 
 
-// A   B                 C       D          E      F   G     H     I
-//EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC/TCC TCC COM AC/GCLK CCL
+/*            A  |------ B -------|   C        D        E     F     G         H       I    J   K   L      M     N
+D21/L21/C21: EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC/TCC TCC   COM     AC/GCLK   CCL
+D51:         EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC     TCC TCC/PDEC  COM/QSPI  SDHC I2S PCC GMAC AC/GCLK CCL
+*/
 typedef enum _EPioPeripheral
 {
 	PER_PORT=-1,          /* The pin is controlled by PORT. */
@@ -225,10 +269,21 @@ typedef enum _EPioPeripheral
 	PER_SERCOM=2,         /* The pin is controlled by the associated signal of peripheral C. */
 	PER_SERCOM_ALT=3,     /* The pin is controlled by the associated signal of peripheral D. */
 	PER_TIMER=4,          /* The pin is controlled by the associated signal of peripheral E. */
-	PER_TIMER_ALT=5,      /* The pin is controlled by the associated signal of peripheral F. */
+        PER_TIMER_ALT=5,      /* The pin is controlled by the associated signal of peripheral F. */
+#if (SAMD51)
+        PER_TIMER_ALT2=6,     /* The pin is controlled by the associated signal of peripheral G. */
+        PER_COM=7,            /* The pin is controlled by the associated signal of peripheral H. */
+        PER_SDHC=8,           /* The pin is controlled by the associated signal of peripheral I. */
+        PER_I2S=9,            /* The pin is controlled by the associated signal of peripheral J. */
+        PER_PCC=10,           /* The pin is controlled by the associated signal of peripheral K. */
+        PER_GMAC=11,          /* The pin is controlled by the associated signal of peripheral L. */
+        PER_AC_CLK=12,        /* The pin is controlled by the associated signal of peripheral M. */
+        PER_CCL=13,           /* The pin is controlled by the associated signal of peripheral N. */
+#else
 	PER_COM=6,            /* The pin is controlled by the associated signal of peripheral G. */
 	PER_AC_CLK=7,         /* The pin is controlled by the associated signal of peripheral H. */
 	PER_CCL=8,            /* The pin is controlled by the associated signal of peripheral I. */
+#endif
 } EPioPeripheral ;
 
 /**
@@ -242,25 +297,26 @@ typedef enum _EPioPeripheral
 
 #define PER_ATTR_TIMER_STD       (0UL<<1)
 #define PER_ATTR_TIMER_ALT       (1UL<<1)
-#define PER_ATTR_TIMER_MASK      (1UL<<1)
+#define PER_ATTR_TIMER_ALT2      (2UL<<1)
+#define PER_ATTR_TIMER_MASK      (3UL<<1)
 
-#define PER_ATTR_DRIVE_STD       (0UL<<2)
-#define PER_ATTR_DRIVE_STRONG    (1UL<<2)
-#define PER_ATTR_DRIVE_MASK      (1UL<<2)
+#define PER_ATTR_DRIVE_STD       (0UL<<3)
+#define PER_ATTR_DRIVE_STRONG    (1UL<<3)
+#define PER_ATTR_DRIVE_MASK      (1UL<<3)
 
-#define PER_ATTR_OUTPUT_TYPE_STD            (0UL<<3)
-#define PER_ATTR_OUTPUT_TYPE_OPEN_DRAIN     (1UL<<3)
-#define PER_ATTR_OUTPUT_TYPE_OPEN_SOURCE    (2UL<<3)
-#define PER_ATTR_OUTPUT_TYPE_BUSKEEPER      (3UL<<3)
-#define PER_ATTR_OUTPUT_TYPE_MASK           (3UL<<3)
+#define PER_ATTR_OUTPUT_TYPE_STD            (0UL<<4)
+#define PER_ATTR_OUTPUT_TYPE_OPEN_DRAIN     (1UL<<4)
+#define PER_ATTR_OUTPUT_TYPE_OPEN_SOURCE    (2UL<<4)
+#define PER_ATTR_OUTPUT_TYPE_BUSKEEPER      (3UL<<4)
+#define PER_ATTR_OUTPUT_TYPE_MASK           (3UL<<4)
 
-#define PER_ATTR_INPUT_SYNCHRONIZER_ON_DEMAND     (0UL<<5)
-#define PER_ATTR_INPUT_SYNCHRONIZER_ALWAYS_ON     (1UL<<5)
-#define PER_ATTR_INPUT_SYNCHRONIZER_MASK          (1UL<<5)
+#define PER_ATTR_INPUT_SYNCHRONIZER_ON_DEMAND     (0UL<<6)
+#define PER_ATTR_INPUT_SYNCHRONIZER_ALWAYS_ON     (1UL<<6)
+#define PER_ATTR_INPUT_SYNCHRONIZER_MASK          (1UL<<6)
 
-#define PER_ATTR_ADC_STD             (0UL<<6)
-#define PER_ATTR_ADC_ALT             (1UL<<6)
-#define PER_ATTR_ADC_MASK            (1UL<<6)
+#define PER_ATTR_ADC_STD             (0UL<<7)
+#define PER_ATTR_ADC_ALT             (1UL<<7)
+#define PER_ATTR_ADC_MASK            (1UL<<7)
 
 
 /* Types used for the table below
@@ -343,6 +399,59 @@ extern const PinDescription g_APinDescription[] ;
 #define GCM_I2S_0                 (0x23U)
 #define GCM_I2S_1                 (0x24U)
 #endif
+
+#elif (SAMD51)
+#define GCM_DFLL48M_REF           (0x00U)
+#define GCM_FDPLL0_INPUT          (0x01U)
+#define GCM_FDPLL1_INPUT          (0x02U)
+#define GCM_FDPLL0_32K            (0x03U)
+#define GCM_FDPLL1_32K            (GCM_FDPLL_0_32K)
+#define GCM_SDHC0_SLOW            (GCM_FDPLL_0_32K)
+#define GCM_SDHC1_SLOW            (GCM_FDPLL_0_32K)
+#define GCM_SERCOMx_SLOW          (GCM_FDPLL_0_32K)
+#define GCM_EIC                   (0x04U)
+#define GCM_FREQM_MSR             (0x05U)
+#define GCM_FREQM_REF             (0x06U)
+#define GCM_SERCOM0_CORE          (0x07U)
+#define GCM_SERCOM1_CORE          (0x08U)
+#define GCM_TC0_TC1               (0x09U)
+#define GCM_USB                   (0x0AU)
+#define GCM_EVSYS_CHANNEL_0       (0x0BU)
+#define GCM_EVSYS_CHANNEL_1       (0x0CU)
+#define GCM_EVSYS_CHANNEL_2       (0x0DU)
+#define GCM_EVSYS_CHANNEL_3       (0x0EU)
+#define GCM_EVSYS_CHANNEL_4       (0x0FU)
+#define GCM_EVSYS_CHANNEL_5       (0x10U)
+#define GCM_EVSYS_CHANNEL_6       (0x11U)
+#define GCM_EVSYS_CHANNEL_7       (0x12U)
+#define GCM_EVSYS_CHANNEL_8       (0x13U)
+#define GCM_EVSYS_CHANNEL_9       (0x14U)
+#define GCM_EVSYS_CHANNEL_10      (0x15U)
+#define GCM_EVSYS_CHANNEL_11      (0x16U)
+#define GCM_SERCOM2_CORE          (0x17U)
+#define GCM_SERCOM3_CORE          (0x18U)
+#define GCM_TCC0_TCC1             (0x19U)
+#define GCM_TC2_TC3               (0x1AU)
+#define GCM_CAN0                  (0x1BU)
+#define GCM_CAN1                  (0x1CU)
+#define GCM_TCC2_TCC3             (0x1DU)
+#define GCM_TC4_TC5               (0x1EU)
+#define GCM_PDEC                  (0x1FU)
+#define GCM_AC                    (0x20U)
+#define GCM_CCL                   (0x21U)
+#define GCM_SERCOM4_CORE          (0x22U)
+#define GCM_SERCOM5_CORE          (0x23U)
+#define GCM_SERCOM6_CORE          (0x24U)
+#define GCM_SERCOM7_CORE          (0x25U)
+#define GCM_TCC4                  (0x26U)
+#define GCM_TC6_TC7               (0x27U)
+#define GCM_ADC0                  (0x28U)
+#define GCM_ADC1                  (0x29U)
+#define GCM_DAC                   (0x2AU)
+#define GCM_I2S                   (0x2BU)
+#define GCM_SDHC0                 (0x2CU)
+#define GCM_SDHC1                 (0x2DU)
+#define GCM_CM4_TRACE             (0x2EU)
 
 #elif (SAML21)
 #define GCM_DFLL48M_REF           (0x00U)

@@ -25,15 +25,15 @@ VERSION=`grep version= platform.txt | sed 's/version=//g'`
 PWD=`pwd`
 FOLDERNAME=`basename $PWD`
 THIS_SCRIPT_NAME=`basename $0`
-FILENAME=MattairTech_sam_m0p-${VERSION}-beta-b${BUILD_NUMBER}.tar.bz2
+FILENAME=MattairTech_SAM_DLC_Core_for_Arduino-${VERSION}-beta-b${BUILD_NUMBER}.tar.bz2
 
 rm -f $FILENAME
 
 # Change name in platform.txt
-sed -i "s/name=.*/name=MattairTech SAM M0+ Beta Build ${BUILD_NUMBER} (${CURR_TIME})/" platform.txt
+sed -i "s/name=.*/name=MattairTech SAM D|L|C Core for Arduino - Beta Build ${BUILD_NUMBER} (${CURR_TIME})/" platform.txt
 
 cd ..
-tar --transform "s|$FOLDERNAME|MattairTech_sam_m0p-${VERSION}-beta-b${BUILD_NUMBER}|g"  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf $FILENAME $FOLDERNAME
+tar --transform "s|$FOLDERNAME|MattairTech_SAM_DLC_Core_for_Arduino-${VERSION}-beta-b${BUILD_NUMBER}|g"  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf $FILENAME $FOLDERNAME
 cd -
 
 mv ../$FILENAME .
@@ -47,5 +47,5 @@ sed "s/%%CURR_TIME%%/${CURR_TIME_SED}/" |
 sed "s/%%VERSION%%/${VERSION}-beta-b${BUILD_NUMBER}/" |
 sed "s/%%FILENAME%%/${FILENAME}/" |
 sed "s/%%CHECKSUM%%/${CHKSUM}/" |
-sed "s/%%SIZE%%/${SIZE}/" > package_MattairTech_sam_m0p-${VERSION}-beta-b${BUILD_NUMBER}_index.json
+sed "s/%%SIZE%%/${SIZE}/" > package_MattairTech_SAM_DLC_Core_for_Arduino-${VERSION}-beta-b${BUILD_NUMBER}_index.json
 

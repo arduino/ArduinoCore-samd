@@ -26,6 +26,8 @@
 #include "PluggableUSB.h"
 #include "USBDesc.h"
 #include "WVariant.h"
+#include "variant.h"
+#include "wiring_private.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -48,9 +50,27 @@ static char isEndpointHalt = 0;
 extern void (*gpf_isr)(void);
 
 // USB_Handler ISR
-extern "C" void UDD_Handler(void) {
-	USBDevice.ISRHandler();
+#if (SAMD51)
+extern "C" void UDD_Main_Handler(void) {
+  USBDevice.ISRMainHandler();
 }
+
+extern "C" void UDD_SOF_Handler(void) {
+  USBDevice.ISRSOFHandler();
+}
+
+extern "C" void UDD_ISRTRCPT0_Handler(void) {
+  USBDevice.ISRTRCPT0Handler();
+}
+
+extern "C" void UDD_ISRTRCPT1_Handler(void) {
+  USBDevice.ISRTRCPT1Handler();
+}
+#else
+extern "C" void UDD_Handler(void) {
+  USBDevice.ISRHandler();
+}
+#endif
 
 const uint16_t STRING_LANGUAGE[2] = {
 	(3<<8) | (2+2),
@@ -240,11 +260,19 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 		}
 		else if (setup.wValueL == ISERIAL) {
 #ifdef PLUGGABLE_USB_ENABLED
+  #if (SAMD51)
+                        // from section 9.6 of the datasheet
+                        #define SERIAL_NUMBER_WORD_0    *(volatile uint32_t*)(0x008061FC)
+                        #define SERIAL_NUMBER_WORD_1    *(volatile uint32_t*)(0x00806010)
+                        #define SERIAL_NUMBER_WORD_2    *(volatile uint32_t*)(0x00806014)
+                        #define SERIAL_NUMBER_WORD_3    *(volatile uint32_t*)(0x00806018)
+  #else
 			// from section 9.3.3 of the datasheet
 			#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
 			#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
 			#define SERIAL_NUMBER_WORD_2	*(volatile uint32_t*)(0x0080A044)
 			#define SERIAL_NUMBER_WORD_3	*(volatile uint32_t*)(0x0080A048)
+  #endif
 
 			char name[ISERIAL_MAX_LEN];
 			utox8(SERIAL_NUMBER_WORD_0, &name[0]);
@@ -324,30 +352,36 @@ void USBDeviceClass::init()
 	// Enable USB clock
 #if (SAMD21 || SAMD11)
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
-#elif (SAML21)
+#elif (SAML21 || SAMD51)
 	MCLK->APBBMASK.reg |= MCLK_APBBMASK_USB;
 #else
 	#error "USBCore.cpp: Unsupported chip"
 #endif
 
-	// Set up the USB DP/DN pins
-	PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PMUXEN = 1;
-	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg &= ~(0xF << (4 * (PIN_PA24G_USB_DM & 0x01u)));
-	PORT->Group[0].PMUX[PIN_PA24G_USB_DM/2].reg |= MUX_PA24G_USB_DM << (4 * (PIN_PA24G_USB_DM & 0x01u));
-	PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].bit.PMUXEN = 1;
-	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg &= ~(0xF << (4 * (PIN_PA25G_USB_DP & 0x01u)));
-	PORT->Group[0].PMUX[PIN_PA25G_USB_DP/2].reg |= MUX_PA25G_USB_DP << (4 * (PIN_PA25G_USB_DP & 0x01u));
+        // Set up the USB DP/DN pins
+        pinPeripheral( PIN_USB_DM, PIO_COM );
+        pinPeripheral( PIN_USB_DP, PIO_COM );
 
 	// Put Generic Clock Generator 0 as source for Generic Clock Multiplexer 6 (USB reference)
 #if (SAMD21 || SAMD11)
 	GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_USB ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
 	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+#elif (SAMD51 && (VARIANT_MCK == 120000000ul))
+        GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5 );  // use 48MHz clock (required for USB) from GCLK5, which was setup in board_init.c
+        while ( (GCLK->PCHCTRL[GCM_USB].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #else
-	GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-	while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+        GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+        while ( (GCLK->PCHCTRL[GCM_USB].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #endif
 
-	USB_SetHandler(&UDD_Handler);
+#if (SAMD51)
+        USB_SetMainHandler(&UDD_Main_Handler);
+        USB_SetSOFHandler(&UDD_SOF_Handler);
+        USB_SetTRCPT0Handler(&UDD_ISRTRCPT0_Handler);
+        USB_SetTRCPT1Handler(&UDD_ISRTRCPT1_Handler);
+#else
+        USB_SetHandler(&UDD_Handler);
+#endif
 
 	// Reset USB Device
 	usbd.reset();
@@ -358,8 +392,19 @@ void USBDeviceClass::init()
 	usbd.setFullSpeed();
 
 	// Configure interrupts
+#if (SAMD51)
+        NVIC_SetPriority((IRQn_Type) USB_0_IRQn, 0UL);
+        NVIC_EnableIRQ((IRQn_Type) USB_0_IRQn);
+        NVIC_SetPriority((IRQn_Type) USB_1_IRQn, 0UL);
+        NVIC_EnableIRQ((IRQn_Type) USB_1_IRQn);
+        NVIC_SetPriority((IRQn_Type) USB_2_IRQn, 0UL);
+        NVIC_EnableIRQ((IRQn_Type) USB_2_IRQn);
+        NVIC_SetPriority((IRQn_Type) USB_3_IRQn, 0UL);
+        NVIC_EnableIRQ((IRQn_Type) USB_3_IRQn);
+#else
 	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
 	NVIC_EnableIRQ((IRQn_Type) USB_IRQn);
+#endif
 
 	usbd.enable();
 
@@ -874,9 +919,137 @@ bool USBDeviceClass::handleStandardSetup(USBSetup &setup)
 	}
 }
 
+#if (SAMD51)
+void USBDeviceClass::ISRMainHandler()
+{
+        if (_pack_message == true) {
+                return;
+        }
+        // End-Of-Reset
+        if (usbd.isEndOfResetInterrupt())
+        {
+                // Configure EP 0
+                initEP(0, USB_ENDPOINT_TYPE_CONTROL);
+
+                // Enable Setup-Received interrupt
+                usbd.epBank0EnableSetupReceived(0);
+
+                _usbConfiguration = 0;
+
+                usbd.ackEndOfResetInterrupt();
+        }
+
+        // Endpoint 0 Received Setup interrupt
+        if (usbd.epBank0IsSetupReceived(0))
+        {
+                usbd.epBank0AckSetupReceived(0);
+
+                USBSetup *setup = reinterpret_cast<USBSetup *>(udd_ep_out_cache_buffer[0]);
+
+                /* Clear the Bank 0 ready flag on Control OUT */
+                // The RAM Buffer is empty: we can receive data
+                usbd.epBank0ResetReady(0);
+
+                bool ok;
+                if (REQUEST_STANDARD == (setup->bmRequestType & REQUEST_TYPE)) {
+                        // Standard Requests
+                        ok = handleStandardSetup(*setup);
+                } else {
+                        // Class Interface Requests
+                        ok = handleClassInterfaceSetup(*setup);
+                }
+
+                if (ok) {
+                        usbd.epBank1SetReady(0);
+                } else {
+                        stall(0);
+                }
+
+                if (usbd.epBank1IsStalled(0))
+                {
+                        usbd.epBank1AckStalled(0);
+
+                        // Remove stall request
+                        usbd.epBank1DisableStalled(0);
+                }
+
+        } // end Received Setup handler
+}
+
+// Start-Of-Frame
+void USBDeviceClass::ISRSOFHandler()
+{
+                usbd.ackStartOfFrameInterrupt();
+
+                // check whether the one-shot period has elapsed.  if so, turn off the LED
+#ifdef PIN_LED_TXL
+                if (txLEDPulse > 0) {
+                        txLEDPulse--;
+                        if (txLEDPulse == 0)
+                                digitalWrite(PIN_LED_TXL, HIGH);
+                }
+#endif
+
+#ifdef PIN_LED_RXL
+                if (rxLEDPulse > 0) {
+                        rxLEDPulse--;
+                        if (rxLEDPulse == 0)
+                                digitalWrite(PIN_LED_RXL, HIGH);
+                }
+#endif
+}
+
+void USBDeviceClass::ISRTRCPT0Handler()
+{
+        uint8_t i = (USB_EPT_NUM - 1);
+        uint8_t ept_int = usbd.epInterruptSummary() & 0xFE; // Remove endpoint number 0 (setup)
+        while (ept_int && i)
+        {
+                // Check if endpoint has a pending interrupt
+                if ((ept_int & (1 << i)) != 0)
+                {
+                        // Endpoint Transfer Complete (0/1) Interrupt
+                        if (usbd.epBank0IsTransferComplete(i))
+                        {
+                                if (epHandlers[i]) {
+                                        epHandlers[i]->handleEndpoint();
+                                } else {
+                                        handleEndpoint(i);
+                                }
+                        }
+                        ept_int &= ~(1 << i);
+                }
+                i--;
+        }
+}
+
+void USBDeviceClass::ISRTRCPT1Handler()
+{
+        uint8_t i = (USB_EPT_NUM - 1);
+        uint8_t ept_int = usbd.epInterruptSummary() & 0xFE; // Remove endpoint number 0 (setup)
+        while (ept_int && i)
+        {
+                // Check if endpoint has a pending interrupt
+                if ((ept_int & (1 << i)) != 0)
+                {
+                        // Endpoint Transfer Complete (0/1) Interrupt
+                        if (usbd.epBank1IsTransferComplete(i))
+                        {
+                                if (epHandlers[i]) {
+                                        epHandlers[i]->handleEndpoint();
+                                } else {
+                                        handleEndpoint(i);
+                                }
+                        }
+                        ept_int &= ~(1 << i);
+                }
+                i--;
+        }
+}
+
+#else
 void USBDeviceClass::ISRHandler()
 {
-
 	if (_pack_message == true) {
 		return;
 	}
@@ -953,30 +1126,29 @@ void USBDeviceClass::ISRHandler()
 
 	} // end Received Setup handler
 
-	uint8_t i=0;
-	uint8_t ept_int = usbd.epInterruptSummary() & 0xFE; // Remove endpoint number 0 (setup)
-	while (ept_int != 0)
-	{
-		// Check if endpoint has a pending interrupt
-		if ((ept_int & (1 << i)) != 0)
-		{
-			// Endpoint Transfer Complete (0/1) Interrupt
-			if (usbd.epBank0IsTransferComplete(i) ||
-			    usbd.epBank1IsTransferComplete(i))
-			{
-				if (epHandlers[i]) {
-					epHandlers[i]->handleEndpoint();
-				} else {
-					handleEndpoint(i);
-				}
-			}
-			ept_int &= ~(1 << i);
-		}
-		i++;
-		if (i > USB_EPT_NUM)
-			break;  // fire exit
-	}
+        uint8_t i = (USB_EPT_NUM - 1);
+        uint8_t ept_int = usbd.epInterruptSummary() & 0xFE; // Remove endpoint number 0 (setup)
+        while (ept_int && i)
+        {
+                // Check if endpoint has a pending interrupt
+                if ((ept_int & (1 << i)) != 0)
+                {
+                        // Endpoint Transfer Complete (0/1) Interrupt
+                        if (usbd.epBank0IsTransferComplete(i) ||
+                            usbd.epBank1IsTransferComplete(i))
+                        {
+                                if (epHandlers[i]) {
+                                        epHandlers[i]->handleEndpoint();
+                                } else {
+                                        handleEndpoint(i);
+                                }
+                        }
+                        ept_int &= ~(1 << i);
+                }
+                i--;
+        }
 }
+#endif
 
 /*
  * USB Device instance

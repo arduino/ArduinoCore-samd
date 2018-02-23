@@ -60,6 +60,33 @@ void Uart::flush()
   sercom->flushUART();
 }
 
+#if (SAMD51)
+void Uart::availableDataHandler()
+{
+  rxBuffer.store_char(sercom->readDataUART());
+}
+
+void Uart::dataRegisterEmptyHandler()
+{
+  if (txBuffer.available()) {
+    uint8_t data = txBuffer.read_char();
+
+    sercom->writeDataUART(data);
+  } else {
+    sercom->disableDataRegisterEmptyInterruptUART();
+  }
+}
+
+void Uart::errorHandler()
+{
+  sercom->acknowledgeUARTError();
+  // TODO: if (sercom->isBufferOverflowErrorUART()) ....
+  // TODO: if (sercom->isFrameErrorUART()) ....
+  // TODO: if (sercom->isParityErrorUART()) ....
+  sercom->clearStatusUART();
+}
+
+#else
 void Uart::IrqHandler()
 {
   if (sercom->availableDataUART()) {
@@ -84,6 +111,7 @@ void Uart::IrqHandler()
     sercom->clearStatusUART();
   }
 }
+#endif
 
 int Uart::available()
 {

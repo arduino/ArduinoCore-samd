@@ -58,7 +58,7 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
      {
        pinConfig &= ~(uint8_t)(PORT_PINCFG_PULLEN) ;
      }
-     
+
      PORT->Group[pinPort].PINCFG[pinNum].reg = pinConfig ;
   }
   // Set or clear OUT register only when pin DIR is set to output.

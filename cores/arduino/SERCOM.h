@@ -21,11 +21,10 @@
 
 #include "sam.h"
 
-#define SERCOM_FREQ_REF F_CPU
-
-// Not defined in CMSIS for SAML or SAMC
-#ifndef SERCOM_SPI_CTRLA_MODE_SPI_MASTER
-#define SERCOM_SPI_CTRLA_MODE_SPI_MASTER	(0x3ul << SERCOM_SPI_CTRLA_MODE_Pos)
+#if (SAMD51 && (VARIANT_MCK == 120000000ul))
+  #define SERCOM_FREQ_REF 96000000ul
+#else
+  #define SERCOM_FREQ_REF F_CPU
 #endif
 
 typedef enum
@@ -85,7 +84,7 @@ typedef enum
 typedef enum
 {
 	UART_TX_PAD_0 = 0x0ul,	// Only for UART
-	UART_TX_PAD_2 = 0x1ul,  // Only for UART
+	UART_TX_PAD_2 = 0x1ul,  // Only for UART, not supported with D51
 	UART_TX_RTS_CTS_PAD_0_2_3 = 0x2ul,  // Only for UART with TX on PAD0, RTS on PAD2 and CTS on PAD3
 } SercomUartTXPad;
 
@@ -106,9 +105,9 @@ typedef enum
 typedef enum
 {
 	SPI_PAD_0_SCK_1 = 0,
-	SPI_PAD_2_SCK_3,
+        SPI_PAD_2_SCK_3,        // Not supported with D51
 	SPI_PAD_3_SCK_1,
-	SPI_PAD_0_SCK_3
+        SPI_PAD_0_SCK_3         // Not supported with D51
 } SercomSpiTXPad;
 
 typedef enum

@@ -137,11 +137,11 @@ uint8_t TwoWire::endTransmission(bool stopBit)
       return 3 ;  // Nack or error
     }
   }
-  
+
   if (stopBit)
   {
     sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-  }   
+  }
 
   return 0;
 }
@@ -209,6 +209,86 @@ void TwoWire::onRequest(void(*function)(void))
   onRequestCallback = function;
 }
 
+#if (SAMD51)
+void TwoWire::onStopDetected(void)
+{
+  if ( sercom->isSlaveWIRE() )
+  {
+    sercom->prepareAckBitWIRE();
+    sercom->prepareCommandBitsWire(0x03);
+
+    //Calling onReceiveCallback, if exists
+    if(onReceiveCallback)
+    {
+      onReceiveCallback(available());
+    }
+
+    rxBuffer.clear();
+  }
+}
+
+void TwoWire::onAddressMatch(void)
+{
+  if ( sercom->isSlaveWIRE() )
+  {
+    sercom->prepareAckBitWIRE();
+    sercom->prepareCommandBitsWire(0x03);
+
+    if (sercom->isMasterReadOperationWIRE()) //Is a request ?
+    {
+      txBuffer.clear();
+
+      transmissionBegun = true;
+
+      //Calling onRequestCallback, if exists
+      if(onRequestCallback)
+      {
+        onRequestCallback();
+      }
+    } else {
+      if (sercom->isRestartDetectedWIRE())
+      {
+        //Calling onReceiveCallback, if exists
+        if(onReceiveCallback)
+        {
+          onReceiveCallback(available());
+        }
+
+        rxBuffer.clear();
+      }
+    }
+  }
+}
+
+void TwoWire::onDataReady(void)
+{
+  if ( sercom->isSlaveWIRE() )
+  {
+    if (sercom->isMasterReadOperationWIRE())
+    {
+      uint8_t c = 0xff;
+
+      if( txBuffer.available() ) {
+        c = txBuffer.read_char();
+      }
+
+      transmissionBegun = sercom->sendDataSlaveWIRE(c);
+    } else { //Received data
+      if (rxBuffer.isFull()) {
+        sercom->prepareNackBitWIRE(); 
+      } else {
+        //Store data
+        rxBuffer.store_char(sercom->readDataWIRE());
+
+        sercom->prepareAckBitWIRE(); 
+      }
+
+      sercom->prepareCommandBitsWire(0x03);
+    }
+  }
+}
+
+#else
 void TwoWire::onService(void)
 {
   if ( sercom->isSlaveWIRE() )
@@ -224,7 +304,7 @@ void TwoWire::onService(void)
       {
         onReceiveCallback(available());
       }
-      
+
       rxBuffer.clear();
     }
     else if(sercom->isAddressMatch())  //Address Match
@@ -271,6 +351,7 @@ void TwoWire::onService(void)
     }
   }
 }
+#endif
 
 #if WIRE_INTERFACES_COUNT > 0
   /* In case new variant doesn't define these macros,
@@ -284,48 +365,176 @@ void TwoWire::onService(void)
   #endif // PERIPH_WIRE
   TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
 
-  void WIRE_IT_HANDLER(void) {
-    Wire.onService();
-  }
+  #if (SAMD51)
+    void WIRE_STOP_DETECTED_HANDLER(void) {
+      Wire.onStopDetected();
+    }
+
+    void WIRE_ADDRESS_MATCH_HANDLER(void) {
+      Wire.onAddressMatch();
+    }
+
+    void WIRE_DATA_READY_HANDLER(void) {
+      Wire.onDataReady();
+    }
+  #else
+    void WIRE_IT_HANDLER(void) {
+      Wire.onService();
+    }
+  #endif
 #endif
 
 #if WIRE_INTERFACES_COUNT > 1
   TwoWire Wire1(&PERIPH_WIRE1, PIN_WIRE1_SDA, PIN_WIRE1_SCL);
 
-  void WIRE1_IT_HANDLER(void) {
-    Wire1.onService();
-  }
+  #if (SAMD51)
+    void WIRE1_STOP_DETECTED_HANDLER(void) {
+      Wire1.onStopDetected();
+    }
+
+    void WIRE1_ADDRESS_MATCH_HANDLER(void) {
+      Wire1.onAddressMatch();
+    }
+
+    void WIRE1_DATA_READY_HANDLER(void) {
+      Wire1.onDataReady();
+    }
+  #else
+    void WIRE1_IT_HANDLER(void) {
+      Wire1.onService();
+    }
+  #endif
 #endif
 
 #if WIRE_INTERFACES_COUNT > 2
   TwoWire Wire2(&PERIPH_WIRE2, PIN_WIRE2_SDA, PIN_WIRE2_SCL);
 
-  void WIRE2_IT_HANDLER(void) {
-    Wire2.onService();
-  }
+  #if (SAMD51)
+    void WIRE2_STOP_DETECTED_HANDLER(void) {
+      Wire2.onStopDetected();
+    }
+
+    void WIRE2_ADDRESS_MATCH_HANDLER(void) {
+      Wire2.onAddressMatch();
+    }
+
+    void WIRE2_DATA_READY_HANDLER(void) {
+      Wire2.onDataReady();
+    }
+  #else
+    void WIRE2_IT_HANDLER(void) {
+      Wire2.onService();
+    }
+  #endif
 #endif
 
 #if WIRE_INTERFACES_COUNT > 3
   TwoWire Wire3(&PERIPH_WIRE3, PIN_WIRE3_SDA, PIN_WIRE3_SCL);
 
-  void WIRE3_IT_HANDLER(void) {
-    Wire3.onService();
-  }
+  #if (SAMD51)
+    void WIRE3_STOP_DETECTED_HANDLER(void) {
+      Wire3.onStopDetected();
+    }
+
+    void WIRE3_ADDRESS_MATCH_HANDLER(void) {
+      Wire3.onAddressMatch();
+    }
+
+    void WIRE3_DATA_READY_HANDLER(void) {
+      Wire3.onDataReady();
+    }
+  #else
+    void WIRE3_IT_HANDLER(void) {
+      Wire3.onService();
+    }
+  #endif
 #endif
 
 #if WIRE_INTERFACES_COUNT > 4
   TwoWire Wire4(&PERIPH_WIRE4, PIN_WIRE4_SDA, PIN_WIRE4_SCL);
 
-  void WIRE4_IT_HANDLER(void) {
-    Wire4.onService();
-  }
+  #if (SAMD51)
+    void WIRE4_STOP_DETECTED_HANDLER(void) {
+      Wire4.onStopDetected();
+    }
+
+    void WIRE4_ADDRESS_MATCH_HANDLER(void) {
+      Wire4.onAddressMatch();
+    }
+
+    void WIRE4_DATA_READY_HANDLER(void) {
+      Wire4.onDataReady();
+    }
+  #else
+    void WIRE4_IT_HANDLER(void) {
+      Wire4.onService();
+    }
+  #endif
 #endif
 
 #if WIRE_INTERFACES_COUNT > 5
   TwoWire Wire5(&PERIPH_WIRE5, PIN_WIRE5_SDA, PIN_WIRE5_SCL);
 
-  void WIRE5_IT_HANDLER(void) {
-    Wire5.onService();
-  }
+  #if (SAMD51)
+    void WIRE5_STOP_DETECTED_HANDLER(void) {
+      Wire5.onStopDetected();
+    }
+
+    void WIRE5_ADDRESS_MATCH_HANDLER(void) {
+      Wire5.onAddressMatch();
+    }
+
+    void WIRE5_DATA_READY_HANDLER(void) {
+      Wire5.onDataReady();
+    }
+  #else
+    void WIRE5_IT_HANDLER(void) {
+      Wire5.onService();
+    }
+  #endif
+#endif
+
+#if WIRE_INTERFACES_COUNT > 6
+  TwoWire Wire6(&PERIPH_WIRE6, PIN_WIRE6_SDA, PIN_WIRE6_SCL);
+
+  #if (SAMD51)
+    void WIRE6_STOP_DETECTED_HANDLER(void) {
+      Wire6.onStopDetected();
+    }
+
+    void WIRE6_ADDRESS_MATCH_HANDLER(void) {
+      Wire6.onAddressMatch();
+    }
+
+    void WIRE6_DATA_READY_HANDLER(void) {
+      Wire6.onDataReady();
+    }
+  #else
+    void WIRE6_IT_HANDLER(void) {
+      Wire6.onService();
+    }
+  #endif
+#endif
+
+#if WIRE_INTERFACES_COUNT > 7
+  TwoWire Wire7(&PERIPH_WIRE7, PIN_WIRE7_SDA, PIN_WIRE7_SCL);
+
+  #if (SAMD51)
+    void WIRE7_STOP_DETECTED_HANDLER(void) {
+      Wire7.onStopDetected();
+    }
+
+    void WIRE7_ADDRESS_MATCH_HANDLER(void) {
+      Wire7.onAddressMatch();
+    }
+
+    void WIRE7_DATA_READY_HANDLER(void) {
+      Wire7.onDataReady();
+    }
+  #else
+    void WIRE7_IT_HANDLER(void) {
+      Wire7.onService();
+    }
+  #endif
 #endif
 

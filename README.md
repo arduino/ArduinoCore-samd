@@ -1,25 +1,64 @@
-# MattairTech SAM M0+ Core for Arduino
+# MattairTech SAM D|L|C Core for Arduino
 
-The MattairTech SAM M0+ Core is a fork from arduino/ArduinoCore-samd on GitHub, which will
-be used to maintain Arduino support for MattairTech branded boards (see
-https://www.mattairtech.com/) as well as for "Generic" boards.
+The MattairTech SAM D|L|C Core for Arduino is a fork from arduino/ArduinoCore-samd
+on GitHub, which will be used to maintain Arduino support for MattairTech boards
+(see https://www.mattairtech.com/) as well as for "Generic" boards.
 
-* Supports the SAMD21, SAMD11, SAML21, and SAMC21.
+* Supports the SAMD51, SAMD21, SAMD11, SAML21, and SAMC21.
 * Supports four clock sources (two crystals, internal oscillator, and USB calibrated).
 * USB CDC Bootloader with optional SDCard support. See [bootloaders/zero/README.md](https://github.com/mattairtech/ArduinoCore-samd/tree/master/bootloaders/zero/README.md).
 
-**SAMD51 support coming December**
+**SAMD51 support starting with 1.6.18-beta-b0**
 
 *This core is intended to be installed using Boards Manager (see below). To update from a*
-*previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.*
+*previous version, click on MattairTech SAM D|L|C Boards in Boards Manager, then click Update.*
 
 **New Version Numbering**  The MattairTech version number will now track with the Arduino
 version number, to better understand which upstream changes have been merged in. See the
 CHANGELOG for details on upstream commits and MattairTech additions that have been merged.
 
 
-## What's New - Release Version (1.6.16)
+## What's New - Release Version (1.6.17)
+**The latest updates are in the Beta version (if available). See below.**
 
+**1.6.17 (February 22, 2018):**
+* Added SAM D51 (m4f) support to bootloader
+* Added Generic D11D14AS (20-pin SOIC) variant
+* Made PIN_USB_HOST_ENABLE optional. Readme updates for MT-D11 and Generic D11C14A
+* Fixed USB pad calibration values for L21 in bootloader and USB host mode
+* Improve accuracy of HS crystal (fixed off-by-one calculation)
+* fixed wrong location for call to mapResolution(), doc updates
+* Documentation updates
+* Merged in changes from upstream SAMD CORE 1.6.17 (not released yet)
+  * Improved ISR response time. Thanks @joverbee
+  * No fixed value for USB power current.
+
+
+## What's New - Beta Version (1.6.18-beta)
+**See Beta Builds section for beta installation instructions.**
+
+**1.6.18-beta-b0 (February 22, 2018):**
+* Added SAM D51 (m4f) support to core
+* Added MattairTech Xeno Mini board support
+* Changed name to "MattairTech SAM D|L|C core for Arduino"
+* Added _ulTickCountHighWord to delay() to better handle 49.7-day wraparound
+* Updated timeout in [Bossa](https://github.com/mattairtech/BOSSA) tool for D51 1MB FLASH (5 second erase)
+* Correction of include path for CMSIS-Atmel - Thanks @joseangeljimenez
+* Documentation updates
+* Merged in changes from upstream SAMD CORE 1.6.18 (not released yet)
+  * Don't reallocate USB buffers if already allocated - fixes memory leak
+  * Wire: Added support for general call (broadcast)
+  * SPI: Added SPI.notUsingInterrupt(...) API
+  * Wire: TX and RX buffers are now 256 bytes (previously was 64 bytes)
+  * Fixed lock ups when outputting to UART during ISR
+  * Wire: correct I2C frequency calculations, and allow variant to overide default pull up resistor rise time
+* Merged in changes from upstream SAMD CORE 1.6.17
+  * UART's now support optional RTS and CTS pins defined in the variant.
+
+**1.6.17-beta-b0:**
+*Beta version 1.6.17-beta-b0 became release version 1.6.17. See above*
+
+**1.6.16-beta-b0:**
 * Added MattairTech Xeno support (64-pin D21, L21, and C21)
 * Changed version numbering to match Arduino SAMD core to indicate which upstream changes have been merged in.
   * Release version 1.6.7 then skips to 1.6.16. Beta version 1.6.8-beta-b2 skips to 1.6.16-beta-b0.
@@ -33,70 +72,33 @@ CHANGELOG for details on upstream commits and MattairTech additions that have be
 * Documentation updates
 
 
-## What's New - Beta Version (1.6.17-beta)
-**See Beta Builds section for installation instructions.**
+## Features Summary for D51
 
-**1.6.17-beta-b0:**
-1.6.17-beta-b0:
-* Added SAM D51 (m4f) support to bootloader
-* Added Generic D11D14AS (20-pin SOIC) variant
-* Made PIN_USB_HOST_ENABLE optional. Readme updates for MT-D11 and Generic D11C14A
-* Fixed USB pad calibration values for L21 in bootloader and USB host mode
-* Improve accuracy of HS crystal (fixed off-by-one calculation)
-* fixed wrong location for call to mapResolution(), doc updates
-* Documentation updates
-* Merged in changes from upstream SAMD CORE 1.6.17 (not released yet)
-  * Improved ISR response time. Thanks @joverbee
-  * No fixed value for USB power current.
-
-**1.6.16-beta-b0:**
-*Beta version 1.6.16-beta-b0 became release version 1.6.16. See above*
-
-**Version numbering change**
-
-**1.6.8-beta-b2:**
-* Added SD Card firmware loading support to the bootloader (4KB and 8KB)
-* Removed SDU library, as the bootloader now supports SD cards directly
-* Removed automatic page writes from bootloader (may have caused bricked board during development)
-* Fixed bootloader compilation on Windows
-* Added more Serial, SPI, and WIRE instances to MT-D21E (rev A and B)
-* Added support for up to 6 SERCOM on the L21E (32-pin)
-* Merged in changes from upstream SAMD CORE 1.6.16 (not released yet):
-  * USB CDC: fixed issue of available() getting stuck when receiving ZLP's
-* Merged in changes from upstream SAMD CORE 1.6.15 2017.04.27 (not relevant)
-* Merged in changes from upstream SAMD CORE 1.6.14 2017.04.04:
-  * Added lowpower function on USB subsystem
-* Documentation updates
-
-**1.6.8-beta-b1:**
-* Fixed auto-reset not working on some versions of Windows
-* Documentation updates
-
-**1.6.8-beta-b0:**
-* Added L21 and C21 support. Improved D11D and D11C support.
-  * Use Tools->Microcontroller menu to select mcu.
-* Both the core and bootloader have added support for:
-  * external high-speed crystal (400KHz - 32MHz) using PLL
-  * external 32.768KHz crystal using PLL
-  * internal oscillator with USB calibration using DFLL
-  * internal oscillator using DFLL in open-loop mode (or 48MHz RC oscillator with C21)
-  * PLL_FRACTIONAL_ENABLED and PLL_FAST_STARTUP options
-  * The clock source is selectable in the Tools->Clock Source menu
-* New Tools->Serial Config menu for selecting different combinations of serial peripherals
-* New Tools->Bootloader Size menu allows selection of bootloader size
-* New Tools->USB Config menu simplifies USB configuration compared to previous core
-* Updated variant.cpp table format for future CCL and GCLK use. See VARIANT_COMPLIANCE_CHANGELOG.
-* Updated bootloader.
-* Updated bossac upload tool (fixed support for SAML and SAMC)
-* New CMSIS-Atmel package (this is different than from Arduino)
-* Merged in all changes from upstream through SAMD CORE 1.6.14 (April 2017)
+Feature            | 51P (128 pin)                         | 51N (100 pin)                         | 51J (64 pin)                          | 51G (48 pin)
+-------------------|---------------------------------------|---------------------------------------|---------------------------------------|---------------------------------------
+Board Variants     | Generic 51P                           | Generic 51N                           | MattairTech Xeno, Generic 51J         | Xeno Mini, Generic 51G
+Processor          | 120 MHz 32-bit ARM Cortex M4F         | 120 MHz 32-bit ARM Cortex M4F         | 120 MHz 32-bit ARM Cortex M4F         | 120 MHz 32-bit ARM Cortex M4F
+Processor Features | FPU, DSP, MPU                         | FPU, DSP, MPU                         | FPU, DSP, MPU                         | FPU, DSP, MPU
+Flash Memory       | Up to 1MB with RWW support and cache  | Up to 1MB with RWW support and cache  | Up to 1MB with RWW support and cache  | Up to 512KB with RWW support and cache
+SRAM               | Up to 256KB (8KB backup SRAM), ECC    | Up to 256KB (8KB backup SRAM), ECC    | Up to 256KB (8KB backup SRAM), ECC    | Up to 192KB (8KB backup SRAM), ECC
+Digital Pins       | 99                                    | 81                                    | 51                                    | 37
+Analog Inputs      | 2 ADCs, 16/16 channels, 12-bit, 1MSPS | 2 ADCs, 16/12 channels, 12-bit, 1MSPS | 2 ADCs, 16/8 channels, 12-bit, 1MSPS  | 2 ADCs, 16/4 channels, 12-bit, 1MSPS
+Analog Outputs     | Two 12-bit, 1MSPS                     | Two 12-bit, 1MSPS                     | Two 12-bit, 1MSPS                     | Two 12-bit, 1MSPS
+PWM Outputs        | 17 TCC channels, 16 TC channels       | 17 TCC channels, 16 TC channels       | 17 TCC channels, 12 TC channels       | 13 TCC channels, 8 TC channels
+Interrupts         | 16                                    | 16                                    | 16                                    | 16
+USB                | Full Speed Device and Host            | Full Speed Device and Host            | Full Speed Device and Host (not C21)  | Full Speed Device and Host
+SERCOM             | 8 (UART/SPI/I2C)                      | 8 (UART/SPI/I2C)                      | 6 (UART/SPI/I2C)                      | 6 (UART/SPI/I2C)
+QSPI / SDHC        | 1 QSPI / 2 SDHC                       | 1 QSPI / 2 SDHC                       | 1 QSPI / 1 SDHC                       | 1 QSPI / 1 SDHC
+I2S                | One RX, one TX, two clocks            | One RX, one TX, two clocks            | One RX, one TX, two clocks            | One RX, one TX, two clocks
+Voltage            | 1.71V - 3.63V                         | 1.71V - 3.63V                         | 1.71V - 3.63V                         | 1.71V - 3.63V
+I/O Pin Current    | 8mA sink/source @ 3.3V                | 8mA sink/source @ 3.3V                | 8mA sink/source @ 3.3V                | 8mA sink/source @ 3.3V
 
 
-## Features Summary
+## Features Summary for D21/L21/C21/D11
 
-Feature		| 21J (64 pin)				| 21G (48 pin)				| 21E (32 pin)				| D11 (24, 20, or 14 pin)
+Feature		| 21J (64 pin)		        	| 21G (48 pin)	        		| 21E (32 pin)				| D11 (24, 20, or 14 pin)
 ----------------|---------------------------------------|---------------------------------------|---------------------------------------|---------------------------------------
-Board Variants	| MattairTech Xeno, Generic 21J	        | Arduino Zero, Arduino M0, Generic 21G	| MT-D21E, Generic 21E			| MT-D11, Generic D11D14AM, Generic D11D14AS, Generic D11C14A
+Board Variants	| MattairTech Xeno, Generic 21J	        | Xeno Mini, Arduino Zero, Generic 21G	| MT-D21E, Generic 21E			| MT-D11, Generic D11D14AM, Generic D11D14AS, Generic D11C14A
 Processor	| 48 MHz 32-bit ARM Cortex M0+		| 48 MHz 32-bit ARM Cortex M0+		| 48 MHz 32-bit ARM Cortex M0+		| 48 MHz 32-bit ARM Cortex M0+
 Flash Memory	| Up to 256KB (L21/C21 have RWW)	| Up to 256KB (L21/C21 have RWW)	| Up to 256KB (L21/C21 have RWW)	| 16 KB (4KB used by bootloader)
 SRAM		| Up to 32KB (plus <=8KB LPSRAM on L21)	| Up to 32KB (plus <=8KB LPSRAM on L21)	| Up to 32KB (plus <=8KB LPSRAM on L21)	| 4 KB
@@ -123,37 +125,35 @@ I/O Pin	Current	| D21: 7mA, L21: 5mA, C21: 6mA@5V	| D21: 7mA, L21: 5mA, C21: 6mA
 Pin configuration and peripheral assignment information is now in the README.md for each board variant.
 README.md also now includes technical information on the new PinDescription table format.
 
-* [MattairTech Xeno (SAMx21Jxxx)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Xeno/README.md)
+* [MattairTech Xeno (SAM D51/D21/L21/C21, 64-pin)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Xeno/README.md)
 
-* [MattairTech MT-D21E Rev B (SAMx21Exxx)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/MT_D21E_revB/README.md)
+* [MattairTech Xeno Mini (SAM D51/D21/L21/C21, 48-pin)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Xeno_Mini/README.md)
 
-* [MattairTech MT-D21E Rev A (SAMD21ExxA)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/MT_D21E/README.md)
+* [MattairTech MT-D21E Rev B (SAM D21/L21/C21, 32-pin)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/MT_D21E_revB/README.md)
 
-* [MattairTech MT-D11 (SAMD11D14AM)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/MT_D11/README.md)
+* [MattairTech MT-D21E Rev A (SAMD21ExxA, 32-pin)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/MT_D21E/README.md)
 
-* [MattairTech Generic D11C14A](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Generic_D11C14A/README.md)
+* [MattairTech MT-D11 (SAMD11D14AM, 24-pin 0.5mm QFN)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/MT_D11/README.md)
 
-* [MattairTech Generic D11D14AS](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Generic_D11D14AS/README.md)
+* [MattairTech Generic D11C14A (14-pin 1.27mm SOIC)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Generic_D11C14A/README.md)
 
-* MattairTech Generic D11D14AM (future)
+* [MattairTech Generic D11D14AS (20-pin 1.27mm SOIC)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/Generic_D11D14AS/README.md)
 
-* MattairTech Generic x21E (soon)
+* MattairTech Generic D11D14AM (24-pin 0.5mm QFN) (future)
 
-* MattairTech Generic x21G (future)
+* MattairTech Generic x21E (SAM D21/L21/C21, 32-pin) (soon)
 
-* MattairTech Generic x21J (future)
+* MattairTech Generic xx1G (SAM D51/D21/L21/C21, 48-pin) (future)
 
-* MattairTech Generic D51G (soon)
+* MattairTech Generic xx1J (SAM D51/D21/L21/C21, 64-pin) (future)
 
-* MattairTech Generic D51J (future)
+* MattairTech Generic D51N (SAMD51, 100-pin) (future)
 
-* MattairTech Generic D51N (future)
+* MattairTech Generic D51P (SAMD51, 128-pin) (future)
 
-* MattairTech Generic D51P (future)
+* [Arduino Zero (SAMD21G18A, 48-pin, arduino.cc)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/arduino_zero/README.md)
 
-* [Arduino Zero (arduino.cc)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/arduino_zero/README.md)
-
-* [Arduino M0 (arduino.org)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/arduino_mzero/README.md)
+* [Arduino M0 (SAMD21G18A, 48-pin, arduino.org)](https://github.com/mattairtech/ArduinoCore-samd/tree/master/variants/arduino_mzero/README.md)
 
 
 
@@ -181,7 +181,7 @@ See Clock Source section for more information.
 
 ### Bootloader Size Menu
 
-With the D21, L21, and C21, the bootloader size can be configured as:
+With the D51, D21, L21, and C21, the bootloader size can be configured as:
 
 * 8KB_BOOTLOADER (default)
 * 16KB_BOOTLOADER
@@ -230,14 +230,14 @@ and SRAM usage by allowing CDC to be disabled (or USB completely disabled).
 ## Clock Source
 
 There are up to four clock source choices, depending on board features and microcontroller. Since currently
-the cpu must run at 48MHz, the PLL or DFLL must be used (the SAMC can use OSC48M).
+the cpu runs at 48MHz (or 120MHz with the D51), the PLL or DFLL must be used (the SAMC can use OSC48M).
 
 #### 32KHZ_CRYSTAL (default)
-* Uses both XOSC32K and FDPLL96M
+* Uses both XOSC32K and FDPLL96M (FDPLL200M with the D51)
 * High long-term accuracy, slow startup, medium current (PLL)
 
 #### HIGH_SPEED_CRYSTAL
-* Uses both XOSC and FDPLL96M
+* Uses both XOSC and FDPLL96M (FDPLL200M with the D51)
 * High accuracy, medium startup, high current (XOSC and PLL)
 
 #### INTERNAL_OSCILLATOR
@@ -248,7 +248,7 @@ the cpu must run at 48MHz, the PLL or DFLL must be used (the SAMC can use OSC48M
 * Uses DFLL48M in closed-loop mode
 * High accuracy, medium-fast startup, medium current
 
-### SAMD
+### SAMD21 / SAMD11
 
 Source          | Frequency Range                       | Supply Current (max.) | Startup Time typ. (max.)      | Notes, jitter, accuracy, other differences
 ----------------|---------------------------------------|-----------------------|-------------------------------|--------------------------------------------------------
@@ -261,7 +261,18 @@ FDPLL96M        | 32KHz-2MHz in, 48MHz-96MHz out        | 500uA (700uA)         
 DFLL48M open    | 47MHz-49MHz out                       | 403uA (453uA)         | 8us (9us)                     | 
 DFLL48M closed  | 0.73-33KHz in, 47.96-47.98MHz out     | 425uA (482uA)         | Lock: 200us (500us)           | 0.42ns max. jitter
 
-### SAML
+### SAMD51
+
+Source          | Frequency Range                       | Supply Current (max.)  | Startup Time typ. (max.)      | Notes, jitter, accuracy, other differences
+----------------|---------------------------------------|------------------------|-------------------------------|--------------------------------------------------------
+XOSC (x2)       | 8MHz-48MHz crystal                    | 250uA (810uA) ENALC on | 37K cycles (62K)              | Up to 48MHz digital clock input, supply current based on 16MHz crystal
+XOSC32K         | 32.768KHz crystal                     | 1.9uA (3uA)            | 9K cycles (23K)               | Use high gain setting
+OSCULP32K       | 32.10-33.42KHz                        | Not Specified.         | Not Specified                 | 27.12-37.68KHz across temperature
+FDPLL200M (x2)  | 32KHz-3.2MHz in, 96MHz-200MHz out     | 0.9mA (1.3mA) @ 96MHz  | Lock: 54us (95us) @ 3.2MHz in | 1.9% (2.7%) period jitter (32KHz in, 96MHz out), Datasheet lock time in ms.
+DFLL48M open    | 47.2MHz-48.8MHz                       | 400uA (850uA)          | 4.3us (7us)                   | 45.8MHz-49.3MHz across temperature
+DFLL48M closed  | 47.972MHz typical                     | 400uA (850uA)          | Lock: 429us (1145us)          | 0.42ns max. jitter, 0.73-33KHz input
+
+### SAML21
 
 Source          | Frequency Range                       | Supply Current (max.) | Startup Time typ. (max.)      | Notes, jitter, accuracy, other differences
 ----------------|---------------------------------------|-----------------------|-------------------------------|--------------------------------------------------------
@@ -274,7 +285,7 @@ FDPLL96M        | 32KHz-2MHz in, 48MHz-96MHz out        | 454uA (548uA)         
 DFLL48M open    | 46.6MHz-49MHz out                     | 286uA                 | 8.3us (9.1us)                 | 
 DFLL48M closed  | 0.73-33KHz in, 47.96-47.98MHz out     | 362uA                 | Lock: 200us (700us)           | 0.51ns max. jitter
 
-### SAMC
+### SAMC21
 
 Source          | Frequency Range                       | Supply Current (max.) | Startup Time typ. (max.)      | Notes, jitter, accuracy, other differences
 ----------------|---------------------------------------|-----------------------|-------------------------------|--------------------------------------------------------
@@ -295,16 +306,17 @@ jitter.
 ### External High-Speed Crystal
 
 HS_CRYSTAL_FREQUENCY_HERTZ must be defined with the external crystal frequency in Hertz.
-The crystal frequency must be between 400000Hz and 32000000Hz. The PLL will be used.
-PLL_FRACTIONAL_ENABLED can be defined, which will result in a more accurate 48MHz output
-frequency at the expense of increased jitter. If PLL_FAST_STARTUP is defined, the crystal
-will be divided down to 1MHz - 2MHz, rather than 32KHz - 64KHz, before being multiplied
-by the PLL. This will result in a faster lock time for the PLL, however, it will also
-result in a less accurate PLL output frequency if the crystal is not divisible (without
-remainder) by 1MHz. In this case, define PLL_FRACTIONAL_ENABLED as well. By default,
-PLL_FAST_STARTUP is disabled. PLL_FAST_STARTUP is also useful for USB host mode
-applications. See datasheet USB electrical characteristics. The crystal frequency must
-be at least 1000000Hz when PLL_FAST_STARTUP is defined.
+The crystal frequency must be between 400000Hz and 32000000Hz (800000Hz and 48000000Hz
+with the D51). The PLL will be used. PLL_FRACTIONAL_ENABLED can be defined, which will
+result in a more accurate 48MHz output frequency at the expense of increased jitter. If
+PLL_FAST_STARTUP is defined, the crystal will be divided down to 1MHz - 2MHz, rather
+than 32KHz - 64KHz, before being multiplied by the PLL. This will result in a faster
+lock time for the PLL, however, it will also result in a less accurate PLL output
+frequency if the crystal is not divisible (without remainder) by 1MHz. In this case,
+define PLL_FRACTIONAL_ENABLED as well. By default, PLL_FAST_STARTUP is disabled.
+PLL_FAST_STARTUP is also useful for USB host mode applications. See datasheet USB
+electrical characteristics. The crystal frequency must be at least 1000000Hz when
+PLL_FAST_STARTUP is defined.
 
 ### Internal Oscillator
 
@@ -315,69 +327,80 @@ NVM OTP (factory calibration values).
 
 ### Internal Oscillator with USB Calibration
 
-This is available for the D21, D11, or L21. It will also use the DFLL in open-loop mode,
-except when connected to a USB port with data lines (and not suspended), then it
+This is available for the D51, D21, D11, or L21. It will also use the DFLL in open-loop
+mode, except when connected to a USB port with data lines (and not suspended), then it
 will calibrate against the USB SOF signal. NVM_SW_CALIB_DFLL48M_FINE_VAL is the fine
 calibration value for DFLL open-loop mode. The coarse calibration value is loaded from
 NVM OTP (factory calibration values).
 
 ### Clock Generators Currently Used
 
-0. MAIN (mcu)
-1. XOSC (high speed crystal)
-2. OSCULP32K (initialized at reset for WDT on D21 and D11)
-3. OSC_HS (the reset default internal RC oscillator is put here at 8MHz, except with C21)
-
+0. MAIN - This is the main 48MHz cpu clock (optionally 120MHz for the D51)
+1. XOSC - High speed crystal
+2. OSCULP32K - Initialized at reset for WDT on D21 and D11
+3. OSC_HS - 8MHz internal RC oscillator (D21, D11, and L21 only)
+4. DFLL - Used by D51 (at 120MHz only) with CLOCKCONFIG_INTERNAL or CLOCKCONFIG_INTERNAL_USB to generate 2MHz output for the PLL input
+5. 48MHz - Used by D51 (at 120MHz only) for USB or any peripheral that has a 60MHz maximum peripheral clock
+6. 96MHz - Used by D51 (at 120MHz only) for any peripheral that has a 100MHz maximum peripheral clock
+7. I2S - Used by D51 and D21 for I2S peripheral
+8. I2S1 - Used by D51 and D21 for I2S peripheral
 
 
 ## Analog Reference
 
-### D21
-* AR_DEFAULT uses 1/2X gain on each input.
+### D21 / D11
+* AR_DEFAULT uses 1/2X gain on each input and a Vcc/2 (1.65V) reference supporting measurements up to Vcc.
 * The external reference should be between 1.0V and VDDANA-0.6V.
 
+### D51
+* AR_DEFAULT = AR_INTERNAL_INTVCC2 (Vcc)
+* Both AR_INTREF and AR_INTERNAL1V0 has the same effect as AR_INTREF_1V0.
+* The external reference should be between 1v and VDDANA-0.4v=2.9v.
+* INTVCC1 and INTVCC2 as used in Arduino are actually INTVCC0 and INTVCC1 in the datasheet.
+* DAC cannot use VDDANA due to errata. Using unbuffered external reference (REFA, connected externally to VDDANA) instead.
+
 ### L21
-* AR_DEFAULT = AR_INTERNAL_INTVCC2
+* AR_DEFAULT = AR_INTERNAL_INTVCC2 (Vcc)
 * Both AR_INTREF and AR_INTERNAL1V0 has the same effect as AR_INTREF_1V0.
 * The external reference should be between 1v and VDDANA-0.6v=2.7v.
 
 ### C21
-* AR_DEFAULT = AR_INTERNAL_INTVCC2
+* AR_DEFAULT = AR_INTERNAL_INTVCC2 (Vcc)
 * Both AR_INTREF and AR_INTERNAL1V0 has the same effect as AR_INTREF_1V024.
 * The external reference should be between 1v and VDDANA-0.6v=2.7v.
 
-**Warning : The maximum reference voltage is Vcc (up to 3.6 volts for the SAMD/SAML, 5V for the SAMC)**
+**Warning : The maximum IO voltage is Vcc (up to 3.6 volts for the D51/D21/D11/L21, 5V for the C21)**
 
 ### Reference Selection Table
 
-D21 / D11               | Volts      | L21                   | Volts     | C21                   | Volts
-------------------------|------------|-----------------------|-----------|-----------------------|--------
-AR_DEFAULT              | 1/2 VCC    | AR_DEFAULT            | VCC       | AR_DEFAULT            | VCC
-AR_INTERNAL1V0          | 1.00V      | AR_INTREF             | 1.00V     | AR_INTREF             | 1.024V
-AR_INTERNAL_INTVCC0     | 1/1.48 VCC | AR_INTREF_1V0         | 1.00V     | AR_INTREF_1V024       | 1.024V
-AR_INTERNAL_INTVCC1     | 1/2 VCC    | AR_INTREF_1V1         | 1.10V     | AR_INTREF_2V048       | 2.048V
-AR_EXTERNAL_REFA        | REFA       | AR_INTREF_1V2         | 1.20V     | AR_INTREF_4V096       | 4.096V
-AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_INTERNAL1V0        | 1.024V
----                     |            | AR_INTREF_2V0         | 2.00V     | AR_INTERNAL_INTVCC0   | 1/1.6 VCC
----                     |            | AR_INTREF_2V2         | 2.20V     | AR_INTERNAL_INTVCC1   | 1/2 VCC
----                     |            | AR_INTREF_2V4         | 2.40V     | AR_INTERNAL_INTVCC2   | VCC
----                     |            | AR_INTREF_2V5         | 2.50V     | AR_EXTERNAL_REFA      | REFA
----                     |            | AR_INTERNAL1V0        | 1.00V     | AR_EXTERNAL_DAC       | DAC
----                     |            | AR_INTERNAL_INTVCC0   | 1/1.6 VCC |                       |
----                     |            | AR_INTERNAL_INTVCC1   | 1/2 VCC   |                       |
----                     |            | AR_INTERNAL_INTVCC2   | VCC       |                       |
----                     |            | AR_EXTERNAL_REFA      | REFA      |                       |
----                     |            | AR_EXTERNAL_REFB      | REFB      |                       |
+D21 / D11               | Volts      | D51                   | Volts     | L21                   | Volts     | C21                   | Volts
+------------------------|------------|-----------------------|-----------|-----------------------|-----------|-----------------------|--------
+AR_DEFAULT              | 1/2 VCC    | AR_DEFAULT            | VCC       | AR_DEFAULT            | VCC       | AR_DEFAULT            | VCC
+AR_INTERNAL1V0          | 1.00V      | AR_INTREF             | 1.00V     | AR_INTREF             | 1.00V     | AR_INTREF             | 1.024V
+AR_INTERNAL_INTVCC0     | 1/1.48 VCC | AR_INTREF_1V0         | 1.00V     | AR_INTREF_1V0         | 1.00V     | AR_INTREF_1V024       | 1.024V
+AR_INTERNAL_INTVCC1     | 1/2 VCC    | AR_INTREF_1V1         | 1.10V     | AR_INTREF_1V1         | 1.10V     | AR_INTREF_2V048       | 2.048V
+AR_EXTERNAL_REFA        | REFA       | AR_INTREF_1V2         | 1.20V     | AR_INTREF_1V2         | 1.20V     | AR_INTREF_4V096       | 4.096V
+AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_INTREF_1V25        | 1.25V     | AR_INTERNAL1V0        | 1.024V
+---                     |            | AR_INTREF_2V0         | 2.00V     | AR_INTREF_2V0         | 2.00V     | AR_INTERNAL_INTVCC0   | 1/1.6 VCC
+---                     |            | AR_INTREF_2V2         | 2.20V     | AR_INTREF_2V2         | 2.20V     | AR_INTERNAL_INTVCC1   | 1/2 VCC
+---                     |            | AR_INTREF_2V4         | 2.40V     | AR_INTREF_2V4         | 2.40V     | AR_INTERNAL_INTVCC2   | VCC
+---                     |            | AR_INTREF_2V5         | 2.50V     | AR_INTREF_2V5         | 2.50V     | AR_EXTERNAL_REFA      | REFA
+---                     |            | AR_INTERNAL1V0        | 1.00V     | AR_INTERNAL1V0        | 1.00V     | AR_EXTERNAL_DAC       | DAC
+---                     |            | AR_INTERNAL_INTVCC1   | 1/2 VCC   | AR_INTERNAL_INTVCC0   | 1/1.6 VCC |                       |
+---                     |            | AR_INTERNAL_INTVCC2   | VCC       | AR_INTERNAL_INTVCC1   | 1/2 VCC   |                       |
+---                     |            | AR_EXTERNAL_REFA      | REFA      | AR_INTERNAL_INTVCC2   | VCC       |                       |
+---                     |            | AR_EXTERNAL_REFB      | REFB      | AR_EXTERNAL_REFA      | REFA      |                       |
+---                     |            | AR_EXTERNAL_REFC      | REFC      | AR_EXTERNAL_REFB      | REFB      |                       |
 
 ### Common Settings
 
-* AR_INTERNAL = AR_INTERNAL_INTVCC0
-* AR_INTERNAL2V23 = AR_INTERNAL_INTVCC0
-* AR_INTERNAL1V65 = AR_INTERNAL_INTVCC1
+* AR_INTERNAL = AR_INTERNAL_INTVCC0 (AR_INTERNAL_INTVCC1 with D51)
+* AR_INTERNAL2V23 = AR_INTERNAL_INTVCC0 (2.23V only when Vcc = 3.3V and only with the D21/D11)
+* AR_INTERNAL2V06 = AR_INTERNAL_INTVCC0 (2.06V only when Vcc = 3.3V and only with the L21/C21)
+* AR_INTERNAL1V65 = AR_INTERNAL_INTVCC1 (1.65V only when Vcc = 3.3V)
 * AR_EXTERNAL = AR_EXTERNAL_REFA
 
-*When using AR_INTERNAL2V23 or AR_INTERNAL1V65, these voltages are correct only when Vcc = 3.3V)*
-
+*Note that with the D51, INTVCC1 and INTVCC2 as used in Arduino are actually INTVCC0 and INTVCC1 in the datasheet.*
 
 
 ## Chip Specific Notes
@@ -389,11 +412,39 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
   Errata: Disable pull resistors on PA24 and PA25 manually before switching to a peripheral.
 
 
+### SAMD51
+
+* The D51 cpu can operate at 120MHz or 48MHz, which is selectable in the Tools->Microcontroller menu. When operating at 120MHz, both
+  48MHz and 96MHz clock generators are set up. The timers, ADC, DAC, and USB peripherals are clocked at 48MHz, while the SERCOMs and
+  external interrupt controller are clocked at 96MHz. A future timer library will use faster clocks speeds.
+* The ARM Cortex M4/M4F architecture supports more interrupts, with lower latency than the M0/M0+. Most peripherals have more than one
+  interrupt mapped to the NVIC. When compiling for the D51, this core will use seperate NVIC interrupts for each external interrupt,
+  as well as for every other peripheral that has multiple NVIC interrupts (USB device and host, UART, I2C, etc.).
+* There are two DACs, DAC0 and DAC1. Both are supported. Because changing the configuration of one DAC requires disabling both,
+  there will be a short period when the second DAC is disabled. The L21 DACs have a refresh setting which are enabled in this core.
+* The DACs cannot use the VDDANA reference due to errata. This core uses the external reference REFA instead (unbuffered). The REFA pin
+  (A3) must be connected externally to VDDANA.
+* There are two SAR ADCs. Both are supported. The PinDescription table determines the peripheral instance and pin mapping.
+* The analog reference has additional options on the D51. See Analog Reference section.
+* The SAMD51 has double-buffered TCs, which is supported in the core.
+* INTVCC1 and INTVCC2 as used in Arduino are actually INTVCC0 and INTVCC1 in the datasheet.
+* pinPeripheral now handles disabling the DACs (if active). Note that on the L21, the DAC output would
+  interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected.
+* Five Flash Wait States are inserted automatically (NVMCTRL_CTRLA_AUTOWS) at 120MHz (or one wait states at 48MHz).
+* The D51 has a 4KB code/data cache which is enabled in this core.
+* The D51 and C21 use the minimum sampling time so that rail-to-rail and offset compensation works. The D21, D11, and L21 use the
+  maximum sampling time.
+* Hardware errata: Do not use AR_INTREF_* with the ADC or DAC below 0C. It is OK to use AR_INTERNAL_*, AR_EXTERNAL_*, or AR_DEFAULT.
+* Hardware errata: VBAT mode is not funtional.
+* Hardware errata: Do not alter BOD33 Disable fuse bit (use register instead).
+* Consult the SAM_D5x_E5x_Family_Errata document from Microchip for details and for more information on other errata.
+
+
 ### SAML21
 
 * There are two DACs, DAC0 and DAC1. Both are supported. Because changing the configuration of one DAC requires disabling both,
   there will be about a 40us period when the second DAC is disabled. Most of this time is due to an errata that requires a delay of
-  at least 30us when turning off the DAC while refresh is on. The L21 DACs have a refresh setting which must be enabled in this core.
+  at least 30us when turning off the DAC while refresh is on. The L21 DACs have a refresh setting which are enabled in this core.
 * The analog reference has additional options on the L21 and C21. See Analog Reference section.
 * On the L21, SERCOM5 is in a low power domain. The Fm+ and HS modes of I2C (wire) are not supported.
 * The SAML and SAMC have double-buffered TCs, which are supported in the core.
@@ -450,7 +501,7 @@ TODO
 ## Serial Monitor
 
 To print to the Serial Monitor over USB, use 'Serial'. Serial refers to SerialUSB (Serial1 and Serial2 are UARTs).
-Unlike most Arduino boards (ie. Uno), SAM M0+ boards do not automatically reset when the serial monitor is opened.
+Unlike most Arduino boards (ie. Uno), SAMD boards do not automatically reset when the serial monitor is opened.
 To see what your sketch outputs to the serial monitor from the beginning, the sketch must wait for the SerialUSB
 port to open first. Add the following to setup():
 
@@ -460,7 +511,7 @@ while (!Serial) ;
 
 Remember that if the sketch needs to run without SerialUSB connected, another approach must be used.
 You can also reset the board manually with the Reset button if you wish to restart your sketch. However, pressing
-the Reset button will reset the SAM M0+ chip, which in turn will reset USB communication. This interruption means
+the Reset button will reset the chip, which in turn will reset USB communication. This interruption means
 that if the serial monitor is open, it will be necessary to close and re-open it to restart communication.
 
 When USB CDC is not enabled, Serial will instead refer to Serial1, which is the first UART.
@@ -532,7 +583,7 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
 6. If you do not already have the test firmware installed (comes preinstalled), see Using Bossac Standalone below.
 7. Press the reset button to run the test firmware (if needed). The LED will blink.
 8. Windows will detect the board. Point the installer to the above folder to install the sketch driver (if needed).
-9. Continue with SAM M0+ Core Installation below.
+9. Continue with SAM D|L|C Core Installation below.
 
 #### Linux
 
@@ -543,7 +594,7 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
    * This is true even when group permissions are set correctly, and it may fail after previously working.
    * You can also create/modify a udev rule to set permissions on the port so *everyone* can read / write.
 3. If you are running modemmanager (ie: Ubuntu), disable it, or use the udev rules file above.
-4. Continue with SAM M0+ Core Installation below.
+4. Continue with SAM D|L|C Core Installation below.
 
 #### OS X
 
@@ -553,22 +604,22 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
 1. Plug in the board. You may get a dialog box asking if you wish to open the “Network Preferences”:
    * Click the "Network Preferences..." button, then click "Apply".
    * The board will show up as “Not Configured”, but it will work fine.
-2. Continue with SAM M0+ Core Installation below.
+2. Continue with SAM D|L|C Core Installation below.
 
 
-### SAM M0+ Core Installation
+### SAM D|L|C Core Installation
 
 **See Beta Builds section below to install the beta, as it uses a different json file**
 
-* To update from a previous version, click on MattairTech SAM M0+ Boards in Boards Manager, then click Update.
+* To update from a previous version, click on MattairTech SAM D|L|C Core for Arduino in Boards Manager, then click Update.
 
-1. The MattairTech SAM M0+ Core requires Arduino IDE 1.6.7 or above (including 1.8.x).
+1. The MattairTech SAM D|L|C Core requires Arduino IDE 1.6.7 or above (including 1.8.x).
 2. In the Arduino IDE, click File->Preferences.
 3. Click the button next to Additional Boards Manager URLs.
 4. Add https://www.mattairtech.com/software/arduino/package_MattairTech_index.json.
 5. Save preferences, then open the Boards Manager.
 6. Install the Arduino SAMD Boards package. Use version 1.6.2 or higher.
-7. Install the MattairTech SAM M0+ Boards package.
+7. Install the MattairTech SAM D|L|C Core for Arduino package.
 8. Close Boards Manager, then click Tools->Board->(choose board).
 9. Select the MCU with the now visible Tools->Microcontroller menu (if present).
 10. If you do not already have the bootloader or blink sketch installed, see SAM-BA USB CDC Bootloader below.
@@ -577,7 +628,7 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
 13. You can now upload your own sketch.
 
 *Currently, with MattairTech boards, USB PIDs are shared across boards (but they are different based on Tools->USB Config).*
-*This will result in Tools->Port showing "MattairTech MT-D21E (rev B)" for all MattairTech boards.*
+*This will result in Tools->Port showing "MattairTech Xeno Mini", for example, for all MattairTech boards.*
 
 ### Uploading the First Sketch
 
@@ -597,13 +648,14 @@ The beta builds are available through Boards Manager. If you want to install the
   1. Open the **Preferences** of the Arduino IDE.
   2. Add this URL `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_index.json` in the **Additional Boards Manager URLs** field, and click OK.
   3. Open the **Boards Manager** (menu Tools->Board->Board Manager...)
-  4. Install **MattairTech SAM M0+ Boards - Beta build**
-  5. Select one of the boards under **MattairTech SAM M0+ Beta Build XX** in Tools->Board menu
+  4. Install **MattairTech SAM D|L|C Core for Arduino - Beta build**
+  5. Select one of the boards under **MattairTech SAM D|L|C Core for Arduino** in Tools->Board menu
   6. Compile/Upload as usual
 
 The Arduino IDE will notify the user if an update to the beta is available, which can then be installed automatically.
 Alternatively, if a particular beta is needed, replace the url in step 2 with:
-  `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_sam_m0p-${VERSION}-beta-b${BUILD_NUMBER}_index.json`
+  `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_SAM_DLC_Core_for_Arduino-${VERSION}-beta-b${BUILD_NUMBER}_index.json` or
+  `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_sam_m0p-${VERSION}-beta-b${BUILD_NUMBER}_index.json` (versions prior to 1.6.17-beta-b1)
 where ${VERSION} and ${BUILD_NUMBER} match the beta name as shown in the CHANGELOG (ie: package_MattairTech_sam_m0p-1.6.7-beta-b0_index.json).
 In this case, the IDE will not notify the user of updates.
 
@@ -614,8 +666,8 @@ This bootloader is based on the Arduino Zero bootloader which is a part of the A
 provides a USB-CDC and/or TTL serial communications interface to a host running the bossac command
 line firmware programming utility (or the Arduino IDE) running on Windows, Linux, or OS X. Optionally,
 SD Card firmware loading is supported, using SDSC or SDHC cards with a FAT16 or FAT32 filesystem.
-This version adds support for the D11, L21, and C21 microcontrollers. It also adds support for four
-different clock sources (two external crystals and two internal oscillator options). There are
+This version adds support for the D51, L21, C21, and D11 microcontrollers. It also adds support for
+four different clock sources (two external crystals and two internal oscillator options). There are
 additional board definitions added, and binaries for most board/chip combinations are pre-built.
 
 **See [bootloaders/zero/README.md](https://github.com/mattairtech/ArduinoCore-samd/tree/master/bootloaders/zero/README.md) for more technical information on the bootloader.**
@@ -628,7 +680,7 @@ additional board definitions added, and binaries for most board/chip combination
 * Four different clock sources (two external crystals and two internal oscillator options)
 * Arduino IDE auto-reset and double-tap reset button support
 * Arduino extended commands for faster firmware loading
-* Supports the D21, L21, C21, and D11 SAM M0+ chips
+* Supports the SAM D51, D21, L21, C21, and D11.
 * Bossac command line utility for Windows, Linux, and OS X
 
 The bootloader can be started by:
@@ -644,22 +696,24 @@ Otherwise, it jumps to application and starts execution from there. The LED will
 ### Bossac
 
 Bossac is a command line utility for uploading firmware to SAM-BA bootloaders. It runs on Windows. Linux, and OS X.
-It is used by Arduino to upload firmware to SAM and SAM M0+ boards. The version described here adds to the
+It is used by Arduino to upload firmware to SAM and SAMD boards. The version described here adds to the
 Arduino version (https://github.com/shumatech/BOSSA, Arduino branch), which in turn is a fork from the original
-Bossa (http://www.shumatech.com/web/products/bossa). It adds support for more SAM M0+ chips (D21, L21, C21, and D11).
-Note that only the Arduino or Mattairtech versions of bossac are currently supported for SAM M0+ chips.
-Neither the stock bossac (or Bossa) nor the Atmel SAM-BA upload tool will work.
+Bossa (http://www.shumatech.com/web/products/bossa). It adds support for more SAM chips (D51, D21, L21, C21, and D11),
+support for four clock sources, and firmware loading from a MicroSD card.
 
 
 ### Bootloader Firmware Installation
 
+*If you are installing the bootloader because you think you deleted/corrupted it by uploading a bad sketch in Arduino,*
+*check first by entering the bootloader manually (double-press reset) as it is probably just a broken sketch.*
+
 #### Bootloader Installation Using the Arduino IDE
 
-1. If you do not already have the MattairTech SAM M0+ core installed, see SAM M0+ Core Installation above.
-2. Plug in the SAM M0+ board. The bootloader must be running to (press reset twice within 500ms).
-3. Plug an Atmel ICE into USB, then connect it to the powered SAM M0+ board. A green LED should light on the Atmel ICE.
+1. If you do not already have the MattairTech SAM D|L|C Core installed, see SAM D|L|C Core Installation above.
+2. Plug in the board. The bootloader must be running to (press reset twice within 500ms).
+3. Plug an Atmel ICE into USB, then connect it to the powered board. A green LED should light on the Atmel ICE.
 4. Click Tools->Programmer->Atmel ICE.
-5. Click Tools->Board->MattairTech MT-D21E (or whichever board you are using).
+5. Click Tools->Board->MattairTech Xeno Mini (or whichever board you are using).
 6. Click Tools->Microcontroller and select your MCU (if menu present).
 7. Click Tools->Burn Bootloader. Ignore any messages about not supporting shutdown or reset.
 8. Continue with driver installation above.
@@ -673,11 +727,11 @@ A running sketch *may* interfere with the bootloader installation process. Be su
 
 ### Bootloader Binaries
 
-The bootloaders/zero/binaries directory contains the SAM-BA m0+
-bootloaders built by the build_all_bootloaders.sh script from
-the 'MattairTech SAM M0+ Boards' Arduino core, which is available
-at https://github.com/mattairtech/ArduinoCore-samd. Each board
-and chip combination has two bootloaders available:
+The bootloaders/zero/binaries directory contains the SAM-BA
+bootloaders built by the build_all_bootloaders.sh script from the
+'MattairTech SAM D|L|C Core for Arduino' Arduino core, which is
+available at https://github.com/mattairtech/ArduinoCore-samd.
+Each board and chip combination has two bootloaders available:
 
 * SAM-BA interface only
   * USB CDC only for all MattairTech boards
@@ -709,7 +763,7 @@ that accompanies each board variant. See board variants above.
 MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE in variant.h is used to track versions.
 If using board variant files with the old format, the new core will still read the
 table the old way, losing any new features introduced by the new column. Additionally,
-new definitions have been added for L21 and C21 support.
+new definitions have been added for D51, L21, and C21 support.
 
 ### Each pin can have multiple functions.
 The PinDescription table describes how each of the pins can be used by the Arduino
@@ -733,7 +787,10 @@ pin 28 = Port A28). This works well when there is only one port (or if the PORTB
 are used for onboard functions and not broken out). PIO_NOT_A_PIN entries must be added
 for pins that are used for other purposes or for pins that do not exist (especially the
 D11), so some FLASH space may be wasted. For an example of both types, see variant.cpp
-from the MT-D11 variant.
+from the MT-D11 variant. The Xeno combines both methods, using the actual port pin 
+designators from both PORTA and PORTB for arduino numbers 0-31 (ie: B1=1, A2=2), then
+using arduino numbering only above 31. For 0-31 only one pin from PORTA or PORTB can be
+used, leaving the other pin for some number above 31.
 
 **See Board Variants above for more technical information on the PinDescription table.**
 
@@ -755,22 +812,25 @@ from the MT-D11 variant.
 
 ### Under Development
 
+* I2S MCLK support and MEMS microphone support
+* QSPI support for the D51
 * ZeroTimers - 8/16/24/32 bit timer library with API based on TimerOne
   * PWM
   * interrupt
   * Input capture
 
+* Power Management Library
 * POWER_PAC1921 - Library for Microchip Technologies high-side power/current/voltage monitor with I2C and analog out
+
+### Possible Future
+
 * SENSOR_LPS22HB - Library for ST MEMS nano pressure sensor / temperature sensor with I2C
 * SENSOR_LSM6DS3H - Library for ST iNemo inertial module: 3D accelerometer / 3D gyroscope with I2C and interrupt
 * FLASH_AT25 - Library for Adesto Technologies AT25 SPI serial FLASH devices
 
-### Possible Future
-
 * Several I2C (Wire) sensor devices
 * TFT LCD (CFAF128128B-0145T)
 * IR decoder
-* I2S DAC/AMP and I2S MEMS microphone
 * Battery management IC
 * XBee/Xbee Pro devices?
 
@@ -813,7 +873,7 @@ The Changelog has moved to a separate file named CHANGELOG. The most recent chan
 
 * **Tools->Port shows wrong board**
   * Currently, with MattairTech boards, USB PIDs are shared across boards (but they are different based on Tools->USB Config).
-    This will result in Tools->Port showing "MattairTech MT-D21E (rev B)" for all MattairTech boards.
+    This will result in Tools->Port showing "MattairTech Xeni Mini" (for example) for all MattairTech boards.
 
 * **Tools->USB Config menu**
   * Currently, the Tools->USB Config menu (was Tools->Communications) must be used to select the communications configuration.
@@ -829,7 +889,7 @@ The Changelog has moved to a separate file named CHANGELOG. The most recent chan
   * You may need to manually include platform specific libraries such as SPI.h, Wire.h, and HID.h.
 
 * **Errors when compiling, uploading, or burning the bootloader**
-  * Be sure to install the Arduino samd core before installing the MattairTech sam m0+ core. If you have problems upgrading
+  * Be sure to install the Arduino samd core before installing the MattairTech core. If you have problems upgrading
     the IDE to 1.6.6, you may need to uninstall both the Arduino and MattairTech cores, then re-install in the proper order.
     Use Arduino core 1.6.2 or above.
 
@@ -864,7 +924,7 @@ This fork developed by Justin Mattair of MattairTech LLC.
 
 ```
   Copyright (c) 2015 Arduino LLC.  All right reserved.
-  Copyright (c) 2017 MattairTech LLC. All right reserved.
+  Copyright (c) 2017-2018 MattairTech LLC. All right reserved.
 
   This library is free software; you can redistribute it and/or
   modify it under the terms of the GNU Lesser General Public

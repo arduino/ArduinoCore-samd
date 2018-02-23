@@ -25,11 +25,14 @@ void analogReadCorrection (int offset, uint16_t gain)
   ADC->GAINCORR.reg = ADC_GAINCORR_GAINCORR(gain);
 
   // Enable digital correction logic
-#if (SAMD)
+#if (SAMD21 || SAMD11)
   ADC->CTRLB.bit.CORREN = 1;
   while(ADC->STATUS.bit.SYNCBUSY);
 #elif (SAML21 || SAMC21)
   ADC->CTRLC.bit.CORREN = 1;
+  while ( ADC->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
+#elif (SAMD51)
+  ADC->CTRLB.bit.CORREN = 1;
   while ( ADC->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
 #else
   #error "SAMD_AnalogCorrection.h: Unsupported chip"

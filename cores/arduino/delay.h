@@ -84,7 +84,9 @@ static __inline__ void delayMicroseconds( unsigned int usec )
 
   // VARIANT_MCK / 1000000 == cycles needed to delay 1uS
   //                     3 == cycles used in a loop
-  uint32_t n = usec * (VARIANT_MCK / 1000000) / 3;
+  // Divide by 3 before multiplication with usec, so that the maximum usable usec value
+  // with the D51 @ 120MHz is at least what it was when multipling by usec first at 48MHz.
+  uint32_t n = usec * ((VARIANT_MCK / 1000000) / 3);
   __asm__ __volatile__(
     "1:              \n"
     "   sub %0, #1   \n" // substract 1 from %0 (n)

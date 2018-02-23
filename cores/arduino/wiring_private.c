@@ -25,9 +25,9 @@ bool dacEnabled[] = {false, false};
 // Wait for synchronization of registers between the clock domains
 static __inline__ void syncDAC() __attribute__((always_inline, unused));
 static void syncDAC() {
-#if (SAMD)
+#if (SAMD21 || SAMD11)
   while ( DAC->STATUS.bit.SYNCBUSY == 1 );
-#elif (SAML21 || SAMC21)
+#elif (SAML21 || SAMC21 || SAMD51)
   while ( DAC->SYNCBUSY.reg & DAC_SYNCBUSY_MASK );
 #endif
 }
@@ -98,6 +98,12 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
       {
         peripheral = PER_TIMER;
       }
+#if (SAMD51)
+      else if ( (peripheralAttribute & PER_ATTR_TIMER_MASK) == PER_ATTR_TIMER_ALT2 )
+      {
+        peripheral = PER_TIMER_ALT2;
+      }
+#endif
       else
       {
         peripheral = PER_TIMER_ALT;
@@ -116,6 +122,9 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     break ;
 
     case PIO_COM:
+    case PIO_USB:
+    case PIO_CAN:
+    case PIO_QSPI:
       peripheral = PER_COM;
     break ;
 
@@ -126,6 +135,30 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     case PIO_CCL:
       peripheral = PER_CCL;
     break ;
+
+#if (SAMD51)
+    case PIO_SDHC:
+      peripheral = PER_SDHC;
+    break ;
+#endif
+
+    case PIO_I2S:
+#if (SAMD21)
+      peripheral = PER_COM;
+#elif (SAMD51)
+      peripheral = PER_I2S;
+#endif
+    break ;
+
+#if (SAMD51)
+    case PIO_PCC:
+      peripheral = PER_PCC;
+    break ;
+
+    case PIO_GMAC:
+      peripheral = PER_GMAC;
+    break ;
+#endif
 
     case PIO_NOT_A_PIN:
     case PIO_MULTI:
@@ -141,10 +174,10 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
   uint8_t pinCfg = PORT_PINCFG_INEN;	// INEN should be enabled for both input and output (but not analog)
 
   // Disable DAC, if analogWrite() used previously the DAC is enabled
-  // Note that on the L21, the DAC output would interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected
+  // Note that on the L21, the DAC output would interfere with other peripherals if left enabled, even if the analog peripheral is not selected
   if ((pinAttribute & PIN_ATTR_DAC) && !((1UL << ulPeripheral) & PIN_ATTR_DAC))
   {
-#if (SAMD || SAMC21)
+#if (SAMD21 || SAMD11 || SAMC21)
     if (dacEnabled[0]) {
       dacEnabled[0] = false;
       syncDAC();
@@ -152,7 +185,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
       //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
       syncDAC();
     }
-#elif (SAML21)
+#elif (SAML21 || SAMD51)
     uint8_t DACNumber = 0x00;
 
     if ( (pinPort == 0) && (pinNum == 5) ) {
@@ -188,14 +221,14 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
       PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ; // Enable INEN. If pin is floating, you should enable pull resistor to minimize input buffer power consumption
       PORT->Group[pinPort].OUTSET.reg = (uint32_t)(1<<pinNum) ;	// set default pull direction to pullup (will not be enabled)
     break;
-    
+
     // Set pin mode according to chapter '22.6.3 I/O Pin Configuration', the out register stores the pull direction
     case PIO_INPUT:
     case PIO_INPUT_PULLUP:
     case PIO_INPUT_PULLDOWN:
       PORT->Group[pinPort].DIRCLR.reg = (uint32_t)(1<<pinNum) ;
       PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)pinCfg ;
-      
+
       if (ulPeripheral == PIO_INPUT_PULLUP || ulPeripheral == PIO_INPUT)	// default pull direction for PIO_INPUT is pullup
       {
         // Enable pull level (cf '22.6.3.2 Input Configuration' and '22.8.7 Data Output Value Set')
@@ -208,7 +241,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
       }
       if (ulPeripheral != PIO_INPUT)
       {
-	      PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)(pinCfg | PORT_PINCFG_PULLEN) ;
+        PORT->Group[pinPort].PINCFG[pinNum].reg=(uint8_t)(pinCfg | PORT_PINCFG_PULLEN) ;
       }
     break ;
 
@@ -226,34 +259,41 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     case PIO_ANALOG_ADC:
     case PIO_ANALOG_DAC:
     case PIO_ANALOG_REF:
-	pinCfg = 0;	// Disable INEN with analog
-	
+        pinCfg = 0;	// Disable INEN with analog
+
     case PIO_EXTINT:
     case PIO_TIMER_PWM:
     case PIO_TIMER_CAPTURE:
     case PIO_SERCOM:
     case PIO_COM:
+    case PIO_USB:
+    case PIO_CAN:
+    case PIO_QSPI:
     case PIO_AC_GCLK:
     case PIO_CCL:
+    case PIO_SDHC:
+    case PIO_I2S:
+    case PIO_PCC:
+    case PIO_GMAC:
 
       if ( pinNum & 1 ) // is pin odd?
       {
         uint32_t temp ;
 
         // Get whole current setup for both odd and even pins and remove odd one
-	temp = (PORT->Group[pinPort].PMUX[pinNum >> 1].reg) & PORT_PMUX_PMUXE( 0xF ) ;
+        temp = (PORT->Group[pinPort].PMUX[pinNum >> 1].reg) & PORT_PMUX_PMUXE( 0xF ) ;
         // Set new muxing
-	PORT->Group[pinPort].PMUX[pinNum >> 1].reg = temp|PORT_PMUX_PMUXO( peripheral ) ;
+        PORT->Group[pinPort].PMUX[pinNum >> 1].reg = temp|PORT_PMUX_PMUXO( peripheral ) ;
         // Enable port mux
-	PORT->Group[pinPort].PINCFG[pinNum].reg |= PORT_PINCFG_PMUXEN ;
+        PORT->Group[pinPort].PINCFG[pinNum].reg |= PORT_PINCFG_PMUXEN ;
       }
       else // even pin
       {
         uint32_t temp ;
 
-	temp = (PORT->Group[pinPort].PMUX[pinNum >> 1].reg) & PORT_PMUX_PMUXO( 0xF ) ;
-	PORT->Group[pinPort].PMUX[pinNum >> 1].reg = temp|PORT_PMUX_PMUXE( peripheral ) ;
-	PORT->Group[pinPort].PINCFG[pinNum].reg |= PORT_PINCFG_PMUXEN ; // Enable port mux
+        temp = (PORT->Group[pinPort].PMUX[pinNum >> 1].reg) & PORT_PMUX_PMUXO( 0xF ) ;
+        PORT->Group[pinPort].PMUX[pinNum >> 1].reg = temp|PORT_PMUX_PMUXE( peripheral ) ;
+        PORT->Group[pinPort].PINCFG[pinNum].reg |= PORT_PINCFG_PMUXEN ; // Enable port mux
       }
 
     break ;

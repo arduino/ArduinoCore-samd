@@ -1,3 +1,28 @@
+Up next:
+* Add SAM D51 support to I2S driver
+* Add PDM microphone and MCK support to I2S driver
+* Add QSPI driver, FLASH memory driver
+* Add 32-pin (E) generic variant
+
+1.6.18-beta-b0 (February 22, 2018):
+* Added SAM D51 (m4f) support to core
+* Added MattairTech Xeno Mini board support
+* Changed name to "MattairTech SAM D|L|C core for Arduino"
+* Added _ulTickCountHighWord to delay() to better handle 49.7-day wraparound
+* Updated timeout in [Bossa](https://github.com/mattairtech/BOSSA) tool for D51 1MB FLASH (5 second erase)
+* Correction of include path for CMSIS-Atmel - Thanks @joseangeljimenez
+* Documentation updates
+* Merged in changes from upstream SAMD CORE 1.6.18 (not released yet)
+  * Don't reallocate USB buffers if already allocated - fixes memory leak
+  * Wire: Added support for general call (broadcast)
+  * SPI: Added SPI.notUsingInterrupt(...) API
+  * Wire: TX and RX buffers are now 256 bytes (previously was 64 bytes)
+  * Fixed lock ups when outputting to UART during ISR
+  * Wire: correct I2C frequency calculations, and allow variant to overide default pull up resistor rise time
+* Merged in changes from upstream SAMD CORE 1.6.17
+  * UART's now support optional RTS and CTS pins defined in the variant.
+
+1.6.17 (release version, February 22, 2018, same as 1.6.17-beta-b0):
 1.6.17-beta-b0:
 * Added SAM D51 (m4f) support to bootloader
 * Added Generic D11D14AS (20-pin SOIC) variant
@@ -28,7 +53,7 @@
 
 1.6.8-beta-b2:
 * Added SD Card firmware loading support to the bootloader (4KB and 8KB)
-* Removed SDU library, as the bootloader now supports SD cards directly
+* Removed SDU library, as the bootloader now supports SD cards directly (and the SDU library is GPL)
 * Removed automatic page writes from bootloader (may have caused bricked board during development)
 * Fixed bootloader compilation on Windows
 * Added more Serial, SPI, and WIRE instances to MT-D21E (rev A and B)

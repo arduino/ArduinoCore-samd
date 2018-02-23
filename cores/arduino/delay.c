@@ -25,6 +25,7 @@ extern "C" {
 
 /** Tick Counter united by ms */
 static volatile uint32_t _ulTickCount=0 ;
+static volatile uint32_t _ulTickCountHighWord=0 ;
 
 unsigned long millis( void )
 {
@@ -63,17 +64,31 @@ unsigned long micros( void )
 
 void delay( unsigned long ms )
 {
-  if ( ms == 0 )
+  if (ms)
   {
-    return ;
+    uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+    __disable_irq();
+
+    uint32_t start = _ulTickCount ;
+    uint32_t targetTickCountHighWord = _ulTickCountHighWord;
+
+    if (enableInterrupts) {
+      __enable_irq();
+    }
+
+    // Check for _ulTickCount overflow
+    uint32_t remaining = (0xFFFFFFFF - start);
+    if (ms > remaining) {
+      ms -= (remaining + 1);
+      start = 0;
+      targetTickCountHighWord++;
+    }
+
+    do
+    {
+      yield() ;
+    } while (_ulTickCountHighWord < targetTickCountHighWord || (_ulTickCount - start) < ms ) ;
   }
-
-  uint32_t start = _ulTickCount ;
-
-  do
-  {
-    yield() ;
-  } while ( _ulTickCount - start < ms ) ;
 }
 
 #include "Reset.h" // for tickReset()
@@ -82,6 +97,11 @@ void SysTick_DefaultHandler(void)
 {
   // Increment tick count each ms
   _ulTickCount++;
+
+  if ( _ulTickCount == 0 )
+  {
+    _ulTickCountHighWord++;
+  }
 #if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
   tickReset();
 #endif

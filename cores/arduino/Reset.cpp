@@ -36,20 +36,24 @@ extern const uint32_t __text_start__;
 
 #else
 #if defined(__NO_BOOTLOADER__)
-	#define APP_START 0x00000004
+	#define APP_START 0x00000004UL
 #elif defined(__4KB_BOOTLOADER__)
-	#define APP_START 0x00001004
+	#define APP_START 0x00001004UL
 #elif defined(__8KB_BOOTLOADER__)
-	#define APP_START 0x00002004
+	#define APP_START 0x00002004UL
 #elif defined(__16KB_BOOTLOADER__)
-	#define APP_START 0x00004004
+	#define APP_START 0x00004004UL
 #else
 	#error "Reset.cpp: You must define bootloader size in boards.txt build.extra_flags (ie: -D__8KB_BOOTLOADER__)"
 #endif
 #endif
 
 static inline bool nvmReady(void) {
-        return NVMCTRL->INTFLAG.reg & NVMCTRL_INTFLAG_READY;
+#if (SAMD51)
+  return NVMCTRL->STATUS.reg & NVMCTRL_STATUS_READY;
+#else
+  return NVMCTRL->INTFLAG.reg & NVMCTRL_INTFLAG_READY;
+#endif
 }
 
 __attribute__ ((long_call, section (".ramfunc")))
@@ -62,14 +66,29 @@ void banzai() {
 	// Minimum bootloader size in SAMD21 family is 512bytes (RM section 22.6.5)
 	if (APP_START < (0x200 + 4)) {
 		goto reset;
-	}
+        }
+
+        // Disable NVM cache on D51 (errata). Will be re-enabled after reset.
+        #if (SAMD51)
+          NVMCTRL->CTRLA.reg = (NVMCTRL_CTRLA_CACHEDIS0 | NVMCTRL_CTRLA_CACHEDIS1);
+        #endif
 
 	// Erase application
 	while (!nvmReady())
-		;
-	NVMCTRL->STATUS.reg |= NVMCTRL_STATUS_MASK;
-	NVMCTRL->ADDR.reg  = (uintptr_t)&NVM_MEMORY[APP_START / 4];
-	NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMD_ER | NVMCTRL_CTRLA_CMDEX_KEY;
+          ;
+
+        // Note: the flash memory is erased in 4 page ROWS (16 page blocks for D51).
+        //       Even if the starting address is the last byte of a ROW/block the
+        //       entire ROW/block is erased anyway.
+        #if (SAMD51)
+          NVMCTRL->ADDR.reg  = (uint32_t)APP_START;   // 8-bit hardware address
+          NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMD_EB | NVMCTRL_CTRLB_CMDEX_KEY;
+        #else
+          NVMCTRL->STATUS.reg |= NVMCTRL_STATUS_MASK;
+          NVMCTRL->ADDR.reg  = (uintptr_t)&NVM_MEMORY[APP_START / 4];   // 16-bit hardware address
+          NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMD_ER | NVMCTRL_CTRLA_CMDEX_KEY;
+        #endif
+
 	while (!nvmReady())
 		;
 

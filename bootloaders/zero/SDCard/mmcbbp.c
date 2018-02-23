@@ -95,7 +95,7 @@ inline void init_spi (void)
   #else
     GCLK->PCHCTRL[SDCARD_SPI_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
   #endif
-  waitForSync();
+  while ( (GCLK->PCHCTRL[SDCARD_SPI_PER_CLOCK_INDEX].reg & GCLK_PCHCTRL_CHEN) == 0 );      // wait for sync
 #else
   #error "mmcbbp.c: Unsupported microcontroller"
 #endif

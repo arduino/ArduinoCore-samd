@@ -23,13 +23,23 @@
 
 #if (SAMD21 || SAMD11)
 #define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.STATUS.bit.SYNCBUSY);
-#elif (SAML21 || SAMC21)
+#elif (SAML21 || SAMC21 || SAMD51)
 #define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.SYNCBUSY.reg);
 #else
 #error "Tone.cpp: Unsupported chip"
 #endif
 
-uint32_t toneMaxFrequency = F_CPU / 2;
+#if (SAMD51)
+  #if (VARIANT_MCK == 120000000ul)
+    #define TC_FREQUENCY    48000000UL
+  #else
+    #define TC_FREQUENCY    F_CPU
+  #endif
+#else
+#define TC_FREQUENCY    F_CPU
+#endif
+
+uint32_t toneMaxFrequency = TC_FREQUENCY / 2;
 uint32_t lastOutputPin = 0xFFFFFFFF;
 
 volatile uint32_t *portToggleRegister;
@@ -49,7 +59,7 @@ void TC2_Handler (void) __attribute__ ((alias("Tone_Handler")));
 #define TONE_TC_IRQn    TC1_IRQn
 void TC1_Handler (void) __attribute__ ((alias("Tone_Handler")));
 /* TC5 does not exist on the SAML or SAMC. Using TC1 instead. */
-#elif (SAML || SAMC)
+#elif (SAML21 || SAMC21 || SAMD51)
 #define TONE_TC         TC1
 #define TONE_TC_IRQn    TC1_IRQn
 void TC1_Handler (void) __attribute__ ((alias("Tone_Handler")));
@@ -85,26 +95,30 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
   // Configure interrupt request
   NVIC_DisableIRQ(TONE_TC_IRQn);
   NVIC_ClearPendingIRQ(TONE_TC_IRQn);
-  
+
   if(!firstTimeRunning)
   {
     firstTimeRunning = true;
-    
+
     NVIC_SetPriority(TONE_TC_IRQn, 0);
-    
+
     // Enable GCLK for timer used
-#if (SAMD11_SERIES)
+#if (SAMD11)
     GCLK->CLKCTRL.reg = (uint16_t) ( GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC1_TC2 ));
     while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
-#elif (SAML_SERIES || SAMC_SERIES)
-    GCLK->PCHCTRL[GCM_TC2_TC3].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-    while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+#elif (SAML21 || SAMC21 || SAMD51)
+  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
+      GCLK->PCHCTRL[GCM_TC0_TC1].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5);  // use 48MHz clock from GCLK5, which was setup in startup.c
+  #else
+      GCLK->PCHCTRL[GCM_TC0_TC1].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0);
+  #endif
+    while ( (GCLK->PCHCTRL[GCM_TC0_TC1].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #else
     GCLK->CLKCTRL.reg = (uint16_t) ( GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC4_TC5 ));
     while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
 #endif
   }
-  
+
   if (toneIsActive && (outputPin != lastOutputPin))
     noTone(lastOutputPin);
 
@@ -117,9 +131,9 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
 
   ccValue = toneMaxFrequency / frequency - 1;
   prescalerConfigBits = TC_CTRLA_PRESCALER_DIV1;
-  
+
   uint8_t i = 0;
-  
+
   while(ccValue > TONE_TC_TOP)
   {
     ccValue = toneMaxFrequency / frequency / (2<<i) - 1;
@@ -127,23 +141,23 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
     if(i == 4 || i == 6 || i == 8) //DIV32 DIV128 and DIV512 are not available
      i++;
   }
-  
+
   switch(i-1)
   {
     case 0: prescalerConfigBits = TC_CTRLA_PRESCALER_DIV2; break;
-    
+
     case 1: prescalerConfigBits = TC_CTRLA_PRESCALER_DIV4; break;
-    
+
     case 2: prescalerConfigBits = TC_CTRLA_PRESCALER_DIV8; break;
-    
+
     case 3: prescalerConfigBits = TC_CTRLA_PRESCALER_DIV16; break;
-    
+
     case 5: prescalerConfigBits = TC_CTRLA_PRESCALER_DIV64; break;
-      
+
     case 7: prescalerConfigBits = TC_CTRLA_PRESCALER_DIV256; break;
-    
+
     case 9: prescalerConfigBits = TC_CTRLA_PRESCALER_DIV1024; break;
-    
+
     default: break;
   }
 
@@ -160,7 +174,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
   TONE_TC->COUNT16.CTRLA.reg |= tmpReg;
   WAIT_TC16_REGS_SYNC(TONE_TC)
 
-#if (SAML21 || SAMC21)
+#if (SAML21 || SAMC21 || SAMD51)
   TONE_TC->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;
   WAIT_TC16_REGS_SYNC(TONE_TC)
 #endif
@@ -174,7 +188,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
 
   // Enable the TONE_TC interrupt request
   TONE_TC->COUNT16.INTENSET.bit.MC0 = 1;
-  
+
   if (outputPin != lastOutputPin)
   {
     lastOutputPin = outputPin;
@@ -186,7 +200,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
   // Enable TONE_TC
   TONE_TC->COUNT16.CTRLA.reg |= TC_CTRLA_ENABLE;
   WAIT_TC16_REGS_SYNC(TONE_TC)
-  
+
   NVIC_EnableIRQ(TONE_TC_IRQn);
 }
 

@@ -62,7 +62,13 @@ class TwoWire : public Stream
     inline size_t write(int n) { return write((uint8_t)n); }
     using Print::write;
 
+#if (SAMD51)
+    void onStopDetected(void);
+    void onAddressMatch(void);
+    void onDataReady(void);
+#else
     void onService(void);
+#endif
 
   private:
     SERCOM * sercom;
@@ -103,6 +109,12 @@ class TwoWire : public Stream
 #endif
 #if WIRE_INTERFACES_COUNT > 5
   extern TwoWire Wire5;
+#endif
+#if WIRE_INTERFACES_COUNT > 6
+  extern TwoWire Wire6;
+#endif
+#if WIRE_INTERFACES_COUNT > 7
+  extern TwoWire Wire7;
 #endif
 
 #endif

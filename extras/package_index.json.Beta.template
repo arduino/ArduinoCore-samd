@@ -10,7 +10,7 @@
       },
       "platforms": [
         {
-          "name": "MattairTech SAM M0+ Boards - Beta build",
+          "name": "MattairTech SAM D|L|C core for Arduino - Beta build",
           "architecture": "samd",
           "version": "%%VERSION%%",
           "category": "Contributed",
@@ -22,6 +22,7 @@
           "checksum": "SHA-256:%%CHECKSUM%%",
           "size": "%%SIZE%%",
           "boards": [
+            {"name": "Xeno_Mini"},
             {"name": "Xeno"},
             {"name": "MT-D21E"},
             {"name": "MT-D21E_revB"},
@@ -40,7 +41,7 @@
             {
               "packager": "MattairTech_Arduino",
               "name": "bossac",
-	      "version": "1.7.0-mattairtech-2"
+	      "version": "1.7.0-mattairtech-3"
             },
             {
               "packager": "arduino",
@@ -68,35 +69,35 @@
       "tools": [
       {
         "name": "bossac",
-        "version": "1.7.0-mattairtech-2",
+        "version": "1.7.0-mattairtech-3",
         "systems": [
         {
           "host": "i686-mingw32",
-	  "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-mingw32.tar.gz",
-	  "archiveFileName": "bossac-1.7.0-mattairtech-2-mingw32.tar.gz",
-          "checksum": "SHA-256:63e982f8ed9749277e6251e1f94f15e57a98cddd6902ccf98d7b006e9fd6761c",
-          "size": "325268"
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-3-mingw32.tar.gz",
+          "archiveFileName": "bossac-1.7.0-mattairtech-3-mingw32.tar.gz",
+          "checksum": "SHA-256:ce6ce590c612dc8b18ba52df3903ba3d43416c92ef54538881cc07fdd2ef1f04",
+          "size": "325719"
         },
         {
           "host": "x86_64-pc-linux-gnu",
-	  "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-x86_64-linux-gnu.tar.gz",
-	  "archiveFileName": "bossac-1.7.0-mattairtech-2-x86_64-linux-gnu.tar.gz",
-          "checksum": "SHA-256:0d28b32bf10298a281472eeb8d3f2482adc251b276033e544196e5fd17c12111",
-          "size": "34223"
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-3-x86_64-linux-gnu.tar.gz",
+          "archiveFileName": "bossac-1.7.0-mattairtech-3-x86_64-linux-gnu.tar.gz",
+          "checksum": "SHA-256:e0801cd435a0aa08a4ccc1781cdcc1bf9ae92e248888163a1bb4dce20c00bcf9",
+          "size": "34622"
         },
         {
           "host": "i686-pc-linux-gnu",
-	  "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-i686-linux-gnu.tar.gz",
-	  "archiveFileName": "bossac-1.7.0-mattairtech-2-i686-linux-gnu.tar.gz",
-          "checksum": "SHA-256:b0399e20e15125c7cae9571b5102d77e632642fe07e27b86b90e14b5fa5a4e09",
-          "size": "34170"
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-3-i686-linux-gnu.tar.gz",
+          "archiveFileName": "bossac-1.7.0-mattairtech-3-i686-linux-gnu.tar.gz",
+          "checksum": "SHA-256:edd3bc6fd80641563dc6ca337d695fca25c2d43242172ea0418b678d4dbe0628",
+          "size": "34628"
         },
         {
           "host": "x86_64-apple-darwin",
-	  "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-2-x86_64-apple-darwin.tar.gz",
-	  "archiveFileName": "bossac-1.7.0-mattairtech-2-x86_64-apple-darwin.tar.gz",
-          "checksum": "SHA-256:5a9125567ba2082f7791954cf7f717644decad5ab77392d9d35d0538ffe8ae76",
-          "size": "88668"
+          "url": "https://www.mattairtech.com/software/arduino/bossac-1.7.0-mattairtech-3-x86_64-apple-darwin.tar.gz",
+          "archiveFileName": "bossac-1.7.0-mattairtech-3-x86_64-apple-darwin.tar.gz",
+          "checksum": "SHA-256:da4d4b04582f92d09e3d48a1ec4d2473b6cd01bba992c0f1f2cd7ee1008f08f8",
+          "size": "88845"
         }
         ]
       },

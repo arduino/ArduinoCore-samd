@@ -22,7 +22,16 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+#if (SAMD51)
+extern void USB_SetMainHandler(void (*pf_isr)(void));
+extern void USB_SetSOFHandler(void (*pf_isr)(void));
+extern void USB_SetTRCPT0Handler(void (*pf_isr)(void));
+extern void USB_SetTRCPT1Handler(void (*pf_isr)(void));
+#else
 extern void USB_SetHandler(void (*pf_isr)(void));
+#endif
+
 #ifdef __cplusplus
 }
 #endif

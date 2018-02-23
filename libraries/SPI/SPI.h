@@ -36,12 +36,19 @@
 #define SPI_MODE2 0x03
 #define SPI_MODE3 0x01
 
-#if (SAMD || SAML21)
+#if (SAMD21 || SAMD11 || SAML21)
   // Even if not specified on the datasheet, the SAMD21G18A MCU
   // doesn't operate correctly with clock dividers lower than 4.
   // This allows a theoretical maximum SPI clock speed of 12Mhz
   // Other SAMD21xxxxx MCU may be affected as well
   #define SPI_MIN_CLOCK_DIVIDER 4
+#elif (SAMD51)
+  // The SAMD51 SERCOM runs at 96MHz when the cpu runs at 120MHz
+  #if (F_CPU == 120000000ul)
+    #define SPI_MIN_CLOCK_DIVIDER 8
+  #else
+    #define SPI_MIN_CLOCK_DIVIDER 4
+  #endif
 #elif (SAMC21)
   #define SPI_MIN_CLOCK_DIVIDER 8
 #else
@@ -67,7 +74,12 @@ class SPISettings {
   }
 
   void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
-    this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? F_CPU / SPI_MIN_CLOCK_DIVIDER : clock);
+    // The SAMD51 SERCOM runs at 96MHz when the cpu runs at 120MHz
+    #if F_CPU == 120000000
+      this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? 96000000ul / SPI_MIN_CLOCK_DIVIDER : clock);
+    #else
+      this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? F_CPU / SPI_MIN_CLOCK_DIVIDER : clock);
+    #endif
 
     this->bitOrder = (bitOrder == MSBFIRST ? MSB_FIRST : LSB_FIRST);
 
@@ -154,6 +166,12 @@ class SPIClass {
 #if SPI_INTERFACES_COUNT > 5
   extern SPIClass SPI5;
 #endif
+#if SPI_INTERFACES_COUNT > 6
+  extern SPIClass SPI6;
+#endif
+#if SPI_INTERFACES_COUNT > 7
+  extern SPIClass SPI7;
+#endif
 
 // For compatibility with sketches designed for AVR @ 16 MHz
 // New programs should use SPI.beginTransaction to set the SPI clock
@@ -165,6 +183,15 @@ class SPIClass {
   #define SPI_CLOCK_DIV32  96
   #define SPI_CLOCK_DIV64  192
   #define SPI_CLOCK_DIV128 255
+// The SAMD51 SERCOM runs at 96MHz when the cpu runs at 120MHz
+#elif F_CPU == 120000000
+  #define SPI_CLOCK_DIV2   12
+  #define SPI_CLOCK_DIV4   24
+  #define SPI_CLOCK_DIV8   48
+  #define SPI_CLOCK_DIV16  96
+  #define SPI_CLOCK_DIV32  192
+  #define SPI_CLOCK_DIV64  384
+  #define SPI_CLOCK_DIV128 768
 #endif
 
 #endif

@@ -25,10 +25,10 @@ SDCARD?=SDCARD_DISABLED
 
 # -----------------------------------------------------------------------------
 # Boards definitions:
-# Xeno, MT_D21E_rev_A, MT_D21E_rev_B, MT_D11
+# Xeno, Xeno_Mini, MT_D21E_rev_A, MT_D21E_rev_B, MT_D11
 # arduino_zero, arduino_mkrzero, arduino_mkr1000, arduino_mkrfox1200, genuino_mkr1000, genuino_zero, arduino_m0, arduino_m0_pro
 # Generic_x21E, Generic_x21G, Generic_x21J, Generic_D11D14AM, Generic_D11D14AS, Generic_D11C14A
-BOARD_ID?=MT_D21E_rev_B
+BOARD_ID?=Xeno_Mini
 
 # -----------------------------------------------------------------------------
 # MCU definitions:
@@ -46,7 +46,7 @@ BOARD_ID?=MT_D21E_rev_B
 # SAMD51J: SAMD51J18A, SAMD51J19A, SAMD51J20A
 # SAMD51N: SAMD51N19A, SAMD51N20A
 # SAMD51P: SAMD51P19A, SAMD51P20A
-MCU?=SAMD21E18A
+MCU?=SAMD51G19A
 
 # Note that the makefile can be invoked with values that override the above settings.
 # For example: BOARD_ID=Generic_D11C14A MCU=SAMD11C14A SDCARD=SDCARD_DISABLED make

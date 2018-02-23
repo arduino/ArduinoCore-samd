@@ -24,9 +24,13 @@
 
 #ifndef _IO_H_
 #define _IO_H_
-
-#define RAMSTART (HMCRAMC0_ADDR)
-#define RAMSIZE  (HMCRAMC0_SIZE)
+#if (SAMD21 || SAMD11)
+  #define RAMSTART (HMCRAMC0_ADDR)
+  #define RAMSIZE  (HMCRAMC0_SIZE)
+#elif (SAMD51 || SAML21 || SAMC21)
+  #define RAMSTART (HSRAM_ADDR)
+  #define RAMSIZE  (HSRAM_SIZE)
+#endif
 #define RAMEND   (RAMSTART + RAMSIZE - 1)
 
 #endif

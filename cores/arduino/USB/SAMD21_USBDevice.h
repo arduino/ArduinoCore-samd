@@ -45,7 +45,7 @@ public:
 
 	// USB mode (device/host)
 	inline void setUSBDeviceMode() { usb.CTRLA.bit.MODE = USB_CTRLA_MODE_DEVICE_Val; }
-#if (SAMD21 || SAML21)
+#if (SAMD21 || SAML21 || SAMD51)
 	inline void setUSBHostMode()   { usb.CTRLA.bit.MODE = USB_CTRLA_MODE_HOST_Val;   }
 #endif
 

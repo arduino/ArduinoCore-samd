@@ -47,8 +47,15 @@ typedef enum {
 } uhd_vbus_state_t;
 
 extern void UHD_Init(void);
+#if (SAMD51)
+extern void UHD_Main_Handler(void);
+extern void UHD_SOF_Handler(void);
+extern void USB_SetMainHandler(void (*pf_isr)(void));
+extern void USB_SetSOFHandler(void (*pf_isr)(void));
+#else
 extern void UHD_Handler(void);
 extern void USB_SetHandler(void (*pf_isr)(void));
+#endif
 extern uhd_vbus_state_t UHD_GetVBUSState(void);
 extern uint32_t UHD_Pipe0_Alloc(uint32_t ul_add, uint32_t ul_ep_size);
 extern uint32_t UHD_Pipe_Alloc(uint32_t ul_dev_addr, uint32_t ul_dev_ep, uint32_t ul_type, uint32_t ul_dir, uint32_t ul_maxsize, uint32_t ul_interval, uint32_t ul_nb_bank);

@@ -90,7 +90,7 @@ void serial_open(void)
   #else
     GCLK->PCHCTRL[BOOT_USART_PER_CLOCK_INDEX].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
   #endif
-  waitForSync();
+  while ( (GCLK->PCHCTRL[BOOT_USART_PER_CLOCK_INDEX].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #endif
 
 #if (SAMD51 && (VARIANT_MCK == 120000000ul))

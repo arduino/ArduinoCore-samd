@@ -22,7 +22,7 @@ VERSION=`grep version= platform.txt | sed 's/version=//g'`
 PWD=`pwd`
 FOLDERNAME=`basename $PWD`
 THIS_SCRIPT_NAME=`basename $0`
-FILENAME=MattairTech_sam_m0p-$VERSION.tar.bz2
+FILENAME=MattairTech_SAM_DLC_Core_for_Arduino-$VERSION.tar.bz2
 
 rm -f $FILENAME
 
@@ -39,4 +39,4 @@ cat extras/package_index.json.Release.template |
 sed "s/%%VERSION%%/${VERSION}/" |
 sed "s/%%FILENAME%%/${FILENAME}/" |
 sed "s/%%CHECKSUM%%/${CHKSUM}/" |
-sed "s/%%SIZE%%/${SIZE}/" > package_MattairTech_sam_m0p-${VERSION}_index.json
+sed "s/%%SIZE%%/${SIZE}/" > package_MattairTech_SAM_DLC_Core_for_Arduino-${VERSION}_index.json

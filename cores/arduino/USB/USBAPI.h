@@ -100,7 +100,14 @@ public:
 	uint8_t armRecv(uint32_t ep);
 	uint8_t armRecvCtrlOUT(uint32_t ep);
 
+#if (SAMD51)
+        void ISRMainHandler();
+        void ISRSOFHandler();
+        void ISRTRCPT0Handler();
+        void ISRTRCPT1Handler();
+#else
 	void ISRHandler();
+#endif
 
 private:
 	bool initialized;

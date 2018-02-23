@@ -19,6 +19,8 @@
 #include "SERCOM.h"
 #include "variant.h"
 
+uint32_t SercomClock = 1000000ul; // this default is changed in initClockNVIC()
+
 SERCOM::SERCOM(Sercom* s)
 {
   sercom = s;
@@ -86,12 +88,12 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 
 #if 0
     // Asynchronous arithmetic mode
-    // 65535 * ( 1 - sampleRateValue * baudrate / SystemCoreClock);
-    // 65535 - 65535 * (sampleRateValue * baudrate / SystemCoreClock));
-    // sercom->USART.BAUD.reg = 65535.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SystemCoreClock));  // this pulls in 3KB of floating point math code
+    // 65535 * ( 1 - sampleRateValue * baudrate / SercomClock);
+    // 65535 - 65535 * (sampleRateValue * baudrate / SercomClock));
+    // sercom->USART.BAUD.reg = 65535.0f * ( 1.0f - (float)(sampleRateValue) * (float)(baudrate) / (float)(SercomCoreClock));  // this pulls in 3KB of floating point math code
     // make numerator much larger than denominator so result is integer (avoid floating point).
     uint64_t numerator = ((sampleRateValue * (uint64_t)baudrate) << 32); // 32 bits of shifting ensures no loss of precision.
-    uint64_t ratio = divide64(numerator, SystemCoreClock);
+    uint64_t ratio = divide64(numerator, SercomClock);
     uint64_t scale = ((uint64_t)1 << 32) - ratio;
     uint64_t baudValue = (65536 * scale) >> 32;
     sercom->USART.BAUD.reg = baudValue;
@@ -99,12 +101,13 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
     // Asynchronous fractional mode (Table 24-2 in datasheet)
     //   BAUD = fref / (sampleRateValue * fbaud)
     // (multiply by 8, to calculate fractional piece)
-    uint32_t baudTimes8 = (SystemCoreClock * 8) / (sampleRateValue * baudrate);
+    uint32_t baudTimes8 = (SercomClock * 8) / (sampleRateValue * baudrate);
 
     sercom->USART.BAUD.FRAC.FP   = (baudTimes8 % 8);
     sercom->USART.BAUD.FRAC.BAUD = (baudTimes8 / 8);
   }
 }
+
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
 {
   //Setting the CTRLA register
@@ -238,7 +241,7 @@ void SERCOM::initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize ch
   initClockNVIC();
 
   //Setting the CTRLA register
-  sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE_SPI_MASTER |
+  sercom->SPI.CTRLA.reg =	SERCOM_SPI_CTRLA_MODE( SPI_MASTER_OPERATION ) |
                           SERCOM_SPI_CTRLA_DOPO(mosi) |
                           SERCOM_SPI_CTRLA_DIPO(miso) |
                           dataOrder << SERCOM_SPI_CTRLA_DORD_Pos;
@@ -328,7 +331,7 @@ void SERCOM::setBaudrateSPI(uint8_t divider)
   //Register enable-protected
   disableSPI();
 
-  sercom->SPI.BAUD.reg = calculateBaudrateSynchronous( SystemCoreClock / divider );
+  sercom->SPI.BAUD.reg = calculateBaudrateSynchronous( SercomClock / divider );
 
   enableSPI();
 }
@@ -392,7 +395,7 @@ bool SERCOM::isDataRegisterEmptySPI()
 
 uint32_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
 {
-  return ((SystemCoreClock / (2 * baudrate)) - 1);
+  return ((SercomClock / (2 * baudrate)) - 1);
 }
 
 
@@ -685,62 +688,155 @@ uint8_t SERCOM::readDataWIRE( void )
 void SERCOM::initClockNVIC( void )
 {
   uint8_t clockId = 0;
-  IRQn_Type IdNvic=PendSV_IRQn ; // Dummy init to intercept potential error later
+  #if (SAMD51)
+    IRQn_Type IdNvic0=PendSV_IRQn ; // Dummy init to intercept potential error later
+    IRQn_Type IdNvic1=PendSV_IRQn ;
+    IRQn_Type IdNvic2=PendSV_IRQn ;
+    IRQn_Type IdNvic3=PendSV_IRQn ;
+  #else
+    IRQn_Type IdNvic=PendSV_IRQn ; // Dummy init to intercept potential error later
+  #endif
 
   if(sercom == SERCOM0)
   {
     clockId = GCM_SERCOM0_CORE;
-    IdNvic = SERCOM0_IRQn;
+    #if (SAMD51)
+      IdNvic0 = SERCOM0_0_IRQn;
+      IdNvic1 = SERCOM0_1_IRQn;
+      IdNvic2 = SERCOM0_2_IRQn;
+      IdNvic3 = SERCOM0_3_IRQn;
+    #else
+      IdNvic = SERCOM0_IRQn;
+    #endif
   }
   else if(sercom == SERCOM1)
   {
     clockId = GCM_SERCOM1_CORE;
-    IdNvic = SERCOM1_IRQn;
+    #if (SAMD51)
+      IdNvic0 = SERCOM1_0_IRQn;
+      IdNvic1 = SERCOM1_1_IRQn;
+      IdNvic2 = SERCOM1_2_IRQn;
+      IdNvic3 = SERCOM1_3_IRQn;
+    #else
+      IdNvic = SERCOM1_IRQn;
+    #endif
   }
 #if !(SAMD11C14)
   else if(sercom == SERCOM2)
   {
     clockId = GCM_SERCOM2_CORE;
-    IdNvic = SERCOM2_IRQn;
+    #if (SAMD51)
+      IdNvic0 = SERCOM2_0_IRQn;
+      IdNvic1 = SERCOM2_1_IRQn;
+      IdNvic2 = SERCOM2_2_IRQn;
+      IdNvic3 = SERCOM2_3_IRQn;
+    #else
+      IdNvic = SERCOM2_IRQn;
+    #endif
   }
 #endif
 #if !(SAMD11_SERIES)
   else if(sercom == SERCOM3)
   {
     clockId = GCM_SERCOM3_CORE;
-    IdNvic = SERCOM3_IRQn;
+    #if (SAMD51)
+      IdNvic0 = SERCOM3_0_IRQn;
+      IdNvic1 = SERCOM3_1_IRQn;
+      IdNvic2 = SERCOM3_2_IRQn;
+      IdNvic3 = SERCOM3_3_IRQn;
+    #else
+      IdNvic = SERCOM3_IRQn;
+    #endif
   }
 #endif
 #if !(SAMD11_SERIES) && !(SAMD21E) && !(SAMC21E)
   else if(sercom == SERCOM4)
   {
     clockId = GCM_SERCOM4_CORE;
-    IdNvic = SERCOM4_IRQn;
+    #if (SAMD51)
+      IdNvic0 = SERCOM4_0_IRQn;
+      IdNvic1 = SERCOM4_1_IRQn;
+      IdNvic2 = SERCOM4_2_IRQn;
+      IdNvic3 = SERCOM4_3_IRQn;
+    #else
+      IdNvic = SERCOM4_IRQn;
+    #endif
   }
   else if(sercom == SERCOM5)
   {
     clockId = GCM_SERCOM5_CORE;
-    IdNvic = SERCOM5_IRQn;
+    #if (SAMD51)
+      IdNvic0 = SERCOM5_0_IRQn;
+      IdNvic1 = SERCOM5_1_IRQn;
+      IdNvic2 = SERCOM5_2_IRQn;
+      IdNvic3 = SERCOM5_3_IRQn;
+    #else
+      IdNvic = SERCOM5_IRQn;
+    #endif
+  }
+#endif
+#if (SAMD51N || SAMD51P)
+  else if(sercom == SERCOM6)
+  {
+    clockId = GCM_SERCOM6_CORE;
+    IdNvic0 = SERCOM6_0_IRQn;
+    IdNvic1 = SERCOM6_1_IRQn;
+    IdNvic2 = SERCOM6_2_IRQn;
+    IdNvic3 = SERCOM6_3_IRQn;
+  }
+  else if(sercom == SERCOM7)
+  {
+    clockId = GCM_SERCOM7_CORE;
+    IdNvic0 = SERCOM7_0_IRQn;
+    IdNvic1 = SERCOM7_1_IRQn;
+    IdNvic2 = SERCOM7_2_IRQn;
+    IdNvic3 = SERCOM7_3_IRQn;
   }
 #endif
 
+#if (SAMD51)
+  if ( IdNvic0 == PendSV_IRQn || IdNvic1 == PendSV_IRQn || IdNvic2 == PendSV_IRQn || IdNvic3 == PendSV_IRQn )
+#else
   if ( IdNvic == PendSV_IRQn )
+#endif
   {
     // We got a problem here
     return ;
   }
 
   // Setting NVIC
+#if (SAMD51)
+  NVIC_EnableIRQ(IdNvic0);
+  NVIC_SetPriority (IdNvic0, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+  NVIC_EnableIRQ(IdNvic1);
+  NVIC_SetPriority (IdNvic1, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+  NVIC_EnableIRQ(IdNvic2);
+  NVIC_SetPriority (IdNvic2, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+  NVIC_EnableIRQ(IdNvic3);
+  NVIC_SetPriority (IdNvic3, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+#else
   NVIC_EnableIRQ(IdNvic);
   NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+#endif
 
   //Setting clock
 #if (SAMD21 || SAMD11)
   GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( clockId ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
+  SercomClock = SystemCoreClock;
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
 #elif (SAML21 || SAMC21)
   GCLK->PCHCTRL[clockId].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+  SercomClock = SystemCoreClock;
+  while ( (GCLK->PCHCTRL[clockId].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
+#elif (SAMD51)
+  #if (F_CPU == 120000000ul)
+    GCLK->PCHCTRL[clockId].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK6 );  // use 96MHz clock (100MHz max for SERCOM) from GCLK6, which was setup in startup.c
+    SercomClock = 96000000ul;
+  #else
+    GCLK->PCHCTRL[clockId].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+    SercomClock = SystemCoreClock;
+  #endif
+  while ( (GCLK->PCHCTRL[clockId].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 #else
   #error "SERCOM.cpp: Unsupported chip"
 #endif
