@@ -1,116 +1,93 @@
-# MattairTech Xeno (ATSAMD51J/ATSAMD21J/ATSAML21J/ATSAMC21J)
+# MattairTech Xeno Mini (ATSAMD51G/ATSAMD21G/ATSAML21G/ATSAMC21G)
 
 ```
-============== MattairTech Xeno (ATSAMD51J/ATSAMD21J/ATSAML21J/ATSAMC21J) ===============
-Alt   COM    PWM  Analog  INT  Arduino*           Arduino*  INT  Analog  PWM    COM   Alt
+============ MattairTech Xeno Mini (ATSAMD51G/ATSAMD21G/ATSAML21G/ATSAMC21G) ============
+Alt   COM    PWM  Analog  INT  Arduino*            Arduino*  INT  Analog  PWM   COM   Alt
 =========================================================================================
                                    -------------------
-INT1:                             |     no       / B3 | 49   I   O      VBAT / SDCD+ (SD)
-MOTOR_ERROR/IMU_INT/AUX_SW_ERROR  |  external ---  B5 | 48   I                      INT1+
-                                  |     pin      \ B4 | 47                 3SEN+ (3.3Vsw)
-XBDS (XBEE)            O        0 | B0            RST |                              BOOT
-MECS+ (MEM)            O        1 | B1            A31 | 31  RX1  IO (PROG) / XBDO+ (XBEE)
-DAC0                   O   I    2 | A2            A30 | 30                    CLK+ (PROG)
-REFA*                  O        3 | A3    A28(D21/C21)| 28                     SHCS (SPI)
-3SVO (3.3Vsw) / REFB   O        4 | A4            A27 | 27   I           INT2 (XBEE, I2C)
-DAC1*                  O        5 | A5        X34 (B2)| 34     O  TC~  LED+ / XBRT (XBEE)
-CMVO (CUR)             O        6 | B6        X33(B16)| 33   I                INT0+ / BTN
-ASEN+ (HOST)           O        7 | B7        X32(B17)| 32   I     TC~      MOPS+ (MOTOR)
-          TX3          O   I    8 | B8            A23 | 23         TC~
-          RX3          O   I    9 | B9            A22 | 22         TC~
-VHDV (VccH)   MOSI1    O   I   10 | A10           A21 | 21         TC~
-VBDV+ (Vbus)  SCK1     O   I   11 | A11           A20 | 20   I     TC~
-XBCT (XBEE) SDA1/MISO1 TCC2~ I 12 | A12           A19 | 19         TC~         CMRI (CUR)
-        SCL1/SS1   TCC2~   I   13 | A13           A18 | 18         TC~  TX1  XBDI+ (XBEE)
-HSEN (HOST)        TC~     I   14 | B14           A17 | 17              SCL    SCL+ (I2C)
-BKFS+ (BUCK)       TC~         15 | B15           A16 | 16              SDA    SDA+ (I2C)
-                                  | Vaux         3.3V |
-USB D- (+) / CAN TX               | A24   _____  VccL |   ! VccL is 3.3V by default.
-USB D+ (+) / CAN RX               | A25  |     | VccH |     DO NOT exceed 3.6V on VccL or
+            TX1   TC~   O   I   0 | B8            RST |                              BOOT
+HEN (MTR)   RX1   TC~   O   I   1 | B9             B3 | 35         O                Vcoin
+DAC                     O       2 | A2             B2 | 34         O                  LED
+REFA*                   O       3 | A3            B23 | 33   I                 SLP+ (MTR)
+REFB                    O       4 | A4            B22 | 32   I                INT+! (IMU)
+VI (VIN) / DAC1*        O       5 | A5            A31 | 31           TCC~        IO (DGB)
+VU (USB)                O       6 | A6            A30 | 30           TCC~       CLK (DGB)
+VB (VBAT)               O       7 | A7            A27 | 27
+MOSI (MEM)              O       8 | A8            A23 | 23   TCC0~ SCL1/SCK1*  HB1+ (MTR)
+MISO (MEM)              O       9 | A9            A22 | 22   TCC0~ SDA1/MOSI1* HB2+ (MTR)
+D2 (QSPI)               O      10 | A10           A21 | 21   I    TCC0~  MISO1
+D3 (QSPI) / SCK (MEM)   O   I  11 | A11           A20 | 20   I    TCC0~
+            TX2   TCC~      I  12 | A12           A19 | 19   I    TC~    RX3
+CEN (CHG)   RX2   TCC~      I  13 | A13           A18 | 18   I    TC~    TX3  STA+! (CHG)
+SCK (QSPI)        TC~       I  14 | B10           A17 | 17   I                  SCL (I2C)
+CS (MEM)          TC~          15 | B11           A16 | 16   I                  SDA (I2C)
+                                  | Vaux         VccL |
+USB D- / CAN TX                   | A24   _____  VccH |   ! VccL is 3.3V by default.
+USB D+ / CAN RX                   | A25  |     |  Vin |     DO NOT exceed 3.6V on VccL or
                                   | Gnd  | USB |  Gnd |     any IO pin with the D51, D21,
      USB: D51/D21/L21 only         -------------------      or L21 installed. 5V allowed
        CAN: D51/C21 only                                    ONLY with the C21 installed.
-                                  1-------------------      By default, VccH is 5V.
-MISO+ (SD, MEM, SPI)     43 (S43) | B30          Vcon |
-SCK+ (SD, MEM, SPI)      44 (S44) | B23    SPI    B22 | 45 (S45)     MOSI+ (SD, MEM, SPI)
-SHCS(SPI) / SDCS+(SD) 28/46 (S46) | A28(B31)      Gnd |
-                                   -------------------
 
-                                  1-------------------
-L0+ (LVL) TX2    O   I   35 (L35) | A6             A7 | 36 (L36)  I  O    RX2   L1+ (LVL)
-L2+ (LVL) TCC1~  O  NMI  37 (L37) | A8    LEVEL    A9 | 38 (L38)     O   TCC1~  L3+ (LVL)
-                                  | VccH  SHIFT  VccH |
-                                  | Gnd           Gnd |
-B1+ (MOTOR)    TCC0~     39 (M39) | B10           B11 | 40 (M40)    TCC0~     B2+ (MOTOR)
-A1+ (MOTOR)    TCC0~     41 (M41) | B12   MOTOR   B13 | 42 (M42)    TCC0~     A2+ (MOTOR)
-                                  | Vmotor        Gnd |
-                                   -------------------
+* Most pins can be used for more than one function. The port pin number printed on the
+  board is also used in Arduino for all 'A' pins. For 'B' pins, see Arduino column.
+  DAC1 is present only on the D51 and L21. With the D51, REFA is tied to VccL (J20).
+  For the D51, the COM pins on A22 and A23 are reversed (ie: A22 is instead SCL1/SCK1).
 
-* Most pins can be used for more than one function. The same port pin number printed on
-  the board is also used in Arduino (without the 'A') for all of the Arduino functions.
-  DAC1 is present only on the D51 and L21. With the D51, REFA should be tied to VccL.
++ This header pin has limited use because the alternate function, if installed, cannot be
+  disconnected via solder jumper. HB1 and HB2 always have pulldowns, but can be reused if
+  SLP is low. STA is an open-drain output from the charger, so do not drive A18 high! INT
+  from the IMU will be driven low after reset. Do not drive B22 (32) high! See IMU docs.
 
-+ This alternate function is enabled by default if installed. Thus, the associated header
-  pin cannot be used unless a solder jumper is available to disable the function.
-
-~ D21/L21/C21: 3 TCC (4,2,2 ch.), 5 TC (2 ch.). D51: 5 TCC (6,4,3,2,2 ch.), 6 TC (2 ch.).
-  The D51 adds timers to pins A10, A11, A30, A31, B30, B31, A6, A7, A16, A17, B8, and B9,
-  however, the timer on pin B17 is not present.
-
-I For the D51, the interrupt on pin A27 is moved to pin B15.
-
-* The D51 SERCOM configuration is different for UART and SPI. Third UART not available.
-  TX1=8, RX1=9, TX2=4, RX2=5, MOSI=23, MISO=21, SCK=22, MOSI1=38, MISO1=11, SCK1=37.
+~ D51: 3 TCC (6,4,3 ch.), 4 TC (2 ch.). D21/L21/C21: 3 TCC (4,2,2 ch.), 3 TC (2 ch.).
+  The D51 adds timers to pins A4, A5, A6, A7, A16, A17, and B2, however, the timers on
+  B8, B9, B10, and B11 are not present. The C21 adds timers to pins B2, B3, B22, and B23.
 
 Silkscreen Legend:
   Top: A circle around pin is analog function, '~' is timer, small 'I' is interrupt
-  Bottom: A box around pin means 'Other' function enabled by default depending on variant
+  Bottom: A box around pin means 'Alt' function enabled by default if installed
 ```
 
 
 ## Board Configuration Notes
 
 * **Crystals**
-  * Either the 32.768KHz crystal or the 16MHz crystal can be used. These pins do not route to headers.
+  * Either the 32.768KHz crystal or the 24MHz crystal can be used. These pins do not route to headers.
   * The bootloader does not use an external crystal by default. Double-tap the reset button to enter manually.
 
 * **LED (LED_BUILTIN)**
   * Bring the pin HIGH to turn the LED on.
   * The LED is enabled (solder jumper) by default.
 
-* **Button (BUTTON_BUILTIN)**
-  * Button is connected to the Reset pin by default, but can be connected to pin 33 (B16) via solder jumper J2.
-  * Pressing the button will bring the pin LOW. The pullup must be enabled first.
-  * A debouncing capacitor is connected, so delay reading the pin at least 10ms after turning on the pullup.
-
 * **GPIO** 
   * All pins (including analog) support INPUT, OUTPUT, INPUT_PULLUP, and INPUT_PULLDOWN.
   * When PER_ATTR_DRIVE_STRONG is set for the pin (enabled by default), each pin can source or sink a maximum of:
+    * **D51:** 8mA high, 8mA low
     * **D21:** 7mA high, 10mA low
     * **L21:** 5mA high, 6mA low (8 high drive pins: 10mA high, 12mA low)
     * **C21:** 6mA high, 10mA low (2 high drive pins (A10, A11): 12mA high, 20mA low)
-    * **D51:** 8mA high, 8mA low
   * Internal pull-up and pull-down resistors of 20-60 Kohms (40Kohm typ., disconnected by default).
 
 * **Analog Inputs**
-  * Up to 18 pins can be configured as ADC analog inputs.
+  * Up to 14 pins can be configured as ADC analog inputs.
   * Each pin measures from ground to 3.3 volts by default.
   * Each pin provides 10 bits of resolution (1024 values) by default.
   * 12-bit resolution supported by using the analogReadResolution() function.
   * The upper end of the measurement range can be changed using the analogReference() function.
   * A reference voltage can be connected to REFA. In this case, the capacitors should be enabled via solder jumper J33.
+  * Due to errata with the D51 DAC, J20 is set to route VccL to the MCU REFA pin (the header pin is disconnected).
 
 * **DAC**
   * D21/C21: One 10-bit 350Ksps analog output is available on pin 2.
-  * L21/D51: Two 12-bit 1Msps analog outputs are available on pins 2 and 5.
+  * D51/L21: Two 12-bit 1Msps analog outputs are available on pins 2 and 5.
+  * Due to errata with the D51 DAC, J20 is set to route VccL to the MCU REFA pin (the header pin is disconnected).
 
 * **PWM**
-  * Up to 18 pins can be configured as PWM outputs (29 for D51).
+  * Up to 14 pins can be configured as PWM outputs (17 for D51, 18 for C21).
   * Each pin provides 8 bits of resolution (256 values) by default.
   * 12-bit resolution supported by using the analogWriteResolution() function.
 
 * **External Interrupts**
-  * Up to 16 pins can be configured with external interrupts.
+  * Up to 14 pins can be configured with external interrupts.
 
 * **SERCOM**
   * 6 SERCOM are available.
@@ -118,20 +95,6 @@ Silkscreen Legend:
   * Up to 2 SPI instances.
   * Up to 2 WIRE (I2C) instances.
   * The WIRE pullup resistors are enabled by default.
-
-* **Special Notes for D51**
-  * Due to errata with the D51 DAC, VccL must be routed to the REFA pin with an external jumper wire.
-  * In order to use the SPI bus (Micro SD, optional memory device, SPI mode of Xbee radio):
-    * Needed because SERCOM5 on the D51 must use IOSET2.
-    * Solder a jumper wire between A21 and B30 (S43, pin 1 of the SPI header, MISO).
-    * Solder a jumper wire between A23 and B22 (S45, pin 4 of the SPI header, MOSI).
-    * Solder a jumper wire between A22 and B23 (S44, pin 3 of the SPI header, SCK).
-    * B22, B23, and B30 cannot be used for other purposes (leave floating)
-
-  * In order to use the Xbee radio UART interface (use SPI mode to avoid this fix):
-    * Needed because D51 UART transmit data pinout options (TXPO) do not include TX on pad 2.
-    * Solder a jumper wire between B8 (SERCOM4, TX pad 0) and A18 (XBDI). Solder a jumper wire between B9 (SERCOM4, RX pad 1) and A31 (XBDO).
-    * A18 and A31 cannot be used for other purposes (leave floating)
 
 
 

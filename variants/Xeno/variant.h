@@ -17,7 +17,7 @@
 */
 
 /*
- * Modified 4 June 2017 by Justin Mattair
+ * Modified 29 January 2018 by Justin Mattair
  *   for MattairTech boards (www.mattairtech.com)
  *
  * See README.md for documentation and pin mapping information
@@ -36,8 +36,10 @@
  *        Clock Configuration
  *----------------------------------------------------------------------------*/
 
-/** Master clock frequency (also Fcpu frequency) */
-#define VARIANT_MCK             (48000000ul)
+/* Master clock frequency (also Fcpu frequency). With the D51, this can be
+ * either 120000000ul or 48000000ul (selected in the menu). See README.md.
+ */
+#define VARIANT_MCK                       (F_CPU)
 
 /* If CLOCKCONFIG_HS_CRYSTAL is defined, then HS_CRYSTAL_FREQUENCY_HERTZ
  * must also be defined with the external crystal frequency in Hertz.
@@ -63,6 +65,10 @@
  * The coarse calibration value is loaded from NVM OTP (factory calibration values).
  */
 #define NVM_SW_CALIB_DFLL48M_FINE_VAL     (512)
+
+/* Define CORTEX_M_CACHE_ENABLED to enable the Cortex M cache (D51 only).
+ */
+#define CORTEX_M_CACHE_ENABLED
 
 /*----------------------------------------------------------------------------
  *        Headers
@@ -92,9 +98,9 @@ extern "C"
 #define NUM_DIGITAL_PINS     PINS_COUNT
 #define NUM_ANALOG_INPUTS    (18u)
 
-#if (SAMD || SAMC)
+#if (SAMD21 || SAMC21)
 #define NUM_ANALOG_OUTPUTS   (1u)
-#elif (SAML)
+#elif (SAMD51 || SAML21)
 #define NUM_ANALOG_OUTPUTS   (2u)
 #else
 #error "variant.h: Unsupported chip"
@@ -165,7 +171,7 @@ extern "C"
 #define PIN_A38              (38ul)
 #define PIN_A49              (49ul)
 #define PIN_DAC0             (2ul)
-#if (SAML)
+#if (SAMD51 || SAML21)
 #define PIN_DAC1             (5ul)
 #endif
 
@@ -188,7 +194,7 @@ static const uint8_t A37  = PIN_A37;
 static const uint8_t A38  = PIN_A38;
 static const uint8_t A49  = PIN_A49;
 static const uint8_t DAC0 = PIN_DAC0;
-#if (SAML)
+#if (SAMD51 || SAML21)
 static const uint8_t DAC1 = PIN_DAC1;
 #endif
 
@@ -202,13 +208,16 @@ static const uint8_t DAC1 = PIN_DAC1;
 /* Reference voltage pins (define even if not enabled with PIN_ATTR_REF in the PinDescription table) */
 #define REFA_PIN    (3ul)
 #define REFB_PIN    (4ul)
+#if (SAMD51)
+#define REFC_PIN    (35ul)
+#endif
 
 
 // The ATN pin may be used in the future as the first SPI chip select.
 // On boards that do not have the Arduino physical form factor, it can to set to any free pin.
-#if (SAMD || SAMC)
+#if (SAMD21 || SAMC21)
 #define PIN_ATN              (28ul)
-#elif (SAML)
+#elif (SAMD51 || SAML21)
 #define PIN_ATN              (21ul)
 #endif
 static const uint8_t ATN = PIN_ATN;
@@ -217,23 +226,41 @@ static const uint8_t ATN = PIN_ATN;
 /*
  * Serial interfaces
  */
-// Serial1
-#define PIN_SERIAL1_RX       (31ul)
-#define PIN_SERIAL1_TX       (18ul)
-#define PAD_SERIAL1_TX       (UART_TX_PAD_2)
-#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
+#if (defined(THREE_UART) && SAMD51)
+  #error "variant.h: Only two UARTs are available with the D51. Please choose a TWO_UART_* option"
+#endif
 
-#define SERCOM_INSTANCE_SERIAL1       &sercom1
+// Serial1
+#if (SAMD51)
+  #define PIN_SERIAL1_RX       (9ul)
+  #define PIN_SERIAL1_TX       (8ul)
+  #define PAD_SERIAL1_TX       (UART_TX_PAD_0)
+  #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
+  #define SERCOM_INSTANCE_SERIAL1       &sercom4
+#else
+  #define PIN_SERIAL1_RX       (31ul)
+  #define PIN_SERIAL1_TX       (18ul)
+  #define PAD_SERIAL1_TX       (UART_TX_PAD_2)
+  #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
+  #define SERCOM_INSTANCE_SERIAL1       &sercom1
+#endif
 
 // Serial2
-#define PIN_SERIAL2_RX       (36ul)
-#define PIN_SERIAL2_TX       (35ul)
-#define PAD_SERIAL2_TX       (UART_TX_PAD_2)
-#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_3)
+#if (SAMD51)
+  #define PIN_SERIAL2_RX       (5ul)
+  #define PIN_SERIAL2_TX       (4ul)
+  #define PAD_SERIAL2_TX       (UART_TX_PAD_0)
+  #define PAD_SERIAL2_RX       (SERCOM_RX_PAD_1)
+  #define SERCOM_INSTANCE_SERIAL2       &sercom0
+#else
+  #define PIN_SERIAL2_RX       (36ul)
+  #define PIN_SERIAL2_TX       (35ul)
+  #define PAD_SERIAL2_TX       (UART_TX_PAD_2)
+  #define PAD_SERIAL2_RX       (SERCOM_RX_PAD_3)
+  #define SERCOM_INSTANCE_SERIAL2       &sercom0
+#endif
 
-#define SERCOM_INSTANCE_SERIAL2       &sercom0
-
-// Serial3
+// Serial3 (a third serial is not available with the D51 on this board)
 #define PIN_SERIAL3_RX       (9ul)
 #define PIN_SERIAL3_TX       (8ul)
 #define PAD_SERIAL3_TX       (UART_TX_PAD_0)
@@ -253,26 +280,44 @@ static const uint8_t ATN = PIN_ATN;
 #define SPI_INTERFACES_COUNT 1
 #endif
 
+#if (SAMD51)
+#define PIN_SPI_MISO         (21u)
+#define PIN_SPI_MOSI         (23u)
+#define PIN_SPI_SCK          (22u)
+#define PIN_SPI_SS           (20u)
+#define PAD_SPI_TX           SPI_PAD_0_SCK_1
+#define PAD_SPI_RX           SERCOM_RX_PAD_3
+#else
 #define PIN_SPI_MISO         (43u)
 #define PIN_SPI_MOSI         (45u)
 #define PIN_SPI_SCK          (44u)
 #define PIN_SPI_SS           (46u)
-#define PERIPH_SPI           sercom5
 #define PAD_SPI_TX           SPI_PAD_2_SCK_3
 #define PAD_SPI_RX           SERCOM_RX_PAD_0
+#endif
+#define PERIPH_SPI           sercom5
 
 static const uint8_t SS   = PIN_SPI_SS ;        // The SERCOM SS PAD is available on this pin but HW SS isn't used. Set here only for reference.
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
+#if (SAMD51)
+#define PIN_SPI1_MISO         (11u)
+#define PIN_SPI1_MOSI         (38u)
+#define PIN_SPI1_SCK          (37u)
+#define PIN_SPI1_SS           (10u)
+#define PAD_SPI1_TX           SPI_PAD_0_SCK_1
+#define PAD_SPI1_RX           SERCOM_RX_PAD_3
+#else
 #define PIN_SPI1_MISO         (12u)
 #define PIN_SPI1_MOSI         (10u)
 #define PIN_SPI1_SCK          (11u)
 #define PIN_SPI1_SS           (13u)
-#define PERIPH_SPI1           sercom2
 #define PAD_SPI1_TX           SPI_PAD_2_SCK_3
 #define PAD_SPI1_RX           SERCOM_RX_PAD_0
+#endif
+#define PERIPH_SPI1           sercom2
 
 static const uint8_t SS1   = PIN_SPI1_SS ;	// The SERCOM SS PAD is available on this pin but HW SS isn't used. Set here only for reference.
 static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
@@ -293,8 +338,15 @@ static const uint8_t SCK1  = PIN_SPI1_SCK ;
 
 #define PIN_WIRE_SDA         (16u)
 #define PIN_WIRE_SCL         (17u)
-#define PERIPH_WIRE          sercom3
-#define WIRE_IT_HANDLER      SERCOM3_Handler
+#if (SAMD51)
+  #define PERIPH_WIRE          sercom1
+  #define WIRE_STOP_DETECTED_HANDLER      SERCOM1_0_Handler
+  #define WIRE_ADDRESS_MATCH_HANDLER      SERCOM1_1_Handler
+  #define WIRE_DATA_READY_HANDLER         SERCOM1_2_Handler
+#else
+  #define PERIPH_WIRE          sercom3
+  #define WIRE_IT_HANDLER      SERCOM3_Handler
+#endif
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
@@ -302,7 +354,13 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_WIRE1_SDA         (12u)
 #define PIN_WIRE1_SCL         (13u)
 #define PERIPH_WIRE1          sercom2
-#define WIRE1_IT_HANDLER      SERCOM2_Handler
+#if (SAMD51)
+  #define WIRE1_STOP_DETECTED_HANDLER      SERCOM2_0_Handler
+  #define WIRE1_ADDRESS_MATCH_HANDLER      SERCOM2_1_Handler
+  #define WIRE1_DATA_READY_HANDLER         SERCOM2_2_Handler
+#else
+  #define WIRE1_IT_HANDLER      SERCOM2_Handler
+#endif
 
 static const uint8_t SDA1 = PIN_WIRE1_SDA;
 static const uint8_t SCL1 = PIN_WIRE1_SCL;
@@ -319,14 +377,42 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 
 /*
  * I2S Interfaces
+ * SAMD51, PDM, and MCLK support will be added hopefully March 2018
  */
-#define I2S_INTERFACES_COUNT 1
 
-#define I2S_DEVICE          0
-#define I2S_CLOCK_GENERATOR 3
+#if (SAMD51)
+// On the SAMD51, device 0 is TX only using SDO (PIN_I2S_SD), and device 1 is RX only using SDI (PIN_I2S1_SD)
+#define I2S_INTERFACES_COUNT  2
+#define I2S_DEVICE            0
+#define I2S1_DEVICE           1
+#define I2S_CLOCK_GENERATOR   7
+#define I2S1_CLOCK_GENERATOR  7
+// TX
+#define PIN_I2S_MCK         (32u)
+#define PIN_I2S_SCK         (33u)
+#define PIN_I2S_FS          (20u)
+#define PIN_I2S_SD          (21u)       // SDO (TX)
+// RX (must use clock 0)
+#define PIN_I2S1_MCK         (32u)
+#define PIN_I2S1_SCK         (33u)
+#define PIN_I2S1_FS          (20u)
+#define PIN_I2S1_SD          (22u)       // SDI (RX)
+
+#else
+#define I2S_INTERFACES_COUNT  1
+#define I2S_DEVICE            0
+//#define I2S1_DEVICE           1
+#define I2S_CLOCK_GENERATOR   7
+//#define I2S1_CLOCK_GENERATOR  8
+//#define PIN_I2S_MCK         (32u)
+#define PIN_I2S_SCK         (20u)
+#define PIN_I2S_FS          (21u)
 #define PIN_I2S_SD          (19u)
-#define PIN_I2S_SCK         (10u)
-#define PIN_I2S_FS          (11u)
+//#define PIN_I2S1_MCK         (39u)
+//#define PIN_I2S1_SCK         (40u)
+//#define PIN_I2S1_FS          (41u)
+//#define PIN_I2S1_SD          (33u)
+#endif
 
 #ifdef __cplusplus
 }
@@ -352,7 +438,9 @@ extern SERCOM sercom5;
 
 extern Uart Serial1;
 extern Uart Serial2;
+#if (SAMD21 || SAMC21 || SAML21)
 extern Uart Serial3;
+#endif
 
 #endif
 
@@ -371,7 +459,7 @@ extern Uart Serial3;
 //
 // SERIAL_PORT_HARDWARE_OPEN  Hardware serial ports which are open for use.  Their RX & TX
 //                            pins are NOT connected to anything by default.
-#if (!SAMC)
+#if (!SAMC21)
   #define SERIAL_PORT_USBVIRTUAL      SerialUSB
 #endif
 // SERIAL_PORT_MONITOR seems to be used only by the USB Host library (as of 1.6.5).
@@ -379,14 +467,14 @@ extern Uart Serial3;
 // The programming port is connected to a hardware UART through a USB-Serial bridge (EDBG chip) on the Zero.
 // Boards that do not have the EDBG chip will have to connect a USB-TTL serial adapter to 'Serial' to get
 // the USB Host debugging output.
-#if (SAMC)
+#if (SAMC21)
   #define SERIAL_PORT_MONITOR         Serial2
 #else
   #define SERIAL_PORT_MONITOR         Serial1
 #endif
 
 // Serial has no physical pins broken out, so it's not listed as HARDWARE port
-#if (SAMC)
+#if (SAMC21)
   #define SERIAL_PORT_HARDWARE        Serial2
   #define SERIAL_PORT_HARDWARE_OPEN   Serial2
 #else
@@ -399,7 +487,7 @@ extern Uart Serial3;
 // So, the USB virtual serial port (SerialUSB) must be used to communicate with the host.
 // Because most sketches use Serial to print to the monitor, it is aliased to SerialUSB.
 // Remember to use while(!Serial); to wait for a connection before Serial printing.
-#if (SAMC)
+#if (SAMC21)
   #define Serial                      Serial1
 #else
   // When USB CDC is enabled, Serial refers to SerialUSB, otherwise it refers to Serial1.

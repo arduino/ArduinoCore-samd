@@ -51,25 +51,24 @@
  * associated pins are only initialized if either pin is active.
  */
 #define SDCARD_SPI_SERCOM_INSTANCE      5
+#define SDCARD_SPI_PAD_SETTINGS         SPI_RX_PAD3_TX_PAD0_SCK_PAD1
 #if (SAMD51)
-  #define SDCARD_SPI_PAD_SETTINGS         SPI_RX_PAD3_TX_PAD0_SCK_PAD1
   #define SDCARD_SPI_PAD0                 PINMUX_PA23D_SERCOM5_PAD0
   #define SDCARD_SPI_PAD1                 PINMUX_PA22D_SERCOM5_PAD1
   #define SDCARD_SPI_PAD2                 PINMUX_UNUSED
   #define SDCARD_SPI_PAD3                 PINMUX_PA21C_SERCOM5_PAD3
 #else
-  #define SDCARD_SPI_PAD_SETTINGS         SPI_RX_PAD0_TX_PAD2_SCK_PAD3
-  #define SDCARD_SPI_PAD0                 PINMUX_PB30D_SERCOM5_PAD0
-  #define SDCARD_SPI_PAD1                 PINMUX_UNUSED
-  #define SDCARD_SPI_PAD2                 PINMUX_PB22D_SERCOM5_PAD2
-  #define SDCARD_SPI_PAD3                 PINMUX_PB23D_SERCOM5_PAD3
+  #define SDCARD_SPI_PAD0                 PINMUX_PA22D_SERCOM5_PAD0
+  #define SDCARD_SPI_PAD1                 PINMUX_PA23D_SERCOM5_PAD1
+  #define SDCARD_SPI_PAD2                 PINMUX_UNUSED
+  #define SDCARD_SPI_PAD3                 PINMUX_PA21C_SERCOM5_PAD3
 #endif
 
 /* If SDCARD_ENABLED is defined, then SDCARD_SPI_CS_PORT and SDCARD_SPI_CS_PIN
  * must also be defined. PORT can be 0 (Port A) or 1 (Port B).
  */
-#define SDCARD_SPI_CS_PORT              (1)
-#define SDCARD_SPI_CS_PIN               (31)
+#define SDCARD_SPI_CS_PORT              (0)
+#define SDCARD_SPI_CS_PIN               (20)
 
 /* If SDCARD_ENABLED is defined, then SDCARD_USE_PIN1 and SDCARD_USE_PIN2 can
  * optionally be defined. When SDCARD_USE_PIN2 is defined, SDCARD_USE_PIN1 must
@@ -81,13 +80,13 @@
 #define SDCARD_USE_PIN1
 #define SDCARD_PIN1_POLARITY      PIN_POLARITY_ACTIVE_LOW
 #define SDCARD_PIN1_PORT          (0)
-#define SDCARD_PIN1_PIN           (3)
+#define SDCARD_PIN1_PIN           (4)
 #define SDCARD_PIN1_CONFIG        INPUT_PULLUP
 
 //#define SDCARD_USE_PIN2
 #define SDCARD_PIN2_POLARITY      PIN_POLARITY_ACTIVE_LOW
 #define SDCARD_PIN2_PORT          (0)
-#define SDCARD_PIN2_PIN           (4)
+#define SDCARD_PIN2_PIN           (5)
 #define SDCARD_PIN2_CONFIG        INPUT_PULLUP
 
 /* If SDCARD_VERIFICATION_DISABLED is defined, then verification of the FLASH
@@ -150,7 +149,7 @@
   #define SAM_BA_INTERFACE_PIN_POLARITY      PIN_POLARITY_ACTIVE_LOW
 #endif
 #define SAM_BA_INTERFACE_PIN_PORT          (0)
-#define SAM_BA_INTERFACE_PIN_PIN           (5)
+#define SAM_BA_INTERFACE_PIN_PIN           (6)
 #define SAM_BA_INTERFACE_PIN_CONFIG        INPUT_PULLUP
 
 /* If ARDUINO_EXTENDED_CAPABILITIES is defined and set to 1, 3 additional commands
@@ -183,7 +182,7 @@
 /* If CLOCKCONFIG_HS_CRYSTAL is defined, then HS_CRYSTAL_FREQUENCY_HERTZ
  * must also be defined with the external crystal frequency in Hertz.
  */
-#define HS_CRYSTAL_FREQUENCY_HERTZ      16000000UL
+#define HS_CRYSTAL_FREQUENCY_HERTZ      24000000UL
 
 /* If the PLL is used (CLOCKCONFIG_32768HZ_CRYSTAL, or CLOCKCONFIG_HS_CRYSTAL
  * defined), then PLL_FRACTIONAL_ENABLED can be defined, which will result in
@@ -222,13 +221,13 @@
 #define USB_VENDOR_STRINGS_ENABLED
 #define STRING_MANUFACTURER "MattairTech LLC"
 #if (SAMD21)
-  #define STRING_PRODUCT "Xeno D21"
+  #define STRING_PRODUCT "Xeno Mini D21"
 #elif (SAML21)
-  #define STRING_PRODUCT "Xeno L21"
+  #define STRING_PRODUCT "Xeno Mini L21"
 #elif (SAMC21)
-  #define STRING_PRODUCT "Xeno C21"
+  #define STRING_PRODUCT "Xeno Mini C21"
 #elif (SAMD51)
-  #define STRING_PRODUCT "Xeno D51"
+  #define STRING_PRODUCT "Xeno Mini D51"
 #endif
 
 /* If USB CDC is used, then the USB vendor ID (VID) and product ID (PID) must be set. */
@@ -246,10 +245,10 @@
  */
 #define BOOT_USART_SERCOM_INSTANCE        4
 #define BOOT_USART_PAD_SETTINGS           UART_RX_PAD1_TX_PAD0
-#define BOOT_USART_PAD3                   PINMUX_UNUSED
-#define BOOT_USART_PAD2                   PINMUX_UNUSED
-#define BOOT_USART_PAD1                   PINMUX_PB09D_SERCOM4_PAD1
 #define BOOT_USART_PAD0                   PINMUX_PB08D_SERCOM4_PAD0
+#define BOOT_USART_PAD1                   PINMUX_PB09D_SERCOM4_PAD1
+#define BOOT_USART_PAD2                   PINMUX_UNUSED
+#define BOOT_USART_PAD3                   PINMUX_UNUSED
 
 /*
  * If BOOT_DOUBLE_TAP_ENABLED is defined the bootloader is started by quickly
@@ -268,8 +267,8 @@
  */
 //#define BOOT_LOAD_PIN_ENABLED
 #define BOOT_LOAD_PIN_POLARITY            PIN_POLARITY_ACTIVE_LOW
-#define BOOT_LOAD_PIN_PORT                (1)
-#define BOOT_LOAD_PIN                     (16)
+#define BOOT_LOAD_PIN_PORT                (0)
+#define BOOT_LOAD_PIN                     (19)
 #define BOOT_LOAD_PIN_CONFIG              INPUT_PULLUP
 
 /*
@@ -290,11 +289,11 @@
 #define BOARD_LED_POLARITY      LED_POLARITY_HIGH_ON
 
 //#define BOARD_LEDRX_PORT                  (0)
-//#define BOARD_LEDRX_PIN                   (22)
+//#define BOARD_LEDRX_PIN                   (20)
 //#define BOARD_LEDRX_POLARITY  LED_POLARITY_HIGH_ON
 
 //#define BOARD_LEDTX_PORT                  (0)
-//#define BOARD_LEDTX_PIN                   (23)
+//#define BOARD_LEDTX_PIN                   (21)
 //#define BOARD_LEDTX_POLARITY  LED_POLARITY_HIGH_ON
 
 #endif // _BOARD_DEFINITIONS_H_
