@@ -23,7 +23,7 @@
 #include <Arduino.h>
 #include "USB/PluggableUSB.h"
 
-#if !defined(CDC_HID) || !defined(HID_ONLY) || !defined(WITH_CDC)
+#if !defined(CDC_HID) && !defined(HID_ONLY) && !defined(WITH_CDC)
 #error Please select CDC_HID, HID_ONLY, or WITH_CDC in the Tools->USB menu.
 #endif
 

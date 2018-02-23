@@ -154,7 +154,7 @@ BIN=$(NAME).bin
 HEX=$(NAME).hex
 
 
-INCLUDES=-I"$(MODULE_PATH_ARDUINO)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.0.0-mattairtech-1/CMSIS/Device/ATMEL/"
+INCLUDES=-I"$(MODULE_PATH_ARDUINO)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.0.0-mattairtech-2/CMSIS/Device/ATMEL/"
 
 # -----------------------------------------------------------------------------
 # Linker options
