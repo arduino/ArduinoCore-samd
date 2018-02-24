@@ -112,6 +112,26 @@ void SPIClass::usingInterrupt(int interruptNumber)
     interrupts();
 }
 
+void SPIClass::notUsingInterrupt(int interruptNumber)
+{
+  if ((interruptNumber == NOT_AN_INTERRUPT) || (interruptNumber == EXTERNAL_INT_NMI))
+    return;
+
+  if (interruptMode & SPI_IMODE_GLOBAL)
+    return; // can't go back, as there is no reference count
+
+  uint8_t irestore = interruptsStatus();
+  noInterrupts();
+
+  interruptMask &= ~(1 << interruptNumber);
+
+  if (interruptMask == 0)
+    interruptMode = SPI_IMODE_NONE;
+
+  if (irestore)
+    interrupts();
+}
+
 void SPIClass::beginTransaction(SPISettings settings)
 {
   if (interruptMode != SPI_IMODE_NONE)

@@ -43,9 +43,9 @@ void TwoWire::begin(void) {
   pinPeripheral(_uc_pinSCL, PIO_SERCOM);
 }
 
-void TwoWire::begin(uint8_t address) {
+void TwoWire::begin(uint8_t address, bool enableGeneralCall) {
   //Slave mode
-  sercom->initSlaveWIRE(address);
+  sercom->initSlaveWIRE(address, enableGeneralCall);
   sercom->enableWIRE();
 
   pinPeripheral(_uc_pinSDA, PIO_SERCOM);

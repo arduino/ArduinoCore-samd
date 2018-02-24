@@ -27,6 +27,8 @@
   #define SERCOM_FREQ_REF F_CPU
 #endif
 
+#define SERCOM_NVIC_PRIORITY ((1<<__NVIC_PRIO_BITS) - 1)
+
 typedef enum
 {
 	UART_EXT_CLOCK = 0,
@@ -188,7 +190,7 @@ class SERCOM
 		bool isReceiveCompleteSPI( void ) ;
 
 		/* ========== WIRE ========== */
-		void initSlaveWIRE(uint8_t address) ;
+		void initSlaveWIRE(uint8_t address, bool enableGeneralCall = false) ;
 		void initMasterWIRE(uint32_t baudrate) ;
 
 		void resetWIRE( void ) ;

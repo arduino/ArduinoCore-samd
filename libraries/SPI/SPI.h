@@ -31,29 +31,30 @@
 //   - SPISetting(clock, bitOrder, dataMode)
 #define SPI_HAS_TRANSACTION 1
 
+// SPI_HAS_NOTUSINGINTERRUPT means that SPI has notUsingInterrupt() method
+#define SPI_HAS_NOTUSINGINTERRUPT 1
+
 #define SPI_MODE0 0x02
 #define SPI_MODE1 0x00
 #define SPI_MODE2 0x03
 #define SPI_MODE3 0x01
 
+// Recent D21 datasheets specify a typical SPI SCK period (tSCK) of 84 ns,
+// see "Table 37-59. SPI Timing Characteristics and Requirements",
+// which translates into a maximum SPI clock of 11.9 MHz.
+// The divider is set for a 12 MHz maximum SPI clock.
+// Note that while SCK and MOSI may be operable at a higher clock speed,
+// MISO should not operate above 12MHz.
+// The SAMD51 SERCOM runs at 96MHz when the cpu runs at 120MHz
 #if (SAMD21 || SAMD11 || SAML21)
-  // Even if not specified on the datasheet, the SAMD21G18A MCU
-  // doesn't operate correctly with clock dividers lower than 4.
-  // This allows a theoretical maximum SPI clock speed of 12Mhz
-  // Other SAMD21xxxxx MCU may be affected as well
-  #define SPI_MIN_CLOCK_DIVIDER 4
-#elif (SAMD51)
-  // The SAMD51 SERCOM runs at 96MHz when the cpu runs at 120MHz
-  #if (F_CPU == 120000000ul)
-    #define SPI_MIN_CLOCK_DIVIDER 8
-  #else
-    #define SPI_MIN_CLOCK_DIVIDER 4
-  #endif
+  #define SPI_MAX_FREQUENCY     12000000ul
 #elif (SAMC21)
-  #define SPI_MIN_CLOCK_DIVIDER 8
+  #define SPI_MAX_FREQUENCY     6000000ul
 #else
   #error "SPI.h: Unsupported chip"
 #endif
+
+#define SPI_MIN_CLOCK_DIVIDER (uint8_t)(1 + ((F_CPU - 1) / SPI_MAX_FREQUENCY))
 
 class SPISettings {
   public:
@@ -116,6 +117,7 @@ class SPIClass {
 
   // Transaction Functions
   void usingInterrupt(int interruptNumber);
+  void notUsingInterrupt(int interruptNumber);
   void beginTransaction(SPISettings settings);
   void endTransaction(void);
 
