@@ -46,7 +46,7 @@
 // Note that while SCK and MOSI may be operable at a higher clock speed,
 // MISO should not operate above 12MHz.
 // The SAMD51 SERCOM runs at 96MHz when the cpu runs at 120MHz
-#if (SAMD21 || SAMD11 || SAML21)
+#if (SAMD51 || SAMD21 || SAMD11 || SAML21)
   #define SPI_MAX_FREQUENCY     12000000ul
 #elif (SAMC21)
   #define SPI_MAX_FREQUENCY     6000000ul
