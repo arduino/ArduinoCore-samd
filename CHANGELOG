@@ -1,5 +1,7 @@
 SAMD CORE ?.?.?? ????.??.??
 
+SAMD CORE 1.6.18 2018.03.05
+
 * Wire: Added support for general call (broadcast)
 * SPI: Added SPI.notUsingInterrupt(...) API
 * Fixed build errors if variant disabled USB
