@@ -7,6 +7,7 @@ SAMD CORE ?.?.?? ????.??.??
 * Added samd21e sercom compatibility. Thanks @mitchellpontague
 * Fixed lock ups when outputting to UART during ISR
 * Wire: correct I2C frequency calculations, and allow variant to overide default pull up resistor rise time
+* USB: Fixed build errors when CDC_ENABLED was not set. Thanks @gdsports
 
 SAMD CORE 1.6.17 2017.11.29
 
