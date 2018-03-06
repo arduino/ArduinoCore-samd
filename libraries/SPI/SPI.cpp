@@ -71,10 +71,10 @@ int SPIClass::beginSlave()
   init();
 
   // PIO init
-  pinPeripheral(_uc_pinMiso, g_APinDescription[_uc_pinMiso].ulPinType);
-  pinPeripheral(_uc_pinSCK, g_APinDescription[_uc_pinSCK].ulPinType);
-  pinPeripheral(_uc_pinMosi, g_APinDescription[_uc_pinMosi].ulPinType);
-  pinPeripheral(_uc_pinSS, g_APinDescription[_uc_pinSS].ulPinType);
+  pinPeripheral(_uc_pinMiso, PIO_SERCOM);
+  pinPeripheral(_uc_pinSCK, PIO_SERCOM);
+  pinPeripheral(_uc_pinMosi, PIO_SERCOM);
+  pinPeripheral(_uc_pinSS, PIO_SERCOM);
 
   config(SPI_SLAVE_OPERATION, DEFAULT_SPI_SETTINGS);
 

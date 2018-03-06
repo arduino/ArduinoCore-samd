@@ -97,6 +97,12 @@ static void syncTC_16(Tc* TCx) {
 }
 
 // Wait for synchronization of registers between the clock domains
+static __inline__ void syncTC_8(Tc* TCx) __attribute__((always_inline, unused));
+static void syncTC_8(Tc* TCx) {
+  while (TCx->COUNT8.STATUS.bit.SYNCBUSY);
+}
+
+// Wait for synchronization of registers between the clock domains
 static __inline__ void syncTCC(Tcc* TCCx) __attribute__((always_inline, unused));
 static void syncTCC(Tcc* TCCx) {
   while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK);
@@ -275,12 +281,15 @@ uint32_t analogRead( uint32_t pin )
   return mapResolution(valueRead, _ADCResolution, _readResolution);
 }
 
+void analogWrite(uint32_t pin, uint32_t value) {
+  analogWritePeriod(pin, value, 0xFFFF);
+}
 
 // Right now, PWM output only works on the pins with
 // hardware support.  These are defined in the appropriate
 // pins_*.c file.  For the rest of the pins, we default
 // to digital output.
-void analogWrite(uint32_t pin, uint32_t value)
+void analogWritePeriod(uint32_t pin, uint32_t value, uint32_t period)
 {
   if ( pinPeripheral(pin, PIO_ANALOG_DAC) == RET_STATUS_OK )
   {
@@ -370,12 +379,13 @@ void analogWrite(uint32_t pin, uint32_t value)
       // Set PORT
       if ( TCx )
       {
+
         // -- Configure TC
         // Disable TCx
         TCx->COUNT16.CTRLA.bit.ENABLE = 0;
         syncTC_16(TCx);
         // Set Timer counter Mode to 16 bits, normal PWM
-        TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16;
+        TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16 | TC_CTRLA_PRESCSYNC_RESYNC;
         syncTC_16(TCx);
         // Set TCx as normal PWM
 #if (SAMD)
@@ -395,6 +405,8 @@ void analogWrite(uint32_t pin, uint32_t value)
         // Disable TCCx
         TCCx->CTRLA.bit.ENABLE = 0;
         syncTCC(TCCx);
+        TCCx->CTRLA.reg |= TCC_CTRLA_PRESCALER_DIV16;
+        syncTCC(TCCx);
         // Set TCCx as normal PWM
         TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
         syncTCC(TCCx);
@@ -402,7 +414,7 @@ void analogWrite(uint32_t pin, uint32_t value)
         TCCx->CC[Channelx].reg = (uint32_t)value;
         syncTCC(TCCx);
         // Set PER to maximum counter value (resolution : 0xFFFF)
-        TCCx->PER.reg = 0xFFFF;
+        TCCx->PER.reg = (uint16_t)period;
         syncTCC(TCCx);
         // Enable TCCx
         TCCx->CTRLA.bit.ENABLE = 1;
@@ -421,13 +433,13 @@ void analogWrite(uint32_t pin, uint32_t value)
 #if (SAMD)
         TCCx->CTRLBSET.bit.LUPD = 1;
         syncTCC(TCCx);
-	TCCx->CCB[Channelx].reg = (uint32_t) value;
-	syncTCC(TCCx);
-	TCCx->CTRLBCLR.bit.LUPD = 1;
-// LUPD caused endless spinning in syncTCC() on SAML (and probably SAMC). Note that CCBUF writes are already
-// atomic. The LUPD bit is intended for updating several registers at once, which analogWrite() does not do.
+        TCCx->CCB[Channelx].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        TCCx->CTRLBCLR.bit.LUPD = 1;
+        // LUPD caused endless spinning in syncTCC() on SAML (and probably SAMC). Note that CCBUF writes are already
+        // atomic. The LUPD bit is intended for updating several registers at once, which analogWrite() does not do.
 #elif (SAML21 || SAMC21)
-	TCCx->CCBUF[Channelx].reg = (uint32_t) value;
+        TCCx->CCBUF[Channelx].reg = (uint32_t) value;
 #endif
         syncTCC(TCCx);
       }

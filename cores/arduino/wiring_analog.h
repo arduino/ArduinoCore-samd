@@ -95,6 +95,8 @@ extern void analogReference( eAnalogReference ulMode ) ;
  */
 extern void analogWrite( uint32_t ulPin, uint32_t ulValue ) ;
 
+extern void analogWritePeriod(uint32_t pin, uint32_t value, uint32_t period) ;
+
 /*
  * \brief Reads the value from the specified analog pin.
  *

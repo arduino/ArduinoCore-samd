@@ -56,10 +56,11 @@ class TwoWire : public Stream
     void onReceive(void(*)(int));
     void onRequest(void(*)(void));
 
-    inline size_t write(unsigned long n) { return write((uint8_t)n); }
-    inline size_t write(long n) { return write((uint8_t)n); }
-    inline size_t write(unsigned int n) { return write((uint8_t)n); }
-    inline size_t write(int n) { return write((uint8_t)n); }
+    inline size_t write(uint16_t n) { return write((const uint8_t *)&n, sizeof(uint16_t)); }
+    inline size_t write(unsigned long n) { return write((const uint8_t *)&n, sizeof(unsigned long)); }
+    inline size_t write(long n) { return write((const uint8_t *)&n, sizeof(long)); }
+    inline size_t write(unsigned int n) { return write((const uint8_t *)&n, sizeof(unsigned int)); }
+    inline size_t write(int n) { return write((const uint8_t *)&n, sizeof(int)); }
     using Print::write;
 
     void onService(void);

@@ -19,6 +19,8 @@ menu.clock=Clock Source
 menu.usb=USB Config
 menu.serial=Serial Config
 menu.bootloader=Bootloader Size
+menu.lto=Link time optimization
+menu.pinmap=Pinmap
 
 
 # MattairTech Xeno
@@ -748,6 +750,10 @@ d11d14as.menu.serial.one_uart=ONE_UART_ONE_WIRE_ONE_SPI
 d11d14as.menu.serial.one_uart.build.serialcom_uart=ONE_UART
 d11d14as.menu.serial.one_uart.build.serialcom_wire=ONE_WIRE
 d11d14as.menu.serial.one_uart.build.serialcom_spi=ONE_SPI
+d11d14as.menu.serial.one_uart_no_spi=ONE_UART_ONE_WIRE_NO_SPI
+d11d14as.menu.serial.one_uart_no_spi.build.serialcom_uart=ONE_UART
+d11d14as.menu.serial.one_uart_no_spi.build.serialcom_wire=ONE_WIRE
+d11d14as.menu.serial.one_uart_no_spi.build.serialcom_spi=NO_SPI
 d11d14as.menu.serial.no_uart=NO_UART_ONE_WIRE_ONE_SPI
 d11d14as.menu.serial.no_uart.build.serialcom_uart=NO_UART
 d11d14as.menu.serial.no_uart.build.serialcom_wire=ONE_WIRE
@@ -775,6 +781,52 @@ d11d14as.menu.usb.none=USB_DISABLED
 d11d14as.menu.usb.none.build.usbcom=USB_DISABLED
 d11d14as.menu.usb.none.build.pid=0x0856
 
+# MKR Motor Shield
+mkrmotorshield.name=MKR Motor Shield
+mkrmotorshield.vid.0=0x2341
+mkrmotorshield.pid.0=0x1337
+mkrmotorshield.build.mcu=cortex-m0plus
+mkrmotorshield.build.f_cpu=48000000L
+mkrmotorshield.build.usb_product="MKRMOTOR"
+mkrmotorshield.build.usb_manufacturer="Arduino LLC"
+mkrmotorshield.build.board=SAMD_ZERO
+mkrmotorshield.build.core=arduino
+mkrmotorshield.build.variant=MKRMotorShield
+mkrmotorshield.build.variant_system_lib=
+mkrmotorshield.build.vid=0x2341
+mkrmotorshield.build.pid=0x1337
+mkrmotorshield.upload.protocol=sam-ba
+mkrmotorshield.bootloader.tool=arduino:openocd
+mkrmotorshield.build.clockconfig=CLOCKCONFIG_INTERNAL
+mkrmotorshield.build.extra_flags=-D__SAMD11D14AS__ {build.usb_flags} {build.pinmap} {build.lto}
+mkrmotorshield.build.ldscript=flash_16KB.ld
+mkrmotorshield.build.openocdscript=openocd_scripts/SAMD11D14AS.cfg
+mkrmotorshield.bootloader.file=zero/binaries/sam_ba_Generic_D11D14AS_SAMD11D14AS.bin
+mkrmotorshield.menu.bootloader.4kb=4KB bootloader
+mkrmotorshield.menu.bootloader.4kb.build.bootloader_size=__4KB_BOOTLOADER__
+mkrmotorshield.menu.bootloader.4kb.build.ldscript_path=linker_scripts/gcc/4KB_Bootloader
+mkrmotorshield.menu.bootloader.4kb.upload.maximum_size=12288
+mkrmotorshield.menu.bootloader.0kb=No bootloader
+mkrmotorshield.menu.bootloader.0kb.build.bootloader_size=__NO_BOOTLOADER__
+mkrmotorshield.menu.bootloader.0kb.build.ldscript_path=linker_scripts/gcc/No_Bootloader
+mkrmotorshield.menu.bootloader.0kb.upload.maximum_size=16384
+mkrmotorshield.menu.pinmap.complete=Complete
+mkrmotorshield.menu.pinmap.complete.build.pinmap=
+mkrmotorshield.menu.pinmap.minimal=Minimal (bootloader)
+mkrmotorshield.menu.pinmap.minimal.build.pinmap=-DPIN_MAP_SUPER_COMPACT
+mkrmotorshield.menu.lto.enabled=Enabled
+mkrmotorshield.menu.lto.enabled.build.lto=-flto
+mkrmotorshield.menu.lto.disabled=Disabled
+mkrmotorshield.menu.lto.disabled.build.lto=
+mkrmotorshield.upload.tool=arduino:openocd
+mkrmotorshield.upload.use_1200bps_touch=false
+mkrmotorshield.upload.wait_for_upload_port=false
+mkrmotorshield.upload.native_usb=false
+mkrmotorshield.build.serialcom_uart=NO_UART
+mkrmotorshield.build.serialcom_wire=ONE_WIRE
+mkrmotorshield.build.serialcom_spi=NO_SPI
+mkrmotorshield.serialcom_spi=NO_SPI
+mkrmotorshield.build.usbcom=USB_DISABLED
 
 # MattairTech Core for Arduino/Genuino Zero (Autodetect Port)
 arduino_zero.name=Arduino/Genuino Zero (Autodetect Port)

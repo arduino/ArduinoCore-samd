@@ -140,6 +140,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
   uint8_t pinNum = g_APinDescription[ulPin].ulPin;
   uint8_t pinCfg = PORT_PINCFG_INEN;	// INEN should be enabled for both input and output (but not analog)
 
+#if !defined PIN_MAP_SUPER_COMPACT
   // Disable DAC, if analogWrite() used previously the DAC is enabled
   // Note that on the L21, the DAC output would interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected
   if ((pinAttribute & PIN_ATTR_DAC) && !((1UL << ulPeripheral) & PIN_ATTR_DAC))
@@ -179,6 +180,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     }
 #endif
   }
+#endif
 
   noInterrupts(); // Avoid possible invalid interim pin state
 

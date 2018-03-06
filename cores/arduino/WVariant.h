@@ -30,7 +30,7 @@ extern "C" {
 /* Definitions and types for pins */
 typedef enum _EAnalogChannel
 {
-  No_ADC_Channel=-1,
+  No_ADC_Channel=0xFF,
   ADC_Channel0=0,
   ADC_Channel1=1,
   ADC_Channel2=2,
@@ -59,7 +59,7 @@ typedef enum _EAnalogChannel
 // RESERVED (1 bit, used for negative) | Timer Number (3 bits: 0-7) | Timer Type (1 bit: 0=TCC, 1=TC) | Timer Channel (3 bits: 0-7)
 typedef enum _ETCChannel
 {
-  NOT_ON_TIMER=-1,
+  NOT_ON_TIMER=0xFF,
   TCC0_CH0 = (0<<4)|(0<<3)|(0),
   TCC0_CH1 = (0<<4)|(0<<3)|(1),
   TCC0_CH2 = (0<<4)|(0<<3)|(2),
@@ -111,12 +111,12 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 // RESERVED (1 bit, used for negative) | GCLK (3 bits: 0-7) | CCL (4 bits: 2 for CCL number, 2 for pin)
 typedef enum _EGCLK_CCL
 {
-  GCLK_CCL_NONE=-1,
+  GCLK_CCL_NONE=0xFF,
 } EGCLK_CCL ;
 
 typedef enum _EPortType
 {
-  NOT_A_PORT=-1,
+  NOT_A_PORT=0xFF,
   PORTA=0,
   PORTB=1,
   PORTC=2,
@@ -142,7 +142,7 @@ typedef enum
   EXTERNAL_INT_15,
   EXTERNAL_INT_NMI,
   EXTERNAL_NUM_INTERRUPTS,
-  NOT_AN_INTERRUPT = -1,
+  NOT_AN_INTERRUPT = 0xFF,
   EXTERNAL_INT_NONE = NOT_AN_INTERRUPT,
 } EExt_Interrupts ;
 
@@ -154,7 +154,7 @@ typedef enum
 #define INPUT_PULLDOWN  (0x3)
 typedef enum _EPioType
 {
-  PIO_NOT_A_PIN=-1,                   /* Not under control of a peripheral. */
+  PIO_NOT_A_PIN=0xFF,                   /* Not under control of a peripheral. */
 
   PIO_INPUT=INPUT,                    /* The pin is controlled by PORT and is an input. */
   PIO_OUTPUT=OUTPUT,                  /* The pin is controlled by PORT and is an output. */
@@ -219,7 +219,7 @@ typedef enum _EPioType
 //EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC/TCC TCC COM AC/GCLK CCL
 typedef enum _EPioPeripheral
 {
-	PER_PORT=-1,          /* The pin is controlled by PORT. */
+	PER_PORT=0xFF,          /* The pin is controlled by PORT. */
 	PER_EXTINT=0,         /* The pin is controlled by the associated signal of peripheral A. */
 	PER_ANALOG=1,         /* The pin is controlled by the associated signal of peripheral B. */
 	PER_SERCOM=2,         /* The pin is controlled by the associated signal of peripheral C. */
