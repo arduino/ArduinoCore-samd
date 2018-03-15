@@ -105,7 +105,7 @@ void SPIClass::usingInterrupt(int interruptNumber)
   else
   {
     interruptMode |= SPI_IMODE_EXTINT;
-    interruptMask |= (1 << interruptNumber);
+    interruptMask |= (1 << g_APinDescription[interruptNumber].ulExtInt);
   }
 
   if (irestore)
@@ -123,7 +123,7 @@ void SPIClass::notUsingInterrupt(int interruptNumber)
   uint8_t irestore = interruptsStatus();
   noInterrupts();
 
-  interruptMask &= ~(1 << interruptNumber);
+  interruptMask &= ~(1 << g_APinDescription[interruptNumber].ulExtInt);
 
   if (interruptMask == 0)
     interruptMode = SPI_IMODE_NONE;
