@@ -26,6 +26,9 @@
 #ifdef CDC_ENABLED
 #define CDC_INTERFACE_COUNT 2
 #define CDC_ENPOINT_COUNT 3
+#else
+#define CDC_INTERFACE_COUNT 0
+#define CDC_ENPOINT_COUNT 0
 #endif
 
 // CDC

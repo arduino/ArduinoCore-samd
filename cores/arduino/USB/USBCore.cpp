@@ -474,6 +474,12 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	{
 		epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, 256);
 	}
+	else if (config == (USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_OUT(0)))
+    {
+	    if(epHandlers[ep]){
+	        epHandlers[ep]->init();
+	    }
+    }
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{
 		usbd.epBank1SetSize(ep, 64);
@@ -503,6 +509,10 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 		// NAK on endpoint OUT, the bank is full.
 		usbd.epBank0SetReady(ep);
 	}
+}
+
+void USBDeviceClass::setHandler(uint32_t ep, EPHandler *handler) {
+    epHandlers[ep] = handler;
 }
 
 void USBDeviceClass::flush(uint32_t ep)
@@ -700,8 +710,8 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 
 		LastTransmitTimedOut[ep] = 0;
 
-		if (len >= EPX_SIZE) {
-			length = EPX_SIZE - 1;
+		if (len > EPX_SIZE) {
+			length = EPX_SIZE;
 		} else {
 			length = len;
 		}
@@ -962,6 +972,7 @@ void USBDeviceClass::ISRHandler()
 		// Check if endpoint has a pending interrupt
 		if ((ept_int & (1 << i)) != 0)
 		{
+
 			// Endpoint Transfer Complete (0/1) Interrupt
 			if (usbd.epBank0IsTransferComplete(i) ||
 			    usbd.epBank1IsTransferComplete(i))
