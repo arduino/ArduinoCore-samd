@@ -60,7 +60,7 @@ extern "C"
 #define PINS_COUNT           (26u)
 #define NUM_DIGITAL_PINS     (20u)
 #define NUM_ANALOG_INPUTS    (8u)
-#define NUM_ANALOG_OUTPUTS   (1u)
+#define NUM_ANALOG_OUTPUTS   (2u)
 #define analogInputToDigitalPin(p)  ((p < 6u) ? (p) + 14u : -1)
 
 #define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
@@ -82,8 +82,8 @@ extern "C"
 
 // LEDs
 #define PIN_LED_13           (13u)
-#define PIN_LED_RXL          (29u)
-#define PIN_LED_TXL          (30u)
+#define PIN_LED_RXL          (27u)
+#define PIN_LED_TXL          (28u)
 #define PIN_LED              PIN_LED_13
 #define PIN_LED2             PIN_LED_RXL
 #define PIN_LED3             PIN_LED_TXL
@@ -100,8 +100,6 @@ extern "C"
 #define PIN_A5               (PIN_A0 + 5)
 #define PIN_A6               (PIN_A0 + 6)
 #define PIN_A7               (PIN_A0 + 7)
-#define PIN_A8               (PIN_A0 + 8)
-#define PIN_A9               (PIN_A0 + 9)
 #define PIN_DAC0             (14ul)
 #define PIN_DAC1             PIN_A1
 
@@ -113,8 +111,6 @@ static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
 static const uint8_t A6  = PIN_A6 ;
 static const uint8_t A7  = PIN_A7 ;
-static const uint8_t A8  = PIN_A8 ;
-static const uint8_t A9  = PIN_A9 ;
 
 static const uint8_t DAC0 = PIN_DAC0;
 static const uint8_t DAC1 = PIN_DAC1;
@@ -140,26 +136,26 @@ static const uint8_t ATN = PIN_ATN;
  */
 #define SPI_INTERFACES_COUNT 2
 
-#define PIN_SPI_MISO         (26u)
-#define PIN_SPI_MOSI         (27u)
-#define PIN_SPI_SCK          (28u)
+#define PIN_SPI_MISO         (24u)
+#define PIN_SPI_MOSI         (26u)
+#define PIN_SPI_SCK          (25u)
 #define PERIPH_SPI           sercom2
 #define PAD_SPI_TX           SPI_PAD_0_SCK_1
-#define PAD_SPI_RX           SERCOM_RX_PAD_3
+#define PAD_SPI_RX           SERCOM_RX_PAD_2
 
 static const uint8_t SS	  = PIN_A2 ;	
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
-#define PIN_SPI1_MISO         (34u)
-#define PIN_SPI1_MOSI         (35u)
-#define PIN_SPI1_SCK          (36u)
-#define PERIPH_SPI1           sercom4
+#define PIN_SPI1_MISO         (33u)
+#define PIN_SPI1_MOSI         (34u)
+#define PIN_SPI1_SCK          (32u)
+#define PERIPH_SPI1           sercom1
 #define PAD_SPI1_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_3
 
-static const uint8_t SS1   = 39 ;	// HW SS isn't used. Set here only for reference.
+static const uint8_t SS1   = 35 ;	// HW SS isn't used. Set here only for reference.
 static const uint8_t MOSI1 = PIN_SPI_MOSI ;
 static const uint8_t MISO1 = PIN_SPI_MISO ;
 static const uint8_t SCK1  = PIN_SPI_SCK ;
@@ -170,8 +166,8 @@ static const uint8_t SCK1  = PIN_SPI_SCK ;
  */
 #define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE_SDA         (24u)
-#define PIN_WIRE_SCL         (25u)
+#define PIN_WIRE_SDA         (22u)
+#define PIN_WIRE_SCL         (23u)
 #define PERIPH_WIRE          sercom5
 #define WIRE_IT_HANDLER      SERCOM5_Handler
 
@@ -181,9 +177,9 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * USB
  */
-#define PIN_USB_HOST_ENABLE (31ul)
-#define PIN_USB_DM          (32ul)
-#define PIN_USB_DP          (33ul)
+#define PIN_USB_HOST_ENABLE (29ul)
+#define PIN_USB_DM          (30ul)
+#define PIN_USB_DP          (31ul)
 
 /*
  * I2S Interfaces
@@ -194,19 +190,19 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define I2S_CLOCK_GENERATOR 3
 
 //TODO: these
-#define PIN_I2S_SDO          (13u)
+#define PIN_I2S_SDO          (8u)
 #define PIN_I2S_SDI          (1u)
 #define PIN_I2S_SCK         (3u)
-#define PIN_I2S_FS          (12u)
+#define PIN_I2S_FS          (9u)
 #define PIN_I2S_MCK			(2u)
 
 //QSPI Pins
-#define PIN_QSPI_SCK	(42u)
-#define PIN_QSPI_CS		(43u)
-#define PIN_QSPI_IO0	(44u)
-#define PIN_QSPI_IO1	(45u)
-#define PIN_QSPI_IO2	(46u)
-#define PIN_QSPI_IO3	(47u)
+#define PIN_QSPI_SCK	(40u)
+#define PIN_QSPI_CS		(41u)
+#define PIN_QSPI_IO0	(42u)
+#define PIN_QSPI_IO1	(43u)
+#define PIN_QSPI_IO2	(44u)
+#define PIN_QSPI_IO3	(45u)
 
 //TODO: meaningful value for this
 #define VARIANT_QSPI_BAUD_DEFAULT 5000000
