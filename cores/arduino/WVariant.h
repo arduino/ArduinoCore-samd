@@ -57,6 +57,30 @@ typedef enum _EAnalogChannel
   DAC_Channel1,
 } EAnalogChannel ;
 
+#if defined(__SAMD51__)
+
+typedef enum _ETCChannel
+{
+  NOT_ON_TIMER=-1,
+  TCC0_CH0 = (0<<8)|(0),
+  TCC0_CH1 = (0<<8)|(1),
+  TCC0_CH2 = (0<<8)|(2),
+  TCC0_CH3 = (0<<8)|(3),
+  TCC0_CH4 = (0<<8)|(4),
+  TCC0_CH5 = (0<<8)|(5),
+  TCC0_CH6 = (0<<8)|(6),
+  TCC0_CH7 = (0<<8)|(7),
+  TCC1_CH0 = (1<<8)|(0),
+  TCC1_CH1 = (1<<8)|(1),
+  TCC1_CH2 = (1<<8)|(2),
+  TCC1_CH3 = (1<<8)|(3),
+  TCC1_CH4 = (1<<8)|(4),
+  TCC1_CH5 = (1<<8)|(5),
+  TCC1_CH6 = (1<<8)|(6),
+  TCC1_CH7 = (1<<8)|(7),
+} ETCChannel ;
+
+#else
 // Definitions for TC channels
 typedef enum _ETCChannel
 {
@@ -73,36 +97,18 @@ typedef enum _ETCChannel
   TCC1_CH1 = (1<<8)|(1),
   TCC1_CH2 = (1<<8)|(0), // Channel 2 is 0!
   TCC1_CH3 = (1<<8)|(1), // Channel 3 is 1!
-#if defined(__SAMD51J19A__)
-  TCC1_CH4 = (1<<8)|(2),
-  TCC1_CH5 = (1<<8)|(3),
-  TCC1_CH6 = (1<<8)|(4),
-  TCC1_CH7 = (1<<8)|(5),
-#endif //__SAMD51J19A__
   TCC2_CH0 = (2<<8)|(0),
   TCC2_CH1 = (2<<8)|(1),
   TCC2_CH2 = (2<<8)|(0), // Channel 2 is 0!
   TCC2_CH3 = (2<<8)|(1), // Channel 3 is 1!
-#if defined(__SAMD51J19A__) //TODO: fix some of these PWM channels
-  TCC3_CH0 = (2<<8)|(0),
-  TCC3_CH1 = (2<<8)|(1),
-  TCC3_CH2 = (2<<8)|(0), // Channel 2 is 0!
-  TCC3_CH3 = (2<<8)|(1), // Channel 3 is 1!
-  TCC4_CH0 = (2<<8)|(0),
-  TCC4_CH1 = (2<<8)|(1),
-  TCC4_CH2 = (2<<8)|(0), // Channel 2 is 0!
-  TCC4_CH3 = (2<<8)|(1), // Channel 3 is 1
-  TC5_CH0  = (5<<8)|(0),
-  TC5_CH1  = (5<<8)|(1),
-#else //end __SAMD51J19A__
   TC3_CH0  = (3<<8)|(0),
   TC3_CH1  = (3<<8)|(1),
   TC4_CH0  = (4<<8)|(0),
   TC4_CH1  = (4<<8)|(1),
   TC5_CH0  = (5<<8)|(0),
   TC5_CH1  = (5<<8)|(1),
-#endif //__SAMD51J19A__
 } ETCChannel ;
+#endif
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 
@@ -111,7 +117,7 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #define GetTC( x ) ( g_apTCInstances[(x) >> 8] )
 
 
-#if defined(__SAMD51J19A__)
+#if defined(__SAMD51__)
 
   typedef enum _EPWMChannel
   {
@@ -132,16 +138,6 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
     PWM1_CH5=TCC1_CH5,
     PWM1_CH6=TCC1_CH6,
     PWM1_CH7=TCC1_CH7,
-    PWM2_CH0=TCC2_CH0,
-    PWM2_CH1=TCC2_CH1,
-    PWM2_CH2=TCC2_CH2,
-    PWM2_CH3=TCC2_CH3,
-    PWM3_CH0=TCC3_CH0,
-    PWM3_CH1=TCC3_CH1,
-    PWM4_CH0=TCC4_CH0,
-    PWM4_CH1=TCC4_CH1,
-    PWM5_CH0=TC5_CH0,
-    PWM5_CH1=TC5_CH1,
   } EPWMChannel ;
 
 #else //end __SAMD51J19A__
