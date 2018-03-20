@@ -222,6 +222,9 @@ void SystemInit( void )
   }
   
   MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV1;
+
+  /* Use the LDO regulator by default */
+  SUPC->VREG.bit.SEL = 0; 
   
 //*************** END SAMD51 *************************//
   

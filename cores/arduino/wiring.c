@@ -177,7 +177,9 @@ void init( void )
   DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
                    DAC_CTRLB_EOEN ;        // External Output Enable (Vout)
  #endif
-#endif
+
+
+#endif //SAMD51
 }
 
 #ifdef __cplusplus

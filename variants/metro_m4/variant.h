@@ -200,6 +200,17 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_I2S_FS          (12u)
 #define PIN_I2S_MCK			(2u)
 
+//QSPI Pins
+#define PIN_QSPI_SCK	(42u)
+#define PIN_QSPI_CS		(43u)
+#define PIN_QSPI_IO0	(44u)
+#define PIN_QSPI_IO1	(45u)
+#define PIN_QSPI_IO2	(46u)
+#define PIN_QSPI_IO3	(47u)
+
+//TODO: meaningful value for this
+#define VARIANT_QSPI_BAUD_DEFAULT 5000000
+
 #ifdef __cplusplus
 }
 #endif
