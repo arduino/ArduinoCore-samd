@@ -398,15 +398,24 @@ void I2SClass::onReceive(void(*function)(void))
 
 void I2SClass::enableClock(int divider)
 {
+  int div = SystemCoreClock / divider;
+  int src = GCLK_GENCTRL_SRC_DFLL48M_Val;
+
+  if (div > 255) {
+    // divider is too big, use 8 MHz oscillator instead
+    div = 8000000 / divider;
+    src = GCLK_GENCTRL_SRC_OSC8M_Val;
+  }
+
   // configure the clock divider
   while (GCLK->STATUS.bit.SYNCBUSY);
   GCLK->GENDIV.bit.ID = _clockGenerator;
-  GCLK->GENDIV.bit.DIV = SystemCoreClock / divider;
+  GCLK->GENDIV.bit.DIV = div;
 
   // use the DFLL as the source
   while (GCLK->STATUS.bit.SYNCBUSY);
   GCLK->GENCTRL.bit.ID = _clockGenerator;
-  GCLK->GENCTRL.bit.SRC = GCLK_GENCTRL_SRC_DFLL48M_Val;
+  GCLK->GENCTRL.bit.SRC = src;
   GCLK->GENCTRL.bit.IDC = 1;
   GCLK->GENCTRL.bit.GENEN = 1;
 
