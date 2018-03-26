@@ -25,5 +25,8 @@ mv -v samd21_sam_ba_arduino_mkrwan1300.* ../mkrwan1300/
 BOARD_ID=arduino_mkrwifi1010 NAME=samd21_sam_ba_arduino_mkrwifi1010 make clean all
 mv -v samd21_sam_ba_arduino_mkrwifi1010.* ../mkrwifi1010/
 
+BOARD_ID=arduino_mkrnbiot1500 NAME=samd21_sam_ba_arduino_mkrnbiot1500 make clean all
+mv -v samd21_sam_ba_arduino_mkrnbiot1500.* ../mkrnbiot1500/
+
 echo Done building bootloaders!
 
