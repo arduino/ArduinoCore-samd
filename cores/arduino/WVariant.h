@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include "sam.h"
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -185,6 +186,8 @@ typedef enum _EPortType
   PORTB=1,
   PORTC=2,
 } EPortType ;
+
+#define PIN_NOT_A_PIN (UINT_MAX)
 
 typedef enum
 {
