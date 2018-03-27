@@ -53,9 +53,9 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (26u)
+#define PINS_COUNT           (40u)
 #define NUM_DIGITAL_PINS     (20u)
-#define NUM_ANALOG_INPUTS    (8u)
+#define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 #define analogInputToDigitalPin(p)  ((p < 6u) ? (p) + 14u : -1)
 
@@ -78,8 +78,8 @@ extern "C"
 
 // LEDs
 #define PIN_LED_13           (13u)
-#define PIN_LED_RXL          (29u)
-#define PIN_LED_TXL          (30u)
+#define PIN_LED_RXL          (25u)
+#define PIN_LED_TXL          (26u)
 #define PIN_LED              PIN_LED_13
 #define PIN_LED2             PIN_LED_RXL
 #define PIN_LED3             PIN_LED_TXL
@@ -128,38 +128,37 @@ static const uint8_t ATN = PIN_ATN;
 // Serial1
 #define PIN_SERIAL1_RX       (0ul)
 #define PIN_SERIAL1_TX       (1ul)
-#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
+#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
 #define PAD_SERIAL1_TX       (UART_TX_PAD_0)
 
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 1
+#define SPI_INTERFACES_COUNT 2
 
-#define PIN_SPI_MISO         (28u)
-#define PIN_SPI_MOSI         (29u)
-#define PIN_SPI_SCK          (30u)
-#define PERIPH_SPI           sercom4
+#define PIN_SPI_MISO         (22u)
+#define PIN_SPI_MOSI         (23u)
+#define PIN_SPI_SCK          (24u)
+#define PERIPH_SPI           sercom1
 #define PAD_SPI_TX           SPI_PAD_3_SCK_1
 #define PAD_SPI_RX           SERCOM_RX_PAD_2
 
-static const uint8_t SS	  = PIN_A2 ;	// SERCOM4 last PAD is present on A2 but HW SS isn't used. Set here only for reference.
+static const uint8_t SS	  = 9 ;	// SERCOM1 last PAD is present on d9 but HW SS isn't used. Set here only for reference.
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
-//TODO: we may have to move SPI1 (SPI flash) to another sercom
-#define PIN_SPI1_MISO         (34u)
-#define PIN_SPI1_MOSI         (35u)
-#define PIN_SPI1_SCK          (36u)
+#define PIN_SPI1_MISO         (22u)
+#define PIN_SPI1_MOSI         (23u)
+#define PIN_SPI1_SCK          (24u)
 #define PERIPH_SPI1           sercom5
 #define PAD_SPI1_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_3
 
-static const uint8_t SS1   = 39 ;	// HW SS isn't used. Set here only for reference.
-static const uint8_t MOSI1 = PIN_SPI_MOSI ;
-static const uint8_t MISO1 = PIN_SPI_MISO ;
-static const uint8_t SCK1  = PIN_SPI_SCK ;
+static const uint8_t SS1   = 10 ;
+static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
+static const uint8_t MISO1 = PIN_SPI1_MISO ;
+static const uint8_t SCK1  = PIN_SPI1_SCK ;
 
 
 /*
@@ -167,10 +166,10 @@ static const uint8_t SCK1  = PIN_SPI_SCK ;
  */
 #define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE_SDA         (26u)
-#define PIN_WIRE_SCL         (27u)
-#define PERIPH_WIRE          sercom3
-#define WIRE_IT_HANDLER      SERCOM3_Handler
+#define PIN_WIRE_SDA         (20u)
+#define PIN_WIRE_SCL         (21u)
+#define PERIPH_WIRE          sercom2
+#define WIRE_IT_HANDLER      SERCOM2_Handler
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
@@ -178,22 +177,27 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * USB
  */
-#define PIN_USB_HOST_ENABLE (31ul)
-#define PIN_USB_DM          (32ul)
-#define PIN_USB_DP          (33ul)
+#define PIN_USB_HOST_ENABLE (28ul)
+#define PIN_USB_DM          (29ul)
+#define PIN_USB_DP          (30ul)
 
 /*
  * I2S Interfaces
  */
-#define I2S_INTERFACES_COUNT 0
+#define I2S_INTERFACES_COUNT 1
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
 
-//TODO: these
-#define PIN_I2S_SD          (13u)
-#define PIN_I2S_SCK         (3u)
-#define PIN_I2S_FS          (12u)
+#define PIN_I2S_SD          (5u)
+#define PIN_I2S_SCK         (PIN_A2)
+#define PIN_I2S_FS          (PIN_SPI_MOSI)
+
+//QSPI Pins
+#define PIN_QSPI_SCK    (40u)
+#define PIN_QSPI_CS     (41u)
+#define PIN_QSPI_IO0    (42u)
+#define PIN_QSPI_IO1    (43u)
 
 #ifdef __cplusplus
 }
