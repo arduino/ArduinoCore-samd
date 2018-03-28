@@ -194,10 +194,10 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_I2S_FS          (PIN_SPI_MOSI)
 
 //QSPI Pins
-#define PIN_QSPI_SCK    (40u)
-#define PIN_QSPI_CS     (41u)
-#define PIN_QSPI_IO0    (42u)
-#define PIN_QSPI_IO1    (43u)
+#define PIN_QSPI_SCK    (37u)
+#define PIN_QSPI_CS     (38u)
+#define PIN_QSPI_IO0    (39u)
+#define PIN_QSPI_IO1    (40u)
 
 #ifdef __cplusplus
 }
