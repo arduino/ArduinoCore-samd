@@ -414,7 +414,13 @@ void analogWrite(uint32_t pin, uint32_t value)
       } else
       #endif
       {
+
+#if defined(__SAMD51__)
+          //on SAMD51 we are only using TCC for timers
+          pinPeripheral(pin, PIO_TCC_PDEC);
+#else
         pinPeripheral(pin, PIO_TIMER);
+#endif
       }
     } else {
       // We suppose that attr has PIN_ATTR_TIMER_ALT bit set...

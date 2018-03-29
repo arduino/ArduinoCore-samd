@@ -189,7 +189,6 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
 
-//TODO: these
 #define PIN_I2S_SDO          (8u)
 #define PIN_I2S_SDI          (1u)
 #define PIN_I2S_SCK         (3u)
@@ -203,6 +202,21 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_QSPI_IO1	(43u)
 #define PIN_QSPI_IO2	(44u)
 #define PIN_QSPI_IO3	(45u)
+
+//PCC Pins
+#define PIN_PCC_DEN1    (13u)
+#define PIN_PCC_DEN2    (PIN_SPI_SCK)
+#define PIN_PCC_CLK     (PIN_SPI_MISO)
+#define PIN_PCC_D0      (13u)
+#define PIN_PCC_D1      (12u)
+#define PIN_PCC_D2      (10u)
+#define PIN_PCC_D3      (11u)
+#define PIN_PCC_D4      (9u)
+#define PIN_PCC_D5      (8u)
+#define PIN_PCC_D6      (1u)
+#define PIN_PCC_D7      (0u)
+#define PIN_PCC_D8      (5u)
+#define PIN_PCC_D9      (6u)
 
 //TODO: meaningful value for this
 #define VARIANT_QSPI_BAUD_DEFAULT 5000000
