@@ -19,7 +19,11 @@
 #include "Tone.h"
 #include "variant.h"
 
+#if defined(__SAMD51__) 
+#define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.SYNCBUSY.bit.ENABLE);
+#else
 #define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.STATUS.bit.SYNCBUSY);
+#endif
 
 uint32_t toneMaxFrequency = F_CPU / 2;
 uint32_t lastOutputPin = 0xFFFFFFFF;
@@ -31,12 +35,22 @@ volatile int64_t toggleCount;
 volatile bool toneIsActive = false;
 volatile bool firstTimeRunning = false;
 
+#if defined(__SAMD51__)
+#define TONE_TC         TC2
+#define TONE_TC_IRQn    TC2_IRQn
+#define TONE_TC_GCLK_ID	TC2_GCLK_ID
+#else
 #define TONE_TC         TC5
 #define TONE_TC_IRQn    TC5_IRQn
+#endif
 #define TONE_TC_TOP     0xFFFF
 #define TONE_TC_CHANNEL 0
 
+#if defined(__SAMD51__)
+void TC2_Handler (void) __attribute__ ((weak, alias("Tone_Handler")));
+#else
 void TC5_Handler (void) __attribute__ ((weak, alias("Tone_Handler")));
+#endif
 
 static inline void resetTC (Tc* TCx)
 {
@@ -66,11 +80,18 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
     firstTimeRunning = true;
     
     NVIC_SetPriority(TONE_TC_IRQn, 0);
-      
+
+#if defined(__SAMD51__)
+	GCLK->PCHCTRL[TONE_TC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+#else
     // Enable GCLK for TC4 and TC5 (timer counter input clock)
     GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_TC4_TC5));
     while (GCLK->STATUS.bit.SYNCBUSY);
+#endif
   }
+
+  //if it's a rest, set to 1Hz (below audio range)
+  frequency = (frequency > 0 ? frequency : 1);
   
   if (toneIsActive && (outputPin != lastOutputPin))
     noTone(lastOutputPin);
@@ -120,7 +141,12 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
 
   uint16_t tmpReg = 0;
   tmpReg |= TC_CTRLA_MODE_COUNT16;  // Set Timer counter Mode to 16 bits
+  
+#if defined(__SAMD51__)
+	TONE_TC->COUNT16.WAVE.reg = TC_WAVE_WAVEGEN_MFRQ;  // Set TONE_TC mode as match frequency
+#else
   tmpReg |= TC_CTRLA_WAVEGEN_MFRQ;  // Set TONE_TC mode as match frequency
+#endif
   tmpReg |= prescalerConfigBits;
   TONE_TC->COUNT16.CTRLA.reg |= tmpReg;
   WAIT_TC16_REGS_SYNC(TONE_TC)
