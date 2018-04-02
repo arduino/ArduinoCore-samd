@@ -20,9 +20,20 @@
 #include <wiring_private.h>
 
 #include "utility/DMA.h"
+
+#if defined(__SAMD51__)
+
+#include "utility/SAMD51_I2SDevice.h"
+
+static I2SDevice_SAMD51 i2sd(*I2S);
+
+#else
+
 #include "utility/SAMD21_I2SDevice.h"
 
 static I2SDevice_SAMD21G18x i2sd(*I2S);
+
+#endif
 
 #include "I2S.h"
 
@@ -98,7 +109,11 @@ int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveCloc
 
   if (_beginCount == 0) {
     // enable the I2S interface
+#if defined(__SAMD51__)
+    MCLK->APBDMASK.reg |= MCLK_APBDMASK_I2S;
+#else
     PM->APBCMASK.reg |= PM_APBCMASK_I2S;
+#endif
 
     // reset the device
     i2sd.reset();
@@ -176,7 +191,11 @@ void I2SClass::end()
     i2sd.disable();
 
     // disable the I2S interface
+#if defined(__SAMD51__)
+  MCLK->APBDMASK.reg &= ~(MCLK_APBDMASK_I2S);
+#else
     PM->APBCMASK.reg &= ~PM_APBCMASK_I2S;
+#endif
   }
 }
 
@@ -398,6 +417,13 @@ void I2SClass::onReceive(void(*function)(void))
 
 void I2SClass::enableClock(int divider)
 {
+
+#if defined(__SAMD51__)
+  if(_deviceIndex == 0)
+    GCLK->PCHCTRL[I2S_GCLK_ID_0].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //48 MHz for now (max is 100)
+  else
+    GCLK->PCHCTRL[I2S_GCLK_ID_1].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //48 MHz for now (max is 100)
+#else
   // configure the clock divider
   while (GCLK->STATUS.bit.SYNCBUSY);
   GCLK->GENDIV.bit.ID = _clockGenerator;
@@ -417,10 +443,17 @@ void I2SClass::enableClock(int divider)
   GCLK->CLKCTRL.bit.CLKEN = 1;
 
   while (GCLK->STATUS.bit.SYNCBUSY);
+#endif
 }
 
 void I2SClass::disableClock()
 {
+#if defined(__SAMD51__)
+  if(_deviceIndex == 0)
+    GCLK->PCHCTRL[I2S_GCLK_ID_0].bit.CHEN = 0;
+  else
+    GCLK->PCHCTRL[I2S_GCLK_ID_1].bit.CHEN = 0;
+#else
   while (GCLK->STATUS.bit.SYNCBUSY);
   GCLK->GENCTRL.bit.ID = _clockGenerator;
   GCLK->GENCTRL.bit.SRC = GCLK_GENCTRL_SRC_DFLL48M_Val;
@@ -433,6 +466,7 @@ void I2SClass::disableClock()
   GCLK->CLKCTRL.bit.CLKEN = 0;
 
   while (GCLK->STATUS.bit.SYNCBUSY);
+#endif
 }
 
 void I2SClass::enableTransmitter()

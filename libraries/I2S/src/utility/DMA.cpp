@@ -39,9 +39,14 @@ DMAClass::~DMAClass()
 void DMAClass::begin()
 {
   if (_beginCount == 0) {
+
+#if defined(__SAMD51__)
+    MCLK->AHBMASK.bit.DMAC_ = 1;
+#else
     // enable the DMA interface
     PM->AHBMASK.bit.DMAC_ = 1;
     PM->APBBMASK.bit.DMAC_ = 1;
+#endif
 
     // perform a reset
     DMAC->CTRL.bit.SWRST = 1;
@@ -57,9 +62,35 @@ void DMAClass::begin()
     DMAC->CTRL.bit.LVLEN3 = 1;
     DMAC->CTRL.bit.DMAENABLE = 1;
 
-    // enable the interrupt at lowest priority
+#if defined(__SAMD51__)
+    NVIC_DisableIRQ(DMAC_0_IRQn);
+    NVIC_ClearPendingIRQ(DMAC_0_IRQn);
+    NVIC_EnableIRQ(DMAC_0_IRQn);
+    NVIC_SetPriority(DMAC_0_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+
+    NVIC_DisableIRQ(DMAC_1_IRQn);
+    NVIC_ClearPendingIRQ(DMAC_1_IRQn);
+    NVIC_EnableIRQ(DMAC_1_IRQn);
+    NVIC_SetPriority(DMAC_1_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+
+    NVIC_DisableIRQ(DMAC_2_IRQn);
+    NVIC_ClearPendingIRQ(DMAC_2_IRQn);
+    NVIC_EnableIRQ(DMAC_2_IRQn);
+    NVIC_SetPriority(DMAC_2_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+
+    NVIC_DisableIRQ(DMAC_3_IRQn);
+    NVIC_ClearPendingIRQ(DMAC_3_IRQn);
+    NVIC_EnableIRQ(DMAC_3_IRQn);
+    NVIC_SetPriority(DMAC_3_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+
+    NVIC_DisableIRQ(DMAC_4_IRQn);
+    NVIC_ClearPendingIRQ(DMAC_4_IRQn);
+    NVIC_EnableIRQ(DMAC_4_IRQn);
+    NVIC_SetPriority(DMAC_4_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+#else
     NVIC_EnableIRQ(DMAC_IRQn);
     NVIC_SetPriority(DMAC_IRQn, (1 << __NVIC_PRIO_BITS) - 1);
+#endif
   }
 
   _beginCount++;
@@ -71,14 +102,27 @@ void DMAClass::end()
 
   if (_beginCount == 0) {
     // disable the interrupt
+#if defined(__SAMD51__)
+      NVIC_DisableIRQ(DMAC_0_IRQn);
+      NVIC_DisableIRQ(DMAC_1_IRQn);
+      NVIC_DisableIRQ(DMAC_2_IRQn);
+      NVIC_DisableIRQ(DMAC_3_IRQn);
+      NVIC_DisableIRQ(DMAC_4_IRQn);
+#else
     NVIC_DisableIRQ(DMAC_IRQn);
+#endif
 
     // disable
     DMAC->CTRL.bit.DMAENABLE = 0;
 
     // disable the DMA interface
-    PM->APBBMASK.bit.DMAC_ = 0;
+#if defined(__SAMD51__)
+    MCLK->AHBMASK.bit.DMAC_ = 0;
+#else
+    // enable the DMA interface
     PM->AHBMASK.bit.DMAC_ = 0;
+    PM->APBBMASK.bit.DMAC_ = 0;
+#endif
   }
 }
 
@@ -96,9 +140,14 @@ int DMAClass::allocateChannel()
       memset((void*)&_descriptors[i], 0x00, sizeof(_descriptors[i]));
 
       // select the channel and reset it
+#if defined(__SAMD51__)
+      DMAC->Channel[i].CHCTRLA.bit.ENABLE = 0;
+      DMAC->Channel[i].CHCTRLA.bit.SWRST = 1;
+#else
       DMAC->CHID.bit.ID = i;
       DMAC->CHCTRLA.bit.ENABLE = 0;
       DMAC->CHCTRLA.bit.SWRST = 1;
+#endif
 
       channel = i;
       break;
@@ -111,8 +160,12 @@ int DMAClass::allocateChannel()
 void DMAClass::freeChannel(int channel)
 {
   // select the channel and disable it
-  DMAC->CHID.bit.ID = channel;
-  DMAC->CHCTRLA.bit.ENABLE = 0;
+#if defined(__SAMD51__)
+      DMAC->Channel[channel].CHCTRLA.bit.ENABLE = 0;
+#else
+      DMAC->CHID.bit.ID = channel;
+      DMAC->CHCTRLA.bit.ENABLE = 0;
+#endif
 
   _channelMask &= ~(1 << channel);
 }
@@ -120,12 +173,21 @@ void DMAClass::freeChannel(int channel)
 void DMAClass::setPriorityLevel(int channel, int level)
 {
   // select the channel and set priority level
-  DMAC->CHID.bit.ID = channel;
-  DMAC->CHCTRLB.bit.LVL = level;
+#if defined(__SAMD51__)
+      
+      DMAC->Channel[channel].CHPRILVL.reg = level;
+#else
+      DMAC->CHID.bit.ID = channel;
+      DMAC->CHCTRLB.bit.LVL = level;
+#endif
 }
 
 void DMAClass::setTriggerSource(int channel, int source)
 {
+#if defined(__SAMD51__)
+  DMAC->Channel[channel].CHCTRLA.bit.TRIGSRC = source;
+  DMAC->Channel[channel].CHCTRLA.bit.TRIGACT = DMAC_CHCTRLA_TRIGACT_BLOCK_Val;
+#else
   // select the channel and set a trigger source
   DMAC->CHID.bit.ID = channel;
   DMAC->CHCTRLB.bit.TRIGSRC = source;
@@ -136,6 +198,7 @@ void DMAClass::setTriggerSource(int channel, int source)
   } else {
     DMAC->CHCTRLB.bit.TRIGACT = DMAC_CHCTRLB_TRIGACT_BLOCK_Val;
   }
+#endif
 }
 
 void DMAClass::setTransferWidth(int channel, int transferWidth)
@@ -178,8 +241,11 @@ int DMAClass::transfer(int channel, void* src, void* dst, uint16_t size)
     return 1;
   }
 
+
+#if !defined(__SAMD51__)
   // select the channel
   DMAC->CHID.bit.ID = channel;
+#endif
 
   // disable event output generation and block actions
   _descriptors[channel].BTCTRL.bit.EVOSEL = DMAC_BTCTRL_EVOSEL_DISABLE_Val;
@@ -223,16 +289,26 @@ int DMAClass::transfer(int channel, void* src, void* dst, uint16_t size)
   // validate the descriptor
   _descriptors[channel].BTCTRL.bit.VALID = 1;
 
+#if defined(__SAMD51__)
+  DMAC->Channel[channel].CHINTENSET.bit.TERR = 1;
+  DMAC->Channel[channel].CHINTENSET.bit.TCMPL = 1;
+  DMAC->Channel[channel].CHCTRLA.bit.ENABLE = 1;
+
+  if (DMAC->Channel[channel].CHCTRLA.bit.TRIGSRC == 0) {
+    // uses software trigger, so trigger it
+    DMAC->SWTRIGCTRL.reg |= (1 << channel);
+  }
+#else
   // enable channel and transfer error + complete interrupts
   DMAC->CHINTENSET.bit.TERR = 1;
   DMAC->CHINTENSET.bit.TCMPL = 1;
   DMAC->CHCTRLA.bit.ENABLE = 1;
 
-
   if (DMAC->CHCTRLB.bit.TRIGSRC == 0) {
     // uses software trigger, so trigger it
     DMAC->SWTRIGCTRL.reg |= (1 << channel);
   }
+#endif
 
   return 0;
 }
@@ -251,11 +327,32 @@ void DMAClass::onService()
 {
   // get the channel and select it
   int channel = DMAC->INTPEND.bit.ID;
+#if !defined(__SAMD51__)
   DMAC->CHID.bit.ID = channel;
+#endif
 
   // invalidate the channel
   _descriptors[channel].BTCTRL.bit.VALID = 0;
 
+#if defined(__SAMD51__)
+  if (DMAC->Channel[channel].CHINTFLAG.bit.TERR) {
+    // clear the error interrupt and call the error callback if there is one
+    DMAC->Channel[channel].CHINTFLAG.bit.TERR = 1;
+
+    if (_transferErrorCallbacks[channel]) {
+      _transferErrorCallbacks[channel](channel);
+    }
+  }
+
+  if (DMAC->Channel[channel].CHINTFLAG.bit.TCMPL) {
+    // clear the complete interrupt and call the callback if there is one
+    DMAC->Channel[channel].CHINTFLAG.bit.TCMPL = 1;
+
+    if (_transferCompleteCallbacks[channel]) {
+      _transferCompleteCallbacks[channel](channel);
+    }
+  }
+#else
   if (DMAC->CHINTFLAG.bit.TERR) {
     // clear the error interrupt and call the error callback if there is one
     DMAC->CHINTFLAG.bit.TERR = 1;
@@ -273,12 +370,55 @@ void DMAClass::onService()
       _transferCompleteCallbacks[channel](channel);
     }
   }
+#endif
 }
 
 extern "C" {
+#if defined(__SAMD51__)
+  static void _dmac_handler(void)
+{
+  DMA.onService();
+}
+/**
+* \brief DMAC interrupt handler
+*/
+void DMAC_0_Handler(void)
+{
+  _dmac_handler();
+}
+/**
+* \brief DMAC interrupt handler
+*/
+void DMAC_1_Handler(void)
+{
+  _dmac_handler();
+}
+/**
+* \brief DMAC interrupt handler
+*/
+void DMAC_2_Handler(void)
+{
+  _dmac_handler();
+}
+/**
+* \brief DMAC interrupt handler
+*/
+void DMAC_3_Handler(void)
+{
+  _dmac_handler();
+}
+/**
+* \brief DMAC interrupt handler
+*/
+void DMAC_4_Handler(void)
+{
+  _dmac_handler();
+}
+#else
   void DMAC_Handler() {
     DMA.onService();
   }
+#endif
 }
 
 DMAClass DMA;

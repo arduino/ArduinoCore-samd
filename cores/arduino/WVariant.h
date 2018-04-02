@@ -20,6 +20,7 @@
 
 #include <stdint.h>
 #include "sam.h"
+#include <limits.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,13 +38,13 @@ typedef enum _EAnalogChannel
   ADC_Channel5=5,
   ADC_Channel6=6,
   ADC_Channel7=7,
-#if defined __SAMD21J18A__
+#if defined __SAMD21J18A__ || defined(__SAMD51__)
   ADC_Channel8=8,
   ADC_Channel9=9,
 #endif // __SAMD21J18A__
   ADC_Channel10=10,
   ADC_Channel11=11,
-#if defined __SAMD21J18A__
+#if defined __SAMD21J18A__ || defined(__SAMD51__)
   ADC_Channel12=12,
   ADC_Channel13=13,
   ADC_Channel14=14,
@@ -54,8 +55,33 @@ typedef enum _EAnalogChannel
   ADC_Channel18=18,
   ADC_Channel19=19,
   DAC_Channel0,
+  DAC_Channel1,
 } EAnalogChannel ;
 
+#if defined(__SAMD51__)
+
+typedef enum _ETCChannel
+{
+  NOT_ON_TIMER=-1,
+  TCC0_CH0 = (0<<8)|(0),
+  TCC0_CH1 = (0<<8)|(1),
+  TCC0_CH2 = (0<<8)|(2),
+  TCC0_CH3 = (0<<8)|(3),
+  TCC0_CH4 = (0<<8)|(4),
+  TCC0_CH5 = (0<<8)|(5),
+  TCC0_CH6 = (0<<8)|(6),
+  TCC0_CH7 = (0<<8)|(7),
+  TCC1_CH0 = (1<<8)|(0),
+  TCC1_CH1 = (1<<8)|(1),
+  TCC1_CH2 = (1<<8)|(2),
+  TCC1_CH3 = (1<<8)|(3),
+  TCC1_CH4 = (1<<8)|(4),
+  TCC1_CH5 = (1<<8)|(5),
+  TCC1_CH6 = (1<<8)|(6),
+  TCC1_CH7 = (1<<8)|(7),
+} ETCChannel ;
+
+#else
 // Definitions for TC channels
 typedef enum _ETCChannel
 {
@@ -82,13 +108,8 @@ typedef enum _ETCChannel
   TC4_CH1  = (4<<8)|(1),
   TC5_CH0  = (5<<8)|(0),
   TC5_CH1  = (5<<8)|(1),
-#if defined __SAMD21J18A__
-  TC6_CH0  = (6<<8)|(0),
-  TC6_CH1  = (6<<8)|(1),
-  TC7_CH0  = (7<<8)|(0),
-  TC7_CH1  = (7<<8)|(1),
-#endif // __SAMD21J18A__
 } ETCChannel ;
+#endif
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 
@@ -96,39 +117,67 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #define GetTCChannelNumber( x ) ( (x) & 0xff )
 #define GetTC( x ) ( g_apTCInstances[(x) >> 8] )
 
-// Definitions for PWM channels
-typedef enum _EPWMChannel
-{
-  NOT_ON_PWM=-1,
-  PWM0_CH0=TCC0_CH0,
-  PWM0_CH1=TCC0_CH1,
-  PWM0_CH2=TCC0_CH2,
-  PWM0_CH3=TCC0_CH3,
-  PWM0_CH4=TCC0_CH4,
-  PWM0_CH5=TCC0_CH5,
-  PWM0_CH6=TCC0_CH6,
-  PWM0_CH7=TCC0_CH7,
-  PWM1_CH0=TCC1_CH0,
-  PWM1_CH1=TCC1_CH1,
-  PWM1_CH2=TCC1_CH2,
-  PWM1_CH3=TCC1_CH3,
-  PWM2_CH0=TCC2_CH0,
-  PWM2_CH1=TCC2_CH1,
-  PWM2_CH2=TCC2_CH2,
-  PWM2_CH3=TCC2_CH3,
-  PWM3_CH0=TC3_CH0,
-  PWM3_CH1=TC3_CH1,
-  PWM4_CH0=TC4_CH0,
-  PWM4_CH1=TC4_CH1,
-  PWM5_CH0=TC5_CH0,
-  PWM5_CH1=TC5_CH1,
-#if defined __SAMD21J18A__
-  PWM6_CH0=TC6_CH0,
-  PWM6_CH1=TC6_CH1,
-  PWM7_CH0=TC7_CH0,
-  PWM7_CH1=TC7_CH1,
-#endif // __SAMD21J18A__
-} EPWMChannel ;
+
+#if defined(__SAMD51__)
+
+  typedef enum _EPWMChannel
+  {
+    NOT_ON_PWM=-1,
+    PWM0_CH0=TCC0_CH0,
+    PWM0_CH1=TCC0_CH1,
+    PWM0_CH2=TCC0_CH2,
+    PWM0_CH3=TCC0_CH3,
+    PWM0_CH4=TCC0_CH4,
+    PWM0_CH5=TCC0_CH5,
+    PWM0_CH6=TCC0_CH6,
+    PWM0_CH7=TCC0_CH7,
+    PWM1_CH0=TCC1_CH0,
+    PWM1_CH1=TCC1_CH1,
+    PWM1_CH2=TCC1_CH2,
+    PWM1_CH3=TCC1_CH3,
+    PWM1_CH4=TCC1_CH4,
+    PWM1_CH5=TCC1_CH5,
+    PWM1_CH6=TCC1_CH6,
+    PWM1_CH7=TCC1_CH7,
+  } EPWMChannel ;
+
+#else //end __SAMD51J19A__
+  // Definitions for PWM channels
+  typedef enum _EPWMChannel
+  {
+    NOT_ON_PWM=-1,
+    PWM0_CH0=TCC0_CH0,
+    PWM0_CH1=TCC0_CH1,
+    PWM0_CH2=TCC0_CH2,
+    PWM0_CH3=TCC0_CH3,
+    PWM0_CH4=TCC0_CH4,
+    PWM0_CH5=TCC0_CH5,
+    PWM0_CH6=TCC0_CH6,
+    PWM0_CH7=TCC0_CH7,
+    PWM1_CH0=TCC1_CH0,
+    PWM1_CH1=TCC1_CH1,
+    PWM1_CH2=TCC1_CH2,
+    PWM1_CH3=TCC1_CH3,
+    PWM2_CH0=TCC2_CH0,
+    PWM2_CH1=TCC2_CH1,
+    PWM2_CH2=TCC2_CH2,
+    PWM2_CH3=TCC2_CH3,
+    PWM3_CH0=TC3_CH0,
+    PWM3_CH1=TC3_CH1,
+    PWM4_CH0=TC4_CH0,
+    PWM4_CH1=TC4_CH1,
+    PWM5_CH0=TC5_CH0,
+    PWM5_CH1=TC5_CH1,
+  #if defined(__SAMD21J18A__)
+    PWM6_CH0=TC6_CH0,
+    PWM6_CH1=TC6_CH1,
+    PWM7_CH0=TC7_CH0,
+    PWM7_CH1=TC7_CH1,
+  #endif // __SAMD21J18A__
+  } EPWMChannel ;
+
+#endif
+
 
 typedef enum _EPortType
 {
@@ -137,6 +186,8 @@ typedef enum _EPortType
   PORTB=1,
   PORTC=2,
 } EPortType ;
+
+#define PIN_NOT_A_PIN (UINT_MAX)
 
 typedef enum
 {
@@ -174,8 +225,19 @@ typedef enum _EPioType
   PIO_SERCOM_ALT,       /* The pin is controlled by the associated signal of peripheral D. */
   PIO_TIMER,            /* The pin is controlled by the associated signal of peripheral E. */
   PIO_TIMER_ALT,        /* The pin is controlled by the associated signal of peripheral F. */
+#if defined(__SAMD51__)
+  PIO_TCC_PDEC,			/* The pin is controlled by the associated signal of peripheral G. */
+  PIO_COM,             /* The pin is controlled by the associated signal of peripheral H. */
+  PIO_SDHC,             /* The pin is controlled by the associated signal of peripheral I. */
+  PIO_I2S,              /* The pin is controlled by the associated signal of peripheral J. */
+  PIO_PCC,              /* The pin is controlled by the associated signal of peripheral K. */
+  PIO_GMAC,             /* The pin is controlled by the associated signal of peripheral L. */
+  PIO_AC_CLK,           /* The pin is controlled by the associated signal of peripheral M. */
+  PIO_CCL,              /* The pin is controlled by the associated signal of peripheral N. */
+#else
   PIO_COM,              /* The pin is controlled by the associated signal of peripheral G. */
   PIO_AC_CLK,           /* The pin is controlled by the associated signal of peripheral H. */
+#endif
   PIO_DIGITAL,          /* The pin is controlled by PORT. */
   PIO_INPUT,            /* The pin is controlled by PORT and is an input. */
   PIO_INPUT_PULLUP,     /* The pin is controlled by PORT and is an input with internal pull-up resistor enabled. */

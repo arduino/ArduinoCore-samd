@@ -28,6 +28,19 @@ static void __initialize()
 {
   memset(callbacksInt, 0, sizeof(callbacksInt));
 
+#if defined(__SAMD51__)
+  ///EIC MCLK is enabled by default
+  for (uint32_t i = 0; i <= 15; i++)     // EIC_0_IRQn = 12 ... EIC_15_IRQn = 27
+  {
+    uint8_t irqn = EIC_0_IRQn + i;
+    NVIC_DisableIRQ(irqn);
+    NVIC_ClearPendingIRQ(irqn);
+    NVIC_SetPriority(irqn, 0);
+    NVIC_EnableIRQ(irqn);
+  }
+  
+  GCLK->PCHCTRL[EIC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+#else
   NVIC_DisableIRQ(EIC_IRQn);
   NVIC_ClearPendingIRQ(EIC_IRQn);
   NVIC_SetPriority(EIC_IRQn, 0);
@@ -35,6 +48,7 @@ static void __initialize()
 
   // Enable GCLK for IEC (External Interrupt Controller)
   GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID(GCM_EIC));
+#endif
 
 /* Shall we do that?
   // Do a software reset on EIC
@@ -43,8 +57,13 @@ static void __initialize()
 */
 
   // Enable EIC
+#if defined(__SAMD51__)
+  EIC->CTRLA.bit.ENABLE = 1;
+  while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
+#else
   EIC->CTRL.bit.ENABLE = 1;
   while (EIC->STATUS.bit.SYNCBUSY == 1) { }
+#endif
 }
 
 /*
@@ -68,6 +87,10 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     __initialize();
     enabled = 1;
   }
+#if defined (__SAMD51__)
+  EIC->CTRLA.bit.ENABLE = 0;
+  while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
+#endif
 
   if (in == EXTERNAL_INT_NMI) {
     EIC->NMIFLAG.bit.NMI = 1; // Clear flag
@@ -93,13 +116,16 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
         break;
     }
 
-    // Assign callback to interrupt
     callbacksInt[EXTERNAL_INT_NMI] = callback;
 
   } else { // Not NMI, is external interrupt
 
     // Enable wakeup capability on pin in case being used during sleep
+#if defined(__SAMD51__)
+    //I believe this is done automatically
+#else
     EIC->WAKEUP.reg |= (1 << in);
+#endif
 
     // Assign pin to EIC
     pinPeripheral(pin, PIO_EXTINT);
@@ -138,9 +164,11 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 
     // Enable the interrupt
     EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
-
-    // Assign callback to interrupt
-    callbacksInt[in] = callback;
+  
+#if defined (__SAMD51__)
+  EIC->CTRLA.bit.ENABLE = 1;
+  while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
+#endif
   }
 }
 
@@ -160,15 +188,115 @@ void detachInterrupt(uint32_t pin)
     EIC->NMICTRL.bit.NMISENSE = 0; // Turn off detection
   } else {
     EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
-  
-    // Disable wakeup capability on pin during sleep
-    EIC->WAKEUP.reg &= ~(1 << in);
   }
+  
+  // Disable wakeup capability on pin during sleep
+#if defined(__SAMD51__)
+//I believe this is done automatically
+#else
+  EIC->WAKEUP.reg &= ~(1 << in);
+#endif
 }
 
 /*
  * External Interrupt Controller NVIC Interrupt Handler
  */
+#if defined(__SAMD51__)
+void InterruptHandler(uint32_t i)
+{
+  if ((EIC->INTFLAG.reg & (1 << i)) != 0)
+  {
+    // Call the callback function if assigned
+    if (callbacksInt[i]) {
+      callbacksInt[i]();
+    }
+
+    // Clear the interrupt
+    EIC->INTFLAG.reg = 1 << i;
+  }
+}
+
+void EIC_0_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_0);
+}
+
+void EIC_1_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_1);
+}
+
+void EIC_2_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_2);
+}
+
+void EIC_3_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_3);
+}
+
+void EIC_4_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_4);
+}
+
+void EIC_5_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_5);
+}
+
+void EIC_6_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_6);
+}
+
+void EIC_7_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_7);
+}
+
+void EIC_8_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_8);
+}
+
+void EIC_9_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_9);
+}
+
+void EIC_10_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_10);
+}
+
+void EIC_11_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_11);
+}
+
+void EIC_12_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_12);
+}
+
+void EIC_13_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_13);
+}
+
+void EIC_14_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_14);
+}
+
+void EIC_15_Handler(void)
+{
+  InterruptHandler(EXTERNAL_INT_15);
+}
+#else
+
 void EIC_Handler(void)
 {
   // Test the 16 normal interrupts
@@ -186,6 +314,7 @@ void EIC_Handler(void)
     }
   }
 }
+#endif
 
 /*
  * NMI Interrupt Handler
@@ -195,3 +324,4 @@ void NMI_Handler(void)
   if (callbacksInt[EXTERNAL_INT_NMI]) callbacksInt[EXTERNAL_INT_NMI]();
   EIC->NMIFLAG.bit.NMI = 1; // Clear interrupt
 }
+

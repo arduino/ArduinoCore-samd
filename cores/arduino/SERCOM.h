@@ -21,7 +21,7 @@
 
 #include "sam.h"
 
-#define SERCOM_FREQ_REF 48000000
+#define SERCOM_FREQ_REF 48000000ul
 
 typedef enum
 {

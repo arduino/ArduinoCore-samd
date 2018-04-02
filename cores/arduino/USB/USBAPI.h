@@ -31,9 +31,16 @@
 
 #include "Stream.h"
 #include "RingBuffer.h"
+#ifdef __SAMR21G18A__
+#include "SAMR21_USBDevice.h"
+#else
+#include "SAMD21_USBDevice.h"
+#endif
 
 //================================================================================
 // USB
+
+class EPHandler;
 
 // Low level API
 typedef struct {
@@ -85,6 +92,7 @@ public:
 	// Generic EndPoint API
 	void initEndpoints(void);
 	void initEP(uint32_t ep, uint32_t type);
+	void setHandler(uint32_t ep, EPHandler *handler);
 	void handleEndpoint(uint8_t ep);
 
 	uint32_t send(uint32_t ep, const void *data, uint32_t len);
