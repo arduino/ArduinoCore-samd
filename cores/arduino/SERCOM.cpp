@@ -652,16 +652,20 @@ void SERCOM::initClockNVIC( void )
     clockId = GCM_SERCOM3_CORE;
     IdNvic = SERCOM3_IRQn;
   }
+#if defined(SERCOM4)
   else if(sercom == SERCOM4)
   {
     clockId = GCM_SERCOM4_CORE;
     IdNvic = SERCOM4_IRQn;
   }
+#endif
+#if defined(SERCOM5)
   else if(sercom == SERCOM5)
   {
     clockId = GCM_SERCOM5_CORE;
     IdNvic = SERCOM5_IRQn;
   }
+#endif
 
   if ( IdNvic == PendSV_IRQn )
   {
