@@ -67,7 +67,12 @@
 #define GSM_RTS    (28u)
 #define GSM_CTS    (29u)
 #define GSM_RESETN (31u)
+
+#ifndef NO_HW_FLOW_CONTROL
 #define GSM_DTR    (35u)
+#else
+#define GSM_DTR    (-1)
+#endif
 
 // LEDs
 // ----

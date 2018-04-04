@@ -230,14 +230,14 @@ void initVariant() {
   pinMode(GSM_RESETN, OUTPUT);
   digitalWrite(GSM_RESETN, HIGH);
 
-  // set GSM DTR to LOW on start
-  pinMode(GSM_DTR, OUTPUT);
-  digitalWrite(GSM_DTR, LOW);
+  pinMode(PIN_SERIAL2_DTR, OUTPUT);
 
 #ifdef NO_HW_FLOW_CONTROL
-  // set GSM DTR to LOW on start
-  pinMode(PIN_SERIAL2_RTS, OUTPUT);
-  digitalWrite(PIN_SERIAL2_RTS, LOW);
+  // set PWR pin to HIGH on NB-IoT
+  digitalWrite(PIN_SERIAL2_DTR, HIGH);
+#else
+    // set GSM DTR to LOW on start
+  digitalWrite(PIN_SERIAL2_DTR, LOW);
 #endif
 }
 
