@@ -204,7 +204,7 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_QSPI_IO3	(45u)
 
 //PCC Pins
-#define PIN_PCC_DEN1    (13u)
+#define PIN_PCC_DEN1    (PIN_SPI_MOSI)
 #define PIN_PCC_DEN2    (PIN_SPI_SCK)
 #define PIN_PCC_CLK     (PIN_SPI_MISO)
 #define PIN_PCC_D0      (13u)
