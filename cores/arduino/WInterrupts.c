@@ -159,6 +159,9 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     // Assign pin to EIC
     pinPeripheral(pin, PIO_EXTINT);
 
+    // Assign callback to interrupt
+    callbacksInt[in] = callback;
+
     // Look for right CONFIG register to be addressed
     if (in > EXTERNAL_INT_7) {
       config = 1;
@@ -166,17 +169,17 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
       config = 0;
     }
 
-  // Configure the interrupt mode
-  pos = (in - (8 * config)) << 2;
-  
+    // Configure the interrupt mode
+    pos = (in - (8 * config)) << 2;
+
 #if defined (__SAMD51__)
   EIC->CTRLA.bit.ENABLE = 0;
   while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
 #endif
-  
-  switch (mode)
-  {
-    case LOW:
+
+    switch (mode)
+    {
+      case LOW:
         EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_LOW_Val << pos;
         break;
 
@@ -204,9 +207,6 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   EIC->CTRLA.bit.ENABLE = 1;
   while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
 #endif
-
-    // Assign callback to interrupt
-    callbacksInt[in] = callback;
   }
 }
 
