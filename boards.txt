@@ -41,7 +41,6 @@ adafruit_feather_m0.build.vid=0x239A
 adafruit_feather_m0.build.pid=0x800B
 adafruit_feather_m0.bootloader.tool=openocd
 adafruit_feather_m0.bootloader.file=feather/samd21_sam_ba.bin
-adafruit_feather_m0.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 adafruit_feather_m0_express.name=Adafruit Feather M0 Express
 adafruit_feather_m0_express.vid.0=0x239A
@@ -69,7 +68,6 @@ adafruit_feather_m0_express.build.vid=0x239A
 adafruit_feather_m0_express.build.pid=0x801B
 adafruit_feather_m0_express.bootloader.tool=openocd
 adafruit_feather_m0_express.bootloader.file=feather/samd21_sam_ba.bin
-adafruit_feather_m0_express.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 #adafruit_radio_m0.name=Adafruit M0 Radio (Native USB Port)
 #adafruit_radio_m0.vid.0=0x239A
@@ -124,7 +122,6 @@ adafruit_metro_m0.build.vid=0x239A
 adafruit_metro_m0.build.pid=0x8013
 adafruit_metro_m0.bootloader.tool=openocd
 adafruit_metro_m0.bootloader.file=metro/bootloader_uf2.bin
-adafruit_metro_m0.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 # Adafruit Circuit Playground M0
 # ------------------------------
@@ -154,7 +151,6 @@ adafruit_circuitplayground_m0.build.vid=0x239A
 adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplay/bootloader_uf2.bin
-adafruit_circuitplayground_m0.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 adafruit_gemma_m0.name=Adafruit Gemma M0
 adafruit_gemma_m0.vid.0=0x239A
@@ -173,7 +169,7 @@ adafruit_gemma_m0.build.usb_product="Gemma M0"
 adafruit_gemma_m0.build.usb_manufacturer="Adafruit"
 adafruit_gemma_m0.build.board=GEMMA_M0
 adafruit_gemma_m0.build.core=arduino
-adafruit_gemma_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_GEMMA_M0 -D__SAMD21E18A__ {build.usb_flags}
+adafruit_gemma_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_GEMMA_M0 -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_gemma_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_gemma_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_gemma_m0.build.variant=gemma_m0
@@ -200,7 +196,7 @@ adafruit_trinket_m0.build.usb_product="Trinket M0"
 adafruit_trinket_m0.build.usb_manufacturer="Adafruit"
 adafruit_trinket_m0.build.board=TRINKET_M0
 adafruit_trinket_m0.build.core=arduino
-adafruit_trinket_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -D__SAMD21E18A__ {build.usb_flags}
+adafruit_trinket_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_trinket_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_trinket_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_trinket_m0.build.variant=trinket_m0
@@ -229,7 +225,7 @@ adafruit_itsybitsy_m0.build.usb_product="ItsyBitsy M0 Express"
 adafruit_itsybitsy_m0.build.usb_manufacturer="Adafruit"
 adafruit_itsybitsy_m0.build.board=ITSYBITSY_M0
 adafruit_itsybitsy_m0.build.core=arduino
-adafruit_itsybitsy_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_ITSYBITSY_M0 -D__SAMD21G18A__ {build.usb_flags}
+adafruit_itsybitsy_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_ITSYBITSY_M0 -D__SAMD21G18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_itsybitsy_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_itsybitsy_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_itsybitsy_m0.build.variant=itsybitsy_m0
@@ -238,8 +234,6 @@ adafruit_itsybitsy_m0.build.vid=0x239A
 adafruit_itsybitsy_m0.build.pid=0x800F
 adafruit_itsybitsy_m0.bootloader.tool=openocd
 adafruit_itsybitsy_m0.bootloader.file=itsybitsy/samd21_sam_ba.bin
-adafruit_itsybitsy_m0.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
-
 
 adafruit_pirkey.name=Adafruit pIRkey
 adafruit_pirkey.vid.0=0x239A
@@ -258,7 +252,7 @@ adafruit_pirkey.build.usb_product="pIRKey"
 adafruit_pirkey.build.usb_manufacturer="Adafruit"
 adafruit_pirkey.build.board=PIRKEY
 adafruit_pirkey.build.core=arduino
-adafruit_pirkey.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_PIRKEY -D__SAMD21E18A__ {build.usb_flags}
+adafruit_pirkey.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_PIRKEY -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_pirkey.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_pirkey.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_pirkey.build.variant=pirkey
@@ -267,7 +261,6 @@ adafruit_pirkey.build.vid=0x239A
 adafruit_pirkey.build.pid=0x801E
 adafruit_pirkey.bootloader.tool=openocd
 adafruit_pirkey.bootloader.file=pirkey/bootloader_uf2.bin
-adafruit_pirkey.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 
 # Adafruit Metro M4 (SAMD51)
