@@ -41,7 +41,6 @@ adafruit_feather_m0.build.vid=0x239A
 adafruit_feather_m0.build.pid=0x800B
 adafruit_feather_m0.bootloader.tool=openocd
 adafruit_feather_m0.bootloader.file=feather/samd21_sam_ba.bin
-adafruit_feather_m0.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 adafruit_feather_m0_express.name=Adafruit Feather M0 Express
 adafruit_feather_m0_express.vid.0=0x239A
@@ -69,7 +68,6 @@ adafruit_feather_m0_express.build.vid=0x239A
 adafruit_feather_m0_express.build.pid=0x801B
 adafruit_feather_m0_express.bootloader.tool=openocd
 adafruit_feather_m0_express.bootloader.file=feather/samd21_sam_ba.bin
-adafruit_feather_m0_express.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 #adafruit_radio_m0.name=Adafruit M0 Radio (Native USB Port)
 #adafruit_radio_m0.vid.0=0x239A
@@ -124,7 +122,6 @@ adafruit_metro_m0.build.vid=0x239A
 adafruit_metro_m0.build.pid=0x8013
 adafruit_metro_m0.bootloader.tool=openocd
 adafruit_metro_m0.bootloader.file=metro/bootloader_uf2.bin
-adafruit_metro_m0.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 #
 # Adafruit Circuit Playground M0
@@ -155,7 +152,6 @@ adafruit_circuitplayground_m0.build.vid=0x239A
 adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplay/bootloader_uf2.bin
-adafruit_circuitplayground_m0.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 adafruit_gemma_m0.name=Adafruit Gemma M0
 adafruit_gemma_m0.vid.0=0x239A
@@ -174,7 +170,7 @@ adafruit_gemma_m0.build.usb_product="Gemma M0"
 adafruit_gemma_m0.build.usb_manufacturer="Adafruit"
 adafruit_gemma_m0.build.board=GEMMA_M0
 adafruit_gemma_m0.build.core=arduino
-adafruit_gemma_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_GEMMA_M0 -D__SAMD21E18A__ {build.usb_flags}
+adafruit_gemma_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_GEMMA_M0 -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_gemma_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_gemma_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_gemma_m0.build.variant=gemma_m0
@@ -201,7 +197,7 @@ adafruit_trinket_m0.build.usb_product="Trinket M0"
 adafruit_trinket_m0.build.usb_manufacturer="Adafruit"
 adafruit_trinket_m0.build.board=TRINKET_M0
 adafruit_trinket_m0.build.core=arduino
-adafruit_trinket_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -D__SAMD21E18A__ {build.usb_flags}
+adafruit_trinket_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_TRINKET_M0 -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_trinket_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_trinket_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_trinket_m0.build.variant=trinket_m0
@@ -210,78 +206,6 @@ adafruit_trinket_m0.build.vid=0x239A
 adafruit_trinket_m0.build.pid=0x801E
 adafruit_trinket_m0.bootloader.tool=openocd
 adafruit_trinket_m0.bootloader.file=trinket/bootloader_uf2.bin
-
-# Adafruit Metro M4
-# ------------------------------
-adafruit_metro_m4.name=Adafruit Metro M4
-adafruit_metro_m4.vid.0=0x2341
-adafruit_metro_m4.pid.0=0x804d
-adafruit_metro_m4.vid.1=0x2341
-adafruit_metro_m4.pid.1=0x004d
-
-adafruit_metro_m4.vid.2=0x2341
-adafruit_metro_m4.pid.2=0x824d
-# If the board is a 2341:824d use 2341:824d for build and set other parameters as well
-adafruit_metro_m4.vid.2.build.vid=0x2341
-adafruit_metro_m4.vid.2.build.pid=0x824d
-adafruit_metro_m4.vid.2.build.usb_product="Adafruit Metro M4"
-adafruit_metro_m4.vid.2.bootloader.file=metroM4/samdx1_sam_ba.bin
-
-adafruit_metro_m4.upload.tool=bossac
-adafruit_metro_m4.upload.protocol=sam-ba
-adafruit_metro_m4.upload.maximum_size=507904
-adafruit_metro_m4.upload.use_1200bps_touch=true
-adafruit_metro_m4.upload.wait_for_upload_port=true
-adafruit_metro_m4.upload.native_usb=true
-adafruit_metro_m4.build.mcu=cortex-m4
-adafruit_metro_m4.build.f_cpu=48000000L
-adafruit_metro_m4.build.usb_product="Adafruit Metro M4"
-adafruit_metro_m4.build.usb_manufacturer="Adafruit LLC"
-adafruit_metro_m4.build.board=METRO_M4
-adafruit_metro_m4.build.core=arduino
-adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
-adafruit_metro_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-adafruit_metro_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
-adafruit_metro_m4.build.variant=metro_m4
-adafruit_metro_m4.build.variant_system_lib=
-adafruit_metro_m4.build.vid=0x239A
-adafruit_metro_m4.build.pid=0x8020
-adafruit_metro_m4.bootloader.tool=openocd
-adafruit_metro_m4.bootloader.file=metroM4/METRO_M4_sam_ba.bin
-adafruit_metro_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
-
-# Adafruit Feather M4 (SAMD51)
-# ------------------------------
-adafruit_feather_m4.name=Adafruit Feather M4 (SAMD51)
-adafruit_feather_m4.vid.0=0x239A
-adafruit_feather_m4.pid.0=0x8022
-adafruit_feather_m4.vid.1=0x239A
-adafruit_feather_m4.pid.1=0x0022
-adafruit_feather_m4.upload.tool=bossac
-adafruit_feather_m4.upload.protocol=sam-ba
-adafruit_feather_m4.upload.maximum_size=507904
-adafruit_feather_m4.upload.use_1200bps_touch=true
-adafruit_feather_m4.upload.wait_for_upload_port=true
-adafruit_feather_m4.upload.native_usb=true
-adafruit_feather_m4.build.mcu=cortex-m4
-adafruit_feather_m4.build.f_cpu=48000000L
-adafruit_feather_m4.build.usb_product="Adafruit Feather M4"
-adafruit_feather_m4.build.usb_manufacturer="Adafruit LLC"
-adafruit_feather_m4.build.board=FEATHER_M4
-adafruit_feather_m4.build.core=arduino
-adafruit_feather_m4.build.extra_flags=-D__SAMD51G19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
-adafruit_feather_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-adafruit_feather_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
-adafruit_feather_m4.build.variant=feather_m4
-adafruit_feather_m4.build.variant_system_lib=
-adafruit_feather_m4.build.vid=0x239A
-adafruit_feather_m4.build.pid=0x8022
-adafruit_feather_m4.bootloader.tool=openocd
-adafruit_feather_m4.bootloader.file=metroM4/FEATHER_M4_sam_ba.bin
-adafruit_feather_m4.compiler.c.elf.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
-adafruit_feather_m4.compiler.c.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
-adafruit_feather_m4.compiler.cpp.extra_flags=-mfloat-abi=hard -mfpu=fpv4-sp-d16
-adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 
 adafruit_itsybitsy_m0.name=Adafruit ItsyBitsy M0
 adafruit_itsybitsy_m0.vid.0=0x239A
@@ -302,7 +226,7 @@ adafruit_itsybitsy_m0.build.usb_product="ItsyBitsy M0 Express"
 adafruit_itsybitsy_m0.build.usb_manufacturer="Adafruit"
 adafruit_itsybitsy_m0.build.board=ITSYBITSY_M0
 adafruit_itsybitsy_m0.build.core=arduino
-adafruit_itsybitsy_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_ITSYBITSY_M0 -D__SAMD21G18A__ {build.usb_flags}
+adafruit_itsybitsy_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_ITSYBITSY_M0 -D__SAMD21G18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_itsybitsy_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_itsybitsy_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_itsybitsy_m0.build.variant=itsybitsy_m0
@@ -311,7 +235,6 @@ adafruit_itsybitsy_m0.build.vid=0x239A
 adafruit_itsybitsy_m0.build.pid=0x800F
 adafruit_itsybitsy_m0.bootloader.tool=openocd
 adafruit_itsybitsy_m0.bootloader.file=itsybitsy/samd21_sam_ba.bin
-
 
 adafruit_pirkey.name=Adafruit pIRkey
 adafruit_pirkey.vid.0=0x239A
@@ -330,7 +253,7 @@ adafruit_pirkey.build.usb_product="pIRKey"
 adafruit_pirkey.build.usb_manufacturer="Adafruit"
 adafruit_pirkey.build.board=PIRKEY
 adafruit_pirkey.build.core=arduino
-adafruit_pirkey.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_PIRKEY -D__SAMD21E18A__ {build.usb_flags}
+adafruit_pirkey.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_PIRKEY -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_pirkey.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_pirkey.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_pirkey.build.variant=pirkey
@@ -339,3 +262,64 @@ adafruit_pirkey.build.vid=0x239A
 adafruit_pirkey.build.pid=0x801E
 adafruit_pirkey.bootloader.tool=openocd
 adafruit_pirkey.bootloader.file=pirkey/bootloader_uf2.bin
+
+
+# Adafruit Metro M4 (SAMD51)
+# ------------------------------
+adafruit_metro_m4.name=Adafruit Metro M4 (SAMD51)
+adafruit_metro_m4.vid.0=0x239A
+adafruit_metro_m4.pid.0=0x8020
+adafruit_metro_m4.vid.1=0x239A
+adafruit_metro_m4.pid.1=0x0020
+adafruit_metro_m4.upload.tool=bossac
+adafruit_metro_m4.upload.protocol=sam-ba
+adafruit_metro_m4.upload.maximum_size=507904
+adafruit_metro_m4.upload.use_1200bps_touch=true
+adafruit_metro_m4.upload.wait_for_upload_port=true
+adafruit_metro_m4.upload.native_usb=true
+adafruit_metro_m4.build.mcu=cortex-m4
+adafruit_metro_m4.build.f_cpu=48000000L
+adafruit_metro_m4.build.usb_product="Adafruit Metro M4"
+adafruit_metro_m4.build.usb_manufacturer="Adafruit LLC"
+adafruit_metro_m4.build.board=METRO_M4
+adafruit_metro_m4.build.core=arduino
+adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_metro_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_metro_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_metro_m4.build.variant=metro_m4
+adafruit_metro_m4.build.variant_system_lib=
+adafruit_metro_m4.build.vid=0x239A
+adafruit_metro_m4.build.pid=0x8020
+adafruit_metro_m4.bootloader.tool=openocd
+adafruit_metro_m4.bootloader.file=metroM4/bootloader.bin
+adafruit_metro_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+
+# Adafruit Feather M4 (SAMD51)
+# ------------------------------
+#adafruit_feather_m4.name=Adafruit Feather M4 (SAMD51)
+#adafruit_feather_m4.vid.0=0x239A
+#adafruit_feather_m4.pid.0=0x8022
+#adafruit_feather_m4.vid.1=0x239A
+#adafruit_feather_m4.pid.1=0x0022
+#adafruit_feather_m4.upload.tool=bossac
+#adafruit_feather_m4.upload.protocol=sam-ba
+#adafruit_feather_m4.upload.maximum_size=507904
+#adafruit_feather_m4.upload.use_1200bps_touch=true
+#adafruit_feather_m4.upload.wait_for_upload_port=true
+#adafruit_feather_m4.upload.native_usb=true
+#adafruit_feather_m4.build.mcu=cortex-m4
+#adafruit_feather_m4.build.f_cpu=48000000L
+#adafruit_feather_m4.build.usb_product="Adafruit Feather M4"
+#adafruit_feather_m4.build.usb_manufacturer="Adafruit LLC"
+#adafruit_feather_m4.build.board=FEATHER_M4
+#adafruit_feather_m4.build.core=arduino
+#adafruit_feather_m4.build.extra_flags=-D__SAMD51G19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+#adafruit_feather_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+#adafruit_feather_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
+#adafruit_feather_m4.build.variant=feather_m4
+#adafruit_feather_m4.build.variant_system_lib=
+#adafruit_feather_m4.build.vid=0x239A
+#adafruit_feather_m4.build.pid=0x8022
+#adafruit_feather_m4.bootloader.tool=openocd
+#adafruit_feather_m4.bootloader.file=metroM4/bootloader.bin
+#adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
