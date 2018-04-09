@@ -100,7 +100,7 @@ extern "C"
 #define PIN_A5               (PIN_A0 + 5)
 #define PIN_A6               (PIN_A0 + 6)
 #define PIN_A7               (PIN_A0 + 7)
-#define PIN_DAC0             (14ul)
+#define PIN_DAC0             PIN_A0
 #define PIN_DAC1             PIN_A1
 
 static const uint8_t A0  = PIN_A0;
@@ -118,7 +118,7 @@ static const uint8_t DAC1 = PIN_DAC1;
 #define ADC_RESOLUTION		12
 
 // Other pins
-#define PIN_ATN              (38ul)
+#define PIN_ATN              (39ul)
 static const uint8_t ATN = PIN_ATN;
 
 /*
@@ -196,12 +196,12 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_I2S_MCK			(2u)
 
 //QSPI Pins
-#define PIN_QSPI_SCK	(40u)
-#define PIN_QSPI_CS		(41u)
-#define PIN_QSPI_IO0	(42u)
-#define PIN_QSPI_IO1	(43u)
-#define PIN_QSPI_IO2	(44u)
-#define PIN_QSPI_IO3	(45u)
+#define PIN_QSPI_SCK	(41u)
+#define PIN_QSPI_CS	(42u)
+#define PIN_QSPI_IO0	(43u)
+#define PIN_QSPI_IO1	(44u)
+#define PIN_QSPI_IO2	(45u)
+#define PIN_QSPI_IO3	(46u)
 
 //PCC Pins
 #define PIN_PCC_DEN1    (PIN_SPI_MOSI)
