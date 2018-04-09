@@ -278,6 +278,35 @@ mkrwifi1010.build.pid=0x8054
 mkrwifi1010.bootloader.tool=openocd
 mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
 
+# Arduino MKR WiFi 1400
+# --------------------
+mkrvidor.name=Arduino MKR Vidor 2000
+mkrvidor.vid.0=0x2341
+mkrvidor.pid.0=0x8056
+mkrvidor.vid.1=0x2341
+mkrvidor.pid.1=0x0056
+
+mkrvidor.upload.tool=bossac
+mkrvidor.upload.protocol=sam-ba
+mkrvidor.upload.maximum_size=262144
+mkrvidor.upload.use_1200bps_touch=true
+mkrvidor.upload.wait_for_upload_port=true
+mkrvidor.upload.native_usb=true
+mkrvidor.build.mcu=cortex-m0plus
+mkrvidor.build.f_cpu=48000000L
+mkrvidor.build.usb_product="Arduino MKR Vidor 2000"
+mkrvidor.build.usb_manufacturer="Arduino LLC"
+mkrvidor.build.board=SAMD_MKRVIDOR
+mkrvidor.build.core=arduino
+mkrvidor.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
+mkrvidor.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrvidor.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrvidor.build.variant=mkrvidor
+mkrvidor.build.vid=0x2341
+mkrvidor.build.pid=0x8056
+mkrvidor.bootloader.tool=openocd
+mkrvidor.bootloader.file=mkrvidor/samd21_sam_ba_arduino_mkrvidor.bin
+
 # Adafruit Circuit Playground M0
 # ------------------------------
 adafruit_circuitplayground_m0.name=Adafruit Circuit Playground Express
