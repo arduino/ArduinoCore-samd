@@ -17,6 +17,7 @@
 */
 
 #include "variant.h"
+#include "Arduino.h"
 
 const PinDescription g_APinDescription[] = {
 
@@ -135,9 +136,9 @@ const PinDescription g_APinDescription[] = {
  | 29         |                  |  PA15  | SD MISO         |   15   |     |     |     |     |  *2/03  |   4/03  |  TC3/1 | TCC0/5 |          | GCLK_IO1 |
  | 30         |                  |  PA27  | SD CD           |   15   |     |     |     |     |         |         |        |        |          | GCLK_IO0 |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
- | 31         |                  |  PA28  | BOTTOM PAD      |   08   |     |     |     |     |         |         |        |        |          | GCLK_IO0 |
- | 32         |                  |  PB08  | LED_BUILTIN     |   08   |  02 |     | Y14 |     |         |   4/00  |  TC4/0 |        |          |          |
- | 33         |                  |  PB09  | ADC_BATTERY     |  *09   |  03 |     | Y15 |     |         |   4/01  |  TC4/1 |        |          |          |
+ | 31         |                  |  PA28  | LED_GREEN       |   08   |     |     |     |     |         |         |        |        |          | GCLK_IO0 |
+ | 32         |                  |  PB08  | LED_RED_BUILTIN |   08   |  02 |     | Y14 |     |         |   4/00  |  TC4/0 |        |          |          |
+ | 33         |                  |  PB09  | LED_BLUE        |  *09   |  03 |     | Y15 |     |         |   4/01  |  TC4/1 |        |          |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  |            | 32768Hz Crystal  |        |                 |        |     |     |     |     |         |         |        |        |          |          |
  | 34         |                  |  PA00  | XIN32           |   00   |     |     |     |     |         |   1/00  | TCC2/0 |        |          |          |
@@ -151,15 +152,65 @@ const PinDescription g_APinDescription[] = {
   { PORTA, 15, PIO_SERCOM,     (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MISO: SERCOM2/PAD[3]
   { PORTA, 27, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
   
-  { PORTA, 28, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
-  { PORTB,  8, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
-  { PORTB,  9, PIO_ANALOG,     (PIN_ATTR_PWM|PIN_ATTR_TIMER                  ), ADC_Channel3,   PWM4_CH1,   TC4_CH1,      EXTERNAL_INT_9    },
+  { PORTA, 28, PIO_DIGITAL,    (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
+  { PORTB,  8, PIO_DIGITAL,    (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
+  { PORTB,  9, PIO_DIGITAL,    (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER ), ADC_Channel3,   PWM4_CH1,   TC4_CH1,      EXTERNAL_INT_9    },
 
   { PORTA,  0, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
   { PORTA,  1, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
 };
 
 const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 };
+
+#if defined(USE_BQ24195L_PMIC)
+
+#include "wiring_private.h"
+
+#define PMIC_ADDRESS  0x6B
+#define PMIC_REG01    0x01
+#define PMIC_REG07    0x07
+
+static inline void enable_battery_charging() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
+  PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
+static inline void disable_battery_fet(bool disabled) {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
+  // No D+/D– detection + Safety timer not slowed by 2X during input DPM or thermal regulation +
+  // BAT fet disabled/enabled + charge and bat fault INT
+  PERIPH_WIRE.sendDataMasterWIRE(0x0B | (disabled ? 0x20 : 0x00));
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
+#endif
+
+void initVariant() {
+#if defined(USE_BQ24195L_PMIC)
+  enable_battery_charging();
+#endif
+
+  // TODO: move to the FPGA library?
+  pinPeripheral(30, PIO_AC_CLK);
+  clockout(0, 1);
+}
 
 // Multi-serial objects instantiation
 SERCOM sercom0(SERCOM0);

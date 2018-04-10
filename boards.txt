@@ -305,7 +305,7 @@ mkrvidor.build.variant=mkrvidor
 mkrvidor.build.vid=0x2341
 mkrvidor.build.pid=0x8056
 mkrvidor.bootloader.tool=openocd
-mkrvidor.bootloader.file=mkrvidor/samd21_sam_ba_arduino_mkrvidor.bin
+mkrvidor.bootloader.file=mkrvidor2000/samd21_sam_ba_arduino_mkrvidor.bin
 
 # Adafruit Circuit Playground M0
 # ------------------------------

@@ -60,9 +60,6 @@
  */
 // #define digitalPinToTimer(P)
 
-//Battery
-#define ADC_BATTERY	(33u)
-
 // LEDs
 // ----
 #define PIN_LED     (32u)
@@ -123,6 +120,12 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 #define SDCARD_MOSI_PIN PIN_SPI1_MOSI
 #define SDCARD_SCK_PIN  PIN_SPI1_SCK
 #define SDCARD_SS_PIN   PIN_SPI1_SS
+
+// TEMP: NINA passthrough
+#define SPIWIFI         SPI
+#define SPIWIFI_SS      5
+#define SPIWIFI_ACK     6
+#define SPIWIFI_RESET   7
 
 // Wire Interfaces
 // ---------------
@@ -195,3 +198,11 @@ extern Uart Serial1;
 // Alias Serial to SerialUSB
 #define Serial                      SerialUSB
 
+// FPGA-specific clock
+#ifdef __cplusplus
+extern "C" {
+#endif
+void clockout(uint32_t gclk, int32_t divisor);
+#ifdef __cplusplus
+}
+#endif
