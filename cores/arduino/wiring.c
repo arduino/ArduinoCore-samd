@@ -80,12 +80,6 @@ void init( void )
   // Clock ADC/DAC for Analog
   PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
 
-  // Setup all pins (digital and analog) in INPUT mode (default is nothing)
-  for (uint32_t ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
-  {
-    pinMode( ul, INPUT ) ;
-  }
-
   // Initialize Analog Controller
   // Setting clock
   while(GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
