@@ -288,7 +288,7 @@ mkrvidor.pid.1=0x0056
 
 mkrvidor.upload.tool=bossac
 mkrvidor.upload.protocol=sam-ba
-mkrvidor.upload.maximum_size=262144
+mkrvidor.upload.maximum_size=1048576
 mkrvidor.upload.use_1200bps_touch=true
 mkrvidor.upload.wait_for_upload_port=true
 mkrvidor.upload.native_usb=true
