@@ -30,6 +30,8 @@
 #define GENERIC_CLOCK_GENERATOR_48M_SYNC	GCLK_SYNCBUSY_GENCTRL1
 #define GENERIC_CLOCK_GENERATOR_100M	  (2u)
 #define GENERIC_CLOCK_GENERATOR_100M_SYNC	GCLK_SYNCBUSY_GENCTRL2
+#define GENERIC_CLOCK_GENERATOR_12M       (4u)
+#define GENERIC_CLOCK_GENERATOR_12M_SYNC   GCLK_SYNCBUSY_GENCTRL4
 
 //USE DPLL0 for 120MHZ
 #define MAIN_CLOCK_SOURCE				  GCLK_GENCTRL_SRC_DPLL0
@@ -204,6 +206,19 @@ void SystemInit( void )
 	{
 		/* Wait for synchronization */
 	}
+
+  //12MHZ CLOCK FOR DAC
+    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_12M].reg = GCLK_GENCTRL_SRC(GCLK_GENCTRL_SRC_DFLL_Val) |
+    GCLK_GENCTRL_IDC |
+    GCLK_GENCTRL_DIV(4) |
+    GCLK_GENCTRL_DIVSEL |
+    //GCLK_GENCTRL_OE |
+    GCLK_GENCTRL_GENEN;
+
+    while ( GCLK->SYNCBUSY.reg & GENERIC_CLOCK_GENERATOR_12M_SYNC)
+    {
+        /* Wait for synchronization */
+    }
   
   /*---------------------------------------------------------------------
   * Set up main clock
