@@ -23,6 +23,7 @@
 #include "sam_ba_serial.h"
 #include "board_driver_serial.h"
 #include "board_driver_usb.h"
+#include "board_driver_jtag.h"
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 #include "board_driver_led.h"
@@ -433,6 +434,11 @@ static void sam_ba_monitor_loop(void)
           uint32_t *src_addr = src_buff_addr;
           uint32_t *dst_addr = (uint32_t*)ptr_data;
 
+#ifdef ENABLE_JTAG_LOAD
+          if (*dst_addr > MAX_FLASH) {
+            jtagWriteBuffer(FPGA_RAM_BASE + *dst_addr - MAX_FLASH, src_addr, size);
+          }
+#endif
           // Set automatic page write
           NVMCTRL->CTRLB.bit.MANW = 0;
 
@@ -543,6 +549,10 @@ void sam_ba_monitor_run(void)
   PAGE_SIZE = pageSizes[NVMCTRL->PARAM.bit.PSZ];
   PAGES = NVMCTRL->PARAM.bit.NVMP;
   MAX_FLASH = PAGE_SIZE * PAGES;
+
+#ifdef ENABLE_JTAG_LOAD
+  jtagInit();
+#endif
 
   ptr_data = NULL;
   command = 'z';

@@ -54,7 +54,7 @@ extern int main(void);
 extern void __libc_init_array(void);
 
 /* Exception Table */
-__attribute__ ((section(".isr_vector")))
+__attribute__ ((used, section(".isr_vector")))
 const struct ConstVectors exception_table =
 {
   /* Configure Initial Stack Pointer, using linker-generated symbols */

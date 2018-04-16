@@ -67,7 +67,7 @@ CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdat
 ifdef DEBUG
   CFLAGS+=-g3 -O1 -DDEBUG=1
 else
-  CFLAGS+=-Os -DDEBUG=0
+  CFLAGS+=-Os -DDEBUG=0 -flto
 endif
 
 ELF=$(NAME).elf
@@ -88,6 +88,7 @@ SOURCES= \
   board_driver_i2c.c \
   board_driver_led.c \
   board_driver_pmic.c \
+  board_driver_jtag.c \
   board_driver_serial.c \
   board_driver_usb.c \
   board_init.c \

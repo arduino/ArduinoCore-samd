@@ -76,6 +76,14 @@
 #define PMIC_PIN_SDA                      11
 #define PMIC_SERCOM                       SERCOM0                      
 
+#define ENABLE_JTAG_LOAD                  1
+#define TDI 12
+#define TDO 15
+#define TCK 13
+#define TMS 14
+
+#define FPGA_RAM_BASE                     0x10000
+
 // No RX/TX led
 //#define BOARD_LEDRX_PORT
 //#define BOARD_LEDRX_PIN
