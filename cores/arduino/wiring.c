@@ -138,8 +138,12 @@ void init( void )
 	DAC->CTRLA.bit.SWRST = 1;
 	while ( DAC->SYNCBUSY.bit.SWRST == 1 ); // Wait for synchronization of registers between the clock domains
 	
-	DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VREFPU; // TODO: make this work with VDDANA
+	DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VREFPU; // TODO: fix this once silicon bug is fixed
 	
+	//set refresh rates
+	DAC->DACCTRL[0].bit.REFRESH = 2;
+	DAC->DACCTRL[1].bit.REFRESH = 2;
+
 #else
   while(GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
 
