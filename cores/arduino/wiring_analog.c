@@ -373,6 +373,22 @@ void analogWrite(uint32_t pin, uint32_t value)
 		
 			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
 			DAC->CTRLA.bit.ENABLE = 1;     // enable DAC
+
+	        if(channel == 0){
+
+	            while ( !DAC->STATUS.bit.READY0 );
+
+	            while (DAC->SYNCBUSY.bit.DATA0);
+	            DAC->DATA[0].reg = value;
+	        }
+	        else if(channel == 1){
+	            while ( !DAC->STATUS.bit.READY1 );
+
+	            while (DAC->SYNCBUSY.bit.DATA1);
+	            DAC->DATA[1].reg = value;
+	        }
+
+            delay(10);
 		}
 		
 		//ERROR!

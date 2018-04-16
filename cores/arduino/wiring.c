@@ -131,7 +131,7 @@ void init( void )
 
 	analogReference( AR_DEFAULT ) ; // Analog Reference is AREF pin (3.3v)
 	
-	GCLK->PCHCTRL[DAC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 1 (48mhz)
+	GCLK->PCHCTRL[DAC_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK4_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 4 (12mhz)
 	while (GCLK->PCHCTRL[DAC_GCLK_ID].bit.CHEN == 0);
 	
 	while ( DAC->SYNCBUSY.bit.SWRST == 1 ); // Wait for synchronization of registers between the clock domains
