@@ -27,6 +27,7 @@
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 #include "board_driver_led.h"
+#include <stdlib.h>
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
 const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZ]";
@@ -344,6 +345,11 @@ static void sam_ba_monitor_loop(void)
       }
       else if (command == 'G')
       {
+
+#ifdef ENABLE_JTAG_LOAD
+        // TODO: call jtag command to move bitstream from ram to flash
+        //jtagWriteBuffer(?????)
+#endif
         call_applet(current_number);
         /* Rebase the Stack Pointer */
         __set_MSP(sp);
@@ -435,8 +441,9 @@ static void sam_ba_monitor_loop(void)
           uint32_t *dst_addr = (uint32_t*)ptr_data;
 
 #ifdef ENABLE_JTAG_LOAD
-          if (*dst_addr > MAX_FLASH) {
-            jtagWriteBuffer(FPGA_RAM_BASE + *dst_addr - MAX_FLASH, src_addr, size);
+          if ((uint32_t)dst_addr >= 0x40000) {
+            jtagWriteBuffer(FPGA_RAM_BASE + (uint32_t)dst_addr - 0x40000, src_addr, size);
+            goto end;
           }
 #endif
           // Set automatic page write
@@ -470,6 +477,8 @@ static void sam_ba_monitor_loop(void)
           }
         }
 
+end:
+
         // Notify command completed
         sam_ba_putdata( ptr_monitor_if, "Y\n\r", 3);
       }
@@ -482,10 +491,22 @@ static void sam_ba_monitor_loop(void)
         // Syntax: Z[START_ADDR],[SIZE]#
         // Returns: Z[CRC]#
 
-        uint8_t *data = (uint8_t *)ptr_data;
+        uint8_t *data;
         uint32_t size = current_number;
         uint16_t crc = 0;
         uint32_t i = 0;
+
+#ifdef ENABLE_JTAG_LOAD
+        if ((uint32_t)ptr_data >= 0x40000) {
+          data = (uint8_t*)malloc(size);
+          jtagReadBuffer(FPGA_RAM_BASE + (uint32_t)ptr_data - 0x40000, data, size/4);
+        } else {
+          data = (uint8_t *)ptr_data;
+        }
+#else
+        data = (uint8_t *)ptr_data;
+#endif
+
         for (i=0; i<size; i++)
           crc = serial_add_crc(*data++, crc);
 
@@ -493,6 +514,12 @@ static void sam_ba_monitor_loop(void)
         sam_ba_putdata( ptr_monitor_if, "Z", 1);
         put_uint32(crc);
         sam_ba_putdata( ptr_monitor_if, "#\n\r", 3);
+
+#ifdef ENABLE_JTAG_LOAD
+        if (ptr_data > 0x40000) {
+          free(data);
+        }
+#endif
       }
 
       command = 'z';
