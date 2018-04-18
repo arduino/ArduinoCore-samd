@@ -27,9 +27,16 @@ void pinModeExtended( uint32_t ulPin, uint32_t ulMode ) __attribute__((weak));
 void digitalWriteExtended( uint32_t ulPin, uint32_t ulVal ) __attribute__((weak));
 int digitalReadExtended( uint32_t ulPin ) __attribute__((weak));
 
-void pinModeExtended( uint32_t ulPin, uint32_t ulMode ) {}
-void digitalWriteExtended( uint32_t ulPin, uint32_t ulVal ) {}
+void pinModeExtended( uint32_t ulPin, uint32_t ulMode ) {
+  (void)ulPin;
+  (void)ulMode;
+}
+void digitalWriteExtended( uint32_t ulPin, uint32_t ulVal ) {
+  (void)ulPin;
+  (void)ulVal;
+}
 int digitalReadExtended( uint32_t ulPin ) {
+  (void)ulPin;
   return LOW;
 }
 
