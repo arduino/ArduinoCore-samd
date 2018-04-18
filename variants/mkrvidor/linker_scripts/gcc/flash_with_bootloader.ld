@@ -25,7 +25,7 @@
  */
 MEMORY
 {
-  FLASH_FPGA (rx) : ORIGIN = 0x00040000, LENGTH = 0x00100000
+  FLASH_FPGA (r) : ORIGIN = 0x00040000, LENGTH = 0x00100000 
   FLASH (rx) : ORIGIN = 0x00000000+0x2000, LENGTH = 0x00040000-0x2000 /* First 8KB used by bootloader */
   RAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00008000
 }
@@ -142,13 +142,13 @@ SECTIONS
 	} > FLASH
 	*/
 
-	.text :
+	__etext = .;
+
+	.fpga_bitstream_section :
 	{
 		KEEP(*(.fpga_bitstream_signature))
 		KEEP(*(.fpga_bitstream))
 	} > FLASH_FPGA
-
-	__etext = .;
 
 	.data : AT (__etext)
 	{
