@@ -75,10 +75,10 @@ typedef enum _ETCChannel
   TCC1_CH1 = (1<<8)|(1),
   TCC1_CH2 = (1<<8)|(2),
   TCC1_CH3 = (1<<8)|(3),
-  TCC1_CH4 = (1<<8)|(4),
-  TCC1_CH5 = (1<<8)|(5),
-  TCC1_CH6 = (1<<8)|(6),
-  TCC1_CH7 = (1<<8)|(7),
+  TCC1_CH4 = (1<<8)|(0),
+  TCC1_CH5 = (1<<8)|(1),
+  TCC1_CH6 = (1<<8)|(2),
+  TCC1_CH7 = (1<<8)|(3),
 } ETCChannel ;
 
 #else
