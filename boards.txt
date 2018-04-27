@@ -33,7 +33,7 @@ adafruit_feather_m0.build.usb_product="Feather M0"
 adafruit_feather_m0.build.usb_manufacturer="Adafruit"
 adafruit_feather_m0.build.board=SAMD_ZERO
 adafruit_feather_m0.build.core=arduino
-adafruit_feather_m0.build.extra_flags=-DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS -D__SAMD21G18A__ {build.usb_flags}
+adafruit_feather_m0.build.extra_flags=-DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS  -DADAFRUIT_FEATHER_M0 -D__SAMD21G18A__ {build.usb_flags}
 adafruit_feather_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_feather_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_feather_m0.build.variant=feather_m0
@@ -292,7 +292,7 @@ adafruit_metro_m4.build.usb_product="Adafruit Metro M4"
 adafruit_metro_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_metro_m4.build.board=METRO_M4
 adafruit_metro_m4.build.core=arduino
-adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_metro_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_metro_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_metro_m4.build.variant=metro_m4
