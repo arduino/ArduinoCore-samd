@@ -14,6 +14,7 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+menu.cache=Cache
 
 adafruit_feather_m0.name=Adafruit Feather M0
 adafruit_feather_m0.vid.0=0x239A
@@ -301,6 +302,11 @@ adafruit_metro_m4.build.pid=0x8020
 adafruit_metro_m4.bootloader.tool=openocd
 adafruit_metro_m4.bootloader.file=metroM4/bootloader.bin
 adafruit_metro_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_metro_m4.menu.cache.on=Enabled
+adafruit_metro_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_metro_m4.menu.cache.off=Disabled
+adafruit_metro_m4.menu.cache.off.build.cache_flags=
+
 
 # Adafruit Feather M4 (SAMD51)
 # ------------------------------
