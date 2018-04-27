@@ -224,7 +224,6 @@ void SystemInit( void )
   * Set up main clock
   */
 
-
 	GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = GCLK_GENCTRL_SRC(MAIN_CLOCK_SOURCE) |
 					GCLK_GENCTRL_IDC |
 					//GCLK_GENCTRL_OE |
@@ -241,6 +240,14 @@ void SystemInit( void )
   /* Use the LDO regulator by default */
   SUPC->VREG.bit.SEL = 0; 
   
+
+  /* If desired, enable cache! */
+#if defined(ENABLE_CACHE)
+  __disable_irq();
+  CMCC->CTRL.reg = 1;
+  __enable_irq();
+#endif
+
 //*************** END SAMD51 *************************//
   
 #else
