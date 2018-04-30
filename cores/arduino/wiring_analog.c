@@ -388,7 +388,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 	            DAC->DATA[1].reg = value;
 	        }
 
-            delay(10);
+            delayMicroseconds(10000);
 		}
 		
 		//ERROR!
