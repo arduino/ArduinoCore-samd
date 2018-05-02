@@ -23,6 +23,8 @@
 extern "C" {
 #endif
 
+void analogWriteExtended( uint32_t pin, uint32_t value ) __attribute__((weak));
+
 static int _readResolution = 10;
 static int _ADCResolution = 10;
 static int _writeResolution = 8;
@@ -189,6 +191,14 @@ uint32_t analogRead(uint32_t pin)
 // to digital output.
 void analogWrite(uint32_t pin, uint32_t value)
 {
+
+  // Handle the case the pin isn't usable as PIO
+  if ( pin > PINS_COUNT || g_APinDescription[pin].ulPinType == PIO_NOT_A_PIN )
+  {
+    analogWriteExtended(pin, value);
+    return ;
+  }
+
   PinDescription pinDesc = g_APinDescription[pin];
   uint32_t attr = pinDesc.ulPinAttribute;
 
