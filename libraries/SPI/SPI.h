@@ -73,6 +73,10 @@ class SPISettings {
     return !(*this == rhs);
   }
 
+  uint32_t getClockFreq() const {return clockFreq;}
+  uint8_t getDataMode() const {return (uint8_t)dataMode;}
+  BitOrder getBitOrder() const {return (bitOrder == MSB_FIRST ? MSBFIRST : LSBFIRST);}
+
   private:
   void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
     init_AlwaysInline(clock, bitOrder, dataMode);
