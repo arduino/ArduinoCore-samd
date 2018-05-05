@@ -324,12 +324,12 @@ adafruit_itsybitsy_m4.upload.use_1200bps_touch=true
 adafruit_itsybitsy_m4.upload.wait_for_upload_port=true
 adafruit_itsybitsy_m4.upload.native_usb=true
 adafruit_itsybitsy_m4.build.mcu=cortex-m4
-adafruit_itsybitsy_m4.build.f_cpu=48000000L
+adafruit_itsybitsy_m4.build.f_cpu=120000000L
 adafruit_itsybitsy_m4.build.usb_product="Adafruit ItsyBitsy M4"
 adafruit_itsybitsy_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_itsybitsy_m4.build.board=ITSYBITSY_M4
 adafruit_itsybitsy_m4.build.core=arduino
-adafruit_itsybitsy_m4.build.extra_flags=-D__SAMD51G19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -DCRYSTALLESS -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_itsybitsy_m4.build.extra_flags=-D__SAMD51G19A__ -DADAFRUIT_ITSYBITSY_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -DCRYSTALLESS -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_itsybitsy_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_itsybitsy_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_itsybitsy_m4.build.variant=itsybitsy_m4
@@ -339,6 +339,10 @@ adafruit_itsybitsy_m4.build.pid=0x802B
 adafruit_itsybitsy_m4.bootloader.tool=openocd
 adafruit_itsybitsy_m4.bootloader.file=metroM4/bootloader.bin
 adafruit_itsybitsy_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_itsybitsy_m4.menu.cache.on=Enabled
+adafruit_itsybitsy_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_itsybitsy_m4.menu.cache.off=Disabled
+adafruit_itsybitsy_m4.menu.cache.off.build.cache_flags=
 
 
 # Adafruit Feather M4 (SAMD51)
