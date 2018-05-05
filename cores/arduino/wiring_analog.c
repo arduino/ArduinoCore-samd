@@ -388,7 +388,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 	            DAC->DATA[1].reg = value;
 	        }
 
-            delay(10);
+            delayMicroseconds(10000);
 		}
 		
 		//ERROR!
@@ -444,9 +444,12 @@ void analogWrite(uint32_t pin, uint32_t value)
         pinPeripheral(pin, PIO_TIMER);
 #endif
       }
-    } else {
-      // We suppose that attr has PIN_ATTR_TIMER_ALT bit set...
-      pinPeripheral(pin, PIO_TIMER_ALT);
+    } else if ((attr & PIN_ATTR_TIMER_ALT) == PIN_ATTR_TIMER_ALT){
+        //this is on an alt timer
+        pinPeripheral(pin, PIO_TIMER_ALT);
+    }
+    else{
+        return;
     }
 
     if (!tcEnabled[tcNum]) {
