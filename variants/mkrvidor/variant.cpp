@@ -167,6 +167,7 @@ const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3,
 #include "wiring_private.h"
 
 #define PMIC_ADDRESS  0x6B
+#define PMIC_REG00    0x00
 #define PMIC_REG01    0x01
 #define PMIC_REG07    0x07
 
@@ -195,6 +196,11 @@ static inline void disable_battery_fet(bool disabled) {
   // No D+/D– detection + Safety timer not slowed by 2X during input DPM or thermal regulation +
   // BAT fet disabled/enabled + charge and bat fault INT
   PERIPH_WIRE.sendDataMasterWIRE(0x0B | (disabled ? 0x20 : 0x00));
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG00);
+  PERIPH_WIRE.sendDataMasterWIRE(0x6 | 0x30);
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
   PERIPH_WIRE.disableWIRE();
