@@ -176,6 +176,17 @@ int main(void)
   board_init();
   __enable_irq();
 
+#ifdef ENABLE_JTAG_LOAD
+  uint32_t temp ;
+  // Get whole current setup for both odd and even pins and remove odd one
+  temp = (PORT->Group[0].PMUX[27 >> 1].reg) & PORT_PMUX_PMUXE( 0xF ) ;
+  // Set new muxing
+  PORT->Group[0].PMUX[27 >> 1].reg = temp|PORT_PMUX_PMUXO( 7 ) ;
+  // Enable port mux
+  PORT->Group[0].PINCFG[27].reg |= PORT_PINCFG_PMUXEN ;
+  clockout(0, 1);
+#endif
+
 #ifdef CONFIGURE_PMIC
   configure_pmic();
   if (jump_to_app == true) {

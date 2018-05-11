@@ -345,11 +345,6 @@ static void sam_ba_monitor_loop(void)
       }
       else if (command == 'G')
       {
-
-#ifdef ENABLE_JTAG_LOAD
-        // TODO: call jtag command to move bitstream from ram to flash
-        //jtagWriteBuffer(?????)
-#endif
         call_applet(current_number);
         /* Rebase the Stack Pointer */
         __set_MSP(sp);
@@ -441,8 +436,16 @@ static void sam_ba_monitor_loop(void)
           uint32_t *dst_addr = (uint32_t*)ptr_data;
 
 #ifdef ENABLE_JTAG_LOAD
+          if ((uint32_t)dst_addr == 0x40000) {
+              jtagInit();
+              jtagFlashEraseBlock(0);
+          }
+
           if ((uint32_t)dst_addr >= 0x40000) {
-            jtagWriteBuffer(FPGA_RAM_BASE + (uint32_t)dst_addr - 0x40000, src_addr, size);
+            for (int j =0; j<size; ) {
+              jtagFlashWriteBlock((uint32_t)dst_addr - 0x40000 + j*4, 512, (uint32_t*)&src_addr[j]);
+              j += 128;
+            }
             goto end;
           }
 #endif
@@ -497,9 +500,16 @@ end:
         uint32_t i = 0;
 
 #ifdef ENABLE_JTAG_LOAD
+		uint8_t buf[4096];
+#endif
+
+#ifdef ENABLE_JTAG_LOAD
         if ((uint32_t)ptr_data >= 0x40000) {
-          data = (uint8_t*)malloc(size);
-          jtagReadBuffer(FPGA_RAM_BASE + (uint32_t)ptr_data - 0x40000, data, size/4);
+          data = (uint8_t*)buf;
+          for (int j =0; j<size; ) {
+            jtagFlashReadBlock((uint32_t)ptr_data - 0x40000 + j, 512, &data[j]);
+            j += 512;
+          }
         } else {
           data = (uint8_t *)ptr_data;
         }
@@ -514,12 +524,6 @@ end:
         sam_ba_putdata( ptr_monitor_if, "Z", 1);
         put_uint32(crc);
         sam_ba_putdata( ptr_monitor_if, "#\n\r", 3);
-
-#ifdef ENABLE_JTAG_LOAD
-        if (ptr_data > 0x40000) {
-          free(data);
-        }
-#endif
       }
 
       command = 'z';
@@ -576,10 +580,6 @@ void sam_ba_monitor_run(void)
   PAGE_SIZE = pageSizes[NVMCTRL->PARAM.bit.PSZ];
   PAGES = NVMCTRL->PARAM.bit.NVMP;
   MAX_FLASH = PAGE_SIZE * PAGES;
-
-#ifdef ENABLE_JTAG_LOAD
-  jtagInit();
-#endif
 
   ptr_data = NULL;
   command = 'z';

@@ -45,6 +45,8 @@ int port_pin_get_input_level(int pin) {
   return inpin_get(pin);
 }
 
+
+
 /******************************************************************/
 /* Name:         DriveSignal                                      */
 /*                                                                */
@@ -417,6 +419,68 @@ static void SetupChain(int action)
   AdvanceJSM(1);
 }
 
+/******************************************************************/
+/* Name:         CheckStatus                                      */
+/*                                                                */
+/* Parameters:   dev_seq                                          */
+/*               -dev_seq is the device sequence in chains.       */
+/*                                                                */
+/* Return Value: '0' if CONF_DONE is HIGH;'1' if it is LOW.       */
+/*               		                                          */
+/* Descriptions: Issue CHECK_STATUS instruction to the device to  */
+/*               be configured and BYPASS for the rest of the     */
+/*               devices.                                         */
+/*                                                                */
+/*               <conf_done_bit> =                                */
+/*                  ((<Maximum JTAG sequence> -                   */
+/*                    <JTAG sequence for CONF_DONE pin>)*3) + 1   */
+/*                                                                */
+/*               The formula calculates the number of bits        */
+/*               to be shifted out from the device, excluding the */
+/*               1-bit register for each device in BYPASS mode.   */
+/*                                                                */
+/******************************************************************/
+int CheckStatus()
+{
+	int bit,data=0,error=0;
+	int jseq_max=0,jseq_conf_done=0,conf_done_bit=0;
+
+	//	fprintf( stdout, "Info: Checking Status\n" );
+
+	/* Load CHECK_STATUS instruction */
+	SetupChain(JI_CHECK_STATUS);
+
+	Js_Shiftdr();
+
+	/* Maximum JTAG sequence of the device in chain */
+	jseq_max= JSEQ_MAX;
+
+	jseq_conf_done= JSEQ_CONF_DONE;
+
+	conf_done_bit = ((jseq_max-jseq_conf_done)*3)+1;
+
+	/* Compensate for 1 bit unloaded from every Bypass register */
+	conf_done_bit+= 0;
+	
+	for(bit=0;bit<conf_done_bit;bit++)
+	{
+		DriveSignal(TDI,0,1);
+	}
+
+	data = ReadTDO(1,0,0);
+
+	if(!data)
+	{
+		error++;
+	}
+
+	/* Move JSM to RUNIDLE */
+	Js_Updatedr();
+	Js_Runidle();
+
+	return (error);
+}
+
 static int jtagVIR(int instruction)
 {
   int ret = 0;
@@ -448,46 +512,49 @@ int jtagInit(void)
   port_pin_set_output_level (TDI, 1);
   port_pin_set_output_level (TCK, 0);
 
-  LoadJI(JI_ACTIVE_DISENGAGE); // disable Active Serial state machine
   Js_Runidle();
 
-  LoadJI(JI_USER1_VIR); // Ji_Active_Disengage(device_count,ji_info);
-  Js_Shiftdr();
-  ReadTDO(64, 0, 0);
-  Js_Updatedr();
-  LoadJI(JI_USER0_VDR); // Ji_Active_Disengage(device_count,ji_info);
-  record = 0;
-  for (i = 0; i < 8; i++)
+  if (CheckStatus()==0)
   {
-    Js_Shiftdr();
-    record = (record >> 4) | (ReadTDO(4, 0x0, 0) << 28);
-    Js_Updatedr();
-    Js_Runidle();
-  }
-  jtag.id = -1;
-  jtag.lastVir = -1;
-  if (((record >> 8) & 0x7ff) == JTAG_VENDOR_ID)
-  {
-    jtag.nSlaves = (record >> 19) & 0xff; // number of jtag slaves
-    for (jtag.slaveBits = 0; (1 << jtag.slaveBits) < (jtag.nSlaves + 1); jtag.slaveBits++);
+    LoadJI(JI_USER1_VIR); 
 
-    jtag.virSize = record & 0xff;
-    for (j = 0; j < jtag.nSlaves; j++)
-    {
-      record = 0;
-      for (i = 0; i < 8; i++)
-      {
-        Js_Shiftdr();
-        record = (record >> 4) | (ReadTDO(4, 0x0, 0) << 28);
-        Js_Updatedr();
-        Js_Runidle();
-      }
-      if (((record >> 19) & 0xff) == JTAG_ID_VJTAG && ((record >> 8) & 0x7ff) == JTAG_VENDOR_ID)
-      {
-        jtag.id = j;
-        return 0;
-      }
-    }
+	  Js_Shiftdr();
+	  ReadTDO(64, 0, 0);
+	  Js_Updatedr();
+	  LoadJI(JI_USER0_VDR); // Ji_Active_Disengage(device_count,ji_info);
+	  record = 0;
+	  for (i = 0; i < 8; i++)
+	  {
+		Js_Shiftdr();
+		record = (record >> 4) | (ReadTDO(4, 0x0, 0) << 28);
+		Js_Updatedr();
+		Js_Runidle();
+	  }
+	  jtag.id = -1;
+	  jtag.lastVir = -1;
+	  if (((record >> 8) & 0x7ff) == JTAG_VENDOR_ID)
+	  {
+		jtag.nSlaves = (record >> 19) & 0xff; // number of jtag slaves
+		for (jtag.slaveBits = 0; (1 << jtag.slaveBits) < (jtag.nSlaves + 1); jtag.slaveBits++);
+
+		jtag.virSize = record & 0xff;
+		for (j = 0; j < jtag.nSlaves; j++)
+		{
+		  record = 0;
+		  for (i = 0; i < 8; i++)
+		  {
+			Js_Shiftdr();
+			record = (record >> 4) | (ReadTDO(4, 0x0, 0) << 28);
+			Js_Updatedr();
+			Js_Runidle();
+		  }
+		  if (((record >> 19) & 0xff) == JTAG_ID_VJTAG && ((record >> 8) & 0x7ff) == JTAG_VENDOR_ID)
+		  {
+			jtag.id = j;
+			return 0;
+		  }
+		}
+	  }
   }
   return -1;
 }
@@ -497,7 +564,7 @@ void jtagDeinit(void)
   jtag.id = -1;
 }
 
-int jtagWriteBuffer(unsigned int address, const uint32_t *data, size_t len)
+int jtagWriteBuffer(unsigned int address, const uint8_t *data, size_t len)
 {
   int ret = 0;
   ret = jtagVIR(JBC_WRITE);
@@ -537,9 +604,105 @@ int jtagReadBuffer(unsigned int address, uint8_t *data, size_t len)
   for (; len > 0; len--)
   {
     //*data++=ReadTDO(32,*data,0);
-    ReadTDOBuf(32, 0, data++, 0);
+    ReadTDOBuf(32, 0, data, 0);
+	data += 4;
   }
   return len;
 }
 
+#define MB_BASE         0x00000000
+#define MB_DEV_FLASH    0x01000000
+
+void jtagFlashEraseBlock(uint32_t offset)
+{
+  uint32_t rpc[256];
+  rpc[0] = MB_DEV_FLASH | 0x03;
+  rpc[1] = 3;
+  rpc[2] = offset;
+
+  jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&rpc[1]), 2);
+  jtagWriteBuffer(MB_BASE, (const uint8_t *)rpc, 1);
+
+  do {
+    jtagReadBuffer(MB_BASE, (uint8_t*)rpc, 1);
+  } while (rpc[0]);
+}
+
+void jtagFlashWriteBlock(uint32_t offset, size_t len, uint32_t* data)
+{
+  uint32_t rpc[256];
+  rpc[0] = MB_DEV_FLASH | 0x04;
+  rpc[1] = offset;
+  rpc[2] = len;
+  memcpy(&rpc[3], data, len);
+
+  jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&rpc[1]), 2 + (len + 3) / 4);
+  jtagWriteBuffer(MB_BASE, (const uint8_t *)rpc, 1);
+
+  do {
+    jtagReadBuffer(MB_BASE, (uint8_t*)rpc, 1);
+  } while (rpc[0]);
+}
+
+static unsigned char lookup[16] = {
+  0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
+  0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf,
+};
+
+static uint8_t reverse(uint8_t n) {
+  // Reverse the top and bottom nibble then swap them.
+  return (lookup[n & 0b1111] << 4) | lookup[n >> 4];
+}
+
+void jtagFlashReadBlock(uint32_t offset, size_t len, uint8_t* buf)
+{
+  uint32_t rpc[256];
+  rpc[0] = MB_DEV_FLASH | 0x05;
+  rpc[1] = offset;
+  rpc[2] = len;
+
+  jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&rpc[1]), 2);
+  jtagWriteBuffer(MB_BASE, (const uint8_t *)rpc, 1);
+
+  do {
+    jtagReadBuffer(MB_BASE, (uint8_t*)rpc, 1);
+  } while (rpc[0]);
+
+  size_t i;
+  for (i = 0; i < 1 + (len + 3) / 4; i++) {
+    jtagReadBuffer(MB_BASE + 2 + i, (uint8_t*)&rpc[2 + i], 1);
+  }
+
+  uint8_t* newbuf = (uint8_t*)&rpc[3];
+  for (int i = 0; i < len; i++) {
+    buf[i] = reverse(newbuf[i]);
+  }
+}
+
+void clockout(uint32_t gclk, int32_t divisor)
+{
+    GCLK_GENDIV_Type gendiv =
+    {
+        .bit.DIV = divisor,      // divider, linear or 2^(.DIV+1)
+        .bit.ID  = gclk,         // GCLK_GENERATOR_X
+    };
+    GCLK->GENDIV.reg = gendiv.reg;
+
+    // setup Clock Generator
+    GCLK_GENCTRL_Type genctrl =
+    {
+        .bit.RUNSTDBY = 0,        // Run in Standby
+        .bit.DIVSEL = 0,          // .DIV (above) Selection: 0=linear 1=powers of 2
+        .bit.OE = 1,              // Output Enable to observe on a port pin
+        .bit.OOV = 0,             // Output Off Value
+        .bit.IDC = 1,             // Improve Duty Cycle
+        .bit.GENEN = 1,           // enable this GCLK
+        // select GCLK source
+        //.bit.SRC = GCLK_SOURCE_OSC8M,
+        .bit.SRC = GCLK_SOURCE_DFLL48M,
+        // select GCLK2 to output on
+        .bit.ID = gclk,           // GCLK_GENERATOR_X
+    };
+    GCLK->GENCTRL.reg = genctrl.reg;
+}
 #endif

@@ -20,6 +20,8 @@
 #ifndef _MONITOR_SAM_BA_H_
 #define _MONITOR_SAM_BA_H_
 
+#include "board_definitions.h"
+
 #define SAM_BA_VERSION              "2.0"
 
 /* Enable the interfaces to save code size */

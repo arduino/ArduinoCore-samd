@@ -64,16 +64,25 @@ inline void outpin_on(int pin) { PORT->Group[0].OUTSET.reg = (1<<pin); }
 inline void outpin_off(int pin) { PORT->Group[0].OUTCLR.reg = (1<<pin); }
 inline void outpin_toggle(int pin) { PORT->Group[0].OUTTGL.reg = (1<<pin); }
 
-inline void inpin_init(int pin) { PORT->Group[0].DIRSET.reg = (0<<pin); }
-inline int inpin_get(int pin) { return (PORT->Group[0].IN.reg & (1<<pin)); }
+inline void inpin_init(int pin) { 
+	PORT->Group[0].PINCFG[pin].reg=(uint8_t)(PORT_PINCFG_INEN);
+	PORT->Group[0].DIRCLR.reg = (1<<pin); 
+}
+
+inline int inpin_get(int pin) { return ((PORT->Group[0].IN.reg & (1<<pin)) != 0); }
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 int jtagInit(void);
-int jtagWriteBuffer(unsigned int address, const uint32_t* data, size_t len);
+int jtagWriteBuffer(unsigned int address, const uint8_t* data, size_t len);
 int jtagReadBuffer(unsigned int address, uint8_t* data, size_t len);
 void jtagDeinit(void);
+
+void jtagFlashEraseBlock(uint32_t offset);
+void jtagFlashWriteBlock(uint32_t offset, size_t len, uint32_t* data);
+void jtagFlashReadBlock(uint32_t offset, size_t len, uint8_t* buf);
+void clockout(uint32_t gclk, int32_t divisor);
 #ifdef __cplusplus
 }
 #endif
