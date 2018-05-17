@@ -145,6 +145,23 @@ tools.bossac.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
 tools.bossac.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
 
 #
+# BOSSA (ignore binary size)
+#
+tools.bossacI.path={runtime.tools.bossac-1.7.0.path}
+tools.bossacI.cmd=bossac
+tools.bossacI.cmd.windows=bossac.exe
+
+tools.bossacI.upload.params.verbose=-i -d
+tools.bossacI.upload.params.quiet=
+tools.bossacI.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.file} -I -U {upload.native_usb} -i -e -w -v "{build.path}/{build.project_name}.bin" -R
+
+tools.bossacI_remote.upload.pattern=/usr/bin/run-bossac {upload.verbose} --port=ttyATH0 -U {upload.native_usb} -e -w -v /tmp/sketch.bin -R
+
+tools.bossacI.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.bossacI.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
+
+
+#
 # OpenOCD sketch upload
 #
 
