@@ -304,7 +304,7 @@ mzero_pro_bl_dbg.build.pid=0x804f
 mzero_pro_bl_dbg.build.preferred_out_format=hex
 mzero_pro_bl_dbg.bootloader.size=0x4000
 
-mzero_pro_bl_dbg.bootloader.tool=openocd
+mzero_pro_bl_dbg.bootloader.tool=openocd-withbootsize
 mzero_pro_bl_dbg.bootloader.cmd_unprotect=at91samd bootloader 0
 mzero_pro_bl_dbg.bootloader.cmd_protect=at91samd bootloader 16384
 mzero_pro_bl_dbg.bootloader.cmd_protect_verify=at91samd bootloader
@@ -335,6 +335,7 @@ mzero_pro_bl.build.board=SAM_ZERO
 mzero_pro_bl.build.core=arduino
 mzero_pro_bl.build.extra_flags=-D__SAMD21G18A__ -mthumb {build.usb_flags}
 mzero_pro_bl.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mzero_pro_bl.build.openocdscript=openocd_scripts/arduino_zero.cfg
 mzero_pro_bl.build.variant=arduino_mzero
 mzero_pro_bl.build.variant_system_lib=
 mzero_pro_bl.build.vid=0x2a03
@@ -342,7 +343,8 @@ mzero_pro_bl.build.pid=0x804f
 mzero_pro_bl.build.preferred_out_format=hex
 mzero_pro_bl.bootloader.size=0x4000
 mzero_pro_bl.build.emu.mcu=atmega2560
-mzero_pro_bl.bootloader.tool=avrdude
+mzero_pro_bl.bootloader.tool=openocd-withbootsize
+mzero_pro_bl.bootloader.file=mzero/Bootloader_D21_M0_Pro_150427.hex
 mzero_pro_bl.bootloader.low_fuses=0xff
 
 ######################################################
@@ -370,6 +372,7 @@ mzero_bl.build.board=SAM_ZERO
 mzero_bl.build.core=arduino
 mzero_bl.build.extra_flags=-D__SAMD21G18A__ -mthumb {build.usb_flags}
 mzero_bl.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mzero_bl.build.openocdscript=openocd_scripts/arduino_zero.cfg
 mzero_bl.build.variant=arduino_mzero
 mzero_bl.build.variant_system_lib=
 mzero_bl.build.vid=0x2a03
@@ -377,8 +380,9 @@ mzero_bl.build.pid=0x804e
 mzero_bl.build.preferred_out_format=hex
 mzero_bl.bootloader.size=0x4000
 mzero_bl.build.emu.mcu=atmega2560
-mzero_bl.bootloader.tool=avrdude
+mzero_bl.bootloader.tool=openocd-withbootsize
 mzero_bl.bootloader.low_fuses=0xff
+mzero_bl.bootloader.file=mzero/Bootloader_D21_M0_150515.hex
 
 ######################################################
 #ARDUINO TIAN (WITH) BOOTLOADER
