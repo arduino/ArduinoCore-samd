@@ -280,7 +280,7 @@ mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
 
 # Arduino MKR WiFi 1400
 # --------------------
-mkrvidor.name=Arduino MKR Vidor 2000
+mkrvidor.name=Arduino MKR Vidor 4000
 mkrvidor.vid.0=0x2341
 mkrvidor.pid.0=0x8056
 mkrvidor.vid.1=0x2341
