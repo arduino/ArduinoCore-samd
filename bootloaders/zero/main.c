@@ -24,6 +24,8 @@
 #include "board_definitions.h"
 #include "board_driver_led.h"
 #include "board_driver_i2c.h"
+#include "board_driver_pmic.h"
+#include "board_driver_jtag.h"
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
@@ -176,6 +178,13 @@ int main(void)
   board_init();
   __enable_irq();
 
+#ifdef CONFIGURE_PMIC
+  configure_pmic();
+  if (jump_to_app == true) {
+    jump_to_application();
+  }
+#endif
+
 #ifdef ENABLE_JTAG_LOAD
   uint32_t temp ;
   // Get whole current setup for both odd and even pins and remove odd one
@@ -185,13 +194,6 @@ int main(void)
   // Enable port mux
   PORT->Group[0].PINCFG[27].reg |= PORT_PINCFG_PMUXEN ;
   clockout(0, 1);
-#endif
-
-#ifdef CONFIGURE_PMIC
-  configure_pmic();
-  if (jump_to_app == true) {
-    jump_to_application();
-  }
 #endif
 
 #if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
