@@ -124,7 +124,7 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 // TEMP: NINA passthrough
 #define SPIWIFI         SPI
 #define SPIWIFI_SS      5
-#define SPIWIFI_ACK     6
+#define SPIWIFI_ACK     4
 #define SPIWIFI_RESET   7
 
 // Wire Interfaces
