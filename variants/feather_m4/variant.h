@@ -128,7 +128,7 @@ static const uint8_t ATN = PIN_ATN;
 // Serial1
 #define PIN_SERIAL1_RX       (0ul)
 #define PIN_SERIAL1_TX       (1ul)
-#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
+#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
 #define PAD_SERIAL1_TX       (UART_TX_PAD_0)
 
 /*
@@ -148,6 +148,7 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
+//TODO: SPI1
 #define PIN_SPI1_MISO         (22u)
 #define PIN_SPI1_MOSI         (23u)
 #define PIN_SPI1_SCK          (24u)
@@ -189,15 +190,18 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
 
-#define PIN_I2S_SD          (5u)
-#define PIN_I2S_SCK         (PIN_A2)
-#define PIN_I2S_FS          (PIN_SPI_MOSI)
+#define PIN_I2S_SDO          (5u)
+#define PIN_I2S_SDI          (23u)
+#define PIN_I2S_SCK         (16u)
+#define PIN_I2S_FS          (22u)
 
 //QSPI Pins
 #define PIN_QSPI_SCK    (37u)
 #define PIN_QSPI_CS     (38u)
 #define PIN_QSPI_IO0    (39u)
 #define PIN_QSPI_IO1    (40u)
+#define PIN_QSPI_IO2    (41u)
+#define PIN_QSPI_IO3    (42u)
 
 #ifdef __cplusplus
 }
