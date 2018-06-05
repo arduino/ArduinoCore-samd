@@ -348,31 +348,31 @@ adafruit_itsybitsy_m4.menu.cache.off.build.cache_flags=
 
 # Adafruit Feather M4 (SAMD51)
 # ------------------------------
-#adafruit_feather_m4.name=Adafruit Feather M4 (SAMD51)
-#adafruit_feather_m4.vid.0=0x239A
-#adafruit_feather_m4.pid.0=0x8022
-#adafruit_feather_m4.vid.1=0x239A
-#adafruit_feather_m4.pid.1=0x0022
-#adafruit_feather_m4.upload.tool=bossac18
-#adafruit_feather_m4.upload.protocol=sam-ba
-#adafruit_feather_m4.upload.maximum_size=507904
-#adafruit_feather_m4.upload.offset=0x4000
-#adafruit_feather_m4.upload.use_1200bps_touch=true
-#adafruit_feather_m4.upload.wait_for_upload_port=true
-#adafruit_feather_m4.upload.native_usb=true
-#adafruit_feather_m4.build.mcu=cortex-m4
-#adafruit_feather_m4.build.f_cpu=120000000L
-#adafruit_feather_m4.build.usb_product="Adafruit Feather M4"
-#adafruit_feather_m4.build.usb_manufacturer="Adafruit LLC"
-#adafruit_feather_m4.build.board=FEATHER_M4
-#adafruit_feather_m4.build.core=arduino
-#adafruit_feather_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
-#adafruit_feather_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-#adafruit_feather_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
-#adafruit_feather_m4.build.variant=feather_m4
-#adafruit_feather_m4.build.variant_system_lib=
-#adafruit_feather_m4.build.vid=0x239A
-#adafruit_feather_m4.build.pid=0x8022
-#adafruit_feather_m4.bootloader.tool=openocd
-#adafruit_feather_m4.bootloader.file=metroM4/bootloader.bin
-#adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_feather_m4.name=Adafruit Feather M4 (SAMD51)
+adafruit_feather_m4.vid.0=0x239A
+adafruit_feather_m4.pid.0=0x8022
+adafruit_feather_m4.vid.1=0x239A
+adafruit_feather_m4.pid.1=0x0022
+adafruit_feather_m4.upload.tool=bossac18
+adafruit_feather_m4.upload.protocol=sam-ba
+adafruit_feather_m4.upload.maximum_size=507904
+adafruit_feather_m4.upload.offset=0x4000
+adafruit_feather_m4.upload.use_1200bps_touch=true
+adafruit_feather_m4.upload.wait_for_upload_port=true
+adafruit_feather_m4.upload.native_usb=true
+adafruit_feather_m4.build.mcu=cortex-m4
+adafruit_feather_m4.build.f_cpu=120000000L
+adafruit_feather_m4.build.usb_product="Adafruit Feather M4"
+adafruit_feather_m4.build.usb_manufacturer="Adafruit LLC"
+adafruit_feather_m4.build.board=FEATHER_M4
+adafruit_feather_m4.build.core=arduino
+adafruit_feather_m4.build.extra_flags=-D__SAMD51J19A__ -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_feather_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_feather_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_feather_m4.build.variant=feather_m4
+adafruit_feather_m4.build.variant_system_lib=
+adafruit_feather_m4.build.vid=0x239A
+adafruit_feather_m4.build.pid=0x8022
+adafruit_feather_m4.bootloader.tool=openocd
+adafruit_feather_m4.bootloader.file=metroM4/bootloader.bin
+adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
