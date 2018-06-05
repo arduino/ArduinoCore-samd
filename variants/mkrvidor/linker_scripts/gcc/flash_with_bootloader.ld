@@ -144,6 +144,7 @@ SECTIONS
 
 	.text :
 	{
+		KEEP(*(.fpga_bitstream_signature))
 		KEEP(*(.fpga_bitstream))
 	} > FLASH_FPGA
 

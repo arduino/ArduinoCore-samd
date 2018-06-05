@@ -617,7 +617,7 @@ void jtagFlashEraseBlock(uint32_t offset)
 {
   uint32_t rpc[256];
   rpc[0] = MB_DEV_FLASH | 0x03;
-  rpc[1] = 3;
+  rpc[1] = 2;
   rpc[2] = offset;
 
   jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&rpc[1]), 2);

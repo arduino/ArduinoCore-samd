@@ -264,6 +264,11 @@ static void put_uint32(uint32_t n)
   sam_ba_putdata( ptr_monitor_if, buff, 8);
 }
 
+#ifdef ENABLE_JTAG_LOAD
+static uint32_t offset = __UINT32_MAX__;
+static bool flashNeeded = false;
+#endif
+
 static void sam_ba_monitor_loop(void)
 {
   length = sam_ba_getdata(ptr_monitor_if, data, SIZEBUFMAX);
@@ -436,14 +441,60 @@ static void sam_ba_monitor_loop(void)
           uint32_t *dst_addr = (uint32_t*)ptr_data;
 
 #ifdef ENABLE_JTAG_LOAD
+
           if ((uint32_t)dst_addr == 0x40000) {
               jtagInit();
-              jtagFlashEraseBlock(0);
+
+              // TODO: TEMP
+              // jtagFlashEraseBlock(LAST_FLASH_PAGE);
+              //
+
+              // content of the first flash page:
+              // offset (32) : length(32) : sha256sum(256) : type (32) = 44 bytes
+              // for every section; check last sector of the flash to understand if reflash is needed
+              externalFlashSignatures data[2];
+              jtagFlashReadBlock(LAST_FLASH_PAGE, 88, (uint8_t*)data);
+              externalFlashSignatures* newData = (externalFlashSignatures*)src_addr;
+              for (int k=0; k<2; k++) {
+                for (int j=0; j<2; j++) {
+                  if ((data[k].type == newData[j].type) || (data[k].type == 0xFFFFFFFF)) {
+                    if (newData[j].offset < offset) {
+                      offset = newData[j].offset;
+                    }
+                    for (int s=0; s<8; s++) {
+                      if (data[k].sha256sum[s] != newData[j].sha256sum[s]) {
+                        flashNeeded = true;
+                        break;
+                      }
+                    }
+                  }
+                }
+              }
+              if (!flashNeeded) {
+                goto end;
+              }
+              jtagFlashEraseBlock(LAST_FLASH_PAGE);
+              for (int j =0; j<size; ) {
+                jtagFlashWriteBlock(LAST_FLASH_PAGE + j*4, 512, (uint32_t*)&src_addr[j]);
+                j += 128;
+              }
+              goto end;
           }
 
-          if ((uint32_t)dst_addr >= 0x40000) {
+
+          if ((uint32_t)dst_addr >= 0x41000) {
+
+            if (flashNeeded == false) {
+              goto end;
+            }
+
+            uint32_t rebasedAddress = (uint32_t)dst_addr - 0x41000 + offset;
+            if (rebasedAddress % 0x10000 == 0) {
+              jtagFlashEraseBlock(rebasedAddress);
+            }
+
             for (int j =0; j<size; ) {
-              jtagFlashWriteBlock((uint32_t)dst_addr - 0x40000 + j*4, 512, (uint32_t*)&src_addr[j]);
+              jtagFlashWriteBlock(rebasedAddress + j*4, 512, (uint32_t*)&src_addr[j]);
               j += 128;
             }
             goto end;
@@ -504,10 +555,16 @@ end:
 #endif
 
 #ifdef ENABLE_JTAG_LOAD
-        if ((uint32_t)ptr_data >= 0x40000) {
+        if ((uint32_t)ptr_data == 0x40000) {
           data = (uint8_t*)buf;
           for (int j =0; j<size; ) {
-            jtagFlashReadBlock((uint32_t)ptr_data - 0x40000 + j, 512, &data[j]);
+            jtagFlashReadBlock(LAST_FLASH_PAGE + j, 512, &data[j]);
+            j += 512;
+          }
+        } else if ((uint32_t)ptr_data >= 0x41000) {
+          data = (uint8_t*)buf;
+          for (int j =0; j<size; ) {
+            jtagFlashReadBlock((uint32_t)ptr_data + offset - 0x41000 + j, 512, &data[j]);
             j += 512;
           }
         } else {

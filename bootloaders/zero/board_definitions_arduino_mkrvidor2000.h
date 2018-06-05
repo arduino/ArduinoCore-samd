@@ -82,6 +82,16 @@
 #define TCK 13
 #define TMS 14
 
+#define LAST_FLASH_PAGE   (0x200000 - 0x1000)
+//#define LAST_FLASH_PAGE   (0x100000 - 0x1000)
+
+typedef struct {
+  uint32_t offset;
+  uint32_t length;
+  uint32_t sha256sum[8];
+  uint32_t type;
+} externalFlashSignatures;
+
 #define  SAM_BA_INTERFACE  SAM_BA_USBCDC_ONLY
 
 // No RX/TX led
