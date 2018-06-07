@@ -446,7 +446,7 @@ static void sam_ba_monitor_loop(void)
               jtagInit();
 
               // TODO: TEMP
-              // jtagFlashEraseBlock(LAST_FLASH_PAGE);
+               jtagFlashEraseBlock(LAST_FLASH_PAGE);
               //
 
               // content of the first flash page:

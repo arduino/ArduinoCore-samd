@@ -675,7 +675,8 @@ void jtagFlashReadBlock(uint32_t offset, size_t len, uint8_t* buf)
 
   uint8_t* newbuf = (uint8_t*)&rpc[3];
   for (int i = 0; i < len; i++) {
-    buf[i] = reverse(newbuf[i]);
+    //buf[i] = reverse(newbuf[i]);
+    buf[i] = newbuf[i];
   }
 }
 
