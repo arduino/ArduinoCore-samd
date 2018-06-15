@@ -445,39 +445,45 @@ static void sam_ba_monitor_loop(void)
           if ((uint32_t)dst_addr == 0x40000) {
               jtagInit();
 
-              // TODO: TEMP
-               jtagFlashEraseBlock(LAST_FLASH_PAGE);
-              //
-
               // content of the first flash page:
-              // offset (32) : length(32) : sha256sum(256) : type (32) = 44 bytes
+              // offset (32) : length(32) : sha256sum(256) : type (32) : force (32) = 48 bytes
               // for every section; check last sector of the flash to understand if reflash is needed
-              externalFlashSignatures data[2];
-              jtagFlashReadBlock(LAST_FLASH_PAGE, 88, (uint8_t*)data);
+              externalFlashSignatures data[3];
+              jtagFlashReadBlock(LAST_FLASH_PAGE, sizeof(data), (uint8_t*)data);
               externalFlashSignatures* newData = (externalFlashSignatures*)src_addr;
-              for (int k=0; k<2; k++) {
-                for (int j=0; j<2; j++) {
-                  if ((data[k].type == newData[j].type) || (data[k].type == 0xFFFFFFFF)) {
-                    if (newData[j].offset < offset) {
-                      offset = newData[j].offset;
-                    }
-                    for (int s=0; s<8; s++) {
-                      if (data[k].sha256sum[s] != newData[j].sha256sum[s]) {
-                        flashNeeded = true;
-                        break;
-                      }
-                    }
+              for (int k=0; k<3; k++) {
+                if (newData[k].force != 0) {
+                  offset = newData[k].offset;
+                  flashNeeded = true;
+                  break;
+                }
+                if ((data[k].type == newData[k].type) || (data[k].type == 0xFFFFFFFF)) {
+                  if (newData[k].offset < offset) {
+                    offset = newData[k].offset;
+                  }
+                  if (memcmp(data[k].sha256sum, newData[k].sha256sum, 32) != 0) {
+                    flashNeeded = true;
+                    break;
                   }
                 }
               }
-              if (!flashNeeded) {
-                goto end;
+
+              // merge old page and new page
+              for (int k=0; k<3; k++) {
+                if (newData[k].type != 0xFFFFFFFF) {
+                  memcpy(&data[k], &newData[k], sizeof(newData[k]));
+                }
               }
-              jtagFlashEraseBlock(LAST_FLASH_PAGE);
+
+              jtagFlashEraseBlock(SCRATCHPAD_FLASH_PAGE);
+              // write first page to SCRATCHPAD_FLASH_PAGE (to allow correct verification)
               for (int j =0; j<size; ) {
-                jtagFlashWriteBlock(LAST_FLASH_PAGE + j*4, 512, (uint32_t*)&src_addr[j]);
+                jtagFlashWriteBlock(SCRATCHPAD_FLASH_PAGE + j*4, 512, (uint32_t*)&src_addr[j]);
                 j += 128;
               }
+
+              // write real structure with checksums to LAST_FLASH_PAGE
+              jtagFlashWriteBlock(LAST_FLASH_PAGE, sizeof(data),  (uint32_t*)data);
               goto end;
           }
 
@@ -551,14 +557,14 @@ end:
         uint32_t i = 0;
 
 #ifdef ENABLE_JTAG_LOAD
-		uint8_t buf[4096];
+        uint8_t buf[4096];
 #endif
 
 #ifdef ENABLE_JTAG_LOAD
         if ((uint32_t)ptr_data == 0x40000) {
           data = (uint8_t*)buf;
           for (int j =0; j<size; ) {
-            jtagFlashReadBlock(LAST_FLASH_PAGE + j, 512, &data[j]);
+            jtagFlashReadBlock(SCRATCHPAD_FLASH_PAGE + j, 512, &data[j]);
             j += 512;
           }
         } else if ((uint32_t)ptr_data >= 0x41000) {
