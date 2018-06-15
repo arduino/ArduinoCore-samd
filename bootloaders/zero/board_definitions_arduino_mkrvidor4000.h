@@ -22,7 +22,7 @@
 /*
  * USB device definitions
  */
-#define STRING_PRODUCT "Arduino MKR Vidor 2000"
+#define STRING_PRODUCT "Arduino MKR Vidor 4000"
 #define USB_VID_HIGH   0x23
 #define USB_VID_LOW    0x41
 #define USB_PID_HIGH   0x00
@@ -83,13 +83,15 @@
 #define TMS 14
 
 #define LAST_FLASH_PAGE   (0x200000 - 0x1000)
+#define SCRATCHPAD_FLASH_PAGE   (0x200000 - 0x2000)
 //#define LAST_FLASH_PAGE   (0x100000 - 0x1000)
 
-typedef struct {
+typedef struct __attribute__((packed)) {
   uint32_t offset;
   uint32_t length;
   uint32_t sha256sum[8];
   uint32_t type;
+  uint32_t force;
 } externalFlashSignatures;
 
 #define  SAM_BA_INTERFACE  SAM_BA_USBCDC_ONLY

@@ -35,8 +35,8 @@
   #include "board_definitions_arduino_mkrwan1300.h"
 #elif defined(BOARD_ID_arduino_mkrwifi1010)
   #include "board_definitions_arduino_mkrwifi1010.h"
-#elif defined(BOARD_ID_arduino_mkrvidor2000)
-  #include "board_definitions_arduino_mkrvidor2000.h"
+#elif defined(BOARD_ID_arduino_mkrvidor4000)
+  #include "board_definitions_arduino_mkrvidor4000.h"
 #else
   #error You must define a BOARD_ID and add the corresponding definitions in board_definitions.h
 #endif
