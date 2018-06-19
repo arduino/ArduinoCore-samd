@@ -77,14 +77,14 @@
 #define PMIC_SERCOM                       SERCOM0
 
 #define ENABLE_JTAG_LOAD                  1
-#define TDI 12
-#define TDO 15
-#define TCK 13
-#define TMS 14
+#define TDI                               12
+#define TDO                               15
+#define TCK                               13
+#define TMS                               14
+#define MB_INT                            28
 
-#define LAST_FLASH_PAGE   (0x200000 - 0x1000)
-#define SCRATCHPAD_FLASH_PAGE   (0x200000 - 0x2000)
-//#define LAST_FLASH_PAGE   (0x100000 - 0x1000)
+#define LAST_FLASH_PAGE                   (0x200000 - 0x1000)
+#define SCRATCHPAD_FLASH_PAGE             (0x200000 - 0x2000)
 
 typedef struct __attribute__((packed)) {
   uint32_t offset;

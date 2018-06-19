@@ -508,6 +508,8 @@ int jtagInit(void)
   outpin_init(TDI);
   outpin_init(TCK);
 
+  mbPinSet();
+
   port_pin_set_output_level (TMS, 1);
   port_pin_set_output_level (TDI, 1);
   port_pin_set_output_level (TCK, 0);
@@ -575,7 +577,7 @@ int jtagWriteBuffer(unsigned int address, const uint8_t *data, size_t len)
   Js_Shiftdr();
   address = (address << 2) | 0x00000003;
   ReadTDOBuf(32, &address, 0, 0);
-  ReadTDOBuf(32 * len, data, 0, 0);
+  ReadTDOBuf(32 * len+2, data, 0, 0);
   return len;
 }
 
@@ -610,7 +612,72 @@ int jtagReadBuffer(unsigned int address, uint8_t *data, size_t len)
   return len;
 }
 
-#define MB_BASE         0x00000000
+#define MB_BASE     0x00000000
+#define MB_TIMEOUT  5000
+
+/**
+ */
+int mbPinSet(void)
+{
+#ifdef MB_INT
+  uint32_t rpc[1];
+  rpc[0] = 0;
+  jtagWriteBuffer(MB_BASE, (const uint8_t *)rpc, 1);
+  outpin_init(MB_INT);
+  outpin_off(MB_INT);
+#endif
+}
+
+/**
+ * Sends len words (32 bit) via messagebox
+ */
+int mbCmdSend(uint32_t* data, int len)
+{
+  int ret;
+#ifdef MB_INT
+  ret = jtagWriteBuffer(MB_BASE, (const uint8_t *)data, len);
+  if (ret!=len) {
+    return -10;
+  }
+  outpin_on(MB_INT);
+  outpin_off(MB_INT);
+#else
+  jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&data[1]), len-1);
+  jtagWriteBuffer(MB_BASE, (const uint8_t *)data, 1);
+#endif
+
+  do {
+    jtagReadBuffer(MB_BASE, (uint8_t*)&ret, 1);
+  } while (ret);
+
+  jtagReadBuffer(MB_BASE + 1, (uint8_t*)&ret, 1);
+
+  return ret;
+}
+
+/**
+ * Writes len words (32 bit) via messagebox at a specified address
+ */
+int mbWrite(uint32_t address, void* data, int len)
+{
+  jtagWriteBuffer(MB_BASE + address, (const uint8_t *)data, len);
+  return 0;
+}
+
+/**
+ * Reads len words (32 bit) using messagebox from a specified address
+ */
+int mbRead(uint32_t address, void* data, int len)
+{
+  uint32_t *p = (uint32_t*)data;
+  int i;
+
+  for (i=0; i<len; i++) {
+    jtagReadBuffer(MB_BASE + address + i, (uint8_t*)&p[i], 1);
+  }
+  return 0;
+}
+
 #define MB_DEV_FLASH    0x01000000
 
 void jtagFlashEraseBlock(uint32_t offset)
@@ -620,12 +687,7 @@ void jtagFlashEraseBlock(uint32_t offset)
   rpc[1] = 2;
   rpc[2] = offset;
 
-  jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&rpc[1]), 2);
-  jtagWriteBuffer(MB_BASE, (const uint8_t *)rpc, 1);
-
-  do {
-    jtagReadBuffer(MB_BASE, (uint8_t*)rpc, 1);
-  } while (rpc[0]);
+  mbCmdSend(rpc, 3);
 }
 
 void jtagFlashWriteBlock(uint32_t offset, size_t len, uint32_t* data)
@@ -635,23 +697,7 @@ void jtagFlashWriteBlock(uint32_t offset, size_t len, uint32_t* data)
   rpc[1] = offset;
   rpc[2] = len;
   memcpy(&rpc[3], data, len);
-
-  jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&rpc[1]), 2 + (len + 3) / 4);
-  jtagWriteBuffer(MB_BASE, (const uint8_t *)rpc, 1);
-
-  do {
-    jtagReadBuffer(MB_BASE, (uint8_t*)rpc, 1);
-  } while (rpc[0]);
-}
-
-static unsigned char lookup[16] = {
-  0x0, 0x8, 0x4, 0xc, 0x2, 0xa, 0x6, 0xe,
-  0x1, 0x9, 0x5, 0xd, 0x3, 0xb, 0x7, 0xf,
-};
-
-static uint8_t reverse(uint8_t n) {
-  // Reverse the top and bottom nibble then swap them.
-  return (lookup[n & 0b1111] << 4) | lookup[n >> 4];
+  mbCmdSend(rpc, 3+((len + 3)/4));
 }
 
 void jtagFlashReadBlock(uint32_t offset, size_t len, uint8_t* buf)
@@ -661,17 +707,8 @@ void jtagFlashReadBlock(uint32_t offset, size_t len, uint8_t* buf)
   rpc[1] = offset;
   rpc[2] = len;
 
-  jtagWriteBuffer(MB_BASE + 1, (const uint8_t *)(&rpc[1]), 2);
-  jtagWriteBuffer(MB_BASE, (const uint8_t *)rpc, 1);
-
-  do {
-    jtagReadBuffer(MB_BASE, (uint8_t*)rpc, 1);
-  } while (rpc[0]);
-
-  size_t i;
-  for (i = 0; i < 1 + (len + 3) / 4; i++) {
-    jtagReadBuffer(MB_BASE + 2 + i, (uint8_t*)&rpc[2 + i], 1);
-  }
+  mbCmdSend(rpc, 3);
+  mbRead(2, &rpc[2], (len + 3) / 4 + 1);
 
   uint8_t* newbuf = (uint8_t*)&rpc[3];
   for (int i = 0; i < len; i++) {

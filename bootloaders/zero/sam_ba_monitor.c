@@ -564,14 +564,14 @@ end:
         if ((uint32_t)ptr_data == 0x40000) {
           data = (uint8_t*)buf;
           for (int j =0; j<size; ) {
-            jtagFlashReadBlock(SCRATCHPAD_FLASH_PAGE + j, 512, &data[j]);
-            j += 512;
+            jtagFlashReadBlock(SCRATCHPAD_FLASH_PAGE + j, 256, &data[j]);
+            j += 256;
           }
         } else if ((uint32_t)ptr_data >= 0x41000) {
           data = (uint8_t*)buf;
           for (int j =0; j<size; ) {
-            jtagFlashReadBlock((uint32_t)ptr_data + offset - 0x41000 + j, 512, &data[j]);
-            j += 512;
+            jtagFlashReadBlock((uint32_t)ptr_data + offset - 0x41000 + j, 256, &data[j]);
+            j += 256;
           }
         } else {
           data = (uint8_t *)ptr_data;
