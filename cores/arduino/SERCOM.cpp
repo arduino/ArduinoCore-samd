@@ -16,6 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "Arduino.h"
 #include "SERCOM.h"
 #include "variant.h"
 
@@ -499,8 +500,13 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
+  long timeout = 50000;
   // Wait idle or owner bus mode
-  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
+  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() ) {
+    if (timeout-- < 0) {
+      return false;
+    }
+  }
 
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
@@ -511,6 +517,12 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
     while( !sercom->I2CM.INTFLAG.bit.MB )
     {
       // Wait transmission complete
+    }
+    // Check for loss of arbitration (multiple masters starting communication at the same time)
+    if(!isBusOwnerWIRE())
+    {
+      // Restart communication
+      startTransmissionWIRE(address >> 1, flag);
     }
   }
   else  // Read mode
