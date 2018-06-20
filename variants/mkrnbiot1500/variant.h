@@ -67,6 +67,7 @@
 #define SARA_RTS    (28u)
 #define SARA_CTS    (29u)
 #define SARA_RESETN (31u)
+#define SARA_DTR    (-1)
 #define SARA_PWR_ON (35u)
 
 // LEDs

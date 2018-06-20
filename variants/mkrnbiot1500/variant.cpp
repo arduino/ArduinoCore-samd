@@ -226,12 +226,13 @@ void initVariant() {
   disable_battery_fet(!batteryPresent);
 #endif
 
-  // put SARA modem in reset and powered off on start to conserve power if it's not used
+  // enable the POW_ON pin
+  pinMode(SARA_PWR_ON, OUTPUT);
+  digitalWrite(SARA_PWR_ON, HIGH);
+
+  // put SARA modem in reset on start to conserve power if it's not used
   pinMode(SARA_RESETN, OUTPUT);
   digitalWrite(SARA_RESETN, HIGH);
-
-  pinMode(SARA_PWR_ON, OUTPUT);
-  digitalWrite(SARA_PWR_ON, LOW);
 }
 
 // Serial1
