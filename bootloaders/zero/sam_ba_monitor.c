@@ -51,7 +51,7 @@ typedef struct
   uint32_t (*getdata_xmd)(void* data, uint32_t length);
 } t_monitor_if;
 
-#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
 /* Initialize structures with function pointers from supported interfaces */
 const t_monitor_if uart_if =
 {
@@ -65,7 +65,7 @@ const t_monitor_if uart_if =
 };
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
 //Please note that USB doesn't use Xmodem protocol, since USB already includes flow control and data verification
 //Data are simply forwarded without further coding.
 const t_monitor_if usbcdc_if =
@@ -94,7 +94,7 @@ volatile uint16_t rxLEDPulse = 0; // time remaining for Rx LED pulse
 
 void sam_ba_monitor_init(uint8_t com_interface)
 {
-#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   //Selects the requested interface for future actions
   if (com_interface == SAM_BA_INTERFACE_USART)
   {
@@ -102,7 +102,7 @@ void sam_ba_monitor_init(uint8_t com_interface)
     b_sam_ba_interface_usart = true;
   }
 #endif
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   if (com_interface == SAM_BA_INTERFACE_USBCDC)
   {
     ptr_monitor_if = (t_monitor_if*) &usbcdc_if;

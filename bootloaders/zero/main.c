@@ -165,7 +165,7 @@ static void check_start_application(void)
  */
 int main(void)
 {
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   P_USB_CDC pCdc;
 #endif
   DEBUG_PIN_HIGH;
@@ -196,12 +196,12 @@ int main(void)
   clockout(0, 1);
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   /* UART is enabled in all cases */
   serial_open();
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   pCdc = usb_init();
 #endif
 
@@ -220,7 +220,7 @@ int main(void)
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
   {
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
     if (pCdc->IsConfigured(pCdc) != 0)
     {
       main_b_cdc_enable = true;
@@ -238,7 +238,7 @@ int main(void)
     }
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
     /* Check if a '#' has been received */
     if (!main_b_cdc_enable && serial_sharp_received())
     {

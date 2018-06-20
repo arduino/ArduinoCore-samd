@@ -1,4 +1,5 @@
 #include "board_driver_jtag.h"
+#include <string.h>
 
 #ifdef ENABLE_JTAG_LOAD
 
