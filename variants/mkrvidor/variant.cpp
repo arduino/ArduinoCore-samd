@@ -177,7 +177,10 @@ static inline void enable_battery_charging() {
   pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
   pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
 
-  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  bool ret = PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  if (!ret) {
+    return;
+  }
   PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
   PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
