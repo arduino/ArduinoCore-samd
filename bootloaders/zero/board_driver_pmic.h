@@ -40,6 +40,6 @@
 #define FAULT_REGISTER                      0x09
 #define PMIC_VERSION_REGISTER               0x0A
 
-void configure_pmic();
+int configure_pmic();
 
 #endif // _BOARD_DRIVER_PMIC_

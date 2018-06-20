@@ -27,7 +27,10 @@ extern uint8_t rxBuffer[1];
 uint8_t readRegister(uint8_t reg) {
   i2c_beginTransmission(PMIC_ADDRESS);
   i2c_write(reg);
-  i2c_endTransmission(true);
+  int ret = i2c_endTransmission(true);
+  if (ret != 0) {
+    return 0;
+  }
 
   i2c_requestFrom(PMIC_ADDRESS, 1, true);
   return rxBuffer[0];
@@ -44,8 +47,11 @@ uint8_t writeRegister(uint8_t reg, uint8_t data) {
 
 bool disableWatchdog(void) {
   uint8_t DATA = readRegister(CHARGE_TIMER_CONTROL_REGISTER);
+  if (DATA == 0) {
+    return false;
+  }
   writeRegister(CHARGE_TIMER_CONTROL_REGISTER, (DATA & 0b11001110));
-  return 1;
+  return true;
 }
 
 bool setInputVoltageLimit(uint16_t voltage) {
@@ -217,22 +223,26 @@ bool disableCharge()
   return 1;
 }
 
-void apply_pmic_newdefaults()
+int  apply_pmic_newdefaults()
 {
-  disableWatchdog();
+  if (!disableWatchdog()) {
+    return -1;
+  }
 
   //disableDPDM();
   disableCharge();
   setInputVoltageLimit(4360); // default
-  setInputCurrentLimit(2000);     // 2A
+  setInputCurrentLimit(3000);     // 2A
   setChargeCurrent(0,0,0,0,0,0); // 512mA
   setChargeVoltage(4112);        // 4.112V termination voltage
+  i2c_end();
+  return 0;
 }
 
-void configure_pmic()
+int configure_pmic()
 {
   i2c_init(100000);
-  apply_pmic_newdefaults();
+  return apply_pmic_newdefaults();
 }
 
 #endif
