@@ -226,13 +226,12 @@ void initVariant() {
   disable_battery_fet(!batteryPresent);
 #endif
 
-  // put GSM modem in reset on start to conserve power if it's not used
-  pinMode(GSM_RESETN, OUTPUT);
-  digitalWrite(GSM_RESETN, HIGH);
+  // put SARA modem in reset and powered off on start to conserve power if it's not used
+  pinMode(SARA_RESETN, OUTPUT);
+  digitalWrite(SARA_RESETN, HIGH);
 
-  // set GSM DTR to LOW on start
-  pinMode(PIN_SERIAL2_DTR, OUTPUT);
-  digitalWrite(PIN_SERIAL2_DTR, LOW);
+  pinMode(SARA_PWR_ON, OUTPUT);
+  digitalWrite(SARA_PWR_ON, LOW);
 }
 
 // Serial1
@@ -243,7 +242,7 @@ void SERCOM5_Handler()
   Serial1.IrqHandler();
 }
 
-// SerialGSM
+// SerialSARA
 Uart Serial2(&sercom2, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX, PIN_SERIAL2_RTS, PIN_SERIAL2_CTS);
 
 void SERCOM2_Handler()

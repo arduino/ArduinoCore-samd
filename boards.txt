@@ -220,7 +220,7 @@ mkrgsm1400.build.pid=0x8052
 mkrgsm1400.bootloader.tool=openocd
 mkrgsm1400.bootloader.file=mkrgsm1400/samd21_sam_ba_arduino_mkrgsm1400.bin
 
-# Arduino MKR NB-IoT 1450
+# Arduino MKR NB-IoT 1500
 # --------------------
 mkrnb1500.name=Arduino MKR NB 1500
 mkrnb1500.vid.0=0x2341
@@ -238,12 +238,12 @@ mkrnb1500.build.mcu=cortex-m0plus
 mkrnb1500.build.f_cpu=48000000L
 mkrnb1500.build.usb_product="Arduino MKR NB 1500"
 mkrnb1500.build.usb_manufacturer="Arduino LLC"
-mkrnb1500.build.board=SAMD_MKRNBIOT1450
+mkrnb1500.build.board=SAMD_MKRNBIOT1500
 mkrnb1500.build.core=arduino
-mkrnb1500.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC -DNO_HW_FLOW_CONTROL
+mkrnb1500.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
 mkrnb1500.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 mkrnb1500.build.openocdscript=openocd_scripts/arduino_zero.cfg
-mkrnb1500.build.variant=mkrgsm1400
+mkrnb1500.build.variant=mkrnbiot1500
 mkrnb1500.build.vid=0x2341
 mkrnb1500.build.pid=0x8055
 mkrnb1500.bootloader.tool=openocd
