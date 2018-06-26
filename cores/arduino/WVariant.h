@@ -22,44 +22,16 @@
 #include <stdint.h>
 #include "sam.h"
 #include "variant.h"
+#include "../../config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-/* Definitions and types for pins */
-typedef enum _EAnalogChannel
-{
-  No_ADC_Channel=-1,
-  ADC_Channel0=0,
-  ADC_Channel1=1,
-  ADC_Channel2=2,
-  ADC_Channel3=3,
-  ADC_Channel4=4,
-  ADC_Channel5=5,
-  ADC_Channel6=6,
-  ADC_Channel7=7,
-  ADC_Channel8=8,
-  ADC_Channel9=9,
-  ADC_Channel10=10,
-  ADC_Channel11=11,
-  ADC_Channel12=12,
-  ADC_Channel13=13,
-  ADC_Channel14=14,
-  ADC_Channel15=15,
-  ADC_Channel16=16,
-  ADC_Channel17=17,
-  ADC_Channel18=18,
-  ADC_Channel19=19,
-  DAC_Channel0,
-  DAC_Channel1,
-} EAnalogChannel ;
-
 // Definitions for TC channels
-// RESERVED (1 bit, used for negative) | Timer Number (3 bits: 0-7) | Timer Type (1 bit: 0=TCC, 1=TC) | Timer Channel (3 bits: 0-7)
+// Timer Enable (1 bit: 0=enabled, 1=disabled) | Timer Number (3 bits: 0-7) | Timer Type (1 bit: 0=TCC, 1=TC) | Timer Channel (3 bits: 0-7)
 typedef enum _ETCChannel
 {
-  NOT_ON_TIMER=-1,
   TCC0_CH0 = (0<<4)|(0<<3)|(0),
   TCC0_CH1 = (0<<4)|(0<<3)|(1),
   TCC0_CH2 = (0<<4)|(0<<3)|(2),
@@ -113,6 +85,7 @@ typedef enum _ETCChannel
   TC6_CH1  = (6<<4)|(1<<3)|(1),
   TC7_CH0  = (7<<4)|(1<<3)|(0),
   TC7_CH1  = (7<<4)|(1<<3)|(1),
+  NOT_ON_TIMER = (1<<7),
 } ETCChannel ;
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -130,21 +103,65 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #error "WVariant.h: Unsupported chip"
 #endif
 
-// Definitions for GCLK_CCL column TODO, AC?
-// RESERVED (1 bit, used for negative) | GCLK (3 bits: 0-7) | CCL (4 bits: 2 for CCL number, 2 for pin (or 4 for IN/OUT pin ID on D51))
+// TODO: Definitions for GCLK_CCL column, AC. The format may change.
+// GCLK/CCL Enable (1 bit: 0=enabled, 1=disabled) | GCLK (3 bits: 0-7) | CCL (4 bits: 2 for CCL number, 2 for pin (or 4 for IN/OUT pin ID on D51))
 typedef enum _EGCLK_CCL
 {
-  GCLK_CCL_NONE=-1,
+  GCLK_CCL_NONE = (1<<7),
 } EGCLK_CCL ;
 
 typedef enum _EPortType
 {
-  NOT_A_PORT=-1,
   PORTA=0,
   PORTB=1,
   PORTC=2,
   PORTD=3,
+  NOT_A_PORT,
 } EPortType ;
+
+// When PIN_DESCRIPTION_TABLE_SIMPLE defined, the port and pin are combined into one single byte element rather than two
+// PORT (3 bits: 0-7, EPortType) | PIN (5 bits: 0-31)
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+  // Use SetPortPin in the ulPortPin column of the PinDescription table (when using PIN_DESCRIPTION_TABLE_SIMPLE only).
+  #define SetPortPin( port, pin ) ( (((port & 0x07) << 5) | (pin & 0x1F)) )
+  #define GetPort( x ) ( ((g_APinDescription[x].ulPortPin) >> 5) & 0x07 )
+  #define GetPin( x ) ( (g_APinDescription[x].ulPortPin) & 0x1F )
+#else
+  #define GetPort( x ) g_APinDescription[x].ulPort
+  #define GetPin( x ) g_APinDescription[x].ulPin
+#endif
+
+/* Definitions and types for pins */
+typedef enum _EAnalogChannel
+{
+  ADC_Channel0=0,
+  ADC_Channel1=1,
+  ADC_Channel2=2,
+  ADC_Channel3=3,
+  ADC_Channel4=4,
+  ADC_Channel5=5,
+  ADC_Channel6=6,
+  ADC_Channel7=7,
+  ADC_Channel8=8,
+  ADC_Channel9=9,
+  ADC_Channel10=10,
+  ADC_Channel11=11,
+  ADC_Channel12=12,
+  ADC_Channel13=13,
+  ADC_Channel14=14,
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+  No_ADC_Channel = 15,
+#else
+  ADC_Channel15=15,
+  ADC_Channel16=16,
+  ADC_Channel17=17,
+  ADC_Channel18=18,
+  ADC_Channel19=19,
+  DAC_Channel0,
+  DAC_Channel1,
+  No_ADC_Channel,
+#endif
+} EAnalogChannel ;
 
 typedef enum
 {
@@ -163,12 +180,30 @@ typedef enum
   EXTERNAL_INT_12,
   EXTERNAL_INT_13,
   EXTERNAL_INT_14,
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+  NOT_AN_INTERRUPT = 15,
+  EXTERNAL_NUM_INTERRUPTS = NOT_AN_INTERRUPT,
+#else
   EXTERNAL_INT_15,
   EXTERNAL_INT_NMI,
   EXTERNAL_NUM_INTERRUPTS,
-  NOT_AN_INTERRUPT = -1,
+  NOT_AN_INTERRUPT,
+#endif
   EXTERNAL_INT_NONE = NOT_AN_INTERRUPT,
 } EExt_Interrupts ;
+
+// When PIN_DESCRIPTION_TABLE_SIMPLE defined, the ExtInt and ADCChannelNumber fields are combined into one single byte element (ulExtIntADC) rather than two
+// Because of this, only interrupts 0 through 14 are supported (15 = NOT_AN_INTERRUPT) and only ADC channels 0 through 14 are supported (15 = No_ADC_Channel)
+// ExtInt (4 bits: 0-15, EExt_Interrupts) | ADC (4 bits: 0-15, EAnalogChannel)
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+  // Use SetExtIntADC in the ulExtIntADC column of the PinDescription table (when using PIN_DESCRIPTION_TABLE_SIMPLE only).
+  #define SetExtIntADC( ExtInt, ADC ) ( (((ExtInt & 0x0F) << 4) | (ADC & 0x0F)) )
+  #define GetExtInt( x ) ( ((g_APinDescription[x].ulExtIntADC) >> 4) & 0x0F )
+  #define GetADC( x ) ( (g_APinDescription[x].ulExtIntADC) & 0x0F )
+#else
+  #define GetExtInt( x ) g_APinDescription[x].ulExtInt
+  #define GetADC( x ) g_APinDescription[x].ulADCChannelNumber
+#endif
 
 
 /* Copied from wiring_constants.h */
@@ -178,8 +213,6 @@ typedef enum
 #define INPUT_PULLDOWN  (0x3)
 typedef enum _EPioType
 {
-  PIO_NOT_A_PIN=-1,                   /* Not under control of a peripheral. */
-
   PIO_INPUT=INPUT,                    /* The pin is controlled by PORT and is an input. */
   PIO_OUTPUT=OUTPUT,                  /* The pin is controlled by PORT and is an output. */
   PIO_INPUT_PULLUP=INPUT_PULLUP,      /* The pin is controlled by PORT and is an input with internal pull-up resistor enabled. */
@@ -212,8 +245,8 @@ typedef enum _EPioType
   PIO_CCL=24,                         /* The pin is controlled by the CCL (configurable custom logic) peripheral (I/O). */
 
   PIO_MULTI,                          /* The pin can be configured to any type based on the attributes. */
-
   PIO_STARTUP,                        /* Used as parameter to pinPeripheral() only to set startup state (enable INEN only) */
+  PIO_NOT_A_PIN,                      /* Not under control of a peripheral. */
 } EPioType ;
 
 /**
@@ -263,7 +296,6 @@ D51:         EIC REF ADC AC PTC DAC SERCOM SERCOM_ALT TC     TCC TCC/PDEC  COM/Q
 */
 typedef enum _EPioPeripheral
 {
-	PER_PORT=-1,          /* The pin is controlled by PORT. */
 	PER_EXTINT=0,         /* The pin is controlled by the associated signal of peripheral A. */
 	PER_ANALOG=1,         /* The pin is controlled by the associated signal of peripheral B. */
 	PER_SERCOM=2,         /* The pin is controlled by the associated signal of peripheral C. */
@@ -284,6 +316,7 @@ typedef enum _EPioPeripheral
 	PER_AC_CLK=7,         /* The pin is controlled by the associated signal of peripheral H. */
 	PER_CCL=8,            /* The pin is controlled by the associated signal of peripheral I. */
 #endif
+        PER_PORT,             /* The pin is controlled by PORT. */
 } EPioPeripheral ;
 
 /**
@@ -319,9 +352,25 @@ typedef enum _EPioPeripheral
 #define PER_ATTR_ADC_MASK            (1UL<<7)
 
 
-/* Types used for the table below
- * This struct MUST be 12 bytes long (elements are ordered to prevent unaligned access).
- */
+/* PinDescription table */
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+  #if !defined(MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE) || (MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE < 10618)
+    #error "The PinDescription table in the variant.cpp file of your board variant must be updated (MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10618) in order to use PIN_DESCRIPTION_TABLE_SIMPLE. See VARIANT_COMPLIANCE_CHANGELOG."
+  #endif
+  #if !(SAMD11)
+    #error "PIN_DESCRIPTION_TABLE_SIMPLE is currently only supported by the D11 variants (although you can still add support yourself, see the variant.cpp of a D11 variant for an example)."
+  #endif
+// This struct MUST be 4 bytes long (elements are ordered to prevent unaligned access).
+typedef struct _PinDescription
+{
+  uint8_t         ulPortPin ;                   // Must be 8 bits
+  uint8_t         ulPeripheralAttribute ;       // Must be 8 bit bitfield
+  uint8_t         ulTCChannel ;                 // Must be 8 bits
+  uint8_t         ulExtIntADC ;                 // Must be 8 bits
+} PinDescription ;
+
+#else
+// This struct MUST be 12 bytes long (elements are ordered to prevent unaligned access).
 typedef struct _PinDescription
 {
   uint8_t         ulPort ;	                // Must be 8 bits
@@ -336,11 +385,12 @@ typedef struct _PinDescription
   uint8_t         ulGCLKCCL ;	                // Must be 8 bits
 #else
 #error "The PinDescription table in the variant.cpp file of your board variant must be updated so that MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10608. See VARIANT_COMPLIANCE_CHANGELOG."
-//  uint16_t        ulTCChannel ;	        	// Must be 16 bits
-//  uint8_t         ulADCChannelNumber ;	        // Must be 8 bits
+//  uint16_t        ulTCChannel ;	        // Must be 16 bits
+//  uint8_t         ulADCChannelNumber ;	// Must be 8 bits
 //  uint8_t         ulExtInt ;	                // Must be 8 bits
 #endif
 } PinDescription ;
+#endif
 
 /* Pins table to be instantiated into variant.cpp */
 extern const PinDescription g_APinDescription[] ;

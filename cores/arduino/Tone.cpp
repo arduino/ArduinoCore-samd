@@ -182,9 +182,9 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
   TONE_TC->COUNT16.CC[TONE_TC_CHANNEL].reg = (uint16_t) ccValue;
   WAIT_TC16_REGS_SYNC(TONE_TC)
 
-  portToggleRegister = &(PORT->Group[g_APinDescription[outputPin].ulPort].OUTTGL.reg);
-  portClearRegister = &(PORT->Group[g_APinDescription[outputPin].ulPort].OUTCLR.reg);
-  portBitMask = (1ul << g_APinDescription[outputPin].ulPin);
+  portToggleRegister = &(PORT->Group[GetPort(outputPin)].OUTTGL.reg);
+  portClearRegister = &(PORT->Group[GetPort(outputPin)].OUTCLR.reg);
+  portBitMask = (1ul << GetPin(outputPin));
 
   // Enable the TONE_TC interrupt request
   TONE_TC->COUNT16.INTENSET.bit.MC0 = 1;

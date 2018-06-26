@@ -17,7 +17,7 @@
 */
 
 /*
- * Modified 9 December 2016 by Justin Mattair
+ * Modified 26 April 2018 by Justin Mattair
  *   for MattairTech boards (www.mattairtech.com)
  *
  * See README.md for documentation and pin mapping information
@@ -29,7 +29,67 @@
 /*
  * Pins descriptions
  */
-#if defined PIN_MAP_STANDARD
+#if defined(PIN_MAP_STANDARD)
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+const PinDescription g_APinDescription[]=
+{
+        // 0..1 pins don't exist
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+
+        // 2..7 - Analog capable pins (DAC available on 0)
+        { SetPortPin( PORTA, 2 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel0 ) },
+        { SetPortPin( PORTA, 3 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel1 ) },
+        { SetPortPin( PORTA, 4 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH0, SetExtIntADC( EXTERNAL_INT_4, ADC_Channel2 ) },
+        { SetPortPin( PORTA, 5 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH1, SetExtIntADC( EXTERNAL_INT_5, ADC_Channel3 ) },
+        { SetPortPin( PORTA, 6 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH2, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel4 ) },
+        { SetPortPin( PORTA, 7 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH3, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel5 ) },
+
+        // 8..9 are unused (pins in use by 32.768KHz crystal, which in turn is used by the Arduino core)
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+
+        // 10..11 - SERCOM/SPI (SPI) or Analog or Digital functions (Button available on pin 9)
+        { SetPortPin( PORTA, 10 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_2, ADC_Channel8 ) }, // SPI MOSI
+        { SetPortPin( PORTA, 11 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel9 ) }, // SPI SCK
+
+        // 12..13 pins don't exist
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+
+        // 14..15 - SERCOM/SPI (SPI) or Analog or Digital functions (Button available on pin 15)
+        { SetPortPin( PORTA, 14 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel6 ) }, // SPI MISO
+        { SetPortPin( PORTA, 15 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_1, ADC_Channel7 ) }, // Button / SPI SS (unused)
+
+        // 16..17 Digital functions (LED available on pin 10)
+        { SetPortPin( PORTA, 16 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD), TC1_CH0, SetExtIntADC( EXTERNAL_INT_0, No_ADC_Channel ) }, // LED
+        { SetPortPin( PORTA, 17 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD), TC1_CH1, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) },
+
+        // 18..21 pins don't exist
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+
+        // 22..23 SERCOM/I2C (Wire) or Digital functions
+        { SetPortPin( PORTA, 22 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_ALT), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_6, No_ADC_Channel ) }, // SDA
+        { SetPortPin( PORTA, 23 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_ALT), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // SCL
+
+        // 24..26 are unused (25 and 26 in use by USB_NEGATIVE and USB_POSITIVE, pin 26 does not exist)
+        { SetPortPin( PORTA, 24 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // USB/DM
+        { SetPortPin( PORTA, 25 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // USB/DP
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+
+        // 27..29 Digital functions (pin 28 is Reset and pin 29 does not exist)
+        { SetPortPin( PORTA, 27 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_7, No_ADC_Channel ) },
+        { SetPortPin( PORTA, 28 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused (Reset)
+        { SetPortPin( NOT_A_PORT, 0 ), PER_ATTR_NONE, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // Unused
+
+        // 30..31  SERCOM/UART (Serial1) or Digital functions or Debug interface (SWD CLK and SWD IO)
+        { SetPortPin( PORTA, 30 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), TC2_CH0, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // TX / SWD CLK
+        { SetPortPin( PORTA, 31 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), TC2_CH1, SetExtIntADC( EXTERNAL_INT_3, No_ADC_Channel ) }, // RX / SWD IO
+} ;
+#else
 const PinDescription g_APinDescription[]=
 {
 	// 0..1 pins don't exist
@@ -88,7 +148,41 @@ const PinDescription g_APinDescription[]=
 	{ PORTA, 30, PIO_MULTI, (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER|PIN_ATTR_SERCOM), TC2_CH0, No_ADC_Channel, EXTERNAL_INT_NONE, GCLK_CCL_NONE }, // TX / SWD CLK
 	{ PORTA, 31, PIO_MULTI, (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER|PIN_ATTR_SERCOM|PIN_ATTR_EXTINT), TC2_CH1, No_ADC_Channel, EXTERNAL_INT_3, GCLK_CCL_NONE }, // RX / SWD IO
 } ;
-#elif defined PIN_MAP_COMPACT
+#endif
+#elif defined(PIN_MAP_COMPACT)
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+const PinDescription g_APinDescription[]=
+{
+        // 0..5 - Analog capable pins (DAC available on 0)
+        { SetPortPin( PORTA, 2 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel0 ) },
+        { SetPortPin( PORTA, 3 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel1 ) },
+        { SetPortPin( PORTA, 4 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH0, SetExtIntADC( EXTERNAL_INT_4, ADC_Channel2 ) },
+        { SetPortPin( PORTA, 5 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH1, SetExtIntADC( EXTERNAL_INT_5, ADC_Channel3 ) },
+        { SetPortPin( PORTA, 6 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH2, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel4 ) },
+        { SetPortPin( PORTA, 7 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_ALT), TCC0_CH3, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel5 ) },
+
+        // 6..9 - SERCOM/SPI (SPI) or Analog or Digital functions (Button available on pin 9)
+        { SetPortPin( PORTA, 10 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_2, ADC_Channel8 ) }, // SPI MOSI
+        { SetPortPin( PORTA, 11 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel9 ) }, // SPI SCK
+        { SetPortPin( PORTA, 14 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, ADC_Channel6 ) }, // SPI MISO
+        { SetPortPin( PORTA, 15 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_STD), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_1, ADC_Channel7 ) }, // Button / SPI SS (unused)
+
+        // 10..11 Digital functions (LED available on pin 10)
+        { SetPortPin( PORTA, 16 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD), TC1_CH0, SetExtIntADC( EXTERNAL_INT_0, No_ADC_Channel ) }, // LED
+        { SetPortPin( PORTA, 17 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD), TC1_CH1, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) },
+
+        // 12..13 SERCOM/I2C (Wire) or Digital functions
+        { SetPortPin( PORTA, 22 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_ALT), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_6, No_ADC_Channel ) }, // SDA
+        { SetPortPin( PORTA, 23 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_SERCOM_ALT), NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // SCL
+
+        // 14 Digital functions
+        { SetPortPin( PORTA, 27 ), PER_ATTR_DRIVE_STRONG, NOT_ON_TIMER, SetExtIntADC( EXTERNAL_INT_7, No_ADC_Channel ) },
+
+        // 15..16  SERCOM/UART (Serial1) or Digital functions or Debug interface (SWD CLK and SWD IO)
+        { SetPortPin( PORTA, 30 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), TC2_CH0, SetExtIntADC( EXTERNAL_INT_NONE, No_ADC_Channel ) }, // TX / SWD CLK
+        { SetPortPin( PORTA, 31 ), (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), TC2_CH1, SetExtIntADC( EXTERNAL_INT_3, No_ADC_Channel ) }, // RX / SWD IO
+} ;
+#else
 const PinDescription g_APinDescription[]=
 {
 	// 0..5 - Analog capable pins (DAC available on 0)
@@ -120,6 +214,7 @@ const PinDescription g_APinDescription[]=
 	{ PORTA, 30, PIO_MULTI, (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER|PIN_ATTR_SERCOM), TC2_CH0, No_ADC_Channel, EXTERNAL_INT_NONE, GCLK_CCL_NONE }, // TX / SWD CLK
 	{ PORTA, 31, PIO_MULTI, (PER_ATTR_DRIVE_STRONG|PER_ATTR_TIMER_STD|PER_ATTR_SERCOM_ALT), (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER|PIN_ATTR_SERCOM|PIN_ATTR_EXTINT), TC2_CH1, No_ADC_Channel, EXTERNAL_INT_3, GCLK_CCL_NONE }, // RX / SWD IO
 } ;
+#endif
 #endif
 
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TC1, TC2 } ;

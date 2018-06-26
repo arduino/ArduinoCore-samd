@@ -18,6 +18,7 @@
 */
 
 #include "Arduino.h"
+#include "../../config.h"
 
 #ifdef __cplusplus
  extern "C" {
@@ -31,15 +32,19 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
 void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
+  uint8_t pinPort = GetPort(ulPin);
+  uint8_t pinNum = GetPin(ulPin);
+
   // Handle the case the pin isn't usable as PIO
-  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  if ( pinPort == NOT_A_PORT )
   {
     return ;
   }
 
+#if !defined(PIN_DESCRIPTION_TABLE_SIMPLE)
   uint32_t pinAttribute = g_APinDescription[ulPin].ulPinAttribute;
-  uint8_t pinPort = g_APinDescription[ulPin].ulPort;
-  uint8_t pinNum = g_APinDescription[ulPin].ulPin;
+#endif
+
   uint8_t pinConfig = PORT->Group[pinPort].PINCFG[pinNum].reg;
   uint8_t pinDir = (PORT->Group[pinPort].DIR.reg && (1ul << pinNum));
   uint8_t pinOut = (PORT->Group[pinPort].OUT.reg && (1ul << pinNum));
@@ -49,7 +54,9 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
   if ( pinDir == 0 ) { // pin DIR is input
      if ( ulVal == HIGH )
      {
+#if !defined(PIN_DESCRIPTION_TABLE_SIMPLE)
        if ( (pinOut == 1 && (pinAttribute & PIN_ATTR_INPUT_PULLUP)) || (pinOut == 0 && (pinAttribute & PIN_ATTR_INPUT_PULLDOWN)) )
+#endif
        {
          pinConfig |= (uint8_t)(PORT_PINCFG_PULLEN) ;
        }
@@ -79,13 +86,16 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 
 int digitalRead( uint32_t ulPin )
 {
+  uint8_t pinPort = GetPort(ulPin);
+  uint8_t pinNum = GetPin(ulPin);
+
   // Handle the case the pin isn't usable as PIO
-  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  if ( pinPort == NOT_A_PORT )
   {
     return LOW ;
   }
-  
-  if ( (PORT->Group[g_APinDescription[ulPin].ulPort].IN.reg & (1ul << g_APinDescription[ulPin].ulPin)) != 0 )
+
+  if ( (PORT->Group[pinPort].IN.reg & (1ul << pinNum)) != 0 )
   {
     return HIGH ;
   }

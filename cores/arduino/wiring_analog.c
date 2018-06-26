@@ -477,7 +477,7 @@ uint32_t analogRead( uint32_t pin )
   // pinPeripheral now handles disabling the DAC (if active)
   if ( pinPeripheral(pin, PIO_ANALOG_ADC) == RET_STATUS_OK )
   {
-    ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
+    ADC->INPUTCTRL.bit.MUXPOS = GetADC(pin); // Selection for the positive ADC input
 
     syncADC();
 
@@ -506,8 +506,16 @@ uint32_t analogRead( uint32_t pin )
 // to digital output.
 void analogWrite(uint32_t pin, uint32_t value)
 {
-  if ( pinPeripheral(pin, PIO_ANALOG_DAC) == RET_STATUS_OK )
+#if (SAMD21 || SAMD11 || SAMC21)
+  if ( (GetPort(pin) == 0) && (GetPin(pin) == 2) )
+#elif (SAML21 || SAMD51)
+  if ( (GetPort(pin) == 0) && (GetPin(pin) == 2 || GetPin(pin) == 5) )
+#endif
   {
+    if (pinPeripheral(pin, PIO_ANALOG_DAC) != RET_STATUS_OK) {
+      return;
+    }
+
     if (!DACinitialized) {
       initDAC();
     }
@@ -526,7 +534,7 @@ void analogWrite(uint32_t pin, uint32_t value)
     uint8_t DACNumber = 0x00;
     value = mapResolution(value, _writeResolution, 12);
 
-    if ( (g_APinDescription[pin].ulPort == 0) && (g_APinDescription[pin].ulPin == 5) ) {
+    if ( (GetPort(pin) == 0) && (GetPin(pin) == 5) ) {
         DACNumber = 0x01;
     }
 
@@ -550,7 +558,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 #endif
     return;
   }
-  else if ( pinPeripheral(pin, PIO_TIMER_PWM) == RET_STATUS_OK )
+  else if ( g_APinDescription[pin].ulTCChannel != NOT_ON_TIMER )
   {
     Tc*  TCx  = 0 ;
     Tcc* TCCx = 0 ;
@@ -559,6 +567,10 @@ void analogWrite(uint32_t pin, uint32_t value)
     uint8_t timerNumber = GetTCNumber( g_APinDescription[pin].ulTCChannel ) ;
     uint8_t timerChannel = GetTCChannelNumber( g_APinDescription[pin].ulTCChannel ) ;
     static bool timerEnabled[TCC_INST_NUM+TC_INST_NUM];
+
+    if (pinPeripheral(pin, PIO_TIMER_PWM) != RET_STATUS_OK) {
+      return;
+    }
 
     if ( timerType == 1 ) {
       TCx = (Tc*) GetTC( g_APinDescription[pin].ulTCChannel ) ;

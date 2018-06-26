@@ -17,20 +17,18 @@
 */
 
 /*
- * Modified 9 December 2016 by Justin Mattair
- *   for MattairTech boards (www.mattairtech.com)
- *
+ * Modified 16 June 2018 by Justin Mattair (www.mattairtech.com)
  * See README.md for documentation and pin mapping information
  */
 
 #ifndef _VARIANT_MATTAIRTECH_D11C14A_
 #define _VARIANT_MATTAIRTECH_D11C14A_
 
-/* The definitions here need the MattairTech SAMD core >=1.6.8.
+/* This variant requires the MattairTech SAM D|L|C Core for Arduino >= 1.6.18-beta-b1.
  * The format is different than the stock Arduino SAMD core,
  * which uses ARDUINO_SAMD_VARIANT_COMPLIANCE instead.
  */
-#define MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE 10608
+#define MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE 10618
 
 /*----------------------------------------------------------------------------
  *        Clock Configuration
@@ -70,6 +68,7 @@
 
 #include "WVariant.h"
 #include "sam.h"
+#include "../../config.h"
 
 #ifdef __cplusplus
 #include "SERCOM.h"
@@ -103,13 +102,19 @@ extern "C"
 #define NUM_ANALOG_OUTPUTS   (1u)
 #define analogInputToDigitalPin(p)  (p)
 
-#define digitalPinToPort(P)        ( &(PORT->Group[g_APinDescription[P].ulPort]) )
-#define digitalPinToBitMask(P)     ( 1 << g_APinDescription[P].ulPin )
+#define digitalPinToPort(P)        ( &(PORT->Group[GetPort(P)]) )
+#define digitalPinToBitMask(P)     ( 1 << GetPin(P) )
+
+#if defined(PIN_DESCRIPTION_TABLE_SIMPLE)
+  #define digitalPinHasPWM(P)        ( g_APinDescription[P].ulTCChannel != NOT_ON_TIMER )
+#else
+  #define digitalPinHasPWM(P)        ( (g_APinDescription[P].ulPinAttribute & PIN_ATTR_TIMER_PWM) == PIN_ATTR_TIMER_PWM )
+#endif
+
 //#define analogInPinToBit(P)        ( )
 #define portOutputRegister(port)   ( &(port->OUT.reg) )
 #define portInputRegister(port)    ( &(port->IN.reg) )
 #define portModeRegister(port)     ( &(port->DIR.reg) )
-#define digitalPinHasPWM(P)        ( (g_APinDescription[P].ulPinAttribute & PIN_ATTR_TIMER_PWM) == PIN_ATTR_TIMER_PWM )
 
 /*
  * digitalPinToTimer(..) is AVR-specific and is not defined for SAMD

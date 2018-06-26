@@ -99,13 +99,17 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 
 #if (SAML21)
   // The CHANGE and RISING interrupt modes on pin A31 on the SAML21 do not seem to work properly
-  if ((g_APinDescription[pin].ulPort == 0) && (g_APinDescription[pin].ulPin == 31) && ((mode == CHANGE) || (mode == RISING)))
+  if ((GetPort(pin) == 0) && (GetPin(pin) == 31) && ((mode == CHANGE) || (mode == RISING)))
     return;
 #endif
 
-  EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
-  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
-    return;
+  EExt_Interrupts in = GetExtInt(pin);
+
+#if defined(EXTERNAL_INT_NMI)
+  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI) return;
+#else
+  if (in == NOT_AN_INTERRUPT) return;
+#endif
 
   if (!enabled) {
     __initialize();
@@ -186,9 +190,12 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
  */
 void detachInterrupt(uint32_t pin)
 {
-  EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
-  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
-    return;
+  EExt_Interrupts in = GetExtInt(pin);
+#if defined(EXTERNAL_INT_NMI)
+  if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI) return;
+#else
+  if (in == NOT_AN_INTERRUPT) return;
+#endif
 
   uint32_t inMask = 1 << in;
   EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(inMask);

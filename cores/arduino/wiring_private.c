@@ -46,8 +46,11 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
   uint8_t pinPort = GetPort(ulPin);
   uint8_t pinNum = GetPin(ulPin);
   uint8_t peripheralAttribute = g_APinDescription[ulPin].ulPeripheralAttribute;
+
+#if !defined(PIN_DESCRIPTION_TABLE_SIMPLE)
   uint8_t pinType = g_APinDescription[ulPin].ulPinType;
   uint32_t pinAttribute = g_APinDescription[ulPin].ulPinAttribute;
+#endif
 
   // Handle the case the pin isn't usable as PIO
   if ( pinPort == NOT_A_PORT )
@@ -56,6 +59,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
   }
 
 #if !defined(PIN_PERIPHERAL_CHECKS_DISABLED)
+#if !defined(PIN_DESCRIPTION_TABLE_SIMPLE)
   // If pinType is not PIO_MULTI or PIO_STARTUP in the pinDescription table, then it must match ulPeripheral
   if ( pinType != PIO_MULTI && pinType != PIO_STARTUP && pinType != ulPeripheral )
   {
@@ -67,6 +71,7 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
   {
     return -1 ;
   }
+#endif
 #endif
 
   // Determine hardware peripheral to use
