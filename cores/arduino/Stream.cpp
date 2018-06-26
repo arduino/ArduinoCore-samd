@@ -194,6 +194,45 @@ float Stream::parseFloat(LookaheadMode lookahead, char ignore)
     return value;
 }
 
+// as parseInt but returns a double floating point value
+double Stream::parseDouble(LookaheadMode lookahead, char ignore)
+{
+  bool isNegative = false;
+  bool isFraction = false;
+  long value = 0;
+  int c;
+  double fraction = 1.0;
+
+  c = peekNextDigit(lookahead, true);
+    // ignore non numeric leading characters
+  if(c < 0)
+    return 0; // zero returned if timeout
+
+  do{
+    if(c == ignore)
+      ; // ignore
+    else if(c == '-')
+      isNegative = true;
+    else if (c == '.')
+      isFraction = true;
+    else if(c >= '0' && c <= '9')  {      // is c a digit?
+      value = value * 10 + c - '0';
+      if(isFraction)
+         fraction *= 0.1;
+    }
+    read();  // consume the character we got with peek
+    c = timedPeek();
+  }
+  while( (c >= '0' && c <= '9')  || (c == '.' && !isFraction) || c == ignore );
+
+  if(isNegative)
+    value = -value;
+  if(isFraction)
+    return value * fraction;
+  else
+    return value;
+}
+
 // read characters from stream into buffer
 // terminates if length characters have been read, or timeout (see setTimeout)
 // returns the number of characters placed in the buffer

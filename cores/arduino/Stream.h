@@ -35,7 +35,7 @@
 readBytesBetween( pre_string, terminator, buffer, length)
 */
 
-// This enumeration provides the lookahead options for parseInt(), parseFloat()
+// This enumeration provides the lookahead options for parseInt(), parseFloat(), parseDouble()
 // The rules set out here are used until either the first valid character is found
 // or a time out occurs due to lack of input.
 enum LookaheadMode{
@@ -93,6 +93,9 @@ class Stream : public Print
   float parseFloat(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR);
   // float version of parseInt
 
+  double parseDouble(LookaheadMode lookahead = SKIP_ALL, char ignore = NO_IGNORE_CHAR);
+  // double version of parseInt
+
   size_t readBytes( char *buffer, size_t length); // read chars from stream into buffer
   size_t readBytes( uint8_t *buffer, size_t length) { return readBytes((char *)buffer, length); }
   // terminates if length characters have been read or timeout (see setTimeout)
@@ -110,6 +113,7 @@ class Stream : public Print
   protected:
   long parseInt(char ignore) { return parseInt(SKIP_ALL, ignore); }
   float parseFloat(char ignore) { return parseFloat(SKIP_ALL, ignore); }
+  double parseDouble(char ignore) { return parseDouble(SKIP_ALL, ignore); }
   // These overload exists for compatibility with any class that has derived
   // Stream and used parseFloat/Int with a custom ignore character. To keep
   // the public API simple, these overload remains protected.

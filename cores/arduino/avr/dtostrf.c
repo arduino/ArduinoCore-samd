@@ -1,5 +1,5 @@
 /*
-  dtostrf - Emulation for dtostrf function from avr-libc
+  dtostrf - Emulation for dtostrf function from avr-libc, but with double-precision
   Copyright (c) 2015 Arduino LLC.  All rights reserved.
 
   This library is free software; you can redistribute it and/or

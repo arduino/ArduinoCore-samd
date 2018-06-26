@@ -103,18 +103,21 @@ typedef const void* uint_farptr_t;
 #define pgm_read_word(addr) (*(const unsigned short *)(addr))
 #define pgm_read_dword(addr) (*(const unsigned long *)(addr))
 #define pgm_read_float(addr) (*(const float *)(addr))
+#define pgm_read_double(addr) (*(const double *)(addr))
 #define pgm_read_ptr(addr) (*(const void **)(addr))
 
 #define pgm_read_byte_near(addr) pgm_read_byte(addr)
 #define pgm_read_word_near(addr) pgm_read_word(addr)
 #define pgm_read_dword_near(addr) pgm_read_dword(addr)
 #define pgm_read_float_near(addr) pgm_read_float(addr)
+#define pgm_read_double_near(addr) pgm_read_double(addr)
 #define pgm_read_ptr_near(addr) pgm_read_ptr(addr)
 
 #define pgm_read_byte_far(addr) pgm_read_byte(addr)
 #define pgm_read_word_far(addr) pgm_read_word(addr)
 #define pgm_read_dword_far(addr) pgm_read_dword(addr)
 #define pgm_read_float_far(addr) pgm_read_float(addr)
+#define pgm_read_double_far(addr) pgm_read_double(addr)
 #define pgm_read_ptr_far(addr) pgm_read_ptr(addr)
 
 #define pgm_get_far_address(addr) (&(addr))

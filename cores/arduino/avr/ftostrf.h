@@ -1,5 +1,5 @@
 /*
-  dtostrf - Emulation for dtostrf function from avr-libc, but with double-precision
+  ftostrf - Same as dtostrf function from avr-libc, which used single-precision
   Copyright (c) 2015 Arduino LLC.  All rights reserved.
 
   This library is free software; you can redistribute it and/or
@@ -23,7 +23,7 @@
 extern "C" {
 #endif
 
-char *dtostrf(double val, signed char width, unsigned char prec, char *sout);
+char *ftostrf(float val, signed char width, unsigned char prec, char *sout);
 
 #ifdef __cplusplus
 }

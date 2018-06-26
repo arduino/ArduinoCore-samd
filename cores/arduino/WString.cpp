@@ -22,6 +22,9 @@
 #include "WString.h"
 #include "itoa.h"
 #include "avr/dtostrf.h"
+#if (defined(FLOAT_BOTH_SINGLES_DOUBLES) || defined(FLOAT_STRING_SINGLES_DOUBLES))
+  #include "avr/ftostrf.h"
+#endif
 
 /*********************************************/
 /*  Constructors                             */
@@ -111,7 +114,11 @@ String::String(float value, unsigned char decimalPlaces)
 {
 	init();
 	char buf[33];
-	*this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
+#if (defined(FLOAT_BOTH_SINGLES_DOUBLES) || defined(FLOAT_STRING_SINGLES_DOUBLES))
+        *this = ftostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
+#else
+        *this = dtostrf(value, (decimalPlaces + 2), decimalPlaces, buf);
+#endif
 }
 
 String::String(double value, unsigned char decimalPlaces)
@@ -325,7 +332,12 @@ unsigned char String::concat(unsigned long num)
 unsigned char String::concat(float num)
 {
 	char buf[20];
-	char* string = dtostrf(num, 4, 2, buf);
+
+#if (defined(FLOAT_BOTH_SINGLES_DOUBLES) || defined(FLOAT_STRING_SINGLES_DOUBLES))
+        char* string = ftostrf(num, 4, 2, buf);
+#else
+        char* string = dtostrf(num, 4, 2, buf);
+#endif
 	return concat(string, strlen(string));
 }
 
