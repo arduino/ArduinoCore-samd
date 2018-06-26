@@ -14,8 +14,6 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-# Arduino SAM M0+ Core and platform.
-#
 # For more info:
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
@@ -33,13 +31,13 @@ compiler.warning_flags.all=-Wall -Wextra
 
 compiler.path={runtime.tools.arm-none-eabi-gcc.path}/bin/
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500 -MMD
+compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -fsingle-precision-constant -Wdouble-promotion -nostdlib --param max-inline-insns-single=500 -MMD
 compiler.c.elf.cmd=arm-none-eabi-gcc
-compiler.c.elf.flags=-Os -Wl,--gc-sections -save-temps
+compiler.c.elf.flags=-Os -Wl,--gc-sections -save-temps -fsingle-precision-constant -Wdouble-promotion
 compiler.S.cmd=arm-none-eabi-gcc
 compiler.S.flags=-c -g -x assembler-with-cpp -MMD
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-mcpu={build.mcu} -mthumb -c -g -Os {compiler.warning_flags} -std=gnu++11 -ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib --param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD
+compiler.cpp.flags=-mcpu={build.mcu} -mthumb -c -g -Os {compiler.warning_flags} -std=gnu++11 -ffunction-sections -fdata-sections -fsingle-precision-constant -Wdouble-promotion -fno-threadsafe-statics -nostdlib --param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD
 compiler.ar.cmd=arm-none-eabi-ar
 compiler.ar.flags=rcs
 compiler.objcopy.cmd=arm-none-eabi-objcopy
@@ -58,16 +56,16 @@ compiler.readelf.cmd=arm-none-eabi-readelf
 build.extra_flags=
 
 # These can be overridden in platform.local.txt
-compiler.c.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
+compiler.c.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.floatconfig} -D{build.timerconfig} -D{build.buildconfig} -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
 compiler.c.elf.extra_flags=
 #compiler.c.elf.extra_flags=-v
-compiler.cpp.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
-compiler.S.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
+compiler.cpp.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.floatconfig} -D{build.timerconfig} -D{build.buildconfig} -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
+compiler.S.extra_flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.0.0-mattairtech-2.path}/CMSIS/Device/ATMEL/" -D{build.floatconfig} -D{build.timerconfig} -D{build.buildconfig} -D{build.clockconfig} -D{build.usbcom} -D{build.serialcom_uart} -D{build.serialcom_wire} -D{build.serialcom_spi} -D{build.bootloader_size}
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
 
 compiler.arm.cmsis.c.flags=
-compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
+compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -l{build.mathlib}
 
 # USB Flags
 # ---------
