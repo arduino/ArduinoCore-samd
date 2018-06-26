@@ -20,30 +20,12 @@
 #include "Arduino.h"
 #include "sam.h"
 #include "variant.h"
+#include "wiring_analog.h"
+#include "../../config.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
-// not defined for SAML or SAMC in version of CMSIS used
-#ifndef ADC_INPUTCTRL_MUXNEG_GND
-#define ADC_INPUTCTRL_MUXNEG_GND (0x18ul << ADC_INPUTCTRL_MUXNEG_Pos)
-#endif
-
-// Wait for synchronization of registers between the clock domains
-static __inline__ void syncADC() __attribute__((always_inline, unused));
-static void syncADC() {
-#if (SAMD21 || SAMD11)
-  while ( ADC->STATUS.bit.SYNCBUSY == 1 );
-#elif (SAML21)
-  while ( ADC->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
-#elif (SAMC21 || SAMD51)
-  while ( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
-  while ( ADC1->SYNCBUSY.reg & ADC_SYNCBUSY_MASK );
-#else
-  #error "wiring_analog.c: Unsupported chip"
-#endif
-}
 
 /*
  * System Core Clock is at 1MHz (8MHz/8) at Reset.
@@ -62,7 +44,8 @@ uint32_t SystemCoreClock=1000000ul ;
 void init( void )
 {
   // Set Systick to 1ms interval, common to all Cortex-M variants
-  if ( SysTick_Config( SystemCoreClock / 1000 ) )
+  // Since this only runs at startup, using VARIANT_MCK instead of SystemCoreClock to save code space
+  if ( SysTick_Config( VARIANT_MCK / 1000 ) )
   {
     // Capture error
     while ( 1 ) ;
@@ -146,169 +129,26 @@ void init( void )
 
   // At least on the L21, pin A31 must be set as an input. It is possible that debugger probe detection is being falsely
   // detected (even with a pullup on A31 (SWCLK)), which would change the peripheral mux of A31 to COM.
-  // This might not normally be a problem, but one strange effect is that Serial2 loses characters if pin A31 is not set as INPUT.
-  pinMode(31, INPUT);
+  // This might not normally be a problem, but one strange effect is that Serial2 (even when not using A31) may lose characters
+  // if pin A31 is not set as INPUT. This is done above.
 
 // I/O mux table footnote for D21 and D11: enable pullups on PA24 and PA24 when using as GPIO to avoid excessive current
 //  Errata: disable pull resistors on PA24 or PA25 manually before switching to peripheral
 //  Errata: do not use continuous sampling (not enabled by default) on PA24 or PA25
 #if ((SAMD21 || SAMD11) && defined(USB_DISABLED))
   PORT->Group[0].OUTSET.reg = (uint32_t)(1<<PIN_PA24G_USB_DM);
-  PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].bit.PULLEN = 1;
+  PORT->Group[0].PINCFG[PIN_PA24G_USB_DM].reg = (PORT_PINCFG_PULLEN | PORT_PINCFG_INEN);
   PORT->Group[0].OUTSET.reg = (uint32_t)(1<<PIN_PA25G_USB_DP);
-  PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].bit.PULLEN = 1;
+  PORT->Group[0].PINCFG[PIN_PA25G_USB_DP].reg = (PORT_PINCFG_PULLEN | PORT_PINCFG_INEN);
 #endif
 
-
-  /* ----------------------------------------------------------------------------------------------
-   * Initialize Analog Controller
-   */
-
-  // Load ADC factory calibration values
-#if (SAMD21 || SAMD11)
-  // ADC Bias Calibration
-  uint32_t bias = (*((uint32_t *) ADC_FUSES_BIASCAL_ADDR) & ADC_FUSES_BIASCAL_Msk) >> ADC_FUSES_BIASCAL_Pos;
-
-  // ADC Linearity bits 4:0
-  uint32_t linearity = (*((uint32_t *) ADC_FUSES_LINEARITY_0_ADDR) & ADC_FUSES_LINEARITY_0_Msk) >> ADC_FUSES_LINEARITY_0_Pos;
-
-  // ADC Linearity bits 7:5
-  linearity |= ((*((uint32_t *) ADC_FUSES_LINEARITY_1_ADDR) & ADC_FUSES_LINEARITY_1_Msk) >> ADC_FUSES_LINEARITY_1_Pos) << 5;
-
-  ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
-
-#elif (SAML21)
-  uint32_t biasrefbuf = (*((uint32_t *) ADC_FUSES_BIASREFBUF_ADDR) & ADC_FUSES_BIASREFBUF_Msk) >> ADC_FUSES_BIASREFBUF_Pos;
-  uint32_t biascomp = (*((uint32_t *) ADC_FUSES_BIASCOMP_ADDR) & ADC_FUSES_BIASCOMP_Msk) >> ADC_FUSES_BIASCOMP_Pos;
-
-  ADC->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
-
-#elif (SAMC21)
-  uint32_t biasrefbuf = (*((uint32_t *) ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
-  uint32_t biascomp = (*((uint32_t *) ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
-  ADC0->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
-
-  biasrefbuf = (*((uint32_t *) ADC1_FUSES_BIASREFBUF_ADDR) & ADC1_FUSES_BIASREFBUF_Msk) >> ADC1_FUSES_BIASREFBUF_Pos;
-  biascomp = (*((uint32_t *) ADC1_FUSES_BIASCOMP_ADDR) & ADC1_FUSES_BIASCOMP_Msk) >> ADC1_FUSES_BIASCOMP_Pos;
-  ADC1->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
-
-#elif (SAMD51)
-  uint32_t biasrefbuf = (*((uint32_t *) ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
-  uint32_t biasr2r = (*((uint32_t *) ADC0_FUSES_BIASR2R_ADDR) & ADC0_FUSES_BIASR2R_Msk) >> ADC0_FUSES_BIASR2R_Pos;
-  uint32_t biascomp = (*((uint32_t *) ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
-  ADC0->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASR2R(biasr2r) | ADC_CALIB_BIASCOMP(biascomp);
-
-  biasrefbuf = (*((uint32_t *) ADC1_FUSES_BIASREFBUF_ADDR) & ADC1_FUSES_BIASREFBUF_Msk) >> ADC1_FUSES_BIASREFBUF_Pos;
-  biasr2r = (*((uint32_t *) ADC1_FUSES_BIASR2R_ADDR) & ADC1_FUSES_BIASR2R_Msk) >> ADC1_FUSES_BIASR2R_Pos;
-  biascomp = (*((uint32_t *) ADC1_FUSES_BIASCOMP_ADDR) & ADC1_FUSES_BIASCOMP_Msk) >> ADC1_FUSES_BIASCOMP_Pos;
-  ADC1->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASR2R(biasr2r) | ADC_CALIB_BIASCOMP(biascomp);
-#endif
-  syncADC();          // Wait for synchronization of registers between the clock domains
-
-  // Setting clock, prescaler and resolution
-#if (SAMD21 || SAMD11)
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_ADC ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN ;
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
-
-  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV512 |    // Divide Clock by 512.
-  ADC_CTRLB_RESSEL_10BIT;         // 10 bits resolution as default
-#elif (SAML21 || SAMC21 || SAMD51)
-  SUPC->VREF.reg |= SUPC_VREF_VREFOE;		// Enable Supply Controller Reference output for use with ADC and DAC (AR_INTREF)
-
-  #if (SAML21)
-    GCLK->PCHCTRL[GCM_ADC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-    while ( (GCLK->PCHCTRL[GCM_ADC].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
-  #elif (SAMC21 || SAMD51)
-    #if (SAMD51 && (VARIANT_MCK == 120000000ul))
-      GCLK->PCHCTRL[GCM_ADC0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5 );  // use 48MHz clock (100MHz max for ADC) from GCLK5, which was setup in startup.c
-      GCLK->PCHCTRL[GCM_ADC1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5 );  // use 48MHz clock (100MHz max for ADC) from GCLK5, which was setup in startup.c
-    #else
-      GCLK->PCHCTRL[GCM_ADC0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-      GCLK->PCHCTRL[GCM_ADC1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-    #endif
-    while ( (GCLK->PCHCTRL[GCM_ADC0].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
-    while ( (GCLK->PCHCTRL[GCM_ADC1].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
-  #endif
-
-  #if (SAML21)
-    ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV256;                    // Divide Clock by 256.
-    ADC->CTRLC.reg = ADC_CTRLC_RESSEL_10BIT;                        // 10 bits resolution as default
-  #elif (SAMC21)
-    ADC0->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV256;                   // Divide Clock by 256.
-    ADC1->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV256;                   // Divide Clock by 256.
-    ADC0->CTRLC.reg = ADC_CTRLC_RESSEL_10BIT | ADC_CTRLC_R2R;       // 10 bits resolution as default, R2R requires ADC_SAMPCTRL_OFFCOMP=1
-    ADC1->CTRLC.reg = ADC_CTRLC_RESSEL_10BIT | ADC_CTRLC_R2R;       // 10 bits resolution as default, R2R requires ADC_SAMPCTRL_OFFCOMP=1
-  #elif (SAMD51)
-    ADC0->CTRLA.reg = ADC_CTRLA_PRESCALER_DIV256 | ADC_CTRLA_R2R;   // Divide Clock by 256. R2R requires ADC_SAMPCTRL_OFFCOMP=1.
-    ADC1->CTRLA.reg = ADC_CTRLA_PRESCALER_DIV256 | ADC_CTRLA_R2R;   // Divide Clock by 256. R2R requires ADC_SAMPCTRL_OFFCOMP=1.
-    ADC0->CTRLB.reg = ADC_CTRLB_RESSEL_10BIT;                       // 10 bits resolution as default
-    ADC1->CTRLB.reg = ADC_CTRLB_RESSEL_10BIT;                       // 10 bits resolution as default
-  #endif
-#endif
-  syncADC();          // Wait for synchronization of registers between the clock domains
-
-  // Setting configuration
-#if (SAMD21 || SAMD11 || SAML21)
-  ADC->SAMPCTRL.reg = 0x3f;     // Set max Sampling Time Length
-  syncADC();          // Wait for synchronization of registers between the clock domains
-
-  ADC->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
-  syncADC();          // Wait for synchronization of registers between the clock domains
-
-  // Averaging (see datasheet table in AVGCTRL register description)
-  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 |    // 1 sample only (no oversampling nor averaging)
-                     ADC_AVGCTRL_ADJRES(0x0ul);   // Adjusting result by 0
-#elif (SAMC21 || SAMD51)
-  ADC0->SAMPCTRL.reg = (ADC_SAMPCTRL_SAMPLEN(0x0) | ADC_SAMPCTRL_OFFCOMP);     // ADC_SAMPCTRL_SAMPLEN must be 0 when ADC_SAMPCTRL_OFFCOMP=1
-  ADC1->SAMPCTRL.reg = (ADC_SAMPCTRL_SAMPLEN(0x0) | ADC_SAMPCTRL_OFFCOMP);     // ADC_SAMPCTRL_SAMPLEN must be 0 when ADC_SAMPCTRL_OFFCOMP=1
-  syncADC();          // Wait for synchronization of registers between the clock domains
-
-  ADC0->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
-  ADC1->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
-  syncADC();          // Wait for synchronization of registers between the clock domains
-
-  // Averaging (see datasheet table in AVGCTRL register description)
-  ADC0->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 | ADC_AVGCTRL_ADJRES(0x0ul);   // 1 sample only (no oversampling nor averaging), adjusting result by 0
-  ADC1->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 | ADC_AVGCTRL_ADJRES(0x0ul);   // 1 sample only (no oversampling nor averaging), adjusting result by 0
-#endif
-  syncADC();          // Wait for synchronization of registers between the clock domains
-
+#if !defined(ADC_NO_INIT_IF_UNUSED)
+  initADC();         // Initialize Analog Controller
   analogReference( VARIANT_AR_DEFAULT ) ;         // Use default reference from variant.h
+#endif
 
-
-  /* ----------------------------------------------------------------------------------------------
-   * Initialize DAC
-   */
-#if (SAMD21 || SAMD11)
-  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
-  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_DAC ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN ;
-
-  while ( DAC->STATUS.bit.SYNCBUSY == 1 ); // Wait for synchronization of registers between the clock domains
-  DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
-                   DAC_CTRLB_EOEN ;        // External Output Enable (Vout)
-#elif (SAML21 || SAMC21 || SAMD51)
-  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
-
-  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
-    GCLK->PCHCTRL[GCM_DAC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5 );  // use 48MHz clock (100MHz max for DAC) from GCLK5, which was setup in startup.c
-  #else
-    GCLK->PCHCTRL[GCM_DAC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-  #endif
-  while ( (GCLK->PCHCTRL[GCM_DAC].reg & GCLK_PCHCTRL_CHEN) == 0 );	// wait for sync
-
-  while ( DAC->SYNCBUSY.reg & DAC_SYNCBUSY_MASK );
-
-  #if (SAMC21)
-    DAC->CTRLB.reg = (DAC_CTRLB_REFSEL_AVCC | DAC_CTRLB_EOEN);
-  #elif (SAML21 || SAMD51)
-    #if (SAMD51)
-      DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VREFPU;         // VDDANA not funtional due to errata, using unbuffered external reference (REFA, connected externally to VDDANA) instead.
-    #else
-      DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VDDANA;
-    #endif
-    DAC->DACCTRL[0].reg = (DAC_DACCTRL_REFRESH(3) | DAC_DACCTRL_CCTRL(2));
-    DAC->DACCTRL[1].reg = (DAC_DACCTRL_REFRESH(3) | DAC_DACCTRL_CCTRL(2));
-  #endif
+#if !defined(DAC_NO_INIT_IF_UNUSED)
+  initDAC();         // Initialize DAC
 #endif
 }
 

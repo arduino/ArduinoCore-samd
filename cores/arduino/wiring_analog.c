@@ -21,9 +21,15 @@
 #include "wiring_private.h"
 #include "variant.h"
 #include "delay.h"
+#include "../../config.h"
 
 #ifdef __cplusplus
 extern "C" {
+#endif
+
+// not defined for SAML or SAMC in version of CMSIS used
+#ifndef ADC_INPUTCTRL_MUXNEG_GND
+#define ADC_INPUTCTRL_MUXNEG_GND (0x18ul << ADC_INPUTCTRL_MUXNEG_Pos)
 #endif
 
 /* Mapping of timer numbers (array index) to generic clock IDs
@@ -32,26 +38,26 @@ extern "C" {
 const uint8_t timerClockIDs[] = 
 {
 #if (SAMD11)
-	GCM_TCC0,
-	GCM_TC1_TC2,
-	GCM_TC1_TC2,
+        GCM_TCC0,
+        GCM_TC1_TC2,
+        GCM_TC1_TC2,
 #elif (SAMD21)
-	GCM_TCC0_TCC1,
-	GCM_TCC0_TCC1,
-	GCM_TCC2_TC3,
-	GCM_TCC2_TC3,
-	GCM_TC4_TC5,
-	GCM_TC4_TC5,
-	GCM_TC6_TC7,
-	GCM_TC6_TC7,
+        GCM_TCC0_TCC1,
+        GCM_TCC0_TCC1,
+        GCM_TCC2_TC3,
+        GCM_TCC2_TC3,
+        GCM_TC4_TC5,
+        GCM_TC4_TC5,
+        GCM_TC6_TC7,
+        GCM_TC6_TC7,
 #elif (SAML21 || SAMC21)
-	GCM_TCC0_TCC1,
-	GCM_TCC0_TCC1,
-	GCM_TCC2,
-	GCM_TC0_TC1,
-	GCM_TC0_TC1,
-	GCM_TC2_TC3,
-	GCM_TC2_TC3,
+        GCM_TCC0_TCC1,
+        GCM_TCC0_TCC1,
+        GCM_TCC2,
+        GCM_TC0_TC1,
+        GCM_TC0_TC1,
+        GCM_TC2_TC3,
+        GCM_TC2_TC3,
         GCM_TC4,
 #elif (SAMD51)
         GCM_TCC0_TCC1,
@@ -76,9 +82,12 @@ const uint8_t timerClockIDs[] =
 #endif
 };
 
+static int _writeResolution = 8;
 static int _readResolution = 10;
 static int _ADCResolution = 10;
-static int _writeResolution = 8;
+uint8_t ADCinitialized = 0;
+uint8_t DACinitialized = 0;
+uint8_t REFinitialized = 0;
 extern bool dacEnabled[];
 
 // Wait for synchronization of registers between the clock domains
@@ -120,8 +129,175 @@ static void syncTCC(Tcc* TCCx) {
   while (TCCx->SYNCBUSY.reg & TCC_SYNCBUSY_MASK);
 }
 
+/* ----------------------------------------------------------------------------------------------
+ * Initialize Analog Controller
+ */
+void initADC(void)
+{
+  // Load ADC factory calibration values
+#if !defined(DISABLE_ADC_CALIBRATION)
+#if (SAMD21 || SAMD11)
+  // ADC Bias Calibration
+  uint32_t bias = (*((uint32_t *) ADC_FUSES_BIASCAL_ADDR) & ADC_FUSES_BIASCAL_Msk) >> ADC_FUSES_BIASCAL_Pos;
+
+  // ADC Linearity bits 4:0
+  uint32_t linearity = (*((uint32_t *) ADC_FUSES_LINEARITY_0_ADDR) & ADC_FUSES_LINEARITY_0_Msk) >> ADC_FUSES_LINEARITY_0_Pos;
+
+  // ADC Linearity bits 7:5
+  linearity |= ((*((uint32_t *) ADC_FUSES_LINEARITY_1_ADDR) & ADC_FUSES_LINEARITY_1_Msk) >> ADC_FUSES_LINEARITY_1_Pos) << 5;
+
+  ADC->CALIB.reg = ADC_CALIB_BIAS_CAL(bias) | ADC_CALIB_LINEARITY_CAL(linearity);
+
+#elif (SAML21)
+  uint32_t biasrefbuf = (*((uint32_t *) ADC_FUSES_BIASREFBUF_ADDR) & ADC_FUSES_BIASREFBUF_Msk) >> ADC_FUSES_BIASREFBUF_Pos;
+  uint32_t biascomp = (*((uint32_t *) ADC_FUSES_BIASCOMP_ADDR) & ADC_FUSES_BIASCOMP_Msk) >> ADC_FUSES_BIASCOMP_Pos;
+
+  ADC->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
+
+#elif (SAMC21)
+  uint32_t biasrefbuf = (*((uint32_t *) ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
+  uint32_t biascomp = (*((uint32_t *) ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
+  ADC0->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
+
+  biasrefbuf = (*((uint32_t *) ADC1_FUSES_BIASREFBUF_ADDR) & ADC1_FUSES_BIASREFBUF_Msk) >> ADC1_FUSES_BIASREFBUF_Pos;
+  biascomp = (*((uint32_t *) ADC1_FUSES_BIASCOMP_ADDR) & ADC1_FUSES_BIASCOMP_Msk) >> ADC1_FUSES_BIASCOMP_Pos;
+  ADC1->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASCOMP(biascomp);
+
+#elif (SAMD51)
+  uint32_t biasrefbuf = (*((uint32_t *) ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
+  uint32_t biasr2r = (*((uint32_t *) ADC0_FUSES_BIASR2R_ADDR) & ADC0_FUSES_BIASR2R_Msk) >> ADC0_FUSES_BIASR2R_Pos;
+  uint32_t biascomp = (*((uint32_t *) ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
+  ADC0->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASR2R(biasr2r) | ADC_CALIB_BIASCOMP(biascomp);
+
+  biasrefbuf = (*((uint32_t *) ADC1_FUSES_BIASREFBUF_ADDR) & ADC1_FUSES_BIASREFBUF_Msk) >> ADC1_FUSES_BIASREFBUF_Pos;
+  biasr2r = (*((uint32_t *) ADC1_FUSES_BIASR2R_ADDR) & ADC1_FUSES_BIASR2R_Msk) >> ADC1_FUSES_BIASR2R_Pos;
+  biascomp = (*((uint32_t *) ADC1_FUSES_BIASCOMP_ADDR) & ADC1_FUSES_BIASCOMP_Msk) >> ADC1_FUSES_BIASCOMP_Pos;
+  ADC1->CALIB.reg = ADC_CALIB_BIASREFBUF(biasrefbuf) | ADC_CALIB_BIASR2R(biasr2r) | ADC_CALIB_BIASCOMP(biascomp);
+#endif
+  syncADC();          // Wait for synchronization of registers between the clock domains
+#endif
+
+  // Setting clock, prescaler and resolution
+#if (SAMD21 || SAMD11)
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_ADC ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN ;
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV512 |    // Divide Clock by 512.
+  ADC_CTRLB_RESSEL_10BIT;         // 10 bits resolution as default
+#elif (SAML21 || SAMC21 || SAMD51)
+  SUPC->VREF.reg |= SUPC_VREF_VREFOE;           // Enable Supply Controller Reference output for use with ADC and DAC (AR_INTREF)
+
+  #if (SAML21)
+    GCLK->PCHCTRL[GCM_ADC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+    while ( (GCLK->PCHCTRL[GCM_ADC].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
+  #elif (SAMC21 || SAMD51)
+    #if (SAMD51)
+      GCLK->PCHCTRL[GCM_ADC0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK4 );  // use 48MHz clock (100MHz max for ADC) from GCLK4, which was setup in startup.c
+      GCLK->PCHCTRL[GCM_ADC1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK4 );  // use 48MHz clock (100MHz max for ADC) from GCLK4, which was setup in startup.c
+    #else
+      GCLK->PCHCTRL[GCM_ADC0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+      GCLK->PCHCTRL[GCM_ADC1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+    #endif
+    while ( (GCLK->PCHCTRL[GCM_ADC0].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
+    while ( (GCLK->PCHCTRL[GCM_ADC1].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
+  #endif
+
+  #if (SAML21)
+    ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV256;                    // Divide Clock by 256.
+    ADC->CTRLC.reg = ADC_CTRLC_RESSEL_10BIT;                        // 10 bits resolution as default
+  #elif (SAMC21)
+    ADC0->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV256;                   // Divide Clock by 256.
+    ADC1->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV256;                   // Divide Clock by 256.
+    ADC0->CTRLC.reg = ADC_CTRLC_RESSEL_10BIT | ADC_CTRLC_R2R;       // 10 bits resolution as default, R2R requires ADC_SAMPCTRL_OFFCOMP=1
+    ADC1->CTRLC.reg = ADC_CTRLC_RESSEL_10BIT | ADC_CTRLC_R2R;       // 10 bits resolution as default, R2R requires ADC_SAMPCTRL_OFFCOMP=1
+  #elif (SAMD51)
+    ADC0->CTRLA.reg = ADC_CTRLA_PRESCALER_DIV256 | ADC_CTRLA_R2R;   // Divide Clock by 256. R2R requires ADC_SAMPCTRL_OFFCOMP=1.
+    ADC1->CTRLA.reg = ADC_CTRLA_PRESCALER_DIV256 | ADC_CTRLA_R2R;   // Divide Clock by 256. R2R requires ADC_SAMPCTRL_OFFCOMP=1.
+    ADC0->CTRLB.reg = ADC_CTRLB_RESSEL_10BIT;                       // 10 bits resolution as default
+    ADC1->CTRLB.reg = ADC_CTRLB_RESSEL_10BIT;                       // 10 bits resolution as default
+  #endif
+#endif
+  syncADC();          // Wait for synchronization of registers between the clock domains
+
+  // Setting configuration
+#if (SAMD21 || SAMD11 || SAML21)
+  ADC->SAMPCTRL.reg = 0x3f;     // Set max Sampling Time Length
+  syncADC();          // Wait for synchronization of registers between the clock domains
+
+  ADC->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
+  syncADC();          // Wait for synchronization of registers between the clock domains
+
+  // Averaging (see datasheet table in AVGCTRL register description)
+  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 |    // 1 sample only (no oversampling nor averaging)
+                     ADC_AVGCTRL_ADJRES(0x0ul);   // Adjusting result by 0
+#elif (SAMC21 || SAMD51)
+  ADC0->SAMPCTRL.reg = (ADC_SAMPCTRL_SAMPLEN(0x0) | ADC_SAMPCTRL_OFFCOMP);     // ADC_SAMPCTRL_SAMPLEN must be 0 when ADC_SAMPCTRL_OFFCOMP=1
+  ADC1->SAMPCTRL.reg = (ADC_SAMPCTRL_SAMPLEN(0x0) | ADC_SAMPCTRL_OFFCOMP);     // ADC_SAMPCTRL_SAMPLEN must be 0 when ADC_SAMPCTRL_OFFCOMP=1
+  syncADC();          // Wait for synchronization of registers between the clock domains
+
+  ADC0->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
+  ADC1->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
+  syncADC();          // Wait for synchronization of registers between the clock domains
+
+  // Averaging (see datasheet table in AVGCTRL register description)
+  ADC0->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 | ADC_AVGCTRL_ADJRES(0x0ul);   // 1 sample only (no oversampling nor averaging), adjusting result by 0
+  ADC1->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 | ADC_AVGCTRL_ADJRES(0x0ul);   // 1 sample only (no oversampling nor averaging), adjusting result by 0
+#endif
+  syncADC();          // Wait for synchronization of registers between the clock domains
+
+  ADCinitialized = 1;
+
+  if (!REFinitialized) {
+    analogReference( VARIANT_AR_DEFAULT ) ;         // Use default reference from variant.h
+  }
+}
+
+/* ----------------------------------------------------------------------------------------------
+ * Initialize DAC
+ */
+void initDAC(void)
+{
+#if (SAMD21 || SAMD11)
+  while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
+  GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_DAC ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN ;
+
+  while ( DAC->STATUS.bit.SYNCBUSY == 1 ); // Wait for synchronization of registers between the clock domains
+  DAC->CTRLB.reg = DAC_CTRLB_REFSEL_AVCC | // Using the 3.3V reference
+                   DAC_CTRLB_EOEN ;        // External Output Enable (Vout)
+#elif (SAML21 || SAMC21 || SAMD51)
+  while ( GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK );
+
+  #if (SAMD51)
+    GCLK->PCHCTRL[GCM_DAC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK4 );  // use 48MHz clock (100MHz max for DAC) from GCLK4, which was setup in startup.c
+  #else
+    GCLK->PCHCTRL[GCM_DAC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
+  #endif
+  while ( (GCLK->PCHCTRL[GCM_DAC].reg & GCLK_PCHCTRL_CHEN) == 0 );      // wait for sync
+
+  while ( DAC->SYNCBUSY.reg & DAC_SYNCBUSY_MASK );
+
+  #if (SAMC21)
+    DAC->CTRLB.reg = (DAC_CTRLB_REFSEL_AVCC | DAC_CTRLB_EOEN);
+  #elif (SAML21 || SAMD51)
+    #if (SAMD51)
+      DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VREFPU;         // VDDANA not funtional due to errata, using unbuffered external reference (REFA, connected externally to VDDANA) instead.
+    #else
+      DAC->CTRLB.reg = DAC_CTRLB_REFSEL_VDDANA;
+    #endif
+    DAC->DACCTRL[0].reg = (DAC_DACCTRL_REFRESH(3) | DAC_DACCTRL_CCTRL(2));
+    DAC->DACCTRL[1].reg = (DAC_DACCTRL_REFRESH(3) | DAC_DACCTRL_CCTRL(2));
+  #endif
+#endif
+
+  DACinitialized = 1;
+}
+
 void analogReadResolution(int res)
 {
+  if (!ADCinitialized) {
+    initADC();
+  }
+
   _readResolution = res;
   if (res > 10) {
 #if (SAMD21 || SAMD11)
@@ -191,7 +367,11 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
  */
 void analogReference(eAnalogReference mode)
 {
-  syncADC();
+  if (!ADCinitialized) {
+    REFinitialized = 1; // to prevent re-entry
+    initADC();
+  }
+
 #if (!SAMD11C)
   #if defined(REFA_PIN)
     if (mode == AR_EXTERNAL_REFA) {
@@ -258,25 +438,28 @@ void analogReference(eAnalogReference mode)
   ADC1->SWTRIG.bit.START = 1;
   syncADC();
   while ((ADC0->INTFLAG.bit.RESRDY == 0) || (ADC1->INTFLAG.bit.RESRDY == 0));     // Waiting for conversion to complete
-  ADC0->INTFLAG.reg = ADC_INTFLAG_RESRDY;    // Clear the Data Ready flag
-  ADC1->INTFLAG.reg = ADC_INTFLAG_RESRDY;    // Clear the Data Ready flag
   ADC0->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
   ADC1->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
 #else
-  ADC->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+  ADC->CTRLA.bit.ENABLE = 0x01;              // Enable ADC
   syncADC();
   ADC->SWTRIG.bit.START = 1;
   syncADC();
-  while (ADC->INTFLAG.bit.RESRDY == 0);     // Waiting for conversion to complete
-  ADC->INTFLAG.reg = ADC_INTFLAG_RESRDY;    // Clear the Data Ready flag
-  ADC->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
+  while (ADC->INTFLAG.bit.RESRDY == 0);      // Waiting for conversion to complete
+  ADC->CTRLA.bit.ENABLE = 0x00;              // Disable ADC
 #endif
   syncADC();
+
+  REFinitialized = 1;
 }
 
 uint32_t analogRead( uint32_t pin )
 {
   uint32_t valueRead = 0;
+
+  if (!ADCinitialized) {
+    initADC();
+  }
 
 #if defined(REMAP_ANALOG_PIN_ID)
   REMAP_ANALOG_PIN_ID(pin);
@@ -295,6 +478,7 @@ uint32_t analogRead( uint32_t pin )
   if ( pinPeripheral(pin, PIO_ANALOG_ADC) == RET_STATUS_OK )
   {
     ADC->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
+
     syncADC();
 
     ADC->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
@@ -324,6 +508,10 @@ void analogWrite(uint32_t pin, uint32_t value)
 {
   if ( pinPeripheral(pin, PIO_ANALOG_DAC) == RET_STATUS_OK )
   {
+    if (!DACinitialized) {
+      initDAC();
+    }
+
     syncDAC();
 #if (SAMD21 || SAMD11 || SAMC21)
     value = mapResolution(value, _writeResolution, 10);

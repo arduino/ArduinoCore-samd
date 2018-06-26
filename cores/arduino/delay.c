@@ -18,6 +18,7 @@
 
 #include "delay.h"
 #include "Arduino.h"
+#include "../../config.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,7 +26,9 @@ extern "C" {
 
 /** Tick Counter united by ms */
 static volatile uint32_t _ulTickCount=0 ;
+#if !defined(NO_DELAY_HIGH_WORD)
 static volatile uint32_t _ulTickCountHighWord=0 ;
+#endif
 
 unsigned long millis( void )
 {
@@ -66,10 +69,13 @@ void delay( unsigned long ms )
 {
   if (ms)
   {
+#if !defined(NO_DELAY_HIGH_WORD)
     uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
     __disable_irq();
+#endif
 
     uint32_t start = _ulTickCount ;
+#if !defined(NO_DELAY_HIGH_WORD)
     uint32_t targetTickCountHighWord = _ulTickCountHighWord;
 
     if (enableInterrupts) {
@@ -83,11 +89,16 @@ void delay( unsigned long ms )
       start = 0;
       targetTickCountHighWord++;
     }
+#endif
 
     do
     {
       yield() ;
+#if !defined(NO_DELAY_HIGH_WORD)
     } while (_ulTickCountHighWord < targetTickCountHighWord || (_ulTickCount - start) < ms ) ;
+#else
+    } while (_ulTickCount - start < ms ) ;
+#endif
   }
 }
 
@@ -98,10 +109,12 @@ void SysTick_DefaultHandler(void)
   // Increment tick count each ms
   _ulTickCount++;
 
+#if !defined(NO_DELAY_HIGH_WORD)
   if ( _ulTickCount == 0 )
   {
     _ulTickCountHighWord++;
   }
+#endif
 #if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)
   tickReset();
 #endif

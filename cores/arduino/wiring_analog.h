@@ -151,7 +151,8 @@ extern void analogReadResolution(int res);
  */
 extern void analogWriteResolution(int res);
 
-extern void analogOutputInit( void ) ;
+extern void initADC(void);
+extern void initDAC(void);
 
 #ifdef __cplusplus
 }
