@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2017 MattairTech LLC. All right reserved.
+  Copyright (c) 2017-2018 MattairTech LLC. All right reserved.
   Copyright (c) 2015 Arduino LLC.  All right reserved.
 
   This library is free software; you can redistribute it and/or
@@ -19,6 +19,7 @@
 
 #include "sam.h"
 #include "variant.h"
+#include "../../config.h"
 
 #include <stdio.h>
 
@@ -26,16 +27,23 @@
  * \brief SystemInit() configures the needed clocks and according Flash Read Wait States.
  */
 
-// Constants for Clock generators
-#define GENERIC_CLOCK_GENERATOR_MAIN      (0u) /* This is the main 48MHz cpu clock (optionally 120MHz for the D51) */
-#define GENERIC_CLOCK_GENERATOR_XOSC      (1u) /* High speed crystal */
-#define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT (D21 and D11 only) */
-#define GENERIC_CLOCK_GENERATOR_OSC_HS    (3u) /* 8MHz internal RC oscillator (D21, D11, and L21 only) */
-#define GENERIC_CLOCK_GENERATOR_DFLL      (4u) /* Used by D51 (at 120MHz only) with CLOCKCONFIG_INTERNAL or CLOCKCONFIG_INTERNAL_USB to generate 2MHz output for the PLL input */
-#define GENERIC_CLOCK_GENERATOR_48MHz     (5u) /* Used by D51 (at 120MHz only) for USB or any peripheral that has a 60MHz maximum peripheral clock */
-#define GENERIC_CLOCK_GENERATOR_96MHz     (6u) /* Used by D51 (at 120MHz only) for any peripheral that has a 100MHz maximum peripheral clock */
-#define GENERIC_CLOCK_GENERATOR_I2S       (7u) /* Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h. */
-#define GENERIC_CLOCK_GENERATOR_I2S1      (8u) /* Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h. */
+// Constants for Clock generators (the D51 has 12 generators and all others have 9 generators). Unused generators are automatically stopped to reduce power consumption.
+#define GENERIC_CLOCK_GENERATOR_MAIN      (0u)  /* Used for the CPU/APB clocks. With the D51, it runs at either 96MHz (divided by 2 in MCLK) or 120MHz undivided. Otherwise, it runs at 48MHz. */
+#define GENERIC_CLOCK_GENERATOR_XOSC      (1u)  /* The high speed crystal is connected to GCLK1 in order to use the 16-bit prescaler. */
+#define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u)  /* Initialized at reset for WDT (D21 and D11 only). Not used by core. */
+#define GENERIC_CLOCK_GENERATOR_OSC_HS    (3u)  /* 8MHz from internal RC oscillator (D21, D11, and L21 only). Setup by core but not used. */
+#define GENERIC_CLOCK_GENERATOR_48MHz     (4u)  /* Used for USB or any peripheral that has a 48MHz (60MHz for D51) maximum peripheral clock. GCLK0 is now only 96MHz or 120MHz with the D51. */
+#define GENERIC_CLOCK_GENERATOR_TIMERS    (5u)  /* Used by the timers for controlling PWM frequency. Can be up to 48MHz (up to 96MHz with the D51). */
+#define GENERIC_CLOCK_GENERATOR_192MHz    (6u)  /* Used only by D51 for any peripheral that has a 200MHz maximum peripheral clock (note that GCLK8 - GCLK11 must be <= 100MHz). */
+#define GENERIC_CLOCK_GENERATOR_I2S       (7u)  /* Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h. */
+#define GENERIC_CLOCK_GENERATOR_I2S1      (8u)  /* Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h. */
+#define GENERIC_CLOCK_GENERATOR_DFLL      (9u)  /* Used only by D51 (only when the cpu is 120MHz) with CLOCKCONFIG_INTERNAL or CLOCKCONFIG_INTERNAL_USB to generate 2MHz output for the PLL input. */
+#define GENERIC_CLOCK_GENERATOR_96MHz     (10u) /* Used only by D51 for any peripheral that has a 100MHz maximum peripheral clock. */
+#define GENERIC_CLOCK_GENERATOR_UNUSED11  (11u) /* Unused for now. D51 only. */
+
+// Constants when using a GCLK as a source to a PLL. Make sure thay are consistent with the constants above.
+#define GCLK_PCHCTRL_GEN_XOSC  GCLK_PCHCTRL_GEN_GCLK1
+#define GCLK_PCHCTRL_GEN_DFLL  GCLK_PCHCTRL_GEN_GCLK9
 
 // Constants for Clock multiplexers
 #if (SAMD21 || SAMD11 || SAML21)
@@ -89,24 +97,16 @@ void waitForPLL( void )
 
 void SystemInit( void )
 {
-  /*
+  /* Set 1 Flash Wait State for 48MHz (2 for the L21 and C21), cf tables 20.9 and 35.27 in SAMD21 Datasheet
+   * The D51 runs with 5 wait states at 120MHz (automatic).
    * Disable automatic NVM write operations (errata reference 13134, applies to D21/D11/L21, but not C21 or D51)
    */
-#if (SAMD51)
-  NVMCTRL->CTRLA.reg = (NVMCTRL_CTRLA_WMODE_MAN | NVMCTRL_CTRLA_AUTOWS);
-#else
-  NVMCTRL->CTRLB.bit.MANW = 1;
-#endif
-
-  /* Set 1 Flash Wait State for 48MHz (2 for the L21 and C21), cf tables 20.9 and 35.27 in SAMD21 Datasheet
-   * The D51 runs with 5 wait states at 120MHz (automatic)
-   */
 #if (SAMD21 || SAMD11)
-  NVMCTRL->CTRLB.bit.RWS = NVMCTRL_CTRLB_RWS_HALF_Val ; // one wait state
+  NVMCTRL->CTRLB.reg = (NVMCTRL_CTRLB_RWS_HALF | NVMCTRL_CTRLB_MANW) ; // one wait state
 #elif (SAML21 || SAMC21)
-  NVMCTRL->CTRLB.reg |= NVMCTRL_CTRLB_RWS_DUAL ; // two wait states
+  NVMCTRL->CTRLB.reg = (NVMCTRL_CTRLB_RWS_DUAL | NVMCTRL_CTRLB_MANW) ; // two wait states
 #elif (SAMD51)
-  // automatic wait states handled above
+  NVMCTRL->CTRLA.reg = (NVMCTRL_CTRLA_WMODE_MAN | NVMCTRL_CTRLA_AUTOWS);        // auto wait states
   //NVMCTRL->CTRLA.bit.RWS = 5 ; // 5 wait states
 #endif
 
@@ -115,10 +115,12 @@ void SystemInit( void )
 #endif
 
   /* Turn on the digital interface clock */
+#if !defined(TRUST_RESET_DEFAULTS)
 #if (SAMD21 || SAMD11)
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK ;
 #elif (SAML21 || SAMC21 || SAMD51)
   MCLK->APBAMASK.reg |= MCLK_APBAMASK_GCLK ;
+#endif
 #endif
 
 #if (SAML21)
@@ -131,6 +133,7 @@ void SystemInit( void )
   /* ----------------------------------------------------------------------------------------------
    * Software reset the GCLK module to ensure it is re-initialized correctly
    */
+#if !defined(TRUST_RESET_DEFAULTS)
 #if (SAMD21 || SAMD11)
   GCLK->CTRL.reg = GCLK_CTRL_SWRST ;
 
@@ -140,7 +143,7 @@ void SystemInit( void )
 
   while ( (GCLK->CTRLA.reg & GCLK_CTRLA_SWRST) && (GCLK->SYNCBUSY.reg & GCLK_SYNCBUSY_MASK) );	/* Wait for reset to complete */
 #endif
-
+#endif
 
 #if defined(CLOCKCONFIG_32768HZ_CRYSTAL)
   /* ----------------------------------------------------------------------------------------------
@@ -148,25 +151,31 @@ void SystemInit( void )
    */
 
 #if defined(PLL_FRACTIONAL_ENABLE)
-  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
-    #define DPLLRATIO_LDR       3661u
-    #define DPLLRATIO_LDRFRAC   3u
-    #define DPLL1RATIO_LDR      2928u
-    #define DPLL1RATIO_LDRFRAC  22u
+  #if (SAMD51)
+    #if (VARIANT_MCK == 120000000ul)
+      #define DPLLRATIO_LDR       3661u
+      #define DPLLRATIO_LDRFRAC   3u
+      #define DPLL1RATIO_LDR      5858u
+      #define DPLL1RATIO_LDRFRAC  12u
+    #else
+      #define DPLLRATIO_LDR       5858u
+      #define DPLLRATIO_LDRFRAC   12u
+    #endif
   #else
     #define DPLLRATIO_LDR       2928u
-    #if (SAMD51)
-      #define DPLLRATIO_LDRFRAC   22u
-    #else
-      #define DPLLRATIO_LDRFRAC   11u
-    #endif
+    #define DPLLRATIO_LDRFRAC   11u
   #endif
 #else
-  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
-    #define DPLLRATIO_LDR       3661u
-    #define DPLLRATIO_LDRFRAC   0u
-    #define DPLL1RATIO_LDR      2929u
-    #define DPLL1RATIO_LDRFRAC  0u
+  #if (SAMD51)
+    #if (VARIANT_MCK == 120000000ul)
+      #define DPLLRATIO_LDR       3661u
+      #define DPLLRATIO_LDRFRAC   0u
+      #define DPLL1RATIO_LDR      5858u
+      #define DPLL1RATIO_LDRFRAC  0u
+    #else
+      #define DPLLRATIO_LDR       5858u
+      #define DPLLRATIO_LDRFRAC   0u
+    #endif
   #else
     #define DPLLRATIO_LDR       2929u
     #define DPLLRATIO_LDRFRAC   0u
@@ -187,13 +196,6 @@ void SystemInit( void )
 
   while ( (SYSCTRL->DPLLSTATUS.reg & SYSCTRL_DPLLSTATUS_CLKRDY) != SYSCTRL_DPLLSTATUS_CLKRDY );
 
-  /* Switch Generic Clock Generator 0 to PLL. Divide by two and the CPU will run at 48MHz */
-  GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENDIV_DIV(2) );
-  waitForSync();
-
-  GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-  waitForSync();
-
 #elif (SAML21 || SAMC21)
   OSC32KCTRL->XOSC32K.reg = (OSC32KCTRL_XOSC32K_STARTUP( 0x4u ) | OSC32KCTRL_XOSC32K_XTALEN | OSC32KCTRL_XOSC32K_EN32K | OSC32KCTRL_XOSC32K_EN1K);
   OSC32KCTRL->XOSC32K.bit.ENABLE = 1;
@@ -213,10 +215,6 @@ void SystemInit( void )
 
   while ( (OSCCTRL->DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_CLKRDY) != OSCCTRL_DPLLSTATUS_CLKRDY );
 
-  /* Switch Generic Clock Generator 0 to PLL. Divide by two and the CPU will run at 48MHz */
-  GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-  waitForSync();
-
 #elif (SAMD51)
   // Use high gain for 32.768KHz crystal
   OSC32KCTRL->XOSC32K.reg = (OSC32KCTRL_XOSC32K_STARTUP( 0x4u ) | OSC32KCTRL_XOSC32K_XTALEN | OSC32KCTRL_XOSC32K_EN32K | OSC32KCTRL_XOSC32K_EN1K | OSC32KCTRL_XOSC32K_CGM_HS);
@@ -234,7 +232,7 @@ void SystemInit( void )
 
   while ( (OSCCTRL->Dpll[0].DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_LOCK) != OSCCTRL_DPLLSTATUS_LOCK );
 
-  /* If the CPU will run at 120MHz using the first PLL, setup the second PLL to generate 96MHz, which is divided down to 48MHz for use by USB, etc. */
+  /* If the CPU will run at 120MHz using the first PLL, setup the second PLL to generate 192MHz, which is divided down to 96MHz and 48MHz for use by USB, etc. */
   #if (VARIANT_MCK == 120000000ul)
     OSCCTRL->Dpll[1].DPLLRATIO.reg = ( OSCCTRL_DPLLRATIO_LDR(DPLL1RATIO_LDR) | OSCCTRL_DPLLRATIO_LDRFRAC(DPLL1RATIO_LDRFRAC) );  /* set PLL multiplier */
     waitForPLL();
@@ -245,19 +243,6 @@ void SystemInit( void )
     waitForPLL();
 
     while ( (OSCCTRL->Dpll[1].DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_LOCK) != OSCCTRL_DPLLSTATUS_LOCK );
-
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_96MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-
-    /* Switch Generic Clock Generator 0 to PLL. The CPU will run at 120MHz. */
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-  #else
-    /* Switch Generic Clock Generator 0 to PLL. The CPU will run at 48MHz. */
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
   #endif
 #endif
 
@@ -288,9 +273,13 @@ void SystemInit( void )
 
 // All floating point math done by C preprocessor
 #define HS_CRYSTAL_DIVIDER      (HS_CRYSTAL_FREQUENCY_HERTZ / HS_CRYSTAL_DIVISOR)
-#if (SAMD51 && (VARIANT_MCK == 120000000ul))
-  #define DPLLRATIO_FLOAT       (120000000.0 / ((float)HS_CRYSTAL_FREQUENCY_HERTZ / HS_CRYSTAL_DIVIDER))
-  #define DPLL1RATIO_FLOAT      (96000000.0 / ((float)HS_CRYSTAL_FREQUENCY_HERTZ / HS_CRYSTAL_DIVIDER))
+#if (SAMD51)
+  #if (VARIANT_MCK == 120000000ul)
+    #define DPLLRATIO_FLOAT       (120000000.0 / ((float)HS_CRYSTAL_FREQUENCY_HERTZ / HS_CRYSTAL_DIVIDER))
+    #define DPLL1RATIO_FLOAT      (192000000.0 / ((float)HS_CRYSTAL_FREQUENCY_HERTZ / HS_CRYSTAL_DIVIDER))
+  #else
+    #define DPLLRATIO_FLOAT       (192000000.0 / ((float)HS_CRYSTAL_FREQUENCY_HERTZ / HS_CRYSTAL_DIVIDER))
+  #endif
 #else
   #define DPLLRATIO_FLOAT       (96000000.0 / ((float)HS_CRYSTAL_FREQUENCY_HERTZ / HS_CRYSTAL_DIVIDER))
 #endif
@@ -340,13 +329,6 @@ void SystemInit( void )
 
   while ( (SYSCTRL->DPLLSTATUS.reg & SYSCTRL_DPLLSTATUS_CLKRDY) != SYSCTRL_DPLLSTATUS_CLKRDY );
 
-  /* Switch Generic Clock Generator 0 to PLL. Divide by two and the CPU will run at 48MHz */
-  GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENDIV_DIV(2) ) ;
-  waitForSync();
-
-  GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-  waitForSync();
-
 #elif (SAML21 || SAMC21)
   OSCCTRL->XOSCCTRL.reg = (OSCCTRL_XOSCCTRL_STARTUP( 0x8u ) | OSCCTRL_XOSCCTRL_GAIN( 0x4u ) | OSCCTRL_XOSCCTRL_XTALEN | OSCCTRL_XOSCCTRL_ENABLE) ;      // startup time is 8ms
   while ( (OSCCTRL->STATUS.reg & OSCCTRL_STATUS_XOSCRDY) == 0 );        /* Wait for oscillator stabilization */
@@ -358,7 +340,7 @@ void SystemInit( void )
   waitForSync();
 
   /* Put Generic Clock Generator 1 as source for Generic Clock Multiplexer 1 (FDPLL reference) */
-  GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK1 );
+  GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_XOSC );
   while ( (GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 
   /* Configure PLL */
@@ -375,10 +357,6 @@ void SystemInit( void )
 
   while ( (OSCCTRL->DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_CLKRDY) != OSCCTRL_DPLLSTATUS_CLKRDY );
 
-  /* Switch Generic Clock Generator 0 to PLL. Divide by two and the CPU will run at 48MHz */
-  GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-  waitForSync();
-
 #elif (SAMD51)
   OSCCTRL->XOSCCTRL[0].reg = (OSCCTRL_XOSCCTRL_STARTUP( 0x8u ) | OSCCTRL_XOSCCTRL_IPTAT(3) | OSCCTRL_XOSCCTRL_IMULT(4) | OSCCTRL_XOSCCTRL_XTALEN | OSCCTRL_XOSCCTRL_ENABLE) ;      // startup time is 8ms
   while ( (OSCCTRL->STATUS.reg & OSCCTRL_STATUS_XOSCRDY0) == 0 );        /* Wait for oscillator stabilization */
@@ -390,7 +368,7 @@ void SystemInit( void )
   waitForSync();
 
   /* Put Generic Clock Generator 1 as source for Generic Clock Multiplexer 1 (FDPLL reference) */
-  GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK1 );
+  GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_XOSC );
   while ( (GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_0].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 
   /* Configure PLL */
@@ -404,9 +382,9 @@ void SystemInit( void )
 
   while ( (OSCCTRL->Dpll[0].DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_LOCK) != OSCCTRL_DPLLSTATUS_LOCK );
 
-  /* If the CPU will run at 120MHz using the first PLL, setup the second PLL to generate 96MHz, which is divided down to 48MHz for use by USB, etc. */
+  /* If the CPU will run at 120MHz using the first PLL, setup the second PLL to generate 192MHz, which is divided down to 96MHz and 48MHz for use by USB, etc. */
   #if (VARIANT_MCK == 120000000ul)
-    GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK1 );
+    GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_XOSC );
     while ( (GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_1].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 
     /* Configure PLL */
@@ -419,19 +397,6 @@ void SystemInit( void )
     waitForPLL();
 
     while ( (OSCCTRL->Dpll[1].DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_LOCK) != OSCCTRL_DPLLSTATUS_LOCK );
-
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_96MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-
-    /* Switch Generic Clock Generator 0 to PLL. The CPU will run at 120MHz. */
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-  #else
-    /* Switch Generic Clock Generator 0 to PLL. The CPU will run at 48MHz. */
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
   #endif
 #endif
 
@@ -463,13 +428,6 @@ void SystemInit( void )
   /* Enable the DFLL */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
   waitForDFLL();
-
-  /* Switch Generic Clock Generator 0 to DFLL48M. CPU will run at 48MHz */
-  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_MAIN ) ; // Generic Clock Generator 0
-  waitForSync();
-
-  GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-  waitForSync();
 
 #elif (SAML21)
   /* Defines missing from CMSIS */
@@ -506,10 +464,6 @@ void SystemInit( void )
   OSCCTRL->DFLLCTRL.reg |= OSCCTRL_DFLLCTRL_ENABLE ;
   waitForDFLL();
 
-  /* Switch Generic Clock Generator 0 to DFLL48M. CPU will run at 48MHz */
-  GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-  waitForSync();
-
 #elif (SAMC21)
   #if defined(CLOCKCONFIG_INTERNAL_USB)
     #error "startup.c: CLOCKCONFIG_INTERNAL_USB setting invalid for C21 chips as they lack USB."
@@ -539,14 +493,13 @@ void SystemInit( void )
   OSCCTRL->DFLLCTRLA.reg |= OSCCTRL_DFLLCTRLA_ENABLE ;
   waitForDFLL();
 
-  /* If the CPU will run at 120MHz using the first PLL, setup the second PLL to generate 96MHz. */
-  #if (VARIANT_MCK == 120000000ul)
-    /* Switch Generic Clock Generator 4 to DFLL48M and divide down to 2MHz (to be used as PLL input) */
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_DFLL].reg = ( GCLK_GENCTRL_DIV(24) | GCLK_GENCTRL_SRC_DFLL | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
+  /* Switch Generic Clock Generator 4 to DFLL48M and divide down to 2MHz (to be used as PLL input) */
+  GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_DFLL].reg = ( GCLK_GENCTRL_DIV(24) | GCLK_GENCTRL_SRC_DFLL | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+  waitForSync();
 
-    /* Configure PLL0 */
-    GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK4 );
+  /* Configure PLL0 to generate 120MHz for the CPU. */
+  #if (VARIANT_MCK == 120000000ul)
+    GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_0].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_DFLL );
     while ( (GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_0].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 
     OSCCTRL->Dpll[0].DPLLRATIO.reg = ( OSCCTRL_DPLLRATIO_LDR(59) | OSCCTRL_DPLLRATIO_LDRFRAC(0) ) ;  /* set PLL multiplier */
@@ -558,40 +511,296 @@ void SystemInit( void )
     waitForPLL();
 
     while ( (OSCCTRL->Dpll[0].DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_LOCK) != OSCCTRL_DPLLSTATUS_LOCK );
-
-    /* Configure PLL1 */
-    GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK4 );
-    while ( (GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_1].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
-
-    OSCCTRL->Dpll[1].DPLLRATIO.reg = ( OSCCTRL_DPLLRATIO_LDR(47) | OSCCTRL_DPLLRATIO_LDRFRAC(0) );  /* set PLL multiplier */
-    waitForPLL();
-
-    OSCCTRL->Dpll[1].DPLLCTRLB.reg = (OSCCTRL_DPLLCTRLB_REFCLK_GCLK | OSCCTRL_DPLLCTRLB_LBYPASS) ;  /* select GCLK input, must use LBYPASS (see errata) */
-
-    OSCCTRL->Dpll[1].DPLLCTRLA.reg = OSCCTRL_DPLLCTRLA_ENABLE;
-    waitForPLL();
-
-    while ( (OSCCTRL->Dpll[1].DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_LOCK) != OSCCTRL_DPLLSTATUS_LOCK );
-
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_96MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DFLL | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-
-    /* Switch Generic Clock Generator 0 to PLL. CPU will run at 120MHz */
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
-  #else
-    /* Switch Generic Clock Generator 0 to DFLL. CPU will run at 48MHz */
-    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DFLL | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
-    waitForSync();
   #endif
+
+  /* Configure PLL1 to generate 192MHz. */
+  GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_1].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_DFLL );
+  while ( (GCLK->PCHCTRL[GENERIC_CLOCK_MULTIPLEXER_FDPLL_1].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
+
+  OSCCTRL->Dpll[1].DPLLRATIO.reg = ( OSCCTRL_DPLLRATIO_LDR(95) | OSCCTRL_DPLLRATIO_LDRFRAC(0) );  /* set PLL multiplier */
+  waitForPLL();
+
+  OSCCTRL->Dpll[1].DPLLCTRLB.reg = (OSCCTRL_DPLLCTRLB_REFCLK_GCLK | OSCCTRL_DPLLCTRLB_LBYPASS) ;  /* select GCLK input, must use LBYPASS (see errata) */
+
+  OSCCTRL->Dpll[1].DPLLCTRLA.reg = OSCCTRL_DPLLCTRLA_ENABLE;
+  waitForPLL();
+
+  while ( (OSCCTRL->Dpll[1].DPLLSTATUS.reg & OSCCTRL_DPLLSTATUS_LOCK) != OSCCTRL_DPLLSTATUS_LOCK );
 
 #endif
 #else
   #error "startup.c: Clock source must be selected in the boards.txt file (normally through the Tools menu)."
 #endif
 
+
+/* Set CPU and APB dividers before switching the CPU/APB clocks to the new clock source */
+#if !defined(TRUST_RESET_DEFAULTS)
+#if (SAMD21 || SAMD11)
+  PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
+  PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;
+  PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val ;
+  PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
+#elif (SAML21 || SAMC21)
+  MCLK->CPUDIV.reg  = MCLK_CPUDIV_CPUDIV_DIV1 ;
+#elif (SAMD51)
+  MCLK->CPUDIV.reg  = MCLK_CPUDIV_DIV_DIV1 ;
+#endif
+#endif
+
+
+/* Setup GCLK0 (GENERIC_CLOCK_GENERATOR_MAIN) which is used for the CPU/APB, as well as other required GCLKs. */
+#if (SAMD21 || SAMD11)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    /* Switch Generic Clock Generator 0 to 96MHz PLL output. The output is divided by two to obtain a 48MHz CPU clock. */
+    GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENDIV_DIV(2) );
+    waitForSync();
+    GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    /* Switch Generic Clock Generator 0 to 48MHz DFLL48M output. The output is undivided. */
+    GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENDIV_DIV(1) );
+    waitForSync();
+    GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_MAIN ) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #endif
+
+#elif (SAML21 || SAMC21)
+  /* Setup GCLK0 (GENERIC_CLOCK_GENERATOR_MAIN) which is used for the CPU. */
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    /* Switch Generic Clock Generator 0 to 96MHz PLL output. The output is divided by two to obtain a 48MHz CPU clock. */
+    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    /* Note that the C21 is already setup above */
+    #if (SAML21)
+      /* Switch Generic Clock Generator 0 to 48MHz DFLL48M output. The output is undivided. */
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #endif
+  #endif
+
+#elif (SAMD51)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    /* If the CPU will run at 120MHz using the first PLL, setup the second PLL to generate 192MHz, which is divided down to 96MHz and 48MHz for use by USB, etc. */
+    #if (VARIANT_MCK == 120000000ul)
+      /* Switch Generic Clock Generator 0 to PLL0. The CPU will run at 120MHz. */
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_96MHz].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(4) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #else
+      /* Set CPU/AHB/APB dividers before switching them to GCLK0, which runs at 96MHz, so that the CPU will operate at 48MHz. Note that HSDIV is
+       * set to 1 by default so that CLK_APB_HS is 96MHz, which is double the CPU clock of 48MHz, for use with the QSPI 2X clock for DDR support.
+       */
+      MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV2;
+
+      /* Switch Generic Clock Generator 0 to PLL0. The CPU will run at 48MHz. */
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_96MHz].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(4) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #endif
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    /* PLL1 is used to generate 192MHz. If the CPU will run at 120MHz, use PLL0 as well. */
+    #if (VARIANT_MCK == 120000000ul)
+      /* Switch Generic Clock Generator 0 to PLL0. CPU will run at 120MHz. */
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_96MHz].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #else
+      /* Set CPU/AHB/APB dividers before switching them to GCLK0, which runs at 96MHz, so that the CPU will operate at 48MHz. Note that HSDIV is
+       * set to 1 by default so that CLK_APB_HS is 96MHz, which is double the CPU clock of 48MHz, for use with the QSPI 2X clock for DDR support.
+       */
+      MCLK->CPUDIV.reg = MCLK_CPUDIV_DIV_DIV2;
+
+      /* Switch Generic Clock Generator 0 to PLL0. CPU will run at 48MHz. */
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_MAIN].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_96MHz].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #endif
+
+    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DFLL | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #endif
+#endif
+
+
+/* Setup GCLK5 (GENERIC_CLOCK_GENERATOR_TIMERS) which is used by the timers for setting PWM output frequency,
+ * unless using 732Hz or 187500Hz with the D21/D11/L21/C21 (in this case, the timers connect to GCLK0 (MAIN)).
+ */
+#if (defined(TIMER_93750Hz) || defined(TIMER_366Hz))
+  #define TIMER_GCLK_DIVIDER_FACTOR    2
+#elif (defined(TIMER_62500Hz) || defined(TIMER_244Hz))
+  #define TIMER_GCLK_DIVIDER_FACTOR    3
+#elif defined(TIMER_183Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    4
+#elif (defined(TIMER_37500Hz) || defined(TIMER_146Hz))
+  #define TIMER_GCLK_DIVIDER_FACTOR    5
+#elif defined(TIMER_122Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    6
+#elif defined(TIMER_105Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    7
+#elif (defined(TIMER_20833Hz) || defined(TIMER_81Hz))
+  #define TIMER_GCLK_DIVIDER_FACTOR    9
+#elif defined(TIMER_61Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    12
+#elif defined(TIMER_12500Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    15
+#elif defined(TIMER_31Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    24
+#elif defined(TIMER_7500Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    25
+#elif defined(TIMER_4166Hz)
+  #define TIMER_GCLK_DIVIDER_FACTOR    45
+#elif defined(TIMER_2930Hz)
+  #if (SAMD51)
+    // This will use the power-of-two divider, rather than the integer divider
+    #define TIMER_GCLK_DIVIDER_FACTOR    7
+  #else
+    #define TIMER_GCLK_DIVIDER_FACTOR    64
+  #endif
+#elif defined(TIMER_1465Hz)
+  #if (SAMD51)
+    // This will use 16-bit
+    #define TIMER_GCLK_DIVIDER_FACTOR    2
+  #elif (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    // This will use the power-of-two divider, rather than the integer divider
+    #define TIMER_GCLK_DIVIDER_FACTOR    7
+  #else
+    #define TIMER_GCLK_DIVIDER_FACTOR    128
+  #endif
+#else
+  #define TIMER_GCLK_DIVIDER_FACTOR    1
+#endif
+
+#if (SAMD51 || (!defined(TIMER_732Hz) && !defined(TIMER_187500Hz)))
+#if (SAMD21 || SAMD11)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+  /* Switch GENERIC_CLOCK_GENERATOR_TIMERS to 96MHz PLL output and divide down to the selected frequency. Use the power-of-two divider with TIMER_1465Hz. */
+    #if defined(TIMER_1465Hz)
+      GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_TIMERS ) | GCLK_GENDIV_DIV(TIMER_GCLK_DIVIDER_FACTOR) );
+      waitForSync();
+      GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_TIMERS ) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN | GCLK_GENCTRL_DIVSEL );
+    #else
+      GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_TIMERS ) | GCLK_GENDIV_DIV(TIMER_GCLK_DIVIDER_FACTOR * 2) );
+      waitForSync();
+      GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_TIMERS ) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    #endif
+    waitForSync();
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    /* Switch GENERIC_CLOCK_GENERATOR_TIMERS to 48MHz DFLL48M output and divide down to the selected frequency. */
+    GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_TIMERS ) | GCLK_GENDIV_DIV(TIMER_GCLK_DIVIDER_FACTOR) );
+    waitForSync();
+    GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_TIMERS ) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #endif
+
+#elif (SAML21 || SAMC21)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    /* Switch GENERIC_CLOCK_GENERATOR_TIMERS to 96MHz PLL output and divide down to the selected frequency. Use the power-of-two divider with TIMER_1465Hz. */
+    #if defined(TIMER_1465Hz)
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN | GCLK_GENCTRL_DIVSEL );
+    #else
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR * 2) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    #endif
+    waitForSync();
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    /* Switch GENERIC_CLOCK_GENERATOR_TIMERS to 48MHz DFLL48M output and divide down to the selected frequency. */
+    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #endif
+
+#elif (SAMD51)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    #if (VARIANT_MCK == 120000000ul)
+      #if defined(TIMER_2930Hz)
+        GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN | GCLK_GENCTRL_DIVSEL );
+      #elif defined(TIMER_1465Hz)
+        GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      #else
+        GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR * 4) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      #endif
+    #else
+      #if defined(TIMER_2930Hz)
+        GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN | GCLK_GENCTRL_DIVSEL );
+      #elif defined(TIMER_1465Hz)
+        GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      #else
+        GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR * 4) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      #endif
+    #endif
+    waitForSync();
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    #if defined(TIMER_2930Hz)
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN | GCLK_GENCTRL_DIVSEL );
+    #elif defined(TIMER_1465Hz)
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    #else
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_TIMERS].reg = ( GCLK_GENCTRL_DIV(TIMER_GCLK_DIVIDER_FACTOR * 4) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    #endif
+    waitForSync();
+  #endif
+#endif
+#endif
+
+
+/* Setup additional GCLKs */
+#if !defined(NO_ADDITIONAL_GCLKS)
+#if (SAMD21 || SAMD11)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    /* Switch GENERIC_CLOCK_GENERATOR_48MHz to 96MHz PLL output. The output is divided by two to obtain 48MHz. */
+    GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_48MHz ) | GCLK_GENDIV_DIV(2) );
+    waitForSync();
+    GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_48MHz ) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    /* Switch GENERIC_CLOCK_GENERATOR_48MHz to 48MHz DFLL48M output. The output is undivided. */
+    GCLK->GENDIV.reg = ( GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_48MHz ) | GCLK_GENDIV_DIV(1) );
+    waitForSync();
+    GCLK->GENCTRL.reg = ( GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_48MHz ) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #endif
+
+#elif (SAML21 || SAMC21)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    /* Switch GENERIC_CLOCK_GENERATOR_48MHz to 96MHz PLL output. The output is divided by two to obtain 48MHz. */
+    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(2) | GCLK_GENCTRL_SRC_DPLL96M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    /* Switch GENERIC_CLOCK_GENERATOR_48MHz to 48MHz DFLL48M output. The output is undivided. */
+    GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_48MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DFLL48M | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+    waitForSync();
+  #endif
+
+#elif (SAMD51)
+  #if (defined(CLOCKCONFIG_32768HZ_CRYSTAL) || defined(CLOCKCONFIG_HS_CRYSTAL))
+    #if (VARIANT_MCK == 120000000ul)
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_192MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #else
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_192MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL0 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #endif
+  #elif (defined(CLOCKCONFIG_INTERNAL) || defined(CLOCKCONFIG_INTERNAL_USB))
+    #if (VARIANT_MCK == 120000000ul)
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_192MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #else
+      GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_192MHz].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_DPLL1 | GCLK_GENCTRL_IDC | GCLK_GENCTRL_GENEN );
+      waitForSync();
+    #endif
+  #endif
+#endif
+#endif  //  !defined(NO_ADDITIONAL_GCLKS)
+
+
+#if !defined(NO_OSC_HS_GCLK)
 #if (SAMD21 || SAMD11)
   /* Modify PRESCaler value of OSC8M to have 8MHz */
   SYSCTRL->OSC8M.bit.PRESC = SYSCTRL_OSC8M_PRESC_0_Val ;  // recent versions of CMSIS from Atmel changed the prescaler defines
@@ -613,18 +822,7 @@ void SystemInit( void )
   GCLK->GENCTRL[GENERIC_CLOCK_GENERATOR_OSC_HS].reg = ( GCLK_GENCTRL_DIV(1) | GCLK_GENCTRL_SRC_OSC16M | GCLK_GENCTRL_GENEN );
   waitForSync();
 #endif
+#endif
 
   SystemCoreClock=VARIANT_MCK;
-
-  /* Set CPU and APB dividers before switching the CPU/APB clocks to the new clock source */
-#if (SAMD21 || SAMD11)
-  PM->CPUSEL.reg  = PM_CPUSEL_CPUDIV_DIV1 ;
-  PM->APBASEL.reg = PM_APBASEL_APBADIV_DIV1_Val ;
-  PM->APBBSEL.reg = PM_APBBSEL_APBBDIV_DIV1_Val ;
-  PM->APBCSEL.reg = PM_APBCSEL_APBCDIV_DIV1_Val ;
-#elif (SAML21 || SAMC21)
-  MCLK->CPUDIV.reg  = MCLK_CPUDIV_CPUDIV_DIV1 ;
-#elif (SAMD51)
-  MCLK->CPUDIV.reg  = MCLK_CPUDIV_DIV_DIV1 ;
-#endif
 }

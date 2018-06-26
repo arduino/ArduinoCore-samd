@@ -63,11 +63,7 @@ static void __initialize()
   GCLK->PCHCTRL[GCM_EIC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
   while ( (GCLK->PCHCTRL[GCM_EIC].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );	// wait for sync
 #elif (SAMD51)
-  #if (F_CPU == 120000000ul)
-    GCLK->PCHCTRL[GCM_EIC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK6 );  // use 96MHz clock (100MHz max for EIC) from GCLK6, which was setup in startup.c
-  #else
-    GCLK->PCHCTRL[GCM_EIC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-  #endif
+  GCLK->PCHCTRL[GCM_EIC].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK10 );  // use 96MHz clock (100MHz max for EIC) from GCLK10, which was setup in startup.c
   while ( (GCLK->PCHCTRL[GCM_EIC].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 #else
   #error "WInterrupts.c: Unsupported chip"

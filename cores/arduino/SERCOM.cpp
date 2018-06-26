@@ -838,13 +838,8 @@ void SERCOM::initClockNVIC( void )
   SercomClock = SystemCoreClock;
   while ( (GCLK->PCHCTRL[clockId].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 #elif (SAMD51)
-  #if (F_CPU == 120000000ul)
-    GCLK->PCHCTRL[clockId].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK6 );  // use 96MHz clock (100MHz max for SERCOM) from GCLK6, which was setup in startup.c
-    SercomClock = 96000000ul;
-  #else
-    GCLK->PCHCTRL[clockId].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
-    SercomClock = SystemCoreClock;
-  #endif
+  GCLK->PCHCTRL[clockId].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK10 );  // use 96MHz clock (100MHz max for SERCOM) from GCLK10, which was setup in startup.c
+  SercomClock = 96000000ul;
   while ( (GCLK->PCHCTRL[clockId].reg & GCLK_PCHCTRL_CHEN) != GCLK_PCHCTRL_CHEN );      // wait for sync
 #else
   #error "SERCOM.cpp: Unsupported chip"

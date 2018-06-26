@@ -107,8 +107,8 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
     GCLK->CLKCTRL.reg = (uint16_t) ( GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( GCM_TC1_TC2 ));
     while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
 #elif (SAML21 || SAMC21 || SAMD51)
-  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
-      GCLK->PCHCTRL[GCM_TC0_TC1].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5);  // use 48MHz clock from GCLK5, which was setup in startup.c
+  #if (SAMD51)
+      GCLK->PCHCTRL[GCM_TC0_TC1].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK4);  // use 48MHz clock from GCLK4, which was setup in startup.c
   #else
       GCLK->PCHCTRL[GCM_TC0_TC1].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0);
   #endif

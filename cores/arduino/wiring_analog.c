@@ -82,6 +82,13 @@ const uint8_t timerClockIDs[] =
 #endif
 };
 
+#if (defined(TIMER_732Hz) | defined(TIMER_366Hz) | defined(TIMER_244Hz) | defined(TIMER_183Hz) | defined(TIMER_146Hz) \
+   | defined(TIMER_122Hz) | defined(TIMER_105Hz) | defined(TIMER_81Hz) | defined(TIMER_61Hz) | defined(TIMER_31Hz) | (defined(TIMER_1465Hz) && SAMD51))
+  #define       TIMER_RESOLUTION_IS_16BIT
+#else
+  #define       TIMER_RESOLUTION_IS_8BIT
+#endif
+
 static int _writeResolution = 8;
 static int _readResolution = 10;
 static int _ADCResolution = 10;
@@ -584,32 +591,53 @@ void analogWrite(uint32_t pin, uint32_t value)
       timerIndex = timerNumber;
     }
 
+#if defined(TIMER_RESOLUTION_IS_16BIT)
     value = mapResolution(value, _writeResolution, 16);
+#else
+    value = mapResolution(value, _writeResolution, 8);
+#endif
 
     if (!timerEnabled[timerIndex]) {
       timerEnabled[timerIndex] = true;
 
-#if (SAMD21 || SAMD11)
+      /* Use variable GENERIC_CLOCK_GENERATOR_TIMERS clock (GCLK5), unless using 732Hz or 187500Hz with the D21/D11/L21/C21
+       * (in this case, the timers connect to GCLK0 (MAIN)), which was setup in startup.c.
+       */
+#if (SAMD51 || (!defined(TIMER_732Hz) && !defined(TIMER_187500Hz)))
+  #if (SAMD21 || SAMD11)
+      GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK5 | GCLK_CLKCTRL_ID( timerClockIDs[timerIndex] )) ;
+      while ( GCLK->STATUS.bit.SYNCBUSY == 1 );
+  #elif (SAML21 || SAMC21 || SAMD51)
+      GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5);
+      while ( (GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
+  #endif
+#else
+  #if (SAMD21 || SAMD11)
       GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_ID( timerClockIDs[timerIndex] )) ;
       while ( GCLK->STATUS.bit.SYNCBUSY == 1 );
-#elif (SAML21 || SAMC21 || SAMD51)
-  #if (SAMD51 && (VARIANT_MCK == 120000000ul))
-      GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5);  // use 48MHz clock from GCLK5, which was setup in startup.c
-  #else
+  #elif (SAML21 || SAMC21)
       GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg = (GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0);
+      while ( (GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
   #endif
-    while ( (GCLK->PCHCTRL[timerClockIDs[timerIndex]].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #endif
 
-      // Set PORT
+      // Set PORT. Note that COUNT16 usually maps to the same location as COUNT8, so COUNT16 is used in most cases with both 8-bit and 16-bit.
       if ( TCx )
       {
         // -- Configure TC
         // Disable TCx
         TCx->COUNT16.CTRLA.bit.ENABLE = 0;
         syncTC_16(TCx);
+#if defined(TIMER_RESOLUTION_IS_16BIT)
         // Set Timer counter Mode to 16 bits, normal PWM
         TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16;
+#else
+        // Set Timer counter Mode to 8 bits, normal PWM
+        TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8;
+        syncTC_16(TCx);
+        // Set PER to maximum counter value
+        TCx->COUNT8.PER.reg = 0xFF;
+#endif
         syncTC_16(TCx);
         // Set TCx as normal PWM
 #if (SAMD21 || SAMD11)
@@ -619,7 +647,11 @@ void analogWrite(uint32_t pin, uint32_t value)
 #endif
         syncTC_16(TCx);
         // Set the initial value
-        TCx->COUNT16.CC[timerChannel].reg = (uint32_t) value;
+#if defined(TIMER_RESOLUTION_IS_16BIT)
+        TCx->COUNT16.CC[timerChannel].reg = (uint16_t) value;
+#else
+        TCx->COUNT8.CC[timerChannel].reg = (uint8_t) value;
+#endif
         syncTC_16(TCx);
         // Enable TCx
         TCx->COUNT16.CTRLA.bit.ENABLE = 1;
@@ -635,8 +667,12 @@ void analogWrite(uint32_t pin, uint32_t value)
         // Set the initial value
         TCCx->CC[timerChannel].reg = (uint32_t)value;
         syncTCC(TCCx);
-        // Set PER to maximum counter value (resolution : 0xFFFF)
+        // Set PER to maximum counter value
+#if defined(TIMER_RESOLUTION_IS_16BIT)
         TCCx->PER.reg = 0xFFFF;
+#else
+        TCCx->PER.reg = 0xFF;
+#endif
         syncTCC(TCCx);
         // Enable TCCx
         TCCx->CTRLA.bit.ENABLE = 1;
@@ -645,10 +681,18 @@ void analogWrite(uint32_t pin, uint32_t value)
     } else {
       if (TCx) {
 #if (SAMD21 || SAMD11)
-        TCx->COUNT16.CC[timerChannel].reg = (uint32_t) value;
+  #if defined(TIMER_RESOLUTION_IS_16BIT)
+        TCx->COUNT16.CC[timerChannel].reg = (uint16_t) value;
+  #else
+        TCx->COUNT8.CC[timerChannel].reg = (uint8_t) value;
+  #endif
 #elif (SAML21 || SAMC21 || SAMD51)
-        // SAML and SAMC have double-buffered TCs
-        TCx->COUNT16.CCBUF[timerChannel].reg = (uint32_t) value;
+        // SAMD51, SAML, and SAMC have double-buffered TCs
+  #if defined(TIMER_RESOLUTION_IS_16BIT)
+        TCx->COUNT16.CCBUF[timerChannel].reg = (uint16_t) value;
+  #else
+        TCx->COUNT8.CCBUF[timerChannel].reg = (uint8_t) value;
+  #endif
 #endif
         syncTC_16(TCx);
       } else {

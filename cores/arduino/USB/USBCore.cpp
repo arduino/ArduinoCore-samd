@@ -366,8 +366,8 @@ void USBDeviceClass::init()
 #if (SAMD21 || SAMD11)
 	GCLK->CLKCTRL.reg = ( GCLK_CLKCTRL_ID( GCM_USB ) | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_CLKEN );
 	while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY );
-#elif (SAMD51 && (VARIANT_MCK == 120000000ul))
-        GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK5 );  // use 48MHz clock (required for USB) from GCLK5, which was setup in board_init.c
+#elif (SAMD51)
+        GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK4 );  // use 48MHz clock (required for USB) from GCLK4, which was setup in board_init.c
         while ( (GCLK->PCHCTRL[GCM_USB].reg & GCLK_PCHCTRL_CHEN) == 0 );        // wait for sync
 #else
         GCLK->PCHCTRL[GCM_USB].reg = ( GCLK_PCHCTRL_CHEN | GCLK_PCHCTRL_GEN_GCLK0 );
