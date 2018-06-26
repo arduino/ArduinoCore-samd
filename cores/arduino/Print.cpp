@@ -20,9 +20,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
 #include "Arduino.h"
 
 #include "Print.h"
+#include "../../config.h"
 
 // Public Methods //////////////////////////////////////////////////////////////
 
@@ -295,8 +297,13 @@ size_t Print::printFloat(double number, uint8_t digits)
   if (isnan(number)) return print("nan");
   if (isinf(number)) return print("inf");
 
+#if defined(LONG_LONG_PRINT_FLOAT)
+  if (number > (double)ULONG_LONG_MAX) return print ("ovf");
+  if (number < -(double)ULONG_LONG_MAX) return print ("ovf");
+#else
   if (number > 4294967040.0) return print ("ovf");  // constant determined empirically
   if (number <-4294967040.0) return print ("ovf");  // constant determined empirically
+#endif
 
   // Handle negative numbers
   if (number < 0.0)
@@ -313,7 +320,11 @@ size_t Print::printFloat(double number, uint8_t digits)
   number += rounding;
 
   // Extract the integer part of the number and print it
+#if defined(LONG_LONG_PRINT_FLOAT)
+  unsigned long long int_part = (unsigned long long)number;
+#else
   unsigned long int_part = (unsigned long)number;
+#endif
   double remainder = number - (double)int_part;
   n += print(int_part);
 
@@ -342,8 +353,13 @@ size_t Print::printFloat(float number, uint8_t digits)
   if (isnan(number)) return print("nan");
   if (isinf(number)) return print("inf");
 
+#if defined(LONG_LONG_PRINT_FLOAT)
+  if (number > (float)ULONG_LONG_MAX) return print ("ovf");
+  if (number < -(float)ULONG_LONG_MAX) return print ("ovf");
+#else
   if (number > 4294967040.0) return print ("ovf");  // constant determined empirically
   if (number <-4294967040.0) return print ("ovf");  // constant determined empirically
+#endif
 
   // Handle negative numbers
   if (number < 0.0)
@@ -360,7 +376,11 @@ size_t Print::printFloat(float number, uint8_t digits)
   number += rounding;
 
   // Extract the integer part of the number and print it
+#if defined(LONG_LONG_PRINT_FLOAT)
+  unsigned long long int_part = (unsigned long long)number;
+#else
   unsigned long int_part = (unsigned long)number;
+#endif
   float remainder = number - (float)int_part;
   n += print(int_part);
 

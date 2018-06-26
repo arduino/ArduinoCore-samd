@@ -81,6 +81,13 @@
    * milliseconds). This saves about 64 bytes.
    */
   #define NO_DELAY_HIGH_WORD
+
+  /* Define LONG_LONG_PRINT_FLOAT to enable the use of Unsigned Long Long variables for printing
+   * the integer part of single or double floating point numbers using the Print class. This allows
+   * printing integers up to +/-18,446,744,073,709,551,615, rather than the default +/-4,294,967,295.
+   * This cost a little code space.
+   */
+  //#define LONG_LONG_PRINT_FLOAT
 #endif
 
 #endif // _CONFIG_H_
