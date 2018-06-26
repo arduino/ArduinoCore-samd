@@ -38,6 +38,7 @@ class Print
   private:
     int write_error;
     size_t printNumber(unsigned long, uint8_t);
+    size_t printNumber(unsigned long long, uint8_t);
 #if (defined(FLOAT_BOTH_SINGLES_DOUBLES) || defined(FLOAT_PRINT_SINGLES_DOUBLES))
     size_t printDouble(double, uint8_t);
     size_t printFloat(float, uint8_t);
@@ -75,6 +76,8 @@ class Print
     size_t print(unsigned int, int = DEC);
     size_t print(long, int = DEC);
     size_t print(unsigned long, int = DEC);
+    size_t print(long long, int = DEC);
+    size_t print(unsigned long long, int = DEC);
 #if (defined(FLOAT_BOTH_SINGLES_DOUBLES) || defined(FLOAT_PRINT_SINGLES_DOUBLES))
     size_t print(float, int = 2);
 #endif
@@ -90,6 +93,8 @@ class Print
     size_t println(unsigned int, int = DEC);
     size_t println(long, int = DEC);
     size_t println(unsigned long, int = DEC);
+    size_t println(long long, int = DEC);
+    size_t println(unsigned long long, int = DEC);
 #if (defined(FLOAT_BOTH_SINGLES_DOUBLES) || defined(FLOAT_PRINT_SINGLES_DOUBLES))
     size_t println(float, int = 2);
 #endif

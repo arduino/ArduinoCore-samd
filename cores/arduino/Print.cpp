@@ -88,7 +88,29 @@ size_t Print::print(long n, int base)
   }
 }
 
+size_t Print::print(long long n, int base)
+{
+  if (base == 0) {
+    return write(n);
+  } else if (base == 10) {
+    if (n < 0) {
+      int t = print('-');
+      n = -n;
+      return printNumber((unsigned long long)n, 10) + t;
+    }
+    return printNumber((unsigned long long)n, 10);
+  } else {
+    return printNumber((unsigned long long)n, base);
+  }
+}
+
 size_t Print::print(unsigned long n, int base)
+{
+  if (base == 0) return write(n);
+  else return printNumber(n, base);
+}
+
+size_t Print::print(unsigned long long n, int base)
 {
   if (base == 0) return write(n);
   else return printNumber(n, base);
@@ -176,7 +198,21 @@ size_t Print::println(long num, int base)
   return n;
 }
 
+size_t Print::println(long long num, int base)
+{
+  size_t n = print(num, base);
+  n += println();
+  return n;
+}
+
 size_t Print::println(unsigned long num, int base)
+{
+  size_t n = print(num, base);
+  n += println();
+  return n;
+}
+
+size_t Print::println(unsigned long long num, int base)
 {
   size_t n = print(num, base);
   n += println();
@@ -211,6 +247,26 @@ size_t Print::println(const Printable& x)
 size_t Print::printNumber(unsigned long n, uint8_t base)
 {
   char buf[8 * sizeof(long) + 1]; // Assumes 8-bit chars plus zero byte.
+  char *str = &buf[sizeof(buf) - 1];
+
+  *str = '\0';
+
+  // prevent crash if called with base == 1
+  if (base < 2) base = 10;
+
+  do {
+    char c = n % base;
+    n /= base;
+
+    *--str = c < 10 ? c + '0' : c + 'A' - 10;
+  } while(n);
+
+  return write(str);
+}
+
+size_t Print::printNumber(unsigned long long n, uint8_t base)
+{
+  char buf[8 * sizeof(long long) + 1]; // Assumes 8-bit chars plus zero byte.
   char *str = &buf[sizeof(buf) - 1];
 
   *str = '\0';
