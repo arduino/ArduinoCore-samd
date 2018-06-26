@@ -33,7 +33,7 @@
 #define MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE 10608
 
 /*----------------------------------------------------------------------------
- *        Clock Configuration
+ *        Board/Clock Configuration
  *----------------------------------------------------------------------------*/
 
 /* Master clock frequency (also Fcpu frequency). With the D51, this can be
@@ -69,6 +69,28 @@
 /* Define CORTEX_M_CACHE_ENABLED to enable the Cortex M cache (D51 only).
  */
 #define CORTEX_M_CACHE_ENABLED
+
+/* When the battery charger (CHG) is installed, the charge status is available on pin 18 (A18, STA),
+ * which drives low (open-drain) when the battery is charging. Defining BATTERY_CHARGER_INSTALLED
+ * will prevent pin A18 from being configured as an output, thus avoiding contention.
+ */
+#define BATTERY_CHARGER_INSTALLED
+
+/* When the accelerometer/gyroscope/magnetometer (IMU) is installed, all three interrupt outputs
+ * are tied together and connected to pin 32 (B22, INT), which by default drives low in a push-pull,
+ * active-high configuration until it is configured otherwise (to open-drain, active-low for example).
+ * Defining IMU_INSTALLED will prevent pin B22 from being configured as an output, thus avoiding
+ * contention.
+ */
+#define IMU_INSTALLED
+
+/* When the Vin regulator (5V) is installed, an analog comparator (Rev B only) is used to drive the Vbus
+ * ideal diode enable pin (EN) low, which disconnects Vbus from VccH. The Vbus voltage divider, which is
+ * available on pin 6 (A6, VU), is also connected to the same enable pin. Defining VIN_5V_REGULATOR_INSTALLED
+ * will prevent pin A6 from being configured as an output, thus avoiding contention.
+ */
+#define VIN_5V_REGULATOR_INSTALLED
+
 
 /*----------------------------------------------------------------------------
  *        Headers
