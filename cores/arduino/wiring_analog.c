@@ -437,6 +437,8 @@ void analogReference(eAnalogReference mode)
   syncADC();
 
   // Start conversion, since The first conversion after the reference is changed must not be used.
+  uint32_t valueRead __attribute__((unused));
+
 #if (SAMC21 || SAMD51)
   ADC0->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
   ADC1->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
@@ -445,6 +447,8 @@ void analogReference(eAnalogReference mode)
   ADC1->SWTRIG.bit.START = 1;
   syncADC();
   while ((ADC0->INTFLAG.bit.RESRDY == 0) || (ADC1->INTFLAG.bit.RESRDY == 0));     // Waiting for conversion to complete
+  valueRead = ADC0->RESULT.reg;              // Dummy read (will also clear the Data Ready flag)
+  valueRead = ADC1->RESULT.reg;              // Dummy read (will also clear the Data Ready flag)
   ADC0->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
   ADC1->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
 #else
@@ -453,6 +457,7 @@ void analogReference(eAnalogReference mode)
   ADC->SWTRIG.bit.START = 1;
   syncADC();
   while (ADC->INTFLAG.bit.RESRDY == 0);      // Waiting for conversion to complete
+  valueRead = ADC->RESULT.reg;               // Dummy read (will also clear the Data Ready flag)
   ADC->CTRLA.bit.ENABLE = 0x00;              // Disable ADC
 #endif
   syncADC();
