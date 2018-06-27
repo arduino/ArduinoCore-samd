@@ -1,3 +1,9 @@
+1.6.18-beta-b1 (June 26, 2018):
+* MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE is now 10618
+* Added an additional PinDescription table format, which can be used to reduce code size (D11 chips only for now)
+  The PinDescription table can now be 4 bytes per pin, rather than 12 bytes per pin, with little change in functionality for most.
+  See the README.md in any board variant directory for more information.
+
 1.6.8-beta-b0:
 * Introduced MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE define and VARIANT_COMPLIANCE_CHANGELOG file.
   The definitions in the variants files need the MattairTech SAMD core >= the listed version.

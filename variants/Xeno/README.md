@@ -20,8 +20,8 @@ ASEN+ (HOST)           O        7 | B7        X32(B17)| 32   I     TC~      MOPS
           RX3          O   I    9 | B9            A22 | 22         TC~
 VHDV (VccH)   MOSI1    O   I   10 | A10           A21 | 21         TC~
 VBDV+ (Vbus)  SCK1     O   I   11 | A11           A20 | 20   I     TC~
-XBCT (XBEE) SDA1/MISO1 TCC2~ I 12 | A12           A19 | 19         TC~         CMRI (CUR)
-        SCL1/SS1   TCC2~   I   13 | A13           A18 | 18         TC~  TX1  XBDI+ (XBEE)
+XBCT (XBEE) SDA1/MISO1 TCC~  I 12 | A12           A19 | 19         TC~         CMRI (CUR)
+        SCL1/SS1   TCC~    I   13 | A13           A18 | 18         TC~  TX1  XBDI+ (XBEE)
 HSEN (HOST)        TC~     I   14 | B14           A17 | 17              SCL    SCL+ (I2C)
 BKFS+ (BUCK)       TC~         15 | B15           A16 | 16              SDA    SDA+ (I2C)
                                   | Vaux         3.3V |
@@ -38,11 +38,11 @@ SHCS(SPI) / SDCS+(SD) 28/46 (S46) | A28(B31)      Gnd |
 
                                   1-------------------
 L0+ (LVL) TX2    O   I   35 (L35) | A6             A7 | 36 (L36)  I  O    RX2   L1+ (LVL)
-L2+ (LVL) TCC1~  O  NMI  37 (L37) | A8    LEVEL    A9 | 38 (L38)     O   TCC1~  L3+ (LVL)
+L2+ (LVL) TCC~   O  NMI  37 (L37) | A8    LEVEL    A9 | 38 (L38)     O    TCC~  L3+ (LVL)
                                   | VccH  SHIFT  VccH |
                                   | Gnd           Gnd |
-B1+ (MOTOR)    TCC0~     39 (M39) | B10           B11 | 40 (M40)    TCC0~     B2+ (MOTOR)
-A1+ (MOTOR)    TCC0~     41 (M41) | B12   MOTOR   B13 | 42 (M42)    TCC0~     A2+ (MOTOR)
+B1+ (MOTOR)    TCC~      39 (M39) | B10           B11 | 40 (M40)     TCC~     B2+ (MOTOR)
+A1+ (MOTOR)    TCC~      41 (M41) | B12   MOTOR   B13 | 42 (M42)     TCC~     A2+ (MOTOR)
                                   | Vmotor        Gnd |
                                    -------------------
 
@@ -137,6 +137,16 @@ Silkscreen Legend:
 
 ## PinDescription table format
 
+### Note that in 1.6.18-beta-b1 a new compact table format was added.
+The standard PinDescription table uses 12 bytes per pin. Define PIN_DESCRIPTION_TABLE_SIMPLE
+to use a more compact format that uses only 4 bytes per pin (currently only available
+for the D11 chips). In this case, the PinType, PinAttribute, and GCLKCCL columns are not used
+(they are not required). Additionally, the SetPortPin() and SetExtIntADC() macros are used to
+pack Port and Pin into the PortPin column, and ExtInt and ADCChannelNumber into the ExtIntADC
+column. Note that external libraries that reference the PinDescription table directly (uncommon)
+will no longer work. This define can be combined with the PIN_MAP_COMPACT define, which
+is available in variant.h of the D11 variants. This can save from 10's to over 200 bytes.
+
 ### Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.
 MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE in variant.h is used to track versions.
 If using board variant files with the old format, the new core will still read the
@@ -173,10 +183,16 @@ used, leaving the other pin for some number above 31.
 **See [WVariant.h](https://github.com/mattairtech/ArduinoCore-samd/tree/master/cores/arduino/WVariant.h) for the definitions used in the table.**
 
 ### Port
-This is the port (ie: PORTA).
+This is the port (ie: PORTA). Not used with PIN_DESCRIPTION_TABLE_SIMPLE.
 
 ### Pin
-This is the pin (bit) within the port. Valid values are 0-31.
+This is the pin (bit) within the port. Valid values are 0-31. Not used with
+PIN_DESCRIPTION_TABLE_SIMPLE.
+
+### SetPortPin()
+When PIN_DESCRIPTION_TABLE_SIMPLE is defined, Port and Pin are combined into one column
+using the SetPortPin() packing macro: SetPortPin(PORTA, 2). If the pin is not usable,
+use SetPortPin(NOT_A_PORT, 0).
 
 ### PinType
 This indicates what peripheral function the pin can be attached to. In most cases,
@@ -190,7 +206,8 @@ WVariant.h for valid entries. These entries are also used as a parameter to
 pinPeripheral() with the exception of PIO_NOT_A_PIN and PIO_MULTI. The pinMode function
 now calls pinPeripheral() with the desired mode. Note that this field is not used to
 select between the different peripherals possible with each of the SERCOM and TIMER
-functions. PeripheralAttribute is now used for this.
+functions. PeripheralAttribute is now used for this. When PIN_DESCRIPTION_TABLE_SIMPLE
+is defined, PinType is not used (the pin is treated as PIO_MULTI).
 
 ### PeripheralAttribute
 This is an 8-bit bitfield used for various peripheral configuration. It is primarily
@@ -213,7 +230,7 @@ PIN_ATTR_TIMER_PWM and PIN_ATTR_TIMER_CAPTURE (capture is not used yet).
 PIN_ATTR_ANALOG is an alias to PIN_ATTR_ANALOG_ADC. This bitfield is useful for
 limiting a pin to only input related functions or output functions. This allows a pin
 to have a more flexible configuration, while restricting the direction (ie: to avoid
-contention). See WVariant.h for valid entries.
+contention). See WVariant.h for valid entries. Not used with PIN_DESCRIPTION_TABLE_SIMPLE.
 
 ### TCChannel
 This is the TC/TCC channel (if any) assigned to the pin. Some TC channels are available
@@ -225,16 +242,22 @@ the D21). See WVariant.h for valid entries.
 ### ADCChannelNumber
 This is the ADC channel (if any) assigned to the pin. The D51 and C21 each have two ADC
 instances, which are selected in the PeripheralAttribute column. See WVariant.h for
-valid entries.
+valid entries. Not used with PIN_DESCRIPTION_TABLE_SIMPLE.
 
 ### ExtInt
 This is the interrupt (if any) assigned to the pin. Some interrupt numbers are
 available on multiple pins. In general, only one pin should be configured in the
 pinDescription table per interrupt number. Thus, for example, if an interrupt was
 needed on pin 2, EXTERNAL_INT_2 can be moved from pin 18. See WVariant.h for valid
-entries.
+entries. Not used with PIN_DESCRIPTION_TABLE_SIMPLE.
+
+### SetExtIntADC()
+When PIN_DESCRIPTION_TABLE_SIMPLE is defined, ExtInt and ADCChannelNumber are combined
+into one column using the SetExtIntADC() packing macro: SetExtIntADC(EXTERNAL_INT_4,
+ADC_Channel2). If the pin is not usable, use SetExtIntADC(EXTERNAL_INT_NONE, No_ADC_Channel).
 
 ### GCLKCCL
 This column was added in 1.6.8-beta-b0. It is not yet used. It will eventually support
 the Analog Comparators (AC), the Configurable Custom Logic (CCL) peripherals of the D51,
-L21 and C21, and the GCLK outputs (inputs) of all of the MCUs.
+L21 and C21, and the GCLK outputs (inputs) of all of the MCUs. Not used with
+PIN_DESCRIPTION_TABLE_SIMPLE.

@@ -83,7 +83,7 @@ void waitForPLL( void )
 void board_init( void )
 {
   /*
-   * Disable automatic NVM write operations (errata reference 13134, applies to D21/D11/L21, but not C21 or D51)
+   * Disable automatic NVM write operations (errata).
    * Disable NVM cache on D51 (errata). Will be re-enabled after reset at end of programming.
    */
 #if (SAMD51)

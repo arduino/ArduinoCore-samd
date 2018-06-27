@@ -1,14 +1,52 @@
 Up next:
-* Add SAM D51 support to I2S driver
-* Add PDM microphone and MCK support to I2S driver
-* Add QSPI driver, FLASH memory driver
+* **Add MicroPython support.** Add Demo sketch with Arduino shell and Python interpreter.
+* Add QSPI driver with XIP (DDR support only when the MCU runs at 48MHz) for the D51.
+* Add FLASH memory driver libraries
+* Add Mass Storage device and/or UF2 support to the bootloader
 * Add 32-pin (E) generic variant
+* Fix MIDI issue
+* Change ADC sampling time (make configurable?), possibly add a continuous sampling mode with non-blocking reads
+* Add SAM D51 support to I2S driver (I have finished DMA driver changes)
+* Add PDM microphone and MCK support to I2S driver
+* Add internal temperature sensor driver (as described in datasheets), currently testing, D51 missing calibration values
+* Fix new ringbuffer issue
+* Add BUCK_CONVERTER_ENABLED define and/or menu item, to enable on-chip buck converter of D51 and L21.
+  Must solve possible issue first (auto-reset failure when buck converter enabled).
+
+1.6.18-beta-b1 (June 26, 2018):
+* Added BATTERY_CHARGER_INSTALLED, IMU_INSTALLED, and VIN_5V_REGULATOR_INSTALLED defines to variants/Xeno_Mini/variant.c
+  (and variant.h) to prevent associated pins from being configured as outputs, thus avoiding contention.
+* Made various changes to reduce code size, including making ADC and DAC initialization optional if unused, using VARIANT_MCK instead of
+  SystemCoreClock in init(), and converting some RMW's to writes. Added config.h file for configuration.
+  * Added config.h file, which contains defines for building that are mainly used to reduce code size
+  * Removed pinMode(31, INPUT) from init() in wiring.c as it is already setup (and pinMode should not be used here because we always want port pin A31, not Arduino pin 31)
+  * Moved ADC and DAC initialization from wiring.c to wiring_analog.c, with ability to initialize only on use.
+* Added an additional PinDescription table format, which can be used to reduce code size (D11 chips only for now)
+* Added support for 20 different timer PWM frequencies selectable through the Tools menu, as well as other various clock system changes
+* Fixed bad first read from analogRead() after changing references by using a dummy read.
+* Added support for the hardware FPU of the D51
+  * Added -mfloat-abi=softfp (this will use hardware fpu with soft-float calling conventions) and -mfpu=fpv4-sp-d16 compiler flags for the D51 only.
+  * Fixed build.mathlib build flag (arm_cortexM4lf_math or -arm_cortexM0l_math), added -DARM_MATH_CM0PLUS or -DARM_MATH_CM4
+* Added optional support for single precision floating point numbers (in addition to the existing support for doubles) in both the Print and String classes,
+  configurable from the Tools menu. This can save a great deal of code space. Thanks to Soren Kuula and Dmitry Xmelkov for their previous work.
+  * Print::print and Print::println now have separate overloaded methods for float and doubles (previously, floats were promoted to doubles).
+    Additionally, to support this, Print::printDouble() has been added (Print::printFloat() used to promote to double, but now uses floats).
+  * Added Stream::parseDouble() to Stream.cpp, and pgm_read_double(), pgm_read_double_near(), and pgm_read_double_far() to avr/pgmspace.h.
+  * Added avr/ftostrf.c and avr/ftostrf.h to support single precision floats (avr/dtostrf.c is still double precision). It is similar to avr-libc version.
+    Additionally, to support this, added avr/dtoa_conv.h, avr/dtoa_prf.c. Copyright (c) 2005, Dmitry Xmelkov.
+    Additionally, added avr/ftoa_engine.h, and avr/ftoa_engine.c. Copyright (c) 2005, Dmitry Xmelkov. Rewritten in C by Soren Kuula (from Ardupilot project).
+    These are used by String::String and String::concat, which are overloaded, so ftostrf.c or dtostrf.c is selected automatically based on the value argument.
+  * Added -fsingle-precision-constant and -Wdouble-promotion compiler flags
+* Added support for 64-bit integer types to the Print class (long long and unsigned long long)
+* Added optional support for printing floating point numbers using the Print class with values greater/less than +/-4,294,967,295. It now supports +/-18,446,744,073,709,551,615.
+* Documentation updates, including new PinDescription table format
+* Beta builds will now be included in the main release json file
 
 1.6.18-beta-b0 (February 22, 2018):
 * Added SAM D51 (m4f) support to core
 * Added MattairTech Xeno Mini board support
 * Changed name to "MattairTech SAM D|L|C core for Arduino"
-* Added _ulTickCountHighWord to delay() to better handle 49.7-day wraparound
+* Added _ulTickCountHighWord to delay() to avoid 49.7-day wraparound, can disable in config.h from 1.6.18-beta-b1
 * Updated timeout in [Bossa](https://github.com/mattairtech/BOSSA) tool for D51 1MB FLASH (5 second erase)
 * Correction of include path for CMSIS-Atmel - Thanks @joseangeljimenez
 * Documentation updates
@@ -19,6 +57,7 @@ Up next:
   * Wire: TX and RX buffers are now 256 bytes (previously was 64 bytes)
   * Fixed lock ups when outputting to UART during ISR
   * Wire: correct I2C frequency calculations, and allow variant to overide default pull up resistor rise time
+  * Revert new ringbuffer code for now
 * Merged in changes from upstream SAMD CORE 1.6.17
   * UART's now support optional RTS and CTS pins defined in the variant.
 

@@ -35,7 +35,20 @@ CHANGELOG for details on upstream commits and MattairTech additions that have be
 
 
 ## What's New - Beta Version (1.6.18-beta)
-**See Beta Builds section for beta installation instructions.**
+**Beta builds are now included in the main json. See Beta Builds section.**
+
+**1.6.18-beta-b1 (June 26, 2018):**
+* Added support for 20 different timer PWM frequencies selectable through the Tools menu, as well as other various clock system changes
+* Added support for the hardware FPU of the D51
+* Added optional support for single precision floating point numbers (in addition to the existing support for doubles) in both the Print and String classes, configurable from the Tools menu. This can save a great deal of code space. Thanks to Soren Kuula and Dmitry Xmelkov for their previous work.
+* Added support for 64-bit integer types to the Print class (long long and unsigned long long)
+* Added optional support for printing floating point numbers using the Print class with values greater/less than +/-4,294,967,295. It now supports +/-18,446,744,073,709,551,615.
+* Made various changes to reduce code size, including making ADC and DAC initialization optional if unused, using VARIANT_MCK instead of SystemCoreClock in init(), and converting some RMW's to writes. Added config.h file for configuration.
+* Added an additional PinDescription table format, which can be used to reduce code size (D11 chips only for now)
+* Added BATTERY_CHARGER_INSTALLED, IMU_INSTALLED, and VIN_5V_REGULATOR_INSTALLED defines to variants/Xeno_Mini/variant.c (and variant.h) to prevent associated pins from being configured as outputs, thus avoiding contention.
+* Fixed bad first read from analogRead() after changing references by using a dummy read.
+* Documentation updates, including new PinDescription table format
+* Beta builds will now be included in the main release json file
 
 **1.6.18-beta-b0 (February 22, 2018):**
 * Added SAM D51 (m4f) support to core
@@ -227,6 +240,74 @@ not enabled, Serial will refer to Serial1 instead of SerialUSB. These options ca
 and SRAM usage by allowing CDC to be disabled (or USB completely disabled).
 
 
+### Timer PWM Frequency
+
+This menu will appear with all microcontrollers. It allows selection of the PWM frequency used by all timers.
+When using a timer in 16-bit mode, calls to analogWrite() are made with 8-bit resolution by default. For 16-bit
+writes, call analogWriteResolution(16) first. Because of the faster timer clock used with the D51, the 1465Hz
+setting is 16-bit. Older cores used the 187500Hz (8-bit) setting, which is now available in the menu. Note that
+some motor controllers can be inefficient or overheat with higher PWM frequencies, however, using a higher
+frequency can quiet down noisy ceramic capacitors or reduce flicker with LED lighting applications.
+The menu options are:
+
+* 732.4Hz (16-bit)
+* 366.2Hz (16-bit)
+* 244.1Hz (16-bit)
+* 183.1Hz (16-bit)
+* 146.5Hz (16-bit)
+* 122.1Hz (16-bit)
+* 104.6Hz (16-bit)
+* 81.38Hz (16-bit)
+* 61.04Hz (16-bit)
+* 30.52Hz (16-bit)
+* 187500Hz (8-bit)
+* 93750Hz (8-bit)
+* 62500Hz (8-bit)
+* 37500Hz (8-bit)
+* 20833Hz (8-bit)
+* 12500Hz (8-bit)
+* 7500Hz (8-bit)
+* 4166Hz (8-bit)
+* 2930Hz (8-bit)
+* 1465Hz (8-bit, 16-bit for D51)
+
+
+### Floating Point
+
+By default, when using the Print or String classes to print or convert floating point numbers to character arrays, singles are automatically promoted
+to doubles. This consumes a lot of code space. Use the options in this menu to make use of single floating point versions of Print and String, which
+will reduce code space, increase performance, and also allow the D51 to make use of the hardware FPU (in the case of Print). See Floating Point Notes.
+
+* Print & String use auto-promoted doubles only
+* Print uses separate singles and doubles
+* String uses separate singles and doubles
+* Print & String use separate singles and doubles
+
+
+### Build Options (config.h)
+
+This menu will appear with all microcontrollers. It is currently used to enable or disable including config.h,
+which contains several defines that are used primarily to reduce code space. config.h should be edited first.
+Please see [config.h](https://github.com/mattairtech/ArduinoCore-samd/tree/master/config.h) for documentation on the defines. The menu options are:
+
+* config.h disabled
+* config.h enabled (mostly code size reductions)
+
+#### Current Build Options
+
+* PIN_DESCRIPTION_TABLE_SIMPLE
+* PIN_PERIPHERAL_CHECKS_DISABLED
+* ADC_NO_INIT_IF_UNUSED
+* DAC_NO_INIT_IF_UNUSED
+* DISABLE_ADC_CALIBRATION
+* TRUST_RESET_DEFAULTS
+* NO_ADDITIONAL_GCLKS
+* NO_OSC_HS_GCLK
+* NO_DELAY_HIGH_WORD
+* LONG_LONG_PRINT_FLOAT
+
+
+
 ## Clock Source
 
 There are up to four clock source choices, depending on board features and microcontroller. Since currently
@@ -335,15 +416,20 @@ NVM OTP (factory calibration values).
 
 ### Clock Generators Currently Used
 
-0. MAIN - This is the main 48MHz cpu clock (optionally 120MHz for the D51)
-1. XOSC - High speed crystal
-2. OSCULP32K - Initialized at reset for WDT on D21 and D11
-3. OSC_HS - 8MHz internal RC oscillator (D21, D11, and L21 only)
-4. DFLL - Used by D51 (at 120MHz only) with CLOCKCONFIG_INTERNAL or CLOCKCONFIG_INTERNAL_USB to generate 2MHz output for the PLL input
-5. 48MHz - Used by D51 (at 120MHz only) for USB or any peripheral that has a 60MHz maximum peripheral clock
-6. 96MHz - Used by D51 (at 120MHz only) for any peripheral that has a 100MHz maximum peripheral clock
-7. I2S - Used by D51 and D21 for I2S peripheral
-8. I2S1 - Used by D51 and D21 for I2S peripheral
+The D51 has 12 generators and all others have 9 generators. Unused generators are automatically stopped to reduce power consumption.
+
+0. MAIN - Used for the CPU/APB clocks. With the D51, it runs at either 96MHz (divided by 2 in MCLK) or 120MHz undivided. Otherwise, it runs at 48MHz.
+1. XOSC - The high speed crystal is connected to GCLK1 in order to use the 16-bit prescaler.
+2. OSCULP32K - Initialized at reset for WDT (D21 and D11 only). Not used by core.
+3. OSC_HS - 8MHz from internal RC oscillator (D21, D11, and L21 only). Setup by core but not used.
+4. 48MHz - Used for USB or any peripheral that has a 48MHz (60MHz for D51) maximum peripheral clock. GCLK0 is now only 96MHz or 120MHz with the D51.
+5. TIMERS - Used by the timers for controlling PWM frequency. Can be up to 48MHz (up to 96MHz with the D51).
+6. 192MHz - Used only by D51 for any peripheral that has a 200MHz maximum peripheral clock (note that GCLK8 - GCLK11 must be <= 100MHz).
+7. I2S - Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h.
+8. I2S1 - Used by D51 and D21 for I2S peripheral. This define is not currently used. The generator is defined in each variant.h.
+9. DFLL - Used only by D51 (only when the cpu is 120MHz) with CLOCKCONFIG_INTERNAL or CLOCKCONFIG_INTERNAL_USB to generate 2MHz output for the PLL input.
+10. 96MHz - Used only by D51 for any peripheral that has a 100MHz maximum peripheral clock.
+11. UNUSED11 - Unused for now. D51 only.
 
 
 ## Analog Reference
@@ -375,7 +461,7 @@ NVM OTP (factory calibration values).
 
 D21 / D11               | Volts      | D51                   | Volts     | L21                   | Volts     | C21                   | Volts
 ------------------------|------------|-----------------------|-----------|-----------------------|-----------|-----------------------|--------
-AR_DEFAULT              | 1/2 VCC    | AR_DEFAULT            | VCC       | AR_DEFAULT            | VCC       | AR_DEFAULT            | VCC
+AR_DEFAULT              | 1/2 VCC*   | AR_DEFAULT            | VCC       | AR_DEFAULT            | VCC       | AR_DEFAULT            | VCC
 AR_INTERNAL1V0          | 1.00V      | AR_INTREF             | 1.00V     | AR_INTREF             | 1.00V     | AR_INTREF             | 1.024V
 AR_INTERNAL_INTVCC0     | 1/1.48 VCC | AR_INTREF_1V0         | 1.00V     | AR_INTREF_1V0         | 1.00V     | AR_INTREF_1V024       | 1.024V
 AR_INTERNAL_INTVCC1     | 1/2 VCC    | AR_INTREF_1V1         | 1.10V     | AR_INTREF_1V1         | 1.10V     | AR_INTREF_2V048       | 2.048V
@@ -401,6 +487,52 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
 * AR_EXTERNAL = AR_EXTERNAL_REFA
 
 *Note that with the D51, INTVCC1 and INTVCC2 as used in Arduino are actually INTVCC0 and INTVCC1 in the datasheet.*
+*AR_DEFAULT uses 1/2X gain on each input and a Vcc/2 (1.65V) reference supporting measurements up to Vcc.*
+
+
+## Floating Point Notes
+
+### Floating Point Changes
+
+* Added support for the hardware FPU of the D51
+  * Added -mfloat-abi=softfp (this will use hardware fpu with soft-float calling conventions) and -mfpu=fpv4-sp-d16 compiler flags for the D51 only.
+  * Fixed build.mathlib build flag (arm_cortexM4lf_math or -arm_cortexM0l_math), added -DARM_MATH_CM0PLUS or -DARM_MATH_CM4
+* Added optional support for single precision floating point numbers (in addition to the existing support for doubles) in both the Print and String classes,
+  configurable from the Tools menu. This can save a great deal of code space. Thanks to Soren Kuula and Dmitry Xmelkov for their previous work.
+  * Print::print and Print::println now have separate overloaded methods for float and doubles (previously, floats were promoted to doubles).
+    Additionally, to support this, Print::printDouble() has been added (Print::printFloat() used to promote to double, but now uses floats).
+  * Added Stream::parseDouble() to Stream.cpp, and pgm_read_double(), pgm_read_double_near(), and pgm_read_double_far() to avr/pgmspace.h.
+  * Added avr/ftostrf.c and avr/ftostrf.h to support single precision floats (avr/dtostrf.c is still double precision). It is similar to avr-libc version.
+    Additionally, to support this, added avr/dtoa_conv.h, avr/dtoa_prf.c. Copyright (c) 2005, Dmitry Xmelkov.
+    Additionally, added avr/ftoa_engine.h, and avr/ftoa_engine.c. Copyright (c) 2005, Dmitry Xmelkov. Rewritten in C by Soren Kuula (from Ardupilot project).
+    These are used by String::String and String::concat, which are overloaded, so ftostrf.c or dtostrf.c is selected automatically based on the value argument.
+  * Added -fsingle-precision-constant and -Wdouble-promotion compiler flags
+* Added support for 64-bit integer types to the Print class (long long and unsigned long long)
+* Added optional support for printing floating point numbers using the Print class with values greater/less than +/-4,294,967,295. It now supports +/-18,446,744,073,709,551,615.
+
+### Hints for Using Floating Point Numbers
+
+* Single and double floats are 32bit and 64bit respectively. To save code space and increase performance, use single precision when possible, especially when printing.
+* Use the "Print & String use separate singles and doubles" setting in the Tools->Floating Point menu.
+* Use single precision in order to use the hardware FPU of the D51. When using double precision, the FPU will not be used (it will be done in software).
+* The Print class uses floating point math (with four operators: *, /, +, and -) when printing the number. The single precision version, if enabled, will use the FPU of the D51.
+* The String class uses either sprintf() when using double precision (using asm(".global _printf_float") to enable the floating point version, which is large), or
+  uses the new ftoa_engine.c to directly convert the IEEE single precision number format to a printable form in base10, when using single precision. The ftoa_engine was used in
+  [AVR Libc](https://www.nongnu.org/avr-libc/), written in assembly by Dmitry Xmelkov. It was rewritten in C by Soren Kuula (from the [Ardupilot project](https://github.com/ArduPilot/ardupilot/blob/master/libraries/AP_HAL/utility/ftoa_engine.cpp)).
+* Because the compiler flag -fsingle-precision-constant is now set, all constants and literals will be single precision. If double precision is required, append a 'd' after
+  the number (ie: 1.2345678d). If this does not work, you may need to remove the -fsingle-precision-constant flag. Consider using the -Wfloat-conversion flag.
+* When using math.h functions, be sure to use the single precision versions when using single-precision math. They are appended by an 'f' (ie: sinf()).
+
+### Floating Point Size Comparison Table
+
+Configuration and MCU             | TEST_SINGLE_PRINT | TEST_DOUBLE_PRINT | TEST_SINGLE_STRING | TEST_DOUBLE_STRING
+----------------------------------|-------------------|-------------------|--------------------|-------------------
+FLOAT_BOTH_DOUBLES_ONLY - D21     |       9504        |       8144        |       16848        |       16688
+FLOAT_BOTH_SINGLES_DOUBLES - D21  |       4176        |       8144        |       4016         |       16688
+FLOAT_BOTH_DOUBLES_ONLY - D51     |       2968        |       2952        |       11144        |       11152
+FLOAT_BOTH_SINGLES_DOUBLES - D51  |       544         |       2952        |       3264         |       11152
+
+*Values indicate additional size of option in bytes. The base test sketch was 864 bytes larger with the D51 when no floating point was used.*
 
 
 ## Chip Specific Notes
@@ -410,7 +542,6 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
 * When USB is disabled, pullups will be enabled on PA24 and PA24 to avoid excessive current consumption (<1mA) due to floating pins.
   Note that it is not necessary to enable pull resistors on any other pins that are floating.
   Errata: Disable pull resistors on PA24 and PA25 manually before switching to a peripheral.
-
 
 ### SAMD51
 
@@ -430,15 +561,14 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
 * INTVCC1 and INTVCC2 as used in Arduino are actually INTVCC0 and INTVCC1 in the datasheet.
 * pinPeripheral now handles disabling the DACs (if active). Note that on the L21, the DAC output would
   interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected.
-* Five Flash Wait States are inserted automatically (NVMCTRL_CTRLA_AUTOWS) at 120MHz (or one wait states at 48MHz).
-* The D51 has a 4KB code/data cache which is enabled in this core.
+* Five Flash Wait States are inserted automatically (NVMCTRL_CTRLA_AUTOWS) at 120MHz (or one wait state at 48MHz).
+* The D51 has a 4KB code/data cache which is enabled by default in this core by using CORTEX_M_CACHE_ENABLED define in the boards variant.h.
 * The D51 and C21 use the minimum sampling time so that rail-to-rail and offset compensation works. The D21, D11, and L21 use the
   maximum sampling time.
 * Hardware errata: Do not use AR_INTREF_* with the ADC or DAC below 0C. It is OK to use AR_INTERNAL_*, AR_EXTERNAL_*, or AR_DEFAULT.
-* Hardware errata: VBAT mode is not funtional.
+* Hardware errata: VBAT mode is not functional.
 * Hardware errata: Do not alter BOD33 Disable fuse bit (use register instead).
 * Consult the SAM_D5x_E5x_Family_Errata document from Microchip for details and for more information on other errata.
-
 
 ### SAML21
 
@@ -455,7 +585,6 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
 * pinPeripheral now handles disabling the DAC (if active). Note that on the L21, the DAC output would
   interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected.
 
-
 ### SAMC21
 
 * There are two SAR ADCs. Both are supported. The PinDescription table determines the peripheral instance and pin mapping.
@@ -466,7 +595,6 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
 * The C21 uses the minimum sampling time so that rail-to-rail and offset compensation works. Offset compensation adds 3 ADC clock cycles,
   so the total is 4 clock cycles. The D21, D11, and L21 use the maximum sampling time.
 
-
 ### SAMD11
 
 * The D11D has three SERCOM. The D11C has two sercom (no sercom2).
@@ -474,52 +602,18 @@ AR_EXTERNAL_REFB        | REFB       | AR_INTREF_1V25        | 1.25V     | AR_IN
 * When USB is disabled, pullups will be enabled on PA24 and PA24 to avoid excessive current consumption (<1mA) due to floating pins.
   Note that it is not necessary to enable pull resistors on any other pins that are floating.
   Errata: Disable pull resistors on PA24 and PA25 manually before switching to a peripheral.
-
-#### Reducing SRAM/FLASH Usage on the D11
-
-TODO
+* See below for tips on reducing code space.
 
 
-## Differences Between MattairTech and Arduino Cores (TODO)
 
-* Communications interfaces are mostly unchanged, including USB
-* All pins have high drive strength enabled by default
-* All pins (digital and analog) setup in STARTUP mode (enable INEN and set default pull direction to pullup (pullup will not be enabled))
-* INEN enabled for both input and output (but not analog)
-* pinPeripheral now handles disabling the DAC (if active). Note that on the L21, the DAC output would
-  interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected.
-* Pull resistors enabled only if pin attributes allow and only if pin is not configured as output.
-* Pull direction (pullup or pulldown) is now set with pinMode only (defaults to pullup if pinMode never called).
-* At least on the L21, pin A31 must be set as an input. It is possible that debugger probe detection is being falsely
-  detected (even with a pullup on A31 (SWCLK)), which would change the peripheral mux of A31 to COM.
-  This might not normally be a problem, but one strange effect is that Serial2 loses characters if pin A31 is not set as INPUT.
-  So, the startup code calls pinMode(31, INPUT).
-* Todo: Table summarizing which core files are modified and by how much
-* Todo: List changes due to adding/changing features vs porting to new chip
+## Reducing SRAM/FLASH Usage
 
+TODO: Disable usb, disable serial, enable config.h, use PIN_DESCRIPTION_TABLE_SIMPLE and PIN_MAP_COMPACT with the D11, don't use double precision (see above), use no bootloader
+Most of this can be done from the Tools menu, and by editing config.h.
 
-## Serial Monitor
+### Code Size and RAM Usage (1.6.5-mt2)
 
-To print to the Serial Monitor over USB, use 'Serial'. Serial refers to SerialUSB (Serial1 and Serial2 are UARTs).
-Unlike most Arduino boards (ie. Uno), SAMD boards do not automatically reset when the serial monitor is opened.
-To see what your sketch outputs to the serial monitor from the beginning, the sketch must wait for the SerialUSB
-port to open first. Add the following to setup():
-
-```
-while (!Serial) ;
-```
-
-Remember that if the sketch needs to run without SerialUSB connected, another approach must be used.
-You can also reset the board manually with the Reset button if you wish to restart your sketch. However, pressing
-the Reset button will reset the chip, which in turn will reset USB communication. This interruption means
-that if the serial monitor is open, it will be necessary to close and re-open it to restart communication.
-
-When USB CDC is not enabled, Serial will instead refer to Serial1, which is the first UART.
-
-
-## Code Size and RAM Usage (1.6.5-mt2)
-
-TODO: Update this. Maybe just for D11 and move to D11 Chip Specific Notes.
+TODO: This is old. Update this, maybe just for D11.
 
 Sketch and Configuration    | MT-D21E (Flash + RAM) | MT-D11 (Flash + RAM)
 ----------------------------|-----------------------|-----------------------
@@ -555,6 +649,44 @@ field is correct.
 Above the size utility output is the output from the nm utility. The values on the
 left are in bytes. The letters stand for: T(t)=.text, D(d)=.data, B(b)=.bss, and
 everything else (ie: W) resides in flash (in most cases).
+
+
+## Serial Monitor
+
+To print to the Serial Monitor over USB, use 'Serial'. Serial refers to SerialUSB (Serial1 and Serial2 are UARTs).
+Unlike most Arduino boards (ie. Uno), SAMD boards do not automatically reset when the serial monitor is opened.
+To see what your sketch outputs to the serial monitor from the beginning, the sketch must wait for the SerialUSB
+port to open first. Add the following to setup():
+
+```
+while (!Serial) ;
+```
+
+Remember that if the sketch needs to run without SerialUSB connected, another approach must be used.
+You can also reset the board manually with the Reset button if you wish to restart your sketch. However, pressing
+the Reset button will reset the chip, which in turn will reset USB communication. This interruption means
+that if the serial monitor is open, it will be necessary to close and re-open it to restart communication.
+
+When USB CDC is not enabled, Serial will instead refer to Serial1, which is the first UART.
+
+
+## Differences Between MattairTech and Arduino Cores (TODO)
+
+* Communications interfaces are mostly unchanged, including USB
+* All pins have high drive strength enabled by default
+* All pins (digital and analog) setup in STARTUP mode (enable INEN and set default pull direction to pullup (pullup will not be enabled))
+* INEN enabled for both input and output (but not analog)
+* pinPeripheral now handles disabling the DAC (if active). Note that on the L21, the DAC output would
+  interfere with other peripherals if left enabled, even if the anaolog peripheral is not selected.
+* Pull resistors enabled only if pin attributes allow and only if pin is not configured as output.
+* Pull direction (pullup or pulldown) is now set with pinMode only (defaults to pullup if pinMode never called).
+* At least on the L21, pin A31 must be set as an input. It is possible that debugger probe detection is being falsely
+  detected (even with a pullup on A31 (SWCLK)), which would change the peripheral mux of A31 to COM.
+  This might not normally be a problem, but one strange effect is that Serial2 loses characters if pin A31 is not set as INPUT.
+  So, the startup code calls pinMode(31, INPUT).
+* Todo: Table summarizing which core files are modified and by how much
+* Todo: List changes due to adding/changing features vs porting to new chip
+
 
 
 ## Installation
@@ -607,7 +739,7 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
 2. Continue with SAM D|L|C Core Installation below.
 
 
-### SAM D|L|C Core Installation
+### MattairTech D|L|C Core Installation
 
 **See Beta Builds section below to install the beta, as it uses a different json file**
 
@@ -642,7 +774,11 @@ Vista, 7, 8, and 10. Note that the Windows 10 generic CDC drivers work as well.
 
 ## Beta Builds
 
-Periodically, a beta is released for testing.
+Periodically, a [beta](https://www.mattairtech.com/software/arduino/beta/package_MattairTech_index.json) is released for testing.
+
+* **Do not install more than one MattairTech json at a time**
+  * If you wish to use a beta (either a single json, or the Beta track json), either uninstall the release version first (and remove the existing
+    json from File->Preferences), or simply choose the beta version from the main Release json, which now includes beta releases as of 1.6.18-beta-b1.
 
 The beta builds are available through Boards Manager. If you want to install them:
   1. Open the **Preferences** of the Arduino IDE.
@@ -653,11 +789,11 @@ The beta builds are available through Boards Manager. If you want to install the
   6. Compile/Upload as usual
 
 The Arduino IDE will notify the user if an update to the beta is available, which can then be installed automatically.
-Alternatively, if a particular beta is needed, replace the url in step 2 with:
+If a particular beta is needed, just choose the version from the list. Alternatively, replace the url in step 2 with:
   `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_SAM_DLC_Core_for_Arduino-${VERSION}-beta-b${BUILD_NUMBER}_index.json` or
   `https://www.mattairtech.com/software/arduino/beta/package_MattairTech_sam_m0p-${VERSION}-beta-b${BUILD_NUMBER}_index.json` (versions prior to 1.6.17-beta-b1)
 where ${VERSION} and ${BUILD_NUMBER} match the beta name as shown in the CHANGELOG (ie: package_MattairTech_sam_m0p-1.6.7-beta-b0_index.json).
-In this case, the IDE will not notify the user of updates.
+In this case, the IDE will not notify the user of updates, so this method is not recommended.
 
 
 ## SAM-BA USB CDC Bootloader (Arduino compatible)
@@ -759,6 +895,16 @@ Each board and chip combination has two bootloaders available:
 Technical information on the new PinDescription table format is now in the README.md
 that accompanies each board variant. See board variants above.
 
+### Note that in 1.6.18-beta-b1 a new compact table format was added.
+The standard PinDescription table uses 12 bytes per pin. Define PIN_DESCRIPTION_TABLE_SIMPLE
+to use a more compact format that uses only 4 bytes per pin (currently only available
+for the D11 chips). In this case, the PinType, PinAttribute, and GCLKCCL columns are not used
+(they are not required). Additionally, the SetPortPin() and SetExtIntADC() macros are used to
+pack Port and Pin into the PortPin column, and ExtInt and ADCChannelNumber into the ExtIntADC
+column. Note that external libraries that reference the PinDescription table directly (uncommon)
+will no longer work. This define can be combined with the PIN_MAP_COMPACT define, which
+is available in variant.h of the D11 variants. This can save from 10's to over 200 bytes.
+
 ### Note that a new column (GCLKCCL) was added for 1.6.8-beta-b0.
 MATTAIRTECH_ARDUINO_SAMD_VARIANT_COMPLIANCE in variant.h is used to track versions.
 If using board variant files with the old format, the new core will still read the
@@ -812,8 +958,6 @@ used, leaving the other pin for some number above 31.
 
 ### Under Development
 
-* I2S MCLK support and MEMS microphone support
-* QSPI support for the D51
 * ZeroTimers - 8/16/24/32 bit timer library with API based on TimerOne
   * PWM
   * interrupt
@@ -839,14 +983,18 @@ used, leaving the other pin for some number above 31.
 
 ### Under Development
 
-* SAM D51 (M4F) support (pin compatible with D21, similar peripherals and pin mapping)
-* PlatformIO support
+* **Add MicroPython support.** Add Demo sketch with Arduino shell and Python interpreter.
+* Add QSPI driver with XIP (DDR support only when the MCU runs at 48MHz) for the D51.
+* Add Mass Storage device and/or UF2 support to the bootloader.
+* I2S MCLK support and MEMS microphone support
 * Features for lower power consumption (library?) Q1 2018?
   * PM, clock system, SUPC, RTC, EVSYS, DMA, sleepwalking, battery backup
 * Reliability and security enhancements (library?) 2018?
   * MPU (C21, D51), WDT, PAC, cryptography (AES, PKCC, TRNG), ICM, RAMECC, cache config (determinism)
+* Change ADC sampling time (make configurable?), possibly add a continuous sampling mode
 * Fix programming port for Arduino Zero and M0 board variants
 * Reduce SRAM usage by USB endpoint buffers by only allocating endpoints actually used (D11 especially)
+* PlatformIO support
 
 ### Possible Future
 
@@ -901,6 +1049,10 @@ The Changelog has moved to a separate file named CHANGELOG. The most recent chan
 
 * **Boards manager might not install/uninstall the core or tools properly if the contents of the arduino15 directory has been manually modified**
   * Be sure to delete all manually installed folders (not just files)
+
+* **Do not install more than one MattairTech json at a time**
+  * If you wish to use a beta (either a single json, or the Beta track json), either uninstall the release version first (and remove the existing
+    json from File->Preferences), or simply choose the beta version from the main Release json, which now includes beta releases as of 1.6.18-beta-b1.
 
 
 ## Bugs or Issues
