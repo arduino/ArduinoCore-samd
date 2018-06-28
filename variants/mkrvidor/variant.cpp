@@ -215,10 +215,13 @@ void initVariant() {
 #if defined(USE_BQ24195L_PMIC)
   enable_battery_charging();
 #endif
+}
 
-  // TODO: move to the FPGA library?
+void enableFpgaClock() {
+  // Will be called by the Vidor library begin()
   pinPeripheral(30, PIO_AC_CLK);
   clockout(0, 1);
+  delay(1000);
 }
 
 // Multi-serial objects instantiation
