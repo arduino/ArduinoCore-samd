@@ -38,6 +38,8 @@ Uart::Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, Serco
   uc_padTX = _padTX;
   uc_pinRTS = _pinRTS;
   uc_pinCTS = _pinCTS;
+
+  breakValue = -1;
 }
 
 void Uart::begin(unsigned long baudrate)
@@ -79,6 +81,7 @@ void Uart::end()
   sercom->resetUART();
   rxBuffer.clear();
   txBuffer.clear();
+  breakValue = -1;
 }
 
 void Uart::flush()
@@ -117,6 +120,14 @@ void Uart::IrqHandler()
     // TODO: if (sercom->isFrameErrorUART()) ....
     // TODO: if (sercom->isParityErrorUART()) ....
     sercom->clearStatusUART();
+  }
+
+  if (sercom->isBreakReceiveUART()) {
+    // since the break duration can't be determine set the value to 0xffff
+    // to indicate an indefinite break like the USB CDC driver
+    breakValue = 0xffff;
+
+    sercom->acknowledgeUARTBreakReceive();
   }
 }
 
@@ -182,6 +193,36 @@ size_t Uart::write(const uint8_t data)
   }
 
   return 1;
+}
+
+void Uart::sendBreak(unsigned long duration)
+{
+  flush();
+  pinMode(uc_pinTX, OUTPUT);
+  digitalWrite(uc_pinTX, LOW);
+  delay(duration);
+  pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
+}
+
+int32_t Uart::readBreak()
+{
+  uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+
+  // disable interrupts,
+  // to avoid clearing a breakValue that might occur 
+  // while processing the current break value
+  __disable_irq();
+
+  int32_t ret = breakValue;
+
+  breakValue = -1;
+
+  if (enableInterrupts) {
+    // re-enable the interrupts
+    __enable_irq();
+  }
+
+  return ret;
 }
 
 SercomNumberStopBit Uart::extractNbStopBit(uint16_t config)
