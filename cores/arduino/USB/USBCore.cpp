@@ -694,7 +694,8 @@ uint32_t USBDeviceClass::send(uint32_t ep, const void *data, uint32_t len)
 		LastTransmitTimedOut[ep] = 0;
 
 		if (len >= EPX_SIZE) {
-			length = EPX_SIZE - 1;
+			usbd.epBank1EnableAutoZLP(ep);
+			length = EPX_SIZE;
 		} else {
 			length = len;
 		}
