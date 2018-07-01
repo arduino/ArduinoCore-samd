@@ -56,7 +56,7 @@ public:
   int getInterface(uint8_t* interfaceCount);
   int getDescriptor(USBSetup& setup);
   bool setup(USBSetup& setup);
-  void getShortName(char *iSerialNum);
+  uint8_t getShortName(char *iSerialNum);
 
 private:
   uint8_t lastIf;

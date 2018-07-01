@@ -98,12 +98,12 @@ static EPHandler *epHandlers[7] = {NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 // Send a USB descriptor string. The string is stored as a
 // plain ASCII string but is sent out as UTF-16 with the
 // correct 2-byte prefix
-bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
+bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint32_t maxlen)
 {
 	if (maxlen < 2)
 		return false;
 
-	uint8_t buffer[maxlen];
+	uint8_t* buffer = (uint8_t*)malloc(maxlen);
 	buffer[0] = strlen((const char*)string) * 2 + 2;
 	buffer[1] = 0x03;
 
@@ -114,7 +114,9 @@ bool USBDeviceClass::sendStringDescriptor(const uint8_t *string, uint8_t maxlen)
 		buffer[i] = 0;
 	}
 
-	return USBDevice.sendControl(buffer, i);
+	bool ret = USBDevice.sendControl(buffer, i);
+	free(buffer);
+	return ret;
 }
 
 bool _dry_run = false;
@@ -231,22 +233,28 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			return sendStringDescriptor(STRING_MANUFACTURER, setup.wLength);
 		}
 		else if (setup.wValueL == ISERIAL) {
-#ifdef PLUGGABLE_USB_ENABLED
+			char name[ISERIAL_MAX_LEN];
+			memset(name, 0, sizeof(name));
+			uint8_t idx = 0;
+#ifdef CDC_ENABLED
 			// from section 9.3.3 of the datasheet
 			#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
 			#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
 			#define SERIAL_NUMBER_WORD_2	*(volatile uint32_t*)(0x0080A044)
 			#define SERIAL_NUMBER_WORD_3	*(volatile uint32_t*)(0x0080A048)
 
-			char name[ISERIAL_MAX_LEN];
 			utox8(SERIAL_NUMBER_WORD_0, &name[0]);
 			utox8(SERIAL_NUMBER_WORD_1, &name[8]);
 			utox8(SERIAL_NUMBER_WORD_2, &name[16]);
 			utox8(SERIAL_NUMBER_WORD_3, &name[24]);
-
-			PluggableUSB().getShortName(&name[32]);
-			return sendStringDescriptor((uint8_t*)name, setup.wLength);
+			idx += 32;
 #endif
+#ifdef PLUGGABLE_USB_ENABLED
+			idx += PluggableUSB().getShortName(&name[idx]);
+#endif
+			if (idx > 0) {
+				return sendStringDescriptor((uint8_t*)name, setup.wLength);
+			}
 		}
 		else {
 			return false;

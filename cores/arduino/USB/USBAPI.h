@@ -77,7 +77,7 @@ public:
 	uint32_t sendControl(int /* ep */, const void *data, uint32_t len) { return sendControl(data, len); }
 	uint32_t recvControl(void *data, uint32_t len);
 	uint32_t sendConfiguration(uint32_t maxlen);
-	bool sendStringDescriptor(const uint8_t *string, uint8_t maxlen);
+	bool sendStringDescriptor(const uint8_t *string, uint32_t maxlen);
 	void initControl(int end);
 	uint8_t SendInterfaces(uint32_t* total);
 	void packMessages(bool val);
