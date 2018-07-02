@@ -41,7 +41,6 @@ class Uart : public HardwareSerial
     using Print::write; // pull in write(str) and write(buf, size) from Print
 
     void sendBreak(unsigned long duration);
-    int32_t readBreak();
 
     void IrqHandler();
 
@@ -51,7 +50,6 @@ class Uart : public HardwareSerial
     SERCOM *sercom;
     RingBuffer rxBuffer;
     RingBuffer txBuffer;
-    int32_t breakValue;
 
     uint8_t uc_pinRX;
     uint8_t uc_pinTX;

@@ -44,8 +44,7 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
                 SERCOM_USART_CTRLA_SAMPR(sampleRate);
 
   //Setting the Interrupt register
-  sercom->USART.INTENSET.reg =  SERCOM_USART_INTENSET_RXBRK |//Receive break
-                                SERCOM_USART_INTENSET_RXC   |//Received complete
+  sercom->USART.INTENSET.reg =	SERCOM_USART_INTENSET_RXC |  //Received complete
                                 SERCOM_USART_INTENSET_ERROR; //All others errors
 
   if ( mode == UART_INT_CLOCK )
@@ -70,7 +69,7 @@ void SERCOM::initUART(SercomUartMode mode, SercomUartSampleRate sampleRate, uint
 void SERCOM::initFrame(SercomUartCharSize charSize, SercomDataOrder dataOrder, SercomParityMode parityMode, SercomNumberStopBit nbStopBits)
 {
   //Setting the CTRLA register
-  sercom->USART.CTRLA.reg |=	SERCOM_USART_CTRLA_FORM( (parityMode == SERCOM_NO_PARITY ? 4 : 5) ) |
+  sercom->USART.CTRLA.reg |=	SERCOM_USART_CTRLA_FORM( (parityMode == SERCOM_NO_PARITY ? 0 : 1) ) |
                 dataOrder << SERCOM_USART_CTRLA_DORD_Pos;
 
   //Setting the CTRLB register
@@ -139,16 +138,6 @@ bool SERCOM::isUARTError()
 void SERCOM::acknowledgeUARTError()
 {
   sercom->USART.INTFLAG.bit.ERROR = 1;
-}
-
-bool SERCOM::isBreakReceiveUART()
-{
-  return sercom->USART.INTFLAG.bit.RXBRK;
-}
-
-void SERCOM::acknowledgeUARTBreakReceive()
-{
-  sercom->USART.INTFLAG.bit.RXBRK = 1;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()

@@ -164,8 +164,6 @@ class SERCOM
 		int writeDataUART(uint8_t data) ;
 		bool isUARTError() ;
 		void acknowledgeUARTError() ;
-		bool isBreakReceiveUART ( void ) ;
-		void acknowledgeUARTBreakReceive() ;
 		void enableDataRegisterEmptyInterruptUART();
 		void disableDataRegisterEmptyInterruptUART();
 
