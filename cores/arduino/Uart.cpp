@@ -184,6 +184,15 @@ size_t Uart::write(const uint8_t data)
   return 1;
 }
 
+void Uart::sendBreak(unsigned long duration)
+{
+  flush();
+  pinMode(uc_pinTX, OUTPUT);
+  digitalWrite(uc_pinTX, LOW);
+  delay(duration);
+  pinPeripheral(uc_pinTX, g_APinDescription[uc_pinTX].ulPinType);
+}
+
 SercomNumberStopBit Uart::extractNbStopBit(uint16_t config)
 {
   switch(config & HARDSER_STOP_BIT_MASK)
