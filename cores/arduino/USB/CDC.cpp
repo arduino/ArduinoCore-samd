@@ -18,12 +18,16 @@
 
 #include <Arduino.h>
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
+#include "CDC.h"
+#include "SAMD21_USBDevice.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 
 #ifdef CDC_ENABLED
+
+extern USBDevice_SAMD21G18x usbd;
 
 #define CDC_SERIAL_BUFFER_SIZE	256
 
@@ -51,46 +55,94 @@ static volatile LineInfo _usbLineInfo = {
 };
 
 static volatile int32_t breakValue = -1;
-
-static CDCDescriptor _cdcInterface = {
-	D_IAD(0, 2, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
-
-	// CDC communication interface
-	D_INTERFACE(CDC_ACM_INTERFACE, 1, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
-	D_CDCCS(CDC_HEADER, CDC_V1_10 & 0xFF, (CDC_V1_10>>8) & 0x0FF), // Header (1.10 bcd)
-
-	D_CDCCS4(CDC_ABSTRACT_CONTROL_MANAGEMENT, 6), // SET_LINE_CODING, GET_LINE_CODING, SET_CONTROL_LINE_STATE supported
-	D_CDCCS(CDC_UNION, CDC_ACM_INTERFACE, CDC_DATA_INTERFACE), // Communication interface is master, data interface is slave 0
-	D_CDCCS(CDC_CALL_MANAGEMENT, 1, 1), // Device handles call management (not)
-	D_ENDPOINT(USB_ENDPOINT_IN(CDC_ENDPOINT_ACM), USB_ENDPOINT_TYPE_INTERRUPT, 0x10, 0x10),
-
-	// CDC data interface
-	D_INTERFACE(CDC_DATA_INTERFACE, 2, CDC_DATA_INTERFACE_CLASS, 0, 0),
-	D_ENDPOINT(USB_ENDPOINT_OUT(CDC_ENDPOINT_OUT), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0),
-	D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_IN ), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0)
-};
 _Pragma("pack()")
 
-const void* _CDC_GetInterface(void)
-{
-	return &_cdcInterface;
-}
+// CDC
+#define CDC_ACM_INTERFACE	pluggedInterface	// CDC ACM
+#define CDC_DATA_INTERFACE	pluggedInterface+1	// CDC Data
+#define CDC_ENDPOINT_ACM	pluggedEndpoint
+#define CDC_ENDPOINT_OUT	pluggedEndpoint+1
+#define CDC_ENDPOINT_IN		pluggedEndpoint+2
 
-uint32_t _CDC_GetInterfaceLength(void)
-{
-	return sizeof(_cdcInterface);
-}
+#define CDC_RX CDC_ENDPOINT_OUT
+#define CDC_TX CDC_ENDPOINT_IN
 
-int CDC_GetInterface(uint8_t* interfaceNum)
+int Serial_::getInterface(uint8_t* interfaceNum)
 {
 	interfaceNum[0] += 2;	// uses 2
-	return USBDevice.sendControl(&_cdcInterface,sizeof(_cdcInterface));
+	CDCDescriptor _cdcInterface = {
+		D_IAD(pluggedInterface, 2, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
+
+		// CDC communication interface
+		D_INTERFACE(CDC_ACM_INTERFACE, 1, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
+		D_CDCCS(CDC_HEADER, CDC_V1_10 & 0xFF, (CDC_V1_10>>8) & 0x0FF), // Header (1.10 bcd)
+
+		D_CDCCS4(CDC_ABSTRACT_CONTROL_MANAGEMENT, 6), // SET_LINE_CODING, GET_LINE_CODING, SET_CONTROL_LINE_STATE supported
+		D_CDCCS(CDC_UNION, CDC_ACM_INTERFACE, CDC_DATA_INTERFACE), // Communication interface is master, data interface is slave 0
+		D_CDCCS(CDC_CALL_MANAGEMENT, 1, 1), // Device handles call management (not)
+		D_ENDPOINT(USB_ENDPOINT_IN(CDC_ENDPOINT_ACM), USB_ENDPOINT_TYPE_INTERRUPT, 0x10, 0x10),
+
+		// CDC data interface
+		D_INTERFACE(CDC_DATA_INTERFACE, 2, CDC_DATA_INTERFACE_CLASS, 0, 0),
+		D_ENDPOINT(USB_ENDPOINT_OUT(CDC_ENDPOINT_OUT), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0),
+		D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_IN), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0)
+	};
+
+	return USBDevice.sendControl(&_cdcInterface, sizeof(_cdcInterface));
 }
 
-bool CDC_Setup(USBSetup& setup)
+int Serial_::getDescriptor(USBSetup& setup)
+{
+	return 0;
+}
+
+static void utox8(uint32_t val, char* s) {
+	for (int i = 0; i < 8; i++) {
+		int d = val & 0XF;
+		val = (val >> 4);
+
+		s[7 - i] = d > 9 ? 'A' + d - 10 : '0' + d;
+	}
+}
+
+uint8_t Serial_::getShortName(char* name) {
+	// from section 9.3.3 of the datasheet
+	#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
+	#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
+	#define SERIAL_NUMBER_WORD_2	*(volatile uint32_t*)(0x0080A044)
+	#define SERIAL_NUMBER_WORD_3	*(volatile uint32_t*)(0x0080A048)
+
+	utox8(SERIAL_NUMBER_WORD_0, &name[0]);
+	utox8(SERIAL_NUMBER_WORD_1, &name[8]);
+	utox8(SERIAL_NUMBER_WORD_2, &name[16]);
+	utox8(SERIAL_NUMBER_WORD_3, &name[24]);
+	return 32;
+}
+
+void Serial_::handleEndpoint(int ep) {
+	if (ep == CDC_ENDPOINT_IN)
+	{
+		// NAK on endpoint IN, the bank is not yet filled in.
+		usbd.epBank1ResetReady(CDC_ENDPOINT_IN);
+		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_IN);
+	}
+	if (ep == CDC_ENDPOINT_ACM)
+	{
+		// NAK on endpoint IN, the bank is not yet filled in.
+		usbd.epBank1ResetReady(CDC_ENDPOINT_ACM);
+		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_ACM);
+	}
+}
+
+bool Serial_::setup(USBSetup& setup)
 {
 	uint8_t requestType = setup.bmRequestType;
 	uint8_t r = setup.bRequest;
+	uint8_t i = setup.wIndex;
+
+	if (CDC_ACM_INTERFACE != i) {
+		return false;
+	}
 
 	if (requestType == REQUEST_DEVICETOHOST_CLASS_INTERFACE)
 	{
@@ -103,6 +155,7 @@ bool CDC_Setup(USBSetup& setup)
 
 	if (requestType == REQUEST_HOSTTODEVICE_CLASS_INTERFACE)
 	{
+
 		if (r == CDC_SET_LINE_CODING)
 		{
 			USBDevice.recvControl((void*)&_usbLineInfo, 7);
@@ -126,16 +179,30 @@ bool CDC_Setup(USBSetup& setup)
 			{
 				cancelReset();
 			}
-			return false;
+			USBDevice.sendZlp(0);
 		}
 
 		if (CDC_SEND_BREAK == r)
 		{
 			breakValue = ((uint16_t)setup.wValueH << 8) | setup.wValueL;
-			return false;
+			USBDevice.sendZlp(0);
 		}
+		return true;
 	}
 	return false;
+}
+
+Serial_::Serial_(USBDeviceClass &_usb) : PluggableUSBModule(3, 2, epType), usb(_usb), stalled(false)
+{
+  epType[0] = USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0);
+  epType[1] = USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0);
+  epType[2] = USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0);
+  PluggableUSB().plug(this);
+}
+
+void Serial_::enableInterrupt() {
+	usbd.epBank1EnableTransferComplete(CDC_ENDPOINT_ACM);
+	usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);
 }
 
 void Serial_::begin(uint32_t /* baud_count */)

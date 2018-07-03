@@ -22,6 +22,7 @@
 
 #include "SAMD21_USBDevice.h"
 #include "PluggableUSB.h"
+#include "CDC.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -139,10 +140,6 @@ uint8_t USBDeviceClass::SendInterfaces(uint32_t* total)
 {
 	uint8_t interfaces = 0;
 
-#if defined(CDC_ENABLED)
-	total[0] += CDC_GetInterface(&interfaces);
-#endif
-
 #ifdef PLUGGABLE_USB_ENABLED
 	total[0] += PluggableUSB().getInterface(&interfaces);
 #endif
@@ -179,15 +176,6 @@ uint32_t USBDeviceClass::sendConfiguration(uint32_t maxlen)
 	packMessages(false);
 
 	return true;
-}
-
-static void utox8(uint32_t val, char* s) {
-	for (int i = 0; i < 8; i++) {
-		int d = val & 0XF;
-		val = (val >> 4);
-
-		s[7 - i] = d > 9 ? 'A' + d - 10 : '0' + d;
-	}
 }
 
 bool USBDeviceClass::sendDescriptor(USBSetup &setup)
@@ -236,19 +224,6 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			char name[ISERIAL_MAX_LEN];
 			memset(name, 0, sizeof(name));
 			uint8_t idx = 0;
-#ifdef CDC_ENABLED
-			// from section 9.3.3 of the datasheet
-			#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
-			#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
-			#define SERIAL_NUMBER_WORD_2	*(volatile uint32_t*)(0x0080A044)
-			#define SERIAL_NUMBER_WORD_3	*(volatile uint32_t*)(0x0080A048)
-
-			utox8(SERIAL_NUMBER_WORD_0, &name[0]);
-			utox8(SERIAL_NUMBER_WORD_1, &name[8]);
-			utox8(SERIAL_NUMBER_WORD_2, &name[16]);
-			utox8(SERIAL_NUMBER_WORD_3, &name[24]);
-			idx += 32;
-#endif
 #ifdef PLUGGABLE_USB_ENABLED
 			idx += PluggableUSB().getShortName(&name[idx]);
 #endif
@@ -287,23 +262,8 @@ void USBDeviceClass::standby() {
 
 void USBDeviceClass::handleEndpoint(uint8_t ep)
 {
-#if defined(CDC_ENABLED)
-	if (ep == CDC_ENDPOINT_IN)
-	{
-		// NAK on endpoint IN, the bank is not yet filled in.
-		usbd.epBank1ResetReady(CDC_ENDPOINT_IN);
-		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_IN);
-	}
-	if (ep == CDC_ENDPOINT_ACM)
-	{
-		// NAK on endpoint IN, the bank is not yet filled in.
-		usbd.epBank1ResetReady(CDC_ENDPOINT_ACM);
-		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_ACM);
-	}
-#endif
-
 #if defined(PLUGGABLE_USB_ENABLED)
-	// Empty
+	PluggableUSB().handleEndpoint(ep);
 #endif
 }
 
@@ -402,25 +362,13 @@ bool USBDeviceClass::configured()
 
 bool USBDeviceClass::handleClassInterfaceSetup(USBSetup& setup)
 {
-	uint8_t i = setup.wIndex;
-
-	#if defined(CDC_ENABLED)
-	if (CDC_ACM_INTERFACE == i)
-	{
-		if (CDC_Setup(setup) == false) {
-			sendZlp(0);
-		}
-		return true;
-	}
-	#endif
-
-	#if defined(PLUGGABLE_USB_ENABLED)
+#if defined(PLUGGABLE_USB_ENABLED)
 	bool ret = PluggableUSB().setup(setup);
 	if ( ret == false) {
 		sendZlp(0);
 	}
 	return ret;
-	#endif
+#endif
 
 	return false;
 }
@@ -429,14 +377,11 @@ uint32_t EndPoints[] =
 {
 	USB_ENDPOINT_TYPE_CONTROL,
 
-#ifdef CDC_ENABLED
-	USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0),           // CDC_ENDPOINT_ACM
-	USB_ENDPOINT_TYPE_BULK      | USB_ENDPOINT_OUT(0),               // CDC_ENDPOINT_OUT
-	USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0),                // CDC_ENDPOINT_IN
-#endif
-
 #ifdef PLUGGABLE_USB_ENABLED
-	//allocate 6 endpoints and remove const so they can be changed by the user
+	//allocate 9 endpoints and remove const so they can be changed by the user
+	0,
+	0,
+	0,
 	0,
 	0,
 	0,
@@ -844,10 +789,8 @@ bool USBDeviceClass::handleStandardSetup(USBSetup &setup)
 			initEndpoints();
 			_usbConfiguration = setup.wValueL;
 
-			#if defined(CDC_ENABLED)
-			// Enable interrupt for CDC reception from host (OUT packet)
-			usbd.epBank1EnableTransferComplete(CDC_ENDPOINT_ACM);
-			usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);
+			#ifdef CDC_ENABLED
+			SerialUSB.enableInterrupt();
 			#endif
 
 			sendZlp(0);

@@ -28,27 +28,6 @@
 #define PLUGGABLE_USB_ENABLED
 #endif
 
-#ifdef CDC_ENABLED
-#define CDC_INTERFACE_COUNT 2
-#define CDC_ENPOINT_COUNT 3
-#else
-#define CDC_INTERFACE_COUNT 0
-#define CDC_ENPOINT_COUNT 0
-#endif
-
-// CDC
-#define CDC_ACM_INTERFACE	0	// CDC ACM
-#define CDC_DATA_INTERFACE	1	// CDC Data
-#define CDC_FIRST_ENDPOINT  1
-#define CDC_ENDPOINT_ACM	1
-#define CDC_ENDPOINT_OUT	2
-#define CDC_ENDPOINT_IN		3
-
-#ifdef CDC_ENABLED
-#define CDC_RX CDC_ENDPOINT_OUT
-#define CDC_TX CDC_ENDPOINT_IN
-#endif
-
 #define ISERIAL_MAX_LEN        65
 
 // Defined string description

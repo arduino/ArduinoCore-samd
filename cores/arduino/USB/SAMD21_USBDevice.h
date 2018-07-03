@@ -36,7 +36,7 @@ public:
 	// ---------------------------
 
 	// Reset USB Device
-	void reset();
+	inline void reset();
 
 	// Enable
 	inline void enable()  { usb.CTRLA.bit.ENABLE = 1; }
@@ -79,7 +79,7 @@ public:
 	inline uint16_t frameNumber() { return usb.FNUM.bit.FNUM; }
 
 	// Load calibration values
-	void calibrate();
+	inline void calibrate();
 
 	// USB Device Endpoints function mapping
 	// -------------------------------------
