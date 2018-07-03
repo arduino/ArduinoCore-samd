@@ -235,20 +235,18 @@ public:
 
 class DoubleBufferedEPOutHandler : public EPHandler {
 public:
-	DoubleBufferedEPOutHandler(USBDevice_SAMD21G18x &usbDev, uint32_t endPoint, uint32_t bufferSize) :
+	enum { size = 64 };
+
+	DoubleBufferedEPOutHandler(USBDevice_SAMD21G18x &usbDev, uint32_t endPoint) :
 		usbd(usbDev),
-		ep(endPoint), size(bufferSize),
+		ep(endPoint),
 		current(0), incoming(0),
 		first0(0), last0(0), ready0(false),
 		first1(0), last1(0), ready1(false),
 		notify(false)
 	{
-		data0 = reinterpret_cast<uint8_t *>(malloc(size));
-		data1 = reinterpret_cast<uint8_t *>(malloc(size));
-
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetType(ep, 3); // BULK OUT
-
 		usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
 
 		release();
@@ -378,7 +376,6 @@ public:
 	void release() {
 		// Release OUT EP
 		usbd.epBank0EnableTransferComplete(ep);
-		usbd.epBank0SetMultiPacketSize(ep, size);
 		usbd.epBank0SetByteCount(ep, 0);
 		usbd.epBank0ResetReady(ep);
 	}
@@ -387,15 +384,14 @@ private:
 	USBDevice_SAMD21G18x &usbd;
 
 	const uint32_t ep;
-	const uint32_t size;
 	uint32_t current, incoming;
 
-	volatile uint8_t *data0;
+	__attribute__((__aligned__(4)))	volatile uint8_t data0[size];
 	uint32_t first0;
 	volatile uint32_t last0;
 	volatile bool ready0;
 
-	volatile uint8_t *data1;
+	__attribute__((__aligned__(4)))	volatile uint8_t data1[size];
 	uint32_t first1;
 	volatile uint32_t last1;
 	volatile bool ready1;
