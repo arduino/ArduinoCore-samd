@@ -319,35 +319,36 @@ public:
 			// Ack Transfer complete
 			usbd.epBank0AckTransferComplete(ep);
 			//usbd.epBank0AckTransferFailed(ep); // XXX
+			uint32_t received = usbd.epBank0ByteCount(ep);
+			if (received == 0) {
+				release();
+				return;
+			}
 
 			// Update counters and swap banks for non-ZLP's
 			if (incoming == 0) {
-				last0 = usbd.epBank0ByteCount(ep);
-				if (last0 != 0) {
-					incoming = 1;
-					usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
-					synchronized {
-						ready0 = true;
-						if (ready1) {
-							notify = true;
-							return;
-						}
-						notify = false;
+				last0 = received;
+				incoming = 1;
+				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
+				synchronized {
+					ready0 = true;
+					if (ready1) {
+						notify = true;
+						return;
 					}
+					notify = false;
 				}
 			} else {
-				last1 = usbd.epBank0ByteCount(ep);
-				if (last1 != 0) {
-					incoming = 0;
-					usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
-					synchronized {
-						ready1 = true;
-						if (ready0) {
-							notify = true;
-							return;
-						}
-						notify = false;
+				last1 = received;
+				incoming = 0;
+				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
+				synchronized {
+					ready1 = true;
+					if (ready0) {
+						notify = true;
+						return;
 					}
+					notify = false;
 				}
 			}
 			release();
