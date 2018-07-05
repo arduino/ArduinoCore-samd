@@ -224,6 +224,13 @@ void enableFpgaClock() {
   delay(1000);
 }
 
+void disableFpgaClock() {
+  // Will be called by the Vidor library end()
+  pinPeripheral(30, PIO_INPUT);
+  //clockout(0, 1);
+  delay(1000);
+}
+
 // Multi-serial objects instantiation
 SERCOM sercom0(SERCOM0);
 SERCOM sercom1(SERCOM1);
