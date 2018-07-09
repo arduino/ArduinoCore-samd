@@ -19,6 +19,8 @@
 #ifndef __USBDESC_H__
 #define __USBDESC_H__
 
+#ifdef USBCON
+
 // CDC or HID can be enabled together.
 #ifndef CDC_DISABLED
 #define CDC_ENABLED
@@ -34,5 +36,7 @@
 #define IMANUFACTURER	1
 #define IPRODUCT    2
 #define ISERIAL    3
+
+#endif /* USBCON */
 
 #endif /* __USBDESC_H__ */
