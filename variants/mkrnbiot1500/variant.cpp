@@ -233,6 +233,10 @@ void initVariant() {
   // put SARA modem in reset on start to conserve power if it's not used
   pinMode(SARA_RESETN, OUTPUT);
   digitalWrite(SARA_RESETN, HIGH);
+
+  // set RTS to LOW
+  pinMode(SARA_RTS, OUTPUT);
+  digitalWrite(SARA_RTS, LOW);
 }
 
 // Serial1
@@ -244,7 +248,7 @@ void SERCOM5_Handler()
 }
 
 // SerialSARA
-Uart Serial2(&sercom2, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX, PIN_SERIAL2_RTS, PIN_SERIAL2_CTS);
+Uart Serial2(&sercom2, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX);
 
 void SERCOM2_Handler()
 {
