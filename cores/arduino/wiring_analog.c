@@ -318,21 +318,16 @@ float readInternalTemperature()
 {
   // Save ADC settings
   uint16_t oldReadResolution = ADC->CTRLB.reg;
-  uint16_t oldAveraging = ADC->AVGCTRL.reg;
   uint16_t oldSampling = ADC->SAMPCTRL.reg;
   uint16_t oldReferenceGain = ADC->INPUTCTRL.bit.GAIN;
   uint16_t oldReferenceSelect = ADC->REFCTRL.bit.REFSEL;
 
-  // Set to 16 bits resolution
-  ADC->CTRLB.reg = ADC_CTRLB_RESSEL_16BIT | ADC_CTRLB_PRESCALER_DIV256;
+  // Set to 12 bits resolution
+  ADC->CTRLB.reg = ADC_CTRLB_RESSEL_12BIT | ADC_CTRLB_PRESCALER_DIV256;
   syncADC();
 
   // Ensure we are sampling slowly
   ADC->SAMPCTRL.reg = ADC_SAMPCTRL_SAMPLEN(0x3f);
-  syncADC();
-
-  // Perform oversampling to enable 16 bits resolution
-  ADC->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1024 | ADC_AVGCTRL_ADJRES(0);
   syncADC();
 
   // Set ADC reference to internal 1v
@@ -378,8 +373,6 @@ float readInternalTemperature()
   // Restore pervious ADC settings
   ADC->CTRLB.reg = oldReadResolution;
   syncADC();
-  ADC->AVGCTRL.reg = oldAveraging;
-  syncADC();
   ADC->SAMPCTRL.reg = oldSampling;
   syncADC();
   ADC->INPUTCTRL.bit.GAIN = oldReferenceGain;
@@ -390,14 +383,12 @@ float readInternalTemperature()
   uint8_t roomInteger = (*(uint32_t*)FUSES_ROOM_TEMP_VAL_INT_ADDR & FUSES_ROOM_TEMP_VAL_INT_Msk) >> FUSES_ROOM_TEMP_VAL_INT_Pos;
   uint8_t roomDecimal = (*(uint32_t*)FUSES_ROOM_TEMP_VAL_DEC_ADDR & FUSES_ROOM_TEMP_VAL_DEC_Msk) >> FUSES_ROOM_TEMP_VAL_DEC_Pos;
   int32_t roomReading = ((*(uint32_t*)FUSES_ROOM_ADC_VAL_ADDR & FUSES_ROOM_ADC_VAL_Msk) >> FUSES_ROOM_ADC_VAL_Pos);
-  roomReading = mapResolution(roomReading, 12, 16); // Factory calibration was done at 12 bits
   int32_t roomTemperature = 1000 * roomInteger + 100 * roomDecimal;
 
   // Factory hot temperature readings
   uint8_t hotInteger = (*(uint32_t*)FUSES_HOT_TEMP_VAL_INT_ADDR & FUSES_HOT_TEMP_VAL_INT_Msk) >> FUSES_HOT_TEMP_VAL_INT_Pos;
   uint8_t hotDecimal = (*(uint32_t*)FUSES_HOT_TEMP_VAL_DEC_ADDR & FUSES_HOT_TEMP_VAL_DEC_Msk) >> FUSES_HOT_TEMP_VAL_DEC_Pos;
   int32_t hotReading = ((*(uint32_t*)FUSES_HOT_ADC_VAL_ADDR & FUSES_HOT_ADC_VAL_Msk) >> FUSES_HOT_ADC_VAL_Pos);
-  hotReading = mapResolution(hotReading, 12, 16); // Factory calibration was done at 12 bits
   int32_t hotTemperature = 1000 * hotInteger + 100 * hotDecimal;
 
   // Linear interpolation of temperature using factory room temperature and hot temperature
