@@ -95,9 +95,7 @@ extern "C"
 #define PIN_A4               (PIN_A0 + 4)
 #define PIN_A5               (PIN_A0 + 5)
 #define PIN_A6               (PIN_A0 + 6)
-#define PIN_A7               (PIN_A0 + 7)
-#define PIN_A8               (PIN_A0 + 8)
-#define PIN_A9               (PIN_A0 + 9)
+
 #define PIN_DAC0             (14ul)
 #define PIN_DAC1             PIN_A1
 
@@ -108,9 +106,6 @@ static const uint8_t A3  = PIN_A3;
 static const uint8_t A4  = PIN_A4;
 static const uint8_t A5  = PIN_A5;
 static const uint8_t A6  = PIN_A6 ;
-static const uint8_t A7  = PIN_A7 ;
-static const uint8_t A8  = PIN_A8 ;
-static const uint8_t A9  = PIN_A9 ;
 
 static const uint8_t DAC0 = PIN_DAC0;
 static const uint8_t DAC1 = PIN_DAC1;
@@ -118,7 +113,7 @@ static const uint8_t DAC1 = PIN_DAC1;
 #define ADC_RESOLUTION		12
 
 // Other pins
-#define PIN_ATN              (38ul)
+#define PIN_ATN              (31ul)
 static const uint8_t ATN = PIN_ATN;
 
 /*
@@ -134,7 +129,7 @@ static const uint8_t ATN = PIN_ATN;
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 2
+#define SPI_INTERFACES_COUNT 1
 
 #define PIN_SPI_MISO         (22u)
 #define PIN_SPI_MOSI         (23u)
@@ -148,27 +143,13 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
-//TODO: SPI1
-#define PIN_SPI1_MISO         (22u)
-#define PIN_SPI1_MOSI         (23u)
-#define PIN_SPI1_SCK          (24u)
-#define PERIPH_SPI1           sercom5
-#define PAD_SPI1_TX           SPI_PAD_0_SCK_1
-#define PAD_SPI1_RX           SERCOM_RX_PAD_3
-
-static const uint8_t SS1   = 10 ;
-static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
-static const uint8_t MISO1 = PIN_SPI1_MISO ;
-static const uint8_t SCK1  = PIN_SPI1_SCK ;
-
-
 /*
  * Wire Interfaces
  */
 #define WIRE_INTERFACES_COUNT 1
 
-#define PIN_WIRE_SDA         (20u)
-#define PIN_WIRE_SCL         (21u)
+#define PIN_WIRE_SDA         (21u)
+#define PIN_WIRE_SCL         (22u)
 #define PERIPH_WIRE          sercom2
 #define WIRE_IT_HANDLER      SERCOM2_Handler
 
@@ -191,17 +172,17 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define I2S_CLOCK_GENERATOR 3
 
 #define PIN_I2S_SDO          (5u)
-#define PIN_I2S_SDI          (23u)
-#define PIN_I2S_SCK         (16u)
-#define PIN_I2S_FS          (22u)
+#define PIN_I2S_SDI          PIN_SPI_MOSI
+#define PIN_I2S_SCK          PIN_A2
+#define PIN_I2S_FS           PIN_SPI_MISO
 
 //QSPI Pins
-#define PIN_QSPI_SCK    (37u)
-#define PIN_QSPI_CS     (38u)
-#define PIN_QSPI_IO0    (39u)
-#define PIN_QSPI_IO1    (40u)
-#define PIN_QSPI_IO2    (41u)
-#define PIN_QSPI_IO3    (42u)
+#define PIN_QSPI_SCK    (34u)
+#define PIN_QSPI_CS     (35u)
+#define PIN_QSPI_IO0    (36u)
+#define PIN_QSPI_IO1    (37u)
+#define PIN_QSPI_IO2    (38u)
+#define PIN_QSPI_IO3    (39u)
 
 //TODO: meaningful value for this
 #define VARIANT_QSPI_BAUD_DEFAULT 5000000
