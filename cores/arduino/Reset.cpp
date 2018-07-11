@@ -69,6 +69,7 @@ reset:
 static int ticks = -1;
 
 void initiateReset(int _ticks) {
+	resetExternalChip();
 	ticks = _ticks;
 }
 
