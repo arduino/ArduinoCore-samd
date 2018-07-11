@@ -347,7 +347,7 @@ adafruit_itsybitsy_m4.menu.cache.off.build.cache_flags=
 
 # Adafruit Feather M4 (SAMD51)
 # ------------------------------
-adafruit_feather_m4.name=Adafruit Feather M4 (SAMD51)
+adafruit_feather_m4.name=Adafruit Feather M4 Express (SAMD51)
 adafruit_feather_m4.vid.0=0x239A
 adafruit_feather_m4.pid.0=0x8022
 adafruit_feather_m4.vid.1=0x239A
