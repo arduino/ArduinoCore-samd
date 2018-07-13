@@ -863,6 +863,7 @@ void USBDeviceClass::ISRHandler()
 
 		USBSetup *setup = reinterpret_cast<USBSetup *>(udd_ep_out_cache_buffer[0]);
 
+		delayMicroseconds(10);
 		/* Clear the Bank 0 ready flag on Control OUT */
 		// The RAM Buffer is empty: we can receive data
 		usbd.epBank0ResetReady(0);
