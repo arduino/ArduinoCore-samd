@@ -64,7 +64,12 @@
     #endif
 
     // #define NWK_ENABLE_SECURITY // Enable AES encrypted comms.
-    #define APP_BUFFER_SIZE     (NWK_MAX_PAYLOAD_SIZE - NWK_SECURITY_MIC_SIZE)
+
+    #ifdef NWK_ENABLE_SECURITY
+        #define APP_BUFFER_SIZE     (NWK_MAX_PAYLOAD_SIZE - NWK_SECURITY_MIC_SIZE)
+    #else
+        #define APP_BUFFER_SIZE      NWK_MAX_PAYLOAD_SIZE
+    #endif
 
     #include "lwm.h"
     #include "lwm/sys/sys.h"
@@ -215,6 +220,11 @@
 
             static void setRGB(byte R, byte G, byte B);
             static void setRGB(byte R, byte G, byte B, bool forceHandling);
+
+            /**
+             * Cycles through Red, Green, and Blue components of the RGB LED.
+             */
+            static void rgbTest();
 
             static void updateNetworkingConfig();
 

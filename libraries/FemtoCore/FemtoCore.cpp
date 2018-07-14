@@ -205,21 +205,25 @@ void FemtoCore::_setupRGB() {
     pinMode(FEMTO_LED_B, OUTPUT);
 
     #ifdef DEBUG
-        // Do a little light show to assert functionality.
-        FemtoCore::setRGB(255, 0, 0); // Red
-        delay(250);
-
-        FemtoCore::setRGB(0, 255, 0); // Green
-        delay(250);
-
-        FemtoCore::setRGB(0, 0, 255); // Blue
-        delay(250);
-
-        // Turn off RGB LED
-        FemtoCore::setRGB(0, 0, 0);
-        delay(250);
+        FemtoCore::rgbTest();
     #endif
 
+}
+
+void FemtoCore::rgbTest() {
+    // Do a little light show to assert functionality.
+    FemtoCore::setRGB(255, 0, 0); // Red
+    delay(250);
+
+    FemtoCore::setRGB(0, 255, 0); // Green
+    delay(250);
+
+    FemtoCore::setRGB(0, 0, 255); // Blue
+    delay(250);
+
+    // Turn off RGB LED
+    FemtoCore::setRGB(0, 0, 0);
+    delay(250);
 }
 
 void FemtoCore::_setupSerial() {
@@ -447,13 +451,15 @@ void FemtoCore::send(char* data, int destNodeAddress) {
 
 void FemtoCore::send(char* data, int destNodeAddress, int destNodeEndpoint, bool requireConfirm) {
     // Turn data into chunks of APP_BUFFER_SIZE.
-    int buffer_size = sizeof(data); // Measure how many bytes occupied by data.
+    int buffer_size = strlen(data); // Measure how many bytes occupied by data.
     int timeout = 0;
     char* tempBuffer = "";
 
     if (buffer_size >= APP_BUFFER_SIZE) {
         #ifdef DEBUG
-            Serial.println("FemtoCore::send() chunked. Processing.");
+            Serial.print("FemtoCore::send() chunked, max buffer size is ");
+            Serial.print(APP_BUFFER_SIZE);
+            Serial.println(". Processing.");
         #endif
         int start_index = 0;
         int leftover_size = buffer_size % APP_BUFFER_SIZE;
@@ -493,12 +499,18 @@ void FemtoCore::send(char* data, int destNodeAddress, int destNodeEndpoint, bool
 
     } else {
         #ifdef DEBUG
-            Serial.println("FemtoCore::send() non-chunked. Processing.");
+            Serial.print("FemtoCore::send() non-chunked, max buffer size is ");
+            Serial.print(APP_BUFFER_SIZE);
+            Serial.print(". Processing ");
+            Serial.print(data);
+            Serial.print(" (size ");
+            Serial.print(strlen(data));
+            Serial.println(").");
         #endif
-        char buffer[APP_BUFFER_SIZE];
-        memcpy(buffer, data, sizeof(data) + 1);
-
-        _networkingSendMessage(buffer, destNodeAddress, destNodeEndpoint, requireConfirm);
+        
+        char charData[APP_BUFFER_SIZE];
+        memcpy(charData, data, strlen(data) + 1);
+        _networkingSendMessage(charData, destNodeAddress, destNodeEndpoint, requireConfirm);
 
     }
 
@@ -525,7 +537,10 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
 
     #ifdef DEBUG
         Serial.print("FemtoCore::_networkingSendMessage() sending message ");
-        Serial.println(bufferData);
+        Serial.print(bufferData);
+        Serial.print(" (size ");
+        Serial.print(strlen(bufferData));
+        Serial.println(").");
     #endif
 
     // Broadcast types:
@@ -552,7 +567,7 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
     #endif
 
     _sendRequest.data          = (uint8_t*)bufferData;
-    _sendRequest.size          = sizeof(bufferData);
+    _sendRequest.size          = strlen(bufferData);
 
     if (requireConfirm) {
         _sendRequest.options      |= NWK_IND_OPT_ACK_REQUESTED; // Assert acknowledge request flag.
