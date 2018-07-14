@@ -449,6 +449,14 @@ void FemtoCore::send(char* data, int destNodeAddress) {
     send(data, destNodeAddress, _appEndpoint, true);
 }
 
+void FemtoCore::stream(char* data) {
+    send(data, _destAddress, _appEndpoint, false);
+}
+
+void FemtoCore::stream(char* data, int destNodeAddress) {
+    send(data, _destAddress, _appEndpoint, false);
+}
+
 void FemtoCore::send(char* data, int destNodeAddress, int destNodeEndpoint, bool requireConfirm) {
     // Turn data into chunks of APP_BUFFER_SIZE.
     int buffer_size = strlen(data); // Measure how many bytes occupied by data.
@@ -634,19 +642,19 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
             Serial.println(req->status, HEX);
         #endif
 
-        // #ifdef IS_FEMTOBEACON_COIN
-        //     ++_networking_error_count;
-        //     setRGB(255, 0, 0, false); // Red
+        #ifdef IS_FEMTOBEACON_COIN
+            ++_networking_error_count;
+            setRGB(255, 0, 0, false); // Red
 
-        //     if (_networking_error_count > 1000) {
-        //         #ifdef DEBUG
-        //             Serial.println("FemtoCore::_networkingSendMessageConfirm() NWK_ERROR_STATUS ...Going to sleep.");
-        //         #endif
+            if (_networking_error_count > 1000) {
+                #ifdef DEBUG
+                    Serial.println("FemtoCore::_networkingSendMessageConfirm() NWK_ERROR_STATUS ...Going to sleep.");
+                #endif
 
-        //         _networking_error_count = 0;
-        //         sleep();
-        //     }
-        // #endif
+                _networking_error_count = 0;
+                sleep();
+            }
+        #endif
     }
 
 
@@ -670,7 +678,13 @@ void FemtoCore::handleSerialRx() {
         Serial.print("FemtoCore::handleSerialRx() input data is: ");
         Serial.println(input_string);
     #endif
-    send(input_string);
+
+    if (inputString.startsWith("STREAM:")) {
+        input_string = const_cast<char*>(inputString.substring(7).c_str());
+        stream(input_string);
+    } else {
+        send(input_string);
+    }
 
     FemtoCore::stringComplete = false;
     inputString = "";

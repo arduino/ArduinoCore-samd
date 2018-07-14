@@ -245,6 +245,9 @@
             static void send(char* data, int destNodeAddress);
             static void send(char* data, int destNodeAddress, int destNodeEndpoint, bool requireConfirm);
 
+            static void stream(char* data);
+            static void stream(char* data, int destNodeAddress);
+
             static void sleep();
             static void wakeUp();
 
