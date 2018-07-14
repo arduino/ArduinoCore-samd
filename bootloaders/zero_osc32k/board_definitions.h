@@ -72,13 +72,13 @@
 /*
  * LEDs definitions
  */
-#define BOARD_LED_PORT                    (0)
-#define BOARD_LED_PIN                     (17)
+#define BOARD_LED_PORT                    (8 / 32)
+#define BOARD_LED_PIN                     (8) // PA07 is PORT A, pin 8
 
-#define BOARD_LEDRX_PORT                  (1)
-#define BOARD_LEDRX_PIN                   (3)
+// #define BOARD_LEDRX_PORT                  (1)
+// #define BOARD_LEDRX_PIN                   (3)
 
-#define BOARD_LEDTX_PORT                  (0)
-#define BOARD_LEDTX_PIN                   (27)
+// #define BOARD_LEDTX_PORT                  (0)
+// #define BOARD_LEDTX_PIN                   (27)
 
 #endif // _BOARD_DEFINITIONS_H_

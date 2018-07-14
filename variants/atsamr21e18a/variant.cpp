@@ -21,6 +21,7 @@
  * Pins descriptions
  * Note: FSYNC is mislabeled as "18/INT" on FemtoBeacon coins r2.0.0 silkscreen
  * Note: INT is mislabeled as "19/FSYNC" on FemtoBeacon coins r2.0.0 silkscreen
+ * Note: FSYNC and INT labels are correct on FemtoBeacon coins r2.0.7 and up. RGB LEDs available on r2.0.7 and up.
  */
 const PinDescription g_APinDescription[]=
 {
@@ -38,7 +39,7 @@ const PinDescription g_APinDescription[]=
 /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | LEDs & button    |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 2          | N/A              |  PA19  | LED0/INTA       | EIC/EXTINT[3]  PTC/X[7]  SERCOM1/PAD[3]  SERCOM3_ALT/PAD[3] *TC3/WO[1]  TCC0_ALT/WO[3]  I2S/SD[0]  AC/CMP[1]
+ * | 2          | N/A              |  PA19  | INTA            | EIC/EXTINT[3]  PTC/X[7]  SERCOM1/PAD[3]  SERCOM3_ALT/PAD[3] *TC3/WO[1]  TCC0_ALT/WO[3]  I2S/SD[0]  AC/CMP[1]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
   { PORTA, 19, PIO_DIGITAL, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM), No_ADC_Channel, PWM3_CH1, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // TC3/WO[1]
@@ -57,8 +58,8 @@ const PinDescription g_APinDescription[]=
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | Pin number | Analog pins      |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
- * | 5          |                  |  PA06  | A0              | EIC/EXTINT[6] *ADC/AIN[6]  AC/AIN[2]  PTC/Y[4]  SERCOM0_ALT/PAD[2]  TCC1/WO[0]
- * | 6          |                  |  PA07  | A1              | EIC/EXTINT[7] *ADC/AIN[7]  AC/AIN[3]  PTC/Y[5]  SERCOM0_ALT/PAD[3]  TCC1/WO[1]  I2S/SD[0]
+ * | 5          |                  |  PA06  | A0/LED Red      | EIC/EXTINT[6] *ADC/AIN[6]  AC/AIN[2]  PTC/Y[4]  SERCOM0_ALT/PAD[2]  TCC1/WO[0]
+ * | 6          |                  |  PA07  | A1/LED Green    | EIC/EXTINT[7] *ADC/AIN[7]  AC/AIN[3]  PTC/Y[5]  SERCOM0_ALT/PAD[3]  TCC1/WO[1]  I2S/SD[0]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  */
   { PORTA,  6, PIO_ANALOG, PIN_ATTR_ANALOG, ADC_Channel6, PWM1_CH0, TCC1_CH0, EXTERNAL_INT_6 }, // ADC/AIN[6]
@@ -116,7 +117,7 @@ const PinDescription g_APinDescription[]=
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
  * | 19         |                  |  PA09  | RF1             | FECTRL[0]/DIG1   peripheral F
  * | 20         |                  |  PA12  | RF2             | FECTRL[1]/DIG2   peripheral F
- * | 21         |                  |  PA27  |                 | EXTINT[15]  SERCOM3/PAD[0]   GCLK_IO[0]
+ * | 21         |                  |  PA27  | LED Blue        | EXTINT[15]  SERCOM3/PAD[0]   GCLK_IO[0]
  * | 22         |                  |  PA30  | SWCLK           | SERCOM1/PAD[2] (SERCOM_ALT, peripheral D), TCC1/WO[0]
  * | 23         |                  |  PA31  | SWDIO           | SERCOM1/PAD[3] (SERCOM_ALT, peripheral D), TCC1/WO[1]
  * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------

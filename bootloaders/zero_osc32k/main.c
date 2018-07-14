@@ -179,6 +179,12 @@ int main(void)
 
   DEBUG_PIN_LOW;
 
+  /* Initialize LEDs */
+  // LED_init();
+  // LED_on();
+  /* Start the sys tick (1 ms) */
+  // SysTick_Config(1000);
+
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
   {
@@ -214,3 +220,8 @@ int main(void)
 #endif
   }
 }
+
+// void SysTick_Handler(void)
+// {
+//   LED_pulse();
+// }

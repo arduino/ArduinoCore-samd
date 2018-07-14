@@ -75,7 +75,7 @@ CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x61 -DUSB_PID_LOW=0x24 -DUSB_VID_
 # Genuino Zero (PID == 0x024D)
 # CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D -DUSB_VID_LOW=0x41 -DUSB_VID_HIGH=0x23
 
-INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"ATMEL/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.0.0/CMSIS/Device/ATMEL/"
+INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"ATMEL/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.0.0/CMSIS/Device/ATMEL/" -I"ASF/"
 
 
 # -----------------------------------------------------------------------------
