@@ -1,7 +1,6 @@
 #ifndef FemtoCore_h
     #define FemtoCore_h
 
-
     #include <stdio.h>
     #include <string.h>
     #include <stdlib.h>
@@ -28,33 +27,32 @@
 
 
     /** BEGIN mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
-    // #ifdef IS_FEMTOBEACON_COIN
-        //#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
+    
+    //#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
 
-        #include <I2Cdev.h>
-        #include <MPU60X0.h>
+    #include <I2Cdev.h>
+    #include <MPU60X0.h>
 
-        #include <AK8963.h>
-        #include <AP_Baro_MS5611.h>  //Uncomment for APM2.5
+    #include <AK8963.h>
+    #include <AP_Baro_MS5611.h>  //Uncomment for APM2.5
 
 
-        //These are mandatory
-        #include <AP_Math_freeimu.h>
-        #include <Butter.h>    // Butterworth filter
-        #include <iCompass.h>
-        #include <MovingAvarageFilter.h>
+    //These are mandatory
+    #include <AP_Math_freeimu.h>
+    #include <Butter.h>    // Butterworth filter
+    #include <iCompass.h>
+    #include <MovingAvarageFilter.h>
 
-        #include "DebugUtils.h"
-        #include "CommunicationUtils.h"
-        #include "DCM.h"
-        #include "FilteringScheme.h"
-        #include "RunningAverage.h"
-        #include "FreeIMU.h"
+    #include "DebugUtils.h"
+    #include "CommunicationUtils.h"
+    #include "DCM.h"
+    #include "FilteringScheme.h"
+    #include "RunningAverage.h"
+    #include "FreeIMU.h"
 
-        // Arduino Zero: no eeprom
-        #define HAS_EEPPROM 0
+    // Arduino Zero: no eeprom
+    #define HAS_EEPPROM 0
 
-    // #endif
     /** END mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
 
 
@@ -145,6 +143,7 @@
              */
             FemtoCore();
 
+            static volatile bool is_femtobeacon_coin;
             // Sensor peripherals (9-DoF Sensor, Precision Altimeter)
             // ... FreeIMU Serial commands.
 
@@ -186,9 +185,10 @@
             /** RTC Stuff BOF **/
             static RTCZero rtc;
             /** RTC Stuff EOF **/
-            // #ifdef IS_FEMTOBEACON_COIN
+
+            /** FreeIMU Stuff BOF **/
             static FreeIMU freeIMU;
-            // #endif
+            /** FreeIMU Stuff EOF **/
             
 
             /**
@@ -198,6 +198,7 @@
              * @param int appPanID The broadcast PAN ID we belong to.
              * @param int appChannel The channel to use (think walkie-talkie channels.)
              * @param char* appSecurityKey The char array of characters to use as the encryption security key when AES option is enabled.
+             * @param bool is_coin If true, we identify as a FemtoBeacon coin (with sensors). False means it's a dongle (no sensors).
              */
             static void init(
                 int appAddress, 
@@ -205,7 +206,8 @@
                 int appEndpoint, 
                 int appPanID, 
                 int appChannel, 
-                char* appSecurityKey);
+                char* appSecurityKey, 
+                bool is_coin);
 
             static void setAddress(int appAddress);
             static int  getAddress();

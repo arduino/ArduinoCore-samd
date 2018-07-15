@@ -1,5 +1,6 @@
 #include "FemtoCore.h"
-// #include "FreeIMU.h"
+
+volatile bool FemtoCore::is_femtobeacon_coin = false;
 
 volatile int FemtoCore::_appAddress;
 volatile int FemtoCore::_destAddress;
@@ -37,17 +38,16 @@ volatile bool FemtoCore::_should_be_sleeping            = false;
 
 volatile bool FemtoCore::_sensor_is_on                  = false;
 
-// String inputString              = "";
 volatile bool FemtoCore::stringComplete  = false;      // whether the string is complete
 
 RTCZero FemtoCore::rtc;
 
-FreeIMU FemtoCore::freeIMU;
+FreeIMU FemtoCore::freeIMU = FreeIMU();
 
 
 FemtoCore::FemtoCore() {}
 
-void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPanID, int appChannel, char* appSecurityKey)
+void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPanID, int appChannel, char* appSecurityKey, bool is_coin)
 {
     _appAddress  = appAddress;
     _destAddress = destAddress;
@@ -55,6 +55,8 @@ void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPa
     _appPanID    = appPanID;
     _appChannel  = appChannel;
     _appSecurityKey = appSecurityKey;
+
+    is_femtobeacon_coin = is_coin;
 
     #ifdef ENABLE_SERIAL
         _setupSerial();
@@ -81,9 +83,9 @@ void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPa
     _setupRTC();
     _setupMeshNetworking();
 
-    #ifdef IS_FEMTOBEACON_COIN
+    if (is_femtobeacon_coin) {
         _setupSensors();
-    #endif
+    }
 
     #ifdef DEBUG
         Serial.println("FemtoCore::init() complete.");
@@ -357,14 +359,15 @@ void FemtoCore::_setupRTC() {
 }
 
 void FemtoCore::_setupSensors() {
-    freeIMU = FreeIMU();
+    Wire.begin();
+    
     #ifdef DEBUG
-        Serial.print("FemtoCore::_setupSensors() initializing... ");
+        Serial.println("FemtoCore::_setupSensors() initializing... ");
     #endif
     freeIMU.init(true);
 
     #ifdef DEBUG
-        Serial.println("OK!");
+        Serial.println("FemtoCore::_setupSensors() complete.");
     #endif
 }
 
@@ -737,7 +740,7 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
         #endif
 
         // @TODO See if there is an network change event we can use to determine if we go to sleep().
-        // #ifdef IS_FEMTOBEACON_COIN
+        // if (is_femtobeacon_coin) {
         //     ++_networking_error_count;
         //     setRGB(255, 0, 0, false); // Red
 
@@ -749,7 +752,7 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
         //         _networking_error_count = 0;
         //         sleep();
         //     }
-        // #endif
+        // }
     }
 
 
@@ -873,7 +876,7 @@ void FemtoCore::sleep() {
         // Serial.end();
     #endif
 
-    #ifdef IS_FEMTOBEACON_COIN
+    if (is_femtobeacon_coin) {
 
         // freeIMU.RESET();
         // freeIMU.RESET_Q();
@@ -883,7 +886,7 @@ void FemtoCore::sleep() {
             Serial.println("FemtoCore::wakeUp() Sensors reset.");
             // Serial.end();
         #endif
-    #endif
+    }
 
     // Reset RGB pins, and tick
     _setupRGB();
