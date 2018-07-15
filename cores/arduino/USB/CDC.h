@@ -143,7 +143,6 @@ protected:
     bool setup(USBSetup& setup);
     uint8_t getShortName(char* name);
     void handleEndpoint(int ep);
-    void enableInterrupt();
 
 friend USBDeviceClass;
 

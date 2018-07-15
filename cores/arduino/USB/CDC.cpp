@@ -27,8 +27,6 @@
 
 #ifdef CDC_ENABLED
 
-extern USBDevice_SAMD21G18x usbd;
-
 #define CDC_SERIAL_BUFFER_SIZE	256
 
 /* For information purpose only since RTS is not always handled by the terminal application */
@@ -184,11 +182,6 @@ Serial_::Serial_(USBDeviceClass &_usb) : PluggableUSBModule(3, 2, epType), usb(_
   epType[1] = USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0);
   epType[2] = USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0);
   PluggableUSB().plug(this);
-}
-
-void Serial_::enableInterrupt() {
-	usbd.epBank1EnableTransferComplete(CDC_ENDPOINT_ACM);
-	usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);
 }
 
 void Serial_::begin(uint32_t /* baud_count */)
