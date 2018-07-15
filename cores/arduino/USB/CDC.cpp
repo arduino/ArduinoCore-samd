@@ -58,11 +58,11 @@ static volatile int32_t breakValue = -1;
 _Pragma("pack()")
 
 // CDC
-#define CDC_ACM_INTERFACE	pluggedInterface	// CDC ACM
-#define CDC_DATA_INTERFACE	pluggedInterface+1	// CDC Data
-#define CDC_ENDPOINT_ACM	pluggedEndpoint
-#define CDC_ENDPOINT_OUT	pluggedEndpoint+1
-#define CDC_ENDPOINT_IN		pluggedEndpoint+2
+#define CDC_ACM_INTERFACE  pluggedInterface              // CDC ACM
+#define CDC_DATA_INTERFACE uint8_t(pluggedInterface + 1) // CDC Data
+#define CDC_ENDPOINT_ACM   pluggedEndpoint
+#define CDC_ENDPOINT_OUT   pluggedEndpoint + 1
+#define CDC_ENDPOINT_IN    pluggedEndpoint + 2
 
 #define CDC_RX CDC_ENDPOINT_OUT
 #define CDC_TX CDC_ENDPOINT_IN
@@ -91,7 +91,7 @@ int Serial_::getInterface(uint8_t* interfaceNum)
 	return USBDevice.sendControl(&_cdcInterface, sizeof(_cdcInterface));
 }
 
-int Serial_::getDescriptor(USBSetup& setup)
+int Serial_::getDescriptor(USBSetup& /* setup */)
 {
 	return 0;
 }

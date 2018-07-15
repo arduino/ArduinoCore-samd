@@ -33,8 +33,8 @@
 
 // bEndpointAddress in Endpoint Descriptor
 #define USB_ENDPOINT_DIRECTION_MASK            0x80
-#define USB_ENDPOINT_OUT(addr)                 ((addr) | 0x00)
-#define USB_ENDPOINT_IN(addr)                  ((addr) | 0x80)
+#define USB_ENDPOINT_OUT(addr)                 uint8_t((addr) | 0x00)
+#define USB_ENDPOINT_IN(addr)                  uint8_t((addr) | 0x80)
 
 #define USB_ENDPOINTS                          7
 
