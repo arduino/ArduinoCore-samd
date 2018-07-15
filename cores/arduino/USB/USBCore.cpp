@@ -801,13 +801,15 @@ bool USBDeviceClass::handleStandardSetup(USBSetup &setup)
 
 void USBDeviceClass::ISRHandler()
 {
-
 	if (_pack_message == true) {
 		return;
 	}
+
 	// End-Of-Reset
 	if (usbd.isEndOfResetInterrupt())
 	{
+		usbd.ackEndOfResetInterrupt();
+
 		// Configure EP 0
 		initEP(0, USB_ENDPOINT_TYPE_CONTROL);
 
@@ -815,8 +817,6 @@ void USBDeviceClass::ISRHandler()
 		usbd.epBank0EnableSetupReceived(0);
 
 		_usbConfiguration = 0;
-
-		usbd.ackEndOfResetInterrupt();
 	}
 
 	// Start-Of-Frame
