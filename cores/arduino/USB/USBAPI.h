@@ -97,7 +97,6 @@ public:
 
 	// private?
 	uint32_t armSend(uint32_t ep, const void *data, uint32_t len);
-	uint8_t armRecv(uint32_t ep);
 	uint8_t armRecvCtrlOUT(uint32_t ep);
 
 	void ISRHandler();

@@ -521,8 +521,7 @@ uint32_t USBDeviceClass::recv(uint32_t ep, void *_data, uint32_t len)
 	if (available(ep) < len)
 		len = available(ep);
 
-	armRecv(ep);
-
+	usbd.epBank0SetByteCount(ep, 0);
 	usbd.epBank0DisableTransferComplete(ep);
 
 	memcpy(_data, udd_ep_out_cache_buffer[ep], len);
@@ -565,17 +564,6 @@ uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep)
 	// Wait OUT
 	while (!usbd.epBank0IsReady(ep)) {}
 	while (!usbd.epBank0IsTransferComplete(ep)) {}
-	return usbd.epBank0ByteCount(ep);
-}
-
-uint8_t USBDeviceClass::armRecv(uint32_t ep)
-{
-	uint16_t count = usbd.epBank0ByteCount(ep);
-	if (count >= 64) {
-		usbd.epBank0SetByteCount(ep, count - 64);
-	} else {
-		usbd.epBank0SetByteCount(ep, 0);
-	}
 	return usbd.epBank0ByteCount(ep);
 }
 
