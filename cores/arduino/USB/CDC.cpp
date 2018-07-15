@@ -118,18 +118,7 @@ uint8_t Serial_::getShortName(char* name) {
 }
 
 void Serial_::handleEndpoint(int ep) {
-	if (ep == CDC_ENDPOINT_IN)
-	{
-		// NAK on endpoint IN, the bank is not yet filled in.
-		usbd.epBank1ResetReady(CDC_ENDPOINT_IN);
-		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_IN);
-	}
-	if (ep == CDC_ENDPOINT_ACM)
-	{
-		// NAK on endpoint IN, the bank is not yet filled in.
-		usbd.epBank1ResetReady(CDC_ENDPOINT_ACM);
-		usbd.epBank1AckTransferComplete(CDC_ENDPOINT_ACM);
-	}
+	usbd.epAckPendingInterrupts(ep);
 }
 
 bool Serial_::setup(USBSetup& setup)
