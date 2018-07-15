@@ -336,27 +336,20 @@ public:
 		//   W : last0/1, notify
 		if (usbd.epBank0IsTransferComplete(ep))
 		{
-			// Ack Transfer complete
-			usbd.epBank0AckTransferComplete(ep);
-			//usbd.epBank0AckTransferFailed(ep); // XXX
 			uint32_t received = usbd.epBank0ByteCount(ep);
 			if (received == 0) {
 				release();
-				return;
-			}
-
+			} else if (incoming == 0) {
 			// Update counters and swap banks for non-ZLP's
-			if (incoming == 0) {
 				last0 = received;
 				incoming = 1;
 				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
 				synchronized {
 					ready0 = true;
-					if (ready1) {
-						notify = true;
-						return;
+					notify = ready1;
+					if (!notify) {
+						release();
 					}
-					notify = false;
 				}
 			} else {
 				last1 = received;
@@ -364,15 +357,15 @@ public:
 				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
 				synchronized {
 					ready1 = true;
-					if (ready0) {
-						notify = true;
-						return;
+					notify = ready0;
+					if (!notify) {
+						release();
 					}
-					notify = false;
 				}
 			}
-			release();
 		}
+
+		usbd.epAckPendingInterrupts(ep);
 	}
 
 	// Returns how many bytes are stored in the buffers
