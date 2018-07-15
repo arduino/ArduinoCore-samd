@@ -36,7 +36,7 @@
 // USB
 
 // Low level API
-typedef struct {
+typedef struct __attribute__((packed)) {
 	union {
 		uint8_t bmRequestType;
 		struct {
