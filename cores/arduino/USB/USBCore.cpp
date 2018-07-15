@@ -425,11 +425,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 		usbd.epBank1SetType(ep, 1); // CONTROL IN
 
 		// Release OUT EP
-		usbd.epBank0SetMultiPacketSize(ep, 64);
-		usbd.epBank0SetByteCount(ep, 0);
-
-		// NAK on endpoint OUT, the bank is full.
-		usbd.epBank0SetReady(ep);
+		usbd.epReleaseOutBank0(ep, 64);
 	}
 }
 
