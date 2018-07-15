@@ -55,7 +55,7 @@ int PluggableUSB_::getDescriptor(USBSetup& setup)
 uint8_t PluggableUSB_::getShortName(char *iSerialNum)
 {
        PluggableUSBModule* node;
-       uint8_t size;
+       uint8_t size = 0;
        for (node = rootNode; node; node = node->next) {
                uint8_t len = node->getShortName(iSerialNum);
                iSerialNum += len;
