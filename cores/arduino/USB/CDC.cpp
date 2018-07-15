@@ -117,8 +117,7 @@ uint8_t Serial_::getShortName(char* name) {
 	return 32;
 }
 
-void Serial_::handleEndpoint(int ep) {
-	usbd.epAckPendingInterrupts(ep);
+void Serial_::handleEndpoint(int /* ep */) {
 }
 
 bool Serial_::setup(USBSetup& setup)

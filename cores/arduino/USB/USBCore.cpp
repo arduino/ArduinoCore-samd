@@ -833,8 +833,6 @@ void USBDeviceClass::ISRHandler()
 	// Endpoint 0 Received Setup interrupt
 	if (usbd.epBank0IsSetupReceived(0))
 	{
-		usbd.epBank0AckSetupReceived(0);
-
 		USBSetup *setup = reinterpret_cast<USBSetup *>(udd_ep_out_cache_buffer[0]);
 
 		delayMicroseconds(10);
@@ -859,24 +857,23 @@ void USBDeviceClass::ISRHandler()
 
 		if (usbd.epBank1IsStalled(0))
 		{
-			usbd.epBank1AckStalled(0);
-
 			// Remove stall request
 			usbd.epBank1DisableStalled(0);
 		}
-
 	} // end Received Setup handler
+	usbd.epAckPendingInterrupts(0);
 
-	for (int i = 1; i < USB_EPT_NUM; i++) {
+	for (int ep = 1; ep < USB_EPT_NUM; ep++) {
 		// Endpoint Transfer Complete (0/1) Interrupt
-		if (usbd.epBank0IsTransferComplete(i) || usbd.epBank1IsTransferComplete(i))	{
-			if (epHandlers[i]) {
-				epHandlers[i]->handleEndpoint();
+		if (usbd.epHasPendingInterrupts(ep)) {
+			if (epHandlers[ep]) {
+				epHandlers[ep]->handleEndpoint();
 			} else {
 				#if defined(PLUGGABLE_USB_ENABLED)
-				PluggableUSB().handleEndpoint(i);
+				PluggableUSB().handleEndpoint(ep);
 				#endif
 			}
+			usbd.epAckPendingInterrupts(ep);
 		}
 	}
 }
