@@ -107,10 +107,8 @@
 #define MSC_SUBCLASS_SCSI						0x06
 #define MSC_PROTOCOL_BULK_ONLY					0x50
 
-_Pragma("pack(1)")
-
 //	Device
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t len;				// 18
 	uint8_t dtype;				// 1 USB_DEVICE_DESCRIPTOR_TYPE
 	uint16_t usbVersion;		// 0x200
@@ -128,7 +126,7 @@ typedef struct {
 } DeviceDescriptor;
 
 //	Config
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t	len;			// 9
 	uint8_t	dtype;			// 2
 	uint16_t clen;			// total length
@@ -142,8 +140,7 @@ typedef struct {
 //	String
 
 //	Interface
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	uint8_t len;		// 9
 	uint8_t dtype;		// 4
 	uint8_t number;
@@ -156,8 +153,7 @@ typedef struct
 } InterfaceDescriptor;
 
 //	Endpoint
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	uint8_t len;		// 7
 	uint8_t dtype;		// 5
 	uint8_t addr;
@@ -168,8 +164,7 @@ typedef struct
 
 // Interface Association Descriptor
 // Used to bind 2 interfaces together in CDC compostite device
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	uint8_t len;				// 8
 	uint8_t dtype;				// 11
 	uint8_t firstInterface;
@@ -180,14 +175,11 @@ typedef struct
 	uint8_t iInterface;
 } IADDescriptor;
 
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	InterfaceDescriptor			msc;
 	EndpointDescriptor			in;
 	EndpointDescriptor			out;
 } MSCDescriptor;
-
-_Pragma("pack()")
 
 #define D_DEVICE(_class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs) \
 	{ 18, 1, 0x200, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }

@@ -156,9 +156,7 @@ uint32_t USBDeviceClass::sendConfiguration(uint32_t maxlen)
 	_dry_run = true;
 	uint8_t interfaces = SendInterfaces(&total);
 
-	_Pragma("pack(1)")
 	ConfigDescriptor config = D_CONFIG((uint16_t)(total + sizeof(ConfigDescriptor)), interfaces);
-	_Pragma("pack()")
 
 	//	Now send them
 	_dry_run = false;

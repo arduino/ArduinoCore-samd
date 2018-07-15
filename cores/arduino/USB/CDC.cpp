@@ -37,7 +37,7 @@ extern USBDevice_SAMD21G18x usbd;
 
 #define CDC_LINESTATE_READY		(CDC_LINESTATE_RTS | CDC_LINESTATE_DTR)
 
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint32_t dwDTERate;
 	uint8_t bCharFormat;
 	uint8_t bParityType;
@@ -45,7 +45,6 @@ typedef struct {
 	uint8_t lineState;
 } LineInfo;
 
-_Pragma("pack(1)")
 static volatile LineInfo _usbLineInfo = {
 	115200, // dWDTERate
 	0x00,   // bCharFormat
@@ -55,7 +54,6 @@ static volatile LineInfo _usbLineInfo = {
 };
 
 static volatile int32_t breakValue = -1;
-_Pragma("pack()")
 
 // CDC
 #define CDC_ACM_INTERFACE  pluggedInterface              // CDC ACM
