@@ -91,27 +91,37 @@ public:
 	// Interrupts
 	inline uint16_t epInterruptSummary() { return usb.EPINTSMRY.reg; }
 
+	inline bool epHasPendingInterrupts(ep_t ep)     { return usb.DeviceEndpoint[ep].EPINTFLAG.reg != 0; }
 	inline bool epBank0IsSetupReceived(ep_t ep)     { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.RXSTP; }
 	inline bool epBank0IsStalled(ep_t ep)           { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.STALL0; }
 	inline bool epBank1IsStalled(ep_t ep)           { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.STALL1; }
+	inline bool epBank0IsTransferFailed(ep_t ep)    { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRFAIL0; }
+	inline bool epBank1IsTransferFailed(ep_t ep)    { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRFAIL1; }
 	inline bool epBank0IsTransferComplete(ep_t ep)  { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT0; }
 	inline bool epBank1IsTransferComplete(ep_t ep)  { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT1; }
 
+	inline void epAckPendingInterrupts(ep_t ep)     { usb.DeviceEndpoint[ep].EPINTFLAG.reg = 0x7F; }
 	inline void epBank0AckSetupReceived(ep_t ep)    { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_RXSTP; }
 	inline void epBank0AckStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL(1); }
 	inline void epBank1AckStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL(2); }
+	inline void epBank0AckTransferFailed(ep_t ep)   { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRFAIL(1); }
+	inline void epBank1AckTransferFailed(ep_t ep)   { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRFAIL(2); }
 	inline void epBank0AckTransferComplete(ep_t ep) { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT(1); }
 	inline void epBank1AckTransferComplete(ep_t ep) { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_TRCPT(2); }
 
 	inline void epBank0EnableSetupReceived(ep_t ep)    { usb.DeviceEndpoint[ep].EPINTENSET.bit.RXSTP = 1; }
 	inline void epBank0EnableStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTENSET.bit.STALL0 = 1; }
 	inline void epBank1EnableStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTENSET.bit.STALL1 = 1; }
+	inline void epBank0EnableTransferFailed(ep_t ep)   { usb.DeviceEndpoint[ep].EPINTENSET.bit.TRFAIL0 = 1; }
+	inline void epBank1EnableTransferFailed(ep_t ep)   { usb.DeviceEndpoint[ep].EPINTENSET.bit.TRFAIL1 = 1; }
 	inline void epBank0EnableTransferComplete(ep_t ep) { usb.DeviceEndpoint[ep].EPINTENSET.bit.TRCPT0 = 1; }
 	inline void epBank1EnableTransferComplete(ep_t ep) { usb.DeviceEndpoint[ep].EPINTENSET.bit.TRCPT1 = 1; }
 
 	inline void epBank0DisableSetupReceived(ep_t ep)    { usb.DeviceEndpoint[ep].EPINTENCLR.bit.RXSTP = 1; }
 	inline void epBank0DisableStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTENCLR.bit.STALL0 = 1; }
 	inline void epBank1DisableStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTENCLR.bit.STALL1 = 1; }
+	inline void epBank0DisableTransferFailed(ep_t ep)   { usb.DeviceEndpoint[ep].EPINTENCLR.bit.TRFAIL0 = 1; }
+	inline void epBank1DisableTransferFailed(ep_t ep)   { usb.DeviceEndpoint[ep].EPINTENCLR.bit.TRFAIL1 = 1; }
 	inline void epBank0DisableTransferComplete(ep_t ep) { usb.DeviceEndpoint[ep].EPINTENCLR.bit.TRCPT0 = 1; }
 	inline void epBank1DisableTransferComplete(ep_t ep) { usb.DeviceEndpoint[ep].EPINTENCLR.bit.TRCPT1 = 1; }
 
