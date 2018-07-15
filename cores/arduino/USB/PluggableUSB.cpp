@@ -22,8 +22,7 @@
 #include "USBCore.h"
 #include "PluggableUSB.h"
 
-#if defined(USBCON)
-#ifdef PLUGGABLE_USB_ENABLED
+#if defined(USBCON) && defined(PLUGGABLE_USB_ENABLED)
 
 extern uint32_t EndPoints[];
 
@@ -54,15 +53,15 @@ int PluggableUSB_::getDescriptor(USBSetup& setup)
 
 uint8_t PluggableUSB_::getShortName(char *iSerialNum)
 {
-       PluggableUSBModule* node;
-       uint8_t size = 0;
-       for (node = rootNode; node; node = node->next) {
-               uint8_t len = node->getShortName(iSerialNum);
-               iSerialNum += len;
-               size += len;
-       }
-       *iSerialNum = 0;
-       return size;
+	PluggableUSBModule* node;
+	uint8_t size = 0;
+	for (node = rootNode; node; node = node->next) {
+		uint8_t len = node->getShortName(iSerialNum);
+		iSerialNum += len;
+		size += len;
+	}
+	*iSerialNum = 0;
+	return size;
 }
 
 bool PluggableUSB_::setup(USBSetup& setup)
@@ -117,12 +116,9 @@ PluggableUSB_& PluggableUSB()
 	return obj;
 }
 
-PluggableUSB_::PluggableUSB_() : lastIf(0),
-                                 lastEp(1),
-                                 rootNode(NULL)
+PluggableUSB_::PluggableUSB_() : lastIf(0), lastEp(1), rootNode(NULL)
 {
 	// Empty
 }
 
-#endif
 #endif
