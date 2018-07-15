@@ -407,10 +407,6 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	{
 		usbd.epBank1SetSize(ep, 64);
 		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
-
-		// NAK on endpoint IN, the bank is not yet filled in.
-		usbd.epBank1ResetReady(ep);
-
 		usbd.epBank1SetType(ep, 3); // BULK IN
 
 		// XXX: this somehow interfere with CDC rx - WHY???
