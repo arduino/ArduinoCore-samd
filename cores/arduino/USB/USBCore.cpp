@@ -257,14 +257,6 @@ void USBDeviceClass::standby() {
 	usbd.noRunInStandby();
 }
 
-
-void USBDeviceClass::handleEndpoint(uint8_t ep)
-{
-#if defined(PLUGGABLE_USB_ENABLED)
-	PluggableUSB().handleEndpoint(ep);
-#endif
-}
-
 void USBDeviceClass::init()
 {
 #ifdef PIN_LED_TXL
@@ -879,28 +871,17 @@ void USBDeviceClass::ISRHandler()
 
 	} // end Received Setup handler
 
-	uint8_t i=0;
-	uint8_t ept_int = usbd.epInterruptSummary() & 0xFE; // Remove endpoint number 0 (setup)
-	while (ept_int != 0)
-	{
-		// Check if endpoint has a pending interrupt
-		if ((ept_int & (1 << i)) != 0)
-		{
-			// Endpoint Transfer Complete (0/1) Interrupt
-			if (usbd.epBank0IsTransferComplete(i) ||
-			    usbd.epBank1IsTransferComplete(i))
-			{
-				if (epHandlers[i]) {
-					epHandlers[i]->handleEndpoint();
-				} else {
-					handleEndpoint(i);
-				}
+	for (int i = 1; i < USB_EPT_NUM; i++) {
+		// Endpoint Transfer Complete (0/1) Interrupt
+		if (usbd.epBank0IsTransferComplete(i) || usbd.epBank1IsTransferComplete(i))	{
+			if (epHandlers[i]) {
+				epHandlers[i]->handleEndpoint();
+			} else {
+				#if defined(PLUGGABLE_USB_ENABLED)
+				PluggableUSB().handleEndpoint(i);
+				#endif
 			}
-			ept_int &= ~(1 << i);
 		}
-		i++;
-		if (i > USB_EPT_NUM)
-			break;  // fire exit
 	}
 }
 

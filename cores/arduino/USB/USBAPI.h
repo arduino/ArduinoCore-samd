@@ -85,7 +85,6 @@ public:
 	// Generic EndPoint API
 	void initEndpoints(void);
 	void initEP(uint32_t ep, uint32_t type);
-	void handleEndpoint(uint8_t ep);
 
 	uint32_t send(uint32_t ep, const void *data, uint32_t len);
 	void sendZlp(uint32_t ep);
