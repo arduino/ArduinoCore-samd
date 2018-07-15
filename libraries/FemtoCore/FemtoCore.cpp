@@ -1,4 +1,5 @@
 #include "FemtoCore.h"
+// #include "FreeIMU.h"
 
 volatile int FemtoCore::_appAddress;
 volatile int FemtoCore::_destAddress;
@@ -39,7 +40,12 @@ volatile bool FemtoCore::_sensor_is_on                  = false;
 // String inputString              = "";
 volatile bool FemtoCore::stringComplete  = false;      // whether the string is complete
 
-FemtoCore::FemtoCore() { }
+RTCZero FemtoCore::rtc;
+
+FreeIMU FemtoCore::freeIMU;
+
+
+FemtoCore::FemtoCore() {}
 
 void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPanID, int appChannel, char* appSecurityKey)
 {
@@ -74,6 +80,10 @@ void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPa
     _setupRGB();
     _setupRTC();
     _setupMeshNetworking();
+
+    #ifdef IS_FEMTOBEACON_COIN
+        _setupSensors();
+    #endif
 
     #ifdef DEBUG
         Serial.println("FemtoCore::init() complete.");
@@ -182,10 +192,82 @@ void FemtoCore::setRGB(byte R, byte G, byte B, bool forceHandling) {
         handleRGB();
     }
 }
+void FemtoCore::setHSV(float H, float S, float V) {
+    setHSV(H, S, V, true);
+}
+void FemtoCore::setHSV(float H, float S, float V, bool forceHandling) {
+    byte r;
+    byte g;
+    byte b;
 
+    _HSV_to_RGB(H, S, V, &r, &g, &b);
 
+    setRGB(r, g, b, forceHandling);
+}
 
+/**
+ * Convert HSL values (H = 0.0 to 360.0, L = 0.0 to 100, V = 0.0 to 100) to RGB.
+ * See https://gist.github.com/hdznrrd/656996
+ */
+void FemtoCore::_HSV_to_RGB(float H, float S, float V, byte* r, byte* g, byte* b) {
+    int i;
+    float f, p, q, t;
 
+    H = max(0.0, min(360.0, H));
+    S = max(0.0, min(100.0, S));
+    V = max(0.0, min(100.0, V));
+
+    S /= 100;
+    V /= 100;
+
+    if (S == 0) {
+        // Achromatic (gray)
+        *r = *g = *b = round(V * 255);
+    }
+
+    H /= 60; // sector 0 to 5 (hexagon)
+
+    i = floor(H);
+    f = H - i; // factorial part of h
+    p = V * (1 - S);
+    q = V * (1 - S * f);
+    t = V * (1 - S * (1 - f));
+
+    switch (i) {
+        case 0:
+            *r = round(255 * V);
+            *g = round(255 * t);
+            *b = round(255 * p);
+            break;
+        case 1:
+            *r = round(255 * q);
+            *g = round(255 * V);
+            *b = round(255 * p);
+            break;
+        case 2:
+            *r = round(255 * p);
+            *g = round(255 * V);
+            *b = round(255 * t);
+            break;
+        case 3:
+            *r = round(255 * p);
+            *g = round(255 * q);
+            *b = round(255 * V);
+            break;
+        case 4:
+            *r = round(255 * t);
+            *g = round(255 * p);
+            *b = round(255 * V);
+            break;
+
+        default:
+            *r = round(255 * V);
+            *g = round(255 * p);
+            *b = round(255 * q);
+
+            break;
+    }
+}
 
 
 
@@ -271,6 +353,18 @@ void FemtoCore::_setupRTC() {
 
     #ifdef DEBUG
         Serial.println("FemtoCore::_setupRTC() complete.");
+    #endif
+}
+
+void FemtoCore::_setupSensors() {
+    freeIMU = FreeIMU();
+    #ifdef DEBUG
+        Serial.print("FemtoCore::_setupSensors() initializing... ");
+    #endif
+    freeIMU.init(true);
+
+    #ifdef DEBUG
+        Serial.println("OK!");
     #endif
 }
 
@@ -366,9 +460,9 @@ bool FemtoCore::_networkingReceiveMessage(NWK_DataInd_t *ind) {
     // if (receivedData.length() > 0) {
     //     if (receivedData.equals("RESET")) {
     //         // Reset
-    //         sensors.RESET();
-    //         sensors.RESET_Q();
-    //         sensors.init(true);
+    //         freeIMU.RESET();
+    //         freeIMU.RESET_Q();
+    //         freeIMU.init(true);
 
     //     } else if (receivedData.equals("SON")) {
     //         _sensor_is_on = true;
@@ -566,7 +660,7 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
 
     _sendRequest.options       = (requireConfirm ? 
                                     NWK_IND_OPT_ACK_REQUESTED : // Default to acknowledge request flag
-                                    NWK_IND_OPT_BROADCAST_PAN_ID // Just broadcast.
+                                    NWK_IND_OPT_ACK_REQUESTED | NWK_IND_OPT_BROADCAST_PAN_ID // Just broadcast.
                                  );
 
     // Support for NWK_IND_OPT_SECURED option when NWK_ENABLE_SECURITY is defined.
@@ -642,19 +736,20 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
             Serial.println(req->status, HEX);
         #endif
 
-        #ifdef IS_FEMTOBEACON_COIN
-            ++_networking_error_count;
-            setRGB(255, 0, 0, false); // Red
+        // @TODO See if there is an network change event we can use to determine if we go to sleep().
+        // #ifdef IS_FEMTOBEACON_COIN
+        //     ++_networking_error_count;
+        //     setRGB(255, 0, 0, false); // Red
 
-            if (_networking_error_count > 1000) {
-                #ifdef DEBUG
-                    Serial.println("FemtoCore::_networkingSendMessageConfirm() NWK_ERROR_STATUS ...Going to sleep.");
-                #endif
+        //     if (_networking_error_count > 1000) {
+        //         #ifdef DEBUG
+        //             Serial.println("FemtoCore::_networkingSendMessageConfirm() NWK_ERROR_STATUS ...Going to sleep.");
+        //         #endif
 
-                _networking_error_count = 0;
-                sleep();
-            }
-        #endif
+        //         _networking_error_count = 0;
+        //         sleep();
+        //     }
+        // #endif
     }
 
 
@@ -708,7 +803,7 @@ void FemtoCore::sleep() {
     delay(1000);
 
     // @TODO Set the MPU-9250 to SLEEP mode
-    //sensors.
+    //freeIMU.
     _sensor_is_on = false;
 
     // Go to sleep
@@ -780,9 +875,9 @@ void FemtoCore::sleep() {
 
     #ifdef IS_FEMTOBEACON_COIN
 
-        // sensors.RESET();
-        // sensors.RESET_Q();
-        // sensors.init(true);
+        // freeIMU.RESET();
+        // freeIMU.RESET_Q();
+        // freeIMU.init(true);
 
         #ifdef DEBUG
             Serial.println("FemtoCore::wakeUp() Sensors reset.");
@@ -804,6 +899,78 @@ void FemtoCore::wakeUp() {
     #endif
 }
 
+void FemtoCore::sendSampleLegacy() {
+    sendSampleLegacy(_destAddress);
+}
+
+void FemtoCore::sendSampleLegacy(int destNodeAddress) {
+    /*
+    float ypr[3]; // Hold the YPR data (YPR 180 deg)
+    float eulers[3]; // Hold the Euler angles (360 deg)
+    float values[10]; // Raw values from FreeIMU
+    float baro_reading;
+    float temp_reading;
+    float pressure_reading;
+
+    unsigned long current_ms; // Read the current millis() reading.
+
+    String strCurrentMS;
+    char* c_current_ms;
+    char c_yaw[5];
+    char c_pitch[5];
+    char c_roll[5];
+    char c_euler1[10];
+    char c_euler2[10];
+    char c_euler3[10];
+    char c_accel_x[10];
+    char c_accel_y[10];
+    char c_accel_z[10];
+    // char c_barometer[];
+    // char c_temperature[];
+    // char c_pressure[];
+
+    char* data;
+
+    current_ms = millis();
+    strCurrentMS = String(current_ms, HEX);
+    c_current_ms = const_cast<char*>(strCurrentMS.c_str());
+    // c_current_ms = strCurrentMS.c_str();
+
+    freeIMU.getYawPitchRoll180(ypr);
+    freeIMU.getEuler360deg(eulers);
+    freeIMU.getValues(values);
+
+    // baro = freeIMU.getBaroAlt(); // Returns an altitude estimate from barometer readings only using sea_press as current sea level pressure
+    // temp = freeIMU.getBaroTemperature();
+    // pressure = freeIMU.getBaroPressure();
+
+    dtostrf(ypr[0], 0, 4, c_yaw); // Up to 4 decimal places
+    dtostrf(ypr[1], 0, 4, c_pitch);
+    dtostrf(ypr[2], 0, 4, c_roll);
+
+    dtostrf(eulers[0], 0, 4, c_euler1);
+    dtostrf(eulers[1], 0, 4, c_euler2);
+    dtostrf(eulers[2], 0, 4, c_euler3);
+
+    dtostrf(values[0], 0, 4, c_accel_x);
+    dtostrf(values[1], 0, 4, c_accel_y);
+    dtostrf(values[2], 0, 4, c_accel_z);
+
+    // data = c_current_ms + ',' + c_yaw + ',' + c_pitch + ',' + c_roll;
+    // data += ',' + c_euler1 + ',' + c_euler2 + ',' + c_euler3;
+    // data += ',' + c_accel_x + ',' + c_accel_y + ',' + c_accel_z + '\n';
+
+    sprintf(data, 
+        "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", 
+        c_current_ms, 
+        c_yaw, c_pitch, c_roll, 
+        c_euler1, c_euler2, c_euler3, 
+        c_accel_x, c_accel_y, c_accel_z);
+
+    // Send away.
+    send(data, destNodeAddress);
+    */
+}
 
 
 /* *** Timer for TC5 (RGB Blue pin) - BOF *** */

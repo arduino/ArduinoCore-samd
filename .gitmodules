@@ -1,0 +1,6 @@
+[submodule "libraries/RTCZero"]
+	path = libraries/RTCZero
+	url = git@github.com:femtoduino/RTCZero.git
+[submodule "libraries/atmel-lwm"]
+	path = libraries/atmel-lwm
+	url = git@github.com:femtoduino/library-atmel-lwm.git

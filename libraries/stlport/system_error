@@ -1,0 +1,524 @@
+// -*- C++ -*- Time-stamp: <2012-02-28 13:44:29 ptr>
+
+/*
+ * Copyright (c) 2007-2012
+ * Petr Ovtchenkov
+ *
+ * This material is provided "as is", with absolutely no warranty expressed
+ * or implied. Any use is at your own risk.
+ *
+ * Permission to use or copy this software for any purpose is hereby granted
+ * without fee, provided the above notices are retained on all copies.
+ * Permission to modify the code and to distribute modified code is granted,
+ * provided the above notices are retained, and a notice that the code was
+ * modified is included with the above copyright notice.
+ *
+ */
+
+#ifndef _STLP_SYSTEM_ERROR
+#define _STLP_SYSTEM_ERROR
+
+#ifndef _STLP_OUTERMOST_HEADER_ID
+#  define _STLP_OUTERMOST_HEADER_ID 0x9
+#  include <stl/_prolog.h>
+#endif
+
+#ifndef _STLP_INTERNAL_STRING_H
+#  include <stl/_string.h>
+#endif
+
+#ifndef _STLP_INTERNAL_STDEXCEPT
+#  include <stl/_stdexcept.h>
+#endif
+
+#include <type_traits>
+#include <cerrno>
+
+#ifndef _STLP_INTERNAL_OSTREAM
+#  include <stl/_ostream.h>
+#endif
+
+_STLP_BEGIN_NAMESPACE
+
+class error_category;
+class error_code;
+class error_condition;
+class system_error;
+
+template <class T>
+struct is_error_code_enum :
+    public tr1::false_type
+{ };
+
+template <class T>
+struct is_error_condition_enum :
+    public tr1::false_type
+{ };
+
+namespace posix_error {
+
+enum posix_errno {
+#ifdef EAFNOSUPPORT
+  address_family_not_supported = EAFNOSUPPORT,
+#else
+#endif
+#ifdef EADDRINUSE
+  address_in_use = EADDRINUSE,
+#else
+#endif
+#ifdef EADDRNOTAVAIL
+  address_not_available = EADDRNOTAVAIL,
+#else
+#endif
+#ifdef EISCONN
+  already_connected = EISCONN,
+#else
+#endif
+#ifdef E2BIG
+  argument_list_too_long = E2BIG,
+#else
+#endif
+#ifdef EDOM
+  argument_out_of_domain = EDOM,
+#else
+#endif
+#ifdef EFAULT
+  bad_address = EFAULT,
+#else
+#endif
+#ifdef EBADF
+  bad_file_descriptor = EBADF,
+#else
+#endif
+#ifdef EBADMSG
+  bad_message = EBADMSG,
+#else
+#endif
+#ifdef EPIPE
+  broken_pipe = EPIPE,
+#else
+#endif
+#ifdef ECONNABORTED
+  connection_aborted = ECONNABORTED,
+#else
+#endif
+#ifdef EALREADY
+  connection_already_in_progress = EALREADY,
+#else
+#endif
+#ifdef ECONNREFUSED
+  connection_refused = ECONNREFUSED,
+#else
+#endif
+#ifdef ECONNRESET
+  connection_reset = ECONNRESET,
+#else
+#endif
+#ifdef EXDEV
+  cross_device_link = EXDEV,
+#else
+#endif
+#ifdef EDESTADDRREQ
+  destination_address_required = EDESTADDRREQ,
+#else
+#endif
+#ifdef EBUSY
+  device_or_resource_busy = EBUSY,
+#else
+#endif
+#ifdef ENOTEMPTY
+  directory_not_empty = ENOTEMPTY,
+#else
+#endif
+#ifdef ENOEXEC
+  executable_format_error = ENOEXEC,
+#else
+#endif
+#ifdef EEXIST
+  file_exists = EEXIST,
+#else
+#endif
+#ifdef EFBIG
+  file_too_large = EFBIG,
+#else
+#endif
+#ifdef ENAMETOOLONG
+  filename_too_long = ENAMETOOLONG,
+#else
+#endif
+#ifdef ENOSYS
+  function_not_supported = ENOSYS,
+#else
+#endif
+#ifdef EHOSTUNREACH
+  host_unreachable = EHOSTUNREACH,
+#else
+#endif
+#ifdef EIDRM
+  identifier_removed = EIDRM,
+#else
+#endif
+#ifdef EILSEQ
+  illegal_byte_sequence = EILSEQ,
+#else
+#endif
+#ifdef ENOTTY
+  inappropriate_io_control_operation = ENOTTY,
+#else
+#endif
+#ifdef EINTR
+  interrupted = EINTR,
+#else
+#endif
+#ifdef EINVAL
+  invalid_argument = EINVAL,
+#else
+#endif
+#ifdef ESPIPE
+  invalid_seek = ESPIPE,
+#else
+#endif
+#ifdef EIO
+  io_error = EIO,
+#else
+#endif
+#ifdef EISDIR
+  is_a_directory = EISDIR,
+#else
+#endif
+#ifdef EMSGSIZE
+  message_too_long = EMSGSIZE,
+#else
+#endif
+#ifdef ENETDOWN
+  network_down = ENETDOWN,
+#else
+#endif
+#ifdef ENETRESET
+  network_reset = ENETRESET,
+#else
+#endif
+#ifdef ENETUNREACH
+  network_unreachable = ENETUNREACH,
+#else
+#endif
+#ifdef ENOBUFS
+  no_buffer_space = ENOBUFS,
+#else
+#endif
+#ifdef ECHILD
+  no_child_process = ECHILD,
+#else
+#endif
+#ifdef ENOLINK
+  no_link = ENOLINK,
+#else
+#endif
+#ifdef ENOLCK
+  no_lock_available = ENOLCK,
+#else
+#endif
+#ifdef ENODATA
+  no_message_available = ENODATA,
+#else
+#endif
+#ifdef ENOMSG
+  no_message = ENOMSG,
+#else
+#endif
+#ifdef ENOPROTOOPT
+  no_protocol_option = ENOPROTOOPT,
+#else
+#endif
+#ifdef ENOSPC
+  no_space_on_device = ENOSPC,
+#else
+#endif
+#ifdef ENOSR
+  no_stream_resources = ENOSR,
+#else
+#endif
+#ifdef ENXIO
+  no_such_device_or_address = ENXIO,
+#else
+#endif
+#ifdef ENODEV
+  no_such_device = ENODEV,
+#else
+#endif
+#ifdef ENOENT
+  no_such_file_or_directory = ENOENT,
+#else
+#endif
+#ifdef ESRCH
+  no_such_process = ESRCH,
+#else
+#endif
+#ifdef ENOTDIR
+  not_a_directory = ENOTDIR,
+#else
+#endif
+#ifdef ENOTSOCK
+  not_a_socket = ENOTSOCK,
+#else
+#endif
+#ifdef ENOSTR
+  not_a_stream = ENOSTR,
+#else
+#endif
+#ifdef ENOTCONN
+  not_connected = ENOTCONN,
+#else
+#endif
+#ifdef ENOMEM
+  not_enough_memory = ENOMEM,
+#else
+#endif
+#ifdef ENOTSUP
+  not_supported = ENOTSUP,
+#else
+#endif
+#ifdef EALREADY
+  operation_already_in_progress = EALREADY,
+#else
+#endif
+#ifdef ECANCELED
+  operation_canceled = ECANCELED,
+#else
+#endif
+#ifdef EINPROGRESS
+  operation_in_progress = EINPROGRESS,
+#else
+#endif
+#ifdef EPERM
+  operation_not_permitted = EPERM,
+#else
+#endif
+#ifdef EOPNOTSUPP
+  operation_not_supported = EOPNOTSUPP,
+#else
+#endif
+#ifdef EOWNERDEAD
+  owner_dead = EOWNERDEAD,
+#else
+#endif
+#ifdef EACCES
+  permission_denied = EACCES,
+#else
+#endif
+#ifdef EPROTO
+  protocol_error = EPROTO,
+#else
+#endif
+#ifdef EPROTONOSUPPORT
+  protocol_not_supported = EPROTONOSUPPORT,
+#else
+#endif
+#ifdef EROFS
+  read_only_file_system = EROFS,
+#else
+#endif
+#ifdef EDEADLK
+  resource_deadlock_would_occur = EDEADLK,
+#else
+#endif
+#ifdef EAGAIN
+  resource_unavailable_try_again = EAGAIN,
+#else
+#endif
+#ifdef ERANGE
+  result_out_of_range = ERANGE,
+#else
+#endif
+#ifdef ENOTRECOVERABLE
+  state_not_recoverable = ENOTRECOVERABLE,
+#else
+#endif
+#ifdef ETIME
+  stream_timeout = ETIME,
+#else
+#endif
+#ifdef ETXTBSY
+  text_file_busy = ETXTBSY,
+#else
+#endif
+#ifdef ETIMEDOUT
+  timed_out = ETIMEDOUT,
+#else
+#endif
+#ifdef ENFILE
+  too_many_files_open_in_system = ENFILE,
+#else
+#endif
+#ifdef EMFILE
+  too_many_files_open = EMFILE,
+#else
+#endif
+#ifdef EMLINK
+  too_many_links = EMLINK,
+#else
+#endif
+#ifdef ELOOP
+  too_many_synbolic_link_levels = ELOOP,
+#else
+#endif
+#ifdef EOVERFLOW
+  value_too_large = EOVERFLOW,
+#else
+#endif
+#ifdef EPROTOTYPE
+  wrong_protocol_type = EPROTOTYPE
+#else
+#endif
+};
+
+} // namespace posix_error
+
+template <>
+struct is_error_condition_enum<posix_error::posix_errno> :
+    public tr1::true_type
+{ };
+
+namespace posix_error {
+
+_STLP_DECLSPEC error_code make_error_code( posix_errno err );
+_STLP_DECLSPEC error_condition make_error_condition( posix_errno err );
+
+} // namespace posix_error
+
+_STLP_DECLSPEC bool operator ==(const error_code& l, const error_code& r );
+_STLP_DECLSPEC bool operator ==(const error_code& l, const error_condition& r );
+_STLP_DECLSPEC bool operator ==(const error_condition& l, const error_code& r );
+_STLP_DECLSPEC bool operator ==(const error_condition& l, const error_condition& r );
+
+_STLP_DECLSPEC bool operator !=(const error_code& l, const error_code& r );
+_STLP_DECLSPEC bool operator !=(const error_code& l, const error_condition& r );
+_STLP_DECLSPEC bool operator !=(const error_condition& l, const error_code& r );
+_STLP_DECLSPEC bool operator !=(const error_condition& l, const error_condition& r );
+
+class _STLP_CLASS_DECLSPEC error_category
+{
+  public:
+    virtual ~error_category();
+
+  private:
+    error_category( const error_category& );
+    error_category& operator =( const error_category& );
+
+  public:
+    error_category()
+      { }
+    virtual const char* name() const = 0;
+    virtual error_condition default_error_condition( int err ) const;
+    virtual bool equivalent( int code, const error_condition& cnd ) const;
+    virtual bool equivalent( const error_code& code, int cnd ) const;
+    virtual string message( int err ) const = 0;
+
+    bool operator ==( const error_category& ) const;
+    bool operator !=( const error_category& ) const;
+    bool operator <( const error_category& ) const;
+};
+
+_STLP_DECLSPEC const error_category& get_posix_category();
+_STLP_DECLSPEC const error_category& get_system_category();
+
+static const error_category& posix_category = get_posix_category();
+static const error_category& native_category = get_system_category();
+
+class error_condition
+{
+  public:
+    _STLP_DECLSPEC error_condition();
+    _STLP_DECLSPEC error_condition( int val, const error_category& category );
+    template <class ErrorConditionEnum>
+    error_condition( ErrorConditionEnum err,
+                     typename tr1::enable_if<is_error_condition_enum<ErrorConditionEnum>::value,void>::type* = 0 );
+
+    _STLP_DECLSPEC void assign( int val, const error_category& category );
+    template <class ErrorConditionEnum>
+    typename tr1::enable_if<is_error_condition_enum<ErrorConditionEnum>::value, error_code >::type& operator =( ErrorConditionEnum err );
+    _STLP_DECLSPEC void clear();
+
+    int value() const
+      { return v; }
+    const error_category& category() const
+      { return *c; }
+    string message() const
+      { return c->message( v ); }
+    operator bool() const
+      { return v != 0; }
+
+  private:
+    int v;
+    const error_category* c;
+};
+
+_STLP_DECLSPEC bool operator <( const error_condition&, const error_condition& );
+
+class error_code
+{
+  public:
+    _STLP_DECLSPEC error_code();
+    _STLP_DECLSPEC error_code( int val, const error_category& );
+    template <class ErrorCodeEnum>
+    error_code( ErrorCodeEnum err, typename tr1::enable_if<is_error_code_enum<ErrorCodeEnum>::value,void>::type* = 0 );
+
+    _STLP_DECLSPEC void assign( int val, const error_category& );
+    template <class ErrorCodeEnum>
+    typename tr1::enable_if<is_error_code_enum<ErrorCodeEnum>::value, error_code >::type& operator =( ErrorCodeEnum err );
+    _STLP_DECLSPEC void clear();
+
+    int value() const
+      { return v; }
+    const error_category& category() const
+      { return *c; }
+    error_condition default_error_condition() const
+      { return c->default_error_condition( v ); }
+    string message() const
+      { return c->message( v ); }
+    operator bool() const
+      { return v != 0; }
+
+  private:
+    int v;
+    const error_category* c;
+};
+
+_STLP_DECLSPEC bool operator <( const error_code&, const error_code& );
+
+template <class charT, class traits>
+basic_ostream<charT,traits>& operator <<( basic_ostream<charT,traits>& os, const error_code& e )
+{ return os << e.category().name() << ':' << e.value(); }
+
+class _STLP_CLASS_DECLSPEC system_error :
+    public runtime_error
+{
+  public:
+    system_error( error_code code, const string& what );
+    system_error( error_code code );
+    system_error( int code, const error_category& category,
+                  const string& what );
+    system_error( int code, const error_category& category );
+    ~system_error() throw();
+
+    const error_code& code() const throw()
+      { return ecode_; }
+    const char* what() const throw();
+
+  private:
+    error_code ecode_;
+
+    enum { _bufsize = 256 };
+
+    mutable char _buf[_bufsize];
+    mutable char *_dbuf;
+};
+
+_STLP_END_NAMESPACE
+
+#if (_STLP_OUTERMOST_HEADER_ID == 0x9)
+#  include <stl/_epilog.h>
+#  undef _STLP_OUTERMOST_HEADER_ID
+#endif
+
+#endif // _STLP_SYSTEM_ERROR

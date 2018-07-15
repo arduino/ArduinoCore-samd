@@ -1,0 +1,6 @@
+Copy all the directories contained in the directory which contains this file into the folder "libraries" inside the Arduino sketchbook folder.
+You can understand the location of your sketchbook folder from the Arduino IDE clicking on File -> Preferences: the "sketchbook location" is what you are looking for.
+In case you don't have a "libraries" folder there just create an empty one.
+
+For more informations see:
+http://www.arduino.cc/en/Reference/Libraries 

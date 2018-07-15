@@ -1,0 +1,142 @@
+Eigen for Embedded Use
+======================
+Maintained at <https://github.com/vancegroup/EigenArduino> by [Ryan
+Pavlik][] - <rpavlik@iastate.edu> <rpavlik@acm.org>
+
+The [Eigen][] C++ template matrix/vector math library is great: simple
+syntax, that through the power of expression templates, compiles to code
+rivalling the speed of Fortran.
+
+Sometimes you need to do a little matrix math on a microcontroller. I
+don't like to reinvent the wheel, nor do I find extracting the C-style
+math routines from some existing open-source Arduino code particularly
+appealing. I'd much rather use what I know works and what I already use
+on the desktop. 
+
+Thus, Eigen for Arduino/AVR. Yes, it works, and it's lovely.
+
+[Ryan Pavlik]: http://academic.cleardefinition.com/ "Ryan A. Pavlik's academic homepage and blog"
+[Eigen]: http://eigen.tuxfamily.org/ "Eigen matrix and vector math template library"
+
+Details
+-------
+This branch (`Eigen30`) contains a lightly-modified version of Eigen
+3.0.6. Importantly, it includes a header to both indicate to the Arduino
+IDE that this library should be used, and set up the preprocessor
+environment so the ample `#define` lines in the Arduino and AVR
+libraries don't wreak havoc with Eigen.
+
+General Usage
+-------------
+The avr-gcc toolchain, while capable of compiling C++, doesn't include a
+C++ standard library implementation. Thus, you'll have to provide your
+own. I've worked with the following two:
+
+- [stlport-avr][] - This is what is most frequently used/tested with
+    EigenArduino: it's based on a complete, widely-used,
+    liberally-licensed standard library implementation (STLport - which
+    contrary to popular belief, hasn't sat dormant since the last tagged
+    release in 2008 - see the [STLport git repo][stlport-git] for ample
+    signs of life). If you can control your compiler flags and use a new
+    enough GCC, you can even use the C++11 version of STLport
+    (master/pre-6.0). As it's just a branch of the main STLport repo,
+    with an "Arduino-compatible" installed branch updated with an
+    included build script, keeping in sync with upstream improvements is
+    simple. The main drawback to using this as your C++ standard library
+    on AVR is that iostreams won't work: They're highly dependent on
+    locale support, and I haven't yet figured out a good way to
+    fake/disable that.
+
+- [StandardCplusplus][] - This is a more minimal, but also more
+    incomplete library, based on the LGPL v2.1+ [uClibc++][] library
+    with added (MIT-licensed) headers for Arduino stream and
+    std::iostream interaction from [Andy Brown][andybrownserstream]'s
+    SGI STL port. This is actually my fork of the initial
+    [StandardCplusplus][upstreamstdcpp] project. That initial version,
+    like upstream uClibc++, lacked implementations for some important
+    headers used by Eigen (such as `<limits>`!), hence the need for
+    modifications. I do think it works (as in builds) now with Eigen,
+    but I'm not tremendously confident that my additions are correct or
+    complete. As it is a distinct repository from the uClibc++ it was
+    based on, investigating changes and keeping in sync with upstream is
+    a challenge. (I did a merge once, but it wasn't fun.) The advantage
+    to this library is that it does contain iostream support that works.
+    It also claims to be modified to improve embedded performance,
+    though I have done no empirical testing to support or refute this.
+
+
+[stlport-avr]: https://github.com/vancegroup/stlport-avr
+[stlport-git]: http://stlport.git.sourceforge.net/git/gitweb.cgi?p=stlport/stlport;a=summary
+[StandardCplusplus]: https://github.com/rpavlik/StandardCplusplus
+[uClibc++]: http://cxx.uclibc.org/
+[andybrownserstream]: http://andybrown.me.uk/wk/2011/01/15/the-standard-template-library-stl-for-avr-with-c-streams/
+[upstreamstdcpp]:https://github.com/maniacbug/StandardCplusplus
+
+Arduino-Specific Usage
+----------------------
+
+### Get it
+Clone, add as submodule, or download and unzip the desired branch of
+this repository inside your Arduino "libraries" directory, named to
+match the branch name. (If you need more detail, see [my instructions
+with screenshots][stlport-wiki] for doing this with STLport-avr, it's
+essentially the same, only the names are changed.)
+
+### Include it
+Add includes to the compatibility headers for your standard C++ library
+and this library, **in that order**. For example:
+
+```c++
+#include <stlport.h>
+#include <Eigen30.h>
+```
+
+### Carry on
+The compatibility header has included `<Eigen/Core>` for you. Enjoy the
+functionality. You may now also include any of the other Eigen headers
+using the same way you'd include them in a standard desktop system:
+`<Eigen/Geometry>`, etc.
+
+### Let us know how it works!
+
+If you find this useful, we would appreciate hearing from you. If you
+use this for academic work, we would also appreciate a copy of the
+publication and a citation: this helps make a case for our work. You may
+contact the main developer, Ryan Pavlik (Iowa State University), by
+email at <rpavlik@iastate.edu> or <abiryan@ryand.net>, or his advisor,
+Dr. Judy M. Vance.
+
+Paper materials and copies of publications may be mailed to:
+
+> Ryan Pavlik or Dr. Judy M. Vance
+>
+> Virtual Reality Applications Center
+>
+> 1620 Howe Hall
+>
+> Ames, Iowa 50011-2274
+>
+> USA
+
+
+Licenses
+--------
+The compatibility header in the main directory may be used according to
+these terms:
+
+> Copyright Iowa State University 2012.
+>
+> Distributed under the Boost Software License, Version 1.0.
+>
+> (See copy at <http://www.boost.org/LICENSE_1_0.txt>)
+
+Alternately, at your option, it may be used according to the license of
+the Eigen version that it accompanies.
+
+The 3.0 branch of Eigen is licensed under the LGPL3+ or GPL2+ at your
+option. The developers' interpretation, with support from the FSF,
+can be found here:
+<http://eigen.tuxfamily.org/index.php?title=Licensing_FAQ&oldid=1117>
+(Version 3.1.1 and newer have switch to the MPL v2 which better
+expresses the developers' intent.)
+

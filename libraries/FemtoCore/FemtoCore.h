@@ -29,30 +29,31 @@
 
     /** BEGIN mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
     // #ifdef IS_FEMTOBEACON_COIN
-    //     //#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
+        //#include "calibration.h" // Uncomment once you have calibrated your IMU, generated a calibration.h file and updated FreeIMU.h!
 
-    //     #include <I2Cdev.h>
-    //     #include <MPU60X0.h>
+        #include <I2Cdev.h>
+        #include <MPU60X0.h>
 
-    //     #include <AK8963.h>
-    //     #include <AP_Baro_MS5611.h>  //Uncomment for APM2.5
+        #include <AK8963.h>
+        #include <AP_Baro_MS5611.h>  //Uncomment for APM2.5
 
 
-    //     //These are mandatory
-    //     #include <AP_Math_freeimu.h>
-    //     #include <Butter.h>    // Butterworth filter
-    //     #include <iCompass.h>
-    //     #include <MovingAvarageFilter.h>
+        //These are mandatory
+        #include <AP_Math_freeimu.h>
+        #include <Butter.h>    // Butterworth filter
+        #include <iCompass.h>
+        #include <MovingAvarageFilter.h>
 
-    //     #include "DebugUtils.h"
-    //     #include "CommunicationUtils.h"
-    //     #include "DCM.h"
-    //     #include "FilteringScheme.h"
-    //     #include "RunningAverage.h"
-    //     #include "FreeIMU.h"
+        #include "DebugUtils.h"
+        #include "CommunicationUtils.h"
+        #include "DCM.h"
+        #include "FilteringScheme.h"
+        #include "RunningAverage.h"
+        #include "FreeIMU.h"
 
-    //     // Arduino Zero: no eeprom
-    //     #define HAS_EEPPROM 0
+        // Arduino Zero: no eeprom
+        #define HAS_EEPPROM 0
+
     // #endif
     /** END mjs513 fork https://github.com/femtoduino/FreeIMU-Updates library. **/
 
@@ -112,7 +113,7 @@
 
     /** RGB timer stuff EOF **/
 
-    // /** BEGIN Sensor vars **/
+    // /** FreeIMU stuff BOF **/
     // // Sensor reading.
     // float ypr[3]; // Hold Yaw-Pitch-Roll (YPR) data.
     // float eulers[3]; // Hold euler angles (360 deg).
@@ -121,29 +122,35 @@
     // float temp; // Hold Temperature data
     // float pressure; // Hold Pressure data
 
-    // // Set the FreeIMU object
-    // FreeIMU sensors = FreeIMU();
-
     // // FemtoBeacon FSYNC pin is PA18 (not PA19, which is mislabeled in the silkscreen of FemtoBeacon rev 2.0.0)
     // // Must connect to GND if FSYNC is unused.
     // byte PIN_FSYNC = 4;
 
     // // FemtoBeacon INT pin is PA19 (not PA18, which is mislabeled in the silkscreen of FemtoBeacon r2.0.0)
     // byte PIN_INT = 3;
-    // /** END Sensor vars **/
+    /** FreeIMU stuff EOF **/
 
 
     // volatile bool is_sensor_on = 1;
     // volatile bool is_timestamp_on = 1;
     // volatile bool is_wireless_ok = 1;
 
-    /** RTC Stuff BOF **/
-    static RTCZero rtc;
-    /** RTC Stuff EOF **/
+    
 
     class FemtoCore 
     {
         public:
+            /**
+             * Constructor.
+             */
+            FemtoCore();
+
+            // Sensor peripherals (9-DoF Sensor, Precision Altimeter)
+            // ... FreeIMU Serial commands.
+
+            // @TODO USB peripherals 
+
+            // @TODO OTA Updates
             
             /**
              *           -----+ Common Anode (Pad #1 TOP VIEW)
@@ -176,10 +183,13 @@
             static volatile bool   stringComplete;  // whether the string is complete
             /** END Serial Rx **/
 
-            /**
-             * Constructor.
-             */
-            FemtoCore();
+            /** RTC Stuff BOF **/
+            static RTCZero rtc;
+            /** RTC Stuff EOF **/
+            // #ifdef IS_FEMTOBEACON_COIN
+            static FreeIMU freeIMU;
+            // #endif
+            
 
             /**
              * @param int appAddress This node's address.
@@ -218,8 +228,17 @@
             static void handleRGB();
             static void handleRGBPWM(int led, volatile long &tick, volatile long &duty_cycle, volatile bool &state);
 
+            /**
+             * Set LED color using RGB (0-255, 0-255, 0-255)
+             */
             static void setRGB(byte R, byte G, byte B);
             static void setRGB(byte R, byte G, byte B, bool forceHandling);
+
+            /**
+             * Set LED color using HSV (0.0-360.0, 0.0-100.0, 0.0-100.0)
+             */
+            static void setHSV(float H, float S, float V);
+            static void setHSV(float H, float S, float V, bool forceHandling);
 
             /**
              * Cycles through Red, Green, and Blue components of the RGB LED.
@@ -247,6 +266,9 @@
 
             static void stream(char* data);
             static void stream(char* data, int destNodeAddress);
+
+            static void sendSampleLegacy();
+            static void sendSampleLegacy(int destNodeAddress);
 
             static void sleep();
             static void wakeUp();
@@ -309,12 +331,15 @@
 
             static NWK_DataReq_t _sendRequest;
 
+            static void _HSV_to_RGB(float h, float s, float v, byte* r, byte* g, byte* b);
+
             
 
             static void _setupRGB();
             static void _setupSerial();
             static void _setupMeshNetworking();
             static void _setupRTC();
+            static void _setupSensors();
 
             static bool _networkingReceiveMessage(NWK_DataInd_t *ind);
             static void _phyWriteRegister(uint8_t reg, uint8_t value);

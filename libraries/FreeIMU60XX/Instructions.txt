@@ -1,0 +1,44 @@
+Full Processing Sketch (FreeIMU_cube_Odo_Exp1.pde):
+line 101: final String serialPort = "COM4"; // replace this with your serial port. On windows you will need something like "COM1".
+
+line 119: int HAS_GPS = 1; //1 - has GPS, 0 - no GPS
+ 
+line 151: //float declinationAngle = -13.1603;   //Flushing, NY magnetic declination in degrees
+line 152: float declinationAngle = 0;			//Set declination angle for your geographic location
+
+line 279: //serial port set up
+line 280: myPort = new Serial(this, serialPort, 38400);
+
+line 294: myPort.write("z" + char(burst));  //"z" => non-kalman filtered quaternion
+line 567:p.write("z" + char(burst));		//"a" => kalman filtered quaternion
+
+Key Press Options:
+1 - Hard reset of IMU
+2 - Reset q matrix
+s - Reset stop watch
+h - Set hq the home quaternion as the quatnion conjugate coming from the sensor fusion
+n - Disable home position
+p - Zero odometry
+v - Open web cam viewer
+
+Screen Options:
+SL PRESS (MB) - set the local sea level pressure in mbars, set for standard
+STA ALT (FT) - altitude in feet of location that sea level pressure measured
+CALIB (ON/OFF) -  turn temperature calibration on or off (1 = on, 0 = off)
+ODO (Y/N) - turn odometry calculations on or off
+Datafile (Y/N) - create datafile
+START - start to accept settings
+
+FreeIMU.cpp
+To add a temperature calibration curve, change 0's to cal factors and add after line 163:
+
+#elif defined(INSERT BOARD NAME FROM FREEIMU.h)
+	float c3[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+	float c2[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+	float c1[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+	float c0[9] = {0., 0., 0., 0., 0., 0., 0., 0., 0.};
+
+FreeIMU.h
+Uncomment the appropriated version of FreeIMU you are using	
+at lines 28-46
+

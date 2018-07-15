@@ -1,0 +1,775 @@
+// -*- C++ -*- Time-stamp: <2012-02-27 20:43:19 ptr>
+
+/*
+ * Copyright (c) 1997-1999, 2002-2012
+ * Petr Ovtchenkov
+ *
+ * This material is provided "as is", with absolutely no warranty expressed
+ * or implied. Any use is at your own risk.
+ *
+ * Permission to use or copy this software for any purpose is hereby granted
+ * without fee, provided the above notices are retained on all copies.
+ * Permission to modify the code and to distribute modified code is granted,
+ * provided the above notices are retained, and a notice that the code was
+ * modified is included with the above copyright notice.
+ *
+ */
+
+#ifndef _STLP_CONDITION_VARIABLE
+#define _STLP_CONDITION_VARIABLE
+
+#ifndef _STLP_OUTERMOST_HEADER_ID
+#  define _STLP_OUTERMOST_HEADER_ID 0x7
+#  include <stl/_prolog.h>
+#endif
+
+// #include <mt/date_time>
+#include <mutex>
+
+#ifdef _STLP_PTHREADS
+#  include <semaphore.h>
+#endif
+#include <system_error>
+
+_STLP_BEGIN_NAMESPACE
+
+template <bool SCOPE>
+class __condition_variable
+{
+  public:
+    __condition_variable()
+      {
+#ifdef _STLP_WIN32THREADS
+        _cond = CreateEvent( 0, TRUE, TRUE, 0 );
+#endif
+#ifdef _STLP_PTHREADS
+        if ( SCOPE ) {
+          pthread_condattr_t attr;
+          pthread_condattr_init( &attr );
+          pthread_condattr_setpshared( &attr, PTHREAD_PROCESS_SHARED );
+          pthread_cond_init( &_cond, &attr );
+          pthread_condattr_destroy( &attr );
+        } else {
+          pthread_cond_init( &_cond, 0 );
+        }
+#endif
+      }
+
+    ~__condition_variable()
+      {
+#ifdef _STLP_WIN32THREADS
+        CloseHandle( _cond );
+#endif
+#ifdef _STLP_PTHREADS
+        pthread_cond_destroy( &_cond );
+#endif
+      }
+
+#ifdef _STLP_PTHREADS
+    typedef pthread_cond_t* native_handle_type;
+#endif
+#ifdef _STLP_WIN32THREADS
+    typedef HANDLE native_handle_type;
+#endif
+
+    void notify_one()
+      {
+#ifdef _STLP_WIN32THREADS
+        SetEvent( _cond );
+#endif
+#ifdef _STLP_PTHREADS
+        pthread_cond_signal( &_cond );
+#endif
+      }
+
+    void notify_all()
+      {
+#ifdef _STLP_PTHREADS
+        pthread_cond_broadcast( &_cond );
+#endif
+      }
+
+    template <bool RECURSIVE_SAFE>
+    void wait( unique_lock<__mutex<RECURSIVE_SAFE,SCOPE> >& lock )
+      {
+#ifdef _STLP_WIN32THREADS
+        ResetEvent( _cond );
+        lock.unlock();
+        if ( WaitForSingleObject( _cond, -1 ) == WAIT_FAILED ) {
+          lock.lock();
+          // throw system_error
+        }
+        lock.lock();
+#endif
+#ifdef _STLP_PTHREADS
+        int ret = pthread_cond_wait( &_cond, const_cast<pthread_mutex_t *>(&lock.m->_M_lock) );
+        if ( ret ) {
+          lock.lock();
+          throw _STLP_STD::system_error( ret, _STLP_STD::get_posix_category() );
+        }
+#endif
+      }
+
+    template <bool RECURSIVE_SAFE, class Predicate>
+    void wait( unique_lock<__mutex<RECURSIVE_SAFE,SCOPE> >& lock, Predicate pred )
+      {
+        while ( !pred() ) {
+          wait( lock );
+        }
+      }
+
+#if 0
+    template <bool RECURSIVE_SAFE>
+    bool timed_wait( unique_lock<__mutex<RECURSIVE_SAFE,SCOPE> >& lock, const system_time& abs_time )
+      {
+#ifdef _STLP_PTHREADS
+        ::timespec t;
+        t.tv_sec = abs_time.seconds_since_epoch();
+        t.tv_nsec = static_cast<long>( abs_time.nanoseconds_since_epoch().count() % nanoseconds::ticks_per_second );
+        int ret = pthread_cond_timedwait( &_cond, const_cast<pthread_mutex_t *>(&lock.m->_M_lock), &t );
+        if ( ret != 0 ) {
+          if ( ret == ETIMEDOUT ) {
+            return false;
+          }
+          throw std::system_error( ret, std::get_posix_category() );
+        }
+#endif
+        return true;
+      }
+
+    template <bool RECURSIVE_SAFE, class Duration>
+    bool timed_wait( unique_lock<__mutex<RECURSIVE_SAFE,SCOPE> >& lock, const Duration& rel_time )
+      {
+#ifdef _STLP_PTHREADS
+        return timed_wait( lock, get_system_time() + rel_time );
+#endif
+      }
+
+    template <bool RECURSIVE_SAFE, class Predicate>
+    bool timed_wait( unique_lock<__mutex<RECURSIVE_SAFE,SCOPE> >& lock, const system_time& abs_time, Predicate pred )
+      {
+        while ( !pred() ) {
+          if ( !timed_wait( lock, abs_time ) ) {
+            return pred();
+          }
+        }
+        return true;
+      }
+
+    template <bool RECURSIVE_SAFE, class Duration, class Predicate>
+    bool timed_wait( unique_lock<__mutex<RECURSIVE_SAFE,SCOPE> >& lock, const Duration& rel_time, Predicate pred )
+      {
+#ifdef _STLP_PTHREADS
+        return timed_wait( lock, get_system_time() + rel_time, pred );
+#endif
+      }
+#endif // 0
+
+    native_handle_type native_handle()
+      {
+#ifdef _STLP_PTHREADS
+        return &_cond;
+#endif
+#ifdef _STLP_WIN32THREADS
+        return _cond;
+#endif
+      }
+
+  protected:
+#ifdef _STLP_PTHREADS
+    pthread_cond_t _cond;
+#endif
+#ifdef _STLP_WIN32THREADS
+    HANDLE _cond;
+#endif
+
+  private:
+    __condition_variable( const __condition_variable& )
+      { }
+};
+
+typedef __condition_variable<false> condition_variable;
+typedef __condition_variable<true>  condition_variable_ip;
+
+template <bool SCOPE>
+class __condition_variable_any
+{
+  public:
+    __condition_variable_any()
+      {
+#ifdef _STLP_WIN32THREADS
+        _cond = CreateEvent( 0, TRUE, TRUE, 0 );
+#endif
+#ifdef _STLP_PTHREADS
+        if ( SCOPE ) {
+          pthread_condattr_t attr;
+          pthread_condattr_init( &attr );
+          pthread_condattr_setpshared( &attr, PTHREAD_PROCESS_SHARED );
+          pthread_cond_init( &_cond, &attr );
+          pthread_condattr_destroy( &attr );
+        } else {
+          pthread_cond_init( &_cond, 0 );
+        }
+#endif
+      }
+
+    ~__condition_variable_any()
+      {
+#ifdef _STLP_WIN32THREADS
+        CloseHandle( _cond );
+#endif
+#ifdef _STLP_PTHREADS
+        pthread_cond_destroy( &_cond );
+#endif
+      }
+
+#ifdef _STLP_PTHREADS
+    typedef pthread_cond_t* native_handle_type;
+#endif
+#ifdef _STLP_WIN32THREADS
+    typedef HANDLE native_handle_type;
+#endif
+
+    void notify_one()
+      {
+#ifdef _STLP_WIN32THREADS
+        SetEvent( _cond );
+#endif
+#ifdef _STLP_PTHREADS
+        pthread_cond_signal( &_cond );
+#endif
+      }
+
+    void notify_all()
+      {
+#ifdef _STLP_PTHREADS
+        pthread_cond_broadcast( &_cond );
+#endif
+      }
+
+    template <class Lock>
+    void wait( Lock& lock )
+      {
+#ifdef _STLP_WIN32THREADS
+        ResetEvent( _cond );
+        lock.unlock();
+        if ( WaitForSingleObject( _cond, -1 ) == WAIT_FAILED ) {
+          lock.lock();
+          // throw system_error
+        }
+        lock.lock();
+#endif
+#ifdef _STLP_PTHREADS
+        int ret = pthread_cond_wait( &_cond, lock.native_handle() );
+        if ( ret ) {
+          lock.lock();
+          throw _STLP_STD::system_error( ret, _STLP_STD::get_posix_category() );
+        }
+#endif
+      }
+
+    template <class Lock, class Predicate>
+    void wait( Lock& lock, Predicate pred )
+      {
+        while ( !pred() ) {
+          wait( lock );
+        }
+      }
+
+#if 0
+    template <class Lock>
+    bool timed_wait( Lock& lock, const system_time& abs_time )
+      {
+#ifdef _STLP_PTHREADS
+        ::timespec t;
+        t.tv_sec = abs_time.seconds_since_epoch();
+        t.tv_nsec = static_cast<long>( abs_time.nanoseconds_since_epoch().count() % nanoseconds::ticks_per_second );
+        int ret = pthread_cond_timedwait( &_cond, lock.native_handle(), &t );
+        if ( ret != 0 ) {
+          if ( ret == ETIMEDOUT ) {
+            return false;
+          }
+          throw std::system_error( ret, std::get_posix_category() );
+        }
+#endif
+#ifdef _STLP_WIN32THREADS
+        static const std::tr2::nanoseconds::tick_type _th = std::tr2::nanoseconds::ticks_per_second / std::tr2::milliseconds::ticks_per_second;
+        ResetEvent( _cond );
+        lock.unlock();
+        int ret = WaitForSingleObject( _cond, (abs_time - get_system_time()).count() / _th );
+        lock.lock();
+        if ( ret == WAIT_FAILED ) {
+          // throw system_error
+        }
+        if ( ret == WAIT_TIMEOUT ) {
+          SetEvent( _cond );
+          return _val;
+        }
+#endif
+
+        return true;
+      }
+
+    template <class Lock, class Duration>
+    bool timed_wait( Lock& lock, const Duration& rel_time )
+      {
+#ifdef _STLP_PTHREADS
+        return timed_wait( lock, get_system_time() + rel_time );
+#endif
+#ifdef _STLP_WIN32THREADS
+        static const std::tr2::nanoseconds::tick_type _th = std::tr2::nanoseconds::ticks_per_second / Duration::ticks_per_second;
+
+        ResetEvent( _cond );
+        lock.unlock();
+        int ret = WaitForSingleObject( _cond, rel_time.count() / _th );
+        lock.lock();
+        if ( ret == WAIT_FAILED ) {
+          // throw system_error
+        }
+        if ( ret == WAIT_TIMEOUT ) {
+          SetEvent( _cond );
+          return _val;
+        }
+
+        return true;
+#endif
+      }
+
+    template <class Lock, class Predicate>
+    bool timed_wait( Lock& lock, const system_time& abs_time, Predicate pred )
+      {
+        while ( !pred() ) {
+          if ( !timed_wait( lock, abs_time ) ) {
+            return pred();
+          }
+        }
+        return true;
+      }
+
+    template <class Lock, class Duration, class Predicate>
+    bool timed_wait( Lock& lock, const Duration& rel_time, Predicate pred )
+      {
+#ifdef _STLP_PTHREADS
+        return timed_wait( lock, get_system_time() + rel_time, pred );
+#endif
+      }
+#endif // 0
+
+    native_handle_type native_handle()
+      {
+#ifdef _STLP_PTHREADS
+        return &_cond;
+#endif
+#ifdef _STLP_WIN32THREADS
+        return _cond;
+#endif
+      }
+
+  protected:
+#ifdef _STLP_PTHREADS
+    pthread_cond_t _cond;
+#endif
+#ifdef _STLP_WIN32THREADS
+    HANDLE _cond;
+#endif
+
+  private:
+    __condition_variable_any( const __condition_variable_any& )
+      { }
+};
+
+typedef __condition_variable_any<false> condition_variable_any;
+typedef __condition_variable_any<true>  condition_variable_any_ip;
+
+template <bool SCOPE>
+class __condition_event
+{
+  public:
+    __condition_event() :
+        _val( false )
+      {
+#ifdef _STLP_WIN32THREADS
+        _cond = CreateEvent( 0, TRUE, TRUE, 0 );
+#endif
+#ifdef _STLP_PTHREADS
+        if ( SCOPE ) {
+          pthread_condattr_t attr;
+          pthread_condattr_init( &attr );
+          pthread_condattr_setpshared( &attr, PTHREAD_PROCESS_SHARED );
+          pthread_cond_init( &_cond, &attr );
+          pthread_condattr_destroy( &attr );
+        } else {
+          pthread_cond_init( &_cond, 0 );
+        }
+#endif
+      }
+
+    ~__condition_event()
+      {
+#ifdef _STLP_WIN32THREADS
+        CloseHandle( _cond );
+#endif
+#ifdef _STLP_PTHREADS
+        pthread_cond_destroy( &_cond );
+#endif
+      }
+
+    void notify_one()
+      {
+        unique_lock<__mutex<false,SCOPE> > lk( _lock );
+
+        _val = true;
+
+#ifdef _STLP_WIN32THREADS
+        SetEvent( _cond );
+#endif
+#ifdef _STLP_PTHREADS
+        int ret = pthread_cond_signal( &_cond );
+        if ( ret ) {
+          throw _STLP_STD::system_error( ret, _STLP_STD::get_posix_category() );
+        }
+#endif
+      }
+
+    void notify_all()
+      {
+        unique_lock<__mutex<false,SCOPE> > lk( _lock );
+
+        _val = true;
+
+#ifdef _STLP_WIN32THREADS
+        if ( SetEvent( _cond ) == FALSE ) {
+          // throw system_error
+        }
+#endif
+#ifdef _STLP_PTHREADS
+        int ret = pthread_cond_broadcast( &_cond );
+        if ( ret ) {
+          throw _STLP_STD::system_error( ret, _STLP_STD::get_posix_category() );
+        }
+#endif
+      }
+
+    void reset()
+      {
+        unique_lock<__mutex<false,SCOPE> > lk( _lock );
+        _val = false;
+      }
+
+    void wait()
+      {
+        unique_lock<__mutex<false,SCOPE> > lk( _lock );
+
+#ifdef _STLP_WIN32THREADS
+        ResetEvent( _cond );
+        lk.unlock();
+        if ( WaitForSingleObject( _cond, -1 ) == WAIT_FAILED ) {
+          lk.lock();
+          // throw system_error
+        }
+        lk.lock();
+#endif
+#ifdef _STLP_PTHREADS
+        int ret;
+        while ( !_val ) {
+          ret = pthread_cond_wait( &_cond, &_lock._M_lock );
+          if ( ret ) {
+            throw _STLP_STD::system_error( ret, _STLP_STD::get_posix_category() );
+          }
+        }
+#endif
+      }
+
+#if 0
+    bool timed_wait(const system_time& abs_time )
+      {
+        unique_lock<__mutex<false,SCOPE> > lk( _lock );
+
+#ifdef _STLP_PTHREADS
+        ::timespec t;
+        t.tv_sec = abs_time.seconds_since_epoch();
+        t.tv_nsec = static_cast<long>( abs_time.nanoseconds_since_epoch().count() % nanoseconds::ticks_per_second );
+        while ( !_val ) {
+          int ret = pthread_cond_timedwait( &_cond, _lock.native_handle(), &t );
+          if ( ret != 0 ) {
+            if ( ret == ETIMEDOUT ) {
+              return _val;
+            }
+            throw _STLP_STD::system_error( ret, _STLP_STD::get_posix_category() );
+          }
+        }
+#endif
+
+#ifdef _STLP_WIN32THREADS
+        static const std::tr2::nanoseconds::tick_type _th = std::tr2::nanoseconds::ticks_per_second / std::tr2::milliseconds::ticks_per_second;
+        ResetEvent( _cond );
+        lk.unlock();
+        int ret = WaitForSingleObject( _cond, (abs_time - get_system_time()).count() / _th );
+        lk.lock();
+        if ( ret == WAIT_FAILED ) {
+          // throw system_error
+        }
+        if ( ret == WAIT_TIMEOUT ) {
+          SetEvent( _cond );
+          return _val;
+        }
+#endif
+
+        return true;
+      }
+
+    template <class Duration>
+    bool timed_wait( const Duration& rel_time )
+      {
+#ifdef _STLP_PTHREADS
+        return timed_wait( get_system_time() + rel_time );
+#endif
+#ifdef _STLP_WIN32THREADS
+        static const std::tr2::nanoseconds::tick_type _th = std::tr2::nanoseconds::ticks_per_second / Duration::ticks_per_second;
+
+        unique_lock<__mutex<false,SCOPE> > lk( _lock );
+
+        ResetEvent( _cond );
+        lk.unlock();
+        int ret = WaitForSingleObject( _cond, rel_time.count() / _th );
+        lk.lock();
+        if ( ret == WAIT_FAILED ) {
+          // throw system_error
+        }
+        if ( ret == WAIT_TIMEOUT ) {
+          SetEvent( _cond );
+          return _val;
+        }
+
+        return true;
+#endif
+      }
+#endif // 0
+
+  protected:
+#ifdef _STLP_WIN32THREADS
+    HANDLE _cond;
+#endif
+#ifdef _STLP_PTHREADS
+    pthread_cond_t _cond;
+#endif
+    __mutex<false,SCOPE> _lock;
+    bool _val;
+
+  private:
+    __condition_event( const __condition_event& )
+      { }
+};
+
+typedef __condition_event<false> condition_event;
+typedef __condition_event<true>  condition_event_ip;
+
+template <bool SCOPE>
+class __semaphore
+{
+  public:
+    __semaphore( int cnt = 1 )
+      {
+#ifdef _STLP_WIN32THREADS
+        _sem = CreateSemaphore( NULL, cnt, INT_MAX, 0 ); // check!
+        _cnt = cnt;
+#endif
+#ifdef _STLP_PTHREADS
+        sem_init( &_sem, SCOPE ? 1 : 0, cnt );
+#endif
+      }
+
+    ~__semaphore()
+      {
+#ifdef _STLP_WIN32THREADS
+        CloseHandle( _sem );
+#endif
+#ifdef _STLP_PTHREADS
+        sem_destroy( &_sem );
+#endif        
+      }
+
+    void wait()
+      {
+#ifdef _STLP_WIN32THREADS
+        --_cnt;
+        if ( WaitForSingleObject( _sem, -1 ) == WAIT_FAILED ) {
+          ++_cnt;
+          // throw system_error
+        }
+#endif
+#ifdef _STLP_PTHREADS
+        if ( sem_wait( &_sem ) ) {
+          throw _STLP_STD::system_error( errno, _STLP_STD::get_posix_category() );
+        }
+#endif
+      }
+
+    bool try_wait()
+      {
+#ifdef _STLP_WIN32THREADS
+        return _cnt > 0 ? (--_cnt, this->wait()) : -1;
+#endif
+#ifdef _STLP_PTHREADS
+        if ( sem_trywait( &_sem ) ) {
+          if ( errno == _STLP_STD::posix_error::resource_unavailable_try_again ) {
+            return false;
+          }
+          throw _STLP_STD::system_error( errno, _STLP_STD::get_posix_category() );
+        }
+        return true;
+#endif        
+      }
+
+#if 0
+    bool timed_wait(const system_time& abs_time )
+      {
+#ifdef _STLP_PTHREADS
+        ::timespec t;
+        t.tv_sec = abs_time.seconds_since_epoch();
+        t.tv_nsec = static_cast<long>( abs_time.nanoseconds_since_epoch().count() % nanoseconds::ticks_per_second );
+#  if !(defined(__FreeBSD__) || defined(__OpenBSD__))
+        if ( sem_timedwait( &_sem, &t ) ) {
+          if ( errno == std::posix_error::timed_out ) {
+            return false;
+          }
+          throw _STLP_STD::system_error( errno, _STLP_STD::get_posix_category() );
+        }
+#  endif
+#endif
+#ifdef _STLP_WIN32THREADS
+        static const std::tr2::nanoseconds::tick_type _th = std::tr2::nanoseconds::ticks_per_second / std::tr2::milliseconds::ticks_per_second;
+        int ret = WaitForSingleObject( _sem, (abs_time - get_system_time()).count() / _th );
+        if ( ret == WAIT_FAILED ) {
+          // throw system_error
+        }
+        if ( ret == WAIT_TIMEOUT ) {
+          return false;
+        }
+#endif
+        return true;
+      }
+
+    template <class Duration>
+    bool timed_wait( const Duration& rel_time )
+      {
+#ifdef _STLP_PTHREADS
+        return timed_wait( get_system_time() + rel_time );
+#endif
+#ifdef _STLP_WIN32THREADS
+        static const std::tr2::nanoseconds::tick_type _th = std::tr2::nanoseconds::ticks_per_second / Duration::ticks_per_second;
+
+        int ret = WaitForSingleObject( _sem, rel_time.count() / _th );
+
+        if ( ret == WAIT_OBJECT_0 ) {
+          return true;
+        }
+
+        if ( ret == WAIT_FAILED ) {
+          // throw system_error
+        }
+        if ( ret == WAIT_TIMEOUT ) {
+          return false;
+        }
+
+        return true;
+#endif
+      }
+#endif // 0
+
+
+    void notify_one()
+      {
+#ifdef _STLP_WIN32THREADS
+        int ret = ReleaseSemaphore( _sem, 1, &_cnt ) != 0 ? (++_cnt, 0) : -1;
+        if ( ret != 0 ) {
+          // throw system_error
+        }
+#endif
+#ifdef _STLP_PTHREADS
+        if ( sem_post( &_sem ) ) {
+          throw _STLP_STD::system_error( errno, _STLP_STD::get_posix_category() );
+        }
+#endif        
+      }
+
+    int value()
+      {
+#ifdef _STLP_WIN32THREADS
+        return static_cast<int>(_cnt);
+#endif
+#ifdef _STLP_PTHREADS
+        int v;
+        if ( sem_getvalue( &_sem, &v ) ) {
+          throw _STLP_STD::system_error( errno, _STLP_STD::get_posix_category() );
+        }
+        
+        return v;
+#endif        
+      }
+
+  protected:
+#ifdef _STLP_WIN32THREADS
+    HANDLE _sem;
+    long _cnt;
+#endif
+#ifdef _STLP_PTHREADS
+    sem_t _sem;
+#endif
+  private:
+    __semaphore( const __semaphore& )
+      { }
+};
+
+typedef __semaphore<false> semaphore;
+typedef __semaphore<true> semaphore_ip;
+
+template <bool SCOPE>
+class __barrier
+{
+  public:
+    __barrier( unsigned cnt = 2 )
+      {
+#ifdef _PTHREADS
+        pthread_barrierattr_t attr;
+        pthread_barrierattr_init( &attr );
+        pthread_barrierattr_setpshared( &attr, SCOPE ? PTHREAD_PROCESS_SHARED : PTHREAD_PROCESS_PRIVATE );
+        pthread_barrier_init( &_barr, &attr, cnt );
+        pthread_barrierattr_destroy( &attr );
+#endif
+      }
+
+    ~__barrier()
+      {
+#ifdef _STLP_PTHREADS
+        pthread_barrier_destroy( &_barr );
+#endif
+      }
+
+    void wait()
+      {
+#ifdef _STLP_PTHREADS
+        int ret = pthread_barrier_wait( &_barr );
+        if ( ret != PTHREAD_BARRIER_SERIAL_THREAD && ret != 0 ) {
+          throw _STLP_STD::system_error( ret, _STLP_STD::get_posix_category() );
+        }
+#endif
+      }
+
+  private:
+#ifdef _STLP_PTHREADS
+    pthread_barrier_t _barr;
+#endif
+};
+
+typedef __barrier<false> barrier;
+typedef __barrier<true>  barrier_ip;
+
+_STLP_END_NAMESPACE
+
+#if (_STLP_OUTERMOST_HEADER_ID == 0x7)
+#  include <stl/_epilog.h>
+#  undef _STLP_OUTERMOST_HEADER_ID
+#endif
+
+#endif // _STLP_CONDITION_VARIABLE

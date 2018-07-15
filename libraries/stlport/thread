@@ -1,0 +1,633 @@
+// -*- C++ -*- Time-stamp: <2012-02-28 13:46:18 ptr>
+
+/*
+ * Copyright (c) 1997-1999, 2002-2012
+ * Petr Ovtchenkov
+ *
+ * This material is provided "as is", with absolutely no warranty expressed
+ * or implied. Any use is at your own risk.
+ *
+ * Permission to use or copy this software for any purpose is hereby granted
+ * without fee, provided the above notices are retained on all copies.
+ * Permission to modify the code and to distribute modified code is granted,
+ * provided the above notices are retained, and a notice that the code was
+ * modified is included with the above copyright notice.
+ *
+ */
+
+#ifndef _STLP_THREAD
+#define _STLP_THREAD
+
+#include <climits>
+
+#ifdef __unix
+# include <pthread.h>
+# include <semaphore.h>
+# include <sched.h>
+# include <signal.h>
+#endif // __unix
+
+#include <cerrno>
+#include <mutex>
+#include <condition_variable>
+
+#ifndef _STLP_OUTERMOST_HEADER_ID
+#  define _STLP_OUTERMOST_HEADER_ID 0x6
+#  include <stl/_prolog.h>
+#endif
+
+#ifndef _STLP_INTERNAL_ALLOC_H
+#  include <stl/_alloc.h>
+#endif
+
+#ifndef _STLP_INTERNAL_CSTDDEF
+#  include <stl/_cstddef.h>
+#endif
+
+#ifndef _STLP_INTERNAL_STDEXCEPT
+#  include <stl/_stdexcept.h>
+#endif
+
+_STLP_BEGIN_NAMESPACE
+
+namespace this_thread
+{ }
+
+#ifdef _STLP_WIN32THREADS
+#define _STLP_CALL_CONVENTION WINAPI
+#else
+#define _STLP_CALL_CONVENTION
+#endif
+
+class thread_base
+{
+  public:
+#ifdef _STLP_PTHREADS
+    typedef void * ret_t;
+#endif
+#ifdef _STLP_WIN32THREADS
+    typedef unsigned long ret_t;
+#endif
+
+    typedef ret_t (*entrance_type)( void * );
+#ifdef _STLP_WIN32THREADS
+    typedef unsigned long thread_key_type;
+    typedef HANDLE native_handle_type;
+    // typedef unsigned long thread_id_type;
+#endif
+#ifdef _STLP_PTHREADS
+    typedef pthread_t     native_handle_type;
+#endif
+
+    class id
+    {
+      private:
+        typedef thread_base::native_handle_type _thread_id_type;
+// #ifdef _STLP_WIN32THREADS
+//         typedef unsigned long _thread_id_type;
+// #endif
+
+      public:
+        _STLP_DECLSPEC id();
+
+        bool operator == ( const thread_base::id& r ) const
+          { return _id == r._id; }
+        bool operator != ( const thread_base::id& r ) const
+          { return _id == r._id; }
+        bool operator < ( const thread_base::id& r ) const
+          { return _id < r._id; }
+        bool operator <= ( const thread_base::id& r ) const
+          { return _id <= r._id; }
+        bool operator > ( const thread_base::id& r ) const
+          { return _id > r._id; }
+        bool operator >= ( const thread_base::id& r ) const
+          { return _id >= r._id; }
+
+      protected:
+        id( _thread_id_type i ) :
+            _id( i )
+          { }
+
+      protected:
+
+        _thread_id_type _id;
+
+        friend class thread_base;
+        friend _STLP_DECLSPEC id get_id(void);
+        // friend __FIT_DECLSPEC void fork() throw( fork_in_parent, std::runtime_error );
+    };
+
+    enum {
+      // thread mode flags
+#if defined(_STLP_PTHREADS)
+      bound     = PTHREAD_SCOPE_SYSTEM,   // otherwise, PTHREAD_SCOPE_PROCESS, default
+      detached  = PTHREAD_CREATE_DETACHED,// otherwise, PTHREAD_CREATE_JOINABLE, default
+      new_lwp   = 0, // pthread_setconcurrency( pthread_getconcurrency() + 1 );
+      suspended = 0,
+      daemon    = detached
+#endif
+#ifdef _STLP_WIN32THREADS
+      bound     = 0,
+      detached  = 0x2,
+      new_lwp   = 0,
+      suspended = CREATE_SUSPENDED,
+      daemon    = detached
+#endif
+    };
+
+    _STLP_DECLSPEC thread_base();
+    _STLP_DECLSPEC ~thread_base();
+
+    _STLP_DECLSPEC void join();
+
+    native_handle_type native_handle()
+      { return _id; }
+
+    _STLP_DECLSPEC bool joinable() const; // if true, you can (and should) use join()
+    id get_id() const
+      { return id(_id); }
+    _STLP_DECLSPEC void detach();
+
+  protected:
+    void print_stack()
+      {
+#ifdef _STLP_CREATE_THREAD_STACK_INFO
+        _STLP_STD::stringstream s;
+        callstack( s );
+
+        std::cerr << "Suspected uncatched exception, threas id " << me._id
+                  << "\nStack when thread was created:\n" << _stack_on_create
+                  << "\nCurrent stack is:\n" << s.str() << std::endl;
+#endif
+      }
+
+  private:
+    thread_base( const thread_base& )
+      { }
+
+  protected:
+    native_handle_type _id;
+
+  private:
+    _STLP_STD::mutex _id_lock;
+#ifdef _STLP_WIN32THREADS
+    unsigned long _thr_id;
+#endif
+#ifdef _STLP_CREATE_THREAD_STACK_INFO
+    _STLP_STD::string _stack_on_create;
+#endif
+    friend class Init;
+    // friend _STLP_DECLSPEC void fork() throw( fork_in_parent, std::runtime_error );
+};
+
+template <unsigned F, size_t S>
+class basic_thread :
+    public thread_base
+{
+  public:
+    template <class Entry>
+    basic_thread( Entry e ) :
+        _entry(0),
+        sem( 0 )
+      {
+#ifdef _STLP_PTHREADS
+        pthread_attr_t attr;
+        if ( F != 0 || S != 0 ) {
+          pthread_attr_init( &attr ); // pthread_attr_create --- HP-UX 10.20
+          // pthread_attr_setstacksize( &attr, 0x80000 ); // min 0x50000
+          if ( F & bound ) {
+            pthread_attr_setscope( &attr, bound ); // PTHREAD_SCOPE_PROCESS
+          }
+          if ( F & detached ) { // the same as daemon: detached == daemon for POSIX
+            pthread_attr_setdetachstate( &attr, detached ); // PTHREAD_CREATE_DETACHED
+          }
+          if ( S != 0 ) {
+            pthread_attr_setstacksize( &attr, S > PTHREAD_STACK_MIN ? S : PTHREAD_STACK_MIN /* PTHREAD_STACK_MIN * 2 */ );
+          }
+          // pthread_attr_setinheritsched( &attr, PTHREAD_EXPLICIT_SCHED );
+          // pthread_attr_setschedpolicy(&attr,SCHED_OTHER);
+        }
+        _entry = static_cast<void *>( new Entry( e ) );
+#ifdef _STLP_CREATE_THREAD_STACK_INFO
+        // _stack_on_create
+        {
+          std::stringstream s;
+          callstack( s );
+          _stack_on_create = s.str();
+        }
+#endif
+        native_handle_type _id_tmp;
+        int err = pthread_create( (F & detached) != 0 ? &_id_tmp : &this->_id, F != 0 || S != 0 ? &attr : 0, &_call<Entry>, this );
+        if ( err != 0 ) {
+          // _id = id(); -- not required, already set if required
+          delete static_cast<Entry *>(_entry);
+          if ( F & detached ) {
+            // reset condition (_entry free, ready for delete)
+            _entry = 0;
+          }
+        }
+        if ( F != 0 || S != 0 ) {
+          pthread_attr_destroy( &attr );
+        }
+#endif
+      }
+
+    template <class Entry, class Arg1 >
+    basic_thread( Entry e, Arg1 arg1 ) :
+        _entry( 0 ),
+        sem( 0 )
+      {
+#ifdef _STLP_PTHREADS
+        pthread_attr_t attr;
+        if ( F != 0 || S != 0 ) {
+          pthread_attr_init( &attr ); // pthread_attr_create --- HP-UX 10.20
+          // pthread_attr_setstacksize( &attr, 0x80000 ); // min 0x50000
+          if ( F & bound ) {
+            pthread_attr_setscope( &attr, bound ); // PTHREAD_SCOPE_PROCESS
+          }
+          if ( F & detached ) { // the same as daemon: detached == daemon for POSIX
+            pthread_attr_setdetachstate( &attr, detached ); // PTHREAD_CREATE_DETACHED
+          }
+          if ( S != 0 ) {
+            pthread_attr_setstacksize( &attr, S > PTHREAD_STACK_MIN ? S : PTHREAD_STACK_MIN /* PTHREAD_STACK_MIN * 2 */ );
+          }
+          // pthread_attr_setinheritsched( &attr, PTHREAD_EXPLICIT_SCHED );
+          // pthread_attr_setschedpolicy(&attr,SCHED_OTHER);
+        }
+        _entry = static_cast<void *>(new void *[2]);
+        static_cast<void **>(_entry)[0] = static_cast<void *>( new Entry( e ) );
+        static_cast<void **>(_entry)[1] = static_cast<void *>( new Arg1( arg1 ) );
+#ifdef __STLP_CREATE_THREAD_STACK_INFO
+        // _stack_on_create
+        {
+          std::stringstream s;
+          callstack( s );
+          _stack_on_create = s.str();
+        }
+#endif
+        native_handle_type _id_tmp;
+        int err = pthread_create( (F & detached) != 0 ? &_id_tmp : &this->_id, F != 0 || S != 0 ? &attr : 0, &_call<Entry,Arg1>, this );
+        if ( err != 0 ) {
+          // _id = id(); -- not required, already set if required
+          delete static_cast<Arg1 *>( static_cast<void **>(_entry)[1] );
+          delete static_cast<Entry *>( static_cast<void **>(_entry)[0] );
+          delete [] static_cast<void **>(_entry);
+          if ( F & detached ) {
+            _entry = 0; // reset condition (_entry free, ready for delete)
+          }
+        }
+        if ( F != 0 || S != 0 ) {
+          pthread_attr_destroy( &attr );
+        }
+#endif
+      }
+
+    ~basic_thread()
+      {
+         if ( F & detached ) {
+           if ( _entry != 0 ) {
+             // condition wait
+             sem.wait();
+           }
+         }
+      }
+
+#ifdef _STLP_CPP_0X
+    basic_thread( const basic_thread& ) = delete;
+#else
+  private:
+    basic_thread( const basic_thread& );
+#endif
+  private:
+
+    void *_entry;
+    semaphore sem;
+
+    template <class Entry>
+    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+      {
+         basic_thread<F,S>& me = *reinterpret_cast<basic_thread<F,S>*>(p);
+         Entry entry( *static_cast<Entry *>(me._entry) );
+         delete static_cast<Entry *>(me._entry);
+
+         if ( F & detached ) {
+           me._entry = 0;
+           me.sem.notify_one(); // condition signal (me._entry free, ready for delete)
+         }
+
+         try {
+           entry();
+         }
+         catch ( ... ) {
+           me.print_stack();
+           std::terminate();
+         }
+
+         return 0;
+      }
+
+    template <class Entry, class Arg1 >
+    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+      {
+         basic_thread<F,S>& me = *reinterpret_cast<basic_thread<F,S>*>(p);
+         Entry entry( *static_cast<Entry *>( static_cast<void **>(me._entry)[0] ) );
+         Arg1 arg1( *static_cast<Arg1 *>( static_cast<void **>(me._entry)[1] ) );
+         delete static_cast<Arg1 *>( static_cast<void **>(me._entry)[1] );
+         delete static_cast<Entry *>( static_cast<void **>(me._entry)[0] );
+         delete [] static_cast<void **>(me._entry);
+
+         if ( F & detached ) {
+           me._entry = 0;
+           me.sem.notify_one(); // condition signal (me._entry free, ready for delete)
+         }
+
+         try {
+           entry( arg1 );
+         }
+         catch ( ... ) {
+           me.print_stack();
+           std::terminate();
+         }
+
+         return 0;
+      }
+};
+
+template <>
+class basic_thread<0,0> :
+    public thread_base
+{
+  public:
+    template <class Entry>
+    basic_thread( Entry e )
+      {
+        _entry = static_cast<void *>( new Entry( e ) );
+
+#ifdef _STLP_PTHREADS
+#ifdef _STLP_CREATE_THREAD_STACK_INFO
+        // _stack_on_create
+        {
+          std::stringstream s;
+          callstack( s );
+          _stack_on_create = s.str();
+        }
+#endif
+        int err = pthread_create( &this->_id, 0, &_call<Entry>, this );
+        if ( err != 0 ) {
+#endif
+
+#ifdef _STLP_WIN32THREADS
+        _id = CreateThread( NULL, 0, _call<Entry>, this, 0, NULL );
+        if ( _id == NULL ) {
+#endif
+
+          // _id = id(); -- not required, already set
+          delete static_cast<Entry *>(_entry);
+        }
+      }
+
+    template <class Entry, class Arg1 >
+    basic_thread( Entry e, Arg1 arg1 )
+      {
+        _entry = static_cast<void *>(new void *[2]);
+        static_cast<void **>(_entry)[0] = static_cast<void *>( new Entry( e ) );
+        static_cast<void **>(_entry)[1] = static_cast<void *>( new Arg1( arg1 ) );
+
+#ifdef _STLP_PTHREADS
+#ifdef _STLP_CREATE_THREAD_STACK_INFO
+        // _stack_on_create
+        {
+          std::stringstream s;
+          callstack( s );
+          _stack_on_create = s.str();
+        }
+#endif
+        int err = pthread_create( &this->_id, 0, &_call<Entry,Arg1>, this );
+        if ( err != 0 ) {
+#endif
+
+#ifdef _STLP_WIN32THREADS
+        _id = CreateThread( NULL, 0, _call<Entry,Arg1>, this, 0, NULL );
+        if ( _id == NULL ) {
+#endif
+
+          // _id = id(); -- not required, already set
+          delete static_cast<Arg1 *>( static_cast<void **>(_entry)[1] );
+          delete static_cast<Entry *>( static_cast<void **>(_entry)[0] );
+          delete [] static_cast<void **>(_entry);
+        }
+      }
+
+    ~basic_thread()
+      { }
+
+#ifdef _STLP_CPP_0X
+    basic_thread( const basic_thread& ) = delete;
+#else
+  private:
+    basic_thread( const basic_thread& );
+#endif
+  private:
+
+    void *_entry;
+
+    template <class Entry>
+    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+      {
+         basic_thread<0,0>& me = *reinterpret_cast<basic_thread<0,0>*>(p);
+         Entry entry( *static_cast<Entry *>(me._entry) );
+         delete static_cast<Entry *>(me._entry);
+
+         try {
+           entry();
+         }
+         catch ( ... ) {
+           me.print_stack();
+           std::terminate();
+         }
+
+         return 0;
+      }
+
+    template <class Entry, class Arg1 >
+    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+      {
+         basic_thread<0,0>& me = *reinterpret_cast<basic_thread<0,0>*>(p);
+         Entry entry( *static_cast<Entry *>( static_cast<void **>(me._entry)[0] ) );
+         Arg1 arg1( *static_cast<Arg1 *>( static_cast<void **>(me._entry)[1] ) );
+         delete static_cast<Arg1 *>( static_cast<void **>(me._entry)[1] );
+         delete static_cast<Entry *>( static_cast<void **>(me._entry)[0] );
+         delete [] static_cast<void **>(me._entry);
+
+         try {
+           entry( arg1 );
+         }
+         catch ( ... ) {
+           me.print_stack();
+           std::terminate();
+         }
+
+         return 0;
+      }
+};
+
+template <size_t S>
+class basic_thread<0,S> :
+    public thread_base
+{
+  public:
+    template <class Entry>
+    basic_thread( Entry e )
+      {
+#ifdef _STLP_PTHREADS
+        pthread_attr_t attr;
+        pthread_attr_init( &attr ); // pthread_attr_create --- HP-UX 10.20
+        // pthread_attr_setstacksize( &attr, 0x80000 ); // min 0x50000
+        pthread_attr_setstacksize( &attr, S > PTHREAD_STACK_MIN ? S : PTHREAD_STACK_MIN /* PTHREAD_STACK_MIN * 2 */ );
+        // pthread_attr_setinheritsched( &attr, PTHREAD_EXPLICIT_SCHED );
+        // pthread_attr_setschedpolicy(&attr,SCHED_OTHER);
+        _entry = static_cast<void *>( new Entry( e ) );
+#ifdef _STLP_CREATE_THREAD_STACK_INFO
+        // _stack_on_create
+        {
+          std::stringstream s;
+          callstack( s );
+          _stack_on_create = s.str();
+        }
+#endif
+        int err = pthread_create( &this->_id, &attr, &_call<Entry>, this );
+        if ( err != 0 ) {
+          // _id = id(); -- not required, already set
+          delete static_cast<Entry *>(_entry);
+        }
+        pthread_attr_destroy( &attr );
+#endif
+      }
+
+    template <class Entry, class Arg1 >
+    basic_thread( Entry e, Arg1 arg1 )
+      {
+#ifdef _STLP_PTHREADS
+        pthread_attr_t attr;
+        pthread_attr_init( &attr ); // pthread_attr_create --- HP-UX 10.20
+        // pthread_attr_setstacksize( &attr, 0x80000 ); // min 0x50000
+        pthread_attr_setstacksize( &attr, S > PTHREAD_STACK_MIN ? S : PTHREAD_STACK_MIN /* PTHREAD_STACK_MIN * 2 */ );
+        // pthread_attr_setinheritsched( &attr, PTHREAD_EXPLICIT_SCHED );
+        // pthread_attr_setschedpolicy(&attr,SCHED_OTHER);
+        _entry = static_cast<void *>(new void *[2]);
+        static_cast<void **>(_entry)[0] = static_cast<void *>( new Entry( e ) );
+        static_cast<void **>(_entry)[1] = static_cast<void *>( new Arg1( arg1 ) );
+#ifdef _STLP_CREATE_THREAD_STACK_INFO
+        // _stack_on_create
+        {
+          std::stringstream s;
+          callstack( s );
+          _stack_on_create = s.str();
+        }
+#endif
+        int err = pthread_create( &this->_id, 0, &_call<Entry,Arg1>, this );
+        if ( err != 0 ) {
+          // _id = id(); -- not required, already set
+          delete static_cast<Arg1 *>( static_cast<void **>(_entry)[1] );
+          delete static_cast<Entry *>( static_cast<void **>(_entry)[0] );
+          delete [] static_cast<void **>(_entry);
+        }
+        pthread_attr_destroy( &attr );
+#endif
+      }
+
+    ~basic_thread()
+      { }
+
+#ifdef _STLP_CPP_0X
+    basic_thread( const basic_thread& ) = delete;
+#else
+  private:
+    basic_thread( const basic_thread& );
+#endif
+  private:
+
+    void *_entry;
+
+    template <class Entry>
+    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+      {
+         basic_thread<0,S>& me = *reinterpret_cast<basic_thread<0,S>*>(p);
+         Entry entry( *static_cast<Entry *>(me._entry) );
+         delete static_cast<Entry *>(me._entry);
+
+         try {
+           entry();
+         }
+         catch ( ... ) {
+           me.print_stack();
+           _STLP_STD::terminate();
+         }
+
+         return 0;
+      }
+
+    template <class Entry, class Arg1 >
+    static ret_t _STLP_CALL_CONVENTION _call( void *p )
+      {
+         basic_thread<0,S>& me = *reinterpret_cast<basic_thread<0,S>*>(p);
+         Entry entry( *static_cast<Entry *>( static_cast<void **>(me._entry)[0] ) );
+         Arg1 arg1( *static_cast<Arg1 *>( static_cast<void **>(me._entry)[1] ) );
+         delete static_cast<Arg1 *>( static_cast<void **>(me._entry)[1] );
+         delete static_cast<Entry *>( static_cast<void **>(me._entry)[0] );
+         delete [] static_cast<void **>(me._entry);
+
+         try {
+           entry( arg1 );
+         }
+         catch ( ... ) {
+           me.print_stack();
+           _STLP_STD::terminate();
+         }
+
+         return 0;
+      }
+};
+
+typedef basic_thread<0,0> thread;
+
+// trick to declare thread_base::id get_id() as friend in thread_base::id
+_STLP_DECLSPEC thread_base::id get_id();
+
+//pid_t getpid();
+//pid_t getppid();
+
+namespace this_thread
+{
+
+// std::thread_base::id get_id();
+using _STLP_STD::get_id;
+
+inline void yield()
+{
+#ifdef _STLP_PTHREADS
+  // sched_yield();
+  pthread_yield();
+#endif
+}
+
+// _STLP_DECLSPEC void sleep( const std::tr2::system_time& abs_t );
+
+// _STLP_DECLSPEC void sleep( const std::tr2::nanoseconds& rel_t );
+
+// template <class Duration>
+// void sleep( const Duration& rel_t )
+// { std::this_thread::sleep( static_cast<std::tr2::nanoseconds>(rel_t) ); }
+
+} // namespace this_thread
+
+#undef _STLP_CALL_CONVENTION
+
+_STLP_END_NAMESPACE
+
+#if (_STLP_OUTERMOST_HEADER_ID == 0x6)
+#  include <stl/_epilog.h>
+#  undef _STLP_OUTERMOST_HEADER_ID
+#endif
+
+#endif /* _STLP_THREAD */

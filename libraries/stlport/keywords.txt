@@ -1,0 +1,188 @@
+#################################
+# Syntax Coloring Map For stlport
+#################################
+
+#######################################
+# Datatypes (KEYWORD1)
+#######################################
+
+# STL Containers
+
+bitset	KEYWORD1
+deque	KEYWORD1
+list	KEYWORD1
+map	KEYWORD1
+multimap	KEYWORD1
+multiset	KEYWORD1
+priority_queue	KEYWORD1
+queue	KEYWORD1
+set	KEYWORD1
+stack	KEYWORD1
+vector	KEYWORD1
+
+# Miscellaneous datatypes:
+complex	KEYWORD1
+iterator	KEYWORD1
+numeric_limits	KEYWORD1
+
+# Datatypes from functional - generated just like the algorithms list below.
+plus	KEYWORD1
+minus	KEYWORD1
+multiplies	KEYWORD1
+divides	KEYWORD1
+modulus	KEYWORD1
+negate	KEYWORD1
+equal_to	KEYWORD1
+not_equal_to	KEYWORD1
+greater	KEYWORD1
+less	KEYWORD1
+greater_equal	KEYWORD1
+less_equal	KEYWORD1
+logical_and	KEYWORD1
+logical_or	KEYWORD1
+logical_not	KEYWORD1
+
+# valarray classes: generated just like algorithms
+valarray	KEYWORD1
+slice	KEYWORD1
+gslice	KEYWORD1
+
+# <utility> datatype
+pair	KEYWORD1
+
+# <string> datatypes
+string	KEYWORD1
+
+
+#######################################
+# Methods and Functions (KEYWORD2)
+#######################################
+
+
+# STL Container methods
+# List (mostly) generated using cplusplus.com's summary charts pasted into Gnumeric
+# (successfully) as tabular data, with the KEYWORD2 added in a new column then
+# exported to a tab-delimited file.
+begin	KEYWORD2
+end	KEYWORD2
+rbegin	KEYWORD2
+rend	KEYWORD2
+size	KEYWORD2
+max_size	KEYWORD2
+empty	KEYWORD2
+resize	KEYWORD2
+front	KEYWORD2
+back	KEYWORD2
+at	KEYWORD2
+assign	KEYWORD2
+insert	KEYWORD2
+erase	KEYWORD2
+swap	KEYWORD2
+clear	KEYWORD2
+push_front	KEYWORD2
+pop_front	KEYWORD2
+push_back	KEYWORD2
+pop_back	KEYWORD2
+key_comp	KEYWORD2
+value_comp	KEYWORD2
+find	KEYWORD2
+count	KEYWORD2
+lower_bound	KEYWORD2
+upper_bound	KEYWORD2
+equal_range	KEYWORD2
+top	KEYWORD2
+push	KEYWORD2
+pop	KEYWORD2
+
+# STL algorithms
+# List (mostly) generated using cplusplus.com's summary charts pasted into a text file,
+# piped into this command:
+# grep "^[a-z]" | sed 's/$/\tKEYWORD2/'
+for_each	KEYWORD2
+find	KEYWORD2
+find_if	KEYWORD2
+find_end	KEYWORD2
+find_first_of	KEYWORD2
+adjacent_find	KEYWORD2
+count	KEYWORD2
+count_if	KEYWORD2
+mismatch	KEYWORD2
+equal	KEYWORD2
+search	KEYWORD2
+search_n	KEYWORD2
+copy	KEYWORD2
+copy_backward	KEYWORD2
+swap	KEYWORD2
+swap_ranges	KEYWORD2
+iter_swap	KEYWORD2
+transform	KEYWORD2
+replace	KEYWORD2
+replace_if	KEYWORD2
+replace_copy	KEYWORD2
+replace_copy_if	KEYWORD2
+fill	KEYWORD2
+fill_n	KEYWORD2
+generate	KEYWORD2
+generate_n	KEYWORD2
+remove	KEYWORD2
+remove_if	KEYWORD2
+remove_copy	KEYWORD2
+remove_copy_if	KEYWORD2
+unique	KEYWORD2
+unique_copy	KEYWORD2
+reverse	KEYWORD2
+reverse_copy	KEYWORD2
+rotate	KEYWORD2
+rotate_copy	KEYWORD2
+random_shuffle	KEYWORD2
+partition	KEYWORD2
+stable_partition	KEYWORD2
+sort	KEYWORD2
+stable_sort	KEYWORD2
+partial_sort	KEYWORD2
+partial_sort_copy	KEYWORD2
+nth_element	KEYWORD2
+lower_bound	KEYWORD2
+upper_bound	KEYWORD2
+equal_range	KEYWORD2
+binary_search	KEYWORD2
+merge	KEYWORD2
+inplace_merge	KEYWORD2
+includes	KEYWORD2
+set_union	KEYWORD2
+set_intersection	KEYWORD2
+set_difference	KEYWORD2
+set_symmetric_difference	KEYWORD2
+push_heap	KEYWORD2
+pop_heap	KEYWORD2
+make_heap	KEYWORD2
+sort_heap	KEYWORD2
+min	KEYWORD2
+max	KEYWORD2
+min_element	KEYWORD2
+max_element	KEYWORD2
+lexicographical_compare	KEYWORD2
+next_permutation	KEYWORD2
+prev_permutation	KEYWORD2
+
+# <numeric> header algorithms - done the same way as above
+accumulate	KEYWORD2
+adjacent_difference	KEYWORD2
+inner_product	KEYWORD2
+partial_sum	KEYWORD2
+
+# <utility> function
+make_pair	KEYWORD2
+
+# Other stuff
+swap	KEYWORD2
+
+#######################################
+# Constants (LITERAL1)
+#######################################
+
+# We'll pretend that a namespace is a constant (?)
+std	LITERAL1
+
+# std::string::npos is a constant.
+npos 	LITERAL1
