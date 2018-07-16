@@ -306,6 +306,10 @@ void USBDeviceClass::init()
 	usbd.enable();
 
 	initialized = true;
+
+#ifdef CDC_ENABLED
+	SerialUSB.begin(0);
+#endif
 }
 
 bool USBDeviceClass::attach()
