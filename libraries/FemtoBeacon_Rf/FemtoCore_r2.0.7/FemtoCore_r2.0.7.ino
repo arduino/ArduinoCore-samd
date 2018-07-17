@@ -22,8 +22,9 @@ int destNodeId = is_coin ? 0x01 : 0x02;
  */
 
 void setup() {
-  while(!Serial);
-
+  #ifdef ENABLE_SERIAL
+    while(!Serial);
+  #endif
   // Initialize our hardware!
   FemtoCore::init(
 
