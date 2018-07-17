@@ -1037,13 +1037,13 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
 void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
     // Skip index 0, as that's the ":" character, indicating it was a command
     char comm = (char)cmd[1];
-    char _free_imu_network_data[APP_BUFFER_SIZE] = "";
+    char _free_imu_network_data[APP_BUFFER_SIZE];
     #ifdef DEBUG
         Serial.print("FemtoCore::processFreeIMUWirelessCommand() comm is ");
         Serial.println(comm);
     #endif
     if (comm == 'v') {
-      resetBuffer(_free_imu_network_data, APP_BUFFER_SIZE);
+      // resetBuffer(_free_imu_network_data, APP_BUFFER_SIZE);
 
       sprintf(
       _free_imu_network_data, 
@@ -1056,7 +1056,37 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
 
       // Reply back to the destination node with the requested data
       send(_free_imu_network_data, destNodeAddress);
+    } else if (comm == '.') {
+        // Someone is asking us to do something
+
+        String command = String(cmd);
+        #ifdef DEBUG
+            Serial.print("command length() is ");
+            Serial.print(command.length());
+            Serial.print(", does it start with :.SET_RGB? ");
+            Serial.println(command.startsWith(":.SET_RGB"));
+        #endif
+
+        // :.SET_RGB:0x00:0x00:0x00
+        if (command.length() == 25 && command.startsWith(":.SET_RGB")) {
+            int r = command.substring(11,  15).toInt();
+            int g = command.substring(16, 20).toInt();
+            int b = command.substring(21, 25).toInt();
+
+            #ifdef DEBUG
+                Serial.print("Setting RGB to ");
+                Serial.print(r);
+                Serial.print(",");
+                Serial.print(g);
+                Serial.print(",");
+                Serial.println(b);
+            #endif
+
+            setRGB(r, g, b, false);
+        }
     }
+
+
 }
 void FemtoCore::processFreeIMUSerialCommand(char cmd) {
     if(cmd=='v') {
