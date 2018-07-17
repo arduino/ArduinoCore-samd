@@ -5,8 +5,8 @@
  * Is this a coin, or a dongle? Set a node address at 0x02 or higher for each coin.
  */
 
-//bool is_coin = true;    // Is FemtoBeacon COIN     O
-bool is_coin = false; // Is FemtoBeacon DONGLE   =[]
+bool is_coin = true;    // Is FemtoBeacon COIN     O
+//bool is_coin = false; // Is FemtoBeacon DONGLE   =[]
 
 int myNodeId = is_coin ? 0x02 : 0x01;
 int destNodeId = is_coin ? 0x01 : 0x02;
