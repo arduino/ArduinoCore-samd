@@ -42,7 +42,7 @@ adafruit_feather_m0.build.variant_system_lib=
 adafruit_feather_m0.build.vid=0x239A
 adafruit_feather_m0.build.pid=0x800B
 adafruit_feather_m0.bootloader.tool=openocd
-adafruit_feather_m0.bootloader.file=feather/samd21_sam_ba.bin
+adafruit_feather_m0.bootloader.file=featherM0/bootloader-feather_m0-v2.0.0-adafruit.5.bin
 
 adafruit_feather_m0_express.name=Adafruit Feather M0 Express
 adafruit_feather_m0_express.vid.0=0x239A
@@ -70,7 +70,7 @@ adafruit_feather_m0_express.build.variant_system_lib=
 adafruit_feather_m0_express.build.vid=0x239A
 adafruit_feather_m0_express.build.pid=0x801B
 adafruit_feather_m0_express.bootloader.tool=openocd
-adafruit_feather_m0_express.bootloader.file=feather/samd21_sam_ba.bin
+adafruit_feather_m0_express.bootloader.file=featherM0/bootloader-feather_m0-v2.0.0-adafruit.5.bin
 
 #adafruit_radio_m0.name=Adafruit M0 Radio (Native USB Port)
 #adafruit_radio_m0.vid.0=0x239A
@@ -125,7 +125,7 @@ adafruit_metro_m0.build.variant_system_lib=
 adafruit_metro_m0.build.vid=0x239A
 adafruit_metro_m0.build.pid=0x8013
 adafruit_metro_m0.bootloader.tool=openocd
-adafruit_metro_m0.bootloader.file=metro/bootloader_uf2.bin
+adafruit_metro_m0.bootloader.file=metroM0/bootloader-metro_m0-v2.0.0-adafruit.5.bin
 
 # Adafruit Circuit Playground M0
 # ------------------------------
@@ -155,7 +155,7 @@ adafruit_circuitplayground_m0.build.variant_system_lib=
 adafruit_circuitplayground_m0.build.vid=0x239A
 adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
-adafruit_circuitplayground_m0.bootloader.file=circuitplay/bootloader_uf2.bin
+adafruit_circuitplayground_m0.bootloader.file=circuitplayM0/bootloader-circuitplay_m0-v2.0.0-adafruit.5.bin
 
 adafruit_gemma_m0.name=Adafruit Gemma M0
 adafruit_gemma_m0.vid.0=0x239A
@@ -183,7 +183,7 @@ adafruit_gemma_m0.build.variant_system_lib=
 adafruit_gemma_m0.build.vid=0x239A
 adafruit_gemma_m0.build.pid=0x801C
 adafruit_gemma_m0.bootloader.tool=openocd
-adafruit_gemma_m0.bootloader.file=gemma/bootloader_uf2.bin
+adafruit_gemma_m0.bootloader.file=gemmaM0/bootloader-gemma_m0-v2.0.0-adafruit.5.bin
 
 adafruit_trinket_m0.name=Adafruit Trinket M0
 adafruit_trinket_m0.vid.0=0x239A
@@ -211,7 +211,7 @@ adafruit_trinket_m0.build.variant_system_lib=
 adafruit_trinket_m0.build.vid=0x239A
 adafruit_trinket_m0.build.pid=0x801E
 adafruit_trinket_m0.bootloader.tool=openocd
-adafruit_trinket_m0.bootloader.file=trinket/bootloader_uf2.bin
+adafruit_trinket_m0.bootloader.file=trinketM0/bootloader-trinket_m0-v2.0.0-adafruit.5.bin
 
 adafruit_itsybitsy_m0.name=Adafruit ItsyBitsy M0
 adafruit_itsybitsy_m0.vid.0=0x239A
@@ -241,7 +241,7 @@ adafruit_itsybitsy_m0.build.variant_system_lib=
 adafruit_itsybitsy_m0.build.vid=0x239A
 adafruit_itsybitsy_m0.build.pid=0x800F
 adafruit_itsybitsy_m0.bootloader.tool=openocd
-adafruit_itsybitsy_m0.bootloader.file=itsybitsy/samd21_sam_ba.bin
+adafruit_itsybitsy_m0.bootloader.file=itsybitsyM0/bootloader-itsybitsy_m0-v2.0.0-adafruit.5.bin
 
 adafruit_pirkey.name=Adafruit pIRkey
 adafruit_pirkey.vid.0=0x239A
@@ -269,7 +269,7 @@ adafruit_pirkey.build.variant_system_lib=
 adafruit_pirkey.build.vid=0x239A
 adafruit_pirkey.build.pid=0x801E
 adafruit_pirkey.bootloader.tool=openocd
-adafruit_pirkey.bootloader.file=pirkey/bootloader_uf2.bin
+adafruit_pirkey.bootloader.file=pirkey/bootloader-pirkey-v2.0.0-adafruit.5.bin
 
 
 # Adafruit Metro M4 (SAMD51)
@@ -300,7 +300,7 @@ adafruit_metro_m4.build.variant_system_lib=
 adafruit_metro_m4.build.vid=0x239A
 adafruit_metro_m4.build.pid=0x8020
 adafruit_metro_m4.bootloader.tool=openocd
-adafruit_metro_m4.bootloader.file=metroM4/bootloader.bin
+adafruit_metro_m4.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
 adafruit_metro_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_metro_m4.menu.cache.on=Enabled
 adafruit_metro_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
@@ -337,7 +337,7 @@ adafruit_itsybitsy_m4.build.variant_system_lib=
 adafruit_itsybitsy_m4.build.vid=0x239A
 adafruit_itsybitsy_m4.build.pid=0x802B
 adafruit_itsybitsy_m4.bootloader.tool=openocd
-adafruit_itsybitsy_m4.bootloader.file=metroM4/bootloader.bin
+adafruit_itsybitsy_m4.bootloader.file=itsybitsyM4/bootloader-itsybitsy_m4-v2.0.0-adafruit.5.bin
 adafruit_itsybitsy_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_itsybitsy_m4.menu.cache.on=Enabled
 adafruit_itsybitsy_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
@@ -373,7 +373,7 @@ adafruit_feather_m4.build.variant_system_lib=
 adafruit_feather_m4.build.vid=0x239A
 adafruit_feather_m4.build.pid=0x8022
 adafruit_feather_m4.bootloader.tool=openocd
-adafruit_feather_m4.bootloader.file=metroM4/bootloader.bin
+adafruit_feather_m4.bootloader.file=featherM4/bootloader-feather_m4-v2.0.0-adafruit.5.bin
 adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_feather_m4.menu.cache.on=Enabled
 adafruit_feather_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
