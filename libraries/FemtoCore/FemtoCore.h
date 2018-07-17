@@ -339,7 +339,7 @@
             static float   _free_imu_ypr[3]; // Buffer to hold FreeIMU Yaw, Pitch, Roll data.
             static float   _free_imu_val[12]; // Buffer to hold FreeIMU results.
             static float   _free_imu_quaternions[4]; // Buffer to hold FreeIMU quaternion data.
-            static char    _free_imu_network_data[FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processFreeIMUWirelessCommand().
+            // static char    _free_imu_network_data[APP_BUFFER_SIZE]; // Used by processFreeIMUWirelessCommand().
             static char    _free_imu_serial_data[FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processFreeIMUSerialCommand(). In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
             static int     _free_imu_raw_values[11]; // Buffer to hold FreeIMU raw value data.
 

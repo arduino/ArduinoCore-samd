@@ -42,8 +42,8 @@ KalmanFilter FemtoCore::kFilters[4];
 float   FemtoCore::_free_imu_ypr[3]; // Buffer to hold FreeIMU Yaw, Pitch, Roll data.
 float   FemtoCore::_free_imu_val[12]; // Buffer to hold FreeIMU results.
 float   FemtoCore::_free_imu_quaternions[4]; // Buffer to hold FreeIMU quaternion data.
-char    FemtoCore::_free_imu_network_data[FemtoCore::FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processFreeIMUWirelessCommand().
-char    FemtoCore::_free_imu_serial_data[FemtoCore::FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processFreeIMUSerialCommand(). In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
+// char    FemtoCore::_free_imu_network_data[APP_BUFFER_SIZE] = ""; // Used by processFreeIMUWirelessCommand().
+char    FemtoCore::_free_imu_serial_data[FemtoCore::FREEIMU_OUTPUT_BUFFER_SIZE] = ""; // Used by processFreeIMUSerialCommand(). In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
 int     FemtoCore::_free_imu_raw_values[11]; // Buffer to hold FreeIMU raw value data.
 
 volatile bool FemtoCore::stringComplete  = false;      // whether the string is complete
@@ -668,6 +668,11 @@ void FemtoCore::send(char* data, int destNodeAddress, int destNodeEndpoint, bool
         
         char charData[APP_BUFFER_SIZE];
         memcpy(charData, data, strlen(data) + 1);
+
+        #ifdef DEBUG
+            Serial.print("FemtoCore::send() non-chunked, charData copy is: ");
+            Serial.println(charData);
+        #endif
         _networkingSendMessage(charData, destNodeAddress, destNodeEndpoint, requireConfirm);
 
     }
@@ -725,7 +730,7 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
     #endif
 
     _sendRequest.data          = (uint8_t*)bufferData;
-    _sendRequest.size          = strlen(bufferData);
+    _sendRequest.size          = strlen(bufferData)+1;
 
     if (requireConfirm) {
         _sendRequest.options      |= NWK_IND_OPT_ACK_REQUESTED; // Assert acknowledge request flag.
@@ -1032,14 +1037,17 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
 void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
     // Skip index 0, as that's the ":" character, indicating it was a command
     char comm = (char)cmd[1];
+    char _free_imu_network_data[APP_BUFFER_SIZE] = "";
     #ifdef DEBUG
         Serial.print("FemtoCore::processFreeIMUWirelessCommand() comm is ");
         Serial.println(comm);
     #endif
     if (comm == 'v') {
+      resetBuffer(_free_imu_network_data, APP_BUFFER_SIZE);
+
       sprintf(
       _free_imu_network_data, 
-      "FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s\n", 
+      "FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s\0", 
 
       FREEIMU_DEVELOPER, 
       FREEIMU_FREQ, 
