@@ -247,6 +247,10 @@
              * Cycles through Red, Green, and Blue components of the RGB LED.
              */
             static void rgbTest();
+            /**
+             * Cycles through all Hues ROYGBIV
+             */
+            static void hsvTest();
 
             static void updateNetworkingConfig();
 

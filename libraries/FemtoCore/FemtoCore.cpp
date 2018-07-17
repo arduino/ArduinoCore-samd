@@ -302,6 +302,13 @@ void FemtoCore::rgbTest() {
     delay(250);
 }
 
+void FemtoCore::hsvTest() {
+    for (int hue = 0; hue <= 360; hue += 15) {
+        FemtoCore::setHSV(hue, 100, 100);
+        delay(50);
+    }
+}
+
 void FemtoCore::_setupSerial() {
         // Wait for a USB connection.
         while(!Serial);
@@ -1067,11 +1074,19 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
             Serial.println(command.startsWith(":.SET_RGB"));
         #endif
 
-        // :.SET_RGB:0x00:0x00:0x00
+        // :.SET_RGB:0000:0000:0000
         if (command.length() == 25 && command.startsWith(":.SET_RGB")) {
             int r = command.substring(11,  15).toInt();
             int g = command.substring(16, 20).toInt();
             int b = command.substring(21, 25).toInt();
+
+            if (r < 0) r = 0;
+            if (g < 0) g = 0;
+            if (b < 0) b = 0;
+
+            if (r > 255) r = 255;
+            if (g > 255) g = 255;
+            if (b > 255) b = 255;
 
             #ifdef DEBUG
                 Serial.print("Setting RGB to ");
@@ -1083,6 +1098,51 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
             #endif
 
             setRGB(r, g, b, false);
+        }
+        // :.SET_HSV:0000:0000:0000
+        if (command.length() == 25 && command.startsWith(":.SET_HSV")) {
+            int h = command.substring(11,  15).toInt();
+            int s = command.substring(16, 20).toInt();
+            int v = command.substring(21, 25).toInt();
+
+            if (h < 0) h = 0;
+            if (s < 0) s = 0;
+            if (v < 0) v = 0;
+
+            if (h > 359) h = 359;
+            if (s > 100) s = 100;
+            if (v > 100) v = 100;
+
+            #ifdef DEBUG
+                Serial.print("Setting HSV to ");
+                Serial.print(h);
+                Serial.print(",");
+                Serial.print(s);
+                Serial.print(",");
+                Serial.println(v);
+            #endif
+
+            setHSV(h, s, v, false);
+        }
+
+        if (command.startsWith(":.TEST_RGB")) {
+            #ifdef DEBUG
+                Serial.print("Testing RGB LED...");
+            #endif
+            rgbTest();
+            #ifdef DEBUG
+                Serial.println("OK");
+            #endif
+        }
+
+        if (command.startsWith(":.TEST_HSV")) {
+            #ifdef DEBUG
+                Serial.print("Testing HSV Method...");
+            #endif
+            hsvTest();
+            #ifdef DEBUG
+                Serial.println("OK");
+            #endif
         }
     }
 
