@@ -187,6 +187,7 @@
             /** RTC Stuff EOF **/
 
             /** FreeIMU Stuff BOF **/
+            static const int FREEIMU_OUTPUT_BUFFER_SIZE = 128; // In the FreeIMU_serial_ARM_CPU sketch, the "str" variable was originally 128 chars.
             static FreeIMU freeIMU;
             /** FreeIMU Stuff EOF **/
             
@@ -269,6 +270,9 @@
             static void stream(char* data);
             static void stream(char* data, int destNodeAddress);
 
+            static void processFreeIMUWirelessCommand(char* cmd, int fromDestNodeAddress);
+            static void processFreeIMUSerialCommand(char cmd);
+
             static void sendSampleLegacy();
             static void sendSampleLegacy(int destNodeAddress);
 
@@ -330,6 +334,14 @@
             static volatile bool    _should_be_sleeping;
 
             static volatile bool    _sensor_is_on;
+            static KalmanFilter kFilters[4];
+
+            static float   _free_imu_ypr[3]; // Buffer to hold FreeIMU Yaw, Pitch, Roll data.
+            static float   _free_imu_val[12]; // Buffer to hold FreeIMU results.
+            static float   _free_imu_quaternions[4]; // Buffer to hold FreeIMU quaternion data.
+            static char    _free_imu_network_data[FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processFreeIMUWirelessCommand().
+            static char    _free_imu_serial_data[FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processFreeIMUSerialCommand(). In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
+            static int     _free_imu_raw_values[11]; // Buffer to hold FreeIMU raw value data.
 
             static NWK_DataReq_t _sendRequest;
 
@@ -342,6 +354,7 @@
             static void _setupMeshNetworking();
             static void _setupRTC();
             static void _setupSensors();
+            static void _setupFilters();
 
             static bool _networkingReceiveMessage(NWK_DataInd_t *ind);
             static void _phyWriteRegister(uint8_t reg, uint8_t value);
@@ -349,6 +362,8 @@
             static void _networkingSendMessage(char* bufferData, int destNodeAddress, int destNodeEndpoint, bool requireConfirm);
 
             static void _networkingSendMessageConfirm(NWK_DataReq_t *req);
+
+            static char _serialBusyWait();
     };
 
 #endif // FemtoCore_h

@@ -5,8 +5,8 @@
  * Is this a coin, or a dongle? Set a node address at 0x02 or higher for each coin.
  */
 
-bool is_coin = true;
-//bool is_coin = false;
+bool is_coin = true;    // Is FemtoBeacon COIN     O
+//bool is_coin = false; // Is FemtoBeacon DONGLE   =[]
 
 int myNodeId = is_coin ? 0x02 : 0x01;
 int destNodeId = is_coin ? 0x01 : 0x02;
@@ -17,8 +17,8 @@ int destNodeId = is_coin ? 0x01 : 0x02;
  * 
  * For this demo, plug in the dongle to one USB port, and the coin to another.
  * Use PuTTY or Minicom as serial monitor for the dongle (115200 baud).
- * Use the Arduino Serial monitor for the coin (with newline enabled, at 115200 baud, although SerialUSB doesn't do anything with the baud rate anyway).
- * Type "Hello" into the Arduino Serial monitor, then press enter. It should send "Hello" to the dongle's serial monitor.
+ * Use the Arduino Serial monitor for the dongle (with newline enabled, at 115200 baud, although SerialUSB doesn't do anything with the baud rate anyway).
+ * Type ":v" into the Arduino Serial monitor, then press enter. It should send ":v" to the coin, and the coin will return the FreeIMU version it has.
  */
 
 void setup() {
