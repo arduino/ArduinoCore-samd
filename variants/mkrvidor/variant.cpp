@@ -215,6 +215,7 @@ void initVariant() {
 #if defined(USE_BQ24195L_PMIC)
   enable_battery_charging();
 #endif
+  startFPGA();
 }
 
 void enableFpgaClock() {
@@ -230,6 +231,8 @@ void disableFpgaClock() {
   //clockout(0, 1);
   delay(1000);
 }
+
+ __attribute__ ((weak)) void startFPGA() {};
 
 // Multi-serial objects instantiation
 SERCOM sercom0(SERCOM0);

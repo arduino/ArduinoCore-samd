@@ -199,11 +199,12 @@ extern Uart Serial1;
 // Alias Serial to SerialUSB
 #define Serial                      SerialUSB
 
-// FPGA-specific clock
+// FPGA-specific functions
 #ifdef __cplusplus
 extern "C" {
 #endif
 void clockout(uint32_t gclk, int32_t divisor);
+void startFPGA();
 #ifdef __cplusplus
 }
 #endif
