@@ -77,6 +77,8 @@ void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPa
     if (is_femtobeacon_coin) {
         _setupFilters();
         _setupSensors();
+
+        broadcast("=INIT_COMPLETE");
     }
 
     #ifdef DEBUG
@@ -280,9 +282,8 @@ void FemtoCore::_setupRGB() {
     pinMode(FEMTO_LED_G, OUTPUT);
     pinMode(FEMTO_LED_B, OUTPUT);
 
-    #ifdef DEBUG
-        FemtoCore::rgbTest();
-    #endif
+    FemtoCore::rgbTest();
+    FemtoCore::hsvTest();
 
 }
 
@@ -299,14 +300,19 @@ void FemtoCore::rgbTest() {
 
     // Turn off RGB LED
     FemtoCore::setRGB(0, 0, 0);
-    delay(250);
 }
 
 void FemtoCore::hsvTest() {
-    for (int hue = 0; hue <= 360; hue += 15) {
+    int hue = 0;
+    for (hue = 0; hue < 360; hue += 15) {
         FemtoCore::setHSV(hue, 100, 100);
         delay(50);
     }
+
+    FemtoCore::setHSV(359, 100, 100);
+    delay(50);
+
+    FemtoCore::setHSV(0, 0, 0); // OFF
 }
 
 void FemtoCore::_setupSerial() {
@@ -510,7 +516,7 @@ bool FemtoCore::_networkingReceiveMessage(NWK_DataInd_t *ind) {
             char firstChar;
             memcpy(&firstChar, receivedData, 1);
 
-            if (firstChar == ':') { // Is it a command?
+            if (firstChar == ':' || firstChar == '>') { // Is it a command? ":" is direct network send, ">" was a broadcast
 
                 int data_size = strlen(receivedData);
                 int fromDestNodeAddress = (int)ind->srcAddr;
@@ -606,12 +612,12 @@ void FemtoCore::send(char* data, int destNodeAddress) {
     send(data, destNodeAddress, _appEndpoint, _networkingRXState);
 }
 
-void FemtoCore::stream(char* data) {
-    send(data, _destAddress, _appEndpoint, false);
+void FemtoCore::broadcast(char* data) {
+    send(data, FEMTO_NETWORKING_BROADCAST_ADDRESS, _appEndpoint, false);
 }
 
-void FemtoCore::stream(char* data, int destNodeAddress) {
-    send(data, _destAddress, _appEndpoint, false);
+void FemtoCore::broadcast(char* data, int destNodeAddress) {
+    send(data, FEMTO_NETWORKING_BROADCAST_ADDRESS, _appEndpoint, false);
 }
 
 void FemtoCore::send(char* data, int destNodeAddress, int destNodeEndpoint, bool requireConfirm) {
@@ -728,7 +734,7 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
 
     _sendRequest.options       = (requireConfirm ? 
                                     NWK_IND_OPT_ACK_REQUESTED : // Default to acknowledge request flag
-                                    NWK_IND_OPT_ACK_REQUESTED | NWK_IND_OPT_BROADCAST_PAN_ID // Just broadcast.
+                                    0 // Just broadcast.
                                  );
 
     // Support for NWK_IND_OPT_SECURED option when NWK_ENABLE_SECURITY is defined.
@@ -739,10 +745,11 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
     _sendRequest.data          = (uint8_t*)bufferData;
     _sendRequest.size          = strlen(bufferData)+1;
 
-    if (requireConfirm) {
-        _sendRequest.options      |= NWK_IND_OPT_ACK_REQUESTED; // Assert acknowledge request flag.
-        _sendRequest.confirm       = _networkingSendMessageConfirm;
-    }
+    // if (requireConfirm) {
+    //     _sendRequest.options      |= NWK_IND_OPT_ACK_REQUESTED; // Assert acknowledge request flag.
+        
+    // }
+    _sendRequest.confirm       = _networkingSendMessageConfirm;
 
     // DOO EEET.
     NWK_DataReq(&_sendRequest);
@@ -824,6 +831,10 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
     #ifdef DEBUG
         Serial.println("FemtoCore::_networkingSendMessageConfirm() complete.");
     #endif
+
+    // #ifdef ENABLE_SERIAL
+    //     serial.println("OK")
+    // #endif
     (void) req;
 }
 
@@ -838,17 +849,28 @@ void FemtoCore::handleSerialRx() {
     char* input_string = const_cast<char*>(inputString.c_str());
 
     #ifdef DEBUG
-        Serial.print("FemtoCore::handleSerialRx() input data is: ");
+        Serial.print("FemtoCore::handleSerialRx() input data (");
+        Serial.print(inputString.length());
+        Serial.print(") is: ");
         Serial.println(input_string);
     #endif
 
-    if (inputString.startsWith(".STREAM:")) {
-        input_string = const_cast<char*>(inputString.substring(8).c_str());
-        stream(input_string);
-    // } else if (inputString.startsWith(":")) {
-        // send(input_string);
+    if (inputString.length() == 18 && inputString.startsWith(".SET_DEST_ID:")) {
+        int dest_id = inputString.substring(15, 18).toInt(); // Discard 0x chars
+
+        #ifdef DEBUG
+            Serial.print("Setting local destination node ID to 0x");
+            Serial.println(dest_id, HEX);
+        #endif
+
+        FemtoCore::setDestAddress(dest_id);
+
     } else if (inputString.startsWith(":")) {
+        // Send to currently set destination node ID.
         send(input_string);
+    } else if (inputString.startsWith(">")) {
+        // Broadcast to all.
+        broadcast(input_string);
     }
 
     FemtoCore::stringComplete = false;
@@ -1042,7 +1064,9 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
     */
 }
 void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
-    // Skip index 0, as that's the ":" character, indicating it was a command
+    // Skip index 0, as that's the ":" (direct network) or ">" (broadcast) character, indicating it was a command
+    bool is_direct_send = (char)cmd[0] == '>';
+    bool is_broadcast_send = (char)cmd[0] == ':';
     char comm = (char)cmd[1];
     char _free_imu_network_data[APP_BUFFER_SIZE];
     #ifdef DEBUG
@@ -1050,35 +1074,61 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
         Serial.println(comm);
     #endif
     if (comm == 'v') {
-      // resetBuffer(_free_imu_network_data, APP_BUFFER_SIZE);
+        // resetBuffer(_free_imu_network_data, APP_BUFFER_SIZE);
 
-      sprintf(
-      _free_imu_network_data, 
-      "FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s\0", 
+        sprintf(
+            _free_imu_network_data, 
+            "=FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s\0", 
 
-      FREEIMU_DEVELOPER, 
-      FREEIMU_FREQ, 
-      FREEIMU_LIB_VERSION, 
-      FREEIMU_ID);
+            FREEIMU_DEVELOPER, 
+            FREEIMU_FREQ, 
+            FREEIMU_LIB_VERSION, 
+            FREEIMU_ID);
 
-      // Reply back to the destination node with the requested data
-      send(_free_imu_network_data, destNodeAddress);
+        // Reply back to the destination node with the requested data
+        if (is_direct_send) {
+            send(_free_imu_network_data, destNodeAddress);
+        } else if (is_broadcast_send) {
+            broadcast(_free_imu_network_data, destNodeAddress);
+        }
+    } else if (comm == '1') {
+        // Initialize the IMU
+        freeIMU.init(true);
+    } else if (comm == '2') {
+        // Reset IMU quaternions
+        freeIMU.RESET_Q();
+    } else if (comm == 'g') {
+        // Initialize gyroscope
+        freeIMU.initGyros();
+    } else if(comm=='t'){
+      //available opttions temp_corr_on, instability_fix
+      freeIMU.setTempCalib(1);   
+    } else if(comm=='f'){
+      //available opttions temp_corr_on, instability_fix
+      freeIMU.initGyros();
+      freeIMU.setTempCalib(0);
+    } else if(comm=='p'){
+      //set sea level pressure
+      long sea_press = Serial.parseInt();        
+      freeIMU.setSeaPress(sea_press/100.0);
+      //Serial.println(sea_press);
+    
     } else if (comm == '.') {
         // Someone is asking us to do something
 
-        String command = String(cmd);
+        String command = String(cmd).substring(1);
         #ifdef DEBUG
-            Serial.print("command length() is ");
+            Serial.print(command);
+            Serial.print(" command (");
             Serial.print(command.length());
-            Serial.print(", does it start with :.SET_RGB? ");
-            Serial.println(command.startsWith(":.SET_RGB"));
+            Serial.println(")");
         #endif
 
-        // :.SET_RGB:0000:0000:0000
-        if (command.length() == 25 && command.startsWith(":.SET_RGB")) {
-            int r = command.substring(11,  15).toInt();
-            int g = command.substring(16, 20).toInt();
-            int b = command.substring(21, 25).toInt();
+        // .SET_RGB:0000:0000:0000
+        if (command.length() == 24 && command.startsWith(".SET_RGB")) {
+            int r = command.substring(10,  14).toInt();
+            int g = command.substring(15, 19).toInt();
+            int b = command.substring(20, 24).toInt();
 
             if (r < 0) r = 0;
             if (g < 0) g = 0;
@@ -1099,11 +1149,11 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
 
             setRGB(r, g, b, false);
         }
-        // :.SET_HSV:0000:0000:0000
-        if (command.length() == 25 && command.startsWith(":.SET_HSV")) {
-            int h = command.substring(11,  15).toInt();
-            int s = command.substring(16, 20).toInt();
-            int v = command.substring(21, 25).toInt();
+        // .SET_HSV:0000:0000:0000
+        if (command.length() == 24 && command.startsWith(".SET_HSV")) {
+            int h = command.substring(9,  13).toInt();
+            int s = command.substring(14, 18).toInt();
+            int v = command.substring(19).toInt();
 
             if (h < 0) h = 0;
             if (s < 0) s = 0;
@@ -1125,7 +1175,7 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
             setHSV(h, s, v, false);
         }
 
-        if (command.startsWith(":.TEST_RGB")) {
+        if (command.startsWith(".TEST_RGB")) {
             #ifdef DEBUG
                 Serial.print("Testing RGB LED...");
             #endif
@@ -1135,7 +1185,7 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
             #endif
         }
 
-        if (command.startsWith(":.TEST_HSV")) {
+        if (command.startsWith(".TEST_HSV")) {
             #ifdef DEBUG
                 Serial.print("Testing HSV Method...");
             #endif
@@ -1144,6 +1194,7 @@ void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
                 Serial.println("OK");
             #endif
         }
+
     }
 
 
@@ -1540,7 +1591,7 @@ void serialEvent() {
 
         char inChar = (char) Serial.read();
 
-        if (_index == 0 && inChar == ':') {
+        if (_index == 0 && (inChar == ':' || inChar == '.' || inChar == '>')) {
             _is_wireless_command = true;
         }
 

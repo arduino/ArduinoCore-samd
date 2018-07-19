@@ -13,8 +13,8 @@
     #include <RTCZero.h>
 
 
-    #define ENABLE_SERIAL       // We want serial USB output.
-    #define DEBUG               // We also want to see debug serial output.
+    // #define ENABLE_SERIAL       // We want serial USB output.
+    // #define DEBUG               // We also want to see debug serial output.
 
     #ifndef FEMTO_SERIAL_BAUD_RATE
         #define FEMTO_SERIAL_BAUD_RATE 115200 // Default baud rate. Note, this is the highest that works on Windows COM ports!
@@ -81,19 +81,6 @@
 
     static          String inputString;     // a String to hold incoming data
 
-    // void SYS_INIT(void);
-    // void SYS_TaskHandler(void);
-
-    // void PHY_SetChannel(uint8_t channel);
-    // void PHY_SetRxState(bool rx);
-    // void PHY_SetTxPower(uint8_t txPower);
-
-    // void NWK_OpenEndpoint(uint8_t id, bool (*handler)(NWK_DataInd_t *ind));
-    // void NWK_SetAddr(uint16_t addr);
-    // void NWK_SetPanId(uint16_t panId);
-
-    // void NWK_DataReq(NWK_DataReq_t *req);
-
     /** Networking vars EOF **/
 
     
@@ -110,29 +97,6 @@
     void tcDisable();
 
     /** RGB timer stuff EOF **/
-
-    // /** FreeIMU stuff BOF **/
-    // // Sensor reading.
-    // float ypr[3]; // Hold Yaw-Pitch-Roll (YPR) data.
-    // float eulers[3]; // Hold euler angles (360 deg).
-    // float values[10];
-    // float baro; // Hold Barometer Altitude data
-    // float temp; // Hold Temperature data
-    // float pressure; // Hold Pressure data
-
-    // // FemtoBeacon FSYNC pin is PA18 (not PA19, which is mislabeled in the silkscreen of FemtoBeacon rev 2.0.0)
-    // // Must connect to GND if FSYNC is unused.
-    // byte PIN_FSYNC = 4;
-
-    // // FemtoBeacon INT pin is PA19 (not PA18, which is mislabeled in the silkscreen of FemtoBeacon r2.0.0)
-    // byte PIN_INT = 3;
-    /** FreeIMU stuff EOF **/
-
-
-    // volatile bool is_sensor_on = 1;
-    // volatile bool is_timestamp_on = 1;
-    // volatile bool is_wireless_ok = 1;
-
     
 
     class FemtoCore 
@@ -160,20 +124,39 @@
              * G  | 3 | | 2 |  R
              *    +---+ +---+
              *
+             *
+             *
+             *
              *           ------+ Common Anode (Pad #1, TOP VIEW)
-             *    +--+ +--+ ++ |
-             * B  |  | |  | || |
-             *    +--+ |  | ||
-             *    +--+ |  | ++
-             * G  |  | |  +--+  R
-             *    +--+ +-----+
+             *    +--+ +--+ ++ |         .   Note, on Dongle, rotate clockwise 90deg more.
+             * B  |  | |  | || |           .
+             *    +--+ |  | ||              .  (Edge of coin PCB)
+             *    +--+ |  | ++               .
+             * G  |  | |  +--+  R             .
+             *    +--+ +-----+                .
+             *                                .
+             *                     +------------+
+             *                     | USB Port
+             *                     |
+             *                     |
+             *                     |
+             *                     |
+             *                     |
+             *                     |
+             *                     +------------+
+             *                                .
+             *                                .
+             *                               .
+             *                              .
+             *                             .
+             *                           .
              */
 
             static const int FEMTO_LED_R = 5; // RGB LED pad #2, Arduino pin 5 (PA06) RED
             static const int FEMTO_LED_G = 6; // RGB LED pad #3, Arduino pin 6 (PA07) GREEN
             static const int FEMTO_LED_B = 21; // RGB LED pad #4, Arduino pin 21 (PA27) BLUE
 
-
+            static const int FEMTO_NETWORKING_BROADCAST_ADDRESS = 0xffff;
             static const int FEMTO_ANTENNA_SMD = 1;
             static const int FEMTO_ANTENNA_UFL = 2;
 
@@ -271,8 +254,8 @@
             static void send(char* data, int destNodeAddress);
             static void send(char* data, int destNodeAddress, int destNodeEndpoint, bool requireConfirm);
 
-            static void stream(char* data);
-            static void stream(char* data, int destNodeAddress);
+            static void broadcast(char* data);
+            static void broadcast(char* data, int destNodeAddress);
 
             static void processFreeIMUWirelessCommand(char* cmd, int fromDestNodeAddress);
             static void processFreeIMUSerialCommand(char cmd);
