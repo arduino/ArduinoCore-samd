@@ -124,6 +124,9 @@ void loop( void ) ;
 #define digitalPinToInterrupt(P)   ( P )
 #endif
 
+// Allows publishing the Beta core under samd-beta / arduino organization
+#define ARDUINO_ARCH_SAMD
+
 // USB Device
 #include "USB/USBDesc.h"
 #include "USB/USBCore.h"
