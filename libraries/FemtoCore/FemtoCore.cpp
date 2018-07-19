@@ -854,7 +854,7 @@ void FemtoCore::handleSerialRx() {
         Serial.print(") is: ");
         Serial.println(input_string);
     #endif
-
+    // @TODO refactor into localCmd() command.
     if (inputString.length() == 18 && inputString.startsWith(".SET_DEST_ID:")) {
         int dest_id = inputString.substring(15, 18).toInt(); // Discard 0x chars
 
