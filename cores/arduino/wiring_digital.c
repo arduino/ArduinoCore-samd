@@ -22,31 +22,11 @@
  extern "C" {
 #endif
 
-/* These functions can be overriden by a library or a variant to allow operations on virtual pins */
-void pinModeExtended( uint32_t ulPin, uint32_t ulMode ) __attribute__((weak));
-void digitalWriteExtended( uint32_t ulPin, uint32_t ulVal ) __attribute__((weak));
-int digitalReadExtended( uint32_t ulPin ) __attribute__((weak));
-
-void pinModeExtended( uint32_t ulPin, uint32_t ulMode ) {
-  (void)ulPin;
-  (void)ulMode;
-}
-void digitalWriteExtended( uint32_t ulPin, uint32_t ulVal ) {
-  (void)ulPin;
-  (void)ulVal;
-}
-int digitalReadExtended( uint32_t ulPin ) {
-  (void)ulPin;
-  return LOW;
-}
-
 void pinMode( uint32_t ulPin, uint32_t ulMode )
 {
-
   // Handle the case the pin isn't usable as PIO
-  if ( ulPin > PINS_COUNT || g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
-    pinModeExtended(ulPin, ulMode);
     return ;
   }
 
@@ -93,11 +73,9 @@ void pinMode( uint32_t ulPin, uint32_t ulMode )
 
 void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 {
-
   // Handle the case the pin isn't usable as PIO
-  if ( ulPin > PINS_COUNT || g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
-    digitalWriteExtended( ulPin, ulVal);
     return ;
   }
 
@@ -127,9 +105,9 @@ void digitalWrite( uint32_t ulPin, uint32_t ulVal )
 int digitalRead( uint32_t ulPin )
 {
   // Handle the case the pin isn't usable as PIO
-  if ( ulPin > PINS_COUNT || g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
+  if ( g_APinDescription[ulPin].ulPinType == PIO_NOT_A_PIN )
   {
-    return digitalReadExtended( ulPin );
+    return LOW ;
   }
 
   if ( (PORT->Group[g_APinDescription[ulPin].ulPort].IN.reg & (1ul << g_APinDescription[ulPin].ulPin)) != 0 )
