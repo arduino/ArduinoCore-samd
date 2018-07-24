@@ -1550,7 +1550,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
 
             // }
         }
-        else if (cmd = 'D') {
+        else if (cmd == 'D') {
             sendSampleLegacy(input_from, output_to, to_node_id);
         }
     }
