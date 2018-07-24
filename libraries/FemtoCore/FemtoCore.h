@@ -1,6 +1,10 @@
 #ifndef FemtoCore_h
     #define FemtoCore_h
 
+    #define FEMTO_SEMVER_MAJOR "1"
+    #define FEMTO_SEMVER_MINOR "0"
+    #define FEMTO_SEMVER_PATCH "0"
+
     #include <stdio.h>
     #include <string.h>
     #include <stdlib.h>
@@ -102,9 +106,7 @@
     class FemtoCore 
     {
         public:
-            static const byte FEMTO_SEMVER_MAJOR = 1;
-            static const byte FEMTO_SEMVER_MINOR = 0;
-            static const byte FEMTO_SEMVER_PATCH = 0;
+            
             /**
              * Constructor.
              */

@@ -1085,7 +1085,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         if(cmd=='v') {
             char* buffer = output_to > 0 ? _free_imu_network_data : _free_imu_serial_data;
 
-            sprintf(buffer, "FemtoCore v%s.%s.%s. FreeIMU lib by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FEMTO_SEMVER_MAJOR, FEMTO_SEMVER_MINOR, FEMTO_SEMVER_PATCH, FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
+            sprintf(buffer, "FemtoCore %s.%s.%s. FreeIMU by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FEMTO_SEMVER_MAJOR, FEMTO_SEMVER_MINOR, FEMTO_SEMVER_PATCH, FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
             // Serial.print(_free_imu_serial_data);
             // Serial.print('\n');
 

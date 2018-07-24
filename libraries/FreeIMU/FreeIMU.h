@@ -226,7 +226,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // ****************************************************
 #define FREEIMU_LIB_VERSION "DEV"
 
-#define FREEIMU_DEVELOPER "Fabio Varesano - varesano.net"
+#define FREEIMU_DEVELOPER "F. Varesano"
 
 #if F_CPU == 16000000L
   #define FREEIMU_FREQ "16 MHz"
