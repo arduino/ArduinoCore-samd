@@ -122,11 +122,11 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 #define SDCARD_SS_PIN   PIN_SPI1_SS
 
 // NINA signals
-#define SPIWIFI         SPIEx
-#define NINA_GPIO0      (100 + 64 + 10)   // WM_PIO27 -> NiNa GPIO0 -> FPGA N9
-#define SPIWIFI_RESET   (100 + 64 + 0)    // WM_RESET -> NiNa RESETN -> FPGA R1
-#define SPIWIFI_ACK     (100 + 64 + 5)    // WM_PIO7  -> NiNa GPIO33 -> FPGA P6
-#define SPIWIFI_SS      (100 + 64 + 11)   // WM_PIO28 -> NiNa GPIO5 -> FPGA N11
+#define SPIWIFI              SPIEx
+#define FPGA_NINA_GPIO0      (64 + 10)   // WM_PIO27 -> NiNa GPIO0 -> FPGA N9
+#define FPGA_SPIWIFI_RESET   (64 + 0)    // WM_RESET -> NiNa RESETN -> FPGA R1
+#define FPGA_SPIWIFI_ACK     (64 + 5)    // WM_PIO7  -> NiNa GPIO33 -> FPGA P6
+#define FPGA_SPIWIFI_SS      (64 + 11)   // WM_PIO28 -> NiNa GPIO5 -> FPGA N11
 
 // Wire Interfaces
 // ---------------
