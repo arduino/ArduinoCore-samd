@@ -1,5 +1,6 @@
 #define Serial SERIAL_PORT_USBVIRTUAL // Our "Serial" object is a Serial USB object.
 
+// Open FemtoCore.h and comment out DEBUG and ENABLE_SERIAL if uploading sketch to a node that won't need SerialUSB data.
 #include "FemtoCore.h"
 
 /**
@@ -26,9 +27,7 @@ int destNodeId = is_coin ? 0x01 : coinId;
  */
 
 void setup() {
-  #ifdef ENABLE_SERIAL
-    while(!Serial);
-  #endif
+
   // Initialize our hardware!
   FemtoCore::init(
 

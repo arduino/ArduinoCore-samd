@@ -828,31 +828,44 @@ void FemtoCore::handleSerialRx() {
     // @TODO Clean up this kludge. Figure out why we get garbage on the receiving node when size is < 8.
 
     // Send it. See https://coderwall.com/p/zfmwsg/arduino-string-to-char
-    char* input_string = const_cast<char*>(inputString.c_str());
+    char input_buffer[APP_BUFFER_SIZE] = "";
+    char* input_buffer_pointer = (char*) input_buffer;
+
+    inputString.toCharArray(input_buffer, inputString.length());
+    input_buffer[inputString.length() + 1] = (char) 0; // add null-terminator
+
+    // char* input_string = const_cast<char*>(inputString.c_str());
     String cmd = inputString.substring(1); // Grab stuff after the first char.
-    char* data = const_cast<char*>(cmd.c_str());
+    
+    char data[APP_BUFFER_SIZE];
+    char* data_pointer = (char*) data;
+
+    cmd.toCharArray(data, cmd.length());
+    data[cmd.length() + 1] = (char) 0; // add null-terminator
+
+    
 
     #ifdef DEBUG
         Serial.print("FemtoCore::handleSerialRx() input data (");
-        Serial.print(strlen(input_string));
+        Serial.print(inputString);
         Serial.print(") is: ");
-        Serial.println(input_string);
+        Serial.println(inputString.length());
         Serial.print("FemtoCore::handleSerialRx() without first char is ");
-        Serial.println(data);
+        Serial.println(cmd);
     #endif
     // refactor into processCommand() call.
-    if ((char)input_string[0] == ':') {
+    if ((char)input_buffer[0] == ':') {
         
         // Send to currently set destination node ID.
         // processCommand(input_string, 0x00, 0x01, _destAddress);
-        send(data);
-    } else if ((char)input_string[0] == '>') {
+        send(data_pointer);
+    } else if ((char)input_buffer[0] == '>') {
         // From Serial, To Network (broadcast). No dest node ID
         // processCommand(input_string, 0x00, 0x02, 0x00);
-        broadcast(data);
+        broadcast(data_pointer);
     } else {
         // From Serial, To Serial. No dest node ID.
-        processCommand(input_string, 0x00, 0x00, 0x00);
+        processCommand(input_buffer_pointer, 0x00, 0x00, 0x00);
     }
 
     FemtoCore::stringComplete = false;
@@ -1137,7 +1150,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             if (output_to > 0) {
                 _reply("p:OK", output_to, to_node_id);
             }
-        } 
+        }
         else if(cmd=='r') {
             // uint8_t count = _serialBusyWait(); // Expects a char representing count
             uint8_t count = command.substring(1).toInt(); // grab the char after the 'r' char. It's the count.
@@ -1288,7 +1301,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
                 //Add in for teensy and Arduino101
                 delay(10);
             }
-        } 
+        }
         else if(cmd == 'a') {
             //a
             float val_array[19] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
