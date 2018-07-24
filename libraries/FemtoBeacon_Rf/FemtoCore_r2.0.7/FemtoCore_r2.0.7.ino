@@ -20,7 +20,7 @@ int destNodeId = is_coin ? 0x01 : coinId;
  * Usage:
  * 
  * For this demo, plug in the dongle to one USB port, and the coin to another.
- * Use PuTTY or Minicom as serial monitor for the dongle (115200 baud).
+ * Use PuTTY or Minicom as serial monitor for the coin (115200 baud).
  * Use the Arduino Serial monitor for the dongle (with newline enabled, at 115200 baud, although SerialUSB doesn't do anything with the baud rate anyway).
  * Type ":v" into the Arduino Serial monitor, then press enter. It should send ":v" to the coin, and the coin will return the FreeIMU version it has.
  */
