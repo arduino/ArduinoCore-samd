@@ -62,7 +62,7 @@
         #define DEFAULT_ANTENNA 0x01 // 1 = Chip antenna, 2 = uFL antenna
     #endif
 
-    // #define NWK_ENABLE_SECURITY // Enable AES encrypted comms.
+    #define NWK_ENABLE_SECURITY // Enable AES encrypted comms.
 
     #ifdef NWK_ENABLE_SECURITY
         #define APP_BUFFER_SIZE     (NWK_MAX_PAYLOAD_SIZE - NWK_SECURITY_MIC_SIZE)
@@ -257,8 +257,7 @@
             static void broadcast(char* data);
             static void broadcast(char* data, int destNodeAddress);
 
-            static void processFreeIMUWirelessCommand(char* cmd, int fromDestNodeAddress);
-            static void processFreeIMUSerialCommand(char cmd);
+            static void processCommand(char* cmd, byte input_from, byte output_to, int to_node_id);
 
             static void sendSampleLegacy();
             static void sendSampleLegacy(int destNodeAddress);
@@ -326,8 +325,8 @@
             static float   _free_imu_ypr[3]; // Buffer to hold FreeIMU Yaw, Pitch, Roll data.
             static float   _free_imu_val[12]; // Buffer to hold FreeIMU results.
             static float   _free_imu_quaternions[4]; // Buffer to hold FreeIMU quaternion data.
-            // static char    _free_imu_network_data[APP_BUFFER_SIZE]; // Used by processFreeIMUWirelessCommand().
-            static char    _free_imu_serial_data[FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processFreeIMUSerialCommand(). In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
+            static char    _free_imu_network_data[APP_BUFFER_SIZE]; // Used by processCommand().
+            static char    _free_imu_serial_data[FREEIMU_OUTPUT_BUFFER_SIZE]; // Used by processCommand(). In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
             static int     _free_imu_raw_values[11]; // Buffer to hold FreeIMU raw value data.
 
             static NWK_DataReq_t _sendRequest;
@@ -350,6 +349,7 @@
 
             static void _networkingSendMessageConfirm(NWK_DataReq_t *req);
 
+            static void _reply(char* message, byte output_to, int dest_node_id);
             static char _serialBusyWait();
     };
 

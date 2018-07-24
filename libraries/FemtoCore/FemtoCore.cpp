@@ -42,8 +42,8 @@ KalmanFilter FemtoCore::kFilters[4];
 float   FemtoCore::_free_imu_ypr[3]; // Buffer to hold FreeIMU Yaw, Pitch, Roll data.
 float   FemtoCore::_free_imu_val[12]; // Buffer to hold FreeIMU results.
 float   FemtoCore::_free_imu_quaternions[4]; // Buffer to hold FreeIMU quaternion data.
-// char    FemtoCore::_free_imu_network_data[APP_BUFFER_SIZE] = ""; // Used by processFreeIMUWirelessCommand().
-char    FemtoCore::_free_imu_serial_data[FemtoCore::FREEIMU_OUTPUT_BUFFER_SIZE] = ""; // Used by processFreeIMUSerialCommand(). In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
+char    FemtoCore::_free_imu_network_data[APP_BUFFER_SIZE] = ""; // Used by processCommand().
+char    FemtoCore::_free_imu_serial_data[FemtoCore::FREEIMU_OUTPUT_BUFFER_SIZE] = ""; // Used by processCommand(), FreeIMU stuff. In the original FreeIMU_serial_ARM_CPU sketch, the "str" char array was hard-coded to 128 characters.
 int     FemtoCore::_free_imu_raw_values[11]; // Buffer to hold FreeIMU raw value data.
 
 volatile bool FemtoCore::stringComplete  = false;      // whether the string is complete
@@ -450,7 +450,7 @@ void FemtoCore::updateNetworkingConfig() {
     NWK_OpenEndpoint(_appEndpoint, _networkingReceiveMessage);
 
     #ifdef DEBUG
-        Serial.println("FemtoCore::updatenetworkingConfig() complete.");
+        Serial.println("FemtoCore::updateNetworkingConfig() complete.");
     #endif
 }
 
@@ -494,106 +494,60 @@ bool FemtoCore::_networkingReceiveMessage(NWK_DataInd_t *ind) {
     // ->lqi Link Quality Indicator.
     // ->rssi Relative Received Signal Strength.
     #ifdef DEBUG
-        // Serial.print("FemtoCore::_networkingReceiveMessage() ");
-        // Serial.print("lqi: ");
-        // Serial.print(ind->lqi, DEC);
-
-        // Serial.print("  ");
-
-        // Serial.print("rssi: ");
-        // Serial.print(ind->rssi, DEC);
-        // Serial.print("  "); 
-
-        // Serial.print("data: ");
-        Serial.println("FemtoCore::_networkingReceiveMessage() called.");
+        Serial.print("FemtoCore::_networkingReceiveMessage() called. Data (size ");
+        Serial.print((int)ind->size);
+        Serial.print(") is ");
+        Serial.println((char*)ind->data);
     #endif;
 
-    char* receivedData = (char*)ind->data; // ind->data must by typecast from uint8_t* to char*
-
-    if (is_femtobeacon_coin) {
-
-        if (strlen(receivedData) > 1) { // Likely 2 chars or more, as commands are prepended with ":"
-            char firstChar;
-            memcpy(&firstChar, receivedData, 1);
-
-            if (firstChar == ':' || firstChar == '>') { // Is it a command? ":" is direct network send, ">" was a broadcast
-
-                int data_size = strlen(receivedData);
-                int fromDestNodeAddress = (int)ind->srcAddr;
-
-                processFreeIMUWirelessCommand(receivedData, fromDestNodeAddress);
-            }
-        }
-    }
-    // if (receivedData.length() > 0) {
-    //     if (receivedData.equals("RESET")) {
-    //         // Reset
-    //         freeIMU.RESET();
-    //         freeIMU.RESET_Q();
-    //         freeIMU.init(true);
-
-    //     } else if (receivedData.equals("SON")) {
-    //         _sensor_is_on = true;
-    //     } else if (receivedData.equals("SOFF")) {
-    //         _sensor_is_on = false;
-    //     } else if (receivedData.equals("TON")) {
-    //         is_timestamp_on = true;
-    //     } else if (receivedData.equals("TOFF")) {
-    //         is_timestamp_on = false;
-    //     } else if (receivedData.equals("TSET")) {
-    //         // @TODO parse incomming timestamp string
-    //         // and set day, month, year, hours, minutes, seconds, milliseconds.
-    //         int spaceIndex = receivedData.indexOf("T");
-    //         String dmy = receivedData.substring(0, spaceIndex);
-    //         String hms = receivedData.substring(spaceIndex + 1);
-
-    //         int hyphenIndex = dmy.indexOf("-");
-    //         int secondHyphenIndex = dmy.indexOf("-", hyphenIndex + 1);
-
-    //         year = (byte)dmy.substring(0, hyphenIndex).toInt();
-    //         month = (byte)dmy.substring(hyphenIndex, secondHyphenIndex).toInt();
-    //         day = (byte)dmy.substring(secondHyphenIndex + 1).toInt();
-
-    //         int colonIndex = hms.indexOf(":");
-    //         int secondColonIndex = hms.indexOf(":", colonIndex + 1);
-
-    //         hours = (byte)hms.substring(0, colonIndex).toInt();
-    //         minutes = (byte)hms.substring(colonIndex, secondColonIndex).toInt();
-
-    //         String secondFractional = hms.substring(secondColonIndex + 1);
-
-    //         int dotIndex = secondFractional.indexOf(".");
-
-    //         if (dotIndex > 0) {
-    //             seconds = (byte)secondFractional.substring(0, dotIndex).toInt();
-
-    //             // Add the board's millis() return value to this.
-    //             milliseconds = secondFractional.substring(dotIndex + 1).toInt();
-    //         } else {
-    //             seconds = (byte)secondFractional.toInt();
-    //         }
-
-    //         rtc.setHours(hours);
-    //         rtc.setMinutes(minutes);
-    //         rtc.setSeconds(seconds);
-
-    //         rtc.setDay(day);
-    //         rtc.setMonth(month);
-    //         rtc.setYear(year);
-
-    //     } else {
-    //         // Ignore...
-    //     }
-    // }
+    char* input_string = (char*)ind->data; // ind->data must by typecast from uint8_t* to char*
+    String input = String(input_string);
 
     #ifdef DEBUG
-        Serial.println("");
-        Serial.println("FemtoCore::_networkingReceiveMessage() complete. Data is below:");
-    #endif
-    #ifdef ENABLE_SERIAL
-        Serial.print(receivedData);
+        Serial.print("FemtoCore::_networkingReceiveMessage() String is ");
+        Serial.println(input);
     #endif
 
+    String firstChar = input.substring(0, 1);
+    // char first_char = (char)input_string[0];
+    char first_char = firstChar.charAt(0);
+    #ifdef DEBUG
+        Serial.println("");
+        Serial.print("FemtoCore::_networkingReceiveMessage() First char is '");
+        Serial.print(first_char);
+        Serial.print("'.");
+        Serial.println(" Processing...");
+    #endif
+
+    
+    if (first_char == '=') {
+        // This is a reply. Output to Serial with new line
+        #ifdef ENABLE_SERIAL
+            Serial.print("from:0x");
+            Serial.print((int)ind->srcAddr, HEX);
+            Serial.print(":0x");
+            Serial.print((int)ind->srcEndpoint, HEX);
+            Serial.print(":");
+            Serial.println(input_string);
+        #endif
+    } else if (first_char == '<') {
+        // This is a reply. Output to Serial without new line
+        #ifdef ENABLE_SERIAL
+            Serial.print("from:0x");
+            Serial.print((int)ind->srcAddr, HEX);
+            Serial.print(":0x");
+            Serial.print((int)ind->srcEndpoint), HEX;
+            Serial.print(":");
+            Serial.print(input_string);
+        #endif
+    } else {
+        // From network (direct), to network (direct), reply to the incomming node ID address.
+        processCommand(input_string, 0x01, 0x02, (int)ind->srcAddr);
+    }
+
+    #ifdef DEBUG
+        Serial.println("FemtoCore::_networkingReceiveMessage() complete.");
+    #endif
     return true;
 }
 
@@ -624,47 +578,72 @@ void FemtoCore::send(char* data, int destNodeAddress, int destNodeEndpoint, bool
     // Turn data into chunks of APP_BUFFER_SIZE.
     int buffer_size = strlen(data); // Measure how many bytes occupied by data.
     int timeout = 0;
-    char* tempBuffer = "";
+    char tempBuffer[APP_BUFFER_SIZE];
+    char* tempBufferPointer;
 
     if (buffer_size >= APP_BUFFER_SIZE) {
         #ifdef DEBUG
             Serial.print("FemtoCore::send() chunked, max buffer size is ");
             Serial.print(APP_BUFFER_SIZE);
-            Serial.println(". Processing.");
+            Serial.print(", this buffer size is ");
+            Serial.print(buffer_size);
+            Serial.print(". Sending: ");
+            Serial.println(data);
         #endif
         int start_index = 0;
-        int leftover_size = buffer_size % APP_BUFFER_SIZE;
+        int chunk_size = APP_BUFFER_SIZE - 1;
+        int leftover_size = buffer_size % chunk_size;
 
         // begin for loop
-        for (start_index = 0; start_index < buffer_size; start_index += APP_BUFFER_SIZE) {
+        for (start_index = 0; start_index < buffer_size; start_index += chunk_size) {
 
             // On final loop, copy the left over bits only (to avoid copying outside the data size)
-            if (leftover_size > 0 && start_index < (buffer_size - (buffer_size % APP_BUFFER_SIZE)) - APP_BUFFER_SIZE) {
+            if (leftover_size > 0 && start_index < (buffer_size - (buffer_size % chunk_size)) - chunk_size) {
                 memcpy(
                     tempBuffer, 
                     data + start_index, 
-                    (buffer_size % APP_BUFFER_SIZE) + 1);
+                    (buffer_size % chunk_size));
             } else {
-            // Copy in chunks sized APP_BUFFER_SIZE
-                memcpy(tempBuffer, data + start_index, APP_BUFFER_SIZE + 1);
+            // Copy in chunks sized chunk_size
+                char* terminator = (char*)((char) 0);
+
+                memcpy(tempBuffer, data + start_index, chunk_size);
+                memcpy(tempBuffer, terminator, chunk_size + 1); // Needs the null terminator.
             }
 
-            _networkingSendMessage(tempBuffer, destNodeAddress, destNodeEndpoint, requireConfirm);
+            #ifdef DEBUG
+                Serial.print("FemtoCore::send() Chunk (at index ");
+                Serial.print(start_index);
+                Serial.print(", size ");
+                Serial.print(sizeof(tempBuffer));
+                Serial.print(") data:");
+                Serial.println(tempBuffer);
+            #endif
+            tempBufferPointer = (char*) tempBuffer;
+            _networkingSendMessage(tempBufferPointer, destNodeAddress, destNodeEndpoint, requireConfirm);
+            
+            // Clear out the temp buffer
+            
 
             // Wait for confirm if required before sending next chunk.
             if (requireConfirm) {
                 while (_networking_is_busy_sending) {
                     ++timeout;
-                    delay(1);
+                    delay(10);
 
                     if (timeout >= NWK_ACK_WAIT_TIME) {
                         timeout = 0;
+                        _networking_is_busy_sending = false;
+                        memset(tempBuffer, 0, sizeof(tempBuffer));
                         #ifdef DEBUG
                             Serial.println("FemtoCore::send() chunk send timed out waiting for message acknowledge confirm!");
                         #endif
                         break;
                     }
                 }
+                
+            } else {
+                memset(tempBuffer, 0, sizeof(tempBuffer));
             }
         } // end for loop
 
@@ -679,14 +658,15 @@ void FemtoCore::send(char* data, int destNodeAddress, int destNodeEndpoint, bool
             Serial.println(").");
         #endif
         
-        char charData[APP_BUFFER_SIZE];
-        memcpy(charData, data, strlen(data) + 1);
+        // char charData[APP_BUFFER_SIZE];
+        // memcpy(charData, data, strlen(data));
 
         #ifdef DEBUG
-            Serial.print("FemtoCore::send() non-chunked, charData copy is: ");
-            Serial.println(charData);
+            Serial.print("FemtoCore::send() non-chunked, data is: ");
+            Serial.println(data);
         #endif
-        _networkingSendMessage(charData, destNodeAddress, destNodeEndpoint, requireConfirm);
+        // _networkingSendMessage(charData, destNodeAddress, destNodeEndpoint, requireConfirm);
+        _networkingSendMessage(data, destNodeAddress, destNodeEndpoint, requireConfirm);
 
     }
 
@@ -743,7 +723,7 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
     #endif
 
     _sendRequest.data          = (uint8_t*)bufferData;
-    _sendRequest.size          = strlen(bufferData)+1;
+    _sendRequest.size          = strlen(bufferData);//+1;
 
     // if (requireConfirm) {
     //     _sendRequest.options      |= NWK_IND_OPT_ACK_REQUESTED; // Assert acknowledge request flag.
@@ -845,32 +825,34 @@ void FemtoCore::handleSerial() {
 
 void FemtoCore::handleSerialRx() {
     
+    // @TODO Clean up this kludge. Figure out why we get garbage on the receiving node when size is < 8.
+
     // Send it. See https://coderwall.com/p/zfmwsg/arduino-string-to-char
     char* input_string = const_cast<char*>(inputString.c_str());
+    String cmd = inputString.substring(1); // Grab stuff after the first char.
+    char* data = const_cast<char*>(cmd.c_str());
 
     #ifdef DEBUG
         Serial.print("FemtoCore::handleSerialRx() input data (");
-        Serial.print(inputString.length());
+        Serial.print(strlen(input_string));
         Serial.print(") is: ");
         Serial.println(input_string);
+        Serial.print("FemtoCore::handleSerialRx() without first char is ");
+        Serial.println(data);
     #endif
-    // @TODO refactor into localCmd() command.
-    if (inputString.length() == 18 && inputString.startsWith(".SET_DEST_ID:")) {
-        int dest_id = inputString.substring(15, 18).toInt(); // Discard 0x chars
-
-        #ifdef DEBUG
-            Serial.print("Setting local destination node ID to 0x");
-            Serial.println(dest_id, HEX);
-        #endif
-
-        FemtoCore::setDestAddress(dest_id);
-
-    } else if (inputString.startsWith(":")) {
+    // refactor into processCommand() call.
+    if ((char)input_string[0] == ':') {
+        
         // Send to currently set destination node ID.
-        send(input_string);
-    } else if (inputString.startsWith(">")) {
-        // Broadcast to all.
-        broadcast(input_string);
+        // processCommand(input_string, 0x00, 0x01, _destAddress);
+        send(data);
+    } else if ((char)input_string[0] == '>') {
+        // From Serial, To Network (broadcast). No dest node ID
+        // processCommand(input_string, 0x00, 0x02, 0x00);
+        broadcast(data);
+    } else {
+        // From Serial, To Serial. No dest node ID.
+        processCommand(input_string, 0x00, 0x00, 0x00);
     }
 
     FemtoCore::stringComplete = false;
@@ -1063,427 +1045,661 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
     send(data, destNodeAddress);
     */
 }
-void FemtoCore::processFreeIMUWirelessCommand(char* cmd, int destNodeAddress) {
-    // Skip index 0, as that's the ":" (direct network) or ">" (broadcast) character, indicating it was a command
-    bool is_direct_send = (char)cmd[0] == '>';
-    bool is_broadcast_send = (char)cmd[0] == ':';
-    char comm = (char)cmd[1];
-    char _free_imu_network_data[APP_BUFFER_SIZE];
-    #ifdef DEBUG
-        Serial.print("FemtoCore::processFreeIMUWirelessCommand() comm is ");
-        Serial.println(comm);
-    #endif
-    if (comm == 'v') {
-        // resetBuffer(_free_imu_network_data, APP_BUFFER_SIZE);
+/**
+ * Process a command. 
+ * @param char* cmd Pointer to the char array representing the command
+ * @param byte  input_from Zero (0) means Serial, One (1) means network node.
+ * @param byte  output_to Zero (0) means Serial (without new line), One (1) means Serial (with new line), Two (2) means network (direct), Three (3) means network (broadcast)
+ * @param int   to_node_id If a reply is required, this is the node address ID which requested a reply.
+ */
+void FemtoCore::processCommand(char* command_chars, byte input_from, byte output_to, int to_node_id) {
 
-        sprintf(
-            _free_imu_network_data, 
-            "=FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s\0", 
-
-            FREEIMU_DEVELOPER, 
-            FREEIMU_FREQ, 
-            FREEIMU_LIB_VERSION, 
-            FREEIMU_ID);
-
-        // Reply back to the destination node with the requested data
-        if (is_direct_send) {
-            send(_free_imu_network_data, destNodeAddress);
-        } else if (is_broadcast_send) {
-            broadcast(_free_imu_network_data, destNodeAddress);
-        }
-    } else if (comm == '1') {
-        // Initialize the IMU
-        freeIMU.init(true);
-    } else if (comm == '2') {
-        // Reset IMU quaternions
-        freeIMU.RESET_Q();
-    } else if (comm == 'g') {
-        // Initialize gyroscope
-        freeIMU.initGyros();
-    } else if(comm=='t'){
-      //available opttions temp_corr_on, instability_fix
-      freeIMU.setTempCalib(1);   
-    } else if(comm=='f'){
-      //available opttions temp_corr_on, instability_fix
-      freeIMU.initGyros();
-      freeIMU.setTempCalib(0);
-    } else if(comm=='p'){
-      //set sea level pressure
-      long sea_press = Serial.parseInt();        
-      freeIMU.setSeaPress(sea_press/100.0);
-      //Serial.println(sea_press);
+    int command_size = strlen(command_chars);
+    // char cmd = (char)command_chars[0];
     
-    } else if (comm == '.') {
-        // Someone is asking us to do something
+    
+    String command = String(command_chars);
+    char cmd = command.charAt(0);
 
-        String command = String(cmd).substring(1);
-        #ifdef DEBUG
-            Serial.print(command);
-            Serial.print(" command (");
-            Serial.print(command.length());
-            Serial.println(")");
-        #endif
-
-        // .SET_RGB:0000:0000:0000
-        if (command.length() == 24 && command.startsWith(".SET_RGB")) {
-            int r = command.substring(10,  14).toInt();
-            int g = command.substring(15, 19).toInt();
-            int b = command.substring(20, 24).toInt();
-
-            if (r < 0) r = 0;
-            if (g < 0) g = 0;
-            if (b < 0) b = 0;
-
-            if (r > 255) r = 255;
-            if (g > 255) g = 255;
-            if (b > 255) b = 255;
-
-            #ifdef DEBUG
-                Serial.print("Setting RGB to ");
-                Serial.print(r);
-                Serial.print(",");
-                Serial.print(g);
-                Serial.print(",");
-                Serial.println(b);
-            #endif
-
-            setRGB(r, g, b, false);
-        }
-        // .SET_HSV:0000:0000:0000
-        if (command.length() == 24 && command.startsWith(".SET_HSV")) {
-            int h = command.substring(9,  13).toInt();
-            int s = command.substring(14, 18).toInt();
-            int v = command.substring(19).toInt();
-
-            if (h < 0) h = 0;
-            if (s < 0) s = 0;
-            if (v < 0) v = 0;
-
-            if (h > 359) h = 359;
-            if (s > 100) s = 100;
-            if (v > 100) v = 100;
-
-            #ifdef DEBUG
-                Serial.print("Setting HSV to ");
-                Serial.print(h);
-                Serial.print(",");
-                Serial.print(s);
-                Serial.print(",");
-                Serial.println(v);
-            #endif
-
-            setHSV(h, s, v, false);
-        }
-
-        if (command.startsWith(".TEST_RGB")) {
-            #ifdef DEBUG
-                Serial.print("Testing RGB LED...");
-            #endif
-            rgbTest();
-            #ifdef DEBUG
-                Serial.println("OK");
-            #endif
-        }
-
-        if (command.startsWith(".TEST_HSV")) {
-            #ifdef DEBUG
-                Serial.print("Testing HSV Method...");
-            #endif
-            hsvTest();
-            #ifdef DEBUG
-                Serial.println("OK");
-            #endif
-        }
-
-    }
-
-
-}
-void FemtoCore::processFreeIMUSerialCommand(char cmd) {
-    if(cmd=='v') {
-      sprintf(_free_imu_serial_data, "FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
-      Serial.print(_free_imu_serial_data);
-      Serial.print('\n');
-    }
-    else if(cmd=='1'){
-      freeIMU.init(true);
-    }
-    else if(cmd=='2'){
-      freeIMU.RESET_Q();           
-    }
-    else if(cmd=='g'){
-      freeIMU.initGyros();
-      //freeIMU.zeroGyro();      
-    }
-    else if(cmd=='t'){
-      //available opttions temp_corr_on, instability_fix
-      freeIMU.setTempCalib(1);   
-    }
-    else if(cmd=='f'){
-      //available opttions temp_corr_on, instability_fix
-      freeIMU.initGyros();
-      freeIMU.setTempCalib(0);
-    }
-    else if(cmd=='p'){
-      //set sea level pressure
-      long sea_press = Serial.parseInt();        
-      freeIMU.setSeaPress(sea_press/100.0);
-      //Serial.println(sea_press);
-    } 
-    else if(cmd=='r') {
-      uint8_t count = _serialBusyWait();
-      for(uint8_t i=0; i<count; i++) {
-        //freeIMU.getUnfilteredRawValues(_free_imu_raw_values);
-        freeIMU.getRawValues(_free_imu_raw_values);
-        sprintf(_free_imu_serial_data, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,", _free_imu_raw_values[0], _free_imu_raw_values[1], _free_imu_raw_values[2], _free_imu_raw_values[3], _free_imu_raw_values[4], _free_imu_raw_values[5], _free_imu_raw_values[6], _free_imu_raw_values[7], _free_imu_raw_values[8], _free_imu_raw_values[9]);
-        Serial.print(_free_imu_serial_data);
-        #if HAS_PRESS()
-          Serial.print(freeIMU.getBaroTemperature()); Serial.print(",");
-          Serial.print(freeIMU.getBaroPressure()); Serial.print(",");
-        #endif
-        Serial.print(millis()); Serial.print(",");
-        Serial.println("\r\n");
-     }
-    }
-    else if(cmd=='b') {
-      uint8_t count = _serialBusyWait();
-      for(uint8_t i=0; i<count; i++) {
-        #if HAS_ITG3200()
-          freeIMU.acc.readAccel(&_free_imu_raw_values[0], &_free_imu_raw_values[1], &_free_imu_raw_values[2]);
-          freeIMU.gyro.readGyroRaw(&_free_imu_raw_values[3], &_free_imu_raw_values[4], &_free_imu_raw_values[5]);
-          writeArr(_free_imu_raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
-        #elif HAS_MPU9150()  || HAS_MPU9250() || HAS_LSM9DS0() || HAS_LSM9DS1()
-          freeIMU.getRawValues(_free_imu_raw_values);
-          writeArr(_free_imu_raw_values, 9, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
-        #elif HAS_MPU6050() || HAS_MPU6000()   // MPU6050
-          //freeIMU.accgyro.getMotion6(&_free_imu_raw_values[0], &_free_imu_raw_values[1], &_free_imu_raw_values[2], &_free_imu_raw_values[3], &_free_imu_raw_values[4], &_free_imu_raw_values[5]);
-          freeIMU.getRawValues(_free_imu_raw_values);
-          writeArr(_free_imu_raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
-        #elif HAS_ALTIMU10() || HAS_ADA_10_DOF()
-          freeIMU.getRawValues(_free_imu_raw_values);
-          writeArr(_free_imu_raw_values, 9, sizeof(int)); // writes accelerometer, gyro values & mag of Altimu 10        
-        #endif
-        //writeArr(_free_imu_raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
-        
-        #if IS_9DOM() && (!HAS_MPU9150()  && !HAS_MPU9250() && !HAS_ALTIMU10() && !HAS_ADA_10_DOF() && !HAS_LSM9DS0() && !HAS_LSM9DS1())
-          freeIMU.magn.getValues(&_free_imu_raw_values[0], &_free_imu_raw_values[1], &_free_imu_raw_values[2]);
-          writeArr(_free_imu_raw_values, 3, sizeof(int));
-        #endif
-        Serial.println();
-      }
-    }
-    else if(cmd == 'q') {
-      uint8_t count = _serialBusyWait();
-      for(uint8_t i=0; i<count; i++) {
-        freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
-        serialPrintFloatArr(_free_imu_quaternions, 4);
-        Serial.println("");
-      }
-    }
-    else if(cmd == 'z') {
-      float val_array[19] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-      uint8_t count = _serialBusyWait();
-      for(uint8_t i=0; i<count; i++) {
-        freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
-        val_array[15] = freeIMU.sampleFreq;        
-        //freeIMU.getValues(_free_imu_val);       
-        val_array[7] = (_free_imu_val[3] * M_PI/180);
-        val_array[8] = (_free_imu_val[4] * M_PI/180);
-        val_array[9] = (_free_imu_val[5] * M_PI/180);
-        val_array[4] = (_free_imu_val[0]);
-        val_array[5] = (_free_imu_val[1]);
-        val_array[6] = (_free_imu_val[2]);
-        val_array[10] = (_free_imu_val[6]);
-        val_array[11] = (_free_imu_val[7]);
-        val_array[12] = (_free_imu_val[8]);
-        val_array[0] = (_free_imu_quaternions[0]);
-        val_array[1] = (_free_imu_quaternions[1]);
-        val_array[2] = (_free_imu_quaternions[2]);
-        val_array[3] = (_free_imu_quaternions[3]);
-        //val_array[15] = millis();
-        val_array[16] = _free_imu_val[9];
-        val_array[18] = _free_imu_val[11];
-        
-        #if HAS_PRESS()
-           // with baro
-           val_array[17] = _free_imu_val[10];
-           val_array[13] = (freeIMU.getBaroTemperature());
-           val_array[14] = (freeIMU.getBaroPressure());
-        #elif HAS_MPU6050()
-           val_array[13] = (freeIMU.DTemp/340.) + 35.;
-        #elif HAS_MPU9150()  || HAS_MPU9250()
-           val_array[13] = ((float) freeIMU.DTemp) / 333.87 + 21.0;
-        #elif HAS_LSM9DS0()
-            val_array[13] = 21.0 + (float) freeIMU.DTemp/8.; //degrees C
-        #elif HAS_LSM9DS1()    
-            val_array[13] = ((float) freeIMU.DTemp/256. + 25.0); //degrees C
-        #elif HAS_ITG3200()
-           val_array[13] = freeIMU.rt;
-        #endif
-
-        serialPrintFloatArr(val_array,19);
-        //Serial.print('\n');
-        
-        #if HAS_GPS
-          val_array[0] = (float) gps.hdop.value();
-          val_array[1] = (float) gps.hdop.isValid();
-          val_array[2] = (float) gps.location.lat();
-          val_array[3] = (float) gps.location.lng();
-          val_array[4] = (float) gps.location.isValid();
-          val_array[5] = (float) gps.altitude.meters();
-          val_array[6] = (float) gps.altitude.isValid();
-          val_array[7] = (float) gps.course.deg();
-          val_array[8] = (float) gps.course.isValid();
-          val_array[9] = (float) gps.speed.kmph();
-          val_array[10] = (float) gps.speed.isValid();
-          val_array[11] = (float) gps.charsProcessed();
-          serialPrintFloatArr(val_array,12);
-          Serial.print('\n');
-          smartDelay(20);
-        #else
-          Serial.print('\n');
-        #endif  
-        //Add in for teensy and Arduino101
-        delay(10);
-      }
-    } 
-    else if(cmd == 'a') {
-      float val_array[19] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-      uint8_t count = _serialBusyWait();
-      for(uint8_t i=0; i < count; i++) {
-        freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
-        val_array[15] = freeIMU.sampleFreq;
-        //freeIMU.getValues(val);        
-        val_array[7] = (_free_imu_val[3] * M_PI/180);
-        val_array[8] = (_free_imu_val[4] * M_PI/180);
-        val_array[9] = (_free_imu_val[5] * M_PI/180);
-        val_array[4] = (_free_imu_val[0]);
-        val_array[5] = (_free_imu_val[1]);
-        val_array[6] = (_free_imu_val[2]);
-        val_array[10] = (_free_imu_val[6]);
-        val_array[11] = (_free_imu_val[7]);
-        val_array[12] = (_free_imu_val[8]);
-        val_array[0] = kFilters[0].measureRSSI(_free_imu_quaternions[0]);
-        val_array[1] = kFilters[1].measureRSSI(_free_imu_quaternions[1]);
-        val_array[2] = kFilters[2].measureRSSI(_free_imu_quaternions[2]);
-        val_array[3] = kFilters[3].measureRSSI(_free_imu_quaternions[3]);
-        //val_array[15] = millis();
-        val_array[16] = _free_imu_val[9];
-        val_array[18] = _free_imu_val[11];
-                
-        #if HAS_PRESS() 
-           // with baro
-           val_array[17] = _free_imu_val[10];
-           val_array[13] = (freeIMU.getBaroTemperature());
-           val_array[14] = (freeIMU.getBaroPressure());
-        #elif HAS_MPU6050()
-           val_array[13] = (freeIMU.DTemp/340.) + 35.;
-        #elif HAS_MPU9150()  || HAS_MPU9250()
-           val_array[13] = ((float) freeIMU.DTemp) / 333.87 + 21.0;
-        #elif HAS_LSM9DS0()
-            val_array[13] = 21.0 + (float) freeIMU.DTemp/8.; //degrees C
-        #elif HAS_LSM9DS1()    
-            val_array[13] = ((float) freeIMU.DTemp/256. + 25.0); //degrees C
-        #elif HAS_ITG3200()
-           val_array[13] = freeIMU.rt;
-        #endif
-        serialPrintFloatArr(val_array, 19);
-        //Serial.print('\n');
-        
-        #if HAS_GPS
-          val_array[0] = (float) gps.hdop.value();
-          val_array[1] = (float) gps.hdop.isValid();
-          val_array[2] = (float) gps.location.lat();
-          val_array[3] = (float) gps.location.lng();
-          val_array[4] = (float) gps.location.isValid();
-          val_array[5] = (float) gps.altitude.meters();
-          val_array[6] = (float) gps.altitude.isValid();
-          val_array[7] = (float) gps.course.deg();
-          val_array[8] = (float) gps.course.isValid();
-          val_array[9] = (float) gps.speed.kmph();
-          val_array[10] = (float) gps.speed.isValid();
-          val_array[11] = (float) gps.charsProcessed();
-          serialPrintFloatArr(val_array,12);
-          Serial.print('\n');
-          smartDelay(20);
-        #else
-          Serial.print('\n');
-        #endif 
-       }
-     }
-     
-    #if HAS_EEPPROM
-      #ifndef CALIBRATION_H
-      else if(cmd == 'c') {
-        const uint8_t eepromsize = sizeof(float) * 6 + sizeof(int) * 6;
-        while(Serial.available() < eepromsize) ; // wait until all calibration data are received
-        EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
-        for(uint8_t i = 1; i<(eepromsize + 1); i++) {
-          EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) Serial.read());
-        }
-        freeIMU.calLoad(); // reload calibration
-        // toggle LED after calibration store.
-        digitalWrite(13, HIGH);
-        delay(1000);
-        digitalWrite(13, LOW);
-      } 
-      else if(cmd == 'x') {
-        EEPROM.write(FREEIMU_EEPROM_BASE, 0); // reset signature
-        freeIMU.calLoad(); // reload calibration
-      }
-      #endif
+    #ifdef DEBUG
+        Serial.print("FemtoCore::processCommand got ");
+        Serial.println(command);
     #endif
-    else if(cmd == 'C') { // check calibration values
-      Serial.print("acc offset: ");
-      Serial.print(freeIMU.acc_off_x);
-      Serial.print(",");
-      Serial.print(freeIMU.acc_off_y);
-      Serial.print(",");
-      Serial.print(freeIMU.acc_off_z);
-      Serial.print("\n");
-      
-      Serial.print("magn offset: ");
-      Serial.print(freeIMU.magn_off_x);
-      Serial.print(",");
-      Serial.print(freeIMU.magn_off_y);
-      Serial.print(",");
-      Serial.print(freeIMU.magn_off_z);
-      Serial.print("\n");
-      
-      Serial.print("acc scale: ");
-      Serial.print(freeIMU.acc_scale_x);
-      Serial.print(",");
-      Serial.print(freeIMU.acc_scale_y);
-      Serial.print(",");
-      Serial.print(freeIMU.acc_scale_z);
-      Serial.print("\n");
-      
-      Serial.print("magn scale: ");
-      Serial.print(freeIMU.magn_scale_x);
-      Serial.print(",");
-      Serial.print(freeIMU.magn_scale_y);
-      Serial.print(",");
-      Serial.print(freeIMU.magn_scale_z);
-      Serial.print("\n");
+
+    if (is_femtobeacon_coin) {
+
+        // FreeIMU command.
+        if(cmd=='v') {
+            char* buffer = output_to > 0 ? _free_imu_network_data : _free_imu_serial_data;
+
+            sprintf(buffer, "FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
+            // Serial.print(_free_imu_serial_data);
+            // Serial.print('\n');
+
+            // If output_to is serial, output with a new-line at the end.
+            // If output_to is network, send output as is.
+            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+            memset(buffer, 0, sizeof(buffer));
+        }
+        else if(cmd=='1'){
+            freeIMU.init(true);
+            if (output_to > 0) {
+                _reply("1:OK", output_to, to_node_id);
+            }
+        }
+        else if(cmd=='2'){
+            freeIMU.RESET_Q();
+            if (output_to > 0) {
+                _reply("2:OK", output_to, to_node_id);
+            }
+        }
+        else if(cmd=='g'){
+            freeIMU.initGyros();
+            if (output_to > 0) {
+                _reply("g:OK", output_to, to_node_id);
+            }
+        }
+        else if(cmd=='t'){
+            //available opttions temp_corr_on, instability_fix
+            freeIMU.setTempCalib(1);
+            if (output_to > 0) {
+                _reply("t:OK", output_to, to_node_id);
+            }
+        }
+        else if(cmd=='f'){
+            //available opttions temp_corr_on, instability_fix
+            freeIMU.initGyros();
+            freeIMU.setTempCalib(0);
+            if (output_to > 0) {
+                _reply("f:OK", output_to, to_node_id);
+            }
+        }
+        else if(cmd=='p'){
+            //set sea level pressure
+            long sea_press = Serial.parseInt();
+            freeIMU.setSeaPress(sea_press/100.0);
+            //Serial.println(sea_press);
+
+            if (output_to > 0) {
+                _reply("p:OK", output_to, to_node_id);
+            }
+        } 
+        else if(cmd=='r') {
+            // uint8_t count = _serialBusyWait(); // Expects a char representing count
+            uint8_t count = command.substring(1).toInt(); // grab the char after the 'r' char. It's the count.
+            char* buffer = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            for(uint8_t i=0; i<count; i++) {
+                String output = String("");
+
+                //freeIMU.getUnfilteredRawValues(_free_imu_raw_values);
+                freeIMU.getRawValues(_free_imu_raw_values);
+                sprintf(buffer, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,", _free_imu_raw_values[0], _free_imu_raw_values[1], _free_imu_raw_values[2], _free_imu_raw_values[3], _free_imu_raw_values[4], _free_imu_raw_values[5], _free_imu_raw_values[6], _free_imu_raw_values[7], _free_imu_raw_values[8], _free_imu_raw_values[9]);
+                // Serial.print(_free_imu_serial_data);
+                output = String(buffer);
+
+                #if HAS_PRESS()
+                  // Serial.print(freeIMU.getBaroTemperature()); Serial.print(",");
+                  // Serial.print(freeIMU.getBaroPressure()); Serial.print(",");
+                    output += String(freeIMU.getBaroTemperature()) + ',' + String(freeIMU.getBaroPressure()) + ',';
+
+                #endif
+                // Serial.print(millis()); Serial.print(",");
+                // Serial.println("\r\n");
+
+                output += millis() + ',' + "\r\n";
+                buffer = const_cast<char*>(output.c_str());
+                _reply(buffer, output_to < 1 ? 0 : output_to, to_node_id);
+                memset(buffer, 0, sizeof(buffer));
+            }
+        }
+        else if(cmd=='b') {
+            // uint8_t count = _serialBusyWait(); // Expects a char representing count
+            uint8_t count = command.substring(1).toInt(); // grab the char after the 'b' char. It's the count.
+            char* buffer = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            for(uint8_t i=0; i<count; i++) {
+                String output = String("");
+
+                #if HAS_ITG3200()
+                  freeIMU.acc.readAccel(&_free_imu_raw_values[0], &_free_imu_raw_values[1], &_free_imu_raw_values[2]);
+                  freeIMU.gyro.readGyroRaw(&_free_imu_raw_values[3], &_free_imu_raw_values[4], &_free_imu_raw_values[5]);
+                  // writeArr(_free_imu_raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
+                  toPrintableArr(_free_imu_raw_values, 6, sizeof(int), buffer);
+                #elif HAS_MPU9150()  || HAS_MPU9250() || HAS_LSM9DS0() || HAS_LSM9DS1()
+                  freeIMU.getRawValues(_free_imu_raw_values);
+                  // writeArr(_free_imu_raw_values, 9, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
+                  toPrintableArr(_free_imu_raw_values, 9, sizeof(int), buffer);
+                #elif HAS_MPU6050() || HAS_MPU6000()   // MPU6050
+                  //freeIMU.accgyro.getMotion6(&_free_imu_raw_values[0], &_free_imu_raw_values[1], &_free_imu_raw_values[2], &_free_imu_raw_values[3], &_free_imu_raw_values[4], &_free_imu_raw_values[5]);
+                  freeIMU.getRawValues(_free_imu_raw_values);
+                  // writeArr(_free_imu_raw_values, 6, sizeof(int)); // writes accelerometer, gyro values & mag if 9150
+                  toPrintableArr(_free_imu_raw_values, 6, sizeof(int), buffer);
+                #elif HAS_ALTIMU10() || HAS_ADA_10_DOF()
+                  freeIMU.getRawValues(_free_imu_raw_values);
+                  // writeArr(_free_imu_raw_values, 9, sizeof(int)); // writes accelerometer, gyro values & mag of Altimu 10        
+                  toPrintableArr(_free_imu_raw_values, 9, sizeof(int), buffer);
+                #endif
+
+                #if IS_9DOM() && (!HAS_MPU9150()  && !HAS_MPU9250() && !HAS_ALTIMU10() && !HAS_ADA_10_DOF() && !HAS_LSM9DS0() && !HAS_LSM9DS1())
+                  freeIMU.magn.getValues(&_free_imu_raw_values[0], &_free_imu_raw_values[1], &_free_imu_raw_values[2]);
+                  // writeArr(_free_imu_raw_values, 3, sizeof(int));
+                  toPrintableArr(_free_imu_raw_values, 3, sizeof(int), buffer);
+                #endif
+                // Serial.println();
+                _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+                memset(buffer, 0, sizeof(buffer));
+            }
+        }
+        else if(cmd == 'q') {
+            // uint8_t count = _serialBusyWait(); // Expects a char representing count
+            uint8_t count = command.substring(1).toInt(); // grab the char after the 'q' char. It's the count.
+            char* buffer = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            for(uint8_t i=0; i<count; i++) {
+                freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
+                // serialPrintFloatArr(_free_imu_quaternions, 4);
+                // Serial.println("");
+                toPrintableFloatArr(_free_imu_quaternions, 4, buffer);
+                _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+                memset(buffer, 0, sizeof(buffer));
+            }
+        }
+        else if(cmd == 'z') {
+            float val_array[19] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+            // uint8_t count = _serialBusyWait(); // Expects a char representing count
+            uint8_t count = command.substring(1).toInt(); // grab the char after the 'z' char. It's the count.
+            char* buffer = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+
+            for(uint8_t i=0; i<count; i++) {
+                freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
+                val_array[15] = freeIMU.sampleFreq;        
+                //freeIMU.getValues(_free_imu_val);       
+                val_array[7] = (_free_imu_val[3] * M_PI/180);
+                val_array[8] = (_free_imu_val[4] * M_PI/180);
+                val_array[9] = (_free_imu_val[5] * M_PI/180);
+                val_array[4] = (_free_imu_val[0]);
+                val_array[5] = (_free_imu_val[1]);
+                val_array[6] = (_free_imu_val[2]);
+                val_array[10] = (_free_imu_val[6]);
+                val_array[11] = (_free_imu_val[7]);
+                val_array[12] = (_free_imu_val[8]);
+                val_array[0] = (_free_imu_quaternions[0]);
+                val_array[1] = (_free_imu_quaternions[1]);
+                val_array[2] = (_free_imu_quaternions[2]);
+                val_array[3] = (_free_imu_quaternions[3]);
+                //val_array[15] = millis();
+                val_array[16] = _free_imu_val[9];
+                val_array[18] = _free_imu_val[11];
+
+                #if HAS_PRESS()
+                   // with baro
+                   val_array[17] = _free_imu_val[10];
+                   val_array[13] = (freeIMU.getBaroTemperature());
+                   val_array[14] = (freeIMU.getBaroPressure());
+                #elif HAS_MPU6050()
+                   val_array[13] = (freeIMU.DTemp/340.) + 35.;
+                #elif HAS_MPU9150()  || HAS_MPU9250()
+                   val_array[13] = ((float) freeIMU.DTemp) / 333.87 + 21.0;
+                #elif HAS_LSM9DS0()
+                    val_array[13] = 21.0 + (float) freeIMU.DTemp/8.; //degrees C
+                #elif HAS_LSM9DS1()    
+                    val_array[13] = ((float) freeIMU.DTemp/256. + 25.0); //degrees C
+                #elif HAS_ITG3200()
+                   val_array[13] = freeIMU.rt;
+                #endif
+
+                // serialPrintFloatArr(val_array,19);
+                toPrintableFloatArr(val_array, 19, buffer);
+                // #if HAS_GPS
+                //   val_array[0] = (float) gps.hdop.value();
+                //   val_array[1] = (float) gps.hdop.isValid();
+                //   val_array[2] = (float) gps.location.lat();
+                //   val_array[3] = (float) gps.location.lng();
+                //   val_array[4] = (float) gps.location.isValid();
+                //   val_array[5] = (float) gps.altitude.meters();
+                //   val_array[6] = (float) gps.altitude.isValid();
+                //   val_array[7] = (float) gps.course.deg();
+                //   val_array[8] = (float) gps.course.isValid();
+                //   val_array[9] = (float) gps.speed.kmph();
+                //   val_array[10] = (float) gps.speed.isValid();
+                //   val_array[11] = (float) gps.charsProcessed();
+                //   // serialPrintFloatArr(val_array,12);
+                //   // Serial.print('\n');
+                //   smartDelay(20);
+                // #else
+                  // Serial.print('\n');
+                _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+                memset(buffer, 0, sizeof(buffer));
+                // #endif
+                //Add in for teensy and Arduino101
+                delay(10);
+            }
+        } 
+        else if(cmd == 'a') {
+            //a
+            float val_array[19] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+            // uint8_t count = _serialBusyWait(); // Expects a char representing count
+            uint8_t count = command.substring(1).toInt(); // grab the char after the 'a' char. It's the count.
+            String output = String("");
+            char* buffer  = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            for(uint8_t i=0; i < count; i++) {
+                freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
+                val_array[15] = freeIMU.sampleFreq;
+
+                val_array[7] = (_free_imu_val[3] * M_PI/180);
+                val_array[8] = (_free_imu_val[4] * M_PI/180);
+                val_array[9] = (_free_imu_val[5] * M_PI/180);
+                val_array[4] = (_free_imu_val[0]);
+                val_array[5] = (_free_imu_val[1]);
+                val_array[6] = (_free_imu_val[2]);
+                val_array[10] = (_free_imu_val[6]);
+                val_array[11] = (_free_imu_val[7]);
+                val_array[12] = (_free_imu_val[8]);
+                val_array[0] = kFilters[0].measureRSSI(_free_imu_quaternions[0]);
+                val_array[1] = kFilters[1].measureRSSI(_free_imu_quaternions[1]);
+                val_array[2] = kFilters[2].measureRSSI(_free_imu_quaternions[2]);
+                val_array[3] = kFilters[3].measureRSSI(_free_imu_quaternions[3]);
+
+                val_array[16] = _free_imu_val[9];
+                val_array[18] = _free_imu_val[11];
+                        
+                #if HAS_PRESS() 
+                   // with baro
+                   val_array[17] = _free_imu_val[10];
+                   val_array[13] = (freeIMU.getBaroTemperature());
+                   val_array[14] = (freeIMU.getBaroPressure());
+                #elif HAS_MPU6050()
+                   val_array[13] = (freeIMU.DTemp/340.) + 35.;
+                #elif HAS_MPU9150()  || HAS_MPU9250()
+                   val_array[13] = ((float) freeIMU.DTemp) / 333.87 + 21.0;
+                #elif HAS_LSM9DS0()
+                    val_array[13] = 21.0 + (float) freeIMU.DTemp/8.; //degrees C
+                #elif HAS_LSM9DS1()    
+                    val_array[13] = ((float) freeIMU.DTemp/256. + 25.0); //degrees C
+                #elif HAS_ITG3200()
+                   val_array[13] = freeIMU.rt;
+                #endif
+                // serialPrintFloatArr(val_array, 19);
+                toPrintableFloatArr(val_array, 19, buffer);
+
+                // #if HAS_GPS
+                //   val_array[0] = (float) gps.hdop.value();
+                //   val_array[1] = (float) gps.hdop.isValid();
+                //   val_array[2] = (float) gps.location.lat();
+                //   val_array[3] = (float) gps.location.lng();
+                //   val_array[4] = (float) gps.location.isValid();
+                //   val_array[5] = (float) gps.altitude.meters();
+                //   val_array[6] = (float) gps.altitude.isValid();
+                //   val_array[7] = (float) gps.course.deg();
+                //   val_array[8] = (float) gps.course.isValid();
+                //   val_array[9] = (float) gps.speed.kmph();
+                //   val_array[10] = (float) gps.speed.isValid();
+                //   val_array[11] = (float) gps.charsProcessed();
+                //   // serialPrintFloatArr(val_array,12);
+                //   Serial.print('\n');
+                //   smartDelay(20);
+                // #else
+                  // Serial.print('\n');
+                // #endif
+                _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+                memset(buffer, 0, sizeof(buffer));
+            }
+        }
+
+        // #if HAS_EEPPROM
+        //     #ifndef CALIBRATION_H
+
+        // else if(cmd == 'c') {
+        //     const uint8_t eepromsize = sizeof(float) * 6 + sizeof(int) * 6;
+        //     while(Serial.available() < eepromsize) ; // wait until all calibration data are received
+        //     EEPROM.write(FREEIMU_EEPROM_BASE, FREEIMU_EEPROM_SIGNATURE);
+        //     for(uint8_t i = 1; i<(eepromsize + 1); i++) {
+        //       EEPROM.write(FREEIMU_EEPROM_BASE + i, (char) Serial.read());
+        //     }
+        //     freeIMU.calLoad(); // reload calibration
+        //     // toggle LED after calibration store.
+        //     setRGB(0x00, 0xff, 0x00, false);
+        //     delay(1000);
+        //     setRGB(0x00, 0x00, 0x00, false);
+        // } 
+        // else if(cmd == 'x') {
+        //     EEPROM.write(FREEIMU_EEPROM_BASE, 0); // reset signature
+        //     freeIMU.calLoad(); // reload calibration
+        // }
+
+        //     #endif
+        // #endif
+        else if(cmd == 'C') { // check calibration values
+            String output = String("");
+            char* buffer  = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            // Serial.print("acc offset: ");
+            // Serial.print(freeIMU.acc_off_x);
+            // Serial.print(",");
+            // Serial.print(freeIMU.acc_off_y);
+            // Serial.print(",");
+            // Serial.print(freeIMU.acc_off_z);
+            // Serial.print("\n");
+            output = "acc offset: ";
+            output += freeIMU.acc_off_x;
+            output += ',';
+            output += freeIMU.acc_off_y;
+            output += ',';
+            output += freeIMU.acc_off_z;
+
+            buffer = const_cast<char*>(output.c_str());
+            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+
+            output = String("");
+
+
+            // Serial.print("magn offset: ");
+            // Serial.print(freeIMU.magn_off_x);
+            // Serial.print(",");
+            // Serial.print(freeIMU.magn_off_y);
+            // Serial.print(",");
+            // Serial.print(freeIMU.magn_off_z);
+            // Serial.print("\n");
+
+            output = "magn offset: ";
+            output += freeIMU.magn_off_x;
+            output += ',';
+            output += freeIMU.magn_off_y;
+            output += ',';
+            output += freeIMU.magn_off_z;
+
+            buffer = const_cast<char*>(output.c_str());
+            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+
+            output = String("");
+
+            // Serial.print("acc scale: ");
+            // Serial.print(freeIMU.acc_scale_x);
+            // Serial.print(",");
+            // Serial.print(freeIMU.acc_scale_y);
+            // Serial.print(",");
+            // Serial.print(freeIMU.acc_scale_z);
+            // Serial.print("\n");
+
+            output = "acc scale: ";
+            output += freeIMU.acc_scale_x;
+            output += ',';
+            output += freeIMU.acc_scale_y;
+            output += ',';
+            output += freeIMU.acc_scale_z;
+
+            buffer = const_cast<char*>(output.c_str());
+            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+
+            output = String("");
+
+            // Serial.print("magn scale: ");
+            // Serial.print(freeIMU.magn_scale_x);
+            // Serial.print(",");
+            // Serial.print(freeIMU.magn_scale_y);
+            // Serial.print(",");
+            // Serial.print(freeIMU.magn_scale_z);
+            // Serial.print("\n");
+
+            output = "magn scale: ";
+            output += freeIMU.magn_scale_x;
+            output += ',';
+            output += freeIMU.magn_scale_y;
+            output += ',';
+            output += freeIMU.magn_scale_z;
+
+            buffer = const_cast<char*>(output.c_str());
+            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+            memset(buffer, 0, sizeof(buffer));
+        }
+        else if(cmd == 'd') { // debugging outputs
+            String output = String("");
+            char* buffer_pointer  = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            char result_buffer[APP_BUFFER_SIZE * 3];
+            char* result_buffer_pointer = (char*) result_buffer;
+
+            // while(1) {
+                // freeIMU.getRawValues(_free_imu_raw_values);
+                // sprintf(_free_imu_serial_data, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,", _free_imu_raw_values[0], _free_imu_raw_values[1], _free_imu_raw_values[2], _free_imu_raw_values[3], _free_imu_raw_values[4], _free_imu_raw_values[5], _free_imu_raw_values[6], _free_imu_raw_values[7], _free_imu_raw_values[8], _free_imu_raw_values[9], _free_imu_raw_values[10]);
+                // Serial.print(_free_imu_serial_data);
+                // Serial.print('\n');
+                // freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
+                // serialPrintFloatArr(_free_imu_quaternions, 4);
+                // Serial.println("");
+                // freeIMU.getYawPitchRoll(_free_imu_ypr);
+                // Serial.print("Yaw: ");
+                // Serial.print(_free_imu_ypr[0]);
+                // Serial.print(" Pitch: ");
+                // Serial.print(_free_imu_ypr[1]);
+                // Serial.print(" Roll: ");
+                // Serial.print(_free_imu_ypr[2]);
+                // Serial.println("");
+
+                freeIMU.getRawValues(_free_imu_raw_values);
+                sprintf(_free_imu_serial_data, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,", _free_imu_raw_values[0], _free_imu_raw_values[1], _free_imu_raw_values[2], _free_imu_raw_values[3], _free_imu_raw_values[4], _free_imu_raw_values[5], _free_imu_raw_values[6], _free_imu_raw_values[7], _free_imu_raw_values[8], _free_imu_raw_values[9], _free_imu_raw_values[10]);
+                // Serial.print(_free_imu_serial_data);
+                // Serial.print('\n');
+                output = String(_free_imu_serial_data);
+                output += '\n';
+                // buffer = const_cast<char*>(output.c_str());
+                // _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+
+                // output = String("");
+                // buffer = const_cast<char*>(output.c_str());
+
+                freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
+                // serialPrintFloatArr(_free_imu_quaternions, 4);
+                toPrintableFloatArr(_free_imu_quaternions, 4, buffer_pointer);
+                // Serial.println("");
+                // _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+                output += String(buffer_pointer);
+                output += '\n';
+
+                // output = String("");
+
+                freeIMU.getYawPitchRoll(_free_imu_ypr);
+                // Serial.print("Yaw: ");
+                // Serial.print(_free_imu_ypr[0]);
+                // Serial.print(" Pitch: ");
+                // Serial.print(_free_imu_ypr[1]);
+                // Serial.print(" Roll: ");
+                // Serial.print(_free_imu_ypr[2]);
+                // Serial.println("");
+
+                output += "Yaw: ";
+                output += _free_imu_ypr[0];
+                output += " Pitch: ";
+                output += _free_imu_ypr[1];
+                output += " Roll: ";
+                output += _free_imu_ypr[2];
+
+                // buffer = const_cast<char*>(output.c_str());
+                // _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+                result_buffer_pointer = const_cast<char*>(output.c_str());
+                _reply(result_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+                memset(result_buffer_pointer, 0, sizeof(result_buffer_pointer));
+                memset(buffer_pointer, 0, sizeof(buffer_pointer));
+                output = "";
+
+            // }
+        }
     }
-    else if(cmd == 'd') { // debugging outputs
-      while(1) {
-        freeIMU.getRawValues(_free_imu_raw_values);
-        sprintf(_free_imu_serial_data, "%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,%d,", _free_imu_raw_values[0], _free_imu_raw_values[1], _free_imu_raw_values[2], _free_imu_raw_values[3], _free_imu_raw_values[4], _free_imu_raw_values[5], _free_imu_raw_values[6], _free_imu_raw_values[7], _free_imu_raw_values[8], _free_imu_raw_values[9], _free_imu_raw_values[10]);
-        Serial.print(_free_imu_serial_data);
-        Serial.print('\n');
-        freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
-        serialPrintFloatArr(_free_imu_quaternions, 4);
-        Serial.println("");
-        freeIMU.getYawPitchRoll(_free_imu_ypr);
-        Serial.print("Yaw: ");
-        Serial.print(_free_imu_ypr[0]);
-        Serial.print(" Pitch: ");
-        Serial.print(_free_imu_ypr[1]);
-        Serial.print(" Roll: ");
-        Serial.print(_free_imu_ypr[2]);
-        Serial.println("");
-      }
+    // SET_NODE_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
+    if (command.length() == 19 && command.startsWith("SET_NODE_ID:")) {
+        int node_id = inputString.substring(14, 19).toInt(); // Discard 0x chars
+
+        #ifdef DEBUG
+            Serial.print("Setting local destination node ID to 0x");
+            Serial.println(node_id, HEX);
+        #endif
+
+        if (node_id < 0x0001) node_id = 0x0001;
+        if (node_id > 0xfffe) node_id = 0xfffe;
+
+        setDestAddress(node_id);
+    }
+
+    // SET_DEST_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
+    else if (command.length() == 19 && command.startsWith("SET_DEST_ID:")) {
+        int dest_id = inputString.substring(14, 19).toInt(); // Discard 0x chars
+
+        #ifdef DEBUG
+            Serial.print("Setting local destination node ID to 0x");
+            Serial.println(dest_id, HEX);
+        #endif
+
+        setDestAddress(dest_id);
+    }
+
+    // SET_PAN_ID:0x1234 Where range is 0x0001 to 0xfffe. 0xffff is reserved.
+    else if (command.length() == 18 && command.startsWith("SET_PAN_ID:")) {
+
+        int pan_id = inputString.substring(13, 18).toInt(); // Discard 0x chars
+
+        if (pan_id < 0x0001) pan_id = 0x0001;
+        if (pan_id > 0xfffe) pan_id = 0xfffe;
+
+        #ifdef DEBUG
+            Serial.print("Setting PAN ID to 0x");
+            Serial.println(pan_id, HEX);
+        #endif
+
+        setPanId(pan_id);
+    }
+
+        // SET_CHANNEL:0x0b Where range is 0x0b to 0x1a
+    else if (command.length() == 17 && command.startsWith("SET_CHANNEL:")) {
+        int channel = inputString.substring(14, 17).toInt(); // Discard 0x chars
+
+        if (channel < 0) channel = 0;
+
+        #ifdef DEBUG
+            Serial.print("Setting local channel to 0x");
+            Serial.println(channel, HEX);
+        #endif
+
+        setChannel(channel);
+    }
+
+    // SET_ENDPOINT:0x01 Where range is 0x01 to 0x0f
+    else if (command.length() == 18 && command.startsWith("SET_ENDPOINT:")) {
+        int endpoint = inputString.substring(15, 18).toInt(); // Discard 0x chars
+
+        if (endpoint < 1) endpoint = 1;
+        if (endpoint > 0x0f) endpoint = 0x0f;
+
+        #ifdef DEBUG
+            Serial.print("Setting local endpoint ID to 0x");
+            Serial.println(endpoint, HEX);
+        #endif
+        setEndpoint(endpoint);
+    }
+
+    else if (command.startsWith("SET_NETWORKING_CONFIG:")) {
+        #ifdef DEBUG
+            Serial.print("Setting networking config... ");
+        #endif
+
+        updateNetworkingConfig();
+
+        #ifdef DEBUG
+            Serial.println("OK");
+        #endif
+    }
+
+    
+
+    // SET_RGB:0x00:0x00:0x00 Where range is 0x00 to 0xff
+    else if (command.length() == 23 && command.startsWith("SET_RGB:")) {
+        int r = command.substring(10,  12).toInt();
+        int g = command.substring(15, 17).toInt();
+        int b = command.substring(20, 23).toInt();
+
+        if (r < 0) r = 0;
+        if (g < 0) g = 0;
+        if (b < 0) b = 0;
+
+        if (r > 0xff) r = 0xff;
+        if (g > 0xff) g = 0xff;
+        if (b > 0xff) b = 0xff;
+
+        #ifdef DEBUG
+            Serial.print("Setting RGB to ");
+            Serial.print(r);
+            Serial.print(",");
+            Serial.print(g);
+            Serial.print(",");
+            Serial.println(b);
+        #endif
+
+        setRGB(r, g, b, false);
+    }
+    // SET_HSV:0x000:0x00:0x00 where H range is 0x000 to 0x167 (359 dec), S range is 0x00 to 0x64 (100 dec), V range is 0x00 to 0x64 (100 dec)
+    else if (command.length() == 24 && command.startsWith("SET_HSV:")) {
+        int h = command.substring(10, 12).toInt();
+        int s = command.substring(15, 17).toInt();
+        int v = command.substring(20, 23).toInt();
+
+        if (h < 0) h = 0;
+        if (s < 0) s = 0;
+        if (v < 0) v = 0;
+
+        if (h > 359) h = 359;
+        if (s > 100) s = 100;
+        if (v > 100) v = 100;
+
+        #ifdef DEBUG
+            Serial.print("Setting HSV to ");
+            Serial.print(h);
+            Serial.print(",");
+            Serial.print(s);
+            Serial.print(",");
+            Serial.println(v);
+        #endif
+
+        setHSV(h, s, v, false);
+    }
+
+    else if (command.startsWith("TEST_RGB:")) {
+        #ifdef DEBUG
+            Serial.print("Testing RGB LED...");
+        #endif
+        rgbTest();
+        #ifdef DEBUG
+            Serial.println("OK");
+        #endif
+    }
+
+    else if (command.startsWith("TEST_HSV:")) {
+        #ifdef DEBUG
+            Serial.print("Testing HSV Method...");
+        #endif
+        hsvTest();
+        #ifdef DEBUG
+            Serial.println("OK");
+        #endif
+    }
+}
+
+void FemtoCore::_reply(char* message, byte output_to, int dest_node_id) {
+    static char net_message[APP_BUFFER_SIZE];
+    switch(output_to) {
+        case 3:
+            // To Network (broadcast);
+            
+            sprintf(net_message, "=%s", message);
+            broadcast((char*)net_message);
+            break;
+        case 2:
+            // To Network (send)
+            sprintf(net_message, "=%s", message);
+            send((char*)net_message, dest_node_id);
+            break;
+        case 1:
+            // To Serial w/ new line
+            Serial.println(message);
+            break;
+        default:
+            // To Serial w/o new line
+            Serial.print(message);
+            break;
     }
 }
 
@@ -1584,38 +1800,22 @@ void tcDisable()
  */
 void serialEvent() {
     // Read from Serial input...
-    static bool _is_wireless_command = false;
-    static int _index = 0;
 
     while (Serial && Serial.available()) {
 
         char inChar = (char) Serial.read();
 
-        if (_index == 0 && (inChar == ':' || inChar == '.' || inChar == '>')) {
-            _is_wireless_command = true;
-        }
+        inputString += inChar;
 
-        if (_is_wireless_command) {
-            inputString += inChar;
+        if (inChar == '\n') {
+            #ifdef DEBUG
+                Serial.println("GLOBAL serialEvent() " + inputString);
+            #endif
 
-            if (inChar == '\n') {
-                #ifdef DEBUG
-                    Serial.println("GLOBAL serialEvent() " + inputString);
-                #endif
+            FemtoCore::stringComplete = true;
+            FemtoCore::handleSerialRx();
 
-                FemtoCore::stringComplete = true;
-
-                FemtoCore::handleSerialRx();
-
-                _is_wireless_command = false;
-                _index = 0;
-
-                break;
-            }
-
-            ++_index;
-        } else {
-            FemtoCore::processFreeIMUSerialCommand(inChar);
+            break;
         }
         
     }
