@@ -973,12 +973,8 @@ void FemtoCore::wakeUp() {
     #endif
 }
 
-void FemtoCore::sendSampleLegacy() {
-    sendSampleLegacy(_destAddress);
-}
-
-void FemtoCore::sendSampleLegacy(int destNodeAddress) {
-    /*
+void FemtoCore::sendSampleLegacy(byte input_from, byte output_to, int to_node_id) {
+    
     float ypr[3]; // Hold the YPR data (YPR 180 deg)
     float eulers[3]; // Hold the Euler angles (360 deg)
     float values[10]; // Raw values from FreeIMU
@@ -990,6 +986,7 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
 
     String strCurrentMS;
     char* c_current_ms;
+
     char c_yaw[5];
     char c_pitch[5];
     char c_roll[5];
@@ -1003,7 +1000,8 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
     // char c_temperature[];
     // char c_pressure[];
 
-    char* data;
+    char data[APP_BUFFER_SIZE];
+    char* data_pointer;
 
     current_ms = millis();
     strCurrentMS = String(current_ms, HEX);
@@ -1033,7 +1031,20 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
     // data = c_current_ms + ',' + c_yaw + ',' + c_pitch + ',' + c_roll;
     // data += ',' + c_euler1 + ',' + c_euler2 + ',' + c_euler3;
     // data += ',' + c_accel_x + ',' + c_accel_y + ',' + c_accel_z + '\n';
-
+    #ifdef DEBUG
+        Serial.println("FemtoCore::sendSampleLegacy() converting to char array...");
+        Serial.print('\t');
+        Serial.print(c_current_ms);Serial.print(',');
+        Serial.print(c_yaw); Serial.print(',');
+        Serial.print(c_pitch); Serial.print(',');
+        Serial.print(c_roll); Serial.print(',');
+        Serial.print(c_euler1); Serial.print(',');
+        Serial.print(c_euler2); Serial.print(',');
+        Serial.print(c_euler3); Serial.print(',');
+        Serial.print(c_accel_x); Serial.print(',');
+        Serial.print(c_accel_y); Serial.print(',');
+        Serial.println(c_accel_z);
+    #endif
     sprintf(data, 
         "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", 
         c_current_ms, 
@@ -1042,8 +1053,10 @@ void FemtoCore::sendSampleLegacy(int destNodeAddress) {
         c_accel_x, c_accel_y, c_accel_z);
 
     // Send away.
-    send(data, destNodeAddress);
-    */
+    data_pointer = (char*) data;
+    // send(data_pointer, destNodeAddress);
+    _reply(data_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+    memset(data, 0, sizeof(data));
 }
 /**
  * Process a command. 
@@ -1072,7 +1085,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         if(cmd=='v') {
             char* buffer = output_to > 0 ? _free_imu_network_data : _free_imu_serial_data;
 
-            sprintf(buffer, "FreeIMU library by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
+            sprintf(buffer, "FemtoCore v%s.%s.%s. FreeIMU lib by %s, FREQ:%s, LIB_VERSION: %s, IMU: %s", FEMTO_SEMVER_MAJOR, FEMTO_SEMVER_MINOR, FEMTO_SEMVER_PATCH, FREEIMU_DEVELOPER, FREEIMU_FREQ, FREEIMU_LIB_VERSION, FREEIMU_ID);
             // Serial.print(_free_imu_serial_data);
             // Serial.print('\n');
 
@@ -1116,7 +1129,8 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         }
         else if(cmd=='p'){
             //set sea level pressure
-            long sea_press = Serial.parseInt();
+            // long sea_press = Serial.parseInt();
+            long sea_press = command.substring(1).toInt();
             freeIMU.setSeaPress(sea_press/100.0);
             //Serial.println(sea_press);
 
@@ -1157,7 +1171,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             uint8_t count = command.substring(1).toInt(); // grab the char after the 'b' char. It's the count.
             char* buffer = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
             for(uint8_t i=0; i<count; i++) {
-                String output = String("");
+                // String output = String("");
 
                 #if HAS_ITG3200()
                   freeIMU.acc.readAccel(&_free_imu_raw_values[0], &_free_imu_raw_values[1], &_free_imu_raw_values[2]);
@@ -1206,32 +1220,33 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             float val_array[19] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
             // uint8_t count = _serialBusyWait(); // Expects a char representing count
             uint8_t count = command.substring(1).toInt(); // grab the char after the 'z' char. It's the count.
-            char* buffer = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            char big_buffer[APP_BUFFER_SIZE * 3];
+            char* big_buffer_pointer;
 
             for(uint8_t i=0; i<count; i++) {
                 freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
                 val_array[15] = freeIMU.sampleFreq;        
                 //freeIMU.getValues(_free_imu_val);       
-                val_array[7] = (_free_imu_val[3] * M_PI/180);
-                val_array[8] = (_free_imu_val[4] * M_PI/180);
-                val_array[9] = (_free_imu_val[5] * M_PI/180);
-                val_array[4] = (_free_imu_val[0]);
-                val_array[5] = (_free_imu_val[1]);
-                val_array[6] = (_free_imu_val[2]);
-                val_array[10] = (_free_imu_val[6]);
-                val_array[11] = (_free_imu_val[7]);
-                val_array[12] = (_free_imu_val[8]);
-                val_array[0] = (_free_imu_quaternions[0]);
-                val_array[1] = (_free_imu_quaternions[1]);
-                val_array[2] = (_free_imu_quaternions[2]);
-                val_array[3] = (_free_imu_quaternions[3]);
+                val_array[7] = (_free_imu_val[3] * M_PI/180); // gyro X
+                val_array[8] = (_free_imu_val[4] * M_PI/180); // gyro Y
+                val_array[9] = (_free_imu_val[5] * M_PI/180); // gyro Z
+                val_array[4] = (_free_imu_val[0]); // accel X
+                val_array[5] = (_free_imu_val[1]); // accel Y
+                val_array[6] = (_free_imu_val[2]); // accel Z
+                val_array[10] = (_free_imu_val[6]); // mag X
+                val_array[11] = (_free_imu_val[7]); // mag Y
+                val_array[12] = (_free_imu_val[8]); // mag Z
+                val_array[0] = (_free_imu_quaternions[0]); // q1
+                val_array[1] = (_free_imu_quaternions[1]); // q2
+                val_array[2] = (_free_imu_quaternions[2]); // q3
+                val_array[3] = (_free_imu_quaternions[3]); // q4
                 //val_array[15] = millis();
-                val_array[16] = _free_imu_val[9];
-                val_array[18] = _free_imu_val[11];
+                val_array[16] = _free_imu_val[9]; // mag heading
+                val_array[18] = _free_imu_val[11]; // motion detect value
 
                 #if HAS_PRESS()
                    // with baro
-                   val_array[17] = _free_imu_val[10];
+                   val_array[17] = _free_imu_val[10]; // estimated altitude
                    val_array[13] = (freeIMU.getBaroTemperature());
                    val_array[14] = (freeIMU.getBaroPressure());
                 #elif HAS_MPU6050()
@@ -1246,8 +1261,9 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
                    val_array[13] = freeIMU.rt;
                 #endif
 
+                big_buffer_pointer = (char*) big_buffer;
                 // serialPrintFloatArr(val_array,19);
-                toPrintableFloatArr(val_array, 19, buffer);
+                toPrintableFloatArr(val_array, 19, big_buffer_pointer);
                 // #if HAS_GPS
                 //   val_array[0] = (float) gps.hdop.value();
                 //   val_array[1] = (float) gps.hdop.isValid();
@@ -1266,8 +1282,8 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
                 //   smartDelay(20);
                 // #else
                   // Serial.print('\n');
-                _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
-                memset(buffer, 0, sizeof(buffer));
+                _reply(big_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+                memset(big_buffer, 0, sizeof(big_buffer));
                 // #endif
                 //Add in for teensy and Arduino101
                 delay(10);
@@ -1279,31 +1295,33 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             // uint8_t count = _serialBusyWait(); // Expects a char representing count
             uint8_t count = command.substring(1).toInt(); // grab the char after the 'a' char. It's the count.
             String output = String("");
-            char* buffer  = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+            char big_buffer[APP_BUFFER_SIZE * 3];
+            char* big_buffer_pointer;
+
             for(uint8_t i=0; i < count; i++) {
                 freeIMU.getQ(_free_imu_quaternions, _free_imu_val);
                 val_array[15] = freeIMU.sampleFreq;
 
-                val_array[7] = (_free_imu_val[3] * M_PI/180);
-                val_array[8] = (_free_imu_val[4] * M_PI/180);
-                val_array[9] = (_free_imu_val[5] * M_PI/180);
-                val_array[4] = (_free_imu_val[0]);
-                val_array[5] = (_free_imu_val[1]);
-                val_array[6] = (_free_imu_val[2]);
-                val_array[10] = (_free_imu_val[6]);
-                val_array[11] = (_free_imu_val[7]);
-                val_array[12] = (_free_imu_val[8]);
-                val_array[0] = kFilters[0].measureRSSI(_free_imu_quaternions[0]);
-                val_array[1] = kFilters[1].measureRSSI(_free_imu_quaternions[1]);
-                val_array[2] = kFilters[2].measureRSSI(_free_imu_quaternions[2]);
-                val_array[3] = kFilters[3].measureRSSI(_free_imu_quaternions[3]);
+                val_array[7] = (_free_imu_val[3] * M_PI/180); // gyro X
+                val_array[8] = (_free_imu_val[4] * M_PI/180); // gyro Y
+                val_array[9] = (_free_imu_val[5] * M_PI/180); // gyro Z
+                val_array[4] = (_free_imu_val[0]); // accel X
+                val_array[5] = (_free_imu_val[1]); // accel Y
+                val_array[6] = (_free_imu_val[2]); // accel Z
+                val_array[10] = (_free_imu_val[6]); // mag X
+                val_array[11] = (_free_imu_val[7]); // mag Y
+                val_array[12] = (_free_imu_val[8]); // mag Z
+                val_array[0] = kFilters[0].measureRSSI(_free_imu_quaternions[0]); // q1
+                val_array[1] = kFilters[1].measureRSSI(_free_imu_quaternions[1]); // q2
+                val_array[2] = kFilters[2].measureRSSI(_free_imu_quaternions[2]); // q3
+                val_array[3] = kFilters[3].measureRSSI(_free_imu_quaternions[3]); // q4
 
-                val_array[16] = _free_imu_val[9];
-                val_array[18] = _free_imu_val[11];
+                val_array[16] = _free_imu_val[9]; // mag heading
+                val_array[18] = _free_imu_val[11]; // motion detect value
                         
                 #if HAS_PRESS() 
                    // with baro
-                   val_array[17] = _free_imu_val[10];
+                   val_array[17] = _free_imu_val[10]; // estimated altitude
                    val_array[13] = (freeIMU.getBaroTemperature());
                    val_array[14] = (freeIMU.getBaroPressure());
                 #elif HAS_MPU6050()
@@ -1318,7 +1336,8 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
                    val_array[13] = freeIMU.rt;
                 #endif
                 // serialPrintFloatArr(val_array, 19);
-                toPrintableFloatArr(val_array, 19, buffer);
+                big_buffer_pointer = (char*) big_buffer;
+                toPrintableFloatArr(val_array, 19, big_buffer_pointer);
 
                 // #if HAS_GPS
                 //   val_array[0] = (float) gps.hdop.value();
@@ -1339,8 +1358,8 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
                 // #else
                   // Serial.print('\n');
                 // #endif
-                _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
-                memset(buffer, 0, sizeof(buffer));
+                _reply(big_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+                memset(big_buffer, 0, sizeof(big_buffer));
             }
         }
 
@@ -1368,8 +1387,12 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         //     #endif
         // #endif
         else if(cmd == 'C') { // check calibration values
+            char big_buffer[APP_BUFFER_SIZE * 3];
+            char* big_buffer_pointer = (char*) big_buffer;
             String output = String("");
-            char* buffer  = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
+
+            char* output_pointer;
+            int current_size = 0;
             // Serial.print("acc offset: ");
             // Serial.print(freeIMU.acc_off_x);
             // Serial.print(",");
@@ -1384,11 +1407,12 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             output += ',';
             output += freeIMU.acc_off_z;
 
-            buffer = const_cast<char*>(output.c_str());
-            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+            output_pointer = const_cast<char*>(output.c_str());
+            memset(big_buffer, 0, sizeof(big_buffer));
+            current_size = strlen(output_pointer);
+            memcpy(big_buffer_pointer, output_pointer, current_size);
 
-            output = String("");
-
+            // _reply(big_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
 
             // Serial.print("magn offset: ");
             // Serial.print(freeIMU.magn_off_x);
@@ -1398,17 +1422,18 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             // Serial.print(freeIMU.magn_off_z);
             // Serial.print("\n");
 
-            output = "magn offset: ";
+            output = "\nmagn offset: ";
             output += freeIMU.magn_off_x;
             output += ',';
             output += freeIMU.magn_off_y;
             output += ',';
             output += freeIMU.magn_off_z;
 
-            buffer = const_cast<char*>(output.c_str());
-            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+            output_pointer = const_cast<char*>(output.c_str());
+            memcpy(big_buffer_pointer, output_pointer + current_size, strlen(output_pointer));
+            current_size += strlen(output_pointer);
 
-            output = String("");
+            // _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
 
             // Serial.print("acc scale: ");
             // Serial.print(freeIMU.acc_scale_x);
@@ -1418,17 +1443,20 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             // Serial.print(freeIMU.acc_scale_z);
             // Serial.print("\n");
 
-            output = "acc scale: ";
+            output = "\nacc scale: ";
             output += freeIMU.acc_scale_x;
             output += ',';
             output += freeIMU.acc_scale_y;
             output += ',';
             output += freeIMU.acc_scale_z;
 
-            buffer = const_cast<char*>(output.c_str());
-            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+            output_pointer = const_cast<char*>(output.c_str());
+            memcpy(big_buffer_pointer, output_pointer + current_size, strlen(output_pointer));
+            current_size += strlen(output_pointer);
 
-            output = String("");
+            // _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
+
+            // output = String("");
 
             // Serial.print("magn scale: ");
             // Serial.print(freeIMU.magn_scale_x);
@@ -1438,22 +1466,24 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             // Serial.print(freeIMU.magn_scale_z);
             // Serial.print("\n");
 
-            output = "magn scale: ";
+            output = "\nmagn scale: ";
             output += freeIMU.magn_scale_x;
             output += ',';
             output += freeIMU.magn_scale_y;
             output += ',';
             output += freeIMU.magn_scale_z;
 
-            buffer = const_cast<char*>(output.c_str());
-            _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
-            memset(buffer, 0, sizeof(buffer));
+            output_pointer = const_cast<char*>(output.c_str());
+            memcpy(big_buffer_pointer, output_pointer + current_size, strlen(output_pointer));
+
+            _reply(big_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+            memset(big_buffer, 0, sizeof(big_buffer));
         }
         else if(cmd == 'd') { // debugging outputs
             String output = String("");
             char* buffer_pointer  = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
             char result_buffer[APP_BUFFER_SIZE * 3];
-            char* result_buffer_pointer = (char*) result_buffer;
+            char* result_buffer_pointer;
 
             // while(1) {
                 // freeIMU.getRawValues(_free_imu_raw_values);
@@ -1520,6 +1550,9 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
 
             // }
         }
+        else if (cmd = 'D') {
+            sendSampleLegacy(input_from, output_to, to_node_id);
+        }
     }
     // SET_NODE_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
     if (command.length() == 19 && command.startsWith("SET_NODE_ID:")) {
@@ -1534,11 +1567,17 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         if (node_id > 0xfffe) node_id = 0xfffe;
 
         setDestAddress(node_id);
+        if (output_to > 0) {
+            _reply("SET_NODE_ID:OK", output_to, to_node_id);
+        }
     }
 
     // SET_DEST_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
     else if (command.length() == 19 && command.startsWith("SET_DEST_ID:")) {
         int dest_id = inputString.substring(14, 19).toInt(); // Discard 0x chars
+
+        if (dest_id < 0x0001) dest_id = 0x0001;
+        if (dest_id > 0xfffe) dest_id = 0xfffe;
 
         #ifdef DEBUG
             Serial.print("Setting local destination node ID to 0x");
@@ -1546,6 +1585,9 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
 
         setDestAddress(dest_id);
+        if (output_to > 0) {
+            _reply("SET_DEST_ID:OK", output_to, to_node_id);
+        }
     }
 
     // SET_PAN_ID:0x1234 Where range is 0x0001 to 0xfffe. 0xffff is reserved.
@@ -1562,20 +1604,26 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
 
         setPanId(pan_id);
+        if (output_to > 0) {
+            _reply("SET_PAN_ID:OK", output_to, to_node_id);
+        }
     }
 
         // SET_CHANNEL:0x0b Where range is 0x0b to 0x1a
     else if (command.length() == 17 && command.startsWith("SET_CHANNEL:")) {
         int channel = inputString.substring(14, 17).toInt(); // Discard 0x chars
 
-        if (channel < 0) channel = 0;
-
+        if (channel < 0x0b) channel = 0x0b;
+        if (channel > 0x1a) channel = 0x1a;
         #ifdef DEBUG
             Serial.print("Setting local channel to 0x");
             Serial.println(channel, HEX);
         #endif
 
         setChannel(channel);
+        if (output_to > 0) {
+            _reply("SET_CHANNEL:OK", output_to, to_node_id);
+        }
     }
 
     // SET_ENDPOINT:0x01 Where range is 0x01 to 0x0f
@@ -1590,9 +1638,12 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             Serial.println(endpoint, HEX);
         #endif
         setEndpoint(endpoint);
+        if (output_to > 0) {
+            _reply("SET_ENDPOINT:OK", output_to, to_node_id);
+        }
     }
 
-    else if (command.startsWith("SET_NETWORKING_CONFIG:")) {
+    else if (command.startsWith("SET_CONFIG")) {
         #ifdef DEBUG
             Serial.print("Setting networking config... ");
         #endif
@@ -1602,6 +1653,10 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #ifdef DEBUG
             Serial.println("OK");
         #endif
+
+        if (output_to > 0) {
+            _reply("SET_CONFIG:OK", output_to, to_node_id);
+        }
     }
 
     
@@ -1657,7 +1712,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         setHSV(h, s, v, false);
     }
 
-    else if (command.startsWith("TEST_RGB:")) {
+    else if (command.startsWith("TEST_RGB")) {
         #ifdef DEBUG
             Serial.print("Testing RGB LED...");
         #endif
@@ -1667,7 +1722,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
     }
 
-    else if (command.startsWith("TEST_HSV:")) {
+    else if (command.startsWith("TEST_HSV")) {
         #ifdef DEBUG
             Serial.print("Testing HSV Method...");
         #endif

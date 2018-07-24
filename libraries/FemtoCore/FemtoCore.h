@@ -102,6 +102,9 @@
     class FemtoCore 
     {
         public:
+            static const byte FEMTO_SEMVER_MAJOR = 1;
+            static const byte FEMTO_SEMVER_MINOR = 0;
+            static const byte FEMTO_SEMVER_PATCH = 0;
             /**
              * Constructor.
              */
@@ -259,8 +262,7 @@
 
             static void processCommand(char* cmd, byte input_from, byte output_to, int to_node_id);
 
-            static void sendSampleLegacy();
-            static void sendSampleLegacy(int destNodeAddress);
+            static void sendSampleLegacy(byte input_from, byte output_to, int to_node_id);
 
             static void sleep();
             static void wakeUp();
