@@ -16,29 +16,29 @@
 
 # Arduino MKR Vidor 4000
 # --------------------
-mkrvidor.name=Arduino MKR Vidor 4000
-mkrvidor.vid.0=0x2341
-mkrvidor.pid.0=0x8056
-mkrvidor.vid.1=0x2341
-mkrvidor.pid.1=0x0056
+mkrvidor4000.name=Arduino MKR Vidor 4000
+mkrvidor4000.vid.0=0x2341
+mkrvidor4000.pid.0=0x8056
+mkrvidor4000.vid.1=0x2341
+mkrvidor4000.pid.1=0x0056
 
-mkrvidor.upload.tool=bossacI
-mkrvidor.upload.protocol=sam-ba
-mkrvidor.upload.maximum_size=262144
-mkrvidor.upload.use_1200bps_touch=true
-mkrvidor.upload.wait_for_upload_port=true
-mkrvidor.upload.native_usb=true
-mkrvidor.build.mcu=cortex-m0plus
-mkrvidor.build.f_cpu=48000000L
-mkrvidor.build.usb_product="Arduino MKR Vidor 4000"
-mkrvidor.build.usb_manufacturer="Arduino LLC"
-mkrvidor.build.board=SAMD_MKRVIDOR
-mkrvidor.build.core=arduino
-mkrvidor.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
-mkrvidor.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-mkrvidor.build.openocdscript=openocd_scripts/arduino_zero.cfg
-mkrvidor.build.variant=mkrvidor
-mkrvidor.build.vid=0x2341
-mkrvidor.build.pid=0x8056
-mkrvidor.bootloader.tool=openocd
-mkrvidor.bootloader.file=mkrvidor4000/samd21_sam_ba_arduino_mkrvidor.bin
+mkrvidor4000.upload.tool=bossacI
+mkrvidor4000.upload.protocol=sam-ba
+mkrvidor4000.upload.maximum_size=262144
+mkrvidor4000.upload.use_1200bps_touch=true
+mkrvidor4000.upload.wait_for_upload_port=true
+mkrvidor4000.upload.native_usb=true
+mkrvidor4000.build.mcu=cortex-m0plus
+mkrvidor4000.build.f_cpu=48000000L
+mkrvidor4000.build.usb_product="Arduino MKR Vidor 4000"
+mkrvidor4000.build.usb_manufacturer="Arduino LLC"
+mkrvidor4000.build.board=SAMD_MKRVIDOR4000
+mkrvidor4000.build.core=arduino
+mkrvidor4000.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
+mkrvidor4000.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrvidor4000.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrvidor4000.build.variant=mkrvidor4000
+mkrvidor4000.build.vid=0x2341
+mkrvidor4000.build.pid=0x8056
+mkrvidor4000.bootloader.tool=openocd
+mkrvidor4000.bootloader.file=mkrvidor4000/samd21_sam_ba_arduino_mkrvidor.bin
