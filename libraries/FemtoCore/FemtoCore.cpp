@@ -1088,8 +1088,11 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
     char cmd = command.charAt(0);
 
     #ifdef DEBUG
-        Serial.print("FemtoCore::processCommand got ");
+        Serial.print("FemtoCore::processCommand got (");
+        Serial.print(command.length());
+        Serial.print(") ");
         Serial.println(command);
+
     #endif
 
     if (is_femtobeacon_coin) {
@@ -1568,11 +1571,11 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         }
     }
     // SET_NODE_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
-    if (command.length() == 19 && command.startsWith("SET_NODE_ID:")) {
-        int node_id = inputString.substring(14, 19).toInt(); // Discard 0x chars
+    if (command.length() == 18 && command.startsWith("SET_NODE_ID:")) {
+        int node_id = hexToDec(inputString.substring(14, 18)); // Discard 0x chars
 
         #ifdef DEBUG
-            Serial.print("Setting local destination node ID to 0x");
+            Serial.print("Setting node ID to 0x");
             Serial.println(node_id, HEX);
         #endif
 
@@ -1586,14 +1589,14 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
     }
 
     // SET_DEST_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
-    else if (command.length() == 19 && command.startsWith("SET_DEST_ID:")) {
-        int dest_id = inputString.substring(14, 19).toInt(); // Discard 0x chars
+    else if (command.length() == 18 && command.startsWith("SET_DEST_ID:")) {
+        int dest_id = hexToDec(inputString.substring(14, 18)); // Discard 0x chars
 
         if (dest_id < 0x0001) dest_id = 0x0001;
         if (dest_id > 0xfffe) dest_id = 0xfffe;
 
         #ifdef DEBUG
-            Serial.print("Setting local destination node ID to 0x");
+            Serial.print("Setting destination node ID to 0x");
             Serial.println(dest_id, HEX);
         #endif
 
@@ -1604,9 +1607,9 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
     }
 
     // SET_PAN_ID:0x1234 Where range is 0x0001 to 0xfffe. 0xffff is reserved.
-    else if (command.length() == 18 && command.startsWith("SET_PAN_ID:")) {
+    else if (command.length() == 17 && command.startsWith("SET_PAN_ID:")) {
 
-        int pan_id = inputString.substring(13, 18).toInt(); // Discard 0x chars
+        int pan_id = hexToDec(inputString.substring(13, 17)); // Discard 0x chars
 
         if (pan_id < 0x0001) pan_id = 0x0001;
         if (pan_id > 0xfffe) pan_id = 0xfffe;
@@ -1623,13 +1626,13 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
     }
 
         // SET_CHANNEL:0x0b Where range is 0x0b to 0x1a
-    else if (command.length() == 17 && command.startsWith("SET_CHANNEL:")) {
-        int channel = inputString.substring(14, 17).toInt(); // Discard 0x chars
+    else if (command.length() == 16 && command.startsWith("SET_CHANNEL:")) {
+        int channel = hexToDec(inputString.substring(14, 16)); // Discard 0x chars
 
         if (channel < 0x0b) channel = 0x0b;
         if (channel > 0x1a) channel = 0x1a;
         #ifdef DEBUG
-            Serial.print("Setting local channel to 0x");
+            Serial.print("Setting channel to 0x");
             Serial.println(channel, HEX);
         #endif
 
@@ -1640,14 +1643,14 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
     }
 
     // SET_ENDPOINT:0x01 Where range is 0x01 to 0x0f
-    else if (command.length() == 18 && command.startsWith("SET_ENDPOINT:")) {
-        int endpoint = inputString.substring(15, 18).toInt(); // Discard 0x chars
+    else if (command.length() == 17 && command.startsWith("SET_ENDPOINT:")) {
+        int endpoint = hexToDec(inputString.substring(15, 17)); // Discard 0x chars
 
         if (endpoint < 1) endpoint = 1;
         if (endpoint > 0x0f) endpoint = 0x0f;
 
         #ifdef DEBUG
-            Serial.print("Setting local endpoint ID to 0x");
+            Serial.print("Setting endpoint ID to 0x");
             Serial.println(endpoint, HEX);
         #endif
         setEndpoint(endpoint);
@@ -1675,10 +1678,10 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
     
 
     // SET_RGB:0x00:0x00:0x00 Where range is 0x00 to 0xff
-    else if (command.length() == 23 && command.startsWith("SET_RGB:")) {
-        int r = command.substring(10,  12).toInt();
-        int g = command.substring(15, 17).toInt();
-        int b = command.substring(20, 23).toInt();
+    else if (command.length() == 22 && command.startsWith("SET_RGB:")) {
+        int r = hexToDec(command.substring(10,  12));
+        int g = hexToDec(command.substring(15, 17));
+        int b = hexToDec(command.substring(20, 22));
 
         if (r < 0) r = 0;
         if (g < 0) g = 0;
@@ -1700,10 +1703,10 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         setRGB(r, g, b, false);
     }
     // SET_HSV:0x000:0x00:0x00 where H range is 0x000 to 0x167 (359 dec), S range is 0x00 to 0x64 (100 dec), V range is 0x00 to 0x64 (100 dec)
-    else if (command.length() == 24 && command.startsWith("SET_HSV:")) {
-        int h = command.substring(10, 12).toInt();
-        int s = command.substring(15, 17).toInt();
-        int v = command.substring(20, 23).toInt();
+    else if (command.length() == 23 && command.startsWith("SET_HSV:")) {
+        int h = hexToDec(command.substring(10, 13));
+        int s = hexToDec(command.substring(16, 18));
+        int v = hexToDec(command.substring(21, 23));
 
         if (h < 0) h = 0;
         if (s < 0) s = 0;
@@ -1776,6 +1779,26 @@ char FemtoCore::_serialBusyWait() {
     ; // do nothing until ready
   }
   return Serial.read();
+}
+
+
+unsigned int FemtoCore::hexToDec(String hexString) {
+  
+  unsigned int decValue = 0;
+  int nextInt;
+  
+  for (int i = 0; i < hexString.length(); i++) {
+    
+    nextInt = int(hexString.charAt(i));
+    if (nextInt >= 48 && nextInt <= 57) nextInt = map(nextInt, 48, 57, 0, 9);
+    if (nextInt >= 65 && nextInt <= 70) nextInt = map(nextInt, 65, 70, 10, 15);
+    if (nextInt >= 97 && nextInt <= 102) nextInt = map(nextInt, 97, 102, 10, 15);
+    nextInt = constrain(nextInt, 0, 15);
+    
+    decValue = (decValue * 16) + nextInt;
+  }
+  
+  return decValue;
 }
 
 

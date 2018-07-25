@@ -355,6 +355,8 @@
 
             static void _reply(char* message, byte output_to, int dest_node_id);
             static char _serialBusyWait();
+            
+            static unsigned int hexToDec(String hexString);
     };
 
 #endif // FemtoCore_h
