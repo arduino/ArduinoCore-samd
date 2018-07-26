@@ -41,4 +41,4 @@ mkrvidor4000.build.variant=mkrvidor4000
 mkrvidor4000.build.vid=0x2341
 mkrvidor4000.build.pid=0x8056
 mkrvidor4000.bootloader.tool=openocd
-mkrvidor4000.bootloader.file=mkrvidor4000/samd21_sam_ba_arduino_mkrvidor.bin
+mkrvidor4000.bootloader.file=mkrvidor4000/samd21_sam_ba_arduino_mkrvidor4000.bin
