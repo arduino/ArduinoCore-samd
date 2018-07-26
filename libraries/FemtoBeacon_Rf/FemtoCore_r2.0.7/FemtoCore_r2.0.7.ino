@@ -27,7 +27,7 @@ int destNodeId = is_coin ? 0x01 : coinId;
  * Open up the Arduino Serial monitor on the dongle, and then power up the coin(s).
  * When you see "from:0x2:0x1:=INIT_COMPLETE", it means node 0x2 is ready for commands.
  * 
- * When the coin node is ready for commands, type ":v" into the Arduino Serial monitor, then press enter. 
+ * When the coin node is ready for commands, type ":v" (sends to default dest node ID) or ">v" (broadcast to all nodes) into the Arduino Serial monitor, then press enter. 
  * It should send ":v" to the coin, and the coin will return the FreeIMU version it has.
  * 
  * To start flow of FemtoBeacon data, type "SET_REPEAT:0x01::D" (where 0x01 enables repeat, and :D is the command to repeat)
