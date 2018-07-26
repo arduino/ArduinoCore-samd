@@ -34,9 +34,13 @@ volatile int FemtoCore::_networking_error_count         = 0;
 volatile bool FemtoCore::_networking_is_busy_sending    = false;
 volatile bool FemtoCore::_networking_status_is_ok       = true;
 NWK_DataReq_t FemtoCore::_sendRequest;
+
+volatile int  FemtoCore::_rtc_sleep_ms                  = 10000; // 10 seconds (10000 ms)
 volatile bool FemtoCore::_should_be_sleeping            = false;
 
 volatile bool FemtoCore::_sensor_is_on                  = false;
+volatile bool FemtoCore::_data_flow_enabled             = false;
+char FemtoCore::_data_flow_command[APP_BUFFER_SIZE] = "";
 KalmanFilter FemtoCore::kFilters[4];
 
 float   FemtoCore::_free_imu_ypr[3]; // Buffer to hold FreeIMU Yaw, Pitch, Roll data.
@@ -128,9 +132,21 @@ volatile char*  FemtoCore::getSecurityKey() {
     return _appSecurityKey;
 }
 
+void FemtoCore::setDataFlow(bool data_flow) {
+    _data_flow_enabled = data_flow;
+}
 
+bool FemtoCore::getDataFlow() {
+    return _data_flow_enabled;
+}
 
+void FemtoCore::setDataFlowCommand(char* comm) {
+    memcpy((char*)_data_flow_command, comm, strlen(comm));
+}
 
+char* FemtoCore::getDataFlowCommand() {
+    return (char*)_data_flow_command;
+}
 
 
 
@@ -416,11 +432,7 @@ void FemtoCore::updateNetworkingConfig() {
 
     // Use u.FL antenna?
     // Set to chip antenna, or uFL antenna?
-    if (FEMTO_ANTENNA_UFL == _defaultAntenna) {
-      _phyWriteRegister(ANT_DIV_REG, (2 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
-    } else {
-      _phyWriteRegister(ANT_DIV_REG, (1 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
-    }
+    _configureAntenna();
 
     // Set TX Power for internal at86rf233, default is 0x0 (+4 dbm)
     // TX_PWR  0x0 ( +4   dBm)
@@ -454,8 +466,17 @@ void FemtoCore::updateNetworkingConfig() {
     #endif
 }
 
+void FemtoCore::_configureAntenna() {
+    if (FEMTO_ANTENNA_UFL == _defaultAntenna) {
+      _phyWriteRegister(ANT_DIV_REG, (2 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
+    } else {
+      _phyWriteRegister(ANT_DIV_REG, (1 << ANT_CTRL) | (1 << ANT_EXT_SW_EN));
+    }
+}
+
 void FemtoCore::setNetworkingAntenna(int antenna) {
     _defaultAntenna = antenna;
+    _configureAntenna();
 }
 
 int  FemtoCore::getNetworkingAntenna() {
@@ -530,6 +551,10 @@ bool FemtoCore::_networkingReceiveMessage(NWK_DataInd_t *ind) {
             Serial.print(":");
             Serial.println(input_string);
         #endif
+
+        if ((int)ind->srcAddr == _destAddress && _data_flow_enabled) {
+            handleRepeatCommand();
+        }
     } else if (first_char == '<') {
         // This is a reply. Output to Serial without new line
         #ifdef ENABLE_SERIAL
@@ -553,6 +578,41 @@ bool FemtoCore::_networkingReceiveMessage(NWK_DataInd_t *ind) {
 
 void FemtoCore::handleNetworking() {
     SYS_TaskHandler();
+}
+
+void FemtoCore::handleRepeatCommand() {
+    // if (!_networking_is_busy_sending) {
+        
+        #ifdef DEBUG
+            Serial.print("FemtoCore::handleNetworking() repeat command enabled. Command is ");
+            Serial.println(_data_flow_command);
+        #endif
+
+        static char temp_buffer[APP_BUFFER_SIZE];
+        static char* temp_buffer_pointer = (char*) temp_buffer;
+
+        char first_char = (char)_data_flow_command[0];
+        strncpy(temp_buffer_pointer, _data_flow_command + 1, strlen(_data_flow_command) - 1);
+
+        temp_buffer[strlen(temp_buffer)+1] = '\0';
+        #ifdef DEBUG
+            Serial.print("FemtoCore::handleNetworking() parsed command is (");
+            Serial.print(strlen(temp_buffer));
+            Serial.print(") ");
+            Serial.print(temp_buffer);
+            Serial.print(", first char is ");
+            Serial.println(first_char);
+        #endif
+        temp_buffer_pointer = (char*) temp_buffer;
+        if (first_char == '>') {
+            broadcast((char*)temp_buffer);
+            // processCommand(temp_buffer_pointer, 0x0, 0x03, (int)_destAddress);
+        } else if (first_char == ':') {
+            send((char*)temp_buffer, _destAddress, _appEndpoint, false);
+            // processCommand(temp_buffer_pointer, 0x0, 0x02, (int)_destAddress);
+        }
+        // memset(temp_buffer, 0, strlen(temp_buffer_pointer));
+    // }
 }
 
 /**
@@ -747,7 +807,7 @@ void FemtoCore::_networkingSendMessage(char* bufferData, int destNodeAddress, in
 
 void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
 {
-
+    int status = req->status;
     #ifdef DEBUG
         Serial.println("FemtoCore::_networkingSendMessageConfirm() processing...");
     #endif
@@ -755,26 +815,26 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
     _networking_is_busy_sending = false;
     _networking_status_is_ok = false;
 
-    if (NWK_NO_ACK_STATUS == req->status) {
+    if (NWK_NO_ACK_STATUS == status) {
 
         #ifdef DEBUG
             Serial.println("FemtoCore::_networkingSendMessageConfirm() NWK_NO_ACK_STATUS");
         #endif
-        setRGB(255, 255, 0, false); // Yellow.
-    } else if (NWK_PHY_NO_ACK_STATUS == req->status) {
+        setRGB(255, 190, 0, false); // Yellow.
+    } else if (NWK_PHY_NO_ACK_STATUS == status) {
         #ifdef DEBUG
             Serial.println("FemtoCore::_networkingSendMessageConfirm() NWK_PHY_NO_ACK_STATUS.");
         #endif
 
         setRGB(255, 0, 0, false); // Red
-    } else if (NWK_NO_ROUTE_STATUS == req->status) {
+    } else if (NWK_NO_ROUTE_STATUS == status) {
 
         #ifdef DEBUG
             Serial.println("FemtoCore::_networkingSendMessageConfirm() NWK_NO_ROUTE_STATUS");
         #endif
         setRGB(255, 90, 0, false); // Orange.
 
-    } else if (NWK_SUCCESS_STATUS == req->status) {
+    } else if (NWK_SUCCESS_STATUS == status) {
         _networking_error_count = 0;
         _networking_status_is_ok = true;
 
@@ -784,11 +844,12 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
         #endif
 
         setRGB(0, 0, 255, false); // Blue.
+
     } else {
 
         #ifdef DEBUG
             Serial.print("FemtoCore::_networkingSendMessageConfirm() UNKNOWN STATE is 0x");
-            Serial.println(req->status, HEX);
+            Serial.println(status, HEX);
         #endif
 
         // @TODO See if there is an network change event we can use to determine if we go to sleep().
@@ -807,7 +868,6 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
         // }
     }
 
-
     #ifdef DEBUG
         Serial.println("FemtoCore::_networkingSendMessageConfirm() complete.");
     #endif
@@ -815,6 +875,7 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
     // #ifdef ENABLE_SERIAL
     //     serial.println("OK")
     // #endif
+
     (void) req;
 }
 
@@ -901,13 +962,9 @@ void FemtoCore::sleep() {
 
     // See https://github.com/arduino-libraries/RTCZero/blob/master/examples/SleepRTCAlarm/SleepRTCAlarm.ino
     // Add alarm to wake up
-    // ...set alarm for 10 seconds into the future
+    // ...set alarm for (default 10 seconds) into the future
     uint32_t uEpoch = rtc.getEpoch();
-    uint32_t uNextEpoch = uEpoch + 10000; // 10 seconds into the future
-
-    //int AlarmTime = rtc.getSeconds() + 10; // Add 10 seconds
-    //AlarmTime = AlarmTime % 60; // Checks for roll over at 60 seconds, and corrects
-
+    uint32_t uNextEpoch = uEpoch + _rtc_sleep_ms; // milliseconds into the future
 
     #ifdef DEBUG
         Serial.println("FemtoCore::wakeUp() SAM R21 Entering standby mode!");
@@ -986,6 +1043,10 @@ void FemtoCore::wakeUp() {
     #endif
 }
 
+bool FemtoCore::getIsNetworkBusy() {
+    return _networking_is_busy_sending;
+}
+
 void FemtoCore::sendSampleLegacy(byte input_from, byte output_to, int to_node_id) {
     
     float ypr[3]; // Hold the YPR data (YPR 180 deg)
@@ -996,9 +1057,8 @@ void FemtoCore::sendSampleLegacy(byte input_from, byte output_to, int to_node_id
     float pressure_reading;
 
     unsigned long current_ms; // Read the current millis() reading.
-
-    String strCurrentMS;
-    char* c_current_ms;
+    char c_current_ms[16];
+    char* c_current_ms_pointer = (char*) c_current_ms;
 
     char c_yaw[5];
     char c_pitch[5];
@@ -1017,8 +1077,9 @@ void FemtoCore::sendSampleLegacy(byte input_from, byte output_to, int to_node_id
     char* data_pointer;
 
     current_ms = millis();
-    strCurrentMS = String(current_ms, HEX);
-    c_current_ms = const_cast<char*>(strCurrentMS.c_str());
+    sprintf(c_current_ms_pointer, "%d", current_ms);
+    // c_current_ms = const_cast<char*>(strCurrentMS.c_str());
+
     // c_current_ms = strCurrentMS.c_str();
 
     freeIMU.getYawPitchRoll180(ypr);
@@ -1059,7 +1120,7 @@ void FemtoCore::sendSampleLegacy(byte input_from, byte output_to, int to_node_id
         Serial.println(c_accel_z);
     #endif
     sprintf(data, 
-        "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\n", 
+        "%s,%s,%s,%s,%s,%s,%s,%s,%s,%s\0", 
         c_current_ms, 
         c_yaw, c_pitch, c_roll, 
         c_euler1, c_euler2, c_euler3, 
@@ -1069,7 +1130,17 @@ void FemtoCore::sendSampleLegacy(byte input_from, byte output_to, int to_node_id
     data_pointer = (char*) data;
     // send(data_pointer, destNodeAddress);
     _reply(data_pointer, output_to < 1 ? 1 : output_to, to_node_id);
-    memset(data, 0, sizeof(data));
+    memset(data_pointer, 0, sizeof(data));
+    memset(c_current_ms_pointer, 0, sizeof(current_ms));
+    memset((char*)c_yaw, 0, sizeof(c_yaw));
+    memset((char*)c_pitch, 0, sizeof(c_pitch));
+    memset((char*)c_roll, 0, sizeof(c_roll));
+    memset((char*)c_euler1, 0, sizeof(c_euler1));
+    memset((char*)c_euler2, 0, sizeof(c_euler2));
+    memset((char*)c_euler3, 0, sizeof(c_euler3));
+    memset((char*)c_accel_x, 0, sizeof(c_accel_x));
+    memset((char*)c_accel_y, 0, sizeof(c_accel_y));
+    memset((char*)c_accel_z, 0, sizeof(c_accel_z));
 }
 /**
  * Process a command. 
@@ -1236,7 +1307,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             float val_array[19] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
             // uint8_t count = _serialBusyWait(); // Expects a char representing count
             uint8_t count = command.substring(1).toInt(); // grab the char after the 'z' char. It's the count.
-            char big_buffer[APP_BUFFER_SIZE * 3];
+            static char big_buffer[APP_BUFFER_SIZE * 3];
             char* big_buffer_pointer;
 
             for(uint8_t i=0; i<count; i++) {
@@ -1311,7 +1382,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             // uint8_t count = _serialBusyWait(); // Expects a char representing count
             uint8_t count = command.substring(1).toInt(); // grab the char after the 'a' char. It's the count.
             String output = String("");
-            char big_buffer[APP_BUFFER_SIZE * 3];
+            static char big_buffer[APP_BUFFER_SIZE * 3];
             char* big_buffer_pointer;
 
             for(uint8_t i=0; i < count; i++) {
@@ -1403,7 +1474,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         //     #endif
         // #endif
         else if(cmd == 'C') { // check calibration values
-            char big_buffer[APP_BUFFER_SIZE * 3];
+            static char big_buffer[APP_BUFFER_SIZE * 3];
             char* big_buffer_pointer = (char*) big_buffer;
             String output = String("");
 
@@ -1498,7 +1569,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         else if(cmd == 'd') { // debugging outputs
             String output = String("");
             char* buffer_pointer  = output_to > 1 ? _free_imu_network_data : _free_imu_serial_data;
-            char result_buffer[APP_BUFFER_SIZE * 3];
+            static char result_buffer[APP_BUFFER_SIZE * 3];
             char* result_buffer_pointer;
 
             // while(1) {
@@ -1560,7 +1631,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
                 // _reply(buffer, output_to < 1 ? 1 : output_to, to_node_id);
                 result_buffer_pointer = const_cast<char*>(output.c_str());
                 _reply(result_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
-                memset(result_buffer_pointer, 0, sizeof(result_buffer_pointer));
+                memset(result_buffer_pointer, 0, sizeof(result_buffer));
                 memset(buffer_pointer, 0, sizeof(buffer_pointer));
                 output = "";
 
@@ -1571,8 +1642,8 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         }
     }
     // SET_NODE_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
-    if (command.length() == 18 && command.startsWith("SET_NODE_ID:")) {
-        int node_id = hexToDec(inputString.substring(14, 18)); // Discard 0x chars
+    if (command.startsWith("SET_NODE_ID:")) {
+        int node_id = hexToDec(inputString.substring(14)); // Discard 0x chars
 
         #ifdef DEBUG
             Serial.print("Setting node ID to 0x");
@@ -1583,14 +1654,12 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         if (node_id > 0xfffe) node_id = 0xfffe;
 
         setDestAddress(node_id);
-        if (output_to > 0) {
-            _reply("SET_NODE_ID:OK", output_to, to_node_id);
-        }
+        _reply("SET_NODE_ID:OK", output_to, to_node_id);
     }
 
     // SET_DEST_ID:0x0001 Where range is 0x0001 to 0xfffe. 0xffff is reserved for broadcasts.
-    else if (command.length() == 18 && command.startsWith("SET_DEST_ID:")) {
-        int dest_id = hexToDec(inputString.substring(14, 18)); // Discard 0x chars
+    else if (command.startsWith("SET_DEST_ID:")) {
+        int dest_id = hexToDec(inputString.substring(14)); // Discard 0x chars
 
         if (dest_id < 0x0001) dest_id = 0x0001;
         if (dest_id > 0xfffe) dest_id = 0xfffe;
@@ -1601,15 +1670,13 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
 
         setDestAddress(dest_id);
-        if (output_to > 0) {
-            _reply("SET_DEST_ID:OK", output_to, to_node_id);
-        }
+        _reply("SET_DEST_ID:OK", output_to, to_node_id);
     }
 
     // SET_PAN_ID:0x1234 Where range is 0x0001 to 0xfffe. 0xffff is reserved.
-    else if (command.length() == 17 && command.startsWith("SET_PAN_ID:")) {
+    else if (command.startsWith("SET_PAN_ID:")) {
 
-        int pan_id = hexToDec(inputString.substring(13, 17)); // Discard 0x chars
+        int pan_id = hexToDec(inputString.substring(13)); // Discard 0x chars
 
         if (pan_id < 0x0001) pan_id = 0x0001;
         if (pan_id > 0xfffe) pan_id = 0xfffe;
@@ -1620,14 +1687,12 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
 
         setPanId(pan_id);
-        if (output_to > 0) {
-            _reply("SET_PAN_ID:OK", output_to, to_node_id);
-        }
+        _reply("SET_PAN_ID:OK", output_to < 1 ? 1: output_to, to_node_id);
     }
 
         // SET_CHANNEL:0x0b Where range is 0x0b to 0x1a
-    else if (command.length() == 16 && command.startsWith("SET_CHANNEL:")) {
-        int channel = hexToDec(inputString.substring(14, 16)); // Discard 0x chars
+    else if (command.startsWith("SET_CHANNEL:")) {
+        int channel = hexToDec(inputString.substring(14)); // Discard 0x chars
 
         if (channel < 0x0b) channel = 0x0b;
         if (channel > 0x1a) channel = 0x1a;
@@ -1637,14 +1702,12 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
 
         setChannel(channel);
-        if (output_to > 0) {
-            _reply("SET_CHANNEL:OK", output_to, to_node_id);
-        }
+        _reply("SET_CHANNEL:OK", output_to < 1 ? 1: output_to, to_node_id);
     }
 
     // SET_ENDPOINT:0x01 Where range is 0x01 to 0x0f
-    else if (command.length() == 17 && command.startsWith("SET_ENDPOINT:")) {
-        int endpoint = hexToDec(inputString.substring(15, 17)); // Discard 0x chars
+    else if (command.startsWith("SET_ENDPOINT:")) {
+        int endpoint = hexToDec(inputString.substring(15)); // Discard 0x chars
 
         if (endpoint < 1) endpoint = 1;
         if (endpoint > 0x0f) endpoint = 0x0f;
@@ -1654,9 +1717,70 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             Serial.println(endpoint, HEX);
         #endif
         setEndpoint(endpoint);
-        if (output_to > 0) {
-            _reply("SET_ENDPOINT:OK", output_to, to_node_id);
-        }
+
+        _reply("SET_ENDPOINT:OK", output_to < 1 ? 1: output_to, to_node_id);
+    }
+
+    // SET_ANTENNA:0x01 Where range is 0x01 (Onboard SMD), or 0x02 (u.FL connector)
+    else if (command.startsWith("SET_ANTENNA:")) {
+        int antenna = hexToDec(command.substring(14));
+
+        if (antenna < 1) antenna = 1;
+        if (antenna > 2) antenna = 2;
+
+        #ifdef DEBUG
+            Serial.print("Setting antenna to ");
+            Serial.println(antenna == 1 ? "0x01 onboard SMD" : "0x02 u.FL connected");
+        #endif
+
+        setNetworkingAntenna(antenna);
+        _reply("SET_ANTENNA:OK", output_to < 1 ? 1: output_to, to_node_id);
+    }
+    // GET_ANTENNA
+    else if (command.startsWith("GET_ANTENNA")) {
+        #ifdef DEBUG
+            Serial.print("Getting antenna config.");
+            Serial.println(_defaultAntenna == 1 ? "0x01 onboard SMD" : "0x02 u.FL connected");
+        #endif
+
+        char reply_buffer[APP_BUFFER_SIZE];
+        char* reply_buffer_pointer;
+
+        sprintf(reply_buffer, "GET_ANTENNA:OK:%d", _defaultAntenna);
+        reply_buffer_pointer = (char*) reply_buffer;
+
+        _reply(reply_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+    }
+
+    // SET_TX_POWER:0x00 Where range is 0x00 to 0x0f.
+    else if (command.startsWith("SET_TX_POWER:")) {
+        int power = hexToDec(command.substring(15));
+
+        if (power < 0x00) power = 0x00;
+        if (power > 0x0f) power = 0x0f;
+
+        #ifdef DEBUG
+            Serial.print("Setting TX power to ");
+            Serial.println(power);
+        #endif
+
+        setNetworkingPowerLevel(power);
+        _reply("SET_TX_POWER:OK", output_to < 1 ? 1: output_to, to_node_id);
+    }
+    // GET_TX_POWER
+    else if (command.startsWith("GET_TX_POWER")) {
+        #ifdef DEBUG
+            Serial.print("Getting TX power level. ");
+            Serial.println(_networkingPowerLevel);
+        #endif
+
+        char reply_buffer[APP_BUFFER_SIZE];
+        char* reply_buffer_pointer = (char*) reply_buffer;
+
+        sprintf(reply_buffer, "GET_TX_POWER:OK:%d", _networkingPowerLevel);
+        _reply(reply_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
     }
 
     else if (command.startsWith("SET_CONFIG")) {
@@ -1670,15 +1794,57 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             Serial.println("OK");
         #endif
 
-        if (output_to > 0) {
-            _reply("SET_CONFIG:OK", output_to, to_node_id);
+        _reply("SET_CONFIG:OK", output_to < 1 ? 1: output_to, to_node_id);
+    }
+
+    // SET_REPEAT:0x00:>COM Where 0x00 is off, 0x01 is on, and >COM can be :Command or >Command
+    else if (command.startsWith("SET_REPEAT:")) {
+        int data_flow_int = hexToDec(command.substring(13,15));
+        static char data_flow_command[APP_BUFFER_SIZE];
+        char* data_flow_pointer = (char*) data_flow_command;
+        bool data_flow;
+        bool has_command = command.length() > 15;
+        if (data_flow_int < 0) data_flow_int = 0;
+        if (data_flow_int > 1) data_flow_int = 1;
+
+        memset((char*)_data_flow_command, 0, APP_BUFFER_SIZE);
+
+        if (has_command) {
+            command.substring(16).toCharArray(data_flow_command, command.length() - 15);
+            // data_flow_pointer = const_cast<char*>(command.substring(16).c_str());
+            memcpy((char*)_data_flow_command, data_flow_pointer, strlen(data_flow_pointer));
+        }
+
+        data_flow = (data_flow_int == 1);
+        #ifdef DEBUG
+            Serial.print("Setting repeat data flow to ");
+            Serial.print(data_flow);
+            if (has_command) {
+                Serial.print(", with command '");
+                Serial.print(data_flow_pointer);
+                Serial.print("'. Saved command is '");
+                Serial.print(_data_flow_command);
+                Serial.println("'.");
+            } else {
+                Serial.println(", no command.");
+            }
+        #endif
+        setDataFlow(data_flow);
+        
+        _reply("SET_REPEAT:OK", output_to < 1 ? 1: output_to, to_node_id);
+
+        if (data_flow) {
+            handleRepeatCommand();
         }
     }
 
-    
-
     // SET_RGB:0x00:0x00:0x00 Where range is 0x00 to 0xff
     else if (command.length() == 22 && command.startsWith("SET_RGB:")) {
+        char* arguments;
+        String args = command.substring(10);
+        args.toCharArray(arguments, args.length());
+
+
         int r = hexToDec(command.substring(10,  12));
         int g = hexToDec(command.substring(15, 17));
         int b = hexToDec(command.substring(20, 22));
@@ -1747,6 +1913,92 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             Serial.println("OK");
         #endif
     }
+
+    // SET_CLOCK:0x000:0x00:0x00-0x00:0x00:0x00
+    else if (command.length() == 41 && command.startsWith("SET_CLOCK:")) {
+        int year = hexToDec(command.substring(12, 15));
+        int month = hexToDec(command.substring(19, 21));
+        int day = hexToDec(command.substring(24, 26));
+
+        int hour = hexToDec(command.substring(29, 31));
+        int minutes = hexToDec(command.substring(34, 36));
+        int seconds = hexToDec(command.substring(39, 41));
+
+        #ifdef DEBUG
+            Serial.print("Setting RTC Clock to year ");
+            Serial.print(year);
+            Serial.print(", month ");
+            Serial.print(month);
+            Serial.print(", day ");
+            Serial.print(day);
+
+            Serial.print(" - hour ");
+
+            Serial.print(hour);
+            Serial.print(", minutes ");
+            Serial.print(minutes);
+            Serial.print(", seconds ");
+            Serial.println(seconds);
+        #endif
+
+        rtc.setYear(year);
+        rtc.setMonth(month);
+        rtc.setDay(day);
+
+        rtc.setHours(hour);
+        rtc.setMinutes(minutes);
+        rtc.setSeconds(seconds);
+    }
+    else if (command.startsWith("GET_CLOCK")) {
+        char reply_buffer[APP_BUFFER_SIZE];
+        char* reply_buffer_pointer = (char*) reply_buffer;
+
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+        sprintf(
+            reply_buffer_pointer, 
+            "GET_CLOCK:OK:%d:%d:%d-%d:%d:%d", 
+            rtc.getYear(), rtc.getMonth(), rtc.getDay(), 
+            rtc.getHours(), rtc.getMinutes(), rtc.getSeconds()
+        );
+
+        _reply(reply_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+    }
+    // SET_SLEEP_MS:0x00000001 (0x00000001-0x7fffffff)
+    else if (command.startsWith("SET_SLEEP_MS:")) {
+
+        int sleep_ms = hexToDec(command.substring(15));
+
+        if (sleep_ms < 0x01) sleep_ms = 0x01;
+        if (sleep_ms > 0x7fffffff) sleep_ms = 0x7fffffff;
+
+        setRTCSleepMS(sleep_ms);
+        _reply("SET_SLEEP_MS:OK", output_to < 1 ? 1 : output_to, to_node_id);
+    }
+
+    else if (command.startsWith("GET_SLEEP_MS")) {
+        char reply_buffer[APP_BUFFER_SIZE];
+        char* reply_buffer_pointer = (char*) reply_buffer;
+        int sleep_ms = getRTCSleepMS();
+
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+        sprintf(
+            reply_buffer_pointer, 
+            "GET_SLEEP_MS:OK:%d", 
+            sleep_ms
+        );
+
+        _reply(reply_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+    }
+}
+
+void FemtoCore::setRTCSleepMS(int sleep_ms) {
+    _rtc_sleep_ms = sleep_ms;
+}
+
+int FemtoCore::getRTCSleepMS() {
+    return _rtc_sleep_ms;
 }
 
 void FemtoCore::_reply(char* message, byte output_to, int dest_node_id) {
@@ -1781,21 +2033,36 @@ char FemtoCore::_serialBusyWait() {
   return Serial.read();
 }
 
-
+// See https://github.com/benrugg/Arduino-Hex-Decimal-Conversion/blob/master/hex_dec.ino
 unsigned int FemtoCore::hexToDec(String hexString) {
   
   unsigned int decValue = 0;
   int nextInt;
-  
+  char chr;
+  char* validChars = "0123456789abcdefABCDEF";
+  byte validChars_length = strlen(validChars);
+  bool is_valid_char;
+
   for (int i = 0; i < hexString.length(); i++) {
-    
-    nextInt = int(hexString.charAt(i));
-    if (nextInt >= 48 && nextInt <= 57) nextInt = map(nextInt, 48, 57, 0, 9);
-    if (nextInt >= 65 && nextInt <= 70) nextInt = map(nextInt, 65, 70, 10, 15);
-    if (nextInt >= 97 && nextInt <= 102) nextInt = map(nextInt, 97, 102, 10, 15);
-    nextInt = constrain(nextInt, 0, 15);
-    
-    decValue = (decValue * 16) + nextInt;
+    chr = hexString.charAt(i);
+    is_valid_char = false;
+    for (int j = 0; j < validChars_length; j++) {
+        is_valid_char = chr == validChars[j];
+
+        if (is_valid_char) break;
+    }
+
+    if (is_valid_char) {
+
+        nextInt = int(hexString.charAt(i));
+        
+        if (nextInt >= 48 && nextInt <= 57) nextInt = map(nextInt, 48, 57, 0, 9);
+        if (nextInt >= 65 && nextInt <= 70) nextInt = map(nextInt, 65, 70, 10, 15);
+        if (nextInt >= 97 && nextInt <= 102) nextInt = map(nextInt, 97, 102, 10, 15);
+        nextInt = constrain(nextInt, 0, 15);
+        
+        decValue = (decValue * 16) + nextInt;
+    }
   }
   
   return decValue;

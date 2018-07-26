@@ -251,9 +251,19 @@
             static void setNetworkingRXState(bool rxState);
             static bool getNetworkingRXState();
 
+            static void setDataFlow(bool data_flow);
+            static bool getDataFlow();
+
+            static void setDataFlowCommand(char* command);
+            static char* getDataFlowCommand();
+
+            static bool getIsNetworkBusy();
+
             static void handleNetworking();
             static void handleSerial();
             static void handleSerialRx();
+
+            static void handleRepeatCommand();
 
             static void send(char* data);
             static void send(char* data, int destNodeAddress);
@@ -268,6 +278,9 @@
 
             static void sleep();
             static void wakeUp();
+
+            static int getRTCSleepMS();
+            static void setRTCSleepMS(int sleep_ms);
 
         private:
             static volatile int _appAddress;
@@ -321,9 +334,13 @@
             static volatile bool    _networking_is_busy_sending;
             static volatile bool    _networking_status_is_ok;
 
+            static volatile int     _rtc_sleep_ms; // Default is 10 seconds (10000 ms)
             static volatile bool    _should_be_sleeping;
 
             static volatile bool    _sensor_is_on;
+            static volatile bool    _data_flow_enabled;
+            static char    _data_flow_command[APP_BUFFER_SIZE];
+
             static KalmanFilter kFilters[4];
 
             static float   _free_imu_ypr[3]; // Buffer to hold FreeIMU Yaw, Pitch, Roll data.
@@ -338,7 +355,7 @@
             static void _HSV_to_RGB(float h, float s, float v, byte* r, byte* g, byte* b);
 
             
-
+            static void _configureAntenna();
             static void _setupRGB();
             static void _setupSerial();
             static void _setupMeshNetworking();
@@ -355,7 +372,7 @@
 
             static void _reply(char* message, byte output_to, int dest_node_id);
             static char _serialBusyWait();
-            
+
             static unsigned int hexToDec(String hexString);
     };
 
