@@ -409,4 +409,4 @@ adafruit_hallowing.build.variant_system_lib=
 adafruit_hallowing.build.vid=0x239A
 adafruit_hallowing.build.pid=0xDEAD
 adafruit_hallowing.bootloader.tool=openocd
-adafruit_hallowing.bootloader.file=feather/samd21_sam_ba.bin
+adafruit_hallowing.bootloader.file=hallowingM0/bootloader-hallowing_m0-v2.0.0-adafruit.0-21-g887cc30.bin
