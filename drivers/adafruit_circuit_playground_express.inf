@@ -10,7 +10,7 @@ ClassGuid={4D36E978-E325-11CE-BFC1-08002BE10318}
 Provider=%MFGNAME%
 LayoutFile=layout.inf
 CatalogFile=%MFGFILENAME%.cat
-DriverVer=11/15/2007,5.1.2600.0
+DriverVer=07/29/2018,10.0.0.0
 
 [Manufacturer]
 %MFGNAME%=DeviceList, NTamd64
@@ -86,18 +86,18 @@ ServiceBinary=%12%\%DRIVERFILENAME%.sys
 [SourceDisksFiles]
 [SourceDisksNames]
 [DeviceList]
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_0018
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_0019
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_0019&MI_00
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_8018&MI_00
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_8019&MI_00
+"%DESCRIPTION% UF2 Bootloader (0018:00) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
+"%DESCRIPTION% UF2 WebUSB dummy (0018:04) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
+"%DESCRIPTION% (0019:00) BSP"=DriverInstall, USB\VID_239A&PID_0019&MI_00
+"%DESCRIPTION% Arduino (8018:00) BSP"=DriverInstall, USB\VID_239A&PID_8018&MI_00
+"%DESCRIPTION% CircuitPython (8019:00) BSP"=DriverInstall, USB\VID_239A&PID_8019&MI_00
 
 [DeviceList.NTamd64]
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_0018
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_0019
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_0019&MI_00
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_8018&MI_00
-%DESCRIPTION%=DriverInstall, USB\VID_239A&PID_8019&MI_00
+"%DESCRIPTION% UF2 Bootloader (0018:00) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
+"%DESCRIPTION% UF2 WebUSB dummy (0018:04) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
+"%DESCRIPTION% (0019:00) BSP"=DriverInstall, USB\VID_239A&PID_0019&MI_00
+"%DESCRIPTION% Arduino (8018:00) BSP"=DriverInstall, USB\VID_239A&PID_8018&MI_00
+"%DESCRIPTION% CircuitPython (8019:00) BSP"=DriverInstall, USB\VID_239A&PID_8019&MI_00
 
 ;------------------------------------------------------------------------------
 ;  String Definitions
@@ -105,7 +105,7 @@ ServiceBinary=%12%\%DRIVERFILENAME%.sys
 ;Modify these strings to customize your device
 ;------------------------------------------------------------------------------
 [Strings]
-MFGFILENAME="CDC_vista"
+MFGFILENAME="Adafruit_Circuit_Playground_Express"
 DRIVERFILENAME ="usbser"
 MFGNAME="Adafruit Industries LLC"
 INSTDISK="Circuit Playground Express Driver Installer"
