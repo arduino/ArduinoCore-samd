@@ -443,7 +443,11 @@ static void sam_ba_monitor_loop(void)
 #ifdef ENABLE_JTAG_LOAD
 
           if ((uint32_t)dst_addr == 0x40000) {
-              jtagInit();
+              if (jtagInit() != 0) {
+                // fail!
+                sam_ba_putdata( ptr_monitor_if, "y\n\r", 3);
+                return;
+              }
 
               // content of the first flash page:
               // offset (32) : length(32) : sha256sum(256) : type (32) : force (32) = 48 bytes
