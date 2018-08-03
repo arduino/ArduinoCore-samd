@@ -27,6 +27,7 @@
 #define USB_VID_LOW    0x41
 #define USB_PID_HIGH   0x00
 #define USB_PID_LOW    0x56
+#define USB_CURRENT_MA 500
 
 /*
  * If BOOT_DOUBLE_TAP_ADDRESS is defined the bootloader is started by

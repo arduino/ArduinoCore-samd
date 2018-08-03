@@ -24,6 +24,11 @@
 #include "board_driver_usb.h"
 #include "sam_ba_cdc.h"
 
+#ifndef USB_CURRENT_MA
+// default USB current, report using 100mA, enough for a bootloader
+#define USB_CURRENT_MA 100
+#endif
+
 /* This data array will be copied into SRAM as its length is inferior to 64 bytes,
  * and so can stay in flash.
  */
@@ -67,7 +72,7 @@ char cfgDescriptor[] =
   0x01,   // CbConfigurationValue
   0x00,   // CiConfiguration
   0x80,   // CbmAttributes Bus powered without remote wakeup: 0x80, Self powered without remote wakeup: 0xc0
-  0x32,   // CMaxPower, report using 100mA, enough for a bootloader
+  (USB_CURRENT_MA / 2),   // CMaxPower
 
   /* Communication Class Interface Descriptor Requirement */
   0x09, // bLength
