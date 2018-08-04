@@ -19,7 +19,11 @@
 #include <SD.h>
 #include <FlashStorage.h>
 
+#ifdef ARDUINO_SAM_ZERO
+#define SDU_START    0x4000
+#else
 #define SDU_START    0x2000
+#endif
 #define SDU_SIZE     0x4000
 
 #define SKETCH_START (uint32_t*)(SDU_START + SDU_SIZE)
@@ -89,4 +93,5 @@ int main() {
   // jump to reset handler
   asm("bx %0"::"r"(resetHandlerAddress));
 }
+
 
