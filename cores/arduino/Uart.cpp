@@ -91,10 +91,13 @@ void Uart::flush()
 void Uart::IrqHandler()
 {
   if (sercom->availableDataUART()) {
-    sercom->isFrameErrorUART();
-    uint8_t c=sercom->readDataUART();
-    if( !sercom->isUARTError()){
+    uint8_t c = sercom->readDataUART();
+    if (!sercom->isUARTError()) {
         rxBuffer.store_char(c);
+    } else {
+      if (sercom->isFrameErrorUART()) {
+        sercom->clearFrameErrorUART();
+      }
     }
     if (uc_pinRTS != NO_RTS_PIN) {
       // RX buffer space is below the threshold, de-assert RTS
