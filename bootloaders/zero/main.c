@@ -194,6 +194,9 @@ int main(void)
   // Enable port mux
   PORT->Group[0].PINCFG[27].reg |= PORT_PINCFG_PMUXEN ;
   clockout(0, 1);
+
+  jtagInit();
+  jtagReload();
 #endif
 
 #if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)

@@ -75,6 +75,7 @@ inline int inpin_get(int pin) { return ((PORT->Group[0].IN.reg & (1<<pin)) != 0)
 extern "C" {
 #endif
 int jtagInit(void);
+int jtagReload(void);
 int jtagWriteBuffer(unsigned int address, const uint8_t* data, size_t len);
 int jtagReadBuffer(unsigned int address, uint8_t* data, size_t len);
 void jtagDeinit(void);
