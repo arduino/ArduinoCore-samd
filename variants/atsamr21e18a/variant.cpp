@@ -126,8 +126,15 @@ const PinDescription g_APinDescription[]=
   { PORTA,  12, PIO_FECTRL, (PIN_ATTR_DIGITAL|PIN_ATTR_TIMER_ALT), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // DIG2
 
   { PORTA, 28, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_15 }//, // USB/VBUS
-  // { PORTA, 30, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SWCLK
-  // { PORTA, 31, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE } // SWDIO
+  { PORTA, 30, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SWCLK
+  { PORTA, 31, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE } // SWDIO
+
+  /* +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
+ * | Pin number | Antenna          |  PIN   | Label/Name      | Comments (* is for default peripheral in use)
+ * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
+ * | 24         |                  |  PA15  |                 | SERCOM2/PAD[3] (TC3/WO[1], peripheral E) (FECTRL[5], peripheral F) (GCLK_IO[1], peripheral H)
+ * +------------+------------------+--------+-----------------+--------------------------------------------------------------------------------------------------------
+ */
 } ;
 
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 } ;

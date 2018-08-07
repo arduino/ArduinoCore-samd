@@ -1867,6 +1867,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
 
         setRGB(r, g, b, false);
+        _reply("SET_RGB:OK", output_to < 1 ? 1: output_to, to_node_id);
     }
     // SET_HSV:0x000:0x00:0x00 where H range is 0x000 to 0x167 (359 dec), S range is 0x00 to 0x64 (100 dec), V range is 0x00 to 0x64 (100 dec)
     else if (command.length() == 23 && command.startsWith("SET_HSV:")) {
@@ -1892,6 +1893,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
 
         setHSV(h, s, v, false);
+        _reply("SET_HSV:OK", output_to < 1 ? 1: output_to, to_node_id);
     }
 
     else if (command.startsWith("TEST_RGB")) {
@@ -1899,6 +1901,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             Serial.print("Testing RGB LED...");
         #endif
         rgbTest();
+        _reply("TEST_RGB:OK", output_to < 1 ? 1: output_to, to_node_id);
         #ifdef DEBUG
             Serial.println("OK");
         #endif
@@ -1909,6 +1912,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             Serial.print("Testing HSV Method...");
         #endif
         hsvTest();
+        _reply("TEST_HSV:OK", output_to < 1 ? 1: output_to, to_node_id);
         #ifdef DEBUG
             Serial.println("OK");
         #endif
@@ -1948,6 +1952,7 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         rtc.setHours(hour);
         rtc.setMinutes(minutes);
         rtc.setSeconds(seconds);
+        _reply("SET_CLOCK:OK", output_to < 1 ? 1: output_to, to_node_id);
     }
     else if (command.startsWith("GET_CLOCK")) {
         char reply_buffer[APP_BUFFER_SIZE];
