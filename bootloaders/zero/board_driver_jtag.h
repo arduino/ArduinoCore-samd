@@ -80,6 +80,7 @@ int jtagWriteBuffer(unsigned int address, const uint8_t* data, size_t len);
 int jtagReadBuffer(unsigned int address, uint8_t* data, size_t len);
 void jtagDeinit(void);
 
+uint32_t jtagBitstreamVersion();
 void jtagFlashEraseBlock(uint32_t offset);
 void jtagFlashWriteBlock(uint32_t offset, size_t len, uint32_t* data);
 void jtagFlashReadBlock(uint32_t offset, size_t len, uint8_t* buf);

@@ -180,9 +180,6 @@ int main(void)
 
 #ifdef CONFIGURE_PMIC
   configure_pmic();
-  if (jump_to_app == true) {
-    jump_to_application();
-  }
 #endif
 
 #ifdef ENABLE_JTAG_LOAD
@@ -196,7 +193,16 @@ int main(void)
   clockout(0, 1);
 
   jtagInit();
-  jtagReload();
+  if ((jtagBitstreamVersion() & 0xFF000000) != 0xB0000000) {
+    // FPGA is not in the bootloader, restart it
+    jtagReload();    
+  }
+#endif
+
+#ifdef CONFIGURE_PMIC
+  if (jump_to_app == true) {
+    jump_to_application();
+  }
 #endif
 
 #if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)

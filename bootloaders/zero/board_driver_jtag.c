@@ -687,6 +687,17 @@ int mbRead(uint32_t address, void* data, int len)
 
 #define MB_DEV_FLASH    0x01000000
 
+uint32_t jtagBitstreamVersion()
+{
+  uint32_t ptr[1];
+  uint32_t ver;
+
+  ptr[0] = 0 | 1;
+  ver = mbCmdSend(ptr, 1);
+
+  return ver;
+}
+
 void jtagFlashEraseBlock(uint32_t offset)
 {
   uint32_t rpc[256];
