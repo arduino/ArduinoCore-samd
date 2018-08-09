@@ -25,7 +25,7 @@
 #define ROW_SIZE                    (PAGE_SIZE * 4)
 
 __attribute__((aligned (4)))
-uint8_t booloaderData[8192] = {
+const uint8_t booloaderData[8192] = {
 #if defined(ARDUINO_SAMD_MKRVIDOR4000)
   #include "bootloaders/mkrvidor4000.h"
 #else
@@ -81,26 +81,32 @@ int SAMD_BootloaderUpdaterClass::update(void(*progressCallback)(float))
   // enable auto page writes
   NVMCTRL->CTRLB.bit.MANW = 0;
 
-  // copy the user row, and set the BOOTPROT size to 0
+  // read the user row
   uint32_t userRow[PAGE_SIZE / sizeof(uint32_t)];
   readFlash(USER_ROW_START, userRow, sizeof(userRow));
-  userRow[0] |= 0x00000007;
 
-  // erase the user row and flash the update value
-  eraseFlash(USER_ROW_START, sizeof(userRow));
-  writeFlash(USER_ROW_START, userRow, sizeof(userRow));
+  if ((userRow[0] & 0x00000007) != 0x00000007) {
+    // bootloader is protected, unprotect it
+    userRow[0] |= 0x00000007;
+
+    // erase the user row and flash the updated value
+    eraseFlash(USER_ROW_START, sizeof(userRow));
+    writeFlash(USER_ROW_START, userRow, sizeof(userRow));
+  }
 
   if (progressCallback) {
     progressCallback(0.0);
   }
 
+  #define CHUNK_SIZE (ROW_SIZE * 2)
+
   // erase and copy the flash row by row
-  for (size_t i = 0; i < sizeof(booloaderData); i += ROW_SIZE) {
-    eraseFlash(BOOTLOADER_START + i, ROW_SIZE);
-    writeFlash(BOOTLOADER_START + i, &booloaderData[i], ROW_SIZE);
+  for (size_t i = 0; i < sizeof(booloaderData); i += CHUNK_SIZE) {
+    eraseFlash(BOOTLOADER_START + i, CHUNK_SIZE);
+    writeFlash(BOOTLOADER_START + i, &booloaderData[i], CHUNK_SIZE);
 
     if (progressCallback) {
-      progressCallback((i + ROW_SIZE) * 100.0 / sizeof(booloaderData));
+      progressCallback((i + CHUNK_SIZE) * 100.0 / sizeof(booloaderData));
     }
   }
 
