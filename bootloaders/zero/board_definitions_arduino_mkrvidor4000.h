@@ -68,6 +68,8 @@
 #define PMIC_PIN_SDA                      11
 #define PMIC_SERCOM                       SERCOM0
 
+#define HAS_EZ6301QI                      1
+
 #define ENABLE_JTAG_LOAD                  1
 #define TDI                               12
 #define TDO                               15

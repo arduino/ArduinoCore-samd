@@ -106,6 +106,16 @@ static void check_start_application(void)
       return;
     }
 
+#ifdef HAS_EZ6301QI
+    // wait a tiny bit for the EZ6301QI to settle,
+    // as it's connected to RESETN and might reset
+    // the chip when the cable is plugged in fresh
+
+    for (uint32_t i=0; i<2500; i++) /* 10ms */
+      /* force compiler to not optimize this... */
+      __asm__ __volatile__("");
+#endif
+
     /* First tap */
     BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
 
