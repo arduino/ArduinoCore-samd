@@ -653,7 +653,12 @@ int mbCmdSend(uint32_t* data, int len)
   jtagWriteBuffer(MB_BASE, (const uint8_t *)data, 1);
 #endif
 
+  int retries = 1000;
   do {
+    if (retries-- < 0) {
+      return -1;
+    }
+
     jtagReadBuffer(MB_BASE, (uint8_t*)&ret, 1);
   } while (ret);
 
