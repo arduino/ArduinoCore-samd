@@ -18,6 +18,8 @@ int destNodeId = is_coin ? 0x01 : coinId;
 
 
 /**
+ * When uploading, set the is_coin variable (above) to true if uploading to a coin, false if uploading to a dongle.
+ * 
  * Usage:
  * 
  * For this demo, plug in the dongle to one USB port, and the coin to another.

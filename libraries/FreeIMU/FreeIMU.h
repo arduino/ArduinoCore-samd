@@ -514,7 +514,12 @@ class FreeIMU
 	void RESET();
 	void RESET_Q();
 	
-    #if HAS_ITG3200()
+  #if HAS_MPU9150() || HAS_MPU9250()
+    void sleep();
+    void wake();
+  #endif
+
+  #if HAS_ITG3200()
 		void init(bool fastmode);
 		void init(int acc_addr, int gyro_addr, bool fastmode);
 	#elif HAS_ALTIMU10() || HAS_LSM9DS0() || HAS_ADA_10_DOF() || HAS_LSM9DS1() || HAS_CURIE() || HAS_TPS()

@@ -35,7 +35,7 @@
  */
 //#define BOOT_LOAD_PIN                     PIN_PA21 // Pin 7
 //#define BOOT_LOAD_PIN                     PIN_PA15 // Pin 5
-#define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
+// #define BOOT_PIN_MASK                     (1U << (BOOT_LOAD_PIN & 0x1f))
 
 #define CPU_FREQUENCY                     (48000000ul)
 //#define CPU_FREQUENCY                     (32000000ul) // SAM R21E XOSC max is 32MHz on XTAL, not 48MHz like the SAM D21E.

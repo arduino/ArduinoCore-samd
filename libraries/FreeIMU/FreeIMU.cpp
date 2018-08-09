@@ -581,6 +581,19 @@ void FreeIMU::RESET_Q() {
 }
 
 
+#if HAS_MPU9150() || HAS_MPU9250()
+void FreeIMU::sleep() {
+	if (!accgyro.getSleepEnabled()) {
+		accgyro.setSleepEnabled(true);
+	}
+}
+void FreeIMU::wake() {
+	if (accgyro.getSleepEnabled()) {
+		accgyro.setSleepEnabled(false);
+	}
+}
+#endif
+
 /**
  * Initialize the FreeIMU I2C bus, sensors and performs gyro offsets calibration
 */

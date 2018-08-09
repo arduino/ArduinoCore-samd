@@ -90,6 +90,14 @@ void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPa
     #endif
 }
 
+void FemtoCore::sleepSensors() {
+    freeIMU.sleep();
+}
+
+void FemtoCore::wakeSensors() {
+    freeIMU.wake();
+}
+
 void FemtoCore::setAddress(int appAddress) {
     _appAddress = appAddress;
 }
@@ -395,8 +403,11 @@ void FemtoCore::_setupSensors() {
     #ifdef DEBUG
         Serial.println("FemtoCore::_setupSensors() initializing... ");
     #endif
-    freeIMU.init(true);
 
+    // DO NOT INIT HERE. Use command '1' to initialize the IMU instead!
+    // freeIMU.init(true);
+
+    _sensor_is_on = true;
     #ifdef DEBUG
         Serial.println("FemtoCore::_setupSensors() complete.");
     #endif
@@ -940,7 +951,7 @@ void FemtoCore::sleep() {
     #ifdef DEBUG
         Serial.println("FemtoCore::sleep() Internal AT86RF233 going into standby mode...");
     #endif
-    // Stope the RGB LED timer
+    // Stop the RGB LED timer
     setRGB(128, 0, 0); // Red (low power)
 
     tcDisable();
@@ -951,8 +962,8 @@ void FemtoCore::sleep() {
     delay(1000);
 
     // @TODO Set the MPU-9250 to SLEEP mode
-    //freeIMU.
-    _sensor_is_on = false;
+    sleepSensors();
+    
 
     // Go to sleep
     // See https://github.com/arduino/ArduinoCore-samd/issues/142
@@ -966,21 +977,13 @@ void FemtoCore::sleep() {
     uint32_t uEpoch = rtc.getEpoch();
     uint32_t uNextEpoch = uEpoch + _rtc_sleep_ms; // milliseconds into the future
 
-    #ifdef DEBUG
-        Serial.println("FemtoCore::wakeUp() SAM R21 Entering standby mode!");
-        Serial.end();
+    #ifdef ENABLE_SERIAL
+        #ifdef DEBUG
+            Serial.println("FemtoCore::wakeUp() SAM R21 Entering standby mode!");
+            Serial.end();
+        #endif
         USBDevice.detach();
         delay(1000);
-    #endif
-
-
-    #ifdef DEBUG
-        Serial.print("FemtoCore::wakeUp() Time is ");
-        Serial.print(uEpoch);
-        Serial.print(".Next alarm time (seconds) is ");
-        Serial.print(uNextEpoch);
-        Serial.println(". Setting alarm...");
-        Serial.end();
     #endif
     
     setRGB(0, 0, 0); // Off
@@ -991,19 +994,24 @@ void FemtoCore::sleep() {
 
     rtc.standbyMode();
 
-    #ifdef DEBUG
+    // After standbyMode() is completed, resume operations.
+
+    #ifdef ENABLE_SERIAL
         USBDevice.attach();
         delay(1000);
         
         while(!Serial);
 
+
         Serial.begin(FEMTO_SERIAL_BAUD_RATE);
-        Serial.println("FemtoCore::wakeUp() Woke up... Continue Mesh networking.");
+        #ifdef DEBUG
+            Serial.println("FemtoCore::wakeUp() Woke up... Continue Mesh networking.");
+        #endif
         // Serial.end();
     #endif
 
     _should_be_sleeping = false;
-    _sensor_is_on = true;
+
 
     // RGB LED stuff
     tcConfigure(FEMTO_RGB_MAX_DUTY_CYCLE);
@@ -1018,6 +1026,8 @@ void FemtoCore::sleep() {
     #endif
 
     if (is_femtobeacon_coin) {
+        wakeSensors();
+        _sensor_is_on = true;
 
         // freeIMU.RESET();
         // freeIMU.RESET_Q();
