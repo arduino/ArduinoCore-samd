@@ -91,14 +91,19 @@ void Uart::flush()
 void Uart::IrqHandler()
 {
   if (sercom->availableDataUART()) {
-    // Check if data are valid and discard if invalid
+    // Check if there is a parity or frame error
     if (!sercom->isParityOrFrameError()) {
+      // no error, store the value
       rxBuffer.store_char(sercom->readDataUART());
     } else {
+      // read the invalid data and discard it
       sercom->readDataUART();
+      
+      // clear any errors that are set
       if (sercom->isFrameErrorUART()) {
         sercom->clearFrameErrorUART();
       }
+      
       if (sercom->isFrameErrorUART()) {
         sercom->clearFrameErrorUART();
       }
