@@ -108,6 +108,7 @@ void Uart::IrqHandler()
         sercom->clearFrameErrorUART();
       }
     }
+
     if (uc_pinRTS != NO_RTS_PIN) {
       // RX buffer space is below the threshold, de-assert RTS
       if (rxBuffer.availableForStore() < RTS_RX_THRESHOLD) {
