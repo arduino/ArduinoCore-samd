@@ -1,9 +1,11 @@
 /*
   Update Bootloader
 
-  This sketch checks if you Arduino SAMD board is running the latest bootloader.
+  This sketch checks if your Arduino SAMD board is running the latest bootloader.
 
   If it is not, it prompts you to update it.
+
+  NOTE: please make sure the line ending setting in the Serial Monitor is set to "Both NL & CR"
 
   Circuit:
   - MKR Vidor 4000
