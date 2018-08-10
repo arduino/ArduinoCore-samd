@@ -91,17 +91,17 @@ void Uart::flush()
 void Uart::IrqHandler()
 {
   if (sercom->availableDataUART()) {
-
+    // Check if data are valid and discard if invalid
     if (!sercom->isParityOrFrameError()) {
-        rxBuffer.store_char(sercom->readDataUART());
+      rxBuffer.store_char(sercom->readDataUART());
     } else {
       sercom->readDataUART();
       if (sercom->isFrameErrorUART()) {
         sercom->clearFrameErrorUART();
       }
       if (sercom->isFrameErrorUART()) {
-              sercom->clearFrameErrorUART();
-            }
+        sercom->clearFrameErrorUART();
+      }
     }
     if (uc_pinRTS != NO_RTS_PIN) {
       // RX buffer space is below the threshold, de-assert RTS

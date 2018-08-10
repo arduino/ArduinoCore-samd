@@ -137,7 +137,7 @@ bool SERCOM::isUARTError()
 
 bool SERCOM:: isParityOrFrameError()
 {
-  return sercom->USART.STATUS.bit.FERR | sercom->USART.STATUS.bit.PERR ;
+  return (sercom->USART.STATUS.reg & (SERCOM_USART_STATUS_FERR |SERCOM_USART_STATUS_PERR));
 }
 
 void SERCOM::acknowledgeUARTError()

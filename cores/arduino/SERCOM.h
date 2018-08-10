@@ -165,7 +165,7 @@ class SERCOM
 		bool isUARTError() ;
 		void clearFrameErrorUART() ;
 		void clearParityErrorUART() ;
-		bool  isParityOrFrameError();
+		bool isParityOrFrameError() ;
 		void acknowledgeUARTError() ;
 		void enableDataRegisterEmptyInterruptUART();
 		void disableDataRegisterEmptyInterruptUART();
