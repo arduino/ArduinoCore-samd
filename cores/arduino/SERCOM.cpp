@@ -135,6 +135,11 @@ bool SERCOM::isUARTError()
   return sercom->USART.INTFLAG.bit.ERROR;
 }
 
+bool SERCOM:: isParityOrFrameError()
+{
+  return sercom->USART.STATUS.bit.FERR | sercom->USART.STATUS.bit.PERR ;
+}
+
 void SERCOM::acknowledgeUARTError()
 {
   sercom->USART.INTFLAG.bit.ERROR = 1;
@@ -156,6 +161,12 @@ void SERCOM::clearFrameErrorUART()
 {
   //clear FERR bit writing 1  status bit
   sercom->USART.STATUS.bit.FERR=0x01u;
+}
+
+void SERCOM::clearParityErrorUART()
+{
+  //clear FERR bit writing 1  status bit
+  sercom->USART.STATUS.bit.PERR=0x01u;
 }
 
 bool SERCOM::isParityErrorUART()
