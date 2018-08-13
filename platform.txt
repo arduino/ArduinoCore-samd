@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Arduino SAMD (32-bits ARM Cortex-M0+) Beta Boards
-version=1.6.22
+version=1.6.23
 
 # Compile variables
 # -----------------
