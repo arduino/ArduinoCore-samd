@@ -5,8 +5,6 @@
 
   If it is not, it prompts you to update it.
 
-  NOTE: please make sure the line ending setting in the Serial Monitor is set to "Both NL & CR"
-
   Circuit:
   - MKR Vidor 4000
 
@@ -41,10 +39,12 @@ retry:
   Serial.println("Would you like to proceed with updating it? (y/N)");
   Serial.println();
 
-  String input = readLine();
-  input.toLowerCase();
 
-  if (input != "y") {
+  while (Serial.available() == 0) {
+    delay(100);
+  }
+  char in = Serial.read();
+  if (in != 'y' && in != 'Y') {
     Serial.println("That's all folks!");
     while (1);
   }
@@ -84,27 +84,5 @@ void loop() {
 
   digitalWrite(LED_BUILTIN, LOW);
   delay(100);
-}
-
-String readLine() {
-  String line;
-
-  while (1) {
-    if (Serial.available()) {
-      char c = Serial.read();
-
-      if (c == '\r') {
-        // ignore
-      } else if (c == '\n') {
-        break;
-      }
-
-      line += c;
-    }
-  }
-
-  line.trim();
-
-  return line;
 }
 
