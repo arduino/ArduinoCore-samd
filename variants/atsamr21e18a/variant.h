@@ -56,8 +56,8 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (16u)
-#define NUM_DIGITAL_PINS     (2u)
+#define PINS_COUNT           (24u)
+#define NUM_DIGITAL_PINS     (22u)
 #define NUM_ANALOG_INPUTS    (2u)
 #define NUM_ANALOG_OUTPUTS   (0u)
 
@@ -83,12 +83,12 @@ extern "C"
 
 // LEDs
 // #define PIN_LED_10           (10u)
-// #define PIN_LED_RXL          (25u)
-// #define PIN_LED_TXL          (26u)
-#define PIN_LED              (10u)
+#define PIN_LED_RXL          (5u)
+#define PIN_LED_TXL          (6u)
+#define PIN_LED              (21u)
 // #define PIN_LED2             PIN_LED_RXL
 // #define PIN_LED3             PIN_LED_TXL
-// #define LED_BUILTIN          PIN_LED_10
+#define LED_BUILTIN          PIN_LED
 
 /*
  * Analog pins

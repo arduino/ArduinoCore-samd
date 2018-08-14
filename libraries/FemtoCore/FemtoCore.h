@@ -17,8 +17,8 @@
     #include <RTCZero.h>
 
 
-    // #define ENABLE_SERIAL       // We want serial USB output.
-    // #define DEBUG               // We also want to see debug serial output.
+    #define ENABLE_SERIAL       // We want serial USB output.
+    #define DEBUG               // We also want to see debug serial output.
 
     #ifndef FEMTO_SERIAL_BAUD_RATE
         #define FEMTO_SERIAL_BAUD_RATE 115200 // Default baud rate. Note, this is the highest that works on Windows COM ports!

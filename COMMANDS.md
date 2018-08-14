@@ -91,12 +91,18 @@ Set TX Power for internal at86rf233 RF module. Default is 0x0 (+4 dbm)
 
 ## Peripheral library commands - Real Time Clock (RTC)
 
+You will need to call `START_RTC` before using any of these commands. 
+
 | Command                                  | Where | Params                 | Info                  |
 |:----------------------------------------:| ----- |:----------------------:| --------------------- |
+| START_RTC                                | All   | *                      | Enables RTC clock     |
 | SET_CLOCK:0x000:0x00:0x00-0x00:0x00:0x00 | All   | *SET_CLOCK params*     | Set RTC 24hr clock    |
 | GET_CLOCK                                | All   |                        | Gets RTC clock        |
 | SET_SLEEP_MS:0x00000001                  | All   | int sleep_time_ms      | How long to sleep (ms)|
 | GET_SLEEP_MS                             | All   |                        | Get sleep (ms) value  |
+
+*START_RTC NOTE* KNOWN ISSUE: After starting RTC clock, USB sketch upload fails.
+WORK AROUND: Either short the RESET pads for 3 seconds (goes into bootloader mode), or power cycle your board before you upload a sketch.
 
 *SET_CLOCK params* Year (0x000), Month (0x01-0x0c), Day (0x01-0x1F) - Hour (0x00-0x18), Minutes (0x00-0x3c), Seconds (0x00-0x3c)
 

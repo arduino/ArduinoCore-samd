@@ -67,7 +67,7 @@
 #define VARIANT_MCK                       CPU_FREQUENCY
 
 #define NVM_SW_CALIB_DFLL48M_COARSE_VAL   (58)
-#define NVM_SW_CALIB_DFLL48M_FINE_VAL     (512)//(64)
+#define NVM_SW_CALIB_DFLL48M_FINE_VAL     (64)
 
 /*
  * LEDs definitions

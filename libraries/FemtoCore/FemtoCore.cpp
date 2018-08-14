@@ -75,12 +75,12 @@ void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPa
     #endif
 
     _setupRGB();
-    _setupRTC();
+    // _setupRTC();
     _setupMeshNetworking();
 
     if (is_femtobeacon_coin) {
-        _setupFilters();
-        _setupSensors();
+        // _setupFilters();
+        // _setupSensors();
 
         broadcast("=INIT_COMPLETE");
     }
@@ -892,7 +892,9 @@ void FemtoCore::_networkingSendMessageConfirm(NWK_DataReq_t *req)
 
 void FemtoCore::handleSerial() {
 
-    if (Serial.available()) serialEvent();
+    #ifdef ENABLE_SERIAL
+        if (Serial.available()) serialEvent();
+    #endif
 }
 
 void FemtoCore::handleSerialRx() {
@@ -1928,6 +1930,16 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
         #endif
     }
 
+    else if (command.startsWith("START_RTC")) {
+        #ifdef DEBUG
+            Serial.print("Starting RTC clock...");
+        #endif
+        _setupRTC();
+        _reply("START_RTC:OK", output_to < 1 ? 1: output_to, to_node_id);
+        #ifdef DEBUG
+            Serial.println("OK");
+        #endif
+    }
     // SET_CLOCK:0x000:0x00:0x00-0x00:0x00:0x00
     else if (command.length() == 41 && command.startsWith("SET_CLOCK:")) {
         int year = hexToDec(command.substring(12, 15));
