@@ -79,8 +79,8 @@ void FemtoCore::init(int appAddress, int destAddress, int appEndpoint, int appPa
     _setupMeshNetworking();
 
     if (is_femtobeacon_coin) {
-        // _setupFilters();
-        // _setupSensors();
+        _setupFilters();
+        _setupSensors();
 
         broadcast("=INIT_COMPLETE");
     }
@@ -1194,37 +1194,43 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             memset(buffer, 0, sizeof(buffer));
         }
         else if(cmd=='1'){
+            #ifdef DEBUG
+                Serial.println("Starting FreeIMU.");
+            #endif
             freeIMU.init(true);
-            if (output_to > 0) {
+            #ifdef DEBUG
+                Serial.println("FreeIMU started.");
+            #endif
+            // if (output_to > 0) {
                 _reply("1:OK", output_to, to_node_id);
-            }
+            // }
         }
         else if(cmd=='2'){
             freeIMU.RESET_Q();
-            if (output_to > 0) {
+            // if (output_to > 0) {
                 _reply("2:OK", output_to, to_node_id);
-            }
+            // }
         }
         else if(cmd=='g'){
             freeIMU.initGyros();
-            if (output_to > 0) {
+            // if (output_to > 0) {
                 _reply("g:OK", output_to, to_node_id);
-            }
+            // }
         }
         else if(cmd=='t'){
             //available opttions temp_corr_on, instability_fix
             freeIMU.setTempCalib(1);
-            if (output_to > 0) {
+            // if (output_to > 0) {
                 _reply("t:OK", output_to, to_node_id);
-            }
+            // }
         }
         else if(cmd=='f'){
             //available opttions temp_corr_on, instability_fix
             freeIMU.initGyros();
             freeIMU.setTempCalib(0);
-            if (output_to > 0) {
+            // if (output_to > 0) {
                 _reply("f:OK", output_to, to_node_id);
-            }
+            // }
         }
         else if(cmd=='p'){
             //set sea level pressure
@@ -1233,9 +1239,9 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             freeIMU.setSeaPress(sea_press/100.0);
             //Serial.println(sea_press);
 
-            if (output_to > 0) {
+            // if (output_to > 0) {
                 _reply("p:OK", output_to, to_node_id);
-            }
+            // }
         }
         else if(cmd=='r') {
             // uint8_t count = _serialBusyWait(); // Expects a char representing count
@@ -1940,6 +1946,31 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
             Serial.println("OK");
         #endif
     }
+
+    else if (command.startsWith("SLEEP_SENSORS")) {
+        #ifdef DEBUG
+            Serial.print("Sleeping sensors...")
+        #endif
+
+        sleepSensors();
+        _reply("SLEEP_SENSORS:OK", output_to < 1 ? 1: output_to, to_node_id);
+        #ifdef DEBUG
+            Serial.println("OK");
+        #endif
+    }
+
+    else if (command.startsWith("WAKE_SENSORS")) {
+        #ifdef DEBUG
+            Serial.print("Waking sensors...")
+        #endif
+
+        wakeSensors();
+        _reply("WAKE_SENSORS:OK", output_to < 1 ? 1: output_to, to_node_id);
+        #ifdef DEBUG
+            Serial.println("OK");
+        #endif
+    }
+
     // SET_CLOCK:0x000:0x00:0x00-0x00:0x00:0x00
     else if (command.length() == 41 && command.startsWith("SET_CLOCK:")) {
         int year = hexToDec(command.substring(12, 15));

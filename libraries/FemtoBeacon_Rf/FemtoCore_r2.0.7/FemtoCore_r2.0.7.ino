@@ -11,7 +11,7 @@
 // false = Is FemtoBeacon DONGLE   =[]
 bool is_coin = true;
 
-int coinId = 0x02; // Default coin to send to. Also sets the Coin node ID if is_coin = true
+int coinId = 0x06; // Default coin to send to. Also sets the Coin node ID if is_coin = true
 
 int myNodeId = is_coin ? coinId : 0x01;
 int destNodeId = is_coin ? 0x01 : coinId;
@@ -31,6 +31,9 @@ int destNodeId = is_coin ? 0x01 : coinId;
  * 
  * When the coin node is ready for commands, type ":v" (sends to default dest node ID) or ">v" (broadcast to all nodes) into the Arduino Serial monitor, then press enter. 
  * It should send ":v" to the coin, and the coin will return the FreeIMU version it has.
+ * 
+ * Initialize the RTC peripheral by running ":START_RTC"
+ * Initialize the IMU by running ":1"
  * 
  * To start flow of FemtoBeacon data, type "SET_REPEAT:0x01::D" (where 0x01 enables repeat, and :D is the command to repeat)
  * To stop flow of FemtoBeacon data, type "SET_REPEAT:0x00" (where 0x00 disables repeat)

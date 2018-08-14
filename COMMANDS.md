@@ -4,6 +4,8 @@
 
 Here is a list of available commands on nodes with ENABLE_SERIAL defined (see libraries/FemtoCore/FemtoCore.h)
 
+By default, coins are loaded with FemtoCore. You can plug in your dongle (node 0x01), and then coin (node 0x02), and open up the Arduino Serial monitor for the dongle. Try sending `:TEST_HSV` to test color hues.
+
 ## How to run commands
 Commands issued as-is will run on the node where the command was issued (likely via SerialUSB port).
 
@@ -28,6 +30,8 @@ Prepending a command with '>' will broadcast the command to all connected nodes 
 | C       | Coin only  |                | Read/Check calibration values. `C`                             |
 | d       | Coin only  |                | Read FreeIMU debug outputs. `d`                                |
 | D       | Coin only  |                | Read *FemtoBeacon data*. `D`                                   |
+| SLEEP_SENSORS| Coin only |            | Sleep IMU sensors                                              |
+| WAKE_SENSORS | Coin only |            | Wake IMU sensors                                               |
 
 *FreeIMU raw data* - accel X, accel Y, accel Z, gyro X, gyro Y, gyro Z, mag X, mag Y, mag Z, temperature
 
