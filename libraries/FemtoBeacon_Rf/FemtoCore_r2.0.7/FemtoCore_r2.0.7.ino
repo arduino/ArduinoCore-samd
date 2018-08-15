@@ -11,7 +11,7 @@
 // false = Is FemtoBeacon DONGLE   =[]
 bool is_coin = true;
 
-int coinId = 0x06; // Default coin to send to. Also sets the Coin node ID if is_coin = true
+int coinId = 0x02; // Default coin to send to. Also sets the Coin node ID if is_coin = true
 
 int myNodeId = is_coin ? coinId : 0x01;
 int destNodeId = is_coin ? 0x01 : coinId;
