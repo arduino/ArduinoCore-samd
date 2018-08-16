@@ -28,8 +28,8 @@ version=1.6.23
 compiler.warning_flags=-w
 compiler.warning_flags.none=-w
 compiler.warning_flags.default=
-compiler.warning_flags.more=-Wall
-compiler.warning_flags.all=-Wall -Wextra
+compiler.warning_flags.more=-Wall -Wno-expansion-to-defined
+compiler.warning_flags.all=-Wall -Wextra -Wno-expansion-to-defined
 
 compiler.path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 compiler.c.cmd=arm-none-eabi-gcc
