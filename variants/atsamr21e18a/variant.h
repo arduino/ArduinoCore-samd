@@ -165,6 +165,9 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PERIPH_WIRE          sercom0
 #define WIRE_IT_HANDLER      SERCOM0_Handler
 
+#define PIN_IMU_FSYNC        (3u);
+#define PIN_IMU_INT          (4u);
+
 /*
  * USB
  */

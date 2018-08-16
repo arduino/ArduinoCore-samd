@@ -110,4 +110,21 @@ WORK AROUND: Either short the RESET pads for 3 seconds (goes into bootloader mod
 
 *SET_CLOCK params* Year (0x000), Month (0x01-0x0c), Day (0x01-0x1F) - Hour (0x00-0x18), Minutes (0x00-0x3c), Seconds (0x00-0x3c)
 
-Note: *SET_SLEEP_MS* min value is 1, max value is 2,147,483,647 milliseconds (0x7FFFFFFF), as that's as high as `int` variables on this micro controller go.
+Note: *SET_SLEEP_MS* min value is 1, max value is 2,147,483,647 milliseconds (0x7FFFFFFF), as that's as high as `int` variables on this micro controller go. When SET_SLEEP_MS value has elapsed, device will wake up.
+
+## Peripheral library commands - Sleep/Wake
+
+These commands are associated with RTC, Network (AT86RF233), or Sensors (MPU-9250) peripherals.
+
+| Command                     | Where | Params                             | Info                   |
+|:---------------------------:| ----- |:----------------------------------:|------------------------|
+| SET_WAKE_TRIGGER:0x00       | Partial| 0x01 Time, 0x04 Sensor*           | See notes.             |
+| GET_WAKE_TRIGGER            | ALL   |                                    | The wake trigger(s)    |
+| SET_SENSOR_INT:0x00         | Coin  | 0x01 Free-fall, 0x02 motion, 0x04 zero-motion| See notes    |
+| SLEEP                       | All   |                                    | Start sleep. See notes |
+
+*SET_WAKE_TRIGGER* Params can be bitwise OR'd to trigger on a combination of event triggers. First event trigger to be handled will wake up the coin and peripherals. Sensor trigger (0x04) is only available on coins. Default wake trigger is time (0x01), which will wake when SET_SLEEP_MS value has lapsed.
+
+*SET_SENSOR_INT* Sets the type of sensor interrupt that will trigger a wake up. Currently, only one param is used, and is not bitwised OR'd. The priority is Free-fall, motion, or zero-motion. The default is motion (0x02) if SET_SENSOR_INT is not called.
+
+*SLEEP* Sends device to sleep, (wake trigger(s) set by SET_WAKE_TRIGGER: wakes device up)

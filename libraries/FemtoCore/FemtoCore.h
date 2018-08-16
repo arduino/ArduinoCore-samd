@@ -16,9 +16,8 @@
 
     #include <RTCZero.h>
 
-
     #define ENABLE_SERIAL       // We want serial USB output.
-    // #define DEBUG               // We also want to see debug serial output.
+    #define DEBUG               // We also want to see debug serial output.
 
     #ifndef FEMTO_SERIAL_BAUD_RATE
         #define FEMTO_SERIAL_BAUD_RATE 115200 // Default baud rate. Note, this is the highest that works on Windows COM ports!
@@ -176,8 +175,29 @@
 
             /** FreeIMU Stuff BOF **/
             static const int FREEIMU_OUTPUT_BUFFER_SIZE = 128; // In the FreeIMU_serial_ARM_CPU sketch, the "str" variable was originally 128 chars.
+            static const int FEMTO_PIN_IMU_INT = 4;
             static FreeIMU freeIMU;
             /** FreeIMU Stuff EOF **/
+
+            /** Network AT86RF233 Stuff BOF **/
+            static const int FEMTO_PIN_ATRF233_SLP_TR = 14;
+            /** Network AT86RF233 Stuff EOF **/
+
+            /** Sleep/Wake BOF **/
+            static const byte FEMTO_WAKE_TRIGGER_TIME      = 0x01; // 0001
+            static const byte FEMTO_WAKE_TRIGGER_NET       = 0x02; // 0010
+            static const byte FEMTO_WAKE_TRIGGER_SENSOR    = 0x04; // 0100
+
+            // ...Motion types used to trigger wake calls
+            static const byte FEMTO_SENSOR_INT_FREE_FALL            = 0x01;
+            static const byte FEMTO_SENSOR_INT_MOTION               = 0x02;
+            static const byte FEMTO_SENSOR_INT_ZERO_MOTION          = 0x04;
+
+            // ...These are used outside of sleep/wake functionality
+            static const byte FEMTO_SENSOR_INT_FIFO_BUFFER_OVERFLOW = 0x08;
+            static const byte FEMTO_SENSOR_INT_I2C_MASTER_INTERRUPT = 0x10; // DEC 16
+            static const byte FEMTO_SENSOR_INT_DATA_READY           = 0x20; // DEC 32
+            /** Sleep/Wake EOF **/
             
 
             /**
@@ -197,9 +217,6 @@
                 int appChannel, 
                 char* appSecurityKey, 
                 bool is_coin);
-
-            static void wakeSensors();
-            static void sleepSensors();
 
             static void startRTC();
             static void stopRTC();
@@ -285,7 +302,15 @@
             static void sleep();
             static void wakeUp();
 
-            static int getRTCSleepMS();
+            static void wakeSensors();
+            static void sleepSensors();
+            static void sensorWakeEvent();
+
+            static void wakeNetwork();
+            static void sleepNetwork();
+            static void networkWakeEvent();
+
+            static int  getRTCSleepMS();
             static void setRTCSleepMS(int sleep_ms);
 
         private:
@@ -340,6 +365,7 @@
             static volatile bool    _networking_is_busy_sending;
             static volatile bool    _networking_status_is_ok;
 
+            static volatile int     _sleep_mode; // Default is 0 (timed). 1 = AT68RF233 network event trigger. 2 = Sensor event trigger.
             static volatile int     _rtc_sleep_ms; // Default is 10 seconds (10000 ms)
             static volatile bool    _should_be_sleeping;
 
@@ -367,7 +393,12 @@
             static void _setupMeshNetworking();
             static void _setupRTC();
             static void _setupSensors();
+            static void _setupSensorsWakeOnMotion();
+            static void _setupNetworkWakeOnFrame();
             static void _setupFilters();
+
+            static void _detachSensorsWakeOnMotion();
+            static void _detachNetworkWakeOnFrame();
 
             static bool _networkingReceiveMessage(NWK_DataInd_t *ind);
             static void _phyWriteRegister(uint8_t reg, uint8_t value);
@@ -378,6 +409,12 @@
 
             static void _reply(char* message, byte output_to, int dest_node_id);
             static char _serialBusyWait();
+
+            static void _wakeTriggerTime();
+            static void _wakeTriggerNetwork();
+            static void _wakeTriggerSensor();
+
+            static volatile byte _sensor_interrupt_source; // Default is FEMTO_SENSOR_INT_MOTION
 
             static unsigned int hexToDec(String hexString);
     };
