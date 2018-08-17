@@ -310,8 +310,26 @@
             static void sleepNetwork();
             static void networkWakeEvent();
 
-            static int  getRTCSleepMS();
-            static void setRTCSleepMS(int sleep_ms);
+            static void setWakeFreefallThreshold(uint8_t threshold);
+            static uint8_t getWakeFreefallThreshold();
+
+            static void setWakeFreefallDuration(uint8_t duration);
+            static uint8_t getWakeFreefalDuration();
+
+            static void setWakeMotionThreshold(uint8_t threshold);
+            static uint8_t getWakeMotionThreshold();
+
+            static void setWakeMotionDuration(uint8_t threshold);
+            static uint8_t getWakeMotionDuration();
+
+            static void setWakeZeroMotionThreshold(uint8_t threshold);
+            static uint8_t getWakeZeroMotionThreshold();
+
+            static void setWakeZeroMotionDuration(uint8_t threshold);
+            static uint8_t getWakeZeroMotionDuration();
+
+            static uint32_t  getRTCSleepMS();
+            static void setRTCSleepMS(uint32_t sleep_ms);
 
         private:
             static volatile int _appAddress;
@@ -365,9 +383,19 @@
             static volatile bool    _networking_is_busy_sending;
             static volatile bool    _networking_status_is_ok;
 
-            static volatile int     _sleep_mode; // Default is 0 (timed). 1 = AT68RF233 network event trigger. 2 = Sensor event trigger.
-            static volatile int     _rtc_sleep_ms; // Default is 10 seconds (10000 ms)
+            static volatile int     _sleep_mode; // Default is 0x01 (timed). 0x02 = AT68RF233 network event trigger. 0x04 = Sensor event trigger.
+            static volatile uint32_t _rtc_sleep_ms; // Default is 10 seconds (10000 ms)
+            static volatile bool    _is_rtc_started;
             static volatile bool    _should_be_sleeping;
+
+            static volatile uint8_t _wake_freefall_threshold;
+            static volatile uint8_t _wake_freefall_duration;
+
+            static volatile uint8_t _wake_motion_threshold;
+            static volatile uint8_t _wake_motion_duration;
+
+            static volatile uint8_t _wake_zero_motion_threshold;
+            static volatile uint8_t _wake_zero_motion_duration;
 
             static volatile bool    _sensor_is_on;
             static volatile bool    _data_flow_enabled;

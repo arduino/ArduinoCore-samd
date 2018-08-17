@@ -35,15 +35,24 @@ volatile bool FemtoCore::_networking_is_busy_sending    = false;
 volatile bool FemtoCore::_networking_status_is_ok       = true;
 NWK_DataReq_t FemtoCore::_sendRequest;
 
-volatile int  FemtoCore::_sleep_mode                    = 0; // Default is 0 (timed). 1 = AT68RF233 network event trigger. 2 = Sensor event trigger.
-volatile int  FemtoCore::_rtc_sleep_ms                  = 10000; // 10 seconds (10000 ms)
+volatile int  FemtoCore::_sleep_mode                    = 0x01; // Default is 0x01 (timed). 0x02 = AT68RF233 network event trigger. 0x04 = Sensor event trigger.
+volatile uint32_t  FemtoCore::_rtc_sleep_ms             = 10000; // 10 seconds (10000 ms)
 volatile bool FemtoCore::_should_be_sleeping            = false;
-
+volatile bool FemtoCore::_is_rtc_started                = false;
 volatile bool FemtoCore::_sensor_is_on                  = false;
 volatile bool FemtoCore::_data_flow_enabled             = false;
 
 
 volatile byte FemtoCore::_sensor_interrupt_source = FEMTO_SENSOR_INT_MOTION; // Default is FEMTO_SENSOR_INT_MOTION
+
+volatile uint8_t FemtoCore::_wake_freefall_threshold;
+volatile uint8_t FemtoCore::_wake_freefall_duration;
+
+volatile uint8_t FemtoCore::_wake_motion_threshold;
+volatile uint8_t FemtoCore::_wake_motion_duration;
+
+volatile uint8_t FemtoCore::_wake_zero_motion_threshold;
+volatile uint8_t FemtoCore::_wake_zero_motion_duration;
 
 char FemtoCore::_data_flow_command[APP_BUFFER_SIZE] = "";
 KalmanFilter FemtoCore::kFilters[4];
@@ -377,10 +386,15 @@ void FemtoCore::_setupMeshNetworking() {
 }
 
 void FemtoCore::_setupRTC() {
-    rtc.begin();
+    SYSCTRL->VREG.bit.RUNSTDBY = 1; // Regulator, run in normal mode when standby mode is activated.
+    SYSCTRL->DFLLCTRL.bit.RUNSTDBY = 1; // Enable the DFLL48M clock in standby mode!
 
+    rtc.begin();
+    _is_rtc_started = true;
     #ifdef DEBUG
+    if (!_should_be_sleeping) {
         Serial.println("FemtoCore::_setupRTC() complete.");
+    }
     #endif
 }
 
@@ -950,10 +964,9 @@ void FemtoCore::sleep() {
     #ifdef DEBUG
         Serial.println("FemtoCore::sleep() called.");
     #endif
+    setRGB(0, 0, 0, true);
 
     // Stop the RGB LED timer
-    setRGB(0, 0, 0); // Off
-
     #ifdef DEBUG
         Serial.print("FemtoCore::sleep() Stopping RGB LED timer...");
     #endif
@@ -962,6 +975,7 @@ void FemtoCore::sleep() {
     #ifdef DEBUG
         Serial.println(" OK.");
     #endif
+
 
     // @TODO figure out if we can wake up out of network SLEEP mode on incomming data or something...
     // // Setup Network wake interrupt if requested.
@@ -972,11 +986,19 @@ void FemtoCore::sleep() {
     // Set AT86RF233 Radio module to Standby mode.
     sleepNetwork();
 
+
     if (is_femtobeacon_coin) {
 
 
         // Setup Sensor wake interrupt if requested.
-        if (_sleep_mode & FEMTO_WAKE_TRIGGER_SENSOR == FEMTO_WAKE_TRIGGER_SENSOR) {
+        if ((_sleep_mode & FEMTO_WAKE_TRIGGER_SENSOR) == FEMTO_WAKE_TRIGGER_SENSOR) {
+            
+            #ifdef DEBUG
+                Serial.print("FemtoCore::sleep() Wake trigger sensor set");
+                Serial.print(" (");
+                Serial.print(_sleep_mode);
+                Serial.print(").");
+            #endif
             _wakeTriggerSensor();
         }
         // Set the MPU-9250 to SLEEP mode
@@ -993,11 +1015,11 @@ void FemtoCore::sleep() {
     #ifdef ENABLE_SERIAL
         #ifdef DEBUG
             Serial.println("FemtoCore::sleep() SAM R21 Entering standby mode! Good night...");
+            Serial.end();
         #endif
 
-        Serial.end();
         USBDevice.detach();
-        delay(500); // 1000
+        delay(1000); // 1000
     #endif
 
     
@@ -1005,7 +1027,11 @@ void FemtoCore::sleep() {
 
     
     // Setup timed wake (RTC based) if requested. 
-    if (_sleep_mode & FEMTO_WAKE_TRIGGER_TIME == FEMTO_WAKE_TRIGGER_TIME) {
+    if ((_sleep_mode & FEMTO_WAKE_TRIGGER_TIME) == FEMTO_WAKE_TRIGGER_TIME) {
+        if (!_is_rtc_started) {
+            _setupRTC();
+        }
+
         _wakeTriggerTime();
     }
 }
@@ -1025,34 +1051,34 @@ void FemtoCore::_detachSensorsWakeOnMotion() {
 
 void FemtoCore::_wakeTriggerSensor() {
     // Setup WOM interrupt
-    if (_sensor_interrupt_source | FEMTO_SENSOR_INT_FREE_FALL == FEMTO_SENSOR_INT_FREE_FALL) {
+    if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_FREE_FALL) == FEMTO_SENSOR_INT_FREE_FALL) {
         // On free-fall
         if (freeIMU.accgyro.getIntFreefallEnabled() == 0) {
             freeIMU.accgyro.setIntFreefallEnabled(true);
         }
     }
-    else if (_sensor_interrupt_source | FEMTO_SENSOR_INT_MOTION == FEMTO_SENSOR_INT_MOTION) {
+    else if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_MOTION) == FEMTO_SENSOR_INT_MOTION) {
         // On motion
         if (freeIMU.accgyro.getIntMotionEnabled() == 0) {
             freeIMU.accgyro.setIntMotionEnabled(true);
         }
     } 
-    else if (_sensor_interrupt_source | FEMTO_SENSOR_INT_ZERO_MOTION == FEMTO_SENSOR_INT_ZERO_MOTION) {
+    else if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_ZERO_MOTION) == FEMTO_SENSOR_INT_ZERO_MOTION) {
         // On zero-motion
         if (freeIMU.accgyro.getIntZeroMotionEnabled() == 0) {
             freeIMU.accgyro.setIntZeroMotionEnabled(true);
         }
     }
 
-    // if (_sensor_interrupt_source | FEMTO_SENSOR_INT_FIFO_BUFFER_OVERFLOW == FEMTO_SENSOR_INT_FIFO_BUFFER_OVERFLOW) {
+    // if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_FIFO_BUFFER_OVERFLOW) == FEMTO_SENSOR_INT_FIFO_BUFFER_OVERFLOW) {
     //     // On FIFO Buffer overflow
     // }
 
-    // if (_sensor_interrupt_source | FEMTO_SENSOR_INT_I2C_MASTER_INTERRUPT == FEMTO_SENSOR_INT_I2C_MASTER_INTERRUPT) {
+    // if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_I2C_MASTER_INTERRUPT) == FEMTO_SENSOR_INT_I2C_MASTER_INTERRUPT) {
     //     // On I2C Master interrupt
     // }
 
-    // if (_sensor_interrupt_source | FEMTO_SENSOR_INT_DATA_READY == FEMTO_SENSOR_INT_DATA_READY) {
+    // if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_DATA_READY) == FEMTO_SENSOR_INT_DATA_READY) {
     //     // On data ready.
     // }
 
@@ -1061,19 +1087,19 @@ void FemtoCore::_wakeTriggerSensor() {
 
 void FemtoCore::sensorWakeEvent() {
     // WOM (Wake-On-Motion) triggered!
-    if (_sensor_interrupt_source | FEMTO_SENSOR_INT_FREE_FALL == FEMTO_SENSOR_INT_FREE_FALL) {
+    if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_FREE_FALL) == FEMTO_SENSOR_INT_FREE_FALL) {
         // On free-fall
         if (freeIMU.accgyro.getIntFreefallEnabled() == 1) {
             freeIMU.accgyro.setIntFreefallEnabled(false);
         }
     }
-    else if (_sensor_interrupt_source | FEMTO_SENSOR_INT_MOTION == FEMTO_SENSOR_INT_MOTION) {
+    else if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_MOTION) == FEMTO_SENSOR_INT_MOTION) {
         // On motion
         if (freeIMU.accgyro.getIntMotionEnabled() == 1) {
             freeIMU.accgyro.setIntMotionEnabled(false);
         }
     }
-    else if (_sensor_interrupt_source | FEMTO_SENSOR_INT_ZERO_MOTION == FEMTO_SENSOR_INT_ZERO_MOTION) {
+    else if ((_sensor_interrupt_source | FEMTO_SENSOR_INT_ZERO_MOTION) == FEMTO_SENSOR_INT_ZERO_MOTION) {
         // On zero-motion
         if (freeIMU.accgyro.getIntZeroMotionEnabled() == 1) {
             freeIMU.accgyro.setIntZeroMotionEnabled(false);
@@ -1140,12 +1166,13 @@ void FemtoCore::networkWakeEvent() {
 
 // Internally called by the sleep() command only.
 void FemtoCore::sleepNetwork() {
+    
     #ifdef DEBUG
-        Serial.print("FemtoCore::sleep() Internal AT86RF233 module going into standby mode...");
+        Serial.print("FemtoCore::sleepNetwork() Internal AT86RF233 module going into standby mode...");
     #endif
 
     NWK_SleepReq();
-    delay(100); // 1000
+    delay(1000); // 1000
 
     #ifdef DEBUG
         Serial.println(" OK.");
@@ -1154,11 +1181,11 @@ void FemtoCore::sleepNetwork() {
 // Internally called by the wake() command only.
 void FemtoCore::wakeNetwork() {
     #ifdef DEBUG
-        Serial.print("FemtoCore::sleep() Networking waking up...");
+        Serial.print("FemtoCore::wakeNetwork() Networking waking up...");
     #endif
 
     NWK_WakeupReq();
-    delay(500); // 1000
+    delay(1000); // 1000
 
     #ifdef DEBUG
         Serial.println(" OK.");
@@ -1178,9 +1205,9 @@ void FemtoCore::_wakeTriggerTime() {
     // Add alarm to wake up
     // ...set alarm for (default 10 seconds) into the future
     uint32_t uEpoch = rtc.getEpoch();
-    uint32_t uNextEpoch = uEpoch + _rtc_sleep_ms; // milliseconds into the future
+    uint32_t uNextEpoch = uEpoch + ((uint32_t)_rtc_sleep_ms); // milliseconds into the future
 
-    rtc.attachInterrupt(wakeUp);
+    // rtc.attachInterrupt(FemtoCore::wakeUp); // We don't need this line unless we need to run something while in standby mode.
     rtc.setAlarmEpoch(uNextEpoch);
     rtc.enableAlarm(rtc.MATCH_SS); // Match seconds only
 
@@ -1188,22 +1215,22 @@ void FemtoCore::_wakeTriggerTime() {
     rtc.standbyMode();
     // ---- Standby mode execution END   -----
 
-
+    
     if (_should_be_sleeping) { // Not awake yet? wake up!
         wakeUp();
     }
 }
 
 void FemtoCore::wakeUp() {
+
     _should_be_sleeping = false;
 
     // Re-attach USB
     USBDevice.attach();
+    // delay(2000);
 
     // Re-enable Serial if it was enabled before.
     #ifdef ENABLE_SERIAL
-        
-        delay(1000);
         
         while(!Serial);
 
@@ -1211,24 +1238,19 @@ void FemtoCore::wakeUp() {
         Serial.begin(FEMTO_SERIAL_BAUD_RATE);
         #ifdef DEBUG
             Serial.println("FemtoCore::wakeUp() Woke up!");
+            Serial.end();
         #endif
-        // Serial.end();
+        
     #endif
 
-
-    // RGB LED stuff
-    #ifdef DEBUG
-        Serial.print("FemtoCore::wakeUp() Starting RGB LED timer...");
-    #endif
+    // Start up the clock used to emulate PWM control of our RGB LED pins.
     tcConfigure(FEMTO_RGB_MAX_DUTY_CYCLE);
     tcStartCounter();
 
-    #ifdef DEBUG
-        Serial.println(" OK.");
-    #endif
-
     // Wake up the Network device
     wakeNetwork();
+
+    // delay(1000);
 
     if (is_femtobeacon_coin) {
         wakeSensors();
@@ -1238,16 +1260,13 @@ void FemtoCore::wakeUp() {
             // Serial.end();
         #endif
     }
-
-    // Reset RGB pins, and tick
-    _setupRGB();
     
     #ifdef DEBUG
         Serial.println("FemtoCore::wakeUp() complete.");
     #endif
 
-    // Run color test as a visual queue.
-    hsvTest();
+    // broadcast wake up event.
+    _reply("WAKE:OK", 3, 0);
 }
 
 bool FemtoCore::getIsNetworkBusy() {
@@ -2221,12 +2240,18 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
     // SET_SLEEP_MS:0x00000001 (0x00000001-0x7fffffff)
     else if (command.startsWith("SET_SLEEP_MS:")) {
 
-        int sleep_ms = hexToDec(command.substring(15));
+        uint32_t sleep_ms = (uint32_t) hexToDec(command.substring(15));
 
         if (sleep_ms < 0x01) sleep_ms = 0x01;
         if (sleep_ms > 0x7fffffff) sleep_ms = 0x7fffffff;
 
-        setRTCSleepMS(sleep_ms);
+        #ifdef DEBUG
+            Serial.print("Setting Sleep MS (");
+            Serial.print(sleep_ms);
+            Serial.println(")");
+        #endif
+        // setRTCSleepMS(sleep_ms);
+        _rtc_sleep_ms = sleep_ms;
         _reply("SET_SLEEP_MS:OK", output_to < 1 ? 1 : output_to, to_node_id);
     }
 
@@ -2248,40 +2273,98 @@ void FemtoCore::processCommand(char* command_chars, byte input_from, byte output
 
     // SET_WAKE_TRIGGER:0x00 (0x01 timed, 0x02 net, 0x04 sensor ...though 0x02 is not supported yet)
     else if (command.startsWith("SET_WAKE_TRIGGER:")) {
-        byte sleep_mode = (byte) hexToDec(command.substring());
+        #ifdef DEBUG
+            Serial.print("Setting wake trigger type...");
+        #endif
+        byte sleep_mode = (byte) hexToDec(command.substring(19));
         // @TODO figure out if we can wake up out of network SLEEP mode on incomming data or something...
-        if (!(sleep_mode | FEMTO_WAKE_TRIGGER_NET == FEMTO_WAKE_TRIGGER_NET) && sleep_mode > 0 && sleep_mode <= 0x07) { // Exclude unsupported NET trigger for now
+        if (sleep_mode > 0 && sleep_mode <= 0x07) { // Exclude unsupported NET trigger for now
 
             _sleep_mode = sleep_mode;
-            
-            _reply("SET_WAKE_TRIGGER:OK");
+
+            _reply("SET_WAKE_TRIGGER:OK", output_to < 1 ? 1: output_to, to_node_id);
         } else {
-            _reply("SET_WAKE_TRIGGER:ERROR:UNSUPPORTED_PARAM:FEMTO_WAKE_TRIGGER_NET", output_to < 1 ? 1: output_to, to_node_id);
+            #ifdef DEBUG
+                Serial.print(" (");
+                Serial.print(sleep_mode);
+                Serial.print(") ");
+            #endif
+            _reply("SET_WAKE_TRIGGER:ERROR:UNSUPPORTED_PARAM", output_to < 1 ? 1: output_to, to_node_id);
         }
+        #ifdef DEBUG
+            Serial.println(" OK.");
+        #endif
     }
     else if (command.startsWith("GET_WAKE_TRIGGER")) {
+        #ifdef DEBUG
+            Serial.print("Getting wake trigger type...");
+        #endif
         char reply_buffer[APP_BUFFER_SIZE];
-        char* reply_buffer_pointer (char*) reply_buffer;
+        char* reply_buffer_pointer = (char*) reply_buffer;
         int sleep_mode = _sleep_mode;
         memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
         sprintf(reply_buffer_pointer, "GET_WAKE_TRIGGER:OK:%d", sleep_mode);
 
-        _reply(reply_buffer_pointer, , output_to < 1 ? 1 : output_to, to_node_id);
+        _reply(reply_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
         memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+
+        #ifdef DEBUG
+            Serial.println(" OK.");
+        #endif
+    }
+    // SET_SENSOR_INT:0x00 (0x01 free-fall, 0x02 motion, 0x04 zero-motion)
+    else if (command.startsWith("SET_SENSOR_INT:")) {
+        #ifdef DEBUG
+            Serial.print("Setting sensor interrupt type...");
+        #endif
+        byte sensor_interrupt_source = (byte) hexToDec(command.substring(17));
+
+        if (sensor_interrupt_source > 0 && sensor_interrupt_source <= 0x07) { // We only support free-fall, motion, and zero-motion for now
+            _sensor_interrupt_source = sensor_interrupt_source;
+            _reply("SET_SENSOR_INT:OK", output_to < 1 ? 1: output_to, to_node_id);
+        } else {
+            #ifdef DEBUG
+                Serial.print(" (");
+                Serial.print(sensor_interrupt_source);
+                Serial.print(") ");
+            #endif
+            _reply("SET_SENSOR_INT:ERROR:UNSUPPORTED_PARAM", output_to < 1 ? 1: output_to, to_node_id);
+        }
+
+        #ifdef DEBUG
+            Serial.println(" OK.");
+        #endif
+    }
+    else if (command.startsWith("GET_SENSOR_INT")) {
+        #ifdef DEBUG
+            Serial.print("Getting sensor interrupt type...");
+        #endif
+        char reply_buffer[APP_BUFFER_SIZE];
+        char* reply_buffer_pointer = (char*) reply_buffer;
+        int sensor_interrupt_source = _sensor_interrupt_source;
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+        sprintf(reply_buffer_pointer, "GET_SENSOR_INT:OK:%d", sensor_interrupt_source);
+
+        _reply(reply_buffer_pointer, output_to < 1 ? 1 : output_to, to_node_id);
+        memset(reply_buffer_pointer, 0, sizeof(reply_buffer));
+
+        #ifdef DEBUG
+            Serial.println(" OK.");
+        #endif
     }
     else if (command.startsWith("SLEEP")) {
         #ifdef DEBUG
-            Serial.println("Sleep requested.");
+            Serial.println("Sleep requested. Good night!");
         #endif
         sleep();
     }
 }
 
-void FemtoCore::setRTCSleepMS(int sleep_ms) {
+void FemtoCore::setRTCSleepMS(uint32_t sleep_ms) {
     _rtc_sleep_ms = sleep_ms;
 }
 
-int FemtoCore::getRTCSleepMS() {
+uint32_t FemtoCore::getRTCSleepMS() {
     return _rtc_sleep_ms;
 }
 
