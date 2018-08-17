@@ -90,6 +90,13 @@ void Uart::flush()
 
 void Uart::IrqHandler()
 {
+  if (sercom->isFrameErrorUART()) {
+    // frame error, next byte is invalid so read and discard it
+    sercom->readDataUART();
+
+    sercom->clearFrameErrorUART();
+  }
+
   if (sercom->availableDataUART()) {
     rxBuffer.store_char(sercom->readDataUART());
 
@@ -114,7 +121,6 @@ void Uart::IrqHandler()
   if (sercom->isUARTError()) {
     sercom->acknowledgeUARTError();
     // TODO: if (sercom->isBufferOverflowErrorUART()) ....
-    // TODO: if (sercom->isFrameErrorUART()) ....
     // TODO: if (sercom->isParityErrorUART()) ....
     sercom->clearStatusUART();
   }
