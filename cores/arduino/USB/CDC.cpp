@@ -176,13 +176,10 @@ int Serial_::peek(void)
 
 int Serial_::read(void)
 {
-	ring_buffer *buffer = &cdc_rx_buffer;
-
-	// if the head isn't ahead of the tail, we don't have any characters
-	if (buffer->head == buffer->tail && !buffer->full)
-	{
-		if (usb.available(CDC_ENDPOINT_OUT))
-			accept();
+	if (_serialPeek != -1) {
+		int res = _serialPeek;
+		_serialPeek = -1;
+		return res;
 	}
 	return usb.recv(CDC_ENDPOINT_OUT);
 }

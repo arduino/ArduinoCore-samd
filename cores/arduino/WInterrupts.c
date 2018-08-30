@@ -102,6 +102,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     // Store interrupts to service in order of when they were attached
     // to allow for first come first serve handler
     uint32_t current = 0;
+    uint32_t inMask = (1UL << in);
 
     // Check if we already have this interrupt
     for (current=0; current<nints; current++) {
@@ -129,10 +130,6 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
         break;
 
       case CHANGE:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_BOTH_Val << pos;
-        break;
-
-      case CHANGE:
         EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_BOTH;
         break;
 
@@ -146,7 +143,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     }
 
     // Assign callback to interrupt
-    callbacksInt[EXTERNAL_INT_NMI] = callback;
+    ISRcallback[EXTERNAL_INT_NMI] = callback;
 
   } else { // Not NMI, is external interrupt
 
@@ -161,7 +158,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     pinPeripheral(pin, PIO_EXTINT);
 
     // Assign callback to interrupt
-    callbacksInt[in] = callback;
+    ISRcallback[in] = callback;
 
     // Look for right CONFIG register to be addressed
     if (in > EXTERNAL_INT_7) {
@@ -208,7 +205,6 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
   EIC->CTRLA.bit.ENABLE = 1;
   while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
 #endif
-  }
 }
 
 /*
@@ -240,7 +236,7 @@ void detachInterrupt(uint32_t pin)
   // Remove callback from the ISR list
   uint32_t current;
   for (current=0; current<nints; current++) {
-    if (ISRlist[current] == inMask) {
+    if (ISRlist[current] == (1UL << in)) {
       break;
     }
   }
@@ -263,8 +259,8 @@ void InterruptHandler(uint32_t i)
   if ((EIC->INTFLAG.reg & (1 << i)) != 0)
   {
     // Call the callback function if assigned
-    if (callbacksInt[i]) {
-      callbacksInt[i]();
+    if (ISRcallback[i]) {
+      ISRcallback[i]();
     }
 
     // Clear the interrupt
@@ -376,6 +372,7 @@ void EIC_Handler(void)
  */
 void NMI_Handler(void)
 {
-  if (callbacksInt[EXTERNAL_INT_NMI]) callbacksInt[EXTERNAL_INT_NMI]();
+  if (ISRcallback[EXTERNAL_INT_NMI]) ISRcallback[EXTERNAL_INT_NMI]();
   EIC->NMIFLAG.bit.NMI = 1; // Clear interrupt
 }
+#endif
