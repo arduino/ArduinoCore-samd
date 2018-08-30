@@ -561,19 +561,19 @@ void analogWrite(uint32_t pin, uint32_t value)
 		  Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
 		  // Disable TCx
 		  TCx->COUNT8.CTRLA.bit.ENABLE = 0;
-		  syncTC_8(TCx);
+		  syncTC_16(TCx);
 		  // Set Timer counter Mode to 8 bits, normal PWM, prescaler 1/256
 		  TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_WAVEGEN_NPWM | TC_CTRLA_PRESCALER_DIV256;
-		  syncTC_8(TCx);
+		  syncTC_16(TCx);
 		  // Set the initial value
 		  TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
-		  syncTC_8(TCx);
+		  syncTC_16(TCx);
 		  // Set PER to maximum counter value (resolution : 0xFF)
 		  TCx->COUNT8.PER.reg = 0xFF;
-		  syncTC_8(TCx);
+		  syncTC_16(TCx);
 		  // Enable TCx
 		  TCx->COUNT8.CTRLA.bit.ENABLE = 1;
-		  syncTC_8(TCx);
+		  syncTC_16(TCx);
 		  } else {
 		  // -- Configure TCC
 		  Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
@@ -600,7 +600,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 	  if (tcNum >= TCC_INST_NUM) {
 		  Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
 		  TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
-		  syncTC_8(TCx);
+		  syncTC_16(TCx);
 		  } else {
 		  Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
 		  TCCx->CTRLBSET.bit.LUPD = 1;
