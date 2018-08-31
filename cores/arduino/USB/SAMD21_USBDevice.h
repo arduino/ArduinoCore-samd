@@ -254,6 +254,11 @@ public:
 		release();
 	}
 
+	~DoubleBufferedEPOutHandler() {
+		free((void*)data0);
+		free((void*)data1);
+	}
+
 	virtual uint32_t recv(void *_data, uint32_t len)
 	{
 		uint8_t *data = reinterpret_cast<uint8_t *>(_data);

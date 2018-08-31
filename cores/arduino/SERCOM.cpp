@@ -19,6 +19,12 @@
 #include "SERCOM.h"
 #include "variant.h"
 
+#ifndef WIRE_RISE_TIME_NANOSECONDS
+// Default rise time in nanoseconds, based on 4.7K ohm pull up resistors
+// you can override this value in your variant if needed
+#define WIRE_RISE_TIME_NANOSECONDS 125
+#endif
+
 SERCOM::SERCOM(Sercom* s)
 {
   sercom = s;
@@ -146,6 +152,12 @@ bool SERCOM::isFrameErrorUART()
   return sercom->USART.STATUS.bit.FERR;
 }
 
+void SERCOM::clearFrameErrorUART()
+{
+  // clear FERR bit writing 1 status bit
+  sercom->USART.STATUS.bit.FERR = 1;
+}
+
 bool SERCOM::isParityErrorUART()
 {
   //PERR : Parity Error
@@ -175,7 +187,7 @@ int SERCOM::writeDataUART(uint8_t data)
 
 void SERCOM::enableDataRegisterEmptyInterruptUART()
 {
-  sercom->USART.INTENSET.reg |= SERCOM_USART_INTENSET_DRE;
+  sercom->USART.INTENSET.reg = SERCOM_USART_INTENSET_DRE;
 }
 
 void SERCOM::disableDataRegisterEmptyInterruptUART()
@@ -370,7 +382,7 @@ void SERCOM::enableWIRE()
 {
   // I2C Master and Slave modes share the ENABLE bit function.
 
-  // Enable the I²C master mode
+  // Enable the I2C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 1 ;
 
   while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
@@ -391,7 +403,7 @@ void SERCOM::disableWIRE()
 {
   // I2C Master and Slave modes share the ENABLE bit function.
 
-  // Enable the I²C master mode
+  // Enable the I2C master mode
   sercom->I2CM.CTRLA.bit.ENABLE = 0 ;
 
   while ( sercom->I2CM.SYNCBUSY.bit.ENABLE != 0 )
@@ -400,17 +412,20 @@ void SERCOM::disableWIRE()
   }
 }
 
-void SERCOM::initSlaveWIRE( uint8_t ucAddress )
+void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool enableGeneralCall )
 {
   // Initialize the peripheral clock and interruption
   initClockNVIC() ;
   resetWIRE() ;
 
   // Set slave mode
-  sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION ;
+  sercom->I2CS.CTRLA.bit.MODE = I2C_SLAVE_OPERATION;
 
   sercom->I2CS.ADDR.reg = SERCOM_I2CS_ADDR_ADDR( ucAddress & 0x7Ful ) | // 0x7F, select only 7 bits
-                          SERCOM_I2CS_ADDR_ADDRMASK( 0x00ul ) ;         // 0x00, only match exact address
+                          SERCOM_I2CS_ADDR_ADDRMASK( 0x00ul );          // 0x00, only match exact address
+  if (enableGeneralCall) {
+    sercom->I2CS.ADDR.reg |= SERCOM_I2CS_ADDR_GENCEN;                   // enable general call (address 0x00)
+  }
 
   // Set the interrupt register
   sercom->I2CS.INTENSET.reg = SERCOM_I2CS_INTENSET_PREC |   // Stop
@@ -442,7 +457,7 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 //  sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
 
   // Synchronous arithmetic baudrate
-  sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 1 ;
+  sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 5 - (((SystemCoreClock / 1000000) * WIRE_RISE_TIME_NANOSECONDS) / (2 * 1000));
 }
 
 void SERCOM::prepareNackBitWIRE( void )
@@ -662,16 +677,20 @@ void SERCOM::initClockNVIC( void )
     clockId = GCM_SERCOM3_CORE;
     IdNvic = SERCOM3_IRQn;
   }
+  #if defined(SERCOM4)
   else if(sercom == SERCOM4)
   {
     clockId = GCM_SERCOM4_CORE;
     IdNvic = SERCOM4_IRQn;
   }
+  #endif // SERCOM4
+  #if defined(SERCOM5)
   else if(sercom == SERCOM5)
   {
     clockId = GCM_SERCOM5_CORE;
     IdNvic = SERCOM5_IRQn;
   }
+  #endif // SERCOM5
 
   if ( IdNvic == PendSV_IRQn )
   {
@@ -681,7 +700,7 @@ void SERCOM::initClockNVIC( void )
 
   // Setting NVIC
   NVIC_EnableIRQ(IdNvic);
-  NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);  /* set Priority */
+  NVIC_SetPriority (IdNvic, SERCOM_NVIC_PRIORITY);  /* set Priority */
 
   //Setting clock
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( clockId ) | // Generic Clock 0 (SERCOMx)

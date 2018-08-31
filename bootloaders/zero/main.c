@@ -23,17 +23,32 @@
 #include "sam_ba_serial.h"
 #include "board_definitions.h"
 #include "board_driver_led.h"
+#include "board_driver_i2c.h"
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
 extern uint32_t __sketch_vectors_ptr; // Exported value from linker script
 extern void board_init(void);
 
-#if (defined DEBUG) && (DEBUG == 1)
 volatile uint32_t* pulSketch_Start_Address;
-#endif
+
+static void jump_to_application(void) {
+
+  /* Rebase the Stack Pointer */
+  __set_MSP( (uint32_t)(__sketch_vectors_ptr) );
+
+  /* Rebase the vector table base address */
+  SCB->VTOR = ((uint32_t)(&__sketch_vectors_ptr) & SCB_VTOR_TBLOFF_Msk);
+
+  /* Jump to application Reset Handler in the application */
+  asm("bx %0"::"r"(*pulSketch_Start_Address));
+}
 
 static volatile bool main_b_cdc_enable = false;
+
+#ifdef CONFIGURE_PMIC
+static volatile bool jump_to_app = false;
+#endif
 
 /**
  * \brief Check the application startup condition
@@ -43,10 +58,6 @@ static void check_start_application(void)
 {
 //  LED_init();
 //  LED_off();
-
-#if (!defined DEBUG) || ((defined DEBUG) && (DEBUG == 0))
-uint32_t* pulSketch_Start_Address;
-#endif
 
   /*
    * Test sketch stack pointer @ &__sketch_vectors_ptr
@@ -130,15 +141,12 @@ uint32_t* pulSketch_Start_Address;
 */
 
 //  LED_on();
+#ifdef CONFIGURE_PMIC
+  jump_to_app = true;
+#else
+  jump_to_application();
+#endif
 
-  /* Rebase the Stack Pointer */
-  __set_MSP( (uint32_t)(__sketch_vectors_ptr) );
-
-  /* Rebase the vector table base address */
-  SCB->VTOR = ((uint32_t)(&__sketch_vectors_ptr) & SCB_VTOR_TBLOFF_Msk);
-
-  /* Jump to application Reset Handler in the application */
-  asm("bx %0"::"r"(*pulSketch_Start_Address));
 }
 
 #if DEBUG_ENABLE
@@ -167,6 +175,13 @@ int main(void)
   /* System initialization */
   board_init();
   __enable_irq();
+
+#ifdef CONFIGURE_PMIC
+  configure_pmic();
+  if (jump_to_app == true) {
+    jump_to_application();
+  }
+#endif
 
 #if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
   /* UART is enabled in all cases */

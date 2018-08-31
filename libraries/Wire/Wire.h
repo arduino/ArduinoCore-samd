@@ -34,7 +34,7 @@ class TwoWire : public Stream
   public:
     TwoWire(SERCOM *s, uint8_t pinSDA, uint8_t pinSCL);
     void begin();
-    void begin(uint8_t);
+    void begin(uint8_t, bool enableGeneralCall = false);
     void end();
     void setClock(uint32_t);
 
@@ -71,10 +71,10 @@ class TwoWire : public Stream
     bool transmissionBegun;
 
     // RX Buffer
-    RingBuffer rxBuffer;
+    RingBufferN<256> rxBuffer;
 
     //TX buffer
-    RingBuffer txBuffer;
+    RingBufferN<256> txBuffer;
     uint8_t txAddress;
 
     // Callback user functions
