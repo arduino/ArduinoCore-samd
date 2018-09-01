@@ -28,7 +28,7 @@
 // to which to write the next incoming character and tail is the index of the
 // location from which to read.
 #ifndef defined(SERIAL_BUFFER_SIZE)//allows to define the user the buffer size
-#define SERIAL_BUFFER_SIZE 128//Double the buffer size to get larger streams like from GPS
+#define SERIAL_BUFFER_SIZE 256
 #endif
 
 template <int N>
