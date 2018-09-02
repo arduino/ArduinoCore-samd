@@ -409,3 +409,40 @@ adafruit_hallowing.build.vid=0x239A
 adafruit_hallowing.build.pid=0xDEAD
 adafruit_hallowing.bootloader.tool=openocd
 adafruit_hallowing.bootloader.file=hallowingM0/bootloader-hallowing_m0-v2.0.0-adafruit.0-21-g887cc30.bin
+
+# Adafruit Trellis M4 (SAMD51)
+# ------------------------------
+adafruit_trellis_m4.name=Adafruit Trellis M4 (SAMD51)
+adafruit_trellis_m4.vid.0=0x239A
+adafruit_trellis_m4.pid.0=0x802F
+adafruit_trellis_m4.vid.1=0x239A
+adafruit_trellis_m4.pid.1=0x002F
+adafruit_trellis_m4.vid.2=0x239A
+adafruit_trellis_m4.pid.2=0x0030
+adafruit_trellis_m4.upload.tool=bossac18
+adafruit_trellis_m4.upload.protocol=sam-ba
+adafruit_trellis_m4.upload.maximum_size=507904
+adafruit_trellis_m4.upload.offset=0x4000
+adafruit_trellis_m4.upload.use_1200bps_touch=true
+adafruit_trellis_m4.upload.wait_for_upload_port=true
+adafruit_trellis_m4.upload.native_usb=true
+adafruit_trellis_m4.build.mcu=cortex-m4
+adafruit_trellis_m4.build.f_cpu=120000000L
+adafruit_trellis_m4.build.usb_product="Adafruit Trellis M4"
+adafruit_trellis_m4.build.usb_manufacturer="Adafruit LLC"
+adafruit_trellis_m4.build.board=TRELLIS_M4
+adafruit_trellis_m4.build.core=arduino
+adafruit_trellis_m4.build.extra_flags=-D__SAMD51G19A__ -DADAFRUIT_TRELLIS_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -DCRYSTALLESS -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_trellis_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_trellis_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_trellis_m4.build.variant=trellis_m4
+adafruit_trellis_m4.build.variant_system_lib=
+adafruit_trellis_m4.build.vid=0x239A
+adafruit_trellis_m4.build.pid=0x802F
+adafruit_trellis_m4.bootloader.tool=openocd
+adafruit_trellis_m4.bootloader.file=trellisM4/bootloader-trellis_m4-v2.0.0-adafruit.5.bin
+adafruit_trellis_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_trellis_m4.menu.cache.on=Enabled
+adafruit_trellis_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_trellis_m4.menu.cache.off=Disabled
+adafruit_trellis_m4.menu.cache.off.build.cache_flags=
