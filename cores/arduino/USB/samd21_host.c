@@ -147,10 +147,7 @@ void UHD_Init(void)
 	USB->HOST.DESCADD.reg = (uint32_t)(&usb_pipe_table[0]);
 	// For USB_SPEED_FULL
 	uhd_force_full_speed();
-	for (i = 0; i < sizeof(usb_pipe_table); i++)
-	{
-		(*(uint32_t *)(&usb_pipe_table[0] + i)) = 0;
-	}
+	memset((void *)usb_pipe_table, 0, sizeof(usb_pipe_table));
 
 	uhd_state = UHD_STATE_NO_VBUS;
 
