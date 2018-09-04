@@ -244,6 +244,11 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 		}
 		else if (setup.wValueL == ISERIAL) {
 #ifdef PLUGGABLE_USB_ENABLED
+#if defined(__SAMD51__)
+			char name[ISERIAL_MAX_LEN];
+			PluggableUSB().getShortName(name);
+			return sendStringDescriptor((uint8_t*)name, setup.wLength);
+#else
 			// from section 9.3.3 of the datasheet
 			#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
 			#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
@@ -258,6 +263,7 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 
 			PluggableUSB().getShortName(&name[32]);
 			return sendStringDescriptor((uint8_t*)name, setup.wLength);
+#endif
 #endif
 		}
 		else {
