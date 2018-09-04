@@ -554,63 +554,57 @@ void analogWrite(uint32_t pin, uint32_t value)
       };
       GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_IDs[tcNum]);
       while (GCLK->STATUS.bit.SYNCBUSY == 1);
-	  
-	  // Set PORT
-	  if (tcNum >= TCC_INST_NUM) {
-		  // -- Configure TC
-		  Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
-		  // Disable TCx
-		  TCx->COUNT8.CTRLA.bit.ENABLE = 0;
-		  syncTC_16(TCx);
-		  // Set Timer counter Mode to 8 bits, normal PWM, prescaler 1/256
-		  TCx->COUNT8.CTRLA.reg |= TC_CTRLA_MODE_COUNT8 | TC_CTRLA_WAVEGEN_NPWM | TC_CTRLA_PRESCALER_DIV256;
-		  syncTC_16(TCx);
-		  // Set the initial value
-		  TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
-		  syncTC_16(TCx);
-		  // Set PER to maximum counter value (resolution : 0xFF)
-		  TCx->COUNT8.PER.reg = 0xFF;
-		  syncTC_16(TCx);
-		  // Enable TCx
-		  TCx->COUNT8.CTRLA.bit.ENABLE = 1;
-		  syncTC_16(TCx);
-		  } else {
-		  // -- Configure TCC
-		  Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-		  // Disable TCCx
-		  TCCx->CTRLA.bit.ENABLE = 0;
-		  syncTCC(TCCx);
-		  // Set prescaler to 1/256
-		  TCCx->CTRLA.reg |= TCC_CTRLA_PRESCALER_DIV256;
-		  syncTCC(TCCx);
-		  // Set TCx as normal PWM
-		  TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
-		  syncTCC(TCCx);
-		  // Set the initial value
-		  TCCx->CC[tcChannel].reg = (uint32_t) value;
-		  syncTCC(TCCx);
-		  // Set PER to maximum counter value (resolution : 0xFF)
-		  TCCx->PER.reg = 0xFF;
-		  syncTCC(TCCx);
-		  // Enable TCCx
-		  TCCx->CTRLA.bit.ENABLE = 1;
-		  syncTCC(TCCx);
-	  }
-	  } else {
-	  if (tcNum >= TCC_INST_NUM) {
-		  Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
-		  TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
-		  syncTC_16(TCx);
-		  } else {
-		  Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-		  TCCx->CTRLBSET.bit.LUPD = 1;
-		  syncTCC(TCCx);
-		  TCCx->CCB[tcChannel].reg = (uint32_t) value;
-		  syncTCC(TCCx);
-		  TCCx->CTRLBCLR.bit.LUPD = 1;
-		  syncTCC(TCCx);
-	  }
-  }
+
+      // Set PORT
+      if (tcNum >= TCC_INST_NUM) {
+        // -- Configure TC
+        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+        // Disable TCx
+        TCx->COUNT16.CTRLA.bit.ENABLE = 0;
+        syncTC_16(TCx);
+        // Set Timer counter Mode to 16 bits, normal PWM
+        TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16 | TC_CTRLA_WAVEGEN_NPWM;
+        syncTC_16(TCx);
+        // Set the initial value
+        TCx->COUNT16.CC[tcChannel].reg = (uint32_t) value;
+        syncTC_16(TCx);
+        // Enable TCx
+        TCx->COUNT16.CTRLA.bit.ENABLE = 1;
+        syncTC_16(TCx);
+      } else {
+        // -- Configure TCC
+        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+        // Disable TCCx
+        TCCx->CTRLA.bit.ENABLE = 0;
+        syncTCC(TCCx);
+        // Set TCCx as normal PWM
+        TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
+        syncTCC(TCCx);
+        // Set the initial value
+        TCCx->CC[tcChannel].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        // Set PER to maximum counter value (resolution : 0xFFFF)
+        TCCx->PER.reg = 0xFFFF;
+        syncTCC(TCCx);
+        // Enable TCCx
+        TCCx->CTRLA.bit.ENABLE = 1;
+        syncTCC(TCCx);
+      }
+    } else {
+      if (tcNum >= TCC_INST_NUM) {
+        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+        TCx->COUNT16.CC[tcChannel].reg = (uint32_t) value;
+        syncTC_16(TCx);
+      } else {
+        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+        TCCx->CTRLBSET.bit.LUPD = 1;
+        syncTCC(TCCx);
+        TCCx->CCB[tcChannel].reg = (uint32_t) value;
+        syncTCC(TCCx);
+        TCCx->CTRLBCLR.bit.LUPD = 1;
+        syncTCC(TCCx);
+      }
+    }
 #endif
       
     return;
