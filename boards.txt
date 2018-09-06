@@ -413,6 +413,38 @@ mzero_bl.bootloader.tool=openocd-withbootsize
 mzero_bl.bootloader.low_fuses=0xff
 mzero_bl.bootloader.file=mzero/Bootloader_D21_M0_150515.hex
 
+# RepRapWorld Minitronics v2.0
+# --------------------
+minitronics20.name=Minitronics v2.0
+minitronics20.vid.0=0x2341
+minitronics20.pid.0=0x8054
+
+
+minitronics20.upload.tool=avrdude
+minitronics20.upload.protocol=stk500v2
+minitronics20.upload.maximum_size=262144
+minitronics20.upload.use_1200bps_touch=true
+minitronics20.upload.wait_for_upload_port=true
+minitronics20.upload.native_usb=true
+minitronics20.upload.speed=57600
+minitronics20.build.mcu=cortex-m0plus
+minitronics20.build.f_cpu=48000000L
+minitronics20.build.usb_product="Minitronics v2.0"
+minitronics20.build.usb_manufacturer="Arduino LLC"
+minitronics20.build.board=SAMD_MINITRONICS20
+minitronics20.build.core=arduino
+minitronics20.build.extra_flags=-D__SAMD21J18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
+minitronics20.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+minitronics20.build.openocdscript=openocd_scripts/arduino_zero.cfg
+minitronics20.build.variant=minitronics20
+minitronics20.build.vid=0x2341
+minitronics20.build.pid=0x8054
+minitronics20.build.emu.mcu=atmega2560
+minitronics20.bootloader.tool=openocd-withbootsize
+minitronics20.bootloader.low_fuses=0xff
+minitronics20.bootloader.size=0x4000
+minitronics20.bootloader.file=minitronics20/samd21_sam_ba_reprapworld_minitronics20.bin
+
 ######################################################
 #ARDUINO TIAN (WITH) BOOTLOADER
 
