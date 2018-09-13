@@ -90,20 +90,25 @@ extern "C"
  */
 #define PIN_A0               (29ul)
 #define PIN_A1               (PIN_A0 + 1)
+#define PIN_A2               (PIN_A0 + 2)
+#define PIN_A3               (PIN_A0 + 3)
 #define PIN_DAC0             PIN_A0
 #define PIN_DAC1             PIN_A1
+#define PIN_MIC_RAW          PIN_A2
+#define PIN_MIC              PIN_A3
 
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
+static const uint8_t A2  = PIN_A2;
+static const uint8_t A3  = PIN_A3;
 
 static const uint8_t DAC0 = PIN_DAC0;
 static const uint8_t DAC1 = PIN_DAC1;
 
-#define ADC_RESOLUTION		12
+static const uint8_t MIC_RAW = PIN_MIC_RAW;
+static const uint8_t MIC = PIN_MIC;
 
-// Other pins
-#define PIN_ATN              (13ul)
-static const uint8_t ATN = PIN_ATN;
+#define ADC_RESOLUTION		12
 
 /*
  * Serial interfaces
