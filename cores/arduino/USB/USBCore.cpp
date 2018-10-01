@@ -387,6 +387,13 @@ bool USBDeviceClass::detach()
 	return true;
 }
 
+bool USBDeviceClass::end() {
+	if (!initialized)
+		return false;
+	usbd.disable();
+	return true;
+}
+
 bool USBDeviceClass::configured()
 {
 	return _usbConfiguration != 0;
