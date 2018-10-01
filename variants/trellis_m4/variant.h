@@ -132,8 +132,8 @@ static const uint8_t MIC = PIN_MIC;
 
 #define PIN_WIRE_SDA         (21u)
 #define PIN_WIRE_SCL         (22u)
-#define PERIPH_WIRE          sercom2
-#define WIRE_IT_HANDLER      SERCOM2_Handler
+#define PERIPH_WIRE          sercom4
+#define WIRE_IT_HANDLER      SERCOM4_Handler
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
