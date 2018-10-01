@@ -109,14 +109,16 @@ void init( void )
   // Initialize Analog Controller
   // Setting clock
 #if defined(__SAMD51__)
-	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 1 (48Mhz)
+  //Set ADC sampling rate to 1/ ( 1/(120MHz/16) ) * (30 + 1) = 241935 Samples/Sec
+
+	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 1 (48Mhz)
 	
-	ADC0->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV256_Val;
+	ADC0->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV16_Val;
 	ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
 	
 	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_CTRLB );  //wait for sync
 	
-	ADC0->SAMPCTRL.reg = 0x3f;                        // Set max Sampling Time Length
+	ADC0->SAMPCTRL.reg = 30;                        // ampling Time Length
 	
 	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_SAMPCTRL );  //wait for sync
 	
