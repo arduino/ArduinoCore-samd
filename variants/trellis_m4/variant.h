@@ -146,7 +146,8 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_WIRE_SDA         (21u)
 #define PIN_WIRE_SCL         (22u)
 #define PERIPH_WIRE          sercom4
-#define WIRE_IT_HANDLER      SERCOM2_Handler
+#define WIRE_IT_HANDLER      SERCOM4_Handler
+
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
