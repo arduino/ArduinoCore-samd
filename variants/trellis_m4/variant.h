@@ -123,7 +123,20 @@ static const uint8_t MIC = PIN_MIC;
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT     0
+#define SPI_INTERFACES_COUNT     1
+
+#define PIN_SPI_MISO         (11u)
+#define PIN_SPI_SCK          (12u)
+#define PIN_SPI_MOSI         (33u)
+#define PERIPH_SPI           sercom1
+#define PAD_SPI_TX           SPI_PAD_0_SCK_1
+#define PAD_SPI_RX           SERCOM_RX_PAD_3
+
+static const uint8_t SS	  = PIN_A2 ;	
+static const uint8_t MOSI = PIN_SPI_MOSI ;
+static const uint8_t MISO = PIN_SPI_MISO ;
+static const uint8_t SCK  = PIN_SPI_SCK ;
+
 
 /*
  * Wire Interfaces
@@ -132,7 +145,7 @@ static const uint8_t MIC = PIN_MIC;
 
 #define PIN_WIRE_SDA         (21u)
 #define PIN_WIRE_SCL         (22u)
-#define PERIPH_WIRE          sercom2
+#define PERIPH_WIRE          sercom4
 #define WIRE_IT_HANDLER      SERCOM2_Handler
 
 static const uint8_t SDA = PIN_WIRE_SDA;
