@@ -5,3 +5,5 @@ bootloaders/*/build/
 **/*/*.project
 **/*/*.settings
 **/*/*.launch
+
+*.swp

@@ -15,6 +15,6 @@ void writeVar(void * val, uint8_t type_bytes);
 
 void toPrintableFloatArr(float * arr, int length, char* result);
 void toPrintableFloat(float f, char* result);
-void toPrintableArr(void* varr, uint8_t arr_length, uint8_t type_bytes, char* result);
+int  toPrintableArr(void* varr, uint8_t arr_length, uint8_t type_bytes, char* result);
 void toPrintableVar(void* val, uint8_t type_bytes, char* result);
 #endif // CommunitationUtils_h
