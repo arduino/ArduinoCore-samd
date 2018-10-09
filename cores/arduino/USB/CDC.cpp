@@ -205,7 +205,20 @@ void Serial_::flush(void)
 
 size_t Serial_::write(const uint8_t *buffer, size_t size)
 {
-	uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);
+	/* only try to send bytes if the high-level CDC connection itself
+	 is open (not just the pipe) - the OS should set lineState when the port
+	 is opened and clear lineState when the port is closed.
+	 bytes sent before the user opens the connection or after
+	 the connection is closed are lost - just like with a UART. */
+
+	// TODO - ZE - check behavior on different OSes and test what happens if an
+	// open connection isn't broken cleanly (cable is yanked out, host dies
+	// or locks up, or host virtual serial port hangs)
+	uint32_t r = 0;
+	if (_usbLineInfo.lineState > 0)  // Problem with Windows(R)
+	{
+		r = usb.send(CDC_ENDPOINT_IN, buffer, size);
+	}
 
 	if (r > 0) {
 		return r;
@@ -241,50 +254,6 @@ Serial_::operator bool()
 
 	delay(10);
 	return result;
-}
-
-int32_t Serial_::readBreak() {
-	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
-
-	// disable interrupts,
-	// to avoid clearing a breakValue that might occur 
-	// while processing the current break value
-	__disable_irq();
-
-	int32_t ret = breakValue;
-
-	breakValue = -1;
-
-	if (enableInterrupts) {
-		// re-enable the interrupts
-		__enable_irq();
-	}
-
-	return ret;
-}
-
-unsigned long Serial_::baud() {
-	return _usbLineInfo.dwDTERate;
-}
-
-uint8_t Serial_::stopbits() {
-	return _usbLineInfo.bCharFormat;
-}
-
-uint8_t Serial_::paritytype() {
-	return _usbLineInfo.bParityType;
-}
-
-uint8_t Serial_::numbits() {
-	return _usbLineInfo.bDataBits;
-}
-
-bool Serial_::dtr() {
-	return _usbLineInfo.lineState & 0x1;
-}
-
-bool Serial_::rts() {
-	return _usbLineInfo.lineState & 0x2;
 }
 
 Serial_ Serial(USBDevice);

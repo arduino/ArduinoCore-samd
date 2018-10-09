@@ -32,7 +32,7 @@ adafruit_feather_m0.build.mcu=cortex-m0plus
 adafruit_feather_m0.build.f_cpu=48000000L
 adafruit_feather_m0.build.usb_product="Feather M0"
 adafruit_feather_m0.build.usb_manufacturer="Adafruit"
-adafruit_feather_m0.build.board=SAMD_FEATHER_M0
+adafruit_feather_m0.build.board=SAMD_ZERO
 adafruit_feather_m0.build.core=arduino
 adafruit_feather_m0.build.extra_flags=-DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS  -DADAFRUIT_FEATHER_M0 -D__SAMD21G18A__ {build.usb_flags}
 adafruit_feather_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
@@ -127,6 +127,7 @@ adafruit_metro_m0.build.pid=0x8013
 adafruit_metro_m0.bootloader.tool=openocd
 adafruit_metro_m0.bootloader.file=metroM0/bootloader-metro_m0-v2.0.0-adafruit.5.bin
 
+#
 # Adafruit Circuit Playground M0
 # ------------------------------
 adafruit_circuitplayground_m0.name=Adafruit Circuit Playground Express
@@ -409,3 +410,33 @@ adafruit_hallowing.build.vid=0x239A
 adafruit_hallowing.build.pid=0xDEAD
 adafruit_hallowing.bootloader.tool=openocd
 adafruit_hallowing.bootloader.file=hallowingM0/bootloader-hallowing_m0-v2.0.0-adafruit.0-21-g887cc30.bin
+
+adafruit_crickit_m0.name=Adafruit Crickit M0
+adafruit_crickit_m0.vid.0=0x239A
+adafruit_crickit_m0.pid.0=0x802D
+adafruit_crickit_m0.vid.1=0x239A
+adafruit_crickit_m0.pid.1=0x002D
+adafruit_crickit_m0.vid.2=0x239A
+adafruit_crickit_m0.pid.2=0x802D
+adafruit_crickit_m0.upload.tool=bossac
+adafruit_crickit_m0.upload.protocol=sam-ba
+adafruit_crickit_m0.upload.maximum_size=262144
+adafruit_crickit_m0.upload.offset=0x2000
+adafruit_crickit_m0.upload.use_1200bps_touch=true
+adafruit_crickit_m0.upload.wait_for_upload_port=true
+adafruit_crickit_m0.upload.native_usb=true
+adafruit_crickit_m0.build.mcu=cortex-m0plus
+adafruit_crickit_m0.build.f_cpu=48000000L
+adafruit_crickit_m0.build.usb_product="Crickit M0"
+adafruit_crickit_m0.build.usb_manufacturer="Adafruit"
+adafruit_crickit_m0.build.board=CRICKIT_M0
+adafruit_crickit_m0.build.core=arduino
+adafruit_crickit_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_CRICKIT_M0 -D__SAMD21G18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
+adafruit_crickit_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_crickit_m0.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_crickit_m0.build.variant=crickit_m0
+adafruit_crickit_m0.build.variant_system_lib=
+adafruit_crickit_m0.build.vid=0x239A
+adafruit_crickit_m0.build.pid=0x802D
+adafruit_crickit_m0.bootloader.tool=openocd
+adafruit_crickit_m0.bootloader.file=crickit/samd21_sam_ba.bin

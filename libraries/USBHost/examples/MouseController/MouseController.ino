@@ -30,9 +30,9 @@ USBHost usb;
 MouseController mouse(usb);
 
 // variables for mouse button states
-boolean leftButton = false;
-boolean middleButton = false;
-boolean rightButton = false;
+bool leftButton = false;
+bool middleButton = false;
+bool rightButton = false;
 
 // This function intercepts mouse movements
 void mouseMoved() {

@@ -109,14 +109,16 @@ void init( void )
   // Initialize Analog Controller
   // Setting clock
 #if defined(__SAMD51__)
+  //set to 1/(1/(48000000/32) * 6) = 250000 SPS
+
 	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 1 (48Mhz)
 	
-	ADC0->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV256_Val;
+	ADC0->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV32_Val;
 	ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
 	
 	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_CTRLB );  //wait for sync
 	
-	ADC0->SAMPCTRL.reg = 0x3f;                        // Set max Sampling Time Length
+	ADC0->SAMPCTRL.reg = 5;                        // sampling Time Length
 	
 	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_SAMPCTRL );  //wait for sync
 	
@@ -146,6 +148,8 @@ void init( void )
 	DAC->DACCTRL[1].bit.REFRESH = 2;
 
 #else
+  //set to 1/(1/(48000000/32) * 6) = 250000 SPS
+
   while(GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY);
 
   GCLK->CLKCTRL.reg = GCLK_CLKCTRL_ID( GCM_ADC ) | // Generic Clock ADC
@@ -154,10 +158,10 @@ void init( void )
 
   while( ADC->STATUS.bit.SYNCBUSY == 1 );          // Wait for synchronization of registers between the clock domains
 
-  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV512 |    // Divide Clock by 512.
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV32 |    // Divide Clock by 32.
                    ADC_CTRLB_RESSEL_10BIT;         // 10 bits resolution as default
 
-  ADC->SAMPCTRL.reg = 0x3f;                        // Set max Sampling Time Length
+  ADC->SAMPCTRL.reg = 5;                        // Sampling Time Length
 
   while( ADC->STATUS.bit.SYNCBUSY == 1 );          // Wait for synchronization of registers between the clock domains
 

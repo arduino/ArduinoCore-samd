@@ -1,5 +1,5 @@
 @echo off
-set ARGS=/A /SE /SW /SA
+set ARGS=/SE /SW /SA
 if "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
   drivers\dpinst-amd64.exe %ARGS%
 ) ELSE IF "%PROCESSOR_ARCHITEW6432%" == "AMD64" (

@@ -22,12 +22,17 @@
 
 #include <string.h>
 
-static voidFuncPtr callbacksInt[EXTERNAL_NUM_INTERRUPTS];
+static voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t    nints; // Stores total number of attached interrupts
+
 
 /* Configure I/O interrupt sources */
 static void __initialize()
 {
-  memset(callbacksInt, 0, sizeof(callbacksInt));
+  memset(ISRlist,     0, sizeof(ISRlist));
+  memset(ISRcallback, 0, sizeof(ISRcallback));
+  nints = 0;
 
 #if defined(__SAMD51__)
   ///EIC MCLK is enabled by default
@@ -89,6 +94,30 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     enabled = 1;
   }
 
+  // Only store when there is really an ISR to call.
+  // This allow for calling attachInterrupt(pin, NULL, mode), we set up all needed register
+  // but won't service the interrupt, this way we also don't need to check it inside the ISR.
+  if (callback)
+  {
+    // Store interrupts to service in order of when they were attached
+    // to allow for first come first serve handler
+    uint32_t current = 0;
+    uint32_t inMask = (1UL << in);
+
+    // Check if we already have this interrupt
+    for (current=0; current<nints; current++) {
+      if (ISRlist[current] == inMask) {
+        break;
+      }
+    }
+    if (current == nints) {
+      // Need to make a new entry
+      nints++;
+    }
+    ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
+    ISRcallback[current] = callback; // List of callback adresses
+  }
+
   if (in == EXTERNAL_INT_NMI) {
     EIC->NMIFLAG.bit.NMI = 1; // Clear flag
     switch (mode) {
@@ -113,13 +142,14 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
         break;
     }
 
-    callbacksInt[EXTERNAL_INT_NMI] = callback;
+    // Assign callback to interrupt
+    ISRcallback[EXTERNAL_INT_NMI] = callback;
 
   } else { // Not NMI, is external interrupt
 
     // Enable wakeup capability on pin in case being used during sleep
 #if defined(__SAMD51__)
-    //I believe this is done automatically
+//I believe this is done automatically
 #else
     EIC->WAKEUP.reg |= (1 << in);
 #endif
@@ -128,7 +158,7 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
     pinPeripheral(pin, PIO_EXTINT);
 
     // Assign callback to interrupt
-    callbacksInt[in] = callback;
+    ISRcallback[in] = callback;
 
     // Look for right CONFIG register to be addressed
     if (in > EXTERNAL_INT_7) {
@@ -167,15 +197,14 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
         EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_RISE_Val << pos;
         break;
     }
-
-    // Enable the interrupt
-    EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
+  }
+  // Enable the interrupt
+  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
   
 #if defined (__SAMD51__)
   EIC->CTRLA.bit.ENABLE = 1;
   while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
 #endif
-  }
 }
 
 /*
@@ -194,14 +223,31 @@ void detachInterrupt(uint32_t pin)
     EIC->NMICTRL.bit.NMISENSE = 0; // Turn off detection
   } else {
     EIC->INTENCLR.reg = EIC_INTENCLR_EXTINT(1 << in);
-  }
   
   // Disable wakeup capability on pin during sleep
 #if defined(__SAMD51__)
 //I believe this is done automatically
 #else
+    // Disable wakeup capability on pin during sleep
   EIC->WAKEUP.reg &= ~(1 << in);
 #endif
+  }
+
+  // Remove callback from the ISR list
+  uint32_t current;
+  for (current=0; current<nints; current++) {
+    if (ISRlist[current] == (1UL << in)) {
+      break;
+    }
+  }
+  if (current == nints) return; // We didn't have it
+
+  // Shift the reminder down
+  for (; current<nints-1; current++) {
+    ISRlist[current]     = ISRlist[current+1];
+    ISRcallback[current] = ISRcallback[current+1];
+  }
+  nints--;
 }
 
 /*
@@ -213,8 +259,8 @@ void InterruptHandler(uint32_t i)
   if ((EIC->INTFLAG.reg & (1 << i)) != 0)
   {
     // Call the callback function if assigned
-    if (callbacksInt[i]) {
-      callbacksInt[i]();
+    if (ISRcallback[i]) {
+      ISRcallback[i]();
     }
 
     // Clear the interrupt
@@ -305,29 +351,28 @@ void EIC_15_Handler(void)
 
 void EIC_Handler(void)
 {
-  // Test the 16 normal interrupts
-  for (uint32_t i=EXTERNAL_INT_0; i<=EXTERNAL_INT_15; i++)
-  {
-    if ((EIC->INTFLAG.reg & (1 << i)) != 0)
-    {
-      // Call the callback function if assigned
-      if (callbacksInt[i]) {
-        callbacksInt[i]();
-      }
+  // Calling the routine directly from -here- takes about 1us
+  // Depending on where you are in the list it will take longer
 
+  // Loop over all enabled interrupts in the list
+  for (uint32_t i=0; i<nints; i++)
+  {
+    if ((EIC->INTFLAG.reg & ISRlist[i]) != 0)
+    {
+      // Call the callback function
+      ISRcallback[i]();
       // Clear the interrupt
-      EIC->INTFLAG.reg = 1 << i;
+      EIC->INTFLAG.reg = ISRlist[i];
     }
   }
 }
-#endif
 
 /*
  * NMI Interrupt Handler
  */
 void NMI_Handler(void)
 {
-  if (callbacksInt[EXTERNAL_INT_NMI]) callbacksInt[EXTERNAL_INT_NMI]();
+  if (ISRcallback[EXTERNAL_INT_NMI]) ISRcallback[EXTERNAL_INT_NMI]();
   EIC->NMIFLAG.bit.NMI = 1; // Clear interrupt
 }
-
+#endif

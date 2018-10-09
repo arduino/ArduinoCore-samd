@@ -9,10 +9,6 @@ Multi-plaform GCC is provided by ARM here: https://launchpad.net/gcc-arm-embedde
 
 Atmel Studio contains both make and ARM GCC toolchain. You don't need to install them in this specific use case.
 
-For all builds and platforms you will need to have the Arduino IDE installed and the board support
-package for "Arduino SAMD Boards (32-bits ARM Cortex-M0+)". You can install the latter
-from the former's "Boards Manager" UI.
-
 ### Windows
 
 * Native command line
@@ -77,19 +73,3 @@ Bootloader code will be located at 0x0 and executed before any applicative code.
 Applications compiled to be executed along with the bootloader will start at 0x2000 (see linker script bootloader_samd21x18.ld).
 
 Before jumping to the application, the bootloader changes the VTOR register to use the interrupt vectors of the application @0x2000.<- not required as application code is taking care of this.
-
-## 5- How to build
-
-If not specified the makefile builds for **Arduino Zero**:
-
-```
-make
-```
-
-if you want to make a custom bootloader for a derivative board you must supply all the necessary information in a `board_definitions_xxx.h` file, and add the corresponding case in `board_definitions.h`.
-For example for the **Arduino MKR1000** we use `board_definitions_arduino_mkr1000.h` and it is build with the following command:
-
-```
-BOARD_ID=arduino_mkr1000 NAME=samd21_sam_ba_arduino_mkr1000 make clean all
-```
-

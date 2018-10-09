@@ -425,15 +425,14 @@ uint32_t USBHost::dispatchPkt(uint32_t token, uint32_t epAddr, uint32_t nak_limi
 
 		//case hrNAK:
 		if((USB->HOST.HostPipe[epAddr].PINTFLAG.reg & USB_HOST_PINTFLAG_TRFAIL) ) {
-			USB->HOST.HostPipe[epAddr].PINTFLAG.reg = USB_HOST_PINTFLAG_TRFAIL;
-			nak_count++;
-			if(nak_limit && (nak_count == nak_limit)) {
-				rcode = USB_ERRORFLOW;
-				return (rcode);
-			}
-		}
+	 			USB->HOST.HostPipe[epAddr].PINTFLAG.reg = USB_HOST_PINTFLAG_TRFAIL;
+	 			nak_count++;
+	 			if(nak_limit && (nak_count == nak_limit)) {
+	 				rcode = USB_ERRORFLOW;
+	 				return (rcode);
+	 			}
+	  	}
 
-		//case hrNAK:
 		if( (usb_pipe_table[epAddr].HostDescBank[0].STATUS_BK.reg & USB_ERRORFLOW ) ) {
 			nak_count++;
 			if(nak_limit && (nak_count == nak_limit)) {

@@ -18,34 +18,44 @@
 # -----------------------------------------------------------------------------
 # Paths
 ifeq ($(OS),Windows_NT)
+
   # Are we using mingw/msys/msys2/cygwin?
   ifeq ($(TERM),xterm)
-    T=$(shell cygpath -u $(LOCALAPPDATA))
+# this is the path coming with night build
+#		T=$(shell cygpath -u $(LOCALAPPDATA))
+# this is the path till 1.6.5 r5
+		T=$(shell cygpath -u $(APPDATA))
     MODULE_PATH?=$(T)/Arduino15/packages/arduino
+    ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
     RM=rm
     SEP=/
   else
-    MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/arduino
+# this is the path coming with night build
+#    MODULE_PATH?=$(LOCALAPPDATA)/Arduino15/packages/arduino
+# this is the path till 1.6.5 r5
+    MODULE_PATH?=$(APPDATA)/Arduino15/packages/arduino
+    ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
     RM=rm
     SEP=\\
   endif
 else
-  UNAME_S := $(shell uname -s)
+    UNAME_S := $(shell uname -s)
 
-  ifeq ($(UNAME_S),Linux)
-    MODULE_PATH?=$(HOME)/.arduino15/packages/arduino
-    RM=rm
-    SEP=/
-  endif
+    ifeq ($(UNAME_S),Linux)
+			MODULE_PATH?=$(HOME)/.arduino15/packages/arduino
+			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+      RM=rm
+	    SEP=/
+    endif
 
-  ifeq ($(UNAME_S),Darwin)
-    MODULE_PATH?=$(HOME)/Library/Arduino15/packages/arduino/
-    RM=rm
-    SEP=/
-  endif
+    ifeq ($(UNAME_S),Darwin)
+			MODULE_PATH?=$(HOME)/Library/Arduino15/packages/arduino/
+			ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
+      RM=rm
+	    SEP=/
+    endif
 endif
 
-ARM_GCC_PATH?=$(MODULE_PATH)/tools/arm-none-eabi-gcc/4.8.3-2014q1/bin/arm-none-eabi-
 BUILD_PATH=build
 
 # -----------------------------------------------------------------------------
@@ -56,25 +66,20 @@ NM=$(ARM_GCC_PATH)nm
 SIZE=$(ARM_GCC_PATH)size
 
 # -----------------------------------------------------------------------------
-# Boards definitions
-BOARD_ID?=arduino_zero
-
-# -----------------------------------------------------------------------------
 # Compiler options
-CFLAGS_EXTRA=-D__SAMD21G18A__ -DBOARD_ID_$(BOARD_ID)
 CFLAGS=-mthumb -mcpu=cortex-m0plus -Wall -c -std=gnu99 -ffunction-sections -fdata-sections -nostdlib -nostartfiles --param max-inline-insns-single=500
 ifdef DEBUG
-  CFLAGS+=-g3 -O1 -DDEBUG=1
+CFLAGS+=-g3 -O1 -DDEBUG=1
 else
-  CFLAGS+=-Os -DDEBUG=0
+CFLAGS+=-Os -DDEBUG=0
 endif
 
-ELF=$(NAME).elf
-BIN=$(NAME).bin
-HEX=$(NAME).hex
+# Arduino Zero (PID == 0x004D)
+CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x00 -DUSB_PID_LOW=0x4D
+# Genuino Zero (PID == 0x024D)
+# CFLAGS_EXTRA?=-D__SAMD21G18A__ -DUSB_PID_HIGH=0x02 -DUSB_PID_LOW=0x4D
 
-
-INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.1.0/CMSIS/Device/ATMEL/"
+INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS/4.0.0-atmel/Device/ATMEL/"
 
 # -----------------------------------------------------------------------------
 # Linker options
@@ -84,26 +89,31 @@ LDFLAGS+=-Wl,--warn-common -Wl,--warn-section-align -Wl,--warn-unresolved-symbol
 # -----------------------------------------------------------------------------
 # Source files and objects
 SOURCES= \
-  board_driver_led.c \
-  board_driver_serial.c \
-  board_driver_usb.c \
-  board_init.c \
-  board_startup.c \
-  main.c \
-  sam_ba_usb.c \
-  sam_ba_cdc.c \
-  sam_ba_monitor.c \
-  sam_ba_serial.c
+board_driver_led.c \
+board_driver_serial.c \
+board_driver_usb.c \
+board_init.c \
+board_startup.c \
+main.c \
+sam_ba_usb.c \
+sam_ba_cdc.c \
+sam_ba_monitor.c \
+sam_ba_serial.c
 
 OBJECTS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.o))
 DEPS=$(addprefix $(BUILD_PATH)/, $(SOURCES:.c=.d))
 
+NAME=samd21_sam_ba
+ELF=$(NAME).elf
+BIN=$(NAME).bin
+HEX=$(NAME).hex
+
 ifneq "test$(AVRSTUDIO_EXE_PATH)" "test"
-  AS_BUILD=copy_for_atmel_studio
-  AS_CLEAN=clean_for_atmel_studio
+AS_BUILD=copy_for_atmel_studio
+AS_CLEAN=clean_for_atmel_studio
 else
-  AS_BUILD=
-  AS_CLEAN=
+AS_BUILD=
+AS_CLEAN=
 endif
 
 

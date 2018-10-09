@@ -1,3 +1,48 @@
+SAMD CORE ?.?.?? ????.??.??
+
+SAMD CORE 1.6.18 2018.03.05
+
+* Wire: Added support for general call (broadcast)
+* SPI: Added SPI.notUsingInterrupt(...) API
+* Fixed build errors if variant disabled USB
+* Wire: TX and RX buffers are now 256 bytes (previously was 64 bytes)
+* Added samd21e sercom compatibility. Thanks @mitchellpontague
+* Fixed lock ups when outputting to UART during ISR
+* Wire: correct I2C frequency calculations, and allow variant to overide default pull up resistor rise time
+* USB: Fixed build errors when CDC_ENABLED was not set. Thanks @gdsports
+
+SAMD CORE 1.6.17 2017.11.29
+
+* More accurate approximation for multiplication factor of PLL to make 48Mhz. Thanks @joverbee
+* Fix changing trigger mode (RISING/FALLING/...) in attachInterrupt(..) during runtime. Thanks @joverbee
+* Improved ISR response time. Thanks @joverbee
+* USB power current can now be overridden in the variant. Thanks @awatterott
+* UART's now support optional RTS and CTS pins defined in the variant.
+* Added support for MKR GSM 1400 and MKR WAN 1300
+
+SAMD CORE 1.6.16 2017.08.23
+
+* Is now possible to use PWM on D7 (though it can't be used with PWM on D12 at the same time). Thanks @Adminius
+* PWMs now can perform real 16-bit resolution if analogWriteResolution(16) is set. Thanks @Adminius
+* USB CDC: fixed issue of available() getting stuck when receiving ZLP's
+* Serial (UART) tx is now buffered.
+* Improved CRYSTALLESS stability. Thanks @tannewt
+* Some fixes to Adafruit Circuit Playground Express variant. Thanks @ladyada
+* Updated Stream and Print class
+* Native USB now supports USB Serial Number
+* Fixed pgm_read_ptr compatibility macro. Thanks @nkrkv
+
+SAMD CORE 1.6.15 2017.04.27
+
+* Added missing Windows driver for MKRFox1200
+* Added SDU support for MKRFox1200
+
+SAMD CORE 1.6.14 2017.04.04
+
+* Fixed platform definition for openocd
+* Added bootloader definitions for MKRFox1200
+* Added lowpower function on USB subsystem
+
 SAMD CORE 1.6.13 2017.03.31
 
 * Added SDU (SD card Updater) library.
