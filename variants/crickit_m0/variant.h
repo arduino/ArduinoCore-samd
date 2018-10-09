@@ -189,7 +189,16 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * I2S Interfaces
  */
-#define I2S_INTERFACES_COUNT 0
+#define I2S_INTERFACES_COUNT 1
+
+#define I2S_DEVICE          0
+#define I2S_CLOCK_GENERATOR 3
+// PA07 ISD0
+#define PIN_I2S_SD          (CRICKIT_TOUCH_4)
+// PA10 I2SCK
+#define PIN_I2S_SCK         (A6)
+// PA11 IS2FS0
+#define PIN_I2S_FS          (A4)       
 
 #ifdef __cplusplus
 }
