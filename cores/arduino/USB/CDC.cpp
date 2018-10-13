@@ -204,6 +204,10 @@ void Serial_::flush(void)
 	usb.flush(CDC_ENDPOINT_IN);
 }
 
+void Serial_::clear(void) {
+	usb.clear(CDC_ENDPOINT_IN);
+}
+
 size_t Serial_::write(const uint8_t *buffer, size_t size)
 {
 	uint32_t r = usb.send(CDC_ENDPOINT_IN, buffer, size);

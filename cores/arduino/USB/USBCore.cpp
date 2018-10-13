@@ -508,6 +508,17 @@ void USBDeviceClass::flush(uint32_t ep)
 	}
 }
 
+void USBDeviceClass::clear(uint32_t ep) {
+	usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+	usbd.epBank1SetByteCount(ep, 0);
+
+	// Clear the transfer complete flag
+	usbd.epBank1AckTransferComplete(ep);
+
+	// RAM buffer is full, we can send data (IN)
+	usbd.epBank1SetReady(ep);
+}
+
 void USBDeviceClass::stall(uint32_t ep)
 {
 	// TODO: test
