@@ -53,7 +53,7 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (34u)
+#define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (19u)
 #define NUM_ANALOG_INPUTS    (5u)
 #define NUM_ANALOG_OUTPUTS   (1u)
@@ -182,6 +182,14 @@ extern SERCOM sercom5;
 extern Uart Serial;
 extern Uart Serial1;
 
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+unsigned int PINCOUNT_fn();
+#ifdef __cplusplus
+}
 #endif
 
 // These serial port names are intended to allow libraries and architecture-neutral

@@ -37,7 +37,7 @@
 // ----
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (33u)
+#define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (31u)
 #define NUM_ANALOG_INPUTS    (8u)
 #define NUM_ANALOG_OUTPUTS   (1u)
