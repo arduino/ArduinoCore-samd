@@ -43,7 +43,7 @@ arduino_zero_edbg.bootloader.tool=openocd
 arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
 
 # Arduino/Genuino Zero (Native USB Port)
-# ---------------------------------------
+# --------------------------------------
 arduino_zero_native.name=Arduino/Genuino Zero (Native USB Port)
 arduino_zero_native.vid.0=0x2341
 arduino_zero_native.pid.0=0x804d
@@ -89,7 +89,7 @@ arduino_zero_native.bootloader.tool=openocd
 arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
 
 # Arduino/Genuino MKR1000
-# ---------------------------------------
+# -----------------------
 mkr1000.name=Arduino/Genuino MKR1000
 mkr1000.vid.0=0x2341
 mkr1000.pid.0=0x804e
@@ -307,8 +307,8 @@ adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplay/circuitplay_m0_samd21g18_sam_ba.bin
 
-######################################################
-#ARDUINO M0 PRO (WITH) BOOTLOADER - PROGRAMMING PORT
+# Arduino M0 PRO (with) bootloader - Programming port
+# ---------------------------------------------------
 mzero_pro_bl_dbg.name=Arduino M0 Pro (Programming Port)
 mzero_pro_bl_dbg.vid.0=0x03eb
 mzero_pro_bl_dbg.pid.0=0x2111
@@ -339,8 +339,8 @@ mzero_pro_bl_dbg.bootloader.cmd_protect=at91samd bootloader 16384
 mzero_pro_bl_dbg.bootloader.cmd_protect_verify=at91samd bootloader
 mzero_pro_bl_dbg.bootloader.file=mzero/Bootloader_D21_M0_Pro_150427.hex
 
-######################################################
-#ARDUINO M0 PRO (WITH) BOOTLOADER - NATIVE PORT
+# Arduino M0 PRO (with) bootloader - Native port
+# ----------------------------------------------
 mzero_pro_bl.name=Arduino M0 Pro (Native USB Port)
 mzero_pro_bl.vid.0=0x2a03
 mzero_pro_bl.pid.0=0x004d
@@ -376,8 +376,8 @@ mzero_pro_bl.bootloader.tool=openocd-withbootsize
 mzero_pro_bl.bootloader.file=mzero/Bootloader_D21_M0_Pro_150427.hex
 mzero_pro_bl.bootloader.low_fuses=0xff
 
-######################################################
-#ARDUINO M0 (WITH) BOOTLOADER
+# Arduino M0 (with) Bootloader
+# ----------------------------
 mzero_bl.name=Arduino M0
 mzero_bl.vid.0=0x2a03
 mzero_bl.pid.0=0x004d
@@ -413,9 +413,8 @@ mzero_bl.bootloader.tool=openocd-withbootsize
 mzero_bl.bootloader.low_fuses=0xff
 mzero_bl.bootloader.file=mzero/Bootloader_D21_M0_150515.hex
 
-######################################################
-#ARDUINO TIAN (WITH) BOOTLOADER
-
+# Arduino Tian (with) Bootloader
+# ------------------------------
 tian.name=Arduino Tian
 tian.upload.via_ssh=true
 tian.vid.0=0x10C4
@@ -450,9 +449,8 @@ tian.bootloader.low_fuses=0xff
 tian.bootloader.file=sofia/Sofia_Tian_151118.hex
 tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
 
-######################################################
-#ARDUINO TIAN CONSOLE PORT (NOT FOR UPLOAD)
-
+# Arduino Tian Console port (not for upload)
+# ------------------------------------------
 tian_cons.name=Arduino Tian (MIPS Console port)
 tian_cons.vid.0=0x10C4
 tian_cons.pid.0=0xEA70
