@@ -299,7 +299,7 @@ size_t I2SClass::write(const uint8_t *buffer, size_t size)
   return write((const void*)buffer, size);
 }
 
-size_t I2SClass::availableForWrite()
+int I2SClass::availableForWrite()
 {
   if (_state != I2S_STATE_TRANSMITTER) {
     enableTransmitter();
@@ -417,22 +417,24 @@ void I2SClass::onReceive(void(*function)(void))
 
 void I2SClass::enableClock(int divider)
 {
+  int div = SystemCoreClock / divider;
+  int src = GCLK_GENCTRL_SRC_DFLL48M_Val;
 
-#if defined(__SAMD51__)
-  if(_deviceIndex == 0)
-    GCLK->PCHCTRL[I2S_GCLK_ID_0].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //48 MHz for now (max is 100)
-  else
-    GCLK->PCHCTRL[I2S_GCLK_ID_1].reg = GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //48 MHz for now (max is 100)
-#else
+  if (div > 255) {
+    // divider is too big, use 8 MHz oscillator instead
+    div = 8000000 / divider;
+    src = GCLK_GENCTRL_SRC_OSC8M_Val;
+  }
+
   // configure the clock divider
   while (GCLK->STATUS.bit.SYNCBUSY);
   GCLK->GENDIV.bit.ID = _clockGenerator;
-  GCLK->GENDIV.bit.DIV = SystemCoreClock / divider;
+  GCLK->GENDIV.bit.DIV = div;
 
   // use the DFLL as the source
   while (GCLK->STATUS.bit.SYNCBUSY);
   GCLK->GENCTRL.bit.ID = _clockGenerator;
-  GCLK->GENCTRL.bit.SRC = GCLK_GENCTRL_SRC_DFLL48M_Val;
+  GCLK->GENCTRL.bit.SRC = src;
   GCLK->GENCTRL.bit.IDC = 1;
   GCLK->GENCTRL.bit.GENEN = 1;
 
@@ -443,17 +445,10 @@ void I2SClass::enableClock(int divider)
   GCLK->CLKCTRL.bit.CLKEN = 1;
 
   while (GCLK->STATUS.bit.SYNCBUSY);
-#endif
 }
 
 void I2SClass::disableClock()
 {
-#if defined(__SAMD51__)
-  if(_deviceIndex == 0)
-    GCLK->PCHCTRL[I2S_GCLK_ID_0].bit.CHEN = 0;
-  else
-    GCLK->PCHCTRL[I2S_GCLK_ID_1].bit.CHEN = 0;
-#else
   while (GCLK->STATUS.bit.SYNCBUSY);
   GCLK->GENCTRL.bit.ID = _clockGenerator;
   GCLK->GENCTRL.bit.SRC = GCLK_GENCTRL_SRC_DFLL48M_Val;
@@ -466,7 +461,6 @@ void I2SClass::disableClock()
   GCLK->CLKCTRL.bit.CLKEN = 0;
 
   while (GCLK->STATUS.bit.SYNCBUSY);
-#endif
 }
 
 void I2SClass::enableTransmitter()

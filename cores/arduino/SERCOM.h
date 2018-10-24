@@ -21,7 +21,8 @@
 
 #include "sam.h"
 
-#define SERCOM_FREQ_REF 48000000ul
+#define SERCOM_FREQ_REF      48000000ul
+#define SERCOM_NVIC_PRIORITY ((1<<__NVIC_PRIO_BITS) - 1)
 
 typedef enum
 {
@@ -157,12 +158,15 @@ class SERCOM
 		bool availableDataUART( void ) ;
 		bool isBufferOverflowErrorUART( void ) ;
 		bool isFrameErrorUART( void ) ;
+		void clearFrameErrorUART( void ) ;
 		bool isParityErrorUART( void ) ;
 		bool isDataRegisterEmptyUART( void ) ;
 		uint8_t readDataUART( void ) ;
 		int writeDataUART(uint8_t data) ;
 		bool isUARTError() ;
 		void acknowledgeUARTError() ;
+		void enableDataRegisterEmptyInterruptUART();
+		void disableDataRegisterEmptyInterruptUART();
 
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder) ;
@@ -182,7 +186,7 @@ class SERCOM
 		bool isReceiveCompleteSPI( void ) ;
 
 		/* ========== WIRE ========== */
-		void initSlaveWIRE(uint8_t address) ;
+		void initSlaveWIRE(uint8_t address, bool enableGeneralCall = false) ;
 		void initMasterWIRE(uint32_t baudrate) ;
 
 		void resetWIRE( void ) ;

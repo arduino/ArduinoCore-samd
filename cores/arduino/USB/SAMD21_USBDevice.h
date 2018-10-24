@@ -237,6 +237,10 @@ public:
 		release();
 	}
 
+	~DoubleBufferedEPOutHandler() {
+		free((void*)data0);
+		free((void*)data1);
+	}
 	void init() {};
 
 	virtual uint32_t recv(void *_data, uint32_t len)
@@ -304,30 +308,34 @@ public:
 			usbd.epBank0AckTransferComplete(ep);
 			//usbd.epBank0AckTransferFailed(ep); // XXX
 
-			// Update counters and swap banks
+			// Update counters and swap banks for non-ZLP's
 			if (incoming == 0) {
 				last0 = usbd.epBank0ByteCount(ep);
-				incoming = 1;
-				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
-				ready0 = true;
-				synchronized {
-					if (ready1) {
-						notify = true;
-						return;
+				if (last0 != 0) {
+					incoming = 1;
+					usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
+					synchronized {
+						ready0 = true;
+						if (ready1) {
+							notify = true;
+							return;
+						}
+						notify = false;
 					}
-					notify = false;
 				}
 			} else {
 				last1 = usbd.epBank0ByteCount(ep);
-				incoming = 0;
-				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
-				synchronized {
-					ready1 = true;
-					if (ready0) {
-						notify = true;
-						return;
+				if (last1 != 0) {
+					incoming = 0;
+					usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
+					synchronized {
+						ready1 = true;
+						if (ready0) {
+							notify = true;
+							return;
+						}
+						notify = false;
 					}
-					notify = false;
 				}
 			}
 			release();
