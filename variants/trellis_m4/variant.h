@@ -92,6 +92,9 @@ extern "C"
 #define PIN_A1               (PIN_A0 + 1)
 #define PIN_A2               (PIN_A0 + 2)
 #define PIN_A3               (PIN_A0 + 3)
+#define PIN_A4               (PIN_A0 + 4)
+#define PIN_A5               (PIN_A0 + 5)
+
 #define PIN_DAC0             PIN_A0
 #define PIN_DAC1             PIN_A1
 #define PIN_MIC_RAW          PIN_A2
@@ -101,6 +104,8 @@ static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
 static const uint8_t A2  = PIN_A2;
 static const uint8_t A3  = PIN_A3;
+static const uint8_t A4  = PIN_A4;
+static const uint8_t A5  = PIN_A5;
 
 static const uint8_t DAC0 = PIN_DAC0;
 static const uint8_t DAC1 = PIN_DAC1;
@@ -125,10 +130,10 @@ static const uint8_t MIC = PIN_MIC;
  */
 #define SPI_INTERFACES_COUNT     1
 
-#define PIN_SPI_MISO         (11u)
-#define PIN_SPI_SCK          (12u)
-#define PIN_SPI_MOSI         (33u)
-#define PERIPH_SPI           sercom1
+#define PIN_SPI_SCK          (9u)   // COL7
+#define PIN_SPI_MOSI         (8u)   // COL6 
+#define PIN_SPI_MISO         (7u)   // COL5
+#define PERIPH_SPI           sercom3
 #define PAD_SPI_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI_RX           SERCOM_RX_PAD_3
 
