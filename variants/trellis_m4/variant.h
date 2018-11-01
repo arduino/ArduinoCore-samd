@@ -99,6 +99,8 @@ extern "C"
 #define PIN_DAC1             PIN_A1
 #define PIN_MIC              PIN_A2
 #define PIN_MIC_RAW          PIN_A3
+#define PIN_LINE_LEFT        (21ul)
+#define PIN_LINE_RIGHT       (22ul)
 
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
@@ -112,6 +114,8 @@ static const uint8_t DAC1 = PIN_DAC1;
 
 static const uint8_t MIC_RAW = PIN_MIC_RAW;
 static const uint8_t MIC = PIN_MIC;
+static const uint8_t LINE_LEFT = PIN_LINE_LEFT;
+static const uint8_t LINE_RIGHT = PIN_LINE_RIGHT;
 
 #define ADC_RESOLUTION		12
 
