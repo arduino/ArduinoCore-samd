@@ -78,133 +78,129 @@ static void __initialize()
  */
 void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode)
 {
-  static int enabled = 0;
-  uint32_t config;
-  uint32_t pos;
+	static int enabled = 0;
+	uint32_t config;
+	uint32_t pos;
 
-#if ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606
-  EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
-#else
-  EExt_Interrupts in = digitalPinToInterrupt(pin);
-#endif
-  if (in == NOT_AN_INTERRUPT) return;
+	#if ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606
+	EExt_Interrupts in = g_APinDescription[pin].ulExtInt;
+	#else
+	EExt_Interrupts in = digitalPinToInterrupt(pin);
+	#endif
+	if (in == NOT_AN_INTERRUPT) return;
 
-  if (!enabled) {
-    __initialize();
-    enabled = 1;
-  }
+	if (!enabled) {
+		__initialize();
+		enabled = 1;
+	}
+	uint32_t inMask = (1UL << in);
+	// Enable wakeup capability on pin in case being used during sleep
+	#if defined(__SAMD51__)
+	//I believe this is done automatically
+	#else
+	EIC->WAKEUP.reg |= (1 << in);
+	#endif
 
-  // Only store when there is really an ISR to call.
-  // This allow for calling attachInterrupt(pin, NULL, mode), we set up all needed register
-  // but won't service the interrupt, this way we also don't need to check it inside the ISR.
-  if (callback)
-  {
-    // Store interrupts to service in order of when they were attached
-    // to allow for first come first serve handler
-    uint32_t current = 0;
-    uint32_t inMask = (1UL << in);
+	// Only store when there is really an ISR to call.
+	// This allow for calling attachInterrupt(pin, NULL, mode), we set up all needed register
+	// but won't service the interrupt, this way we also don't need to check it inside the ISR.
+	if (callback)
+	{
+		if (in == EXTERNAL_INT_NMI) {
+			EIC->NMIFLAG.bit.NMI = 1; // Clear flag
+			switch (mode) {
+			  case LOW:
+				EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_LOW;
+				break;
 
-    // Check if we already have this interrupt
-    for (current=0; current<nints; current++) {
-      if (ISRlist[current] == inMask) {
-        break;
-      }
-    }
-    if (current == nints) {
-      // Need to make a new entry
-      nints++;
-    }
-    ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
-    ISRcallback[current] = callback; // List of callback adresses
-  }
+			  case HIGH:
+				EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_HIGH;
+				break;
 
-  if (in == EXTERNAL_INT_NMI) {
-    EIC->NMIFLAG.bit.NMI = 1; // Clear flag
-    switch (mode) {
-      case LOW:
-        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_LOW;
-        break;
+			  case CHANGE:
+				EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_BOTH;
+				break;
 
-      case HIGH:
-        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_HIGH;
-        break;
+			  case FALLING:
+				EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_FALL;
+				break;
 
-      case CHANGE:
-        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_BOTH;
-        break;
+			  case RISING:
+				EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_RISE;
+				break;
+			}
 
-      case FALLING:
-        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_FALL;
-        break;
+			// Assign callback to interrupt
+			ISRcallback[EXTERNAL_INT_NMI] = callback;
 
-      case RISING:
-        EIC->NMICTRL.bit.NMISENSE = EIC_NMICTRL_NMISENSE_RISE;
-        break;
-    }
+		} else { // Not NMI, is external interrupt
 
-    // Assign callback to interrupt
-    ISRcallback[EXTERNAL_INT_NMI] = callback;
+			// Assign pin to EIC
+			pinPeripheral(pin, PIO_EXTINT);
 
-  } else { // Not NMI, is external interrupt
+			// Store interrupts to service in order of when they were attached
+			// to allow for first come first serve handler
+			uint32_t current = 0;
 
-    // Enable wakeup capability on pin in case being used during sleep
-#if defined(__SAMD51__)
-//I believe this is done automatically
-#else
-    EIC->WAKEUP.reg |= (1 << in);
-#endif
+			// Check if we already have this interrupt
+			for (current=0; current<nints; current++) {
+			  if (ISRlist[current] == inMask) {
+				break;
+			  }
+			}
+			if (current == nints) {
+			  // Need to make a new entry
+			  nints++;
+			}
+			ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
+			ISRcallback[current] = callback; // List of callback adresses
 
-    // Assign pin to EIC
-    pinPeripheral(pin, PIO_EXTINT);
+			// Look for right CONFIG register to be addressed
+			if (in > EXTERNAL_INT_7) {
+			  config = 1;
+			  pos = (in - 8) << 2;
+			} else {
+			  config = 0;
+			  pos = in << 2;
+			}
 
-    // Assign callback to interrupt
-    ISRcallback[in] = callback;
+			#if defined (__SAMD51__)
+			EIC->CTRLA.bit.ENABLE = 0;
+			while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
+			#endif
 
-    // Look for right CONFIG register to be addressed
-    if (in > EXTERNAL_INT_7) {
-      config = 1;
-    } else {
-      config = 0;
-    }
+			EIC->CONFIG[config].reg &=~ (EIC_CONFIG_SENSE0_Msk << pos); // Reset sense mode, important when changing trigger mode during runtime
+			switch (mode)
+			{
+			  case LOW:
+				EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_LOW_Val << pos;
+				break;
 
-    // Configure the interrupt mode
-    pos = (in - (8 * config)) << 2;
+			  case HIGH:
+				EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_HIGH_Val << pos;
+				break;
 
-#if defined (__SAMD51__)
-  EIC->CTRLA.bit.ENABLE = 0;
-  while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
-#endif
+			  case CHANGE:
+				EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_BOTH_Val << pos;
+				break;
 
-    switch (mode)
-    {
-      case LOW:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_LOW_Val << pos;
-        break;
+			  case FALLING:
+				EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_FALL_Val << pos;
+				break;
 
-      case HIGH:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_HIGH_Val << pos;
-        break;
+			  case RISING:
+				EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_RISE_Val << pos;
+				break;
+			}
+		}
+		// Enable the interrupt
+		EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
+	}
 
-      case CHANGE:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_BOTH_Val << pos;
-        break;
-
-      case FALLING:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_FALL_Val << pos;
-        break;
-
-      case RISING:
-        EIC->CONFIG[config].reg |= EIC_CONFIG_SENSE0_RISE_Val << pos;
-        break;
-    }
-  }
-  // Enable the interrupt
-  EIC->INTENSET.reg = EIC_INTENSET_EXTINT(1 << in);
-  
-#if defined (__SAMD51__)
-  EIC->CTRLA.bit.ENABLE = 1;
-  while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
-#endif
+	#if defined (__SAMD51__)
+	EIC->CTRLA.bit.ENABLE = 1;
+	while (EIC->SYNCBUSY.bit.ENABLE == 1) { }
+	#endif
 }
 
 /*
@@ -256,15 +252,19 @@ void detachInterrupt(uint32_t pin)
 #if defined(__SAMD51__)
 void InterruptHandler(uint32_t i)
 {
-  if ((EIC->INTFLAG.reg & (1 << i)) != 0)
-  {
-    // Call the callback function if assigned
-    if (ISRcallback[i]) {
-      ISRcallback[i]();
-    }
+  // Calling the routine directly from -here- takes about 1us
+  // Depending on where you are in the list it will take longer
 
-    // Clear the interrupt
-    EIC->INTFLAG.reg = 1 << i;
+  // Loop over all enabled interrupts in the list
+  for (uint32_t i=0; i<nints; i++)
+  {
+	if ((EIC->INTFLAG.reg & ISRlist[i]) != 0)
+	{
+	  // Call the callback function
+	  ISRcallback[i]();
+	  // Clear the interrupt
+	  EIC->INTFLAG.reg = ISRlist[i];
+	}
   }
 }
 
