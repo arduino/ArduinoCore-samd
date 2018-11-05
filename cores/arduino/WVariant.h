@@ -259,6 +259,7 @@ typedef enum _EPioType
 #define PIN_ATTR_TIMER         (1UL<<4)
 #define PIN_ATTR_TIMER_ALT     (1UL<<5)
 #define PIN_ATTR_EXTINT        (1UL<<6)
+#define PIN_ATTR_ANALOG_ALT	   (1UL<<7)
 
 /* Types used for the table below */
 typedef struct _PinDescription

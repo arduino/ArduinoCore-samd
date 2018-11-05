@@ -77,17 +77,21 @@ void analogReadResolution(int res)
 
 	if (res > 10) {
 		ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
+		ADC1->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_12BIT_Val;
 		_ADCResolution = 12;
 		} else if (res > 8) {
 		ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+		ADC1->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
 		_ADCResolution = 10;
 		} else {
 		ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
+		ADC1->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_8BIT_Val;
 		_ADCResolution = 8;
 	}
 
 
 	while(ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_CTRLB); //wait for sync
+	while(ADC1->SYNCBUSY.reg & ADC_SYNCBUSY_CTRLB); //wait for sync
 #else
 
 	if (res > 10) {
@@ -131,6 +135,7 @@ void analogReference(eAnalogReference mode)
 {
 #if defined(__SAMD51__)
 	while(ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_REFCTRL); //wait for sync
+	while(ADC1->SYNCBUSY.reg & ADC_SYNCBUSY_REFCTRL); //wait for sync
 	
 	//TODO: fix gains
 	switch (mode)
@@ -139,11 +144,13 @@ void analogReference(eAnalogReference mode)
 		case AR_INTERNAL2V23:
 		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
 		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
 		break;
 
 		case AR_EXTERNAL:
 		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
 		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
 		break;
 
 /*		Don't think this works on SAMD51
@@ -156,12 +163,14 @@ void analogReference(eAnalogReference mode)
 		case AR_INTERNAL1V65:
 		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
 		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
 		break;
 
 		case AR_DEFAULT:
 		default:
 		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
 		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
 		
 		break;
 	}
@@ -253,8 +262,13 @@ uint32_t analogRead(uint32_t pin)
 #endif
 
 #if defined(__SAMD51__)
-  while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_INPUTCTRL ); //wait for sync
-  ADC0->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
+  Adc *adc;
+  if(g_APinDescription[pin].ulPinAttribute & PIN_ATTR_ANALOG) adc = ADC0;
+  else if(g_APinDescription[pin].ulPinAttribute & PIN_ATTR_ANALOG_ALT) adc = ADC1;
+  else return 0;
+
+  while( adc->SYNCBUSY.reg & ADC_SYNCBUSY_INPUTCTRL ); //wait for sync
+  adc->INPUTCTRL.bit.MUXPOS = g_APinDescription[pin].ulADCChannelNumber; // Selection for the positive ADC input
   
   // Control A
   /*
@@ -268,27 +282,27 @@ uint32_t analogRead(uint32_t pin)
    * Before enabling the ADC, the asynchronous clock source must be selected and enabled, and the ADC reference must be
    * configured. The first conversion after the reference is changed must not be used.
    */
-  while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
-  ADC0->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
+  while( adc->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
+  adc->CTRLA.bit.ENABLE = 0x01;             // Enable ADC
 
   // Start conversion
-  while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
+  while( adc->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
   
-  ADC0->SWTRIG.bit.START = 1;
+  adc->SWTRIG.bit.START = 1;
 
   // Clear the Data Ready flag
-  ADC0->INTFLAG.reg = ADC_INTFLAG_RESRDY;
+  adc->INTFLAG.reg = ADC_INTFLAG_RESRDY;
 
   // Start conversion again, since The first conversion after the reference is changed must not be used.
-  ADC0->SWTRIG.bit.START = 1;
+  adc->SWTRIG.bit.START = 1;
 
   // Store the value
-  while (ADC0->INTFLAG.bit.RESRDY == 0);   // Waiting for conversion to complete
-  valueRead = ADC0->RESULT.reg;
+  while (adc->INTFLAG.bit.RESRDY == 0);   // Waiting for conversion to complete
+  valueRead = adc->RESULT.reg;
 
-  while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
-  ADC0->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
-  while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
+  while( adc->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
+  adc->CTRLA.bit.ENABLE = 0x00;             // Disable ADC
+  while( adc->SYNCBUSY.reg & ADC_SYNCBUSY_ENABLE ); //wait for sync
   
 #else
   syncADC();

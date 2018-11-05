@@ -110,27 +110,30 @@ void init( void )
   // Setting clock
 #if defined(__SAMD51__)
   //set to 1/(1/(48000000/32) * 6) = 250000 SPS
-
 	GCLK->PCHCTRL[ADC0_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 1 (48Mhz)
-	
-	ADC0->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV32_Val;
-	ADC0->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
-	
-	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_CTRLB );  //wait for sync
-	
-	ADC0->SAMPCTRL.reg = 5;                        // sampling Time Length
-	
-	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_SAMPCTRL );  //wait for sync
-	
-	ADC0->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
-	
-	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_INPUTCTRL );  //wait for sync
-	
-	// Averaging (see datasheet table in AVGCTRL register description)
-	ADC0->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 |    // 1 sample only (no oversampling nor averaging)
-						ADC_AVGCTRL_ADJRES(0x0ul);   // Adjusting result by 0
-						
-	while( ADC0->SYNCBUSY.reg & ADC_SYNCBUSY_AVGCTRL );  //wait for sync
+	GCLK->PCHCTRL[ADC1_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 1 (48Mhz)
+	Adc *adcs[] = {ADC0, ADC1};
+		for(int i=0; i<2; i++){
+
+		adcs[i]->CTRLA.bit.PRESCALER = ADC_CTRLA_PRESCALER_DIV32_Val;
+		adcs[i]->CTRLB.bit.RESSEL = ADC_CTRLB_RESSEL_10BIT_Val;
+
+		while( adcs[i]->SYNCBUSY.reg & ADC_SYNCBUSY_CTRLB );  //wait for sync
+
+		adcs[i]->SAMPCTRL.reg = 5;                        // sampling Time Length
+
+		while( adcs[i]->SYNCBUSY.reg & ADC_SYNCBUSY_SAMPCTRL );  //wait for sync
+
+		adcs[i]->INPUTCTRL.reg = ADC_INPUTCTRL_MUXNEG_GND;   // No Negative input (Internal Ground)
+
+		while( adcs[i]->SYNCBUSY.reg & ADC_SYNCBUSY_INPUTCTRL );  //wait for sync
+
+		// Averaging (see datasheet table in AVGCTRL register description)
+		adcs[i]->AVGCTRL.reg = ADC_AVGCTRL_SAMPLENUM_1 |    // 1 sample only (no oversampling nor averaging)
+							ADC_AVGCTRL_ADJRES(0x0ul);   // Adjusting result by 0
+
+		while( adcs[i]->SYNCBUSY.reg & ADC_SYNCBUSY_AVGCTRL );  //wait for sync
+	}
 
 	analogReference( AR_DEFAULT ) ; // Analog Reference is AREF pin (3.3v)
 	
