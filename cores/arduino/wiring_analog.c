@@ -362,269 +362,245 @@ void analogWrite(uint32_t pin, uint32_t value)
 	  if ((attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG)
 	  {
 	    // DAC handling code
-	#if defined(__SAMD51__)
-		if (pin != PIN_A0 && pin != PIN_A1) { // 2 DACs on A0 (PA02) and A1 (PA05)
-	#else
-	    if (pin != PIN_A0) { // Only 1 DAC on A0 (PA02)
-	#endif	
-	      return;
-	    }
-
-    value = mapResolution(value, _writeResolution, _dacResolution);
-
-	#if defined(__SAMD51__)
-		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
-
-		pinPeripheral(pin, PIO_ANALOG);
-		
-		if(!dacEnabled[channel]){
-			dacEnabled[channel] = true;
-			
-			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
-			DAC->CTRLA.bit.ENABLE = 0;     // disable DAC
-			
-			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
-			DAC->DACCTRL[channel].bit.ENABLE = 1;
-		
-			while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
-			DAC->CTRLA.bit.ENABLE = 1;     // enable DAC
-
-	        if(channel == 0){
-
-	            while ( !DAC->STATUS.bit.READY0 );
-
-	            while (DAC->SYNCBUSY.bit.DATA0);
-	            DAC->DATA[0].reg = value;
-	        }
-	        else if(channel == 1){
-	            while ( !DAC->STATUS.bit.READY1 );
-
-	            while (DAC->SYNCBUSY.bit.DATA1);
-	            DAC->DATA[1].reg = value;
-	        }
-
-            delayMicroseconds(10000);
-		}
-		
-		//ERROR!
-		while(!DAC->DACCTRL[channel].bit.ENABLE);
-		
-		if(channel == 0){
-			
-			while ( !DAC->STATUS.bit.READY0 );
-			
-			while (DAC->SYNCBUSY.bit.DATA0);
-			DAC->DATA[0].reg = value;  // DAC on 10 bits.
-		}
-		else if(channel == 1){
-			while ( !DAC->STATUS.bit.READY1 );
-			
-			while (DAC->SYNCBUSY.bit.DATA1);
-			DAC->DATA[1].reg = value;  // DAC on 10 bits.
-		}
-			
-
-	#else
-	    value = mapResolution(value, _dacResolution, 10);
-		syncDAC();
-	    DAC->DATA.reg = value & 0x3FF;  // DAC on 10 bits.
-	    syncDAC();
-	    DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
-	    syncDAC();
-	#endif
-	    return;
-	  }
+#if defined(__SAMD51__)
+		if (pin == PIN_A0 || pin == PIN_A1) { // 2 DACs on A0 (PA02) and A1 (PA05)
+#else
+	    if (pin == PIN_A0) { // Only 1 DAC on A0 (PA02)
 #endif
+
+			value = mapResolution(value, _writeResolution, _dacResolution);
+
+#if defined(__SAMD51__)
+			uint8_t channel = (pin == PIN_A0 ? 0 : 1);
+
+			pinPeripheral(pin, PIO_ANALOG);
+
+			if(!dacEnabled[channel]){
+				dacEnabled[channel] = true;
+
+				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+				DAC->CTRLA.bit.ENABLE = 0;     // disable DAC
+
+				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+				DAC->DACCTRL[channel].bit.ENABLE = 1;
+
+				while (DAC->SYNCBUSY.bit.ENABLE || DAC->SYNCBUSY.bit.SWRST);
+				DAC->CTRLA.bit.ENABLE = 1;     // enable DAC
+
+				if(channel == 0){
+
+					while ( !DAC->STATUS.bit.READY0 );
+
+					while (DAC->SYNCBUSY.bit.DATA0);
+					DAC->DATA[0].reg = value;
+				}
+				else if(channel == 1){
+					while ( !DAC->STATUS.bit.READY1 );
+
+					while (DAC->SYNCBUSY.bit.DATA1);
+					DAC->DATA[1].reg = value;
+				}
+
+				delayMicroseconds(10000);
+			}
+
+			//ERROR!
+			while(!DAC->DACCTRL[channel].bit.ENABLE);
+
+			if(channel == 0){
+
+				while ( !DAC->STATUS.bit.READY0 );
+
+				while (DAC->SYNCBUSY.bit.DATA0);
+				DAC->DATA[0].reg = value;  // DAC on 10 bits.
+			}
+			else if(channel == 1){
+				while ( !DAC->STATUS.bit.READY1 );
+
+				while (DAC->SYNCBUSY.bit.DATA1);
+				DAC->DATA[1].reg = value;  // DAC on 10 bits.
+			}
+
+
+#else
+			value = mapResolution(value, _dacResolution, 10);
+			syncDAC();
+			DAC->DATA.reg = value & 0x3FF;  // DAC on 10 bits.
+			syncDAC();
+			DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC
+			syncDAC();
+#endif // __SAMD51__
+				return;
+	  }
+	}
+#endif // DAC
+
+#if defined(__SAMD51__)
+	if(attr & (PIN_ATTR_PWM_E|PIN_ATTR_PWM_F|PIN_ATTR_PWM_G)){
+
+		uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
+		uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
+		static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
+
+		if(attr & PIN_ATTR_PWM_E)
+			pinPeripheral(pin, PIO_TIMER);
+		else if(attr & PIN_ATTR_PWM_F)
+			pinPeripheral(pin, PIO_TIMER_ALT);
+		else if(attr & PIN_ATTR_PWM_G)
+			pinPeripheral(pin, PIO_TCC_PDEC);
+
+		if (!tcEnabled[tcNum]) {
+		  tcEnabled[tcNum] = true;
+	      GCLK->PCHCTRL[GCLK_CLKCTRL_IDs[tcNum]].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
+
+	      // Set PORT
+	      if (tcNum >= TCC_INST_NUM) {
+				// -- Configure TC
+				Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+
+				//reset
+				TCx->COUNT8.CTRLA.bit.SWRST = 1;
+				while (TCx->COUNT8.SYNCBUSY.bit.SWRST);
+
+				// Disable TCx
+				TCx->COUNT8.CTRLA.bit.ENABLE = 0;
+				while (TCx->COUNT8.SYNCBUSY.bit.ENABLE);
+				// Set Timer counter Mode to 8 bits, normal PWM, prescaler 1/256
+				TCx->COUNT8.CTRLA.reg = TC_CTRLA_MODE_COUNT8 | TC_CTRLA_PRESCALER_DIV256;
+				TCx->COUNT8.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
+
+				while (TCx->COUNT8.SYNCBUSY.bit.CC0);
+				// Set the initial value
+				TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
+				while (TCx->COUNT8.SYNCBUSY.bit.CC0);
+				// Set PER to maximum counter value (resolution : 0xFF)
+				TCx->COUNT8.PER.reg = 0xFF;
+				while (TCx->COUNT8.SYNCBUSY.bit.PER);
+				// Enable TCx
+				TCx->COUNT8.CTRLA.bit.ENABLE = 1;
+				while (TCx->COUNT8.SYNCBUSY.bit.ENABLE);
+			} else {
+				// -- Configure TCC
+				Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+
+				TCCx->CTRLA.bit.SWRST = 1;
+				while (TCCx->SYNCBUSY.bit.SWRST);
+
+				// Disable TCCx
+				TCCx->CTRLA.bit.ENABLE = 0;
+				while (TCCx->SYNCBUSY.bit.ENABLE);
+				// Set prescaler to 1/256
+				TCCx->CTRLA.reg = TCC_CTRLA_PRESCALER_DIV256 | TCC_CTRLA_PRESCSYNC_GCLK;
+
+				// Set TCx as normal PWM
+				TCCx->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
+				while ( TCCx->SYNCBUSY.bit.WAVE );
+
+				while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
+				// Set the initial value
+				TCCx->CC[tcChannel].reg = (uint32_t) value;
+				while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
+				// Set PER to maximum counter value (resolution : 0xFF)
+				TCCx->PER.reg = 0xFF;
+				while (TCCx->SYNCBUSY.bit.PER);
+				// Enable TCCx
+				TCCx->CTRLA.bit.ENABLE = 1;
+				while (TCCx->SYNCBUSY.bit.ENABLE);
+			}
+		}
+		else {
+			if (tcNum >= TCC_INST_NUM) {
+				Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+				TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
+				while (TCx->COUNT8.SYNCBUSY.bit.CC0 || TCx->COUNT8.SYNCBUSY.bit.CC1);
+				} else {
+				Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+				while (TCCx->SYNCBUSY.bit.CTRLB);
+				while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
+				TCCx->CCBUF[tcChannel].reg = (uint32_t) value;
+				while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
+				TCCx->CTRLBCLR.bit.LUPD = 1;
+				while (TCCx->SYNCBUSY.bit.CTRLB);
+				}
+		}
+
+		return;
+	}
+	  
+#else
+  uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
+  uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
+  static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
 
   if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM)
-  {
-#ifndef __SAMD51__
-    value = mapResolution(value, _writeResolution, 16);
-	#endif
+	  {
+		value = mapResolution(value, _writeResolution, 16);
+		  uint16_t GCLK_CLKCTRL_IDs[] = {
+			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
+			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
+			GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TCC2
+			GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TC3
+			GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC4
+			GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC5
+			GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC6
+			GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC7
+		  };
+		  GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_IDs[tcNum]);
+		  while (GCLK->STATUS.bit.SYNCBUSY == 1);
 
-    uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
-    uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
-    static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
-
-    if (attr & PIN_ATTR_TIMER) {
-      #if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
-      // Compatibility for cores based on SAMD core <=1.6.2
-      if (pinDesc.ulPinType == PIO_TIMER_ALT) {
-        pinPeripheral(pin, PIO_TIMER_ALT);
-      } else
-      #endif
-      {
-
-#if defined(__SAMD51__)
-          //on SAMD51 we are only using TCC for timers
-          pinPeripheral(pin, PIO_TCC_PDEC);
-#else
-        pinPeripheral(pin, PIO_TIMER);
-#endif
-      }
-    } else if ((attr & PIN_ATTR_TIMER_ALT) == PIN_ATTR_TIMER_ALT){
-        //this is on an alt timer
-        pinPeripheral(pin, PIO_TIMER_ALT);
-    }
-    else{
-        return;
-    }
-
-    if (!tcEnabled[tcNum]) {
-      tcEnabled[tcNum] = true;
-
-#if defined(__SAMD51__)
-	uint32_t GCLK_CLKCTRL_IDs[] = {
-		TCC0_GCLK_ID,
-		TCC1_GCLK_ID,
-		TCC2_GCLK_ID,
-	#if defined(TCC3)
-		TCC3_GCLK_ID,
-		TCC4_GCLK_ID,
-		TC5_GCLK_ID,
-	#endif
-	};
-	
-	 GCLK->PCHCTRL[GCLK_CLKCTRL_IDs[tcNum]].reg = GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos); //use clock generator 0
-	  
-	// Set PORT
-	if (tcNum >= TCC_INST_NUM) {
+		  // Set PORT
+		  if (tcNum >= TCC_INST_NUM) {
 			// -- Configure TC
 			Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
-			
-			//reset
-			TCx->COUNT8.CTRLA.bit.SWRST = 1;
-			while (TCx->COUNT8.SYNCBUSY.bit.SWRST);
-			
 			// Disable TCx
-			TCx->COUNT8.CTRLA.bit.ENABLE = 0;
-			while (TCx->COUNT8.SYNCBUSY.bit.ENABLE);
-			// Set Timer counter Mode to 8 bits, normal PWM, prescaler 1/256
-			TCx->COUNT8.CTRLA.reg = TC_CTRLA_MODE_COUNT8 | TC_CTRLA_PRESCALER_DIV256;
-			TCx->COUNT8.WAVE.reg = TC_WAVE_WAVEGEN_NPWM;
-
-			while (TCx->COUNT8.SYNCBUSY.bit.CC0);
+			TCx->COUNT16.CTRLA.bit.ENABLE = 0;
+			syncTC_16(TCx);
+			// Set Timer counter Mode to 16 bits, normal PWM
+			TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16 | TC_CTRLA_WAVEGEN_NPWM;
+			syncTC_16(TCx);
 			// Set the initial value
-			TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
-			while (TCx->COUNT8.SYNCBUSY.bit.CC0);
-			// Set PER to maximum counter value (resolution : 0xFF)
-			TCx->COUNT8.PER.reg = 0xFF;
-			while (TCx->COUNT8.SYNCBUSY.bit.PER);
+			TCx->COUNT16.CC[tcChannel].reg = (uint32_t) value;
+			syncTC_16(TCx);
 			// Enable TCx
-			TCx->COUNT8.CTRLA.bit.ENABLE = 1;
-			while (TCx->COUNT8.SYNCBUSY.bit.ENABLE);
-		} else {
+			TCx->COUNT16.CTRLA.bit.ENABLE = 1;
+			syncTC_16(TCx);
+		  } else {
 			// -- Configure TCC
 			Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-			
-			TCCx->CTRLA.bit.SWRST = 1;
-			while (TCCx->SYNCBUSY.bit.SWRST);
-			
 			// Disable TCCx
 			TCCx->CTRLA.bit.ENABLE = 0;
-			while (TCCx->SYNCBUSY.bit.ENABLE);
-			// Set prescaler to 1/256
-			TCCx->CTRLA.reg = TCC_CTRLA_PRESCALER_DIV256 | TCC_CTRLA_PRESCSYNC_GCLK;
-			
-			// Set TCx as normal PWM
-			TCCx->WAVE.reg = TCC_WAVE_WAVEGEN_NPWM;
-			while ( TCCx->SYNCBUSY.bit.WAVE );
-			
-			while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
+			syncTCC(TCCx);
+			// Set TCCx as normal PWM
+			TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
+			syncTCC(TCCx);
 			// Set the initial value
 			TCCx->CC[tcChannel].reg = (uint32_t) value;
-			while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
-			// Set PER to maximum counter value (resolution : 0xFF)
-			TCCx->PER.reg = 0xFF;
-			while (TCCx->SYNCBUSY.bit.PER);
+			syncTCC(TCCx);
+			// Set PER to maximum counter value (resolution : 0xFFFF)
+			TCCx->PER.reg = 0xFFFF;
+			syncTCC(TCCx);
 			// Enable TCCx
 			TCCx->CTRLA.bit.ENABLE = 1;
-			while (TCCx->SYNCBUSY.bit.ENABLE);
-	}
-	} else {
-	if (tcNum >= TCC_INST_NUM) {
-		Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
-		TCx->COUNT8.CC[tcChannel].reg = (uint8_t) value;
-		while (TCx->COUNT8.SYNCBUSY.bit.CC0 || TCx->COUNT8.SYNCBUSY.bit.CC1);
+			syncTCC(TCCx);
+		  }
 		} else {
-		Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-		while (TCCx->SYNCBUSY.bit.CTRLB);
-		while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
-		TCCx->CCBUF[tcChannel].reg = (uint32_t) value;
-		while (TCCx->SYNCBUSY.bit.CC0 || TCCx->SYNCBUSY.bit.CC1);
-		TCCx->CTRLBCLR.bit.LUPD = 1;
-		while (TCCx->SYNCBUSY.bit.CTRLB);
-	}
-}
-	  
-#else
-      uint16_t GCLK_CLKCTRL_IDs[] = {
-        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
-        GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
-        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TCC2
-        GCLK_CLKCTRL_ID(GCM_TCC2_TC3),  // TC3
-        GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC4
-        GCLK_CLKCTRL_ID(GCM_TC4_TC5),   // TC5
-        GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC6
-        GCLK_CLKCTRL_ID(GCM_TC6_TC7),   // TC7
-      };
-      GCLK->CLKCTRL.reg = (uint16_t) (GCLK_CLKCTRL_CLKEN | GCLK_CLKCTRL_GEN_GCLK0 | GCLK_CLKCTRL_IDs[tcNum]);
-      while (GCLK->STATUS.bit.SYNCBUSY == 1);
-
-      // Set PORT
-      if (tcNum >= TCC_INST_NUM) {
-        // -- Configure TC
-        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
-        // Disable TCx
-        TCx->COUNT16.CTRLA.bit.ENABLE = 0;
-        syncTC_16(TCx);
-        // Set Timer counter Mode to 16 bits, normal PWM
-        TCx->COUNT16.CTRLA.reg |= TC_CTRLA_MODE_COUNT16 | TC_CTRLA_WAVEGEN_NPWM;
-        syncTC_16(TCx);
-        // Set the initial value
-        TCx->COUNT16.CC[tcChannel].reg = (uint32_t) value;
-        syncTC_16(TCx);
-        // Enable TCx
-        TCx->COUNT16.CTRLA.bit.ENABLE = 1;
-        syncTC_16(TCx);
-      } else {
-        // -- Configure TCC
-        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-        // Disable TCCx
-        TCCx->CTRLA.bit.ENABLE = 0;
-        syncTCC(TCCx);
-        // Set TCCx as normal PWM
-        TCCx->WAVE.reg |= TCC_WAVE_WAVEGEN_NPWM;
-        syncTCC(TCCx);
-        // Set the initial value
-        TCCx->CC[tcChannel].reg = (uint32_t) value;
-        syncTCC(TCCx);
-        // Set PER to maximum counter value (resolution : 0xFFFF)
-        TCCx->PER.reg = 0xFFFF;
-        syncTCC(TCCx);
-        // Enable TCCx
-        TCCx->CTRLA.bit.ENABLE = 1;
-        syncTCC(TCCx);
-      }
-    } else {
-      if (tcNum >= TCC_INST_NUM) {
-        Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
-        TCx->COUNT16.CC[tcChannel].reg = (uint32_t) value;
-        syncTC_16(TCx);
-      } else {
-        Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
-        TCCx->CTRLBSET.bit.LUPD = 1;
-        syncTCC(TCCx);
-        TCCx->CCB[tcChannel].reg = (uint32_t) value;
-        syncTCC(TCCx);
-        TCCx->CTRLBCLR.bit.LUPD = 1;
-        syncTCC(TCCx);
-      }
-    }
+		  if (tcNum >= TCC_INST_NUM) {
+			Tc* TCx = (Tc*) GetTC(pinDesc.ulPWMChannel);
+			TCx->COUNT16.CC[tcChannel].reg = (uint32_t) value;
+			syncTC_16(TCx);
+		  } else {
+			Tcc* TCCx = (Tcc*) GetTC(pinDesc.ulPWMChannel);
+			TCCx->CTRLBSET.bit.LUPD = 1;
+			syncTCC(TCCx);
+			TCCx->CCB[tcChannel].reg = (uint32_t) value;
+			syncTCC(TCCx);
+			TCCx->CTRLBCLR.bit.LUPD = 1;
+			syncTCC(TCCx);
+		  }
+		}
+	  return;
+	  }
 #endif
-      
-    return;
-  }
 
   // -- Defaults to digital write
   pinMode(pin, OUTPUT);

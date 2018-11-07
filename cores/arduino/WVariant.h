@@ -70,17 +70,28 @@ typedef enum _ETCChannel
   TCC0_CH3 = (0<<8)|(3),
   TCC0_CH4 = (0<<8)|(4),
   TCC0_CH5 = (0<<8)|(5),
-  TCC0_CH6 = (0<<8)|(6),
-  TCC0_CH7 = (0<<8)|(7),
   TCC1_CH0 = (1<<8)|(0),
   TCC1_CH1 = (1<<8)|(1),
   TCC1_CH2 = (1<<8)|(2),
   TCC1_CH3 = (1<<8)|(3),
-  TCC1_CH4 = (1<<8)|(0),
-  TCC1_CH5 = (1<<8)|(1),
-  TCC1_CH6 = (1<<8)|(2),
-  TCC1_CH7 = (1<<8)|(3),
+  TCC2_CH0 = (2<<8)|(0),
+  TCC2_CH1 = (2<<8)|(1),
+  TCC2_CH2 = (2<<8)|(2),
+  TCC2_CH3 = (2<<8)|(3),
+  TC0_CH0 =  (3<<8)|(0),
+  TC0_CH1 =  (3<<8)|(1),
+  TC1_CH0 =  (4<<8)|(0),
+  TC1_CH1 =  (4<<8)|(1),
+  TC2_CH0 =  (5<<8)|(0),
+  TC2_CH1 =  (5<<8)|(1),
+  TC3_CH0 =  (6<<8)|(0),
+  TC3_CH1 =  (6<<8)|(1),
 } ETCChannel ;
+
+typedef ETCChannel EPWMChannel;
+extern const uint32_t GCLK_CLKCTRL_IDs[TCC_INST_NUM+TC_INST_NUM];
+
+#define NOT_ON_PWM NOT_ON_TIMER
 
 #else
 // Definitions for TC channels
@@ -110,6 +121,39 @@ typedef enum _ETCChannel
   TC5_CH0  = (5<<8)|(0),
   TC5_CH1  = (5<<8)|(1),
 } ETCChannel ;
+
+// Definitions for PWM channels
+typedef enum _EPWMChannel
+{
+  NOT_ON_PWM=-1,
+  PWM0_CH0=TCC0_CH0,
+  PWM0_CH1=TCC0_CH1,
+  PWM0_CH2=TCC0_CH2,
+  PWM0_CH3=TCC0_CH3,
+  PWM0_CH4=TCC0_CH4,
+  PWM0_CH5=TCC0_CH5,
+  PWM1_CH0=TCC1_CH0,
+  PWM1_CH1=TCC1_CH1,
+  PWM1_CH2=TCC1_CH2,
+  PWM1_CH3=TCC1_CH3,
+  PWM2_CH0=TCC2_CH0,
+  PWM2_CH1=TCC2_CH1,
+  PWM2_CH2=TCC2_CH2,
+  PWM2_CH3=TCC2_CH3,
+  PWM3_CH0=TC3_CH0,
+  PWM3_CH1=TC3_CH1,
+  PWM4_CH0=TC4_CH0,
+  PWM4_CH1=TC4_CH1,
+  PWM5_CH0=TC5_CH0,
+  PWM5_CH1=TC5_CH1,
+#if defined(__SAMD21J18A__)
+  PWM6_CH0=TC6_CH0,
+  PWM6_CH1=TC6_CH1,
+  PWM7_CH0=TC7_CH0,
+  PWM7_CH1=TC7_CH1,
+#endif // __SAMD21J18A__
+} EPWMChannel ;
+
 #endif
 
 extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
@@ -117,68 +161,6 @@ extern const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM] ;
 #define GetTCNumber( x ) ( (x) >> 8 )
 #define GetTCChannelNumber( x ) ( (x) & 0xff )
 #define GetTC( x ) ( g_apTCInstances[(x) >> 8] )
-
-
-#if defined(__SAMD51__)
-
-  typedef enum _EPWMChannel
-  {
-    NOT_ON_PWM=-1,
-    PWM0_CH0=TCC0_CH0,
-    PWM0_CH1=TCC0_CH1,
-    PWM0_CH2=TCC0_CH2,
-    PWM0_CH3=TCC0_CH3,
-    PWM0_CH4=TCC0_CH4,
-    PWM0_CH5=TCC0_CH5,
-    PWM0_CH6=TCC0_CH6,
-    PWM0_CH7=TCC0_CH7,
-    PWM1_CH0=TCC1_CH0,
-    PWM1_CH1=TCC1_CH1,
-    PWM1_CH2=TCC1_CH2,
-    PWM1_CH3=TCC1_CH3,
-    PWM1_CH4=TCC1_CH4,
-    PWM1_CH5=TCC1_CH5,
-    PWM1_CH6=TCC1_CH6,
-    PWM1_CH7=TCC1_CH7,
-  } EPWMChannel ;
-
-#else //end __SAMD51J19A__
-  // Definitions for PWM channels
-  typedef enum _EPWMChannel
-  {
-    NOT_ON_PWM=-1,
-    PWM0_CH0=TCC0_CH0,
-    PWM0_CH1=TCC0_CH1,
-    PWM0_CH2=TCC0_CH2,
-    PWM0_CH3=TCC0_CH3,
-    PWM0_CH4=TCC0_CH4,
-    PWM0_CH5=TCC0_CH5,
-    PWM0_CH6=TCC0_CH6,
-    PWM0_CH7=TCC0_CH7,
-    PWM1_CH0=TCC1_CH0,
-    PWM1_CH1=TCC1_CH1,
-    PWM1_CH2=TCC1_CH2,
-    PWM1_CH3=TCC1_CH3,
-    PWM2_CH0=TCC2_CH0,
-    PWM2_CH1=TCC2_CH1,
-    PWM2_CH2=TCC2_CH2,
-    PWM2_CH3=TCC2_CH3,
-    PWM3_CH0=TC3_CH0,
-    PWM3_CH1=TC3_CH1,
-    PWM4_CH0=TC4_CH0,
-    PWM4_CH1=TC4_CH1,
-    PWM5_CH0=TC5_CH0,
-    PWM5_CH1=TC5_CH1,
-  #if defined(__SAMD21J18A__)
-    PWM6_CH0=TC6_CH0,
-    PWM6_CH1=TC6_CH1,
-    PWM7_CH0=TC7_CH0,
-    PWM7_CH1=TC7_CH1,
-  #endif // __SAMD21J18A__
-  } EPWMChannel ;
-
-#endif
-
 
 typedef enum _EPortType
 {
@@ -255,11 +237,19 @@ typedef enum _EPioType
 #define PIN_ATTR_COMBO         (1UL<<0)
 #define PIN_ATTR_ANALOG        (1UL<<1)
 #define PIN_ATTR_DIGITAL       (1UL<<2)
-#define PIN_ATTR_PWM           (1UL<<3)
 #define PIN_ATTR_TIMER         (1UL<<4)
 #define PIN_ATTR_TIMER_ALT     (1UL<<5)
 #define PIN_ATTR_EXTINT        (1UL<<6)
 #define PIN_ATTR_ANALOG_ALT	   (1UL<<7)
+
+#if defined(__SAMD51__)
+// these correspond to the mux table
+#define PIN_ATTR_PWM_E         (1UL<<3)
+#define PIN_ATTR_PWM_F         (1UL<<8)
+#define PIN_ATTR_PWM_G         (1UL<<9)
+#else
+#define PIN_ATTR_PWM           (1UL<<3)
+#endif
 
 /* Types used for the table below */
 typedef struct _PinDescription
