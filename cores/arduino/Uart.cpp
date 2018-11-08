@@ -83,6 +83,10 @@ void Uart::end()
 
 void Uart::flush()
 {
+  if (!sercom->isUARTEnabled()) {
+    return;
+  }
+
   while(txBuffer.available()); // wait until TX buffer is empty
 
   sercom->flushUART();

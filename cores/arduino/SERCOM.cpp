@@ -108,6 +108,11 @@ void SERCOM::enableUART()
   while(sercom->USART.SYNCBUSY.bit.ENABLE);
 }
 
+bool SERCOM::isUARTEnabled() {
+  // check for Uart Enable state
+  return sercom->USART.CTRLA.bit.ENABLE & SERCOM_USART_CTRLA_ENABLE;
+}
+
 void SERCOM::flushUART()
 {
   // Skip checking transmission completion if data register is empty
