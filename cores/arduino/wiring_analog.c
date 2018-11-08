@@ -528,13 +528,36 @@ void analogWrite(uint32_t pin, uint32_t value)
 	}
 	  
 #else
-  uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
-  uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
-  static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
 
   if ((attr & PIN_ATTR_PWM) == PIN_ATTR_PWM)
 	  {
-		value = mapResolution(value, _writeResolution, 16);
+	  value = mapResolution(value, _writeResolution, 16);
+
+	  uint32_t tcNum = GetTCNumber(pinDesc.ulPWMChannel);
+	  uint8_t tcChannel = GetTCChannelNumber(pinDesc.ulPWMChannel);
+	  static bool tcEnabled[TCC_INST_NUM+TC_INST_NUM];
+
+	    if (attr & PIN_ATTR_TIMER) {
+#if !(ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10603)
+	      // Compatibility for cores based on SAMD core <=1.6.2
+	      if (pinDesc.ulPinType == PIO_TIMER_ALT) {
+	        pinPeripheral(pin, PIO_TIMER_ALT);
+	      } else
+#endif
+	      {
+	        pinPeripheral(pin, PIO_TIMER);
+	      }
+	    } else if ((attr & PIN_ATTR_TIMER_ALT) == PIN_ATTR_TIMER_ALT){
+	        //this is on an alt timer
+	        pinPeripheral(pin, PIO_TIMER_ALT);
+	    }
+	    else{
+	        return;
+	    }
+
+	    if (!tcEnabled[tcNum]) {
+	      tcEnabled[tcNum] = true;
+	      value = mapResolution(value, _writeResolution, 16);
 		  uint16_t GCLK_CLKCTRL_IDs[] = {
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
@@ -599,7 +622,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 		  }
 		}
 	  return;
-	  }
+  }
 #endif
 
   // -- Defaults to digital write
