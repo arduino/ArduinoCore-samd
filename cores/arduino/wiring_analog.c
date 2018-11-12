@@ -32,7 +32,7 @@ static int _writeResolution = 12;
 static int _dacResolution = 12;
 #else
 static int _writeResolution = 8;
-static int _dacResolution = 8;
+static int _dacResolution = 10;
 #endif
 
 
@@ -368,9 +368,10 @@ void analogWrite(uint32_t pin, uint32_t value)
 	    if (pin == PIN_A0) { // Only 1 DAC on A0 (PA02)
 #endif
 
-			value = mapResolution(value, _writeResolution, _dacResolution);
+	    	value = mapResolution(value, _writeResolution, _dacResolution);
 
 #if defined(__SAMD51__)
+
 			uint8_t channel = (pin == PIN_A0 ? 0 : 1);
 
 			pinPeripheral(pin, PIO_ANALOG);
@@ -423,7 +424,6 @@ void analogWrite(uint32_t pin, uint32_t value)
 
 
 #else
-			value = mapResolution(value, _dacResolution, 10);
 			syncDAC();
 			DAC->DATA.reg = value & 0x3FF;  // DAC on 10 bits.
 			syncDAC();
