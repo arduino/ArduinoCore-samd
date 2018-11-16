@@ -114,7 +114,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
     default: break;
   }
 
-  toggleCount = (duration > 0 ? frequency * duration * 2 / 1000UL : -1);
+  toggleCount = (duration > 0 ? frequency * duration * 2 / 1000UL : -1LL);
 
   resetTC(TONE_TC);
 
