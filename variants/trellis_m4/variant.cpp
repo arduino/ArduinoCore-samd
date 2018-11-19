@@ -63,10 +63,10 @@ const PinDescription g_APinDescription[]=
   { PORTA, 24, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_8 }, // USB/DM
   { PORTA, 25, PIO_COM, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_9 }, // USB/DP
 
-  // 21..22 I2C pins (SDA/SCL)
+  // 21..22 I2C pins (SDA/SCL) or Serial1 Pins
   // ----------------------
-  { PORTB,  8, PIO_SERCOM_ALT, (PIN_ATTR_ANALOG|PIN_ATTR_PWM|PIN_ATTR_TIMER_ALT), ADC_Channel2, PWM0_CH6, TCC0_CH6, EXTERNAL_INT_12 }, // SERCOM 2.0
-  { PORTB,  9, PIO_SERCOM_ALT, (PIN_ATTR_ANALOG_ALT|PIN_ATTR_PWM|PIN_ATTR_TIMER_ALT), ADC_Channel1, PWM0_CH7, TCC0_CH7, EXTERNAL_INT_13 }, // SERCOM 2.1
+  { PORTB,  8, PIO_SERCOM_ALT, (PIN_ATTR_ANALOG|PIN_ATTR_PWM|PIN_ATTR_TIMER_ALT), ADC_Channel2, PWM0_CH6, TCC0_CH6, EXTERNAL_INT_12 }, // SERCOM 4.0
+  { PORTB,  9, PIO_SERCOM_ALT, (PIN_ATTR_ANALOG_ALT|PIN_ATTR_PWM|PIN_ATTR_TIMER_ALT), ADC_Channel1, PWM0_CH7, TCC0_CH7, EXTERNAL_INT_13 }, // SERCOM 4.1
 
   // ----------------------
   // 23 - 28 QSPI (SCK, CS, IO0, IO1, IO2, IO3)
@@ -108,3 +108,22 @@ SERCOM sercom2( SERCOM2 ) ;
 SERCOM sercom3( SERCOM3 ) ;
 SERCOM sercom4( SERCOM4 ) ;
 SERCOM sercom5( SERCOM5 ) ;
+
+Uart Serial1( &sercom4, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX ) ;
+
+void SERCOM4_0_Handler()
+{
+  Serial1.IrqHandler();
+}
+void SERCOM4_1_Handler()
+{
+  Serial1.IrqHandler();
+}
+void SERCOM4_2_Handler()
+{
+  Serial1.IrqHandler();
+}
+void SERCOM4_3_Handler()
+{
+  Serial1.IrqHandler();
+}

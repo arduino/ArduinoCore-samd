@@ -124,8 +124,8 @@ static const uint8_t LINE_RIGHT = PIN_LINE_RIGHT;
  */
 
 // Serial1
-#define PIN_SERIAL1_RX       (0ul)
-#define PIN_SERIAL1_TX       (1ul)
+#define PIN_SERIAL1_RX       (22ul)
+#define PIN_SERIAL1_TX       (21ul)
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
 #define PAD_SERIAL1_TX       (UART_TX_PAD_0)
 
@@ -214,6 +214,8 @@ extern SERCOM sercom3;
 extern SERCOM sercom4;
 extern SERCOM sercom5;
 
+extern Uart Serial1;
+
 #endif
 
 // These serial port names are intended to allow libraries and architecture-neutral
@@ -233,6 +235,9 @@ extern SERCOM sercom5;
 //                            pins are NOT connected to anything by default.
 #define SERIAL_PORT_USBVIRTUAL      Serial
 #define SERIAL_PORT_MONITOR         Serial
+#define SERIAL_PORT_HARDWARE        Serial1
+#define SERIAL_PORT_HARDWARE_OPEN   Serial1
+
 
 #endif /* _VARIANT_MERTO_M4_ */
 
