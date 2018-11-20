@@ -93,7 +93,7 @@ extern "C"
 /*
  * Analog pins
  */
-#define PIN_A0               (14ul)
+#define PIN_A0               (67ul)
 #define PIN_A1               (PIN_A0 + 1)
 #define PIN_A2               (PIN_A0 + 2)
 #define PIN_A3               (PIN_A0 + 3)
@@ -152,22 +152,22 @@ static const uint8_t ATN = PIN_ATN;
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
 
 // Serial2
-#define PIN_SERIAL2_RX       (72ul)
-#define PIN_SERIAL2_TX       (71ul)
+#define PIN_SERIAL2_RX       (19ul)
+#define PIN_SERIAL2_TX       (18ul)
 #define PAD_SERIAL2_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL2_RX       (SERCOM_RX_PAD_1)
 #define SERCOM_SERIAL2		 sercom4
 
 // Serial3
-#define PIN_SERIAL3_RX       (70ul)
-#define PIN_SERIAL3_TX       (69ul)
+#define PIN_SERIAL3_RX       (17ul)
+#define PIN_SERIAL3_TX       (16ul)
 #define PAD_SERIAL3_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL3_RX       (SERCOM_RX_PAD_1)
 #define SERCOM_SERIAL3		 sercom1
 
 // Serial4
-#define PIN_SERIAL4_RX       (68ul)
-#define PIN_SERIAL4_TX       (67ul)
+#define PIN_SERIAL4_RX       (15ul)
+#define PIN_SERIAL4_TX       (14ul)
 #define PAD_SERIAL4_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL4_RX       (SERCOM_RX_PAD_1)
 #define SERCOM_SERIAL4		 sercom5
