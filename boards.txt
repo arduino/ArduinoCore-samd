@@ -162,6 +162,35 @@ mkrzero.build.pid=0x804f
 mkrzero.bootloader.tool=openocd
 mkrzero.bootloader.file=mkrzero/samd21_sam_ba_arduino_mkrzero.bin
 
+# Arduino MKR WiFi 1010
+# --------------------
+mkrwifi1010.name=Arduino MKR WiFi 1010
+mkrwifi1010.vid.0=0x2341
+mkrwifi1010.pid.0=0x8054
+mkrwifi1010.vid.1=0x2341
+mkrwifi1010.pid.1=0x0054
+
+mkrwifi1010.upload.tool=bossac
+mkrwifi1010.upload.protocol=sam-ba
+mkrwifi1010.upload.maximum_size=262144
+mkrwifi1010.upload.use_1200bps_touch=true
+mkrwifi1010.upload.wait_for_upload_port=true
+mkrwifi1010.upload.native_usb=true
+mkrwifi1010.build.mcu=cortex-m0plus
+mkrwifi1010.build.f_cpu=48000000L
+mkrwifi1010.build.usb_product="Arduino MKR WiFi 1010"
+mkrwifi1010.build.usb_manufacturer="Arduino LLC"
+mkrwifi1010.build.board=SAMD_MKRWIFI1010
+mkrwifi1010.build.core=arduino
+mkrwifi1010.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
+mkrwifi1010.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrwifi1010.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrwifi1010.build.variant=mkrwifi1010
+mkrwifi1010.build.vid=0x2341
+mkrwifi1010.build.pid=0x8054
+mkrwifi1010.bootloader.tool=openocd
+mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
+
 # Arduino MKR FOX 1200
 # --------------------
 mkrfox1200.name=Arduino MKR FOX 1200
@@ -190,6 +219,35 @@ mkrfox1200.build.vid=0x2341
 mkrfox1200.build.pid=0x8050
 mkrfox1200.bootloader.tool=openocd
 mkrfox1200.bootloader.file=mkrfox1200/samd21_sam_ba_arduino_mkrfox1200.bin
+
+# Arduino MKR WAN 1300
+# --------------------
+mkrwan1300.name=Arduino MKR WAN 1300
+mkrwan1300.vid.0=0x2341
+mkrwan1300.pid.0=0x8053
+mkrwan1300.vid.1=0x2341
+mkrwan1300.pid.1=0x0053
+
+mkrwan1300.upload.tool=bossac
+mkrwan1300.upload.protocol=sam-ba
+mkrwan1300.upload.maximum_size=262144
+mkrwan1300.upload.use_1200bps_touch=true
+mkrwan1300.upload.wait_for_upload_port=true
+mkrwan1300.upload.native_usb=true
+mkrwan1300.build.mcu=cortex-m0plus
+mkrwan1300.build.f_cpu=48000000L
+mkrwan1300.build.usb_product="Arduino MKR WAN 1300"
+mkrwan1300.build.usb_manufacturer="Arduino LLC"
+mkrwan1300.build.board=SAMD_MKRWAN1300
+mkrwan1300.build.core=arduino
+mkrwan1300.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags}
+mkrwan1300.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrwan1300.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrwan1300.build.variant=mkrwan1300
+mkrwan1300.build.vid=0x2341
+mkrwan1300.build.pid=0x8053
+mkrwan1300.bootloader.tool=openocd
+mkrwan1300.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1300.bin
 
 # Arduino MKR GSM 1400
 # --------------------
@@ -240,7 +298,7 @@ mkrnb1500.build.usb_product="Arduino MKR NB 1500"
 mkrnb1500.build.usb_manufacturer="Arduino LLC"
 mkrnb1500.build.board=SAMD_MKRNB1500
 mkrnb1500.build.core=arduino
-mkrnb1500.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
+mkrnb1500.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
 mkrnb1500.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 mkrnb1500.build.openocdscript=openocd_scripts/arduino_zero.cfg
 mkrnb1500.build.variant=mkrnb1500
@@ -248,64 +306,6 @@ mkrnb1500.build.vid=0x2341
 mkrnb1500.build.pid=0x8055
 mkrnb1500.bootloader.tool=openocd
 mkrnb1500.bootloader.file=mkrnb1500/samd21_sam_ba_arduino_mkrnb1500.bin
-
-# Arduino MKR WAN 1300
-# --------------------
-mkrwan1300.name=Arduino MKR WAN 1300
-mkrwan1300.vid.0=0x2341
-mkrwan1300.pid.0=0x8053
-mkrwan1300.vid.1=0x2341
-mkrwan1300.pid.1=0x0053
-
-mkrwan1300.upload.tool=bossac
-mkrwan1300.upload.protocol=sam-ba
-mkrwan1300.upload.maximum_size=262144
-mkrwan1300.upload.use_1200bps_touch=true
-mkrwan1300.upload.wait_for_upload_port=true
-mkrwan1300.upload.native_usb=true
-mkrwan1300.build.mcu=cortex-m0plus
-mkrwan1300.build.f_cpu=48000000L
-mkrwan1300.build.usb_product="Arduino MKR WAN 1300"
-mkrwan1300.build.usb_manufacturer="Arduino LLC"
-mkrwan1300.build.board=SAMD_MKRWAN1300
-mkrwan1300.build.core=arduino
-mkrwan1300.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags}
-mkrwan1300.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-mkrwan1300.build.openocdscript=openocd_scripts/arduino_zero.cfg
-mkrwan1300.build.variant=mkrwan1300
-mkrwan1300.build.vid=0x2341
-mkrwan1300.build.pid=0x8053
-mkrwan1300.bootloader.tool=openocd
-mkrwan1300.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1300.bin
-
-# Arduino MKR WiFi 1010
-# --------------------
-mkrwifi1010.name=Arduino MKR WiFi 1010
-mkrwifi1010.vid.0=0x2341
-mkrwifi1010.pid.0=0x8054
-mkrwifi1010.vid.1=0x2341
-mkrwifi1010.pid.1=0x0054
-
-mkrwifi1010.upload.tool=bossac
-mkrwifi1010.upload.protocol=sam-ba
-mkrwifi1010.upload.maximum_size=262144
-mkrwifi1010.upload.use_1200bps_touch=true
-mkrwifi1010.upload.wait_for_upload_port=true
-mkrwifi1010.upload.native_usb=true
-mkrwifi1010.build.mcu=cortex-m0plus
-mkrwifi1010.build.f_cpu=48000000L
-mkrwifi1010.build.usb_product="Arduino MKR WiFi 1010"
-mkrwifi1010.build.usb_manufacturer="Arduino LLC"
-mkrwifi1010.build.board=SAMD_MKRWIFI1010
-mkrwifi1010.build.core=arduino
-mkrwifi1010.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
-mkrwifi1010.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-mkrwifi1010.build.openocdscript=openocd_scripts/arduino_zero.cfg
-mkrwifi1010.build.variant=mkrwifi1010
-mkrwifi1010.build.vid=0x2341
-mkrwifi1010.build.pid=0x8054
-mkrwifi1010.bootloader.tool=openocd
-mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
 
 # Adafruit Circuit Playground M0
 # ------------------------------
