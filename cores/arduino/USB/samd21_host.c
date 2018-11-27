@@ -62,7 +62,6 @@ void UHD_Init(void)
 	uint32_t pad_transn;
 	uint32_t pad_transp;
 	uint32_t pad_trim;
-	uint32_t i;
 
 	USB_SetHandler(&UHD_Handler);
 
