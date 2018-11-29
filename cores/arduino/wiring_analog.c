@@ -558,7 +558,6 @@ void analogWrite(uint32_t pin, uint32_t value)
 
 	    if (!tcEnabled[tcNum]) {
 	      tcEnabled[tcNum] = true;
-	      value = mapResolution(value, _writeResolution, 16);
 		  uint16_t GCLK_CLKCTRL_IDs[] = {
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
