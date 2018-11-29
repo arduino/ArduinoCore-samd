@@ -368,9 +368,10 @@ void analogWrite(uint32_t pin, uint32_t value)
 	    if (pin == PIN_A0) { // Only 1 DAC on A0 (PA02)
 #endif
 
-	    	value = mapResolution(value, _writeResolution, _dacResolution);
-
 #if defined(__SAMD51__)
+
+	    value = mapResolution(value, _writeResolution, _dacResolution);
+
 
 			uint8_t channel = (pin == PIN_A0 ? 0 : 1);
 
@@ -557,7 +558,6 @@ void analogWrite(uint32_t pin, uint32_t value)
 
 	    if (!tcEnabled[tcNum]) {
 	      tcEnabled[tcNum] = true;
-	      value = mapResolution(value, _writeResolution, 16);
 		  uint16_t GCLK_CLKCTRL_IDs[] = {
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1
