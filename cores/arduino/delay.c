@@ -63,17 +63,22 @@ unsigned long micros( void )
 
 void delay( unsigned long ms )
 {
-  if ( ms == 0 )
+  if (ms == 0)
   {
-    return ;
+    return;
   }
 
-  uint32_t start = _ulTickCount ;
+  uint32_t start = micros();
 
-  do
+  while (ms > 0)
   {
-    yield() ;
-  } while ( _ulTickCount - start < ms ) ;
+    yield();
+    while (ms > 0 && (micros() - start) >= 1000)
+    {
+      ms--;
+      start += 1000;
+    }
+  }
 }
 
 #include "Reset.h" // for tickReset()
