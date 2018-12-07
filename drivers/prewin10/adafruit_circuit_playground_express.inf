@@ -46,6 +46,14 @@ StartType=3
 ErrorControl=1
 ServiceBinary=%12%\%DRIVERFILENAME%.sys
 
+[NullInstall.nt]
+; nothing to do for a null driver
+
+[NullInstall.nt.Services]
+; null driver has no service and no service name
+AddService=, 0x00000002
+
+
 ;------------------------------------------------------------------------------
 ;  Vista-64bit Sections
 ;------------------------------------------------------------------------------
@@ -73,6 +81,13 @@ StartType=3
 ErrorControl=1
 ServiceBinary=%12%\%DRIVERFILENAME%.sys
 
+[NullInstall.NTamd64]
+; nothing to do for a null driver
+
+[NullInstall.NTamd64.Services]
+; null driver has no service and no service name
+AddService=, 0x00000002
+
 
 ;------------------------------------------------------------------------------
 ;  Vendor and Product ID Definitions
@@ -87,14 +102,14 @@ ServiceBinary=%12%\%DRIVERFILENAME%.sys
 [SourceDisksNames]
 [DeviceList]
 "%DESCRIPTION% UF2 Bootloader (0018:00) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
-"%DESCRIPTION% UF2 WebUSB dummy (0018:04) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
+"%DESCRIPTION% UF2 WebUSB dummy (0018:04) BSP"=NullInstall, USB\VID_239A&PID_0018&MI_04
 "%DESCRIPTION% (0019:00) BSP"=DriverInstall, USB\VID_239A&PID_0019&MI_00
 "%DESCRIPTION% Arduino (8018:00) BSP"=DriverInstall, USB\VID_239A&PID_8018&MI_00
 "%DESCRIPTION% CircuitPython (8019:00) BSP"=DriverInstall, USB\VID_239A&PID_8019&MI_00
 
 [DeviceList.NTamd64]
 "%DESCRIPTION% UF2 Bootloader (0018:00) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
-"%DESCRIPTION% UF2 WebUSB dummy (0018:04) BSP"=DriverInstall, USB\VID_239A&PID_0018&MI_00
+"%DESCRIPTION% UF2 WebUSB dummy (0018:04) BSP"=NullInstall, USB\VID_239A&PID_0018&MI_04
 "%DESCRIPTION% (0019:00) BSP"=DriverInstall, USB\VID_239A&PID_0019&MI_00
 "%DESCRIPTION% Arduino (8018:00) BSP"=DriverInstall, USB\VID_239A&PID_8018&MI_00
 "%DESCRIPTION% CircuitPython (8019:00) BSP"=DriverInstall, USB\VID_239A&PID_8019&MI_00
