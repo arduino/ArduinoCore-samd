@@ -190,6 +190,7 @@ mkrwifi1010.build.vid=0x2341
 mkrwifi1010.build.pid=0x8054
 mkrwifi1010.bootloader.tool=openocd
 mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
+mkrwifi1010.arduinoota.extraflags=-d
 
 # Arduino MKR FOX 1200
 # --------------------
