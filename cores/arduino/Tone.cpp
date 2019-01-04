@@ -55,7 +55,7 @@ void toneAccurateClock (uint32_t accurateSystemCoreClockFrequency)
   toneMaxFrequency = accurateSystemCoreClockFrequency / 2;
 }
 
-void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
+void tone (unsigned char outputPin, unsigned int frequency, unsigned long duration)
 {
   // Configure interrupt request
   NVIC_DisableIRQ(TONE_TC_IRQn);
@@ -150,7 +150,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
   NVIC_EnableIRQ(TONE_TC_IRQn);
 }
 
-void noTone (uint32_t outputPin)
+void noTone (uint8_t outputPin)
 {
   resetTC(TONE_TC);
   digitalWrite(outputPin, LOW);
