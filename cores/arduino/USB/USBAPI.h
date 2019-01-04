@@ -90,6 +90,7 @@ public:
 private:
 	bool initialized;
 };
+extern USBDeviceClass USBDevice;
 
 //================================================================================
 //	Serial over CDC (Serial1 is the physical port)
