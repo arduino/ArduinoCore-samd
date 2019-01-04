@@ -29,9 +29,14 @@
 
 #if defined __cplusplus
 
+#include "Arduino.h"
 #include "api/Stream.h"
 #include "api/RingBuffer.h"
 #include "api/USBAPI.h"
+
+#if ARDUINO_API_VERSION > 10000
+using namespace arduino;
+#endif
 
 //================================================================================
 // USB
