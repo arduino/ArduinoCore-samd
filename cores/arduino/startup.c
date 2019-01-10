@@ -252,7 +252,14 @@ void SystemInit( void )
   CMCC->CTRL.reg = 1;
   __enable_irq();
 #endif
-  
+
+  /*---------------------------------------------------------------------
+   * Start up the "Debug Watchpoint and Trace" unit, so that we can use
+   * it's 32bit cycle counter for timing.
+   */
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+
 //*************** END SAMD51 *************************//
   
 #else
