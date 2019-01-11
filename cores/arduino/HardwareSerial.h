@@ -68,7 +68,7 @@ class HardwareSerial : public Stream
 {
   public:
     virtual void begin(unsigned long) {}
-    virtual void begin(unsigned long baudrate, uint16_t config) {}
+    virtual void begin(unsigned long, uint16_t) {}
     virtual void end() {}
     virtual int available(void) = 0;
     virtual int peek(void) = 0;
