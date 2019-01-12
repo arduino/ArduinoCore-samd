@@ -140,38 +140,87 @@ void analogReference(eAnalogReference mode)
 	//TODO: fix gains
 	switch (mode)
 	{
-		case AR_INTERNAL:
-		case AR_INTERNAL2V23:
+		case AR_INTERNAL1V0:
 		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
-		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
-		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_1V0_Val;		// select 1.0V
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
+		break;
+		
+		case AR_INTERNAL1V1:
+		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_1V1_Val;		// select 1.1V
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
+		break;
+		
+		case AR_INTERNAL1V2:
+		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_1V2_Val;		// select 1V2
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
 		break;
 
+		case AR_INTERNAL1V25:
+		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_1V25_Val;		// select 1.25V
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
+		break;
+		
+		case AR_INTERNAL2V0:
+		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_2V0_Val;		// select 2.0V
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
+		break;
+		
+		case AR_INTERNAL2V2:
+		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_2V2_Val;		// select 2.2V
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
+		break;
+		
+		case AR_INTERNAL2V4:
+		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_2V4_Val;		// select 2.4V
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
+		break;
+		
+		case AR_INTERNAL2V5:
+		//ADC0->GAINCORR.reg = ADC_GAINCORR_GAINCORR();      // Gain Factor Selection
+		SUPC->VREF.bit.SEL = SUPC_VREF_SEL_2V5_Val;		// select 2.5V
+		SUPC->VREF.bit.VREFOE = 1;	//	Turn on for use with ADC
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // Use SUPC.VREF
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTREF_Val; // 
+		break;
+		
 		case AR_EXTERNAL:
 		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;	// AREF is jumpered to VCC, so 3.3V
 		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_AREFA_Val;
 		break;
 
-/*		Don't think this works on SAMD51
-		case AR_INTERNAL1V0:
-		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INT1V_Val;   // 1.0V voltage reference
-		break;
-*/
-
 		case AR_INTERNAL1V65:
-		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
-		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
-		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
+		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/2 VDDANA = 1.65
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 
 		break;
-
+		
 		case AR_DEFAULT:
 		default:
 		//ADC0->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_DIV2_Val;
-		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
-		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 1/2 VDDANA = 0.5* 3V3 = 1.65V
-		
+		ADC0->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // VDDANA = 3V3
+		ADC1->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC1_Val; // 
 		break;
 	}
 	
@@ -368,9 +417,10 @@ void analogWrite(uint32_t pin, uint32_t value)
 	    if (pin == PIN_A0) { // Only 1 DAC on A0 (PA02)
 #endif
 
-	    	value = mapResolution(value, _writeResolution, _dacResolution);
-
 #if defined(__SAMD51__)
+
+	    value = mapResolution(value, _writeResolution, _dacResolution);
+
 
 			uint8_t channel = (pin == PIN_A0 ? 0 : 1);
 
@@ -557,7 +607,6 @@ void analogWrite(uint32_t pin, uint32_t value)
 
 	    if (!tcEnabled[tcNum]) {
 	      tcEnabled[tcNum] = true;
-	      value = mapResolution(value, _writeResolution, 16);
 		  uint16_t GCLK_CLKCTRL_IDs[] = {
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC0
 			GCLK_CLKCTRL_ID(GCM_TCC0_TCC1), // TCC1

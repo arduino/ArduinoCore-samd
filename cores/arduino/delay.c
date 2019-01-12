@@ -61,6 +61,33 @@ unsigned long micros( void )
   // a runtime multiplication and shift, saving a few cycles
 }
 
+#ifdef __SAMD51__
+/*
+ * On SAMD51, use the (32bit) cycle count maintained by the DWT unit,
+ * and count exact number of cycles elapsed, rather than guessing how
+ * many cycles a loop takes, which is dangerous in the presence of
+ * cache.  The overhead of the call and internal code is "about" 20
+ * cycles.  (at 120MHz, that's about 1/6 us)
+ */
+void delayMicroseconds(unsigned int us)
+{
+  uint32_t start, elapsed;
+  uint32_t count;
+
+  if (us == 0)
+    return;
+
+  count = us * (VARIANT_MCK / 1000000) - 20;  // convert us to cycles.
+  start = DWT->CYCCNT;  //CYCCNT is 32bits, takes 37s or so to wrap.
+  while (1) {
+    elapsed = DWT->CYCCNT - start;
+    if (elapsed >= count)
+      return;
+  }
+}
+#endif
+
+
 void delay( unsigned long ms )
 {
   if ( ms == 0 )
