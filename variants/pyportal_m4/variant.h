@@ -102,7 +102,6 @@ extern "C"
 #define PIN_A7               (PIN_A0 + 7)
 #define PIN_A8               (PIN_A0 + 8)
 #define PIN_A9               (PIN_A0 + 9)
-#define PIN_DAC              PIN_A0
 #define PIN_DAC0             PIN_A0
 
 static const uint8_t A0  = PIN_A0;
@@ -116,7 +115,6 @@ static const uint8_t A7  = PIN_A7;
 static const uint8_t A8  = PIN_A8;
 static const uint8_t A9  = PIN_A9;
 
-static const uint8_t DAC  = PIN_DAC;
 static const uint8_t DAC0 = PIN_DAC0;
 
 #define ADC_RESOLUTION		12
