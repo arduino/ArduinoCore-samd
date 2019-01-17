@@ -102,12 +102,12 @@ const PinDescription g_APinDescription[]=
   { PORTA, 23, PIO_DIGITAL   , PIN_ATTR_PWM_G                  , No_ADC_Channel, TCC0_CH3  , TC4_CH1     , EXTERNAL_INT_7    }, // LCD_DATA7
 
   // 42..47  QSPI
+  { PORTB, 10, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, TC5_CH0   , TC5_CH0     , EXTERNAL_INT_10   }, // QSPI_SCK
+  { PORTB, 11, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, TC5_CH1   , TC5_CH1     , EXTERNAL_INT_11   }, // QSPI_CS
   { PORTA,  8, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NMI  }, // QSPI_DATA0
   { PORTA,  9, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_9    }, // QSPI_DATA1
   { PORTA, 10, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_10   }, // QSPI_DATA2
   { PORTA, 11, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_11   }, // QSPI_DATA3
-  { PORTB, 10, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, TC5_CH0   , TC5_CH0     , EXTERNAL_INT_10   }, // QSPI_SCK
-  { PORTB, 11, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, TC5_CH1   , TC5_CH1     , EXTERNAL_INT_11   }, // QSPI_CS
 
   // 48..49  USB
   { PORTA, 24, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB D-
@@ -131,21 +131,21 @@ SERCOM sercom3( SERCOM3 ) ;
 SERCOM sercom4( SERCOM4 ) ;
 SERCOM sercom5( SERCOM5 ) ;
 
-Uart Serial1( &sercom3, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX ) ;
+Uart Serial1( &sercom4, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX ) ;
 
-void SERCOM3_0_Handler()
+void SERCOM4_0_Handler()
 {
   Serial1.IrqHandler();
 }
-void SERCOM3_1_Handler()
+void SERCOM4_1_Handler()
 {
   Serial1.IrqHandler();
 }
-void SERCOM3_2_Handler()
+void SERCOM4_2_Handler()
 {
   Serial1.IrqHandler();
 }
-void SERCOM3_3_Handler()
+void SERCOM4_3_Handler()
 {
   Serial1.IrqHandler();
 }
