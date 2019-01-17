@@ -539,7 +539,7 @@ adafruit_pyportal_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_pyportal_m4.build.variant=pyportal_m4
 adafruit_pyportal_m4.build.variant_system_lib=
 adafruit_pyportal_m4.build.vid=0x239A
-adafruit_pyportal_m4.build.pid=0x8020
+adafruit_pyportal_m4.build.pid=0x8035
 adafruit_pyportal_m4.bootloader.tool=openocd
 adafruit_pyportal_m4.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
 adafruit_pyportal_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
