@@ -123,6 +123,11 @@ static const uint8_t DAC0 = PIN_DAC0;
 #define PIN_ATN              (39ul)  // ???
 static const uint8_t ATN = PIN_ATN;
 
+/* WiFi interfaces */
+#define SerialNina Serial1
+#define NINA_GPIO0    6
+#define NINA_RESETN   7
+
 /*
  * Serial interfaces
  */
@@ -130,8 +135,9 @@ static const uint8_t ATN = PIN_ATN;
 // Serial1
 #define PIN_SERIAL1_RX       (0ul)
 #define PIN_SERIAL1_TX       (1ul)
-#define PAD_SERIAL1_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
+#define PAD_SERIAL1_TX       (UART_TX_PAD_0)
+
 
 /*
  * SPI Interfaces
