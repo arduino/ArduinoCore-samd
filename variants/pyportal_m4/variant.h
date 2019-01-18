@@ -124,9 +124,13 @@ static const uint8_t DAC0 = PIN_DAC0;
 static const uint8_t ATN = PIN_ATN;
 
 /* WiFi interfaces */
-#define SerialNina Serial1
-#define NINA_GPIO0    6
-#define NINA_RESETN   7
+#define SerialNina      Serial1
+#define SPIWIFI         SPI
+#define NINA_GPIO0      6
+#define NINA_RESETN     7
+#define SPIWIFI_SS      8
+#define SPIWIFI_ACK     5
+#define SPIWIFI_RESET   7
 
 /*
  * Serial interfaces
