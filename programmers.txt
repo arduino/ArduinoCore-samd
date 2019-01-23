@@ -34,3 +34,10 @@ sam_ice.protocol=
 sam_ice.program.protocol=
 sam_ice.program.tool=openocd
 sam_ice.program.extra_params=
+
+jlink.name=J-Link
+jlink.communication=USB
+jlink.protocol=jlink
+jlink.program.protocol=jlink
+jlink.program.tool=openocd
+jlink.program.setup_command=transport select swd; set WORKAREASIZE 0;
