@@ -14,30 +14,17 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-edbg.name=Atmel EDBG
-edbg.communication=USB
-edbg.protocol=
-edbg.program.protocol=
-edbg.program.tool=openocd
-edbg.program.extra_params=
+adafruit_jlink.name=J-Link over OpenOCD
+adafruit_jlink.communication=USB
+adafruit_jlink.protocol=jlink
+adafruit_jlink.program.protocol=jlink
+adafruit_jlink.program.tool=openocd
+adafruit_jlink.program.setup_command=interface jlink; ransport select swd; reset_config none separate; set WORKAREASIZE 0;
 
-atmel_ice.name=Atmel-ICE
-atmel_ice.communication=USB
-atmel_ice.protocol=
-atmel_ice.program.protocol=
-atmel_ice.program.tool=openocd
-atmel_ice.program.extra_params=
 
-sam_ice.name=Atmel SAM-ICE
-sam_ice.communication=USB
-sam_ice.protocol=
-sam_ice.program.protocol=
-sam_ice.program.tool=openocd
-sam_ice.program.extra_params=
-
-jlink.name=J-Link
-jlink.communication=USB
-jlink.protocol=jlink
-jlink.program.protocol=jlink
-jlink.program.tool=openocd
-jlink.program.setup_command=transport select swd; set WORKAREASIZE 0;
+adafruit_atmel_ice.name=Atmel-ICE over OpenOCD
+adafruit_atmel_ice.communication=USB
+adafruit_atmel_ice.protocol=cmsis-dap
+adafruit_atmel_ice.program.protocol=cmsis-dap
+adafruit_atmel_ice.program.tool=openocd
+adafruit_atmel_ice.program.setup_command=cmsis_dap_vid_pid 0x03eb 0x2141; transport select swd;
