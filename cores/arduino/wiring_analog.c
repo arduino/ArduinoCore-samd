@@ -228,7 +228,6 @@ void analogReference(eAnalogReference mode)
   syncADC();
   switch (mode)
   {
-    case AR_INTERNAL:
     case AR_INTERNAL2V23:
       ADC->INPUTCTRL.bit.GAIN = ADC_INPUTCTRL_GAIN_1X_Val;      // Gain Factor Selection
       ADC->REFCTRL.bit.REFSEL = ADC_REFCTRL_REFSEL_INTVCC0_Val; // 1/1.48 VDDANA = 1/1.48* 3V3 = 2.2297
