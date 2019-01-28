@@ -22,8 +22,6 @@
 #include "SERCOM.h"
 #include "api/RingBuffer.h"
 
-#include <cstddef>
-
 #define SERIAL_BUFFER_SIZE  64
 
 class Uart : public arduino::HardwareSerial
