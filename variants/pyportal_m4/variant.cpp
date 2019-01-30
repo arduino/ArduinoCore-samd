@@ -45,33 +45,33 @@ const PinDescription g_APinDescription[]=
 
   // 2..4
   { PORTB, 22, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_6    }, // NEOPIX
-  { PORTB,  0, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel12 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_0    }, // D3 (SENSE JST)
-  { PORTB,  1, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel13 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_1    }, // D4 (NEOPIX JST)
+  { PORTA,  4, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel4  , TC0_CH0   , TC0_CH0     , EXTERNAL_INT_4    }, // D3 (SENSE JST)
+  { PORTA,  5, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel5  , TC0_CH1   , TC0_CH1     , EXTERNAL_INT_5    }, // D4 (NEOPIX JST)
 
   // 5..12  ESP32 and TFT control lines
-  { PORTB, 14, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC5_CH0   , TC5_CH0     , EXTERNAL_INT_14   }, // ESP_BUSY
+  { PORTB, 16, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_0    }, // ESP_BUSY
   { PORTB, 15, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC5_CH1   , TC5_CH1     , EXTERNAL_INT_15   }, // ESP_GPIO0
-  { PORTB, 16, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_0    }, // ESP_RST
-  { PORTA, 15, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC3_CH1   , TC3_CH1     , EXTERNAL_INT_15   }, // ESP_CS
+  { PORTB, 17, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_1    }, // ESP RESET
+  { PORTB, 14, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC5_CH0   , TC5_CH0     , EXTERNAL_INT_14   }, // ESP_CS
   { PORTB,  4, PIO_DIGITAL   , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_4    }, // TFT_RD
   { PORTB,  5, PIO_DIGITAL   , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_5    }, // TFT_RS
   { PORTB,  6, PIO_DIGITAL   , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_6    }, // TFT_CS
   { PORTB,  7, PIO_DIGITAL   , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_7    }, // TFT_TE
 
   // 13 (LED)
-  { PORTA, 27, PIO_DIGITAL   , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_11   }, // D13 (LED)
+  { PORTB, 23, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_7    }, // D13 (LED)
 
   // 14..23  Analog pins
   { PORTA,  2, PIO_ANALOG    , PIN_ATTR_ANALOG                 , DAC_Channel0  , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_2    }, // AUDIO_OUT (A0)
-  { PORTA,  7, PIO_DIGITAL   , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel7  , TC1_CH1   , TC1_CH1     , EXTERNAL_INT_7    }, // TFT_WR1, CCL/OUT[0], Light sensor (A1)
-  { PORTA,  4, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel4  , TC0_CH0   , TC0_CH0     , EXTERNAL_INT_4    }, // TOUCH_YD
-  { PORTA,  5, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel5  , TC0_CH1   , TC0_CH1     , EXTERNAL_INT_5    }, // TOUCH_XL
+  { PORTA,  7, PIO_DIGITAL   , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel7  , TC1_CH1   , TC1_CH1     , EXTERNAL_INT_7    }, // Light sensor (A1)
+  { PORTB,  0, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel12 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_0    }, // TOUCH_YD
+  { PORTB,  1, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel13 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_1    }, // TOUCH_XL
   { PORTA,  6, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel6  , TC1_CH0   , TC1_CH0     , EXTERNAL_INT_6    }, // TOUCH_YU
   { PORTB,  8, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel2  , TC4_CH0   , TC4_CH0     , EXTERNAL_INT_8    }, // TOUCH_XR
   { PORTB,  2, PIO_SERCOM_ALT, (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel14 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_2    }, // SDA (JST), SERCOM5/PAD[0] - analog copy
   { PORTB,  3, PIO_SERCOM_ALT, (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel15 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_3    }, // SCL (JST), SERCOM5/PAD[1] - analog copy
-  { PORTB,  0, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel12 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_0    }, // D3 (SENSE JST) - analog copy
-  { PORTB,  1, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel13 , NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_1    }, // D4 (NEOPIX JST) - analog copy
+  { PORTA,  4, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel4  , TC0_CH0   , TC0_CH0     , EXTERNAL_INT_4    }, // D3 (SENSE JST)
+  { PORTA,  5, PIO_ANALOG    , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel5  , TC0_CH1   , TC0_CH1     , EXTERNAL_INT_5    }, // D4 (NEOPIX JST)
 
   // 24..26 more TFT control lines
   { PORTA,  0, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC2_CH0   , TC2_CH0     , EXTERNAL_INT_0    }, // TFT_RESET
@@ -114,8 +114,8 @@ const PinDescription g_APinDescription[]=
   { PORTA, 25, PIO_COM       , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // USB D+
 
   // 50..51
-  { PORTB, 17, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_1    }, // ESP RTS
-  { PORTB, 23, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_7    }, // TFT_WR4, CCL/OUT[0]
+  { PORTA, 27, PIO_DIGITAL   , PIN_ATTR_NONE                   , No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_11   }, // Speaker shutdown
+  { PORTA, 15, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC3_CH1   , TC3_CH1     , EXTERNAL_INT_15   }, // ESP_RTS
 
 } ;
 
