@@ -514,6 +514,41 @@ adafruit_crickit_m0.bootloader.tool=openocd
 adafruit_crickit_m0.bootloader.file=crickit/samd21_sam_ba.bin
 
 
+# Adafruit PyPortal M4 (SAMD51)
+# ------------------------------
+adafruit_pyportal_m4.name=Adafruit PyPortal M4 (SAMD51)
+adafruit_pyportal_m4.vid.0=0x239A
+adafruit_pyportal_m4.pid.0=0x8035
+adafruit_pyportal_m4.vid.1=0x239A
+adafruit_pyportal_m4.pid.1=0x0035
+adafruit_pyportal_m4.upload.tool=bossac18
+adafruit_pyportal_m4.upload.protocol=sam-ba
+adafruit_pyportal_m4.upload.maximum_size=1032192
+adafruit_pyportal_m4.upload.offset=0x4000
+adafruit_pyportal_m4.upload.use_1200bps_touch=true
+adafruit_pyportal_m4.upload.wait_for_upload_port=true
+adafruit_pyportal_m4.upload.native_usb=true
+adafruit_pyportal_m4.build.mcu=cortex-m4
+adafruit_pyportal_m4.build.f_cpu=120000000L
+adafruit_pyportal_m4.build.usb_product="Adafruit PyPortal M4"
+adafruit_pyportal_m4.build.usb_manufacturer="Adafruit LLC"
+adafruit_pyportal_m4.build.board=PYPORTAL_M4
+adafruit_pyportal_m4.build.core=arduino
+adafruit_pyportal_m4.build.extra_flags=-D__SAMD51J20A__ -DADAFRUIT_PYPORTAL  -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_pyportal_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_pyportal_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_pyportal_m4.build.variant=pyportal_m4
+adafruit_pyportal_m4.build.variant_system_lib=
+adafruit_pyportal_m4.build.vid=0x239A
+adafruit_pyportal_m4.build.pid=0x8035
+adafruit_pyportal_m4.bootloader.tool=openocd
+adafruit_pyportal_m4.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
+adafruit_pyportal_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_pyportal_m4.menu.cache.on=Enabled
+adafruit_pyportal_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_pyportal_m4.menu.cache.off=Disabled
+adafruit_pyportal_m4.menu.cache.off.build.cache_flags=
+
 # Adafruit pyBadge M4
 # ------------------------------
 adafruit_pybadge_m4.name=Adafruit pyBadge M4 Express (SAMD51)
