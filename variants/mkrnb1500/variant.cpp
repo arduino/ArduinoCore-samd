@@ -226,9 +226,9 @@ void initVariant() {
   disable_battery_fet(!batteryPresent);
 #endif
 
-  // enable the POW_ON pin
+  // power off the module
   pinMode(SARA_PWR_ON, OUTPUT);
-  digitalWrite(SARA_PWR_ON, HIGH);
+  digitalWrite(SARA_PWR_ON, LOW);
 
   // put SARA modem in reset on start to conserve power if it's not used
   pinMode(SARA_RESETN, OUTPUT);
