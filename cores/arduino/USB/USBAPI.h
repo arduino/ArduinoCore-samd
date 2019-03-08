@@ -65,6 +65,7 @@ public:
 
 	// USB Device API
 	void init();
+	bool end();
 	bool attach();
 	bool detach();
 	void setAddress(uint32_t addr);
