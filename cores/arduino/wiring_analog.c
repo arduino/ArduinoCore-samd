@@ -406,8 +406,6 @@ void analogWrite(uint32_t pin, uint32_t value)
 
  // ATSAMR, for example, doesn't have a DAC
 #ifdef DAC
-
-<<<<<<< HEAD
 	  if ((attr & PIN_ATTR_ANALOG) == PIN_ATTR_ANALOG)
 	  {
 	    // DAC handling code
@@ -416,11 +414,6 @@ void analogWrite(uint32_t pin, uint32_t value)
 #else
 	    if (pin == PIN_A0) { // Only 1 DAC on A0 (PA02)
 #endif
-=======
-    if ((pinDesc.ulADCChannelNumber != ADC_Channel0) && (pinDesc.ulADCChannelNumber != DAC_Channel0)) { // Only 1 DAC on AIN0 / PA02
-      return;
-    }
->>>>>>> 07c2e57fe4d5001ad29feb7a67f04f1537ddcf78
 
 #if defined(__SAMD51__)
 
