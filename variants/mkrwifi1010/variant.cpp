@@ -17,6 +17,7 @@
 */
 
 #include "variant.h"
+#include "Arduino.h"
 
 const PinDescription g_APinDescription[] = {
 
@@ -32,7 +33,7 @@ const PinDescription g_APinDescription[] = {
  | 03         | D3               |  PA11  |                 |   11   | *19 |     | X03 |     |   0/03  |   2/03  |*TCC1/1 | TCC0/3 | I2S/FS0  | GCLK_IO5 |
  | 04         | D4               |  PB10  |                 |  *10   |     |     |     |     |         |   4/02  |* TC5/0 | TCC0/4 | I2S/MCK1 | GCLK_IO4 |
  | 05         | D5               |  PB11  |                 |  *11   |     |     |     |     |         |   4/03  |* TC5/1 | TCC0/5 | I2S/SCK1 | GCLK_IO5 |
- | 06         | D6               |  PA20  |                 |  *04   |     |     | X08 |     |   5/02  |   3/02  |        |*TCC0/6 | I2S/SCK0 | GCLK_IO4 |
+ | 06         | D6               |  PA20  | LED_BUILTIN     |  *04   |     |     | X08 |     |   5/02  |   3/02  |        |*TCC0/6 | I2S/SCK0 | GCLK_IO4 |
  | 07         | D7               |  PA21  |                 |  *05   |     |     | X09 |     |   5/03  |   3/03  |        |*TCC0/7 | I2S/FS0  | GCLK_IO5 |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  */
@@ -71,8 +72,8 @@ const PinDescription g_APinDescription[] = {
   { PORTA, 19, PIO_SERCOM,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), No_ADC_Channel, PWM3_CH1,   TC3_CH1,      EXTERNAL_INT_NONE }, // MISO: SERCOM1/PAD[3]
 
                                                                                                                                                // PINOUT=0
-  { PORTA,  8, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL                             ), ADC_Channel16,  NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NMI  }, // SDA:  SERCOM2/PAD[0]
-  { PORTA,  9, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL                             ), ADC_Channel17,  NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SCL:  SERCOM2/PAD[1]
+  { PORTA,  8, PIO_SERCOM_ALT,  (PIN_ATTR_DIGITAL                            ), ADC_Channel16,  NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NMI  }, // SDA:  SERCOM2/PAD[0]
+  { PORTA,  9, PIO_SERCOM_ALT,  (PIN_ATTR_DIGITAL                            ), ADC_Channel17,  NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SCL:  SERCOM2/PAD[1]
 
                                                                                                                                                // RXPO=3 TXPO=1
   { PORTB, 23, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // RX:   SERCOM5/PAD[3]
@@ -128,35 +129,36 @@ const PinDescription g_APinDescription[] = {
  |            |                  |        |                 |   EIC  | ADC |  AC | PTC | DAC | SERCOMx | SERCOMx |  TCCx  |  TCCx  |    COM   | AC/GLCK  |
  |            |                  |        |                 |(EXTINT)|(AIN)|(AIN)|     |     | (x/PAD) | (x/PAD) | (x/WO) | (x/WO) |          |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
- |            | SD SPI           |        |                 |        |     |     |     |     |         |         |        |        |          |          |
- | 26         |                  |  PA12  | SD SCK          |   12   |     |     |     |     |  *2/00  |   4/00  | TCC2/0 | TCC0/6 |          | AC/CMP0  |
- | 27         |                  |  PA13  | SD MOSI         |   13   |     |     |     |     |  *2/01  |   4/01  | TCC2/1 | TCC0/7 |          | AC/CMP1  |
- | 28         |                  |  PA14  | SD SS           |   14   |     |     |     |     |   2/02  |   4/02  |  TC3/0 | TCC0/4 |          | GCLK_IO0 |
- | 29         |                  |  PA15  | SD MISO         |   15   |     |     |     |     |  *2/03  |   4/03  |  TC3/1 | TCC0/5 |          | GCLK_IO1 |
- | 30         |                  |  PA27  | SD CD           |   15   |     |     |     |     |         |         |        |        |          | GCLK_IO0 |
- +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
- | 31         |                  |  PA28  | BOTTOM PAD      |   08   |     |     |     |     |         |         |        |        |          | GCLK_IO0 |
- | 32         |                  |  PB08  | LED_BUILTIN     |   08   |  02 |     | Y14 |     |         |   4/00  |  TC4/0 |        |          |          |
- | 33         |                  |  PB09  | ADC_BATTERY     |  *09   |  03 |     | Y15 |     |         |   4/01  |  TC4/1 |        |          |          |
+ |            | WiFi SPI         |        |                 |        |     |     |     |     |         |         |        |        |          |          |
+ | 26         |                  |  PA12  | NINA_MOSI       |   12   |     |     |     |     |  *2/00  |   4/00  | TCC2/0 | TCC0/6 |          | AC/CMP0  |
+ | 27         |                  |  PA13  | NINA_MISO       |   13   |     |     |     |     |  *2/01  |   4/01  | TCC2/1 | TCC0/7 |          | AC/CMP1  |
+ | 28         |                  |  PA14  | NINA_CS         |   14   |     |     |     |     |   2/02  |   4/02  |  TC3/0 | TCC0/4 |          | GCLK_IO0 |
+ | 29         |                  |  PA15  | NINA_SCK        |   15   |     |     |     |     |  *2/03  |   4/03  |  TC3/1 | TCC0/5 |          | GCLK_IO1 |
+ | 30         |                  |  PA27  | NINA_GPIO0      |  *15   |     |     |     |     |         |         |        |        |          | GCLK_IO0 |
+ | 31         |                  |  PB08  | NINA_RESETN     |   08   |  02 |     | Y14 |     |         |   4/00  |  TC4/0 |        |          |          |
+ | 32         |                  |  PB09  | ADC_VBAT        |  *09   |  03 |     | Y15 |     |         |   4/01  |  TC4/1 |        |          |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  |            | 32768Hz Crystal  |        |                 |        |     |     |     |     |         |         |        |        |          |          |
- | 34         |                  |  PA00  | XIN32           |   00   |     |     |     |     |         |   1/00  | TCC2/0 |        |          |          |
- | 35         |                  |  PA01  | XOUT32          |   01   |     |     |     |     |         |   1/01  | TCC2/1 |        |          |          |
+ | 33         |                  |  PA00  | XIN32           |   00   |     |     |     |     |         |   1/00  | TCC2/0 |        |          |          |
+ | 34         |                  |  PA01  | XOUT32          |   01   |     |     |     |     |         |   1/01  | TCC2/1 |        |          |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
- */
+ | 35         |                  |  PA28  | NINA_ACK        |   01   |     |     |     |     |         |   1/01  | TCC2/1 |        |          |          |
++------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
+*/
                                                                                                                                                // DIPO=3 DOPO=0
   { PORTA, 12, PIO_SERCOM_ALT, (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MOSI: SERCOM4/PAD[0]
   { PORTA, 13, PIO_SERCOM_ALT, (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SCK:  SERCOM4/PAD[1]
   { PORTA, 14, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SS:   as GPIO
   { PORTA, 15, PIO_SERCOM_ALT, (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MISO: SERCOM4/PAD[3]
-  { PORTA, 27, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
+  { PORTA, 27, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_15 },
   
-  { PORTA, 28, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
-  { PORTB,  8, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
+  { PORTB,  8, PIO_DIGITAL,    (PIN_ATTR_DIGITAL|PIN_ATTR_ANALOG             ), ADC_Channel2,   NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
   { PORTB,  9, PIO_ANALOG,     (PIN_ATTR_PWM|PIN_ATTR_TIMER                  ), ADC_Channel3,   PWM4_CH1,   TC4_CH1,      EXTERNAL_INT_9    },
 
   { PORTA,  0, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
   { PORTA,  1, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
+
+  { PORTA, 28, PIO_DIGITAL,    (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
 };
 
 const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 };
@@ -169,6 +171,70 @@ SERCOM sercom3(SERCOM3);
 SERCOM sercom4(SERCOM4);
 SERCOM sercom5(SERCOM5);
 
+#if defined(USE_BQ24195L_PMIC)
+
+#include "wiring_private.h"
+
+#define PMIC_ADDRESS  0x6B
+#define PMIC_REG01    0x01
+#define PMIC_REG07    0x07
+
+static inline void enable_battery_charging() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
+  PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
+static inline void disable_battery_fet(bool disabled) {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
+  // No D+/D– detection + Safety timer not slowed by 2X during input DPM or thermal regulation +
+  // BAT fet disabled/enabled + charge and bat fault INT
+  PERIPH_WIRE.sendDataMasterWIRE(0x0B | (disabled ? 0x20 : 0x00));
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
+#endif
+
+void initVariant() {
+#if defined(USE_BQ24195L_PMIC)
+  pinMode(ADC_BATTERY, OUTPUT);
+  digitalWrite(ADC_BATTERY, LOW);
+  delay(10);
+  pinMode(ADC_BATTERY, INPUT);
+  delay(100);
+
+  bool batteryPresent = analogRead(ADC_BATTERY) > 600;
+  if (batteryPresent) {
+    enable_battery_charging();
+  }
+  disable_battery_fet(!batteryPresent);
+#endif
+
+  // NINA - SPI boot
+  pinMode(NINA_GPIO0, OUTPUT);
+  digitalWrite(NINA_GPIO0, HIGH);
+
+  // disable NINA
+  pinMode(NINA_RESETN, OUTPUT);
+  digitalWrite(NINA_RESETN, HIGH);
+}
+
 // Serial1
 Uart Serial1(&sercom5, PIN_SERIAL1_RX, PIN_SERIAL1_TX, PAD_SERIAL1_RX, PAD_SERIAL1_TX);
 
@@ -177,3 +243,10 @@ void SERCOM5_Handler()
   Serial1.IrqHandler();
 }
 
+// Serial2
+Uart Serial2(&sercom4, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX, PIN_SERIAL2_RTS, PIN_SERIAL2_CTS);
+
+void SERCOM4_Handler()
+{
+  Serial2.IrqHandler();
+}

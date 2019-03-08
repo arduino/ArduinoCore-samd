@@ -61,11 +61,16 @@
 // #define digitalPinToTimer(P)
 
 //Battery
-#define ADC_BATTERY	(33u)
+#define ADC_BATTERY	(32u)
+
+//NINA
+#define NINA_GPIO0  (30u)
+#define NINA_RESETN (31u)
+#define NINA_ACK    (35u)
 
 // LEDs
 // ----
-#define PIN_LED     (32u)
+#define PIN_LED     (6u)
 #define LED_BUILTIN PIN_LED
 
 // Analog pins
@@ -104,25 +109,23 @@ static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
-// SPI1: Connected to SD
-#define PIN_SPI1_MISO (29u)
-#define PIN_SPI1_MOSI (26u)
-#define PIN_SPI1_SCK  (27u)
-#define PIN_SPI1_SS   (28u)
+// SPI1
+#define PIN_SPI1_MISO    (27u)
+#define PIN_SPI1_MOSI    (26u)
+#define PIN_SPI1_SCK     (29u)
+#define PIN_SPI1_SS      (28u)
 #define PERIPH_SPI1   sercom4
-#define PAD_SPI1_TX   SPI_PAD_0_SCK_1
-#define PAD_SPI1_RX   SERCOM_RX_PAD_3
+#define PAD_SPI1_TX   SPI_PAD_0_SCK_3
+#define PAD_SPI1_RX   SERCOM_RX_PAD_1
 static const uint8_t SS1   = PIN_SPI1_SS;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI;
 static const uint8_t MISO1 = PIN_SPI1_MISO;
 static const uint8_t SCK1  = PIN_SPI1_SCK;
 
-// Needed for SD library
-#define SDCARD_SPI      SPI1
-#define SDCARD_MISO_PIN PIN_SPI1_MISO
-#define SDCARD_MOSI_PIN PIN_SPI1_MOSI
-#define SDCARD_SCK_PIN  PIN_SPI1_SCK
-#define SDCARD_SS_PIN   PIN_SPI1_SS
+#define SPIWIFI_SS       PIN_SPI1_SS
+#define SPIWIFI_ACK      NINA_ACK
+#define SPIWIFI_RESET    (~NINA_RESETN)   // fixme! Inverted logic
+
 
 // Wire Interfaces
 // ---------------
@@ -170,6 +173,16 @@ extern Uart Serial1;
 #define PIN_SERIAL1_TX (14ul)
 #define PAD_SERIAL1_TX (UART_TX_PAD_2)
 #define PAD_SERIAL1_RX (SERCOM_RX_PAD_3)
+
+// Serial2
+extern Uart Serial2;
+#define PIN_SERIAL2_RX (27ul)
+#define PIN_SERIAL2_TX (26ul)
+#define PAD_SERIAL2_TX (UART_TX_RTS_CTS_PAD_0_2_3)
+#define PAD_SERIAL2_RX (SERCOM_RX_PAD_1)
+#define PIN_SERIAL2_RTS (28u)
+#define PIN_SERIAL2_CTS (29u)
+
 #endif // __cplusplus
 
 // These serial port names are intended to allow libraries and architecture-neutral
@@ -195,3 +208,7 @@ extern Uart Serial1;
 // Alias Serial to SerialUSB
 #define Serial                      SerialUSB
 
+// Alias Serial1 to SerialNina (useful in libraries)
+#define SerialNina                   Serial1
+
+#define SPIWIFI                     SPI1

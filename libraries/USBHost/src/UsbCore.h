@@ -222,7 +222,8 @@ public:
         };
         uint32_t getUsbTaskState(void);
         void setUsbTaskState(uint32_t state);
-
+        uint32_t getUsbErrorCode(void);
+        
         EpInfo* getEpInfoEntry(uint32_t addr, uint32_t ep);
         uint32_t setEpInfoEntry(uint32_t addr, uint32_t epcount, EpInfo* eprecord_ptr);
 

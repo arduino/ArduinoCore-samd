@@ -36,7 +36,7 @@
 // ----
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (26u)
+#define PINS_COUNT           (35u)
 #define NUM_DIGITAL_PINS     (15u)
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (1u)
@@ -61,12 +61,16 @@
 // #define digitalPinToTimer(P)
 
 //Battery
-#define ADC_BATTERY	(33u)
+#define ADC_BATTERY	(32u)
 
 // LEDs
 // ----
-#define PIN_LED     (32u)
+#define PIN_LED     (6u)
 #define LED_BUILTIN PIN_LED
+
+// LoRA module
+#define LORA_RESET  (30u)
+#define LORA_BOOT0  (33u)
 
 // Analog pins
 // -----------
@@ -104,25 +108,17 @@ static const uint8_t MOSI = PIN_SPI_MOSI;
 static const uint8_t MISO = PIN_SPI_MISO;
 static const uint8_t SCK  = PIN_SPI_SCK;
 
-// SPI1: Connected to SD
-#define PIN_SPI1_MISO (29u)
-#define PIN_SPI1_MOSI (26u)
-#define PIN_SPI1_SCK  (27u)
-#define PIN_SPI1_SS   (28u)
+// SPI1
+#define PIN_SPI1_MISO    (38u)
+#define PIN_SPI1_MOSI    (36u)
+#define PIN_SPI1_SCK     (37u)
+#define LORA_IRQ_DUMB    (28u)
 #define PERIPH_SPI1   sercom4
 #define PAD_SPI1_TX   SPI_PAD_0_SCK_1
 #define PAD_SPI1_RX   SERCOM_RX_PAD_3
-static const uint8_t SS1   = PIN_SPI1_SS;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI;
 static const uint8_t MISO1 = PIN_SPI1_MISO;
 static const uint8_t SCK1  = PIN_SPI1_SCK;
-
-// Needed for SD library
-#define SDCARD_SPI      SPI1
-#define SDCARD_MISO_PIN PIN_SPI1_MISO
-#define SDCARD_MOSI_PIN PIN_SPI1_MOSI
-#define SDCARD_SCK_PIN  PIN_SPI1_SCK
-#define SDCARD_SS_PIN   PIN_SPI1_SS
 
 // Wire Interfaces
 // ---------------
@@ -170,6 +166,14 @@ extern Uart Serial1;
 #define PIN_SERIAL1_TX (14ul)
 #define PAD_SERIAL1_TX (UART_TX_PAD_2)
 #define PAD_SERIAL1_RX (SERCOM_RX_PAD_3)
+
+// Serial2
+extern Uart Serial2;
+#define PIN_SERIAL2_RX (29ul)
+#define PIN_SERIAL2_TX (26ul)
+#define PAD_SERIAL2_TX (UART_TX_PAD_0)
+#define PAD_SERIAL2_RX (SERCOM_RX_PAD_3)
+
 #endif // __cplusplus
 
 // These serial port names are intended to allow libraries and architecture-neutral
@@ -195,3 +199,5 @@ extern Uart Serial1;
 // Alias Serial to SerialUSB
 #define Serial                      SerialUSB
 
+// Alias SerialLoRA to Serial2
+#define SerialLoRa                  Serial2
