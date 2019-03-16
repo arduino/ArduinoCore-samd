@@ -585,3 +585,38 @@ adafruit_pybadge_m4.menu.cache.on=Enabled
 adafruit_pybadge_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
 adafruit_pybadge_m4.menu.cache.off=Disabled
 adafruit_pybadge_m4.menu.cache.off.build.cache_flags=
+
+# Adafruit Metro M4 WiFi (SAMD51)
+# ------------------------------
+adafruit_metro_m4_wifi.name=Adafruit Metro M4 WiFi (SAMD51)
+adafruit_metro_m4_wifi.vid.0=0x239A
+adafruit_metro_m4_wifi.pid.0=0x8037
+adafruit_metro_m4_wifi.vid.1=0x239A
+adafruit_metro_m4_wifi.pid.1=0x0037
+adafruit_metro_m4_wifi.upload.tool=bossac18
+adafruit_metro_m4_wifi.upload.protocol=sam-ba
+adafruit_metro_m4_wifi.upload.maximum_size=507904
+adafruit_metro_m4_wifi.upload.offset=0x4000
+adafruit_metro_m4_wifi.upload.use_1200bps_touch=true
+adafruit_metro_m4_wifi.upload.wait_for_upload_port=true
+adafruit_metro_m4_wifi.upload.native_usb=true
+adafruit_metro_m4_wifi.build.mcu=cortex-m4
+adafruit_metro_m4_wifi.build.f_cpu=120000000L
+adafruit_metro_m4_wifi.build.usb_product="Adafruit Metro M4 WiFi"
+adafruit_metro_m4_wifi.build.usb_manufacturer="Adafruit LLC"
+adafruit_metro_m4_wifi.build.board=METRO_M4_WIFI
+adafruit_metro_m4_wifi.build.core=arduino
+adafruit_metro_m4_wifi.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_WIFI -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_metro_m4_wifi.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_metro_m4_wifi.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_metro_m4_wifi.build.variant=metro_m4_wifi
+adafruit_metro_m4_wifi.build.variant_system_lib=
+adafruit_metro_m4_wifi.build.vid=0x239A
+adafruit_metro_m4_wifi.build.pid=0x8037
+adafruit_metro_m4_wifi.bootloader.tool=openocd
+adafruit_metro_m4_wifi.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
+adafruit_metro_m4_wifi.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_metro_m4_wifi.menu.cache.on=Enabled
+adafruit_metro_m4_wifi.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_metro_m4_wifi.menu.cache.off=Disabled
+adafruit_metro_m4_wifi.menu.cache.off.build.cache_flags=
