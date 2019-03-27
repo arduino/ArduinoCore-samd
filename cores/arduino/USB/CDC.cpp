@@ -123,7 +123,9 @@ bool CDC_Setup(USBSetup& setup)
 			// port is open (bit 0 of lineState).
 			if (_usbLineInfo.dwDTERate == 1200 && (_usbLineInfo.lineState & 0x01) == 0)
 			{
+#ifndef mEDBGCLONE
 				initiateReset(250);
+#endif
 			}
 			else
 			{
