@@ -39,7 +39,6 @@
 SoftwareSerial portOne(10, 11);
 
 // software serial #2: RX = digital pin 8, TX = digital pin 9
-// on the Mega, use other pins instead, since 8 and 9 don't work on the Mega
 SoftwareSerial portTwo(8, 9);
 
 void setup() {
