@@ -1,5 +1,11 @@
 SAMD CORE ?.?.?? ????.??.??
 
+SAMD CORE 1.6.21 2019.04.01
+
+* MKR boards: changed I2C to sercom2, SPI1 + Serial2 to sercom4
+* Improved accuracy of delay() function. Thanks @BenF
+* MKR 1500: Changed SARA module to be powered off on boot
+
 SAMD CORE 1.6.20 2018.11.28
 
 * Replaced boolean type with bool in examples. Thanks @per1234
