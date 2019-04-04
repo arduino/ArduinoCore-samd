@@ -131,6 +131,7 @@ static const uint8_t ATN = PIN_ATN;
 #define SPIWIFI_SS      8
 #define SPIWIFI_ACK     5
 #define SPIWIFI_RESET   7
+#define SerialESP32     Serial1
 
 /*
  * Serial interfaces
