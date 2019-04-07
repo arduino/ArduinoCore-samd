@@ -111,7 +111,7 @@ static const uint8_t DAC0 = PIN_DAC0;
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 1
+#define SPI_INTERFACES_COUNT 2
 
 #define PIN_SPI_MISO         (30u)
 #define PIN_SPI_SCK          (31u)
@@ -125,6 +125,19 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
+
+// Extra hardware SPI for Gizmo
+#define PIN_SPI1_SCK          (40u)
+#define PIN_SPI1_MOSI         (39u)
+#define PIN_SPI1_MISO         (41u)
+#define PERIPH_SPI1           sercom5
+#define PAD_SPI1_TX           SPI_PAD_0_SCK_1  // MOSI / SCK
+#define PAD_SPI1_RX           SERCOM_RX_PAD_2  // MISO not avail
+
+static const uint8_t SS1	  = 42 ;
+static const uint8_t MOSI1 = PIN_SPI_MOSI ;
+static const uint8_t MISO1 = PIN_SPI_MISO ;
+static const uint8_t SCK1  = PIN_SPI_SCK ;
 
 /*
  * Wire Interfaces
