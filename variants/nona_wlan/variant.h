@@ -181,15 +181,16 @@ extern SERCOM sercom5;
 extern Uart Serial1;
 #define PIN_SERIAL1_RX       (0ul)
 #define PIN_SERIAL1_TX       (1ul)
-#define PAD_SERIAL1_TX       (UART_TX_PAD_0)
-#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
+#define PAD_SERIAL1_TX       (UART_TX_PAD_2)
+#define PAD_SERIAL1_RX       (SERCOM_RX_PAD_3)
 
 // Serial1
 extern Uart Serial2;
 extern Uart SerialBLE;
 #define PIN_SERIAL2_RX       (29ul)
 #define PIN_SERIAL2_TX       (30ul)
-#define PAD_SERIAL2_TX       (UART_TX_RTS_CTS_PAD_0_2_3)
+//#define PAD_SERIAL2_TX       (UART_TX_RTS_CTS_PAD_0_2_3)
+#define PAD_SERIAL2_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL2_RX       (SERCOM_RX_PAD_1)
 #define PIN_SERIAL2_RTS      (24u)
 #define PIN_SERIAL2_CTS      (25u)
