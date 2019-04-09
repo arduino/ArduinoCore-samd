@@ -171,11 +171,11 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 
 // Instances of SERCOM
 extern SERCOM sercom0;
-extern SERCOM sercom1;
-extern SERCOM sercom2;
-extern SERCOM sercom3;
-extern SERCOM sercom4;
-extern SERCOM sercom5;
+extern SERCOM sercom1;  // spi
+extern SERCOM sercom2;  // spi nina
+extern SERCOM sercom3;  // serial2
+extern SERCOM sercom4;  // wire
+extern SERCOM sercom5;  // serial1
 
 // Serial1
 extern Uart Serial1;
@@ -190,8 +190,8 @@ extern Uart SerialBLE;
 #define PIN_SERIAL2_RX       (29ul)
 #define PIN_SERIAL2_TX       (30ul)
 //#define PAD_SERIAL2_TX       (UART_TX_RTS_CTS_PAD_0_2_3)
-#define PAD_SERIAL2_TX       (UART_TX_PAD_0)
-#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_1)
+#define PAD_SERIAL2_TX       (UART_TX_PAD_2)
+#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_0)
 #define PIN_SERIAL2_RTS      (24u)
 #define PIN_SERIAL2_CTS      (25u)
 
@@ -221,6 +221,7 @@ extern Uart SerialBLE;
 
 // Alias Serial1 to SerialNina (useful in libraries)
 #define SerialNina                  Serial2
+#define SPIWIFI                     SPI1
 
 // Alias Serial to SerialUSB
 #define Serial                      SerialUSB

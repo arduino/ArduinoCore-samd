@@ -105,6 +105,7 @@
 
 
 #include "variant.h"
+#include "Arduino.h"
 
 /*
  * Pins descriptions
@@ -187,6 +188,16 @@ const PinDescription g_APinDescription[]=
 
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 } ;
 
+void initVariant() {
+  // NINA - SPI boot
+  pinMode(NINA_GPIO0, OUTPUT);
+  digitalWrite(NINA_GPIO0, HIGH);
+
+  // disable NINA
+  pinMode(NINA_RESETN, OUTPUT);
+  digitalWrite(NINA_RESETN, LOW);
+}
+
 // Multi-serial objects instantiation
 SERCOM sercom0( SERCOM0 ) ;
 SERCOM sercom1( SERCOM1 ) ;
@@ -203,7 +214,6 @@ void SERCOM5_Handler()
 }
 
 Uart Serial2(&sercom3, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX);
-Uart SerialBLE(&sercom3, PIN_SERIAL2_RX, PIN_SERIAL2_TX, PAD_SERIAL2_RX, PAD_SERIAL2_TX, PIN_SERIAL2_RTS, PIN_SERIAL2_CTS);
 
 void SERCOM3_Handler()
 {
