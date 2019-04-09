@@ -50,6 +50,23 @@ void board_init(void)
   /* Turn on the digital interface clock */
   PM->APBAMASK.reg |= PM_APBAMASK_GCLK;
 
+#if defined(CRYSTALLESS)
+
+  /* ----------------------------------------------------------------------------------------------
+   * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
+   */
+
+  uint32_t calib = (*((uint32_t *) FUSES_OSC32K_CAL_ADDR) & FUSES_OSC32K_CAL_Msk) >> FUSES_OSC32K_CAL_Pos;
+
+  SYSCTRL->OSC32K.reg = SYSCTRL_OSC32K_CALIB(calib) |
+                        SYSCTRL_OSC32K_STARTUP( 0x6u ) | // cf table 15.10 of product datasheet in chapter 15.8.6
+                        SYSCTRL_OSC32K_EN32K |
+                        SYSCTRL_OSC32K_ENABLE;
+
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 ); // Wait for oscillator stabilization
+
+#else
+
   /* ----------------------------------------------------------------------------------------------
    * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
    */
@@ -61,6 +78,8 @@ void board_init(void)
   {
     /* Wait for oscillator stabilization */
   }
+
+#endif
 
   /* Software reset the module to ensure it is re-initialized correctly */
   /* Note: Due to synchronization, there is a delay from writing CTRL.SWRST until the reset is complete.
@@ -85,7 +104,11 @@ void board_init(void)
 
   /* Write Generic Clock Generator 1 configuration */
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_XOSC32K ) | // Generic Clock Generator 1
+#if defined(CRYSTALLESS)
+                      GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
+#else
                       GCLK_GENCTRL_SRC_XOSC32K | // Selected source is External 32KHz Oscillator
+#endif
 //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
                       GCLK_GENCTRL_GENEN;
 
@@ -129,6 +152,49 @@ void board_init(void)
     /* Wait for synchronization */
   }
 
+#if defined(CRYSTALLESS)
+
+  #define NVM_SW_CALIB_DFLL48M_COARSE_VAL 58
+
+  // Turn on DFLL
+  uint32_t coarse =( *((uint32_t *)(NVMCTRL_OTP4) + (NVM_SW_CALIB_DFLL48M_COARSE_VAL / 32)) >> (NVM_SW_CALIB_DFLL48M_COARSE_VAL % 32) )
+                   & ((1 << 6) - 1);
+  if (coarse == 0x3f) {
+    coarse = 0x1f;
+  }
+  // TODO(tannewt): Load this value from memory we've written previously. There
+  // isn't a value from the Atmel factory.
+  uint32_t fine = 0x1ff;
+
+  SYSCTRL->DFLLVAL.bit.COARSE = coarse;
+  SYSCTRL->DFLLVAL.bit.FINE = fine;
+  /* Write full configuration to DFLL control register */
+  SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 0x1f / 4 ) | // Coarse step is 31, half of the max value
+                         SYSCTRL_DFLLMUL_FSTEP( 10 ) |
+                         SYSCTRL_DFLLMUL_MUL( (48000) ) ;
+
+  SYSCTRL->DFLLCTRL.reg = 0;
+
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+  {
+    /* Wait for synchronization */
+  }
+
+  SYSCTRL->DFLLCTRL.reg =  SYSCTRL_DFLLCTRL_MODE |
+                           SYSCTRL_DFLLCTRL_CCDIS |
+                           SYSCTRL_DFLLCTRL_USBCRM | /* USB correction */
+                           SYSCTRL_DFLLCTRL_BPLCKC;
+
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
+  {
+    /* Wait for synchronization */
+  }
+
+  /* Enable the DFLL */
+  SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_ENABLE ;
+
+#else   // has crystal
+
   /* Write full configuration to DFLL control register */
   SYSCTRL->DFLLCTRL.reg |= SYSCTRL_DFLLCTRL_MODE | /* Enable the closed loop mode */
                            SYSCTRL_DFLLCTRL_WAITLOCK |
@@ -152,6 +218,8 @@ void board_init(void)
   {
     /* Wait for synchronization */
   }
+
+#endif
 
   /* ----------------------------------------------------------------------------------------------
    * 5) Switch Generic Clock Generator 0 to DFLL48M. CPU will run at 48MHz.
