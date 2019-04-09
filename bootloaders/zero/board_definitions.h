@@ -37,6 +37,8 @@
   #include "board_definitions_arduino_mkrwifi1010.h"
 #elif defined(BOARD_ID_arduino_mkrnb1500)
   #include "board_definitions_arduino_mkrnb1500.h"
+#elif defined(BOARD_ID_arduino_nona_wlan)
+  #include "board_definitions_arduino_nona_wlan.h"
 #else
   #error You must define a BOARD_ID and add the corresponding definitions in board_definitions.h
 #endif

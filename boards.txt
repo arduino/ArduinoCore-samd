@@ -191,6 +191,35 @@ mkrwifi1010.build.pid=0x8054
 mkrwifi1010.bootloader.tool=openocd
 mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
 
+# Arduino NONA WLAN
+# --------------------
+nona_wlan.name=Arduino NONA WLAN
+nona_wlan.vid.0=0x2341
+nona_wlan.pid.0=0x8057
+nona_wlan.vid.1=0x2341
+nona_wlan.pid.1=0x0057
+
+nona_wlan.upload.tool=bossac
+nona_wlan.upload.protocol=sam-ba
+nona_wlan.upload.maximum_size=262144
+nona_wlan.upload.use_1200bps_touch=true
+nona_wlan.upload.wait_for_upload_port=true
+nona_wlan.upload.native_usb=true
+nona_wlan.build.mcu=cortex-m0plus
+nona_wlan.build.f_cpu=48000000L
+nona_wlan.build.usb_product="Arduino NONA WLAN"
+nona_wlan.build.usb_manufacturer="Arduino LLC"
+nona_wlan.build.board=SAMD_NONA_WLAN
+nona_wlan.build.core=arduino
+nona_wlan.build.extra_flags=-DCRYSTALLESS -D__SAMD21G18A__ {build.usb_flags}
+nona_wlan.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+nona_wlan.build.openocdscript=openocd_scripts/arduino_zero.cfg
+nona_wlan.build.variant=nona_wlan
+nona_wlan.build.vid=0x2341
+nona_wlan.build.pid=0x8057
+nona_wlan.bootloader.tool=openocd
+nona_wlan.bootloader.file=nona_wlan/samd21_sam_ba_arduino_nona_wlan.bin
+
 # Arduino MKR FOX 1200
 # --------------------
 mkrfox1200.name=Arduino MKR FOX 1200
