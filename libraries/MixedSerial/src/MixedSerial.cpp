@@ -48,10 +48,6 @@ void MixedSerial::setTX(uint8_t tx) {
 
 void MixedSerial::begin(long speed) {
 
-  if (_tx_delay != 0) {
-    return;
-  }
-
   uart.begin(speed);
   setTX(_transmitPin);
 
