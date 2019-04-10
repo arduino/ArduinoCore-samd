@@ -77,6 +77,7 @@ void loop( void ) ;
   #include "WMath.h"
   #include "HardwareSerial.h"
   #include "pulse.h"
+  #include <bits/stl_algobase.h>
 #endif
 #include "delay.h"
 #ifdef __cplusplus
@@ -92,6 +93,7 @@ void loop( void ) ;
 #include "wiring_shift.h"
 #include "WInterrupts.h"
 
+#ifndef __cplusplus
 // undefine stdlib's abs if encountered
 #ifdef abs
 #undef abs
@@ -100,8 +102,14 @@ void loop( void ) ;
 #define min(a,b) ((a)<(b)?(a):(b))
 #define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 #define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
+#else
+	using std::min;
+	using std::max;
+	
+#endif
+
+#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
 #define radians(deg) ((deg)*DEG_TO_RAD)
 #define degrees(rad) ((rad)*RAD_TO_DEG)
 #define sq(x) ((x)*(x))
