@@ -104,9 +104,8 @@ void loop( void ) ;
 #define abs(x) ((x)>0?(x):-(x))
 #define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
 #else
-	using std::min;
-	using std::max;
-	
+  using std::min;
+  using std::max;
 #endif
 
 #define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
