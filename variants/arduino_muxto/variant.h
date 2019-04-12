@@ -86,13 +86,15 @@ extern "C"
 
 // Number of pins defined in PinDescription array
 //#define PIN_MAP_STANDARD
-#define PIN_MAP_COMPACT
+#define PIN_MAP_SUPERCOMPACT
 #define mEDBGCLONE
 
 #if defined PIN_MAP_STANDARD
   #define NUM_PIN_DESCRIPTION_ENTRIES     (32u)
 #elif defined PIN_MAP_COMPACT
   #define NUM_PIN_DESCRIPTION_ENTRIES     (18u)
+#elif defined PIN_MAP_SUPERCOMPACT
+  #define NUM_PIN_DESCRIPTION_ENTRIES     (7u)
 #else
   #error "variant.h: You must set PIN_MAP_STANDARD or PIN_MAP_COMPACT"
 #endif
@@ -137,6 +139,10 @@ extern "C"
 #define PIN_LED_13           (10u)
 #define PIN_LED_RXL          (11u)
 #define PIN_LED_TXL          (12u)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_LED_13           (0u)
+#define PIN_LED_RXL          (0u)
+#define PIN_LED_TXL          (0u)
 #endif
 
 #define PIN_LED              PIN_LED_13
@@ -167,6 +173,16 @@ extern "C"
 #define PIN_A7               (5ul)
 #define PIN_A14              (8ul)
 #define PIN_A15              (9ul)
+#define PIN_DAC0             (0ul)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_A2               (0ul)
+#define PIN_A3               (0ul)
+#define PIN_A4               (0ul)
+#define PIN_A5               (0ul)
+#define PIN_A6               (0ul)
+#define PIN_A7               (0ul)
+#define PIN_A14              (0ul)
+#define PIN_A15              (0ul)
 #define PIN_DAC0             (0ul)
 #endif
 
@@ -204,6 +220,8 @@ static const uint8_t DAC0 = PIN_DAC0;
 #define PIN_ATN              (6ul)
 #elif defined PIN_MAP_COMPACT
 #define PIN_ATN              (4ul)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_ATN              (0ul)
 #endif
 static const uint8_t ATN = PIN_ATN;
 
@@ -218,6 +236,9 @@ static const uint8_t ATN = PIN_ATN;
 #elif defined PIN_MAP_COMPACT
 #define PIN_SERIAL1_RX       (12ul)
 #define PIN_SERIAL1_TX       (11ul)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_SERIAL1_RX       (2ul)
+#define PIN_SERIAL1_TX       (1ul)
 #endif
 
 #define PAD_SERIAL1_TX       (UART_TX_PAD_0)
@@ -231,6 +252,9 @@ static const uint8_t ATN = PIN_ATN;
 #elif defined PIN_MAP_COMPACT
 #define PIN_SERIAL2_RX       (9ul)
 #define PIN_SERIAL2_TX       (8ul)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_SERIAL2_RX       (4ul)
+#define PIN_SERIAL2_TX       (3ul)
 #endif
 
 #define PAD_SERIAL2_TX       (UART_TX_PAD_0)
@@ -257,6 +281,11 @@ static const uint8_t ATN = PIN_ATN;
 #define PIN_SPI_MOSI         (8u)
 #define PIN_SPI_SCK          (9u)
 #define PIN_SPI_SS           (4u)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_SPI_MISO         (0u)
+#define PIN_SPI_MOSI         (0u)
+#define PIN_SPI_SCK          (0u)
+#define PIN_SPI_SS           (0u)
 #endif
 
 #define PERIPH_SPI           sercom0
@@ -284,6 +313,9 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #elif defined PIN_MAP_COMPACT
 #define PIN_WIRE_SDA         (11u)
 #define PIN_WIRE_SCL         (12u)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_WIRE_SDA         (0u)
+#define PIN_WIRE_SCL         (0u)
 #endif
 
 #define PERIPH_WIRE          sercom2
@@ -304,6 +336,9 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #elif defined PIN_MAP_COMPACT
 #define PIN_USB_DM                      (13ul)
 #define PIN_USB_DP                      (14ul)
+#elif defined PIN_MAP_SUPERCOMPACT
+#define PIN_USB_DM                      (5ul)
+#define PIN_USB_DP                      (6ul)
 //#define PIN_USB_HOST_ENABLE             (15ul)
 #endif
 

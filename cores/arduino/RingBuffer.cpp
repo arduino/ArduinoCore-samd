@@ -18,9 +18,11 @@
 
 #include "RingBuffer.h"
 #include <string.h>
+#include <stdlib.h>
 
 RingBuffer::RingBuffer( void )
 {
+    _aucBuffer = (uint8_t*)malloc(SERIAL_BUFFER_SIZE);
     memset( _aucBuffer, 0, SERIAL_BUFFER_SIZE ) ;
     clear();
 }
