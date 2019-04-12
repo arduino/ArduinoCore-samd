@@ -211,7 +211,7 @@ nona_wlan.build.usb_product="Arduino NONA WLAN"
 nona_wlan.build.usb_manufacturer="Arduino LLC"
 nona_wlan.build.board=SAMD_NONA_WLAN
 nona_wlan.build.core=arduino
-nona_wlan.build.extra_flags=-DCRYSTALLESS -D__SAMD21G18A__ {build.usb_flags}
+nona_wlan.build.extra_flags=-DCRYSTALLESS -D__SAMD21G18A__ {build.usb_flags} {build.tx_rx_swap}
 nona_wlan.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 nona_wlan.build.openocdscript=openocd_scripts/arduino_zero.cfg
 nona_wlan.build.variant=nona_wlan
@@ -219,6 +219,12 @@ nona_wlan.build.vid=0x2341
 nona_wlan.build.pid=0x8057
 nona_wlan.bootloader.tool=openocd
 nona_wlan.bootloader.file=nona_wlan/samd21_sam_ba_arduino_nona_wlan.bin
+
+menu.r0_tx_rx_bug=TX RX swapped
+nona_wlan.menu.r0_tx_rx_bug.no=No
+nona_wlan.menu.r0_tx_rx_bug.no.build.tx_rx_swap=
+nona_wlan.menu.r0_tx_rx_bug.yes=Yes
+nona_wlan.menu.r0_tx_rx_bug.yes.build.tx_rx_swap=-DTX_RX_NINA_SWAPPED_R0
 
 # Arduino MKR FOX 1200
 # --------------------

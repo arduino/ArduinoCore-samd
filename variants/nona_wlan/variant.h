@@ -186,15 +186,18 @@ extern Uart Serial1;
 
 // Serial1
 extern Uart Serial2;
-extern Uart SerialBLE;
+#ifdef TX_RX_NINA_SWAPPED_R0
+// bug in R0, use MixedSerial(Serial2, 30) as SerialNina - 115200bps max
 #define PIN_SERIAL2_RX       (29ul)
 #define PIN_SERIAL2_TX       (30ul)
-//#define PAD_SERIAL2_TX       (UART_TX_RTS_CTS_PAD_0_2_3)
 #define PAD_SERIAL2_TX       (UART_TX_PAD_2)
-//#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_1)
 #define PAD_SERIAL2_RX       (SERCOM_RX_PAD_0)
-#define PIN_SERIAL2_RTS      (24u)
-#define PIN_SERIAL2_CTS      (25u)
+#else
+#define PIN_SERIAL2_RX       (30ul)
+#define PIN_SERIAL2_TX       (29ul)
+#define PAD_SERIAL2_TX       (UART_TX_PAD_0)
+#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_1)
+#endif
 
 extern Uart SerialHCI;
 #define PIN_SERIALHCI_RX (23ul)
