@@ -220,3 +220,9 @@ void SERCOM3_Handler()
   Serial2.IrqHandler();
 }
 
+Uart SerialHCI(&sercom2, PIN_SERIALHCI_RX, PIN_SERIALHCI_TX, PAD_SERIALHCI_RX, PAD_SERIALHCI_TX, PIN_SERIALHCI_RTS, PIN_SERIALHCI_CTS);
+
+void SERCOM2_Handler()
+{
+  SerialHCI.IrqHandler();
+}

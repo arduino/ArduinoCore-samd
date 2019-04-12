@@ -196,6 +196,14 @@ extern Uart SerialBLE;
 #define PIN_SERIAL2_RTS      (24u)
 #define PIN_SERIAL2_CTS      (25u)
 
+extern Uart SerialHCI;
+#define PIN_SERIALHCI_RX (23ul)
+#define PIN_SERIALHCI_TX (22ul)
+#define PAD_SERIALHCI_TX (UART_TX_RTS_CTS_PAD_0_2_3)
+#define PAD_SERIALHCI_RX (SERCOM_RX_PAD_1)
+#define PIN_SERIALHCI_RTS (24u)
+#define PIN_SERIALHCI_CTS (25u)
+
 #endif // __cplusplus
 
 
