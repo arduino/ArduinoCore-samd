@@ -22,13 +22,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define I2S_BUFFER_SIZE 512
+#define DEFAULT_I2S_BUFFER_SIZE 512
 
 class I2SDoubleBuffer
 {
 public:
   I2SDoubleBuffer();
   virtual ~I2SDoubleBuffer();
+
+  void setSize(int size);
 
   void reset();
 
@@ -41,7 +43,8 @@ public:
   void swap(int length = 0);
 
 private:
-  uint8_t _buffer[2][I2S_BUFFER_SIZE];
+  uint8_t* _buffer[2];
+  int _size;
   volatile int _length[2];
   volatile int _readOffset[2];
   volatile int _index; 

@@ -396,6 +396,11 @@ void I2SClass::onReceive(void(*function)(void))
   _onReceive = function;
 }
 
+void I2SClass::setBufferSize(int bufferSize)
+{
+  _doubleBuffer.setSize(bufferSize);
+}
+
 void I2SClass::enableClock(int divider)
 {
   int div = SystemCoreClock / divider;
