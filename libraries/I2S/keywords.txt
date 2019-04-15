@@ -11,15 +11,17 @@ I2S	KEYWORD1
 #######################################
 # Methods and Functions (KEYWORD2)
 #######################################
-begin			KEYWORD2
-end				KEYWORD2
+begin	KEYWORD2
+end	KEYWORD2
 
-onReceive		KEYWORD2
-onTransmit		KEYWORD2
+onReceive	KEYWORD2
+onTransmit	KEYWORD2
+
+setBufferSize	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
 #######################################
-I2S_PHILIPS_MODE			LITERAL1
+I2S_PHILIPS_MODE	LITERAL1
 I2S_RIGHT_JUSTIFIED_MODE	LITERAL1
-I2S_LEFT_JUSTIFIED_MODE		LITERAL1
+I2S_LEFT_JUSTIFIED_MODE	LITERAL1
