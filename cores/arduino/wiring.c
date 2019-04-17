@@ -102,11 +102,16 @@ void init( void )
   #endif
 #endif
 
+/* 
+  Commented out to leave pins in default tri-state.  This is
+  aimed at avoiding power consumption in DeepSleep.
+  
   // Setup all pins (digital and analog) in INPUT mode (default is nothing)
   for (uint32_t ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
   {
     pinMode( ul, INPUT ) ;
   }
+*/
 
   // Initialize Analog Controller
   // Setting clock
