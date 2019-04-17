@@ -79,12 +79,18 @@ void init( void )
 
   // Clock ADC/DAC for Analog
   PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
-
+  
+  /*
+  Commented out to leave pins tri-stated to avoid power consumption
+  in DeepSleep per the following thread:
+  https://github.com/adafruit/Adafruit_SleepyDog/issues/17#issuecomment-481798215
+  
   // Setup all pins (digital and analog) in INPUT mode (default is nothing)
   for (uint32_t ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
   {
     pinMode( ul, INPUT ) ;
   }
+  */
 
   // Initialize Analog Controller
   // Setting clock
