@@ -569,7 +569,7 @@ adafruit_pybadge_m4.build.mcu=cortex-m4
 adafruit_pybadge_m4.build.f_cpu=120000000L
 adafruit_pybadge_m4.build.usb_product="Adafruit pyBadge M4"
 adafruit_pybadge_m4.build.usb_manufacturer="Adafruit LLC"
-adafruit_pybadge_m4.build.board=FEATHER_M4
+adafruit_pybadge_m4.build.board=PYBADGE_M4
 adafruit_pybadge_m4.build.core=arduino
 adafruit_pybadge_m4.build.extra_flags=-D__SAMD51J19A__  -DADAFRUIT_PYBADGE_M4_EXPRESS -DADAFRUIT_PYBADGE_M4_EXPRESS -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_pybadge_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
@@ -586,37 +586,74 @@ adafruit_pybadge_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
 adafruit_pybadge_m4.menu.cache.off=Disabled
 adafruit_pybadge_m4.menu.cache.off.build.cache_flags=
 
-# Adafruit Metro M4 WiFi (SAMD51)
+# Adafruit Metro M4 AirLift lite (SAMD51)
 # ------------------------------
-adafruit_metro_m4_wifi.name=Adafruit Metro M4 WiFi (SAMD51)
-adafruit_metro_m4_wifi.vid.0=0x239A
-adafruit_metro_m4_wifi.pid.0=0x8037
-adafruit_metro_m4_wifi.vid.1=0x239A
-adafruit_metro_m4_wifi.pid.1=0x0037
-adafruit_metro_m4_wifi.upload.tool=bossac18
-adafruit_metro_m4_wifi.upload.protocol=sam-ba
-adafruit_metro_m4_wifi.upload.maximum_size=507904
-adafruit_metro_m4_wifi.upload.offset=0x4000
-adafruit_metro_m4_wifi.upload.use_1200bps_touch=true
-adafruit_metro_m4_wifi.upload.wait_for_upload_port=true
-adafruit_metro_m4_wifi.upload.native_usb=true
-adafruit_metro_m4_wifi.build.mcu=cortex-m4
-adafruit_metro_m4_wifi.build.f_cpu=120000000L
-adafruit_metro_m4_wifi.build.usb_product="Adafruit Metro M4 WiFi"
-adafruit_metro_m4_wifi.build.usb_manufacturer="Adafruit LLC"
-adafruit_metro_m4_wifi.build.board=METRO_M4_WIFI
-adafruit_metro_m4_wifi.build.core=arduino
-adafruit_metro_m4_wifi.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_WIFI -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
-adafruit_metro_m4_wifi.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-adafruit_metro_m4_wifi.build.openocdscript=openocd_scripts/arduino_zero.cfg
-adafruit_metro_m4_wifi.build.variant=metro_m4_wifi
-adafruit_metro_m4_wifi.build.variant_system_lib=
-adafruit_metro_m4_wifi.build.vid=0x239A
-adafruit_metro_m4_wifi.build.pid=0x8037
-adafruit_metro_m4_wifi.bootloader.tool=openocd
-adafruit_metro_m4_wifi.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
-adafruit_metro_m4_wifi.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
-adafruit_metro_m4_wifi.menu.cache.on=Enabled
-adafruit_metro_m4_wifi.menu.cache.on.build.cache_flags=-DENABLE_CACHE
-adafruit_metro_m4_wifi.menu.cache.off=Disabled
-adafruit_metro_m4_wifi.menu.cache.off.build.cache_flags=
+adafruit_metro_m4_airliftlite.name=Adafruit Metro M4 AirLift Lite (SAMD51)
+adafruit_metro_m4_airliftlite.vid.0=0x239A
+adafruit_metro_m4_airliftlite.pid.0=0x8037
+adafruit_metro_m4_airliftlite.vid.1=0x239A
+adafruit_metro_m4_airliftlite.pid.1=0x0037
+adafruit_metro_m4_airliftlite.upload.tool=bossac18
+adafruit_metro_m4_airliftlite.upload.protocol=sam-ba
+adafruit_metro_m4_airliftlite.upload.maximum_size=507904
+adafruit_metro_m4_airliftlite.upload.offset=0x4000
+adafruit_metro_m4_airliftlite.upload.use_1200bps_touch=true
+adafruit_metro_m4_airliftlite.upload.wait_for_upload_port=true
+adafruit_metro_m4_airliftlite.upload.native_usb=true
+adafruit_metro_m4_airliftlite.build.mcu=cortex-m4
+adafruit_metro_m4_airliftlite.build.f_cpu=120000000L
+adafruit_metro_m4_airliftlite.build.usb_product="Adafruit Metro M4 Airlift Lite"
+adafruit_metro_m4_airliftlite.build.usb_manufacturer="Adafruit LLC"
+adafruit_metro_m4_airliftlite.build.board=METRO_M4_AIRLIFT_LITE
+adafruit_metro_m4_airliftlite.build.core=arduino
+adafruit_metro_m4_airliftlite.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_AIRLIFT_LITE -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_metro_m4_airliftlite.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_metro_m4_airliftlite.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_metro_m4_airliftlite.build.variant=metro_m4_airlift
+adafruit_metro_m4_airliftlite.build.variant_system_lib=
+adafruit_metro_m4_airliftlite.build.vid=0x239A
+adafruit_metro_m4_airliftlite.build.pid=0x8037
+adafruit_metro_m4_airliftlite.bootloader.tool=openocd
+adafruit_metro_m4_airliftlite.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
+adafruit_metro_m4_airliftlite.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_metro_m4_airliftlite.menu.cache.on=Enabled
+adafruit_metro_m4_airliftlite.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_metro_m4_airliftlite.menu.cache.off=Disabled
+adafruit_metro_m4_airliftlite.menu.cache.off.build.cache_flags=
+
+# Adafruit pyBadge M4
+# ------------------------------
+adafruit_pygamer_m4.name=Adafruit PyGamer M4 Express (SAMD51)
+adafruit_pygamer_m4.vid.0=0x239A
+adafruit_pygamer_m4.pid.0=0x803D
+adafruit_pygamer_m4.vid.1=0x239A
+adafruit_pygamer_m4.pid.1=0x003D
+adafruit_pygamer_m4.vid.1=0x239A
+adafruit_pygamer_m4.pid.1=0x803E
+adafruit_pygamer_m4.upload.tool=bossac18
+adafruit_pygamer_m4.upload.protocol=sam-ba
+adafruit_pygamer_m4.upload.maximum_size=507904
+adafruit_pygamer_m4.upload.offset=0x4000
+adafruit_pygamer_m4.upload.use_1200bps_touch=true
+adafruit_pygamer_m4.upload.wait_for_upload_port=true
+adafruit_pygamer_m4.upload.native_usb=true
+adafruit_pygamer_m4.build.mcu=cortex-m4
+adafruit_pygamer_m4.build.f_cpu=120000000L
+adafruit_pygamer_m4.build.usb_product="Adafruit PyGamer M4"
+adafruit_pygamer_m4.build.usb_manufacturer="Adafruit LLC"
+adafruit_pygamer_m4.build.board=PYGAMER_M4
+adafruit_pygamer_m4.build.core=arduino
+adafruit_pygamer_m4.build.extra_flags=-D__SAMD51J19A__  -DADAFRUIT_PYGAMER_M4_EXPRESS -DADAFRUIT_PYGAMER_M4_EXPRESS -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_pygamer_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_pygamer_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_pygamer_m4.build.variant=pygamer_m4
+adafruit_pygamer_m4.build.variant_system_lib=
+adafruit_pygamer_m4.build.vid=0x239A
+adafruit_pygamer_m4.build.pid=0x803D
+adafruit_pygamer_m4.bootloader.tool=openocd
+adafruit_pygamer_m4.bootloader.file=featherM4/bootloader-feather_m4-v2.0.0-adafruit.5.bin
+adafruit_pygamer_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_pygamer_m4.menu.cache.on=Enabled
+adafruit_pygamer_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_pygamer_m4.menu.cache.off=Disabled
+adafruit_pygamer_m4.menu.cache.off.build.cache_flags=
