@@ -206,7 +206,7 @@ extern Uart Serial2;
 // MKRWAN1310 compatibility layer
 #if defined(USE_BQ24195L_PMIC)
 // ADC_BATTERY is not connected as an ADC but as the flash CS
-#define FLASH_CS      (ADC_BATTERY)
+#define FLASH_CS      (32u)
 #undef ADC_BATTERY
 // PA28 is connected to IRQ capable PIN
 #define LORA_IRQ      (31u)
