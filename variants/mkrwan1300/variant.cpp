@@ -149,7 +149,7 @@ const PinDescription g_APinDescription[] = {
   { PORTA, 15, PIO_SERCOM_ALT,  (PIN_ATTR_NONE                               ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MISO: SERCOM4/PAD[3]
   { PORTA, 27, PIO_DIGITAL,     (PIN_ATTR_NONE                               ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
   
-  { PORTA, 28, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
+  { PORTA, 28, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_8    },
   { PORTB,  8, PIO_ANALOG,     (PIN_ATTR_DIGITAL|PIN_ATTR_ANALOG             ), ADC_Channel2,   NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
   { PORTB,  9, PIO_DIGITAL,    (PIN_ATTR_PWM|PIN_ATTR_TIMER                  ), ADC_Channel3,   PWM4_CH1,   TC4_CH1,      EXTERNAL_INT_9    },
 
@@ -162,6 +162,50 @@ const PinDescription g_APinDescription[] = {
 };
 
 const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 };
+
+
+#if defined(USE_BQ24195L_PMIC)
+#include "wiring_private.h"
+
+#define PMIC_ADDRESS  0x6B
+#define PMIC_REG01    0x01
+#define PMIC_REG07    0x07
+
+static inline void enable_battery_charging() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
+  PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
+static inline void disable_battery_fet(bool disabled) {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
+  // No D+/D– detection + Safety timer not slowed by 2X during input DPM or thermal regulation +
+  // BAT fet disabled/enabled + charge and bat fault INT
+  PERIPH_WIRE.sendDataMasterWIRE(0x0B | (disabled ? 0x20 : 0x00));
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
+void initVariant() {
+  enable_battery_charging();
+  disable_battery_fet(false);
+}
+#endif
 
 // Multi-serial objects instantiation
 SERCOM sercom0(SERCOM0);

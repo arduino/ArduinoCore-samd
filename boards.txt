@@ -284,6 +284,35 @@ mkrwan1300.build.pid=0x8053
 mkrwan1300.bootloader.tool=openocd
 mkrwan1300.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1300.bin
 
+# Arduino MKR WAN 1310
+# --------------------
+mkrwan1310.name=Arduino MKR WAN 1310
+mkrwan1310.vid.0=0x2341
+mkrwan1310.pid.0=0x8059
+mkrwan1310.vid.1=0x2341
+mkrwan1310.pid.1=0x0059
+
+mkrwan1310.upload.tool=bossac
+mkrwan1310.upload.protocol=sam-ba
+mkrwan1310.upload.maximum_size=262144
+mkrwan1310.upload.use_1200bps_touch=true
+mkrwan1310.upload.wait_for_upload_port=true
+mkrwan1310.upload.native_usb=true
+mkrwan1310.build.mcu=cortex-m0plus
+mkrwan1310.build.f_cpu=48000000L
+mkrwan1310.build.usb_product="Arduino MKR WAN 1310"
+mkrwan1310.build.usb_manufacturer="Arduino LLC"
+mkrwan1310.build.board=SAMD_MKRWAN1310
+mkrwan1310.build.core=arduino
+mkrwan1310.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
+mkrwan1310.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrwan1310.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrwan1310.build.variant=mkrwan1300
+mkrwan1310.build.vid=0x2341
+mkrwan1310.build.pid=0x8059
+mkrwan1310.bootloader.tool=openocd
+mkrwan1310.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1310.bin
+
 # Arduino MKR GSM 1400
 # --------------------
 mkrgsm1400.name=Arduino MKR GSM 1400

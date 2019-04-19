@@ -22,6 +22,9 @@ mv -v samd21_sam_ba_arduino_mkrgsm1400.* ../mkrgsm1400/
 BOARD_ID=arduino_mkrwan1300 NAME=samd21_sam_ba_arduino_mkrwan1300 make clean all
 mv -v samd21_sam_ba_arduino_mkrwan1300.* ../mkrwan1300/
 
+BOARD_ID=arduino_mkrwan1310 NAME=samd21_sam_ba_arduino_mkrwan1310 make clean all
+mv -v samd21_sam_ba_arduino_mkrwan1310.* ../mkrwan1300/
+
 BOARD_ID=arduino_mkrwifi1010 NAME=samd21_sam_ba_arduino_mkrwifi1010 make clean all
 mv -v samd21_sam_ba_arduino_mkrwifi1010.* ../mkrwifi1010/
 
