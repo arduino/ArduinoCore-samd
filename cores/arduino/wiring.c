@@ -25,8 +25,7 @@ extern "C" {
 
 
 #if defined(__SAMD51__)
-//CHANGE THIS IF YOU CHANGE THE CLOCK SPEED
-uint32_t SystemCoreClock=120000000ul ;
+uint32_t SystemCoreClock=F_CPU;
 #else
 /*
  * System Core Clock is at 1MHz (8MHz/8) at Reset.
