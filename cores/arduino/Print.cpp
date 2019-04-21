@@ -186,6 +186,16 @@ size_t Print::println(const Printable& x)
   return n;
 }
 
+void Print::printf(const char format[], ...)
+{
+  char buf[PRINTF_BUF];
+  va_list ap;
+  va_start(ap, format);
+  vsnprintf(buf, sizeof(buf), format, ap);
+  write(buf);
+  va_end(ap);
+}
+
 // Private Methods /////////////////////////////////////////////////////////////
 
 size_t Print::printNumber(unsigned long n, uint8_t base)
@@ -238,14 +248,14 @@ size_t Print::printFloat(double number, uint8_t digits)
 
   // Print the decimal point, but only if there are digits beyond
   if (digits > 0) {
-    n += print('.');
+    n += print(".");
   }
 
   // Extract digits from the remainder one at a time
   while (digits-- > 0)
   {
     remainder *= 10.0;
-    unsigned int toPrint = (unsigned int)(remainder);
+    unsigned int toPrint = (unsigned int)remainder;
     n += print(toPrint);
     remainder -= toPrint;
   }

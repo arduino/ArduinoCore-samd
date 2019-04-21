@@ -21,6 +21,8 @@
 
 #include <inttypes.h>
 #include <stdio.h> // for size_t
+#include <stdarg.h> // for printf
+#define PRINTF_BUF 80
 
 #include "WString.h"
 #include "Printable.h"
@@ -28,9 +30,6 @@
 #define DEC 10
 #define HEX 16
 #define OCT 8
-#ifdef BIN // Prevent warnings if BIN is previously defined in "iotnx4.h" or similar
-#undef BIN
-#endif
 #define BIN 2
 
 class Print
@@ -57,10 +56,6 @@ class Print
       return write((const uint8_t *)buffer, size);
     }
 
-    // default to zero, meaning "a single write may block"
-    // should be overriden by subclasses with buffering
-    virtual int availableForWrite() { return 0; }
-
     size_t print(const __FlashStringHelper *);
     size_t print(const String &);
     size_t print(const char[]);
@@ -85,8 +80,8 @@ class Print
     size_t println(double, int = 2);
     size_t println(const Printable&);
     size_t println(void);
-
-    virtual void flush() { /* Empty implementation for backward compatibility */ }
+    
+    void printf(const char[], ...);
 };
 
 #endif
