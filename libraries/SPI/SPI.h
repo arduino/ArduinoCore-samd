@@ -38,13 +38,19 @@
 #define SPI_MODE3 0x01
 
 #if defined(__SAMD51__)
+  #if !defined(MAX_SPI)
+    #define MAX_SPI 24000000
+  #endif
+  #define SPI_MIN_CLOCK_DIVIDER 1
+#else
   // The datasheet specifies a typical SPI SCK period (tSCK) of 42 ns,
   // see "Table 36-48. SPI Timing Characteristics and Requirements",
   // which translates into a maximum SPI clock of 23.8 MHz.
   // Conservatively, the divider is set for a 12 MHz maximum SPI clock.
-  #define SPI_MIN_CLOCK_DIVIDER (uint8_t)(1 + ((F_CPU - 1) / 24000000))
-#else
-  #define SPI_MIN_CLOCK_DIVIDER (uint8_t)(1 + ((F_CPU - 1) / 12000000))
+  #if !defined(MAX_SPI)
+    #define MAX_SPI 12000000
+  #endif
+  #define SPI_MIN_CLOCK_DIVIDER (uint8_t)(1 + ((F_CPU - 1) / MAX_SPI))
 #endif
 
 class SPISettings {
@@ -66,7 +72,7 @@ class SPISettings {
   }
 
   void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
-    this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? F_CPU / SPI_MIN_CLOCK_DIVIDER : clock);
+    this->clockFreq = (clock >= (MAX_SPI * 2 / SPI_MIN_CLOCK_DIVIDER) ? MAX_SPI * 2 / SPI_MIN_CLOCK_DIVIDER : clock);
 
     this->bitOrder = (bitOrder == MSBFIRST ? MSB_FIRST : LSB_FIRST);
 
@@ -157,14 +163,12 @@ class SPIClass {
 
 // For compatibility with sketches designed for AVR @ 16 MHz
 // New programs should use SPI.beginTransaction to set the SPI clock
-#if F_CPU == 48000000
-  #define SPI_CLOCK_DIV2   6
-  #define SPI_CLOCK_DIV4   12
-  #define SPI_CLOCK_DIV8   24
-  #define SPI_CLOCK_DIV16  48
-  #define SPI_CLOCK_DIV32  96
-  #define SPI_CLOCK_DIV64  192
-  #define SPI_CLOCK_DIV128 255
-#endif
+#define SPI_CLOCK_DIV2   (MAX_SPI * 2 / 8000000)
+#define SPI_CLOCK_DIV4   (MAX_SPI * 2 / 4000000)
+#define SPI_CLOCK_DIV8   (MAX_SPI * 2 / 2000000)
+#define SPI_CLOCK_DIV16  (MAX_SPI * 2 / 1000000)
+#define SPI_CLOCK_DIV32  (MAX_SPI * 2 / 500000)
+#define SPI_CLOCK_DIV64  (MAX_SPI * 2 / 250000)
+#define SPI_CLOCK_DIV128 (MAX_SPI * 2 / 125000)
 
 #endif
