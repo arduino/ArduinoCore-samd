@@ -160,9 +160,9 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PAD_SPI1_RX           SERCOM_RX_PAD_2
 
 static const uint8_t SS1   = 39 ;	// HW SS isn't used. Set here only for reference.
-static const uint8_t MOSI1 = PIN_SPI_MOSI ;
-static const uint8_t MISO1 = PIN_SPI_MISO ;
-static const uint8_t SCK1  = PIN_SPI_SCK ;
+static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
+static const uint8_t MISO1 = PIN_SPI1_MISO ;
+static const uint8_t SCK1  = PIN_SPI1_SCK ;
 
 
 /*
