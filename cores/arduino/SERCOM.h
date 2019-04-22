@@ -21,8 +21,15 @@
 
 #include "sam.h"
 
-#define SERCOM_FREQ_REF      48000000ul
-#define SERCOM_NVIC_PRIORITY ((1<<__NVIC_PRIO_BITS) - 1)
+// SAMD51 has configurable MAX_SPI, else use peripheral clock default
+#if defined(MAX_SPI)
+  #define SERCOM_SPI_FREQ_REF (MAX_SPI * 2)
+#else
+  #define SERCOM_SPI_FREQ_REF 48000000ul
+#endif
+// Other SERCOM peripherals always use the 48 MHz clock
+#define SERCOM_FREQ_REF       48000000ul
+#define SERCOM_NVIC_PRIORITY  ((1<<__NVIC_PRIO_BITS) - 1)
 
 typedef enum
 {
@@ -80,23 +87,23 @@ typedef enum
 
 typedef enum
 {
-	UART_TX_PAD_0 = 0x0ul,	// Only for UART
+	UART_TX_PAD_0 = 0x0ul,  // Only for UART
 	UART_TX_PAD_2 = 0x1ul,  // Only for UART
 	UART_TX_RTS_CTS_PAD_0_2_3 = 0x2ul,  // Only for UART with TX on PAD0, RTS on PAD2 and CTS on PAD3
 } SercomUartTXPad;
 
 typedef enum
 {
-	SAMPLE_RATE_x16 = 0x1,	//Fractional
-	SAMPLE_RATE_x8 = 0x3,	//Fractional
+	SAMPLE_RATE_x16 = 0x1,  // Fractional
+	SAMPLE_RATE_x8  = 0x3,  // Fractional
 } SercomUartSampleRate;
 
 typedef enum
 {
-	SERCOM_SPI_MODE_0 = 0,	// CPOL : 0  | CPHA : 0
-	SERCOM_SPI_MODE_1,		// CPOL : 0  | CPHA : 1
-	SERCOM_SPI_MODE_2,		// CPOL : 1  | CPHA : 0
-	SERCOM_SPI_MODE_3		// CPOL : 1  | CPHA : 1
+	SERCOM_SPI_MODE_0 = 0, // CPOL : 0 | CPHA : 0
+	SERCOM_SPI_MODE_1,     // CPOL : 0 | CPHA : 1
+	SERCOM_SPI_MODE_2,     // CPOL : 1 | CPHA : 0
+	SERCOM_SPI_MODE_3      // CPOL : 1 | CPHA : 1
 } SercomSpiClockMode;
 
 typedef enum
