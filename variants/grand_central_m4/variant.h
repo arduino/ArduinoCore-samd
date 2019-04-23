@@ -278,8 +278,10 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 #define PIN_PCC_D12     (43u)
 #define PIN_PCC_D13     (42u)
 
-//TODO: meaningful value for this
-#define VARIANT_QSPI_BAUD_DEFAULT 5000000
+#if !defined(VARIANT_QSPI_BAUD_DEFAULT)
+  // TODO: meaningful value for this
+  #define VARIANT_QSPI_BAUD_DEFAULT 5000000
+#endif
 
 #ifdef __cplusplus
 }

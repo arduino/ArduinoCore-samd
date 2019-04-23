@@ -18,6 +18,7 @@ menu.cache=Cache
 menu.speed=CPU Speed
 menu.opt=Optimize
 menu.maxspi=Max SPI
+menu.maxqspi=Max QSPI
 
 # Adafruit Feather M0 (SAMD21)
 # ------------------------------
@@ -308,7 +309,7 @@ adafruit_metro_m4.build.usb_product="Adafruit Metro M4"
 adafruit_metro_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_metro_m4.build.board=METRO_M4
 adafruit_metro_m4.build.core=arduino
-adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize}
+adafruit_metro_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_metro_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_metro_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_metro_m4.build.variant=metro_m4
@@ -342,6 +343,10 @@ adafruit_metro_m4.menu.maxspi.50=50 MHz
 adafruit_metro_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_metro_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_metro_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_metro_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_metro_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_metro_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_metro_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit Grand Central M4 (SAMD51)
 # ------------------------------
@@ -363,7 +368,7 @@ adafruit_grandcentral_m4.build.usb_product="Adafruit Grand Central M4"
 adafruit_grandcentral_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_grandcentral_m4.build.board=GRAND_CENTRAL_M4
 adafruit_grandcentral_m4.build.core=arduino
-adafruit_grandcentral_m4.build.extra_flags=-D__SAMD51P20A__ -DADAFRUIT_GRAND_CENTRAL_M4 -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi}
+adafruit_grandcentral_m4.build.extra_flags=-D__SAMD51P20A__ -DADAFRUIT_GRAND_CENTRAL_M4 -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_grandcentral_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_grandcentral_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_grandcentral_m4.build.variant=grand_central_m4
@@ -397,6 +402,10 @@ adafruit_grandcentral_m4.menu.maxspi.50=50 MHz
 adafruit_grandcentral_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_grandcentral_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_grandcentral_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_grandcentral_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_grandcentral_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_grandcentral_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_grandcentral_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit ItsyBitsy M4 (SAMD51)
 # ------------------------------
@@ -418,7 +427,7 @@ adafruit_itsybitsy_m4.build.usb_product="Adafruit ItsyBitsy M4"
 adafruit_itsybitsy_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_itsybitsy_m4.build.board=ITSYBITSY_M4
 adafruit_itsybitsy_m4.build.core=arduino
-adafruit_itsybitsy_m4.build.extra_flags=-D__SAMD51G19A__ -DADAFRUIT_ITSYBITSY_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -DCRYSTALLESS -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize}
+adafruit_itsybitsy_m4.build.extra_flags=-D__SAMD51G19A__ -DADAFRUIT_ITSYBITSY_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -DCRYSTALLESS -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_itsybitsy_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_itsybitsy_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_itsybitsy_m4.build.variant=itsybitsy_m4
@@ -452,6 +461,10 @@ adafruit_itsybitsy_m4.menu.maxspi.50=50 MHz
 adafruit_itsybitsy_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_itsybitsy_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_itsybitsy_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_itsybitsy_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_itsybitsy_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_itsybitsy_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_itsybitsy_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 
 # Adafruit Feather M4 Express (SAMD51)
@@ -474,7 +487,7 @@ adafruit_feather_m4.build.usb_product="Adafruit Feather M4"
 adafruit_feather_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_feather_m4.build.board=FEATHER_M4
 adafruit_feather_m4.build.core=arduino
-adafruit_feather_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_FEATHER_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize}
+adafruit_feather_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_FEATHER_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_feather_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_feather_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_feather_m4.build.variant=feather_m4
@@ -508,6 +521,10 @@ adafruit_feather_m4.menu.maxspi.50=50 MHz
 adafruit_feather_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_feather_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_feather_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_feather_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_feather_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_feather_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_feather_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 
 # Adafruit HalloWing M0 (SAMD21)
@@ -564,7 +581,7 @@ adafruit_trellis_m4.build.usb_product="Adafruit Trellis M4"
 adafruit_trellis_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_trellis_m4.build.board=TRELLIS_M4
 adafruit_trellis_m4.build.core=arduino
-adafruit_trellis_m4.build.extra_flags=-D__SAMD51G19A__ -DADAFRUIT_TRELLIS_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -DCRYSTALLESS -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize}
+adafruit_trellis_m4.build.extra_flags=-D__SAMD51G19A__ -DADAFRUIT_TRELLIS_M4_EXPRESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -DCRYSTALLESS -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_trellis_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_trellis_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_trellis_m4.build.variant=trellis_m4
@@ -598,6 +615,10 @@ adafruit_trellis_m4.menu.maxspi.50=50 MHz
 adafruit_trellis_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_trellis_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_trellis_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_trellis_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_trellis_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_trellis_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_trellis_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit Crickit M0 (SAMD21)
 # ------------------------------
@@ -651,7 +672,7 @@ adafruit_pyportal_m4.build.usb_product="Adafruit PyPortal M4"
 adafruit_pyportal_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_pyportal_m4.build.board=PYPORTAL_M4
 adafruit_pyportal_m4.build.core=arduino
-adafruit_pyportal_m4.build.extra_flags=-D__SAMD51J20A__ -DADAFRUIT_PYPORTAL -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize}
+adafruit_pyportal_m4.build.extra_flags=-D__SAMD51J20A__ -DADAFRUIT_PYPORTAL -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_pyportal_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_pyportal_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_pyportal_m4.build.variant=pyportal_m4
@@ -685,6 +706,10 @@ adafruit_pyportal_m4.menu.maxspi.50=50 MHz
 adafruit_pyportal_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_pyportal_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_pyportal_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_pyportal_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_pyportal_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_pyportal_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_pyportal_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit pyBadge M4 (SAMD51)
 # ------------------------------
@@ -708,7 +733,7 @@ adafruit_pybadge_m4.build.usb_product="Adafruit pyBadge M4"
 adafruit_pybadge_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_pybadge_m4.build.board=PYBADGE_M4
 adafruit_pybadge_m4.build.core=arduino
-adafruit_pybadge_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_PYBADGE_M4_EXPRESS -DADAFRUIT_PYBADGE_M4_EXPRESS -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize}
+adafruit_pybadge_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_PYBADGE_M4_EXPRESS -DADAFRUIT_PYBADGE_M4_EXPRESS -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_pybadge_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_pybadge_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_pybadge_m4.build.variant=pybadge_m4
@@ -742,6 +767,10 @@ adafruit_pybadge_m4.menu.maxspi.50=50 MHz
 adafruit_pybadge_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_pybadge_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_pybadge_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_pybadge_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_pybadge_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_pybadge_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_pybadge_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit Metro M4 AirLift lite (SAMD51)
 # ------------------------------
@@ -763,7 +792,7 @@ adafruit_metro_m4_airliftlite.build.usb_product="Adafruit Metro M4 Airlift Lite"
 adafruit_metro_m4_airliftlite.build.usb_manufacturer="Adafruit LLC"
 adafruit_metro_m4_airliftlite.build.board=METRO_M4_AIRLIFT_LITE
 adafruit_metro_m4_airliftlite.build.core=arduino
-adafruit_metro_m4_airliftlite.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_AIRLIFT_LITE -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize}
+adafruit_metro_m4_airliftlite.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_METRO_M4_AIRLIFT_LITE -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_metro_m4_airliftlite.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_metro_m4_airliftlite.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_metro_m4_airliftlite.build.variant=metro_m4_airlift
@@ -797,6 +826,10 @@ adafruit_metro_m4_airliftlite.menu.maxspi.50=50 MHz
 adafruit_metro_m4_airliftlite.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_metro_m4_airliftlite.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_metro_m4_airliftlite.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_metro_m4_airliftlite.menu.maxqspi.50=50 MHz (standard)
+adafruit_metro_m4_airliftlite.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_metro_m4_airliftlite.menu.maxqspi.fcpu=CPU Speed
+adafruit_metro_m4_airliftlite.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit pyGamer M4 Express (SAMD51)
 # ------------------------------
@@ -820,7 +853,7 @@ adafruit_pygamer_m4.build.usb_product="Adafruit PyGamer M4"
 adafruit_pygamer_m4.build.usb_manufacturer="Adafruit LLC"
 adafruit_pygamer_m4.build.board=PYGAMER_M4
 adafruit_pygamer_m4.build.core=arduino
-adafruit_pygamer_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_PYGAMER_M4_EXPRESS -DADAFRUIT_PYGAMER_M4_EXPRESS -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi}
+adafruit_pygamer_m4.build.extra_flags=-D__SAMD51J19A__ -DADAFRUIT_PYGAMER_M4_EXPRESS -DADAFRUIT_PYGAMER_M4_EXPRESS -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16 {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi}
 adafruit_pygamer_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_pygamer_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
 adafruit_pygamer_m4.build.variant=pygamer_m4
@@ -854,3 +887,7 @@ adafruit_pygamer_m4.menu.maxspi.50=50 MHz
 adafruit_pygamer_m4.menu.maxspi.50.build.flags.maxspi=-DMAX_SPI=50000000
 adafruit_pygamer_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_pygamer_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
+adafruit_pygamer_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_pygamer_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_pygamer_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_pygamer_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
