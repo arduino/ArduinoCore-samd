@@ -345,7 +345,7 @@ adafruit_metro_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_metro_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_metro_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_metro_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_metro_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_metro_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_metro_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit Grand Central M4 (SAMD51)
@@ -404,7 +404,7 @@ adafruit_grandcentral_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_grandcentral_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_grandcentral_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_grandcentral_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_grandcentral_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_grandcentral_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_grandcentral_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit ItsyBitsy M4 (SAMD51)
@@ -463,9 +463,8 @@ adafruit_itsybitsy_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_itsybitsy_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_itsybitsy_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_itsybitsy_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_itsybitsy_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_itsybitsy_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_itsybitsy_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
-
 
 # Adafruit Feather M4 Express (SAMD51)
 # ------------------------------
@@ -523,7 +522,7 @@ adafruit_feather_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_feather_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_feather_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_feather_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_feather_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_feather_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_feather_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 
@@ -617,7 +616,7 @@ adafruit_trellis_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_trellis_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_trellis_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_trellis_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_trellis_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_trellis_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_trellis_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit Crickit M0 (SAMD21)
@@ -708,7 +707,7 @@ adafruit_pyportal_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_pyportal_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_pyportal_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_pyportal_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_pyportal_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_pyportal_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_pyportal_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit pyBadge M4 (SAMD51)
@@ -769,7 +768,7 @@ adafruit_pybadge_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_pybadge_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_pybadge_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_pybadge_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_pybadge_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_pybadge_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_pybadge_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit Metro M4 AirLift lite (SAMD51)
@@ -828,7 +827,7 @@ adafruit_metro_m4_airliftlite.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_metro_m4_airliftlite.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_metro_m4_airliftlite.menu.maxqspi.50=50 MHz (standard)
 adafruit_metro_m4_airliftlite.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_metro_m4_airliftlite.menu.maxqspi.fcpu=CPU Speed
+adafruit_metro_m4_airliftlite.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_metro_m4_airliftlite.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
 
 # Adafruit pyGamer M4 Express (SAMD51)
@@ -889,5 +888,5 @@ adafruit_pygamer_m4.menu.maxspi.fcpu2=CPU Speed / 2
 adafruit_pygamer_m4.menu.maxspi.fcpu2.build.flags.maxspi=-DMAX_SPI=({build.f_cpu}/2)
 adafruit_pygamer_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_pygamer_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
-adafruit_pygamer_m4.menu.maxqspi.fcpu=CPU Speed
+adafruit_pygamer_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_pygamer_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
