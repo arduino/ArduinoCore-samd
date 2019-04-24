@@ -107,7 +107,7 @@ const PinDescription g_APinDescription[]=
   { PORTA,  0, PIO_DIGITAL, PIN_ATTR_PWM_E, No_ADC_Channel, TC2_CH0, TC2_CH0, EXTERNAL_INT_0 },            // D46 TFT RST
 
   // 47 - backlight
-  { PORTA,  1, PIO_SERCOM_ALT, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_1 }, // D47 TFT BACKLITE
+  { PORTA,  1, PIO_DIGITAL, PIN_ATTR_PWM_E, No_ADC_Channel, TC2_CH1, TC2_CH1, EXTERNAL_INT_1 }, // D47 TFT BACKLITE
 
   // 48 - button control
   { PORTB, 31, PIO_DIGITAL, PIN_ATTR_DIGITAL, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_15 },  // D48 button clock
