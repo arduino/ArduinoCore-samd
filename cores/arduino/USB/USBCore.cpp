@@ -425,7 +425,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 
 		// Setup Control IN
 		usbd.epBank1SetSize(ep, 64);
-		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[0]);
+		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
 		usbd.epBank1SetType(ep, 1); // CONTROL IN
 
 		// Release OUT EP
