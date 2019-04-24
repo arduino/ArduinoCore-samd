@@ -53,6 +53,9 @@ compiler.define=-DARDUINO=
 # this can be overriden in boards.txt
 build.extra_flags=
 build.cache_flags=
+build.flags.optimize=
+build.flags.maxspi=
+build.flags.maxqspi=
 
 # These can be overridden in platform.local.txt
 compiler.c.extra_flags=
