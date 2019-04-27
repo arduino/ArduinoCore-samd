@@ -64,7 +64,6 @@ const PinDescription g_APinDescription[]=
   { PORTB,  6, PIO_ANALOG, PIN_ATTR_ANALOG_ALT, ADC_Channel8, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_6 },   // A10 / JOYY
   { PORTB,  7, PIO_ANALOG, PIN_ATTR_ANALOG_ALT, ADC_Channel9, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_7 },   // A11 / JOYX
 
-
   // 26..27 I2C pins (SDA/SCL)
   // ----------------------
   { PORTA,  12, PIO_SERCOM, PIN_ATTR_PWM_E, No_ADC_Channel, TC2_CH0, TC2_CH0,  EXTERNAL_INT_12 }, // SDA
