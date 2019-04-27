@@ -16,8 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VARIANT_FEATHER_M4_
-#define _VARIANT_FEATHER_M4_
+#ifndef _VARIANT_PYGAMER_M4_
+#define _VARIANT_PYGAMER_M4_
 
 // The definitions here needs a SAMD core >=1.6.10
 #define ARDUINO_SAMD_VARIANT_COMPLIANCE 10610
@@ -201,7 +201,6 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_QSPI_IO2    (41u)
 #define PIN_QSPI_IO3    (42u)
 
-#define VARIANT_QSPI_BAUD_DEFAULT 5000000
 #if !defined(VARIANT_QSPI_BAUD_DEFAULT)
   // TODO: meaningful value for this
   #define VARIANT_QSPI_BAUD_DEFAULT 5000000
