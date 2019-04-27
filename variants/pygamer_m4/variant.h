@@ -30,7 +30,7 @@
 #define VARIANT_MAINOSC		(32768ul)
 
 /** Master clock frequency */
-#define VARIANT_MCK	(F_CPU)
+#define VARIANT_MCK	   (F_CPU)
 
 #define VARIANT_GCLK0_FREQ (F_CPU)
 #define VARIANT_GCLK1_FREQ (48000000UL)
@@ -57,7 +57,7 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (53u)
+#define PINS_COUNT           (54u)
 #define NUM_DIGITAL_PINS     (25u)
 #define NUM_ANALOG_INPUTS    (12u)
 #define NUM_ANALOG_OUTPUTS   (2u)
@@ -142,27 +142,27 @@ static const uint8_t ATN = PIN_ATN;
  */
 #define SPI_INTERFACES_COUNT 2
 
-#define PIN_SPI_MISO         (28u)
-#define PIN_SPI_MOSI         (29u)
-#define PIN_SPI_SCK          (30u)
+#define PIN_SPI_MISO         (26u)
+#define PIN_SPI_MOSI         (27u)
+#define PIN_SPI_SCK          (28u)
 #define PERIPH_SPI           sercom1
 #define PAD_SPI_TX           SPI_PAD_3_SCK_1
 #define PAD_SPI_RX           SERCOM_RX_PAD_2
 
-static const uint8_t SS	  = 4;	// SERCOM1 last PAD is present on d9 but HW SS isn't used. Set here only for reference.
+static const uint8_t SS	  = 4 ;	// SD card CS
 static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
   // Internal SPI for TFT
-#define PIN_SPI1_MOSI         (43u)
-#define PIN_SPI1_SCK          (44u)
+#define PIN_SPI1_MOSI         (41u)
+#define PIN_SPI1_SCK          (42u)
 #define PIN_SPI1_MISO         (0u)
 #define PERIPH_SPI1           sercom4
 #define PAD_SPI1_TX           SPI_PAD_3_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_0
 
-static const uint8_t SS1	  = 45 ;
+static const uint8_t SS1	  = 44 ;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
 static const uint8_t MISO1 = PIN_SPI1_MISO ;
 static const uint8_t SCK1 = PIN_SPI1_SCK ;
@@ -194,12 +194,12 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 
 
 //QSPI Pins
-#define PIN_QSPI_SCK    (37u)
-#define PIN_QSPI_CS     (38u)
-#define PIN_QSPI_IO0    (39u)
-#define PIN_QSPI_IO1    (40u)
-#define PIN_QSPI_IO2    (41u)
-#define PIN_QSPI_IO3    (42u)
+#define PIN_QSPI_SCK    (35u)
+#define PIN_QSPI_CS     (36u)
+#define PIN_QSPI_IO0    (37u)
+#define PIN_QSPI_IO1    (38u)
+#define PIN_QSPI_IO2    (39u)
+#define PIN_QSPI_IO3    (40u)
 
 #if !defined(VARIANT_QSPI_BAUD_DEFAULT)
   // TODO: meaningful value for this
