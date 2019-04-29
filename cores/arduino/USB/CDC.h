@@ -151,7 +151,6 @@ private:
 	int availableForStore(void);
 
 	USBDeviceClass &usb;
-	RingBuffer *_cdc_rx_buffer;
 	bool stalled;
 	uint32_t epType[3];
 };

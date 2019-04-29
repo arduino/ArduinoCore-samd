@@ -249,7 +249,8 @@ class EPHandler {
 public:
 	virtual void handleEndpoint() = 0;
 	virtual uint32_t recv(void *_data, uint32_t len) = 0;
-	virtual uint32_t available() const = 0;
+	virtual uint32_t available() = 0;
+	virtual int peek() = 0;
 };
 
 class DoubleBufferedEPOutHandler : public EPHandler {
@@ -273,13 +274,10 @@ public:
 	}
 
 	virtual ~DoubleBufferedEPOutHandler() {
-		free((void*)data0);
-		free((void*)data1);
 	}
 
-	virtual uint32_t recv(void *_data, uint32_t len)
+	uint32_t _recv(uint32_t len)
 	{
-		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
 		uint32_t i = 0;
 
 		// R/W: current, first0/1, ready0/1, notify
@@ -292,7 +290,7 @@ public:
 			}
 			// when ready0==true the buffer is not being filled and last0 is constant
 			for (; i<len && first0 < last0; i++) {
-				data[i] = data0[first0++];
+				_rx_buffer.store_char(data0[first0++]);
 			}
 			if (first0 == last0) {
 				first0 = 0;
@@ -313,7 +311,7 @@ public:
 			}
 			// when ready1==true the buffer is not being filled and last1 is constant
 			for (; i<len && first1 < last1; i++) {
-				data[i] = data1[first1++];
+				_rx_buffer.store_char(data1[first1++]);
 			}
 			if (first1 == last1) {
 				first1 = 0;
@@ -329,6 +327,35 @@ public:
 		}
 		return i;
 	}
+
+	virtual uint32_t recv(void *_data, uint32_t len) {
+		_recv(_rx_buffer.availableForStore());
+		uint32_t i = 0;
+		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
+		for (; i < len; i++) {
+			if (!_rx_buffer.available()) {
+				break;
+			}
+			data[i] = _rx_buffer.read_char();
+		}
+		return i;
+	}
+
+    virtual uint32_t _available() const {
+        if (current == 0) {
+            bool ready = false;
+            synchronized {
+                ready = ready0;
+            }
+            return ready ? (last0 - first0) : 0;
+        } else {
+            bool ready = false;
+            synchronized {
+                ready = ready1;
+            }
+            return ready ? (last1 - first1) : 0;
+        }
+    }
 
 	virtual void handleEndpoint()
 	{
@@ -364,25 +391,18 @@ public:
 				}
 			}
 		}
-
 		usbd.epAckPendingInterrupts(ep);
 	}
 
 	// Returns how many bytes are stored in the buffers
-	virtual uint32_t available() const {
-		if (current == 0) {
-			bool ready = false;
-			synchronized {
-				ready = ready0;
-			}
-			return ready ? (last0 - first0) : 0;
-		} else {
-			bool ready = false;
-			synchronized {
-				ready = ready1;
-			}
-			return ready ? (last1 - first1) : 0;
-		}
+	virtual uint32_t available() {
+		_recv(_rx_buffer.availableForStore());
+		return _rx_buffer.available();
+	}
+
+	virtual int peek() {
+		_recv(_rx_buffer.availableForStore());
+		return _rx_buffer.peek();
 	}
 
 	void release() {
@@ -391,6 +411,8 @@ public:
 
 private:
 	USBDevice_SAMD21G18x &usbd;
+
+	RingBuffer _rx_buffer;
 
 	const uint32_t ep;
 	uint32_t current, incoming;
