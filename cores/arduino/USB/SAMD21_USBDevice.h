@@ -272,7 +272,7 @@ public:
 		release();
 	}
 
-	~DoubleBufferedEPOutHandler() {
+	virtual ~DoubleBufferedEPOutHandler() {
 		free((void*)data0);
 		free((void*)data1);
 	}

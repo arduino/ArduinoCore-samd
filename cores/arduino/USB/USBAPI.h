@@ -58,6 +58,7 @@ public:
 
 	// USB Device API
 	void init();
+	bool end();
 	bool attach();
 	bool detach();
 	void setAddress(uint32_t addr);
@@ -92,6 +93,7 @@ public:
 	int recv(uint32_t ep);
 	uint32_t available(uint32_t ep);
 	void flush(uint32_t ep);
+	void clear(uint32_t ep);
 	void stall(uint32_t ep);
 
 	// private?
@@ -105,7 +107,6 @@ private:
 };
 
 extern USBDeviceClass USBDevice;
-
 
 //================================================================================
 //================================================================================

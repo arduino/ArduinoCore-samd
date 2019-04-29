@@ -36,7 +36,7 @@
 // ----
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (26u)
+#define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (15u)
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (1u)
@@ -114,7 +114,7 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define PIN_SPI1_MOSI    (26u)
 #define PIN_SPI1_SCK     (29u)
 #define PIN_SPI1_SS      (28u)
-#define PERIPH_SPI1   sercom2
+#define PERIPH_SPI1   sercom4
 #define PAD_SPI1_TX   SPI_PAD_0_SCK_3
 #define PAD_SPI1_RX   SERCOM_RX_PAD_1
 static const uint8_t SS1   = PIN_SPI1_SS;
@@ -134,8 +134,8 @@ static const uint8_t SCK1  = PIN_SPI1_SCK;
 // Wire
 #define PIN_WIRE_SDA        (11u)
 #define PIN_WIRE_SCL        (12u)
-#define PERIPH_WIRE         sercom0
-#define WIRE_IT_HANDLER     SERCOM0_Handler
+#define PERIPH_WIRE         sercom2
+#define WIRE_IT_HANDLER     SERCOM2_Handler
 
 // USB
 // ---
@@ -184,6 +184,14 @@ extern Uart Serial2;
 #define PIN_SERIAL2_CTS (29u)
 
 #endif // __cplusplus
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+unsigned int PINCOUNT_fn();
+#ifdef __cplusplus
+}
+#endif
 
 // These serial port names are intended to allow libraries and architecture-neutral
 // sketches to automatically default to the correct port name for a particular type

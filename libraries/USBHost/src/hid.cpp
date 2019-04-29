@@ -32,7 +32,7 @@ uint32_t HID::GetReportDescr(uint32_t ep, USBReadParser *parser) {
 }
  */
 uint32_t HID::GetReportDescr(uint32_t wIndex, USBReadParser *parser) {
-        const uint8_t constBufLen = 64;
+        const uint8_t constBufLen = 128;
         uint8_t buf[constBufLen];
 
         uint8_t rcode = pUsb->ctrlReq(bAddress, 0x00, bmREQ_HIDREPORT, USB_REQUEST_GET_DESCRIPTOR, 0x00,

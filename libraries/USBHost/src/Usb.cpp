@@ -49,6 +49,10 @@ void USBHost::setUsbTaskState(uint32_t state) {
     usb_task_state = state;
 }
 
+uint32_t USBHost::getUsbErrorCode(void) {
+     return (usb_error);
+}
+ 
 EpInfo* USBHost::getEpInfoEntry(uint32_t addr, uint32_t ep) {
 	UsbDeviceDefinition *p = addrPool.GetUsbDevicePtr(addr);
 

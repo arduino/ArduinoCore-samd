@@ -196,6 +196,7 @@ void Serial_::begin(uint32_t /* baud_count */, uint8_t /* config */)
 
 void Serial_::end(void)
 {
+	memset((void*)&_usbLineInfo, 0, sizeof(_usbLineInfo));
 }
 
 int Serial_::available(void)
@@ -247,6 +248,10 @@ size_t Serial_::readBytes(char *buffer, size_t length)
 void Serial_::flush(void)
 {
 	usb.flush(CDC_ENDPOINT_IN);
+}
+
+void Serial_::clear(void) {
+	usb.clear(CDC_ENDPOINT_IN);
 }
 
 size_t Serial_::write(const uint8_t *buffer, size_t size)

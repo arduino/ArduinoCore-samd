@@ -194,6 +194,12 @@ const PinDescription g_APinDescription[]=
   { PORTA,  2, PIO_ANALOG, PIN_ATTR_ANALOG, DAC_Channel0, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_2 }, // DAC/VOUT
 } ;
 
+extern "C" {
+    unsigned int PINCOUNT_fn() {
+        return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
+    }
+}
+
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 } ;
 
 // Multi-serial objects instantiation

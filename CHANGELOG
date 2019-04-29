@@ -1,5 +1,40 @@
 SAMD CORE ?.?.?? ????.??.??
 
+SAMD CORE 1.6.21 2019.04.01
+
+* MKR boards: changed I2C to sercom2, SPI1 + Serial2 to sercom4
+* Improved accuracy of delay() function. Thanks @BenF
+* MKR 1500: Changed SARA module to be powered off on boot
+
+SAMD CORE 1.6.20 2018.11.28
+
+* Replaced boolean type with bool in examples. Thanks @per1234
+* Added c++ linker command to allow to include libstdc++ when linking. Thanks @helmut64
+* CPX driver fixes. Thanks @dhalbert
+* I2S: Changed library to use 8 MHz oscillator source if 48MHz divider does not fit in 8 bits
+* UART: Added frame error handling
+* USB: Fixed memory leak on reconnects
+* SDU: Added support for Arduino M0. Thanks @jandrassy
+* Added arduinoOTA upload keys for Arduino M0. Thanks @jandrassy
+* USB: Fixed USB Host failures and fixed memory overwrite in USBHost. Thanks @gdsports
+* USB: Added method to return USB error code. Thanks @MarkFischer
+* CDC: Clear line state on end()
+* USB: Added USB device end() method
+* Removed requirement that the DAC is on A0. Thanks @GabrielNotman
+* Added alternate ports 44, 45 to make the SWCLK and SWDIO pins available on the Zero. Thanks @helmut64
+* Added defines for MKR pin layout
+* Fixed freeze in tone()
+* Added MKR NB 1500 variant and bootloader
+* Increased the default serial buffer size to 256
+
+SAMD CORE 1.6.19 2018.07.11
+
+* Fixed bootloader tools for .org boards
+* M0: Updated pin definitions for D6, D7 and D13 to match Zero
+* SPI: Fixed interrupt mask to block. Thanks @ggajoch
+* Added MKR WiFi 1010 variant and bootloader
+* Updated Windows Drivers to 1.4.0 and re-signed Adafruit_Circuit_Playground_Express.inf
+
 SAMD CORE 1.6.18 2018.03.05
 
 * Wire: Added support for general call (broadcast)

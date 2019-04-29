@@ -311,10 +311,6 @@ uint32_t HIDBoot<BOOT_PROTOCOL>::Init(uint32_t parent, uint32_t port, uint32_t l
     }
 
 
-	// Reset
-	UHD_BusReset();
-	while( Is_uhd_starting_reset() ) {}
-
 	// Restore p->epinfo
 	p->epinfo = oldep_ptr;
 
