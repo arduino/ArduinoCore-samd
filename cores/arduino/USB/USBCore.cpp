@@ -425,7 +425,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 
 		// Setup Control IN
 		usbd.epBank1SetSize(ep, 64);
-		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[0]);
+		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
 		usbd.epBank1SetType(ep, 1); // CONTROL IN
 
 		// Release OUT EP
@@ -468,9 +468,6 @@ bool USBDeviceClass::connected()
 uint32_t USBDeviceClass::recvControl(void *_data, uint32_t len)
 {
 	uint8_t *data = reinterpret_cast<uint8_t *>(_data);
-
-	// The RAM Buffer is empty: we can receive data
-	usbd.epBank0ResetReady(0);
 
 	//usbd.epBank0AckSetupReceived(0);
 	uint32_t read = armRecvCtrlOUT(0);
@@ -551,7 +548,17 @@ uint8_t USBDeviceClass::armRecvCtrlOUT(uint32_t ep)
 {
 	// Get endpoint configuration from setting register
 	usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
-	usbd.epBank0SetMultiPacketSize(ep, 8);
+	/* Atmel-42181G–SAM-D21_Datasheet–09/2015 / Page 806
+	 *
+	 * For OUT endpoints, MULTI_PACKET_SIZE holds the total
+	 * data size for the complete transfer. This value must
+	 * be a multiple of the maximum packet size.
+	 *
+	 * Since SIZE is 64 (see 'USBDeviceClass::initEP') for
+	 * all endpoints MULTI_PACKET_SIZE should not be set to
+	 * a value < SIZE, this means at least to 64.
+	 */
+	usbd.epBank0SetMultiPacketSize(ep, 64);
 	usbd.epBank0SetByteCount(ep, 0);
 
 	usbd.epBank0ResetReady(ep);
@@ -830,23 +837,34 @@ void USBDeviceClass::ISRHandler()
 #endif
 	}
 
+	/* Remove any stall requests for endpoint #0 */
+	if (usbd.epBank0IsStalled(0)) { usbd.epBank0DisableStalled(0); }
+
 	// Endpoint 0 Received Setup interrupt
 	if (usbd.epBank0IsSetupReceived(0))
 	{
-		USBSetup *setup = reinterpret_cast<USBSetup *>(udd_ep_out_cache_buffer[0]);
+		/* Retrieve received endpoint #0 data from buffer */
+		USBSetup setup;
+		memcpy(&setup, udd_ep_out_cache_buffer[0], sizeof(USBSetup));
 
-		delayMicroseconds(20);
-		/* Clear the Bank 0 ready flag on Control OUT */
-		// The RAM Buffer is empty: we can receive data
+		/* Tell the USB hardware that we are ready to receive more data for endpoint #0 and also reset the byte count
+		 * for endpoint #0 - the clearing seems to be necessary for the code to function correctly, although the datasheet
+		 * is not clear on the subject.
+		 *
+		 * Atmel-42181G–SAM-D21_Datasheet–09/2015 / Page 806
+		 *   For IN endpoints, BYTE_COUNT holds the number of bytes to be sent in the next IN transaction.
+		 *   For OUT endpoint or SETUP endpoints, BYTE_COUNT holds the number of bytes received upon the last OUT or SETUP transaction.
+		 */
+		usbd.epBank0SetByteCount(0, 0);
 		usbd.epBank0ResetReady(0);
 
 		bool ok;
-		if (REQUEST_STANDARD == (setup->bmRequestType & REQUEST_TYPE)) {
+		if (REQUEST_STANDARD == (setup.bmRequestType & REQUEST_TYPE)) {
 			// Standard Requests
-			ok = handleStandardSetup(*setup);
+			ok = handleStandardSetup(setup);
 		} else {
 			// Class Interface Requests
-			ok = handleClassInterfaceSetup(*setup);
+			ok = handleClassInterfaceSetup(setup);
 		}
 
 		if (ok) {
