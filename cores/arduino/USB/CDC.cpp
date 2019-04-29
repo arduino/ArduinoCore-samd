@@ -199,9 +199,11 @@ void Serial_::end(void)
 	memset((void*)&_usbLineInfo, 0, sizeof(_usbLineInfo));
 }
 
+int _serialPeek = -1;
+
 int Serial_::available(void)
 {
-	return usb.available(CDC_ENDPOINT_OUT);
+	return usb.available(CDC_ENDPOINT_OUT) + (_serialPeek != -1);
 }
 
 int Serial_::availableForWrite(void)
@@ -210,8 +212,6 @@ int Serial_::availableForWrite(void)
 	// always EP size - 1, because bank is flushed on every write
 	return (EPX_SIZE - 1);
 }
-
-int _serialPeek = -1;
 
 int Serial_::peek(void)
 {
