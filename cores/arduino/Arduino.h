@@ -124,10 +124,7 @@ void loop( void ) ;
 #define digitalPinToInterrupt(P)   ( P )
 #endif
 
-// USB Device
-#include "USB/USBDesc.h"
-#include "USB/USBCore.h"
-#include "USB/USBAPI.h"
-#include "USB/USB_host.h"
+// USB
+#include "Adafruit_TinyUSB_Core.h"
 
 #endif // Arduino_h

@@ -71,7 +71,7 @@ compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/"  
 
 # USB Flags
 # ---------
-build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}'
+build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}' "-I{build.core.path}/Adafruit_TinyUSB_core" "-I{build.core.path}/Adafruit_TinyUSB_core/tinyusb/src"
 
 # Default usb manufacturer will be replaced at compile time using
 # numeric vendor ID if available or by board's specific value.

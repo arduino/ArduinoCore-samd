@@ -40,8 +40,7 @@ int main( void )
 
   delay(1);
 #if defined(USBCON)
-  USBDevice.init();
-  USBDevice.attach();
+  Adafruit_TinyUSB_Core_init();
 #endif
 
   setup();
@@ -49,8 +48,20 @@ int main( void )
   for (;;)
   {
     loop();
+
+#if defined(USBCON)
+    tud_task();
+#endif
+
     if (serialEventRun) serialEventRun();
   }
 
   return 0;
+}
+
+void yield(void)
+{
+#if defined(USBCON)
+    tud_task();
+#endif
 }
