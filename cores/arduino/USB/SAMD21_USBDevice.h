@@ -276,9 +276,14 @@ public:
 	virtual ~DoubleBufferedEPOutHandler() {
 	}
 
-	uint32_t _recv(uint32_t len)
+	uint32_t _recv()
 	{
 		uint32_t i = 0;
+		uint32_t len = 0;
+
+		synchronized {
+			len = _rx_buffer.availableForStore();
+		}
 
 		// R/W: current, first0/1, ready0/1, notify
 		// R  : last0/1, data0/1
@@ -329,33 +334,32 @@ public:
 	}
 
 	virtual uint32_t recv(void *_data, uint32_t len) {
-		_recv(_rx_buffer.availableForStore());
+		_recv();
 		uint32_t i = 0;
 		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
-		for (; i < len; i++) {
-			if (!_rx_buffer.available()) {
-				break;
+		synchronized {
+			for (; i < len && _rx_buffer.available(); i++) {
+				data[i] = _rx_buffer.read_char();
 			}
-			data[i] = _rx_buffer.read_char();
 		}
 		return i;
 	}
 
-    virtual uint32_t _available() const {
-        if (current == 0) {
-            bool ready = false;
-            synchronized {
-                ready = ready0;
-            }
-            return ready ? (last0 - first0) : 0;
-        } else {
-            bool ready = false;
-            synchronized {
-                ready = ready1;
-            }
-            return ready ? (last1 - first1) : 0;
-        }
-    }
+	virtual uint32_t _available() const {
+		if (current == 0) {
+			bool ready = ready0;
+			synchronized {
+				ready = ready0;
+			}
+			return ready ? (last0 - first0) : 0;
+		} else {
+			bool ready = false;
+			synchronized {
+				ready = ready1;
+			}
+			return ready ? (last1 - first1) : 0;
+		}
+	}
 
 	virtual void handleEndpoint()
 	{
@@ -396,12 +400,12 @@ public:
 
 	// Returns how many bytes are stored in the buffers
 	virtual uint32_t available() {
-		_recv(_rx_buffer.availableForStore());
+		_recv();
 		return _rx_buffer.available();
 	}
 
 	virtual int peek() {
-		_recv(_rx_buffer.availableForStore());
+		_recv();
 		return _rx_buffer.peek();
 	}
 
@@ -415,7 +419,7 @@ private:
 	RingBuffer _rx_buffer;
 
 	const uint32_t ep;
-	uint32_t current, incoming;
+	volatile uint32_t current, incoming;
 
 	__attribute__((__aligned__(4)))	volatile uint8_t data0[size];
 	uint32_t first0;
