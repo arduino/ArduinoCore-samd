@@ -19,6 +19,7 @@ menu.speed=CPU Speed
 menu.opt=Optimize
 menu.maxspi=Max SPI
 menu.maxqspi=Max QSPI
+menu.usbstack=USB Stack
 
 # Adafruit Feather M0 (SAMD21)
 # ------------------------------
@@ -49,6 +50,9 @@ adafruit_feather_m0.build.vid=0x239A
 adafruit_feather_m0.build.pid=0x800B
 adafruit_feather_m0.bootloader.tool=openocd
 adafruit_feather_m0.bootloader.file=featherM0/bootloader-feather_m0-v2.0.0-adafruit.5.bin
+adafruit_feather_m0.menu.usbstack.arduino=Arduino
+adafruit_feather_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_feather_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Feather M0 Express (SAMD21)
 # ------------------------------
@@ -79,6 +83,9 @@ adafruit_feather_m0_express.build.vid=0x239A
 adafruit_feather_m0_express.build.pid=0x801B
 adafruit_feather_m0_express.bootloader.tool=openocd
 adafruit_feather_m0_express.bootloader.file=featherM0/bootloader-feather_m0-v2.0.0-adafruit.5.bin
+adafruit_feather_m0_express.menu.usbstack.arduino=Arduino
+adafruit_feather_m0_express.menu.usbstack.tinyusb=TinyUSB
+adafruit_feather_m0_express.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 #adafruit_radio_m0.name=Adafruit M0 Radio (Native USB Port)
 #adafruit_radio_m0.vid.0=0x239A
@@ -136,6 +143,9 @@ adafruit_metro_m0.build.vid=0x239A
 adafruit_metro_m0.build.pid=0x8013
 adafruit_metro_m0.bootloader.tool=openocd
 adafruit_metro_m0.bootloader.file=metroM0/bootloader-metro_m0-v2.0.0-adafruit.5.bin
+adafruit_metro_m0.menu.usbstack.arduino=Arduino
+adafruit_metro_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_metro_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Circuit Playground Express (SAMD21)
 # ------------------------------
@@ -166,6 +176,9 @@ adafruit_circuitplayground_m0.build.vid=0x239A
 adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplayM0/bootloader-circuitplay_m0-v2.0.0-adafruit.5.bin
+adafruit_circuitplayground_m0.menu.usbstack.arduino=Arduino
+adafruit_circuitplayground_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_circuitplayground_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Gemma M0 (SAMD21)
 # ------------------------------
@@ -196,6 +209,9 @@ adafruit_gemma_m0.build.vid=0x239A
 adafruit_gemma_m0.build.pid=0x801C
 adafruit_gemma_m0.bootloader.tool=openocd
 adafruit_gemma_m0.bootloader.file=gemmaM0/bootloader-gemma_m0-v2.0.0-adafruit.5.bin
+adafruit_gemma_m0.menu.usbstack.arduino=Arduino
+adafruit_gemma_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_gemma_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Trinket M0 (SAMD21)
 # ------------------------------
@@ -226,6 +242,9 @@ adafruit_trinket_m0.build.vid=0x239A
 adafruit_trinket_m0.build.pid=0x801E
 adafruit_trinket_m0.bootloader.tool=openocd
 adafruit_trinket_m0.bootloader.file=trinketM0/bootloader-trinket_m0-v2.0.0-adafruit.5.bin
+adafruit_trinket_m0.menu.usbstack.arduino=Arduino
+adafruit_trinket_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_trinket_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit ItsyBitsy M0 (SAMD21)
 # ------------------------------
@@ -258,6 +277,9 @@ adafruit_itsybitsy_m0.build.vid=0x239A
 adafruit_itsybitsy_m0.build.pid=0x800F
 adafruit_itsybitsy_m0.bootloader.tool=openocd
 adafruit_itsybitsy_m0.bootloader.file=itsybitsyM0/bootloader-itsybitsy_m0-v2.0.0-adafruit.5.bin
+adafruit_itsybitsy_m0.menu.usbstack.arduino=Arduino
+adafruit_itsybitsy_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_itsybitsy_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit PIRkey (SAMD21)
 # ------------------------------
@@ -288,6 +310,9 @@ adafruit_pirkey.build.vid=0x239A
 adafruit_pirkey.build.pid=0x801E
 adafruit_pirkey.bootloader.tool=openocd
 adafruit_pirkey.bootloader.file=pirkey/bootloader-pirkey-v2.0.0-adafruit.5.bin
+adafruit_pirkey.menu.usbstack.arduino=Arduino
+adafruit_pirkey.menu.usbstack.tinyusb=TinyUSB
+adafruit_pirkey.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Metro M4 (SAMD51)
 # ------------------------------
@@ -347,6 +372,9 @@ adafruit_metro_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_metro_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_metro_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_metro_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_metro_m4.menu.usbstack.arduino=Arduino
+adafruit_metro_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_metro_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Grand Central M4 (SAMD51)
 # ------------------------------
@@ -406,6 +434,9 @@ adafruit_grandcentral_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_grandcentral_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_grandcentral_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_grandcentral_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_grandcentral_m4.menu.usbstack.arduino=Arduino
+adafruit_grandcentral_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_grandcentral_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit ItsyBitsy M4 (SAMD51)
 # ------------------------------
@@ -465,6 +496,9 @@ adafruit_itsybitsy_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_itsybitsy_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_itsybitsy_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_itsybitsy_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_itsybitsy_m4.menu.usbstack.arduino=Arduino
+adafruit_itsybitsy_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_itsybitsy_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Feather M4 Express (SAMD51)
 # ------------------------------
@@ -524,7 +558,9 @@ adafruit_feather_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_feather_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_feather_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_feather_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
-
+adafruit_feather_m4.menu.usbstack.arduino=Arduino
+adafruit_feather_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_feather_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit HalloWing M0 (SAMD21)
 # ------------------------------
@@ -557,6 +593,9 @@ adafruit_hallowing.build.vid=0x239A
 adafruit_hallowing.build.pid=0xDEAD
 adafruit_hallowing.bootloader.tool=openocd
 adafruit_hallowing.bootloader.file=hallowingM0/bootloader-hallowing_m0-v2.0.0-adafruit.0-21-g887cc30.bin
+adafruit_hallowing.menu.usbstack.arduino=Arduino
+adafruit_hallowing.menu.usbstack.tinyusb=TinyUSB
+adafruit_hallowing.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Trellis M4 (SAMD51)
 # ------------------------------
@@ -618,6 +657,9 @@ adafruit_trellis_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_trellis_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_trellis_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_trellis_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_trellis_m4.menu.usbstack.arduino=Arduino
+adafruit_trellis_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_trellis_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit Crickit M0 (SAMD21)
 # ------------------------------
@@ -650,6 +692,9 @@ adafruit_crickit_m0.build.vid=0x239A
 adafruit_crickit_m0.build.pid=0x802D
 adafruit_crickit_m0.bootloader.tool=openocd
 adafruit_crickit_m0.bootloader.file=crickit/samd21_sam_ba.bin
+adafruit_crickit_m0.menu.usbstack.arduino=Arduino
+adafruit_crickit_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_crickit_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit PyPortal M4 (SAMD51)
 # ------------------------------
@@ -709,6 +754,9 @@ adafruit_pyportal_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_pyportal_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_pyportal_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_pyportal_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_pyportal_m4.menu.usbstack.arduino=Arduino
+adafruit_pyportal_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_pyportal_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit pyBadge M4 (SAMD51)
 # ------------------------------
@@ -770,6 +818,10 @@ adafruit_pybadge_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_pybadge_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_pybadge_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_pybadge_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_pybadge_m4.menu.usbstack.arduino=Arduino
+adafruit_pybadge_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_pybadge_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+
 
 # Adafruit Metro M4 AirLift lite (SAMD51)
 # ------------------------------
@@ -829,6 +881,9 @@ adafruit_metro_m4_airliftlite.menu.maxqspi.50=50 MHz (standard)
 adafruit_metro_m4_airliftlite.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_metro_m4_airliftlite.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_metro_m4_airliftlite.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_metro_m4_airliftlite.menu.usbstack.arduino=Arduino
+adafruit_metro_m4_airliftlite.menu.usbstack.tinyusb=TinyUSB
+adafruit_metro_m4_airliftlite.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
 # Adafruit pyGamer M4 Express (SAMD51)
 # ------------------------------
@@ -890,3 +945,6 @@ adafruit_pygamer_m4.menu.maxqspi.50=50 MHz (standard)
 adafruit_pygamer_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
 adafruit_pygamer_m4.menu.maxqspi.fcpu=CPU Speed / 2
 adafruit_pygamer_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_pygamer_m4.menu.usbstack.arduino=Arduino
+adafruit_pygamer_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_pygamer_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB

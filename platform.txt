@@ -56,6 +56,7 @@ build.cache_flags=
 build.flags.optimize=
 build.flags.maxspi=
 build.flags.maxqspi=
+build.flags.usbstack=
 
 # These can be overridden in platform.local.txt
 compiler.c.extra_flags=
@@ -71,7 +72,7 @@ compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/"  
 
 # USB Flags
 # ---------
-build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}' "-I{build.core.path}/Adafruit_TinyUSB_Core" "-I{build.core.path}/Adafruit_TinyUSB_Core/tinyusb/src"
+build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}' {build.flags.usbstack} "-I{build.core.path}/Adafruit_TinyUSB_Core" "-I{build.core.path}/Adafruit_TinyUSB_Core/tinyusb/src"
 
 # Default usb manufacturer will be replaced at compile time using
 # numeric vendor ID if available or by board's specific value.

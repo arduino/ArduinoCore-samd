@@ -33,12 +33,17 @@
 // COMMON CONFIGURATION
 //--------------------------------------------------------------------
 #ifdef __SAMD51__
-#define CFG_TUSB_MCU                OPT_MCU_SAMD51
+  #define CFG_TUSB_MCU                OPT_MCU_SAMD51
 #else
-#define CFG_TUSB_MCU                OPT_MCU_SAMD21
+  #define CFG_TUSB_MCU                OPT_MCU_SAMD21
 #endif
 
-#define CFG_TUSB_RHPORT0_MODE       OPT_MODE_DEVICE
+#ifdef USE_TINYUSB
+  #define CFG_TUSB_RHPORT0_MODE       OPT_MODE_DEVICE
+#else
+  #define CFG_TUSB_RHPORT0_MODE       OPT_MODE_NONE
+#endif
+
 #define CFG_TUSB_OS                 OPT_OS_NONE
 #define CFG_TUSB_DEBUG              0
 

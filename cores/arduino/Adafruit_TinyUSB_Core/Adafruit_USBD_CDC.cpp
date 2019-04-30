@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#ifdef USBCON
+#if defined(USE_TINYUSB) && defined(USBCON)
 
 #include "Arduino.h"
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch

@@ -16,6 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef USE_TINYUSB
+
 #include <Arduino.h>
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
 
@@ -260,3 +262,5 @@ Serial_::operator bool()
 Serial_ Serial(USBDevice);
 
 #endif
+
+#endif // USE_TINYUSB

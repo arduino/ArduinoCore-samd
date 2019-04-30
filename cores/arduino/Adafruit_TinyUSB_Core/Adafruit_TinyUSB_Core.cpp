@@ -21,7 +21,8 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-#ifdef USBCON
+
+#if defined(USE_TINYUSB) && defined(USBCON)
 
 #include "Arduino.h"
 #include "Adafruit_TinyUSB_Core.h"

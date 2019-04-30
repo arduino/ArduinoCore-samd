@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#ifdef USBCON
+#if defined(USE_TINYUSB) && defined(USBCON)
 
 #include "Adafruit_USBD_Device.h"
 
