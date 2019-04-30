@@ -36,7 +36,10 @@
 // ----
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (35u)
+#ifdef __cplusplus
+extern "C" unsigned int PINCOUNT_fn();
+#endif
+#define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (15u)
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (1u)

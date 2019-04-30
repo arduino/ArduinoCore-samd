@@ -162,6 +162,12 @@ const PinDescription g_APinDescription[] = {
 
 const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 };
 
+extern "C" {
+    unsigned int PINCOUNT_fn() {
+        return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
+    }
+}
+
 #if defined(USE_BQ24195L_PMIC)
 
 #include "wiring_private.h"

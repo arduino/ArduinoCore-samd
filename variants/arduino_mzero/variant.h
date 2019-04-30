@@ -53,6 +53,9 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
+#ifdef __cplusplus
+extern "C" unsigned int PINCOUNT_fn();
+#endif
 #define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (19u)
 #define NUM_ANALOG_INPUTS    (5u)
