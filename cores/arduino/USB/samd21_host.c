@@ -17,6 +17,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#ifndef USE_TINYUSB
 
 #include <stdio.h>
 #include <stdint.h>
@@ -553,3 +554,5 @@ uint32_t UHD_Pipe_Is_Transfer_Complete(uint32_t ul_pipe, uint32_t ul_token_type)
 // }
 
 #endif //  HOST_DEFINED
+
+#endif // USE_TINYUSB
