@@ -909,9 +909,9 @@ void USBDeviceClass::ISRHandler()
 			} else {
 				#if defined(PLUGGABLE_USB_ENABLED)
 				PluggableUSB().handleEndpoint(ep);
+				usbd.epAckPendingInterrupts(ep);
 				#endif
 			}
-			usbd.epAckPendingInterrupts(ep);
 		}
 	}
 }

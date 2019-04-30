@@ -394,8 +394,8 @@ public:
 					}
 				}
 			}
+			usbd.epAckPendingInterrupts(ep);
 		}
-		usbd.epAckPendingInterrupts(ep);
 	}
 
 	// Returns how many bytes are stored in the buffers
