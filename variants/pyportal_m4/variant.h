@@ -126,11 +126,13 @@ static const uint8_t ATN = PIN_ATN;
 /* WiFi interfaces */
 #define SerialNina      Serial1
 #define SPIWIFI         SPI
-#define NINA_GPIO0      6
-#define NINA_RESETN     7
+#define ESP32_GPIO0     6
+#define ESP32_RESETN    7
 #define SPIWIFI_SS      8
 #define SPIWIFI_ACK     5
 #define SPIWIFI_RESET   7
+#define NINA_GPIO0      ESP32_GPIO0
+#define NINA_RESETN     ESP32_RESETN
 #define SerialESP32     Serial1
 
 /*
