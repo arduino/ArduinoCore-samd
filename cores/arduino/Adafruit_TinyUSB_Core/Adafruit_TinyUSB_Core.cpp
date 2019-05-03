@@ -84,17 +84,39 @@ static void usb_hardware_init(void)
 #endif
 }
 
+static void load_serial_number(void)
+{
+#ifdef __SAMD51__
+  uint32_t* id_addresses[4] = {(uint32_t *) 0x008061FC, (uint32_t *) 0x00806010,
+                               (uint32_t *) 0x00806014, (uint32_t *) 0x00806018};
+#else // samd21
+  uint32_t* id_addresses[4] = {(uint32_t *) 0x0080A00C, (uint32_t *) 0x0080A040,
+                               (uint32_t *) 0x0080A044, (uint32_t *) 0x0080A048};
+
+#endif
+
+  uint8_t raw_id[8];
+  for (int i=0; i<4; i++) {
+      for (int k=0; k<4; k++) {
+          raw_id[4 * i + k] = (*(id_addresses[i]) >> k * 8) & 0xff;
+      }
+  }
+
+  static const char nibble_to_hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+  for (int i = 0; i < sizeof(raw_id); i++) {
+    for (int j = 0; j < 2; j++) {
+      uint8_t nibble = (raw_id[i] >> (j * 4)) & 0xf;
+      // Strings are UTF-16-LE encoded.
+      usb_desc_str_serial[1 + i * 2 + j] = nibble_to_hex[nibble];
+    }
+  }
+}
+
 void Adafruit_TinyUSB_Core_init(void)
 {
   // Create Serial string descriptor
-//  char tmp_serial[17];
-//  sprintf(tmp_serial, "%08lX%08lX", NRF_FICR->DEVICEID[1], NRF_FICR->DEVICEID[0]);
-//
-//  for(uint8_t i=0; i<16; i++)
-//  {
-//    usb_desc_str_serial[1+i] = tmp_serial[i];
-//  }
-
+  load_serial_number();
 
   USBDevice.addInterface( (Adafruit_USBD_Interface&) Serial);
   USBDevice.setID(USB_VID, USB_PID);
