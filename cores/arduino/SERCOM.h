@@ -152,7 +152,10 @@ typedef enum
 	WIRE_MASTER_NACK_ACTION
 } SercomMasterAckActionWire;
 
-#if defined(__SAMD51__)
+// SERCOM clock source override is available only on SAMD51 (not 21)
+// but the enumeration is made regardless so user code doesn't need
+// ifdefs or lengthy comments explaining the different situations --
+// the clock-sourcing functions just compile to nothing on SAMD21.
 typedef enum SercomClockSource {
   SERCOM_CLOCK_SOURCE_FCPU,     // F_CPU clock (GCLK0)
   SERCOM_CLOCK_SOURCE_48M,      // 48 MHz peripheral clock (GCLK1) (standard)
@@ -161,7 +164,6 @@ typedef enum SercomClockSource {
   SERCOM_CLOCK_SOURCE_12M,      // 12 MHz peripheral clock (GCLK4)
   SERCOM_CLOCK_SOURCE_NO_CHANGE // Leave clock source setting unchanged
 };
-#endif // end __SAMD51__
 
 class SERCOM
 {
@@ -233,16 +235,26 @@ class SERCOM
 		uint8_t readDataWIRE( void ) ;
 		int8_t getSercomIndex(void);
 #if defined(__SAMD51__)
+		// SERCOM clock source override is only available on
+		// SAMD51 (not 21) ... but these functions are declared
+		// regardless so user code doesn't need ifdefs or lengthy
+		// comments explaining the different situations -- these
+		// just compile to nothing on SAMD21.
 		void setClockSource(int8_t idx, SercomClockSource src, bool core);
 		SercomClockSource getClockSource(void) { return clockSource; };
 		uint32_t getFreqRef(void) { return freqRef; };
+#else
+		// The equivalent SAMD21 dummy functions...
+		void setClockSource(int8_t idx, SercomClockSource src, bool core) { };
+		SercomClockSource getClockSource(void) { return SERCOM_CLOCK_SOURCE_FCPU; };
+		uint32_t getFreqRef(void) { return F_CPU; };
 #endif
 
 	private:
 		Sercom* sercom;
 #if defined(__SAMD51__)
                 SercomClockSource clockSource;
-                uint32_t freqRef;
+                uint32_t freqRef; // Frequency corresponding to clockSource
 #endif
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 		uint32_t division(uint32_t dividend, uint32_t divisor) ;

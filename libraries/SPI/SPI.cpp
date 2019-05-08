@@ -42,10 +42,6 @@ SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint
   // SERCOM pads
   _padTx=PadTx;
   _padRx=PadRx;
-
-#if defined(__SAMD51__)
-  maxBitrate = MAX_SPI; // Can override via setClockSource()
-#endif
 }
 
 void SPIClass::begin()
@@ -247,7 +243,6 @@ void SPIClass::detachInterrupt() {
   // Should be disableInterrupt()
 }
 
-#if defined(__SAMD21__) || defined(__SAMD51__)
 // SPI DMA lookup works on both SAMD21 and SAMD51
 
 volatile uint32_t *SPIClass::getDataRegister(void) {
@@ -282,16 +277,17 @@ int SPIClass::getDMACID(void) {
   return (idx >= 0) ? DMACID[idx] : -1;
 }
 
-#endif // end __SAMD21__ || __SAMD51__
-
 #if defined(__SAMD51__)
 
-// Set the SPI device's SERCOM clock CORE and/or SLOW clock source(s).
-// These are SercomClockSource values from an enumeration in SERCOM.h.
-void SPIClass::setClockSources(SercomClockSource core, SercomClockSource slow) {
+// Set the SPI device's SERCOM clock CORE and SLOW clock sources.
+// SercomClockSource values are an enumeration in SERCOM.h.
+// This works on SAMD51 only.  On SAMD21, a dummy function is declared
+// in SPI.h which compiles to nothing, so user code doesn't need to check
+// and conditionally compile lines for different architectures.
+void SPIClass::setClockSource(SercomClockSource clk) {
   int8_t idx = _p_sercom->getSercomIndex();
-  _p_sercom->setClockSource(idx, core, true);  // true  = set core clock
-  _p_sercom->setClockSource(idx, slow, false); // false = set slow clock
+  _p_sercom->setClockSource(idx, clk, true);  // true  = set core clock
+  _p_sercom->setClockSource(idx, clk, false); // false = set slow clock
 }
 
 #endif // end __SAMD51__

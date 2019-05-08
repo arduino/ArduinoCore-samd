@@ -751,6 +751,9 @@ int8_t SERCOM::getSercomIndex(void) {
 // This is currently for overriding an SPI SERCOM's clock source only --
 // NOT for UART or WIRE SERCOMs, where it will have unintended consequences.
 // It does not check.
+// SERCOM clock source override is available only on SAMD51 (not 21).
+// A dummy function for SAMD21 (compiles to nothing) is present in SERCOM.h
+// so user code doesn't require a lot of conditional situations.
 void SERCOM::setClockSource(int8_t idx, SercomClockSource src, bool core) {
 
   if(src == SERCOM_CLOCK_SOURCE_NO_CHANGE) return;
@@ -794,7 +797,6 @@ void SERCOM::setClockSource(int8_t idx, SercomClockSource src, bool core) {
 }
 #endif
 
-
 void SERCOM::initClockNVIC( void )
 {
   int8_t idx = getSercomIndex();
@@ -808,8 +810,9 @@ void SERCOM::initClockNVIC( void )
     NVIC_EnableIRQ(sercomData[idx].irq[i]);
   }
 
-  // SPI DMA speed is dictated by the "slow clock," so BOTH are set to the
-  // same clock source (clk_slow isn't sourced from XOSC32K as before).
+  // SPI DMA speed is dictated by the "slow clock" (I think...maybe) so
+  // BOTH are set to the same clock source (clk_slow isn't sourced from
+  // XOSC32K as in prior versions of SAMD core).
   // This might have power implications for sleep code.
 
   setClockSource(idx, clockSource, true);  // true  = core clock
