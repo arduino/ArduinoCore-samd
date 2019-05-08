@@ -233,13 +233,15 @@ class SERCOM
 		uint8_t readDataWIRE( void ) ;
 		int8_t getSercomIndex(void);
 #if defined(__SAMD51__)
-		void setClockSource(int idx, SercomClockSource src, bool core);
+		void setClockSource(int8_t idx, SercomClockSource src, bool core);
+		SercomClockSource getClockSource(void) { return clockSource; };
 		uint32_t getFreqRef(void) { return freqRef; };
 #endif
 
 	private:
 		Sercom* sercom;
 #if defined(__SAMD51__)
+                SercomClockSource clockSource;
                 uint32_t freqRef;
 #endif
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);

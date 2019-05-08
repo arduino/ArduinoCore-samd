@@ -30,6 +30,24 @@
 SERCOM::SERCOM(Sercom* s)
 {
   sercom = s;
+
+#if defined(__SAMD51__)
+  // A briefly-available but now deprecated feature had the SPI clock source
+  // set via a compile-time setting (MAX_SPI)...problem was this affected
+  // ALL SERCOMs, whereas some (anything read/write, e.g. SD cards) should
+  // not exceed the standard 24 MHz setting.  Newer code, if it needs faster
+  // write-only SPI (e.g. to screen), should override the SERCOM clock on a
+  // per-peripheral basis.  Nonetheless, we check SERCOM_SPI_FREQ_REF here
+  // (MAX_SPI * 2) to retain compatibility with any interim projects that
+  // might have relied on the compile-time setting.  But please, don't.
+ #if SERCOM_SPI_FREQ_REF == F_CPU       // F_CPU clock = GCLK0
+  clockSource = SERCOM_CLOCK_SOURCE_FCPU;
+ #elif SERCOM_SPI_FREQ_REF == 48000000  // 48 MHz clock = GCLK1 (standard)
+  clockSource = SERCOM_CLOCK_SOURCE_48M;
+ #elif SERCOM_SPI_FREQ_REF == 100000000 // 100 MHz clock = GCLK2
+  clockSource = SERCOM_CLOCK_SOURCE_100M;
+ #endif
+#endif // end __SAMD51__
 }
 
 /* =========================
@@ -733,12 +751,16 @@ int8_t SERCOM::getSercomIndex(void) {
 // This is currently for overriding an SPI SERCOM's clock source only --
 // NOT for UART or WIRE SERCOMs, where it will have unintended consequences.
 // It does not check.
-void SERCOM::setClockSource(int idx, SercomClockSource src, bool core) {
+void SERCOM::setClockSource(int8_t idx, SercomClockSource src, bool core) {
+
+  if(src == SERCOM_CLOCK_SOURCE_NO_CHANGE) return;
 
   uint8_t clk_id = core ? sercomData[idx].id_core : sercomData[idx].id_slow;
 
   GCLK->PCHCTRL[clk_id].bit.CHEN = 0;     // Disable timer
   while(GCLK->PCHCTRL[clk_id].bit.CHEN);  // Wait for disable
+
+  if(core) clockSource = src; // Save SercomClockSource value
 
   // From cores/arduino/startup.c:
   // GCLK0 = F_CPU
@@ -749,7 +771,7 @@ void SERCOM::setClockSource(int idx, SercomClockSource src, bool core) {
   if(src == SERCOM_CLOCK_SOURCE_FCPU) {
     GCLK->PCHCTRL[clk_id].reg =
       GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
-    if(core) freqRef = F_CPU;
+    if(core) freqRef = F_CPU; // Save clock frequency value
   } else if(src == SERCOM_CLOCK_SOURCE_48M) {
     GCLK->PCHCTRL[clk_id].reg =
       GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
@@ -772,6 +794,7 @@ void SERCOM::setClockSource(int idx, SercomClockSource src, bool core) {
 }
 #endif
 
+
 void SERCOM::initClockNVIC( void )
 {
   int8_t idx = getSercomIndex();
@@ -785,29 +808,12 @@ void SERCOM::initClockNVIC( void )
     NVIC_EnableIRQ(sercomData[idx].irq[i]);
   }
 
-  // A briefly-availabe but now deprecated feature had the SPI clock source
-  // set via a compile-time setting (MAX_SPI)...problem was this affected
-  // ALL SERCOMs, whereas some (anything read/write, e.g. SD cards) should
-  // not exceed the standard 24 MHz setting.  Newer code, if it needs faster
-  // write-only SPI (e.g. to screen), should override the SERCOM clock on a
-  // per-peripheral basis.  Nonetheless, we check SERCOM_SPI_FREQ_REF here
-  // (MAX_SPI * 2) to retain compatibility with any interim projects that
-  // might have relied on the compile-time setting.  But please, don't.
-
   // SPI DMA speed is dictated by the "slow clock," so BOTH are set to the
   // same clock source (clk_slow isn't sourced from XOSC32K as before).
   // This might have power implications for sleep code.
 
- #if SERCOM_SPI_FREQ_REF == F_CPU       // F_CPU clock = GCLK0
-  setClockSource(idx, SERCOM_CLOCK_SOURCE_FCPU, true);  // true  = core clock
-  setClockSource(idx, SERCOM_CLOCK_SOURCE_FCPU, false); // false = slow clock
- #elif SERCOM_SPI_FREQ_REF == 48000000  // 48 MHz clock = GCLK1 (standard)
-  setClockSource(idx, SERCOM_CLOCK_SOURCE_48M , true);
-  setClockSource(idx, SERCOM_CLOCK_SOURCE_48M , false);
- #elif SERCOM_SPI_FREQ_REF == 100000000 // 100 MHz clock = GCLK2
-  setClockSource(idx, SERCOM_CLOCK_SOURCE_100M, true);
-  setClockSource(idx, SERCOM_CLOCK_SOURCE_100M, false);
- #endif
+  setClockSource(idx, clockSource, true);  // true  = core clock
+  setClockSource(idx, clockSource, false); // false = slow clock
 
 #else // end if SAMD51 (prob SAMD21)
 
