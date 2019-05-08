@@ -21,7 +21,11 @@
 
 #include "sam.h"
 
-// SAMD51 has configurable MAX_SPI, else use peripheral clock default
+// SAMD51 has configurable MAX_SPI, else use peripheral clock default.
+// Update: changing MAX_SPI via compiler flags is DEPRECATED, because
+// this affects ALL SPI peripherals including some that should NOT be
+// changed (e.g. anything using SD card). Instead, use setClockSource().
+// This is left here for compatibility w/interim MAX_SPI-dependent code:
 #if defined(MAX_SPI)
   #define SERCOM_SPI_FREQ_REF (MAX_SPI * 2)
 #else
@@ -148,6 +152,17 @@ typedef enum
 	WIRE_MASTER_NACK_ACTION
 } SercomMasterAckActionWire;
 
+#if defined(__SAMD51__)
+typedef enum SercomClockSource {
+  SERCOM_CLOCK_SOURCE_FCPU,     // F_CPU clock (GCLK0)
+  SERCOM_CLOCK_SOURCE_48M,      // 48 MHz peripheral clock (GCLK1) (standard)
+  SERCOM_CLOCK_SOURCE_100M,     // 100 MHz peripheral clock (GCLK2)
+  SERCOM_CLOCK_SOURCE_32K,      // XOSC32K clock (GCLK3)
+  SERCOM_CLOCK_SOURCE_12M,      // 12 MHz peripheral clock (GCLK4)
+  SERCOM_CLOCK_SOURCE_NO_CHANGE // Leave clock source setting unchanged
+};
+#endif // end __SAMD51__
+
 class SERCOM
 {
 	public:
@@ -178,7 +193,6 @@ class SERCOM
 		/* ========== SPI ========== */
 		void initSPI(SercomSpiTXPad mosi, SercomRXPad miso, SercomSpiCharSize charSize, SercomDataOrder dataOrder) ;
 		void initSPIClock(SercomSpiClockMode clockMode, uint32_t baudrate) ;
-
 		void resetSPI( void ) ;
 		void enableSPI( void ) ;
 		void disableSPI( void ) ;
@@ -217,10 +231,18 @@ class SERCOM
     bool isRXNackReceivedWIRE( void ) ;
 		int availableWIRE( void ) ;
 		uint8_t readDataWIRE( void ) ;
+		int8_t getSercomIndex(void);
+#if defined(__SAMD51__)
+		void setClockSource(int idx, SercomClockSource src, bool core);
+		uint32_t getFreqRef(void) { return freqRef; };
+#endif
 
 	private:
 		Sercom* sercom;
-		uint8_t calculateBaudrateSynchronous(uint32_t baudrate) ;
+#if defined(__SAMD51__)
+                uint32_t freqRef;
+#endif
+		uint8_t calculateBaudrateSynchronous(uint32_t baudrate);
 		uint32_t division(uint32_t dividend, uint32_t divisor) ;
 		void initClockNVIC( void ) ;
 };

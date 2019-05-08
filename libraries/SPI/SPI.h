@@ -38,6 +38,11 @@
 #define SPI_MODE3 0x01
 
 #if defined(__SAMD51__)
+  // SAMD51 has configurable MAX_SPI, else use peripheral clock default.
+  // Update: changing MAX_SPI via compiler flags is DEPRECATED, because
+  // this affects ALL SPI peripherals including some that should NOT be
+  // changed (e.g. anything using SD card). Use the setClockSources()
+  // function instead. This is left here for compatibility with interim code.
   #if !defined(MAX_SPI)
     #define MAX_SPI 24000000
   #endif
@@ -72,7 +77,11 @@ class SPISettings {
   }
 
   void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
+#if defined(__SAMD51__)
+    this->clockFreq = clock; // Clipping handled in SERCOM.cpp
+#else
     this->clockFreq = (clock >= (MAX_SPI * 2 / SPI_MIN_CLOCK_DIVIDER) ? MAX_SPI * 2 / SPI_MIN_CLOCK_DIVIDER : clock);
+#endif
 
     this->bitOrder = (bitOrder == MSBFIRST ? MSB_FIRST : LSB_FIRST);
 
@@ -98,10 +107,20 @@ class SPISettings {
   friend class SPIClass;
 };
 
+#if defined(__SAMD51__)
+enum SPIClockSource {
+  SPI_CLOCK_SOURCE_NO_CHANGE, // Leave clock source setting unchanged
+  SPI_CLOCK_SOURCE_FCPU,      // F_CPU clock (GCLK0)
+  SPI_CLOCK_SOURCE_48M,       // 48 MHz peripheral clock (GCLK1) (standard)
+  SPI_CLOCK_SOURCE_100M,      // 100 MHz peripheral clock (GCLK2)
+  SPI_CLOCK_SOURCE_32K,       // XOSC32K clock (GCLK3)
+  SPI_CLOCK_SOURCE_12M        // 12 MHz peripheral clock (GCLK4)
+};
+#endif // end __SAMD51__
+
 class SPIClass {
   public:
   SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad, SercomRXPad);
-
 
   byte transfer(uint8_t data);
   uint16_t transfer16(uint16_t data);
@@ -124,6 +143,17 @@ class SPIClass {
   void setDataMode(uint8_t uc_mode);
   void setClockDivider(uint8_t uc_div);
 
+#if defined(__SAMD21__) || defined(__SAMD51__)
+  volatile uint32_t *getDataRegister(void);
+  int                getDMACID(void);
+#endif
+#if defined(__SAMD51__)
+  void               setClockSources(
+                       SercomClockSource core = SERCOM_CLOCK_SOURCE_NO_CHANGE,
+                       SercomClockSource slow = SERCOM_CLOCK_SOURCE_NO_CHANGE);
+  uint32_t           getMaxBitrate(void) { return maxBitrate; };
+#endif // end __SAMD51__
+
   private:
   void init();
   void config(SPISettings settings);
@@ -140,6 +170,9 @@ class SPIClass {
   uint8_t interruptMode;
   char interruptSave;
   uint32_t interruptMask;
+#if defined(__SAMD51__)
+  uint32_t maxBitrate;
+#endif
 };
 
 #if SPI_INTERFACES_COUNT > 0

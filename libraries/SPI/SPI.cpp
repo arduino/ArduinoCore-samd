@@ -42,6 +42,10 @@ SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint
   // SERCOM pads
   _padTx=PadTx;
   _padRx=PadRx;
+
+#if defined(__SAMD51__)
+  maxBitrate = MAX_SPI; // Can override via setClockSource()
+#endif
 }
 
 void SPIClass::begin()
@@ -242,6 +246,55 @@ void SPIClass::attachInterrupt() {
 void SPIClass::detachInterrupt() {
   // Should be disableInterrupt()
 }
+
+#if defined(__SAMD21__) || defined(__SAMD51__)
+// SPI DMA lookup works on both SAMD21 and SAMD51
+
+volatile uint32_t *SPIClass::getDataRegister(void) {
+  volatile uint32_t *dataReg[] = {
+    &SERCOM0->SPI.DATA.reg, &SERCOM1->SPI.DATA.reg, &SERCOM2->SPI.DATA.reg,
+    &SERCOM3->SPI.DATA.reg, &SERCOM4->SPI.DATA.reg, &SERCOM5->SPI.DATA.reg,
+#if defined(SERCOM6)
+    &SERCOM6->SPI.DATA.reg,
+#endif
+#if defined(SERCOM7)
+    &SERCOM7->SPI.DATA.reg,
+#endif
+  };
+
+  int8_t idx = _p_sercom->getSercomIndex();
+  return (idx >= 0) ? dataReg[idx]: NULL;
+}
+
+int SPIClass::getDMACID(void) {
+  int DMACID[] = {
+    SERCOM0_DMAC_ID_TX, SERCOM1_DMAC_ID_TX, SERCOM2_DMAC_ID_TX,
+    SERCOM3_DMAC_ID_TX, SERCOM4_DMAC_ID_TX, SERCOM5_DMAC_ID_TX,
+#if defined(SERCOM6)
+    SERCOM6_DMAC_ID_TX,
+#endif
+#if defined(SERCOM7)
+    SERCOM7_DMAC_ID_TX,
+#endif
+  };
+
+  int8_t idx = _p_sercom->getSercomIndex();
+  return (idx >= 0) ? DMACID[idx] : -1;
+}
+
+#endif // end __SAMD21__ || __SAMD51__
+
+#if defined(__SAMD51__)
+
+// Set the SPI device's SERCOM clock CORE and/or SLOW clock source(s).
+// These are SercomClockSource values from an enumeration in SERCOM.h.
+void SPIClass::setClockSources(SercomClockSource core, SercomClockSource slow) {
+  int8_t idx = _p_sercom->getSercomIndex();
+  _p_sercom->setClockSource(idx, core, true);  // true  = set core clock
+  _p_sercom->setClockSource(idx, slow, false); // false = set slow clock
+}
+
+#endif // end __SAMD51__
 
 #if SPI_INTERFACES_COUNT > 0
   /* In case new variant doesn't define these macros,
