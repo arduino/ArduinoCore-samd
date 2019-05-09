@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#if defined(USE_TINYUSB) && defined(USBCON)
+#ifdef USE_TINYUSB
 
 #include "Arduino.h"
 #include "Adafruit_TinyUSB_Core.h"
@@ -128,4 +128,4 @@ void Adafruit_TinyUSB_Core_init(void)
   tusb_init();
 }
 
-#endif
+#endif // USE_TINYUSB
