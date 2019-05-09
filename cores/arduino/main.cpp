@@ -40,13 +40,11 @@ int main( void )
 
   delay(1);
 
-#if defined(USBCON)
- #if defined(USE_TINYUSB)
+#if defined(USE_TINYUSB)
   Adafruit_TinyUSB_Core_init();
- #else
+#elif defined(USBCON)
   USBDevice.init();
   USBDevice.attach();
- #endif
 #endif
 
   setup();
@@ -55,7 +53,7 @@ int main( void )
   {
     loop();
 
-#if defined(USE_TINYUSB) && defined(USBCON)
+#ifdef USE_TINYUSB
     tud_task();
 #endif
 
@@ -65,7 +63,7 @@ int main( void )
   return 0;
 }
 
-#if defined(USE_TINYUSB) && defined(USBCON)
+#ifdef USE_TINYUSB
 void yield(void)
 {
   tud_task();

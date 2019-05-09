@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#if defined(USE_TINYUSB) && defined(USBCON)
+#ifdef USE_TINYUSB
 
 #include "Adafruit_USBD_Device.h"
 
@@ -184,4 +184,4 @@ bool Adafruit_USBD_Device::begin(void)
   return true;
 }
 
-#endif
+#endif // USE_TINYUSB

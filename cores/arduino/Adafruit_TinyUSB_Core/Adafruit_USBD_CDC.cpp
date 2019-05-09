@@ -22,7 +22,7 @@
  * THE SOFTWARE.
  */
 
-#if defined(USE_TINYUSB) && defined(USBCON)
+#ifdef USE_TINYUSB
 
 #include "Arduino.h"
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
@@ -139,4 +139,4 @@ void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
 
 }
 
-#endif // NRF52840_XXAA
+#endif // USE_TINYUSB
