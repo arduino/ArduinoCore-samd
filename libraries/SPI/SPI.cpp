@@ -245,36 +245,38 @@ void SPIClass::detachInterrupt() {
 
 // SPI DMA lookup works on both SAMD21 and SAMD51
 
-volatile uint32_t *SPIClass::getDataRegister(void) {
-  volatile uint32_t *dataReg[] = {
-    &SERCOM0->SPI.DATA.reg, &SERCOM1->SPI.DATA.reg, &SERCOM2->SPI.DATA.reg,
-    &SERCOM3->SPI.DATA.reg, &SERCOM4->SPI.DATA.reg, &SERCOM5->SPI.DATA.reg,
+static const struct {
+  volatile uint32_t *data_reg;
+  int                dmac_id_tx;
+  int                dmac_id_rx;
+} sercomData[] = {
+  { &SERCOM0->SPI.DATA.reg, SERCOM0_DMAC_ID_TX, SERCOM0_DMAC_ID_RX },
+  { &SERCOM1->SPI.DATA.reg, SERCOM1_DMAC_ID_TX, SERCOM1_DMAC_ID_RX },
+  { &SERCOM2->SPI.DATA.reg, SERCOM2_DMAC_ID_TX, SERCOM2_DMAC_ID_RX },
+  { &SERCOM3->SPI.DATA.reg, SERCOM3_DMAC_ID_TX, SERCOM3_DMAC_ID_RX },
+  { &SERCOM4->SPI.DATA.reg, SERCOM4_DMAC_ID_TX, SERCOM4_DMAC_ID_RX },
+  { &SERCOM5->SPI.DATA.reg, SERCOM5_DMAC_ID_TX, SERCOM5_DMAC_ID_RX },
 #if defined(SERCOM6)
-    &SERCOM6->SPI.DATA.reg,
+  { &SERCOM6->SPI.DATA.reg, SERCOM6_DMAC_ID_TX, SERCOM6_DMAC_ID_RX },
 #endif
 #if defined(SERCOM7)
-    &SERCOM7->SPI.DATA.reg,
+  { &SERCOM7->SPI.DATA.reg, SERCOM7_DMAC_ID_TX, SERCOM7_DMAC_ID_RX },
 #endif
-  };
+};
 
+volatile uint32_t *SPIClass::getDataRegister(void) {
   int8_t idx = _p_sercom->getSercomIndex();
-  return (idx >= 0) ? dataReg[idx]: NULL;
+  return (idx >= 0) ? sercomData[idx].data_reg: NULL;
 }
 
-int SPIClass::getDMACID(void) {
-  int DMACID[] = {
-    SERCOM0_DMAC_ID_TX, SERCOM1_DMAC_ID_TX, SERCOM2_DMAC_ID_TX,
-    SERCOM3_DMAC_ID_TX, SERCOM4_DMAC_ID_TX, SERCOM5_DMAC_ID_TX,
-#if defined(SERCOM6)
-    SERCOM6_DMAC_ID_TX,
-#endif
-#if defined(SERCOM7)
-    SERCOM7_DMAC_ID_TX,
-#endif
-  };
-
+int SPIClass::getDMAC_ID_TX(void) {
   int8_t idx = _p_sercom->getSercomIndex();
-  return (idx >= 0) ? DMACID[idx] : -1;
+  return (idx >= 0) ? sercomData[idx].dmac_id_tx : -1;
+}
+
+int SPIClass::getDMAC_ID_RX(void) {
+  int8_t idx = _p_sercom->getSercomIndex();
+  return (idx >= 0) ? sercomData[idx].dmac_id_rx : -1;
 }
 
 #if defined(__SAMD51__)

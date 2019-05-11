@@ -134,7 +134,8 @@ class SPIClass {
 
   // SERCOM lookup functions are available on both SAMD51 and 21.
   volatile uint32_t *getDataRegister(void);
-  int getDMACID(void);
+  int getDMAC_ID_TX(void);
+  int getDMAC_ID_RX(void);
   uint8_t getSercomIndex(void) { return _p_sercom->getSercomIndex(); };
 #if defined(__SAMD51__)
   // SERCOM clock source override is available only on SAMD51.
