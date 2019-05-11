@@ -30,6 +30,24 @@
 SERCOM::SERCOM(Sercom* s)
 {
   sercom = s;
+
+#if defined(__SAMD51__)
+  // A briefly-available but now deprecated feature had the SPI clock source
+  // set via a compile-time setting (MAX_SPI)...problem was this affected
+  // ALL SERCOMs, whereas some (anything read/write, e.g. SD cards) should
+  // not exceed the standard 24 MHz setting.  Newer code, if it needs faster
+  // write-only SPI (e.g. to screen), should override the SERCOM clock on a
+  // per-peripheral basis.  Nonetheless, we check SERCOM_SPI_FREQ_REF here
+  // (MAX_SPI * 2) to retain compatibility with any interim projects that
+  // might have relied on the compile-time setting.  But please, don't.
+ #if SERCOM_SPI_FREQ_REF == F_CPU       // F_CPU clock = GCLK0
+  clockSource = SERCOM_CLOCK_SOURCE_FCPU;
+ #elif SERCOM_SPI_FREQ_REF == 48000000  // 48 MHz clock = GCLK1 (standard)
+  clockSource = SERCOM_CLOCK_SOURCE_48M;
+ #elif SERCOM_SPI_FREQ_REF == 100000000 // 100 MHz clock = GCLK2
+  clockSource = SERCOM_CLOCK_SOURCE_100M;
+ #endif
+#endif // end __SAMD51__
 }
 
 /* =========================
@@ -305,7 +323,11 @@ void SERCOM::setBaudrateSPI(uint8_t divider)
 {
   disableSPI(); // Register is enable-protected
 
+#if defined(__SAMD51__)
+  sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(freqRef / divider);
+#else
   sercom->SPI.BAUD.reg = calculateBaudrateSynchronous(SERCOM_SPI_FREQ_REF / divider);
+#endif
 
   enableSPI();
 }
@@ -364,9 +386,12 @@ bool SERCOM::isDataRegisterEmptySPI()
 //  return sercom->SPI.INTFLAG.bit.RXC;
 //}
 
-uint8_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate)
-{
+uint8_t SERCOM::calculateBaudrateSynchronous(uint32_t baudrate) {
+#if defined(__SAMD51__)
+  uint16_t b = freqRef / (2 * baudrate);
+#else
   uint16_t b = SERCOM_SPI_FREQ_REF / (2 * baudrate);
+#endif
   if(b > 0) b--; // Don't -1 on baud calc if already at 0
   return b;
 }
@@ -664,163 +689,143 @@ uint8_t SERCOM::readDataWIRE( void )
   }
 }
 
-
-void SERCOM::initClockNVIC( void )
-{
 #if defined(__SAMD51__)
-  uint32_t  clk_core, clk_slow;
-  IRQn_Type irq0, irq1, irq2, irq3;
 
-  if(sercom == SERCOM0) {
-    clk_core = SERCOM0_GCLK_ID_CORE;
-    clk_slow = SERCOM0_GCLK_ID_SLOW;
-    irq0     = SERCOM0_0_IRQn;
-    irq1     = SERCOM0_1_IRQn;
-    irq2     = SERCOM0_2_IRQn;
-    irq3     = SERCOM0_3_IRQn;
-  } else if(sercom == SERCOM1) {
-    clk_core = SERCOM1_GCLK_ID_CORE;
-    clk_slow = SERCOM1_GCLK_ID_SLOW;
-    irq0     = SERCOM1_0_IRQn;
-    irq1     = SERCOM1_1_IRQn;
-    irq2     = SERCOM1_2_IRQn;
-    irq3     = SERCOM1_3_IRQn;
-  } else if(sercom == SERCOM2) {
-    clk_core = SERCOM2_GCLK_ID_CORE;
-    clk_slow = SERCOM2_GCLK_ID_SLOW;
-    irq0     = SERCOM2_0_IRQn;
-    irq1     = SERCOM2_1_IRQn;
-    irq2     = SERCOM2_2_IRQn;
-    irq3     = SERCOM2_3_IRQn;
-  } else if(sercom == SERCOM3) {
-    clk_core = SERCOM3_GCLK_ID_CORE;
-    clk_slow = SERCOM3_GCLK_ID_SLOW;
-    irq0     = SERCOM3_0_IRQn;
-    irq1     = SERCOM3_1_IRQn;
-    irq2     = SERCOM3_2_IRQn;
-    irq3     = SERCOM3_3_IRQn;
-  } else if(sercom == SERCOM4) {
-    clk_core = SERCOM4_GCLK_ID_CORE;
-    clk_slow = SERCOM4_GCLK_ID_SLOW;
-    irq0     = SERCOM4_0_IRQn;
-    irq1     = SERCOM4_1_IRQn;
-    irq2     = SERCOM4_2_IRQn;
-    irq3     = SERCOM4_3_IRQn;
-  } else if(sercom == SERCOM5) {
-    clk_core = SERCOM5_GCLK_ID_CORE;
-    clk_slow = SERCOM5_GCLK_ID_SLOW;
-    irq0     = SERCOM5_0_IRQn;
-    irq1     = SERCOM5_1_IRQn;
-    irq2     = SERCOM5_2_IRQn;
-    irq3     = SERCOM5_3_IRQn;
+static const struct {
+  Sercom   *sercomPtr;
+  uint8_t   id_core;
+  uint8_t   id_slow;
+  IRQn_Type irq[4];
+} sercomData[] = {
+  { SERCOM0, SERCOM0_GCLK_ID_CORE, SERCOM0_GCLK_ID_SLOW,
+    SERCOM0_0_IRQn, SERCOM0_1_IRQn, SERCOM0_2_IRQn, SERCOM0_3_IRQn },
+  { SERCOM1, SERCOM1_GCLK_ID_CORE, SERCOM1_GCLK_ID_SLOW,
+    SERCOM1_0_IRQn, SERCOM1_1_IRQn, SERCOM1_2_IRQn, SERCOM1_3_IRQn },
+  { SERCOM2, SERCOM2_GCLK_ID_CORE, SERCOM2_GCLK_ID_SLOW,
+    SERCOM2_0_IRQn, SERCOM2_1_IRQn, SERCOM2_2_IRQn, SERCOM2_3_IRQn },
+  { SERCOM3, SERCOM3_GCLK_ID_CORE, SERCOM3_GCLK_ID_SLOW,
+    SERCOM3_0_IRQn, SERCOM3_1_IRQn, SERCOM3_2_IRQn, SERCOM3_3_IRQn },
+  { SERCOM4, SERCOM4_GCLK_ID_CORE, SERCOM4_GCLK_ID_SLOW,
+    SERCOM4_0_IRQn, SERCOM4_1_IRQn, SERCOM4_2_IRQn, SERCOM4_3_IRQn },
+  { SERCOM5, SERCOM5_GCLK_ID_CORE, SERCOM5_GCLK_ID_SLOW,
+    SERCOM5_0_IRQn, SERCOM5_1_IRQn, SERCOM5_2_IRQn, SERCOM5_3_IRQn },
+#if defined(SERCOM6)
+  { SERCOM6, SERCOM6_GCLK_ID_CORE, SERCOM6_GCLK_ID_SLOW,
+    SERCOM6_0_IRQn, SERCOM6_1_IRQn, SERCOM6_2_IRQn, SERCOM6_3_IRQn },
+#endif
+#if defined(SERCOM7)
+  { SERCOM7, SERCOM7_GCLK_ID_CORE, SERCOM7_GCLK_ID_SLOW,
+    SERCOM7_0_IRQn, SERCOM7_1_IRQn, SERCOM7_2_IRQn, SERCOM7_3_IRQn },
+#endif
+};
+
+#else // end if SAMD51 (prob SAMD21)
+
+static const struct {
+  Sercom   *sercomPtr;
+  uint8_t   clock;
+  IRQn_Type irqn;
+} sercomData[] = {
+  SERCOM0, GCM_SERCOM0_CORE, SERCOM0_IRQn,
+  SERCOM1, GCM_SERCOM1_CORE, SERCOM1_IRQn,
+  SERCOM2, GCM_SERCOM2_CORE, SERCOM2_IRQn,
+  SERCOM3, GCM_SERCOM3_CORE, SERCOM3_IRQn,
+#if defined(SERCOM4)
+  SERCOM4, GCM_SERCOM4_CORE, SERCOM4_IRQn,
+#endif
+#if defined(SERCOM5)
+  SERCOM5, GCM_SERCOM5_CORE, SERCOM5_IRQn,
+#endif
+};
+
+#endif // end !SAMD51
+
+int8_t SERCOM::getSercomIndex(void) {
+  for(uint8_t i=0; i<(sizeof(sercomData) / sizeof(sercomData[0])); i++) {
+    if(sercom == sercomData[i].sercomPtr) return i;
   }
- #if defined SERCOM6
-  else if(sercom == SERCOM6) {
-    clk_core = SERCOM6_GCLK_ID_CORE;
-    clk_slow = SERCOM6_GCLK_ID_SLOW;
-    irq0     = (SERCOM6_0_IRQn);
-    irq1     = (SERCOM6_1_IRQn);
-    irq2     = (SERCOM6_2_IRQn);
-    irq3     = (SERCOM6_3_IRQn);
-  }
- #endif // end SERCOM6
- #if defined SERCOM7
-  else if(sercom == SERCOM7) {
-    clk_core = SERCOM7_GCLK_ID_CORE;
-    clk_slow = SERCOM7_GCLK_ID_SLOW;
-    irq0     = (SERCOM7_0_IRQn);
-    irq1     = (SERCOM7_1_IRQn);
-    irq2     = (SERCOM7_2_IRQn);
-    irq3     = (SERCOM7_3_IRQn);
-  }
- #endif // end SERCOM7
-  NVIC_ClearPendingIRQ(irq0);
-  NVIC_ClearPendingIRQ(irq1);
-  NVIC_ClearPendingIRQ(irq2);
-  NVIC_ClearPendingIRQ(irq3);
+  return -1;
+}
 
-  NVIC_SetPriority(irq0, (1<<__NVIC_PRIO_BITS) - 1);
-  NVIC_SetPriority(irq1, (1<<__NVIC_PRIO_BITS) - 1);
-  NVIC_SetPriority(irq2, (1<<__NVIC_PRIO_BITS) - 1);
-  NVIC_SetPriority(irq3, (1<<__NVIC_PRIO_BITS) - 1);
+#if defined(__SAMD51__)
+// This is currently for overriding an SPI SERCOM's clock source only --
+// NOT for UART or WIRE SERCOMs, where it will have unintended consequences.
+// It does not check.
+// SERCOM clock source override is available only on SAMD51 (not 21).
+// A dummy function for SAMD21 (compiles to nothing) is present in SERCOM.h
+// so user code doesn't require a lot of conditional situations.
+void SERCOM::setClockSource(int8_t idx, SercomClockSource src, bool core) {
 
-  NVIC_EnableIRQ(irq0);
-  NVIC_EnableIRQ(irq1);
-  NVIC_EnableIRQ(irq2);
-  NVIC_EnableIRQ(irq3);
+  if(src == SERCOM_CLOCK_SOURCE_NO_CHANGE) return;
 
-  GCLK->PCHCTRL[clk_core].bit.CHEN = 0;     // Disable core timer
-  while(GCLK->PCHCTRL[clk_core].bit.CHEN);  // Wait for disable
-  GCLK->PCHCTRL[clk_slow].bit.CHEN = 0;     // Disable slow timer
-  while(GCLK->PCHCTRL[clk_slow].bit.CHEN);  // Wait for disable
+  uint8_t clk_id = core ? sercomData[idx].id_core : sercomData[idx].id_slow;
 
-  // SPI DMA speed is dictated by the "slow clock," so BOTH are set to the
-  // same clock source (clk_slow isn't sourced from XOSC32K as before).
-  // This might have power implications for sleep code.
+  GCLK->PCHCTRL[clk_id].bit.CHEN = 0;     // Disable timer
+  while(GCLK->PCHCTRL[clk_id].bit.CHEN);  // Wait for disable
+
+  if(core) clockSource = src; // Save SercomClockSource value
+
   // From cores/arduino/startup.c:
   // GCLK0 = F_CPU
   // GCLK1 = 48 MHz
   // GCLK2 = 100 MHz
   // GCLK3 = XOSC32K
   // GCLK4 = 12 MHz
- #if SERCOM_SPI_FREQ_REF == 48000000 // 48 MHz clock = GCLK1
-  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK1_Val |
-                                (1 << GCLK_PCHCTRL_CHEN_Pos);
-  GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK1_Val |
-                                (1 << GCLK_PCHCTRL_CHEN_Pos);
- #elif SERCOM_SPI_FREQ_REF == 100000000 // 100 MHz clock = GCLK2
-  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK2_Val |
-                                (1 << GCLK_PCHCTRL_CHEN_Pos);
-  GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK2_Val |
-                                (1 << GCLK_PCHCTRL_CHEN_Pos);
- #elif SERCOM_SPI_FREQ_REF == F_CPU // F_CPU clock = GCLK0
-  GCLK->PCHCTRL[clk_core].reg = GCLK_PCHCTRL_GEN_GCLK0_Val |
-                                (1 << GCLK_PCHCTRL_CHEN_Pos);
-  GCLK->PCHCTRL[clk_slow].reg = GCLK_PCHCTRL_GEN_GCLK0_Val |
-                                (1 << GCLK_PCHCTRL_CHEN_Pos);
- #endif
-
-  while(!GCLK->PCHCTRL[clk_core].bit.CHEN); // Wait for core clock enable
-  while(!GCLK->PCHCTRL[clk_slow].bit.CHEN); // Wait for slow clock enable
-
-#else // end if SAMD51
-
-  IRQn_Type IdNvic=PendSV_IRQn ; // Dummy init to intercept potential error later
-
-  uint8_t clockId = 0;
-  if(sercom == SERCOM0) {
-    clockId = GCM_SERCOM0_CORE;
-    IdNvic  = SERCOM0_IRQn;
-  } else if(sercom == SERCOM1) {
-    clockId = GCM_SERCOM1_CORE;
-    IdNvic  = SERCOM1_IRQn;
-  } else if(sercom == SERCOM2) {
-    clockId = GCM_SERCOM2_CORE;
-    IdNvic  = SERCOM2_IRQn;
-  } else if(sercom == SERCOM3) {
-    clockId = GCM_SERCOM3_CORE;
-    IdNvic  = SERCOM3_IRQn;
-  }
- #if defined(SERCOM4)
-  else if(sercom == SERCOM4) {
-    clockId = GCM_SERCOM4_CORE;
-    IdNvic  = SERCOM4_IRQn;
-  }
- #endif // end SERCOM4
- #if defined(SERCOM5)
-  else if(sercom == SERCOM5) {
-    clockId = GCM_SERCOM5_CORE;
-    IdNvic  = SERCOM5_IRQn;
-  }
- #endif // end SERCOM5
-
-  if(IdNvic == PendSV_IRQn) {
-    return; // We got a problem here
+  if(src == SERCOM_CLOCK_SOURCE_FCPU) {
+    GCLK->PCHCTRL[clk_id].reg =
+      GCLK_PCHCTRL_GEN_GCLK0_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+    if(core) freqRef = F_CPU; // Save clock frequency value
+  } else if(src == SERCOM_CLOCK_SOURCE_48M) {
+    GCLK->PCHCTRL[clk_id].reg =
+      GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+    if(core) freqRef = 48000000;
+  } else if(src == SERCOM_CLOCK_SOURCE_100M) {
+    GCLK->PCHCTRL[clk_id].reg =
+      GCLK_PCHCTRL_GEN_GCLK2_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+    if(core) freqRef = 100000000;
+  } else if(src == SERCOM_CLOCK_SOURCE_32K) {
+    GCLK->PCHCTRL[clk_id].reg =
+      GCLK_PCHCTRL_GEN_GCLK3_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+    if(core) freqRef = 32768;
+  } else if(src == SERCOM_CLOCK_SOURCE_12M) {
+    GCLK->PCHCTRL[clk_id].reg =
+      GCLK_PCHCTRL_GEN_GCLK4_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+    if(core) freqRef = 12000000;
   }
 
-    // Setting NVIC
+  while(!GCLK->PCHCTRL[clk_id].bit.CHEN); // Wait for clock enable
+}
+#endif
+
+void SERCOM::initClockNVIC( void )
+{
+  int8_t idx = getSercomIndex();
+  if(idx < 0) return; // We got a problem here
+
+#if defined(__SAMD51__)
+
+  for(uint8_t i=0; i<4; i++) {
+    NVIC_ClearPendingIRQ(sercomData[idx].irq[i]);
+    NVIC_SetPriority(sercomData[idx].irq[i], SERCOM_NVIC_PRIORITY);
+    NVIC_EnableIRQ(sercomData[idx].irq[i]);
+  }
+
+  // SPI DMA speed is dictated by the "slow clock" (I think...maybe) so
+  // BOTH are set to the same clock source (clk_slow isn't sourced from
+  // XOSC32K as in prior versions of SAMD core).
+  // This might have power implications for sleep code.
+
+  setClockSource(idx, clockSource, true);  // true  = core clock
+  setClockSource(idx, clockSource, false); // false = slow clock
+
+#else // end if SAMD51 (prob SAMD21)
+
+  uint8_t   clockId = sercomData[idx].clock;
+  IRQn_Type IdNvic  = sercomData[idx].irqn;
+
+  // Setting NVIC
   NVIC_ClearPendingIRQ(IdNvic);
-  NVIC_SetPriority (IdNvic, (1<<__NVIC_PRIO_BITS) - 1);
+  NVIC_SetPriority(IdNvic, SERCOM_NVIC_PRIORITY);
   NVIC_EnableIRQ(IdNvic);
 
   // Setting clock
@@ -830,5 +835,6 @@ void SERCOM::initClockNVIC( void )
     GCLK_CLKCTRL_CLKEN;
 
   while(GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY); // Wait for synchronization
+
 #endif // end !SAMD51
 }
