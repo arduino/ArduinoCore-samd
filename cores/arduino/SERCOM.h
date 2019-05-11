@@ -156,14 +156,14 @@ typedef enum
 // but the enumeration is made regardless so user code doesn't need
 // ifdefs or lengthy comments explaining the different situations --
 // the clock-sourcing functions just compile to nothing on SAMD21.
-typedef enum SercomClockSource {
+typedef enum {
   SERCOM_CLOCK_SOURCE_FCPU,     // F_CPU clock (GCLK0)
   SERCOM_CLOCK_SOURCE_48M,      // 48 MHz peripheral clock (GCLK1) (standard)
   SERCOM_CLOCK_SOURCE_100M,     // 100 MHz peripheral clock (GCLK2)
   SERCOM_CLOCK_SOURCE_32K,      // XOSC32K clock (GCLK3)
   SERCOM_CLOCK_SOURCE_12M,      // 12 MHz peripheral clock (GCLK4)
   SERCOM_CLOCK_SOURCE_NO_CHANGE // Leave clock source setting unchanged
-};
+} SercomClockSource;
 
 class SERCOM
 {
