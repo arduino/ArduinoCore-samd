@@ -55,6 +55,7 @@ int main( void )
 
 #ifdef USE_TINYUSB
     tud_task();
+    tud_cdc_write_flush();
 #endif
 
     if (serialEventRun) serialEventRun();
@@ -67,6 +68,7 @@ int main( void )
 void yield(void)
 {
   tud_task();
+  tud_cdc_write_flush();
 }
 #endif
 
