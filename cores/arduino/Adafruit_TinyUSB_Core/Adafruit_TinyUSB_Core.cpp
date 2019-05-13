@@ -31,9 +31,6 @@
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
 //--------------------------------------------------------------------+
 
-// Serial is 64-bit DeviceID -> 16 chars len
-uint16_t usb_desc_str_serial[1+16] = { TUD_DESC_STR_HEADER(16) };
-
 // Init usb hardware when starting up. Softdevice is not enabled yet
 static void usb_hardware_init(void)
 {
@@ -84,7 +81,7 @@ static void usb_hardware_init(void)
 #endif
 }
 
-static void load_serial_number(void)
+uint8_t load_serial_number(uint16_t* serial_str)
 {
 #ifdef __SAMD51__
   uint32_t* id_addresses[4] = {(uint32_t *) 0x008061FC, (uint32_t *) 0x00806010,
@@ -108,16 +105,15 @@ static void load_serial_number(void)
     for (int j = 0; j < 2; j++) {
       uint8_t nibble = (raw_id[i] >> (j * 4)) & 0xf;
       // Strings are UTF-16-LE encoded.
-      usb_desc_str_serial[1 + i * 2 + j] = nibble_to_hex[nibble];
+      serial_str[i * 2 + j] = nibble_to_hex[nibble];
     }
   }
+
+  return 16;
 }
 
 void Adafruit_TinyUSB_Core_init(void)
 {
-  // Create Serial string descriptor
-  load_serial_number();
-
   USBDevice.addInterface( (Adafruit_USBD_Interface&) Serial);
   USBDevice.setID(USB_VID, USB_PID);
   USBDevice.begin();
