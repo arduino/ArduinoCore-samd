@@ -211,7 +211,7 @@ nano_33_iot.build.usb_product="Arduino NANO 33 IoT"
 nano_33_iot.build.usb_manufacturer="Arduino LLC"
 nano_33_iot.build.board=SAMD_NANO_33_IOT
 nano_33_iot.build.core=arduino
-nano_33_iot.build.extra_flags=-DCRYSTALLESS -D__SAMD21G18A__ {build.usb_flags} {build.tx_rx_swap}
+nano_33_iot.build.extra_flags=-DCRYSTALLESS -D__SAMD21G18A__ {build.usb_flags}
 nano_33_iot.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 nano_33_iot.build.openocdscript=openocd_scripts/arduino_zero.cfg
 nano_33_iot.build.variant=nano_33_iot
@@ -219,12 +219,6 @@ nano_33_iot.build.vid=0x2341
 nano_33_iot.build.pid=0x8057
 nano_33_iot.bootloader.tool=openocd
 nano_33_iot.bootloader.file=nano_33_iot/samd21_sam_ba_arduino_nano_33_iot.bin
-
-menu.r0_tx_rx_bug=TX RX swapped
-nano_33_iot.menu.r0_tx_rx_bug.no=No
-nano_33_iot.menu.r0_tx_rx_bug.no.build.tx_rx_swap=
-nano_33_iot.menu.r0_tx_rx_bug.yes=Yes
-nano_33_iot.menu.r0_tx_rx_bug.yes.build.tx_rx_swap=-DTX_RX_NINA_SWAPPED_R0
 
 # Arduino MKR FOX 1200
 # --------------------

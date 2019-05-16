@@ -158,9 +158,8 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 
 // USB
 // ---
-#define PIN_USB_HOST_ENABLE (0xFF)
-#define PIN_USB_DM          (29ul)
-#define PIN_USB_DP          (30ul)
+#define PIN_USB_DM          (31ul)
+#define PIN_USB_DP          (32ul)
 
 // I2S Interfaces
 // --------------
@@ -189,18 +188,10 @@ extern Uart Serial1;
 
 // Serial1
 extern Uart Serial2;
-#ifdef TX_RX_NINA_SWAPPED_R0
-// bug in R0, use MixedSerial(Serial2, 30) as SerialNina - 115200bps max
-#define PIN_SERIAL2_RX       (29ul)
-#define PIN_SERIAL2_TX       (30ul)
-#define PAD_SERIAL2_TX       (UART_TX_PAD_2)
-#define PAD_SERIAL2_RX       (SERCOM_RX_PAD_0)
-#else
 #define PIN_SERIAL2_RX       (30ul)
 #define PIN_SERIAL2_TX       (29ul)
 #define PAD_SERIAL2_TX       (UART_TX_PAD_0)
 #define PAD_SERIAL2_RX       (SERCOM_RX_PAD_1)
-#endif
 
 extern Uart SerialHCI;
 #define PIN_SERIALHCI_RX (23ul)

@@ -143,8 +143,10 @@ void UHD_Init(void)
 	uhd_state = UHD_STATE_NO_VBUS;
 
 	// Put VBUS on USB port
+	#ifdef PIN_USB_HOST_ENABLE
 	pinMode( PIN_USB_HOST_ENABLE, OUTPUT );
 	digitalWrite( PIN_USB_HOST_ENABLE, HIGH );
+	#endif
 
 	uhd_enable_connection_int();
 
