@@ -38,6 +38,11 @@
 #define SPI_MODE3 0x01
 
 #if defined(__SAMD51__)
+  // SAMD51 has configurable MAX_SPI, else use peripheral clock default.
+  // Update: changing MAX_SPI via compiler flags is DEPRECATED, because
+  // this affects ALL SPI peripherals including some that should NOT be
+  // changed (e.g. anything using SD card). Use the setClockSource()
+  // function instead. This is left here for compatibility with interim code.
   #if !defined(MAX_SPI)
     #define MAX_SPI 24000000
   #endif
@@ -72,7 +77,11 @@ class SPISettings {
   }
 
   void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
+#if defined(__SAMD51__)
+    this->clockFreq = clock; // Clipping handled in SERCOM.cpp
+#else
     this->clockFreq = (clock >= (MAX_SPI * 2 / SPI_MIN_CLOCK_DIVIDER) ? MAX_SPI * 2 / SPI_MIN_CLOCK_DIVIDER : clock);
+#endif
 
     this->bitOrder = (bitOrder == MSBFIRST ? MSB_FIRST : LSB_FIRST);
 
@@ -102,7 +111,6 @@ class SPIClass {
   public:
   SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad, SercomRXPad);
 
-
   byte transfer(uint8_t data);
   uint16_t transfer16(uint16_t data);
   void transfer(void *buf, size_t count);
@@ -123,6 +131,20 @@ class SPIClass {
   void setBitOrder(BitOrder order);
   void setDataMode(uint8_t uc_mode);
   void setClockDivider(uint8_t uc_div);
+
+  // SERCOM lookup functions are available on both SAMD51 and 21.
+  volatile uint32_t *getDataRegister(void);
+  int getDMAC_ID_TX(void);
+  int getDMAC_ID_RX(void);
+  uint8_t getSercomIndex(void) { return _p_sercom->getSercomIndex(); };
+#if defined(__SAMD51__)
+  // SERCOM clock source override is available only on SAMD51.
+  void setClockSource(SercomClockSource clk);
+#else
+  // On SAMD21, this compiles to nothing, so user code doesn't need to
+  // check and conditionally compile lines for different architectures.
+  void setClockSource(SercomClockSource clk) { };
+#endif // end __SAMD51__
 
   private:
   void init();

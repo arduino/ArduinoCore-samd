@@ -26,6 +26,7 @@
 
 #include "Arduino.h"
 #include "Adafruit_TinyUSB_Core.h"
+#include <Reset.h> // Needed for auto-reset with 1200bps port touch
 
 //--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
@@ -122,6 +123,11 @@ void Adafruit_TinyUSB_Core_init(void)
 
   // Init tinyusb stack
   tusb_init();
+}
+
+void Adafruit_TinyUSB_Core_touch1200(void)
+{
+  initiateReset(250);
 }
 
 #endif // USE_TINYUSB
