@@ -64,7 +64,13 @@ void Adafruit_USBD_CDC::end(void)
 
 Adafruit_USBD_CDC::operator bool()
 {
-  return tud_cdc_connected();
+  bool ret = tud_cdc_connected();
+
+  // Add an yield to run usb background in case sketch block wait as follows
+  // while(!Serial) {}
+  if ( !ret ) yield();
+
+  return ret;
 }
 
 int Adafruit_USBD_CDC::available(void)
@@ -80,11 +86,6 @@ int Adafruit_USBD_CDC::peek(void)
 int Adafruit_USBD_CDC::read(void)
 {
   return (int) tud_cdc_read_char();
-}
-
-size_t Adafruit_USBD_CDC::readBytes(char *buffer, size_t length)
-{
-  return tud_cdc_read(buffer, length);
 }
 
 void Adafruit_USBD_CDC::flush(void)

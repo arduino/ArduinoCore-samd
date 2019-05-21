@@ -28,7 +28,17 @@
 static void __empty() {
 	// Empty
 }
+
+#ifdef USE_TINYUSB
+#include "tusb.h"
+void yield(void)
+{
+  tud_task();
+  tud_cdc_write_flush();
+}
+#else
 void yield(void) __attribute__ ((weak, alias("__empty")));
+#endif
 
 /**
  * SysTick hook
