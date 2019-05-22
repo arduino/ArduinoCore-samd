@@ -130,4 +130,17 @@ void Adafruit_TinyUSB_Core_touch1200(void)
   initiateReset(250);
 }
 
+
+extern  "C"
+{
+
+void yield(void)
+
+{
+  tud_task();
+  tud_cdc_write_flush();
+}
+
+}
+
 #endif // USE_TINYUSB
