@@ -262,7 +262,9 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
                 true);                     // Increment dest address
             readChannel.setTrigger(getDMAC_ID_RX());
             readChannel.setAction(DMA_TRIGGER_ACTON_BEAT);
-            readChannel.setCallback(dmaCallback);
+            // Since all RX transfers involve a TX,
+            // I don't think this separate callback is necessary.
+            //readChannel.setCallback(dmaCallback);
             spiPtr[readChannel.getChannel()] = this;
         }
     }
@@ -328,43 +330,29 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
             }
 
             // Issue 'bytesThisPass' bytes...
-            dma_busy = true;
             if(rxbuf) {
                 // Reading, or reading + writing.
-                // Set up read descriptor for reading.
+                // Set up read descriptor.
                 // Src address doesn't change, only dest & count.
                 // DMA needs address set to END of buffer, so
                 // increment the address now, before the transfer.
                 readDescriptor->DSTADDR.reg += bytesThisPass;
                 readDescriptor->BTCNT.reg    = bytesThisPass;
-                if(txbuf) {
-                    // Writing and reading simultaneously.
-                    // Set up write descriptor for writing real data.
-                    // Src address and count both change.
-                    // DMA needs address set to END of buffer, so
-                    // increment the address now, before the transfer.
-                    writeDescriptor->SRCADDR.reg += bytesThisPass;
-                    writeDescriptor->BTCNT.reg    = bytesThisPass;
-                } else {
-                    // Reading only.
-                    // Write descriptor was already set up for dummy
-                    // writes outside loop, only BTCNT needs set.
-                    writeDescriptor->SRCADDR.reg = (uint32_t)&dum;
-                    writeDescriptor->BTCNT.reg   = bytesThisPass;
-                }
                 // Start the RX job BEFORE the TX job!
                 // That's the whole secret sauce to the two-channel transfer.
+                // Nothing will actually happen until the write channel job
+                // is also started.
                 readChannel.startJob();
-            } else if(txbuf) {
-                // Writing only.
-                // Set up write descriptor for writing real data.
+            }
+            if(txbuf) {
                 // DMA needs address set to END of buffer, so
                 // increment the address now, before the transfer.
                 writeDescriptor->SRCADDR.reg += bytesThisPass;
-                writeDescriptor->BTCNT.reg    = bytesThisPass;
             }
+            writeDescriptor->BTCNT.reg = bytesThisPass;
+            dma_busy = true;
             writeChannel.startJob();
-            count -= bytesThisPass;
+            count   -= bytesThisPass;
             if(block) {
                 while(dma_busy);
             }
