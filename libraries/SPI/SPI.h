@@ -116,7 +116,7 @@ class SPIClass {
   uint16_t transfer16(uint16_t data);
   void transfer(void *buf, size_t count);
   void transfer(const void* txbuf, void* rxbuf, size_t count,
-         bool background = false);
+         bool block = true);
   void waitForTransfer(void);
 
   // Transaction Functions
@@ -167,9 +167,9 @@ class SPIClass {
   char interruptSave;
   uint32_t interruptMask;
 
-  // transfer(txbuf, rxbuf, count, background) uses DMA if possible
-  Adafruit_ZeroDMA writeChannel,
-                   readChannel;
+  // transfer(txbuf, rxbuf, count, block) uses DMA if possible
+  Adafruit_ZeroDMA readChannel,
+                   writeChannel;
   DmacDescriptor  *readDescriptor  = NULL,
                   *writeDescriptor = NULL;
   volatile bool    dma_busy = false;

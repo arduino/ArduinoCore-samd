@@ -236,7 +236,7 @@ void SPIClass::transfer(void *buf, size_t count)
 }
 
 // Pointer to SPIClass object, one per DMA channel.
-static SPIClass *spiPtr[DMAC_CH_NUM] = { 0 }; // Inits list to NULL
+static SPIClass *spiPtr[DMAC_CH_NUM] = { 0 }; // Legit inits list to NULL
 
 void SPIClass::dmaCallback(Adafruit_ZeroDMA *dma) {
   // dmaCallback() receives an Adafruit_ZeroDMA object. From this we can get
@@ -247,7 +247,7 @@ void SPIClass::dmaCallback(Adafruit_ZeroDMA *dma) {
 }
 
 void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
-  bool background) {
+  bool block) {
 
     // If receiving data and the RX DMA channel is not yet allocated...
     if(rxbuf && (readChannel.getChannel() >= DMAC_CH_NUM)) {
@@ -312,20 +312,20 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
             // We could set up a descriptor chain, but that gets more
             // complex. For now, instead, break up long transfers into
             // chunks of 65,535 bytes max...these transfers are all
-            // blocking, regardless of the "background" argument, except
+            // blocking, regardless of the "block" argument, except
             // for the last one which will observe the background request.
             // The fractional part is done first, so for any "partially
-            // backgrounded" transfers like these at least it's the
-            // largest single-descriptor transfer possible that occurs
-            // in the background, rather than the tail end.
+            // blocking" transfers like these at least it's the largest
+            // single-descriptor transfer possible that occurs in the
+            // background, rather than the tail end.
             int  bytesThisPass;
-            bool block;
+            bool blockThisPass;
             if(count > 65535) { // Too big for 1 descriptor
-                block         = true;
+                blockThisPass = true;
                 bytesThisPass = count % 65535; // Fractional part
                 if(!bytesThisPass) bytesThisPass = 65535;
             } else {
-                block         = !background;
+                blockThisPass = block;
                 bytesThisPass = count;
             }
 
@@ -353,7 +353,7 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
             dma_busy = true;
             writeChannel.startJob();
             count   -= bytesThisPass;
-            if(block) {
+            if(blockThisPass) {
                 while(dma_busy);
             }
         }
