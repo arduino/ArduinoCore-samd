@@ -52,23 +52,10 @@ int main( void )
   for (;;)
   {
     loop();
-
-#ifdef USE_TINYUSB
-    tud_task();
-    tud_cdc_write_flush();
-#endif
+    yield(); // yield run usb background task
 
     if (serialEventRun) serialEventRun();
   }
 
   return 0;
 }
-
-#ifdef USE_TINYUSB
-void yield(void)
-{
-  tud_task();
-  tud_cdc_write_flush();
-}
-#endif
-
