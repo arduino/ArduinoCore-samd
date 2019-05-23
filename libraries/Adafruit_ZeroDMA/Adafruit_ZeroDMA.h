@@ -48,12 +48,10 @@ class Adafruit_ZeroDMA {
                     bool stepSel = DMA_STEPSEL_DST);
   void            changeDescriptor(DmacDescriptor *d, void *src = NULL,
                     void *dst = NULL, uint32_t count = 0);
+  bool            isActive(void) const;
 
   void            _IRQhandler(uint8_t flags); // DO NOT TOUCH
 
-  bool            isActive(void) const {
-                    return _writeback[channel].BTCTRL.bit.VALID;
-                  }
 
  protected:  
   uint8_t                     channel;

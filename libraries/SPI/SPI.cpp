@@ -277,7 +277,7 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
         if(writeChannel.allocate() == DMA_STATUS_OK) {
             writeDescriptor =
               writeChannel.addDescriptor(
-                (void *)NULL,              // Source address (set later)
+                NULL,                      // Source address (set later)
                 (void *)getDataRegister(), // Dest (SPI data register)
                 0,                         // Count (set later)
                 DMA_BEAT_SIZE_BYTE,        // Bytes/hwords/words
@@ -290,11 +290,11 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
         }
     }
 
-    if(writeDescriptor) { // If this allocated, then use DMA
-        static uint8_t dum = 0xFF; // Dummy byte for read-only transfers
+    if(writeDescriptor && (readDescriptor || !rxbuf)) {
+        static const uint8_t dum = 0xFF; // Dummy byte for read-only xfers
 
-        // Initialize read descriptor dest address to rxbuf (even if unused)
-        readDescriptor->DSTADDR.reg = (uint32_t)rxbuf;
+        // Initialize read descriptor dest address to rxbuf (even if NULL)
+        if(readDescriptor) readDescriptor->DSTADDR.reg = (uint32_t)rxbuf;
 
         // If reading only, set up writeDescriptor to issue dummy bytes
         // (set SRCADDR to &dum and SRCINC to 0). Otherwise, set SRCADDR

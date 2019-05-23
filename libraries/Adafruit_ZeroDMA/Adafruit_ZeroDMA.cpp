@@ -250,7 +250,7 @@ ZeroDMAstatus Adafruit_ZeroDMA::allocate(void) {
     return DMA_STATUS_OK;
 }
 
-void Adafruit_ZeroDMA::setPriority(dma_priority pri) {
+void Adafruit_ZeroDMA::setPriority(dma_priority pri) const {
 #ifdef __SAMD51__
     DMAC->Channel[channel].CHPRILVL.bit.PRILVL = pri;
 #else
@@ -341,7 +341,7 @@ void Adafruit_ZeroDMA::setCallback(
 }
 
 // Suspend/resume don't quite do what I thought -- avoid using for now.
-void Adafruit_ZeroDMA::suspend(void) {
+void Adafruit_ZeroDMA::suspend(void) const {
     cpu_irq_enter_critical();
 #ifdef __SAMD51__
     DMAC->Channel[channel].CHCTRLB.reg |= DMAC_CHCTRLB_CMD_SUSPEND;
@@ -428,10 +428,15 @@ void Adafruit_ZeroDMA::setAction(dma_transfer_trigger_action action) {
 }
 
 // Issue software trigger. Channel must be allocated & descriptors added!
-void Adafruit_ZeroDMA::trigger(void) {
+void Adafruit_ZeroDMA::trigger(void) const {
     if((channel <= DMAC_CH_NUM) & hasDescriptors) {
         DMAC->SWTRIGCTRL.reg |= (1 << channel);
     }
+}
+
+// Returns true if DMA transfer in progress.
+bool Adafruit_ZeroDMA::isActive(void) const {
+    return _writeback[channel].BTCTRL.bit.VALID;
 }
 
 // DMA DESCRIPTOR FUNCTIONS ------------------------------------------------
@@ -610,7 +615,7 @@ void Adafruit_ZeroDMA::loop(boolean flag) {
 
 // MISCELLANY --------------------------------------------------------------
 
-void Adafruit_ZeroDMA::printStatus(ZeroDMAstatus s) {
+void Adafruit_ZeroDMA::printStatus(ZeroDMAstatus s) const {
     if(s == DMA_STATUS_JOBSTATUS) s = jobStatus;
     Serial.print("Status: ");
     switch(s) {
