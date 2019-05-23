@@ -262,10 +262,9 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
                 true);                     // Increment dest address
             readChannel.setTrigger(getDMAC_ID_RX());
             readChannel.setAction(DMA_TRIGGER_ACTON_BEAT);
-            // Since all RX transfers involve a TX,
-            // I don't think this separate callback is necessary.
-            //readChannel.setCallback(dmaCallback);
             spiPtr[readChannel.getChannel()] = this;
+            // Since all RX transfers involve a TX, a
+            // separate callback here is not necessary.
         }
     }
 
@@ -281,8 +280,8 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
                 (void *)getDataRegister(), // Dest (SPI data register)
                 0,                         // Count (set later)
                 DMA_BEAT_SIZE_BYTE,        // Bytes/hwords/words
-                false,                     // Don't increment source address
-                true);                     // Increment dest address
+                true,                      // Increment source address
+                false);                    // Don't increment dest address
             writeChannel.setTrigger(getDMAC_ID_TX());
             writeChannel.setAction(DMA_TRIGGER_ACTON_BEAT);
             writeChannel.setCallback(dmaCallback);
@@ -293,8 +292,8 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
     if(writeDescriptor && (readDescriptor || !rxbuf)) {
         static const uint8_t dum = 0xFF; // Dummy byte for read-only xfers
 
-        // Initialize read descriptor dest address to rxbuf (even if NULL)
-        if(readDescriptor) readDescriptor->DSTADDR.reg = (uint32_t)rxbuf;
+        // Initialize read descriptor dest address to rxbuf
+        if(rxbuf) readDescriptor->DSTADDR.reg = (uint32_t)rxbuf;
 
         // If reading only, set up writeDescriptor to issue dummy bytes
         // (set SRCADDR to &dum and SRCINC to 0). Otherwise, set SRCADDR
