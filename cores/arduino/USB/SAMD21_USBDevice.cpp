@@ -5,6 +5,7 @@
  *      Author: deanm
  */
 
+#ifndef USE_TINYUSB
 
 #include "SAMD21_USBDevice.h"
 
@@ -36,3 +37,5 @@ void USBDevice_SAMD21G18x::calibrate() {
     usb.PADCAL.bit.TRANSP = pad_transp;
     usb.PADCAL.bit.TRIM   = pad_trim;
 }
+
+#endif // USE_TINYUSB
