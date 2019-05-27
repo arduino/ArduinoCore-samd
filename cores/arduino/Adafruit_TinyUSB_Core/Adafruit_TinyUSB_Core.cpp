@@ -93,7 +93,8 @@ uint8_t load_serial_number(uint16_t* serial_str)
 
 #endif
 
-  uint8_t raw_id[8];
+  uint8_t raw_id[16];
+
   for (int i=0; i<4; i++) {
       for (int k=0; k<4; k++) {
           raw_id[4 * i + k] = (*(id_addresses[i]) >> k * 8) & 0xff;
