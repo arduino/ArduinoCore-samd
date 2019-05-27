@@ -155,7 +155,7 @@ bool Serial_::setup(USBSetup& setup)
 			// auto-reset into the bootloader is triggered when the port, already
 			// open at 1200 bps, is closed. We check DTR state to determine if host 
 			// port is open (bit 0 of lineState).
-			if (_usbLineInfo.dwDTERate == 1200 && (_usbLineInfo.lineState & 0x01) == 0)
+			if (_usbLineInfo.dwDTERate == 1200 && (_usbLineInfo.lineState & CDC_LINESTATE_DTR) == 0)
 			{
 				initiateReset(250);
 			}
@@ -326,11 +326,11 @@ uint8_t Serial_::numbits() {
 }
 
 bool Serial_::dtr() {
-	return _usbLineInfo.lineState & 0x1;
+	return ((_usbLineInfo.lineState & CDC_LINESTATE_DTR) == CDC_LINESTATE_DTR);
 }
 
 bool Serial_::rts() {
-	return _usbLineInfo.lineState & 0x2;
+	return ((_usbLineInfo.lineState & CDC_LINESTATE_RTS) == CDC_LINESTATE_RTS);
 }
 
 Serial_ SerialUSB(USBDevice);
