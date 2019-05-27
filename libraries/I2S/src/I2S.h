@@ -23,6 +23,8 @@
 
 #include "utility/I2SDoubleBuffer.h"
 
+#define I2S_HAS_SET_BUFFER_SIZE 1
+
 typedef enum {
   I2S_PHILIPS_MODE,
   I2S_RIGHT_JUSTIFIED_MODE,
@@ -61,6 +63,8 @@ public:
 
   void onTransmit(void(*)(void));
   void onReceive(void(*)(void));
+
+  void setBufferSize(int bufferSize);
 
 private:
   int begin(int mode, long sampleRate, int bitsPerSample, bool driveClock);
