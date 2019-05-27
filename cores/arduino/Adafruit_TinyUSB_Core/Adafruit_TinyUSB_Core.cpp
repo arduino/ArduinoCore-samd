@@ -84,6 +84,8 @@ static void usb_hardware_init(void)
 
 uint8_t load_serial_number(uint16_t* serial_str)
 {
+  enum { SERIAL_BYTE_LEN = 16 };
+
 #ifdef __SAMD51__
   uint32_t* id_addresses[4] = {(uint32_t *) 0x008061FC, (uint32_t *) 0x00806010,
                                (uint32_t *) 0x00806014, (uint32_t *) 0x00806018};
@@ -93,7 +95,7 @@ uint8_t load_serial_number(uint16_t* serial_str)
 
 #endif
 
-  uint8_t raw_id[16];
+  uint8_t raw_id[SERIAL_BYTE_LEN];
 
   for (int i=0; i<4; i++) {
       for (int k=0; k<4; k++) {
@@ -111,7 +113,7 @@ uint8_t load_serial_number(uint16_t* serial_str)
     }
   }
 
-  return 16;
+  return sizeof(raw_id)*2;
 }
 
 void Adafruit_TinyUSB_Core_init(void)
