@@ -58,6 +58,8 @@
   #include "board_definitions/board_definitions_arduino_m0.h"
 #elif defined(BOARD_ID_arduino_m0_pro)
   #include "board_definitions/board_definitions_arduino_m0_pro.h"
+#elif defined(BOARD_ID_arduino_MuxTO)
+  #include "board_definitions/board_definitions_arduino_MuxTO.h"
 #else
   #error You must define a BOARD_ID and add the corresponding definitions in board_definitions.h
 #endif
