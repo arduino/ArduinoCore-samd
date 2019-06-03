@@ -57,6 +57,7 @@ build.flags.optimize=
 build.flags.maxspi=
 build.flags.maxqspi=
 build.flags.usbstack=
+build.flags.debug=
 
 # These can be overridden in platform.local.txt
 compiler.c.extra_flags=
@@ -72,7 +73,7 @@ compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/"  
 
 # USB Flags
 # ---------
-build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}' {build.flags.usbstack} "-I{build.core.path}/Adafruit_TinyUSB_Core" "-I{build.core.path}/Adafruit_TinyUSB_Core/tinyusb/src"
+build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}' {build.flags.usbstack} {build.flags.debug} "-I{build.core.path}/Adafruit_TinyUSB_Core" "-I{build.core.path}/Adafruit_TinyUSB_Core/tinyusb/src"
 
 # Default usb manufacturer will be replaced at compile time using
 # numeric vendor ID if available or by board's specific value.
@@ -83,10 +84,10 @@ build.usb_manufacturer="Unknown"
 # ----------------
 
 ## Compile c files
-recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.c.extra_flags} {build.extra_flags} {build.cache_flags} {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi} {compiler.arm.cmsis.c.flags} {includes} "{source_file}" -o "{object_file}"
+recipe.c.o.pattern="{compiler.path}{compiler.c.cmd}" {compiler.c.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.c.extra_flags} {build.extra_flags} {build.cache_flags}  {build.flags.debug} {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi} {compiler.arm.cmsis.c.flags} {includes} "{source_file}" -o "{object_file}"
 
 ## Compile c++ files
-recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {build.cache_flags} {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi} {compiler.arm.cmsis.c.flags} {includes} "{source_file}" -o "{object_file}"
+recipe.cpp.o.pattern="{compiler.path}{compiler.cpp.cmd}" {compiler.cpp.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.cpp.extra_flags} {build.extra_flags} {build.cache_flags} {build.flags.debug} {build.flags.optimize} {build.flags.maxspi} {build.flags.maxqspi} {compiler.arm.cmsis.c.flags} {includes} "{source_file}" -o "{object_file}"
 
 ## Compile S files
 recipe.S.o.pattern="{compiler.path}{compiler.S.cmd}" {compiler.S.flags} -DF_CPU={build.f_cpu} -DARDUINO={runtime.ide.version} -DARDUINO_{build.board} -DARDUINO_ARCH_{build.arch} {compiler.S.extra_flags} {build.extra_flags} {build.cache_flags} {compiler.arm.cmsis.c.flags} {includes} "{source_file}" -o "{object_file}"
