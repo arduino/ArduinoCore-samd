@@ -138,7 +138,6 @@ extern  "C"
 {
 
 void yield(void)
-
 {
   tud_task();
   tud_cdc_write_flush();

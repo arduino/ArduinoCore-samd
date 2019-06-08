@@ -67,7 +67,7 @@ Adafruit_USBD_CDC::operator bool()
   bool ret = tud_cdc_connected();
 
   // Add an yield to run usb background in case sketch block wait as follows
-  // while(!Serial) {}
+  // while( !Serial ) {}
   if ( !ret ) yield();
 
   return ret;
@@ -75,7 +75,13 @@ Adafruit_USBD_CDC::operator bool()
 
 int Adafruit_USBD_CDC::available(void)
 {
-  return tud_cdc_available();
+  uint32_t count = tud_cdc_available();
+
+  // Add an yield to run usb background in case sketch block wait as follows
+  // while( !Serial.available() ) {}
+  if (!count) yield();
+
+  return count;
 }
 
 int Adafruit_USBD_CDC::peek(void)
@@ -107,11 +113,8 @@ size_t Adafruit_USBD_CDC::write(const uint8_t *buffer, size_t size)
     remain -= wrcount;
     buffer += wrcount;
 
-    // Write FIFO is full, flush and re-try
-    if ( remain )
-    {
-      tud_cdc_write_flush();
-    }
+    // Write FIFO is full, run usb background to flush
+    if ( remain ) yield();
   }
 
   return size - remain;
