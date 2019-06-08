@@ -261,6 +261,48 @@ void SystemInit( void )
   CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
   DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
 
+  /* ----------------------------------------------------------------------------------------------
+   * 5) Load AC factory calibration values
+   */
+
+  uint32_t bias0 = (*((uint32_t *)AC_FUSES_BIAS0_ADDR) & AC_FUSES_BIAS0_Msk) >> AC_FUSES_BIAS0_Pos;
+  AC->CALIB.reg = AC_CALIB_BIAS0(bias0);
+
+  /* ----------------------------------------------------------------------------------------------
+   * 6) Load ADC factory calibration values
+   */
+
+  // ADC0 Bias Calibration
+  uint32_t biascomp = (*((uint32_t *)ADC0_FUSES_BIASCOMP_ADDR) & ADC0_FUSES_BIASCOMP_Msk) >> ADC0_FUSES_BIASCOMP_Pos;
+  uint32_t biasr2r = (*((uint32_t *)ADC0_FUSES_BIASR2R_ADDR) & ADC0_FUSES_BIASR2R_Msk) >> ADC0_FUSES_BIASR2R_Pos;
+  uint32_t biasref = (*((uint32_t *)ADC0_FUSES_BIASREFBUF_ADDR) & ADC0_FUSES_BIASREFBUF_Msk) >> ADC0_FUSES_BIASREFBUF_Pos;
+
+  ADC0->CALIB.reg = ADC_CALIB_BIASREFBUF(biasref)
+                    | ADC_CALIB_BIASR2R(biasr2r)
+                    | ADC_CALIB_BIASCOMP(biascomp);
+
+  // ADC1 Bias Calibration
+  biascomp = (*((uint32_t *)ADC1_FUSES_BIASCOMP_ADDR) & ADC1_FUSES_BIASCOMP_Msk) >> ADC1_FUSES_BIASCOMP_Pos;
+  biasr2r = (*((uint32_t *)ADC1_FUSES_BIASR2R_ADDR) & ADC1_FUSES_BIASR2R_Msk) >> ADC1_FUSES_BIASR2R_Pos;
+  biasref = (*((uint32_t *)ADC1_FUSES_BIASREFBUF_ADDR) & ADC1_FUSES_BIASREFBUF_Msk) >> ADC1_FUSES_BIASREFBUF_Pos;
+
+  ADC1->CALIB.reg = ADC_CALIB_BIASREFBUF(biasref)
+                    | ADC_CALIB_BIASR2R(biasr2r)
+                    | ADC_CALIB_BIASCOMP(biascomp);
+
+  /* ----------------------------------------------------------------------------------------------
+   * 7) Load USB factory calibration values
+   */
+
+  //USB Calibration
+  uint32_t usbtransn = (*((uint32_t *)USB_FUSES_TRANSN_ADDR) & USB_FUSES_TRANSN_Msk) >> USB_FUSES_TRANSN_Pos;
+  uint32_t usbtransp = (*((uint32_t *)USB_FUSES_TRANSP_ADDR) & USB_FUSES_TRANSP_Msk) >> USB_FUSES_TRANSP_Pos;
+  uint32_t usbtrim = (*((uint32_t *)USB_FUSES_TRIM_ADDR) & USB_FUSES_TRIM_Msk) >> USB_FUSES_TRIM_Pos;
+  USB->PADCAL = USB_PADCAL_TRIM(usbtrim)
+                | USB_PADCAL_TRANSN(usbtransn)
+                | USB_PADCAL_TRANSP(usbtransp);
+  }
+
 //*************** END SAMD51 *************************//
   
 #else
@@ -536,4 +578,3 @@ void SystemInit( void )
     NVMCTRL->CTRLB.bit.MANW = 1;
   #endif
 }
-
