@@ -16,8 +16,8 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#ifndef _VARIANT_PYBADGE_M4_
-#define _VARIANT_PYBADGE_M4_
+#ifndef _VARIANT_PYBADGE_AIRLIFT_M4_
+#define _VARIANT_PYBADGE_AIRLIFT_M4_
 
 // The definitions here needs a SAMD core >=1.6.10
 #define ARDUINO_SAMD_VARIANT_COMPLIANCE 10610
@@ -57,7 +57,7 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (51u)
+#define PINS_COUNT           (55u)
 #define NUM_DIGITAL_PINS     (25u)
 #define NUM_ANALOG_INPUTS    (10u)
 #define NUM_ANALOG_OUTPUTS   (2u)
@@ -132,6 +132,7 @@ static const uint8_t ATN = PIN_ATN;
 #define ESP32_RESETN 54
 #define SPIWIFI_RESET ESP32_RESETN
 #define NINA_GPIO0 ESP32_GPIO0
+#define NINA_ACK SPIWIFI_ACK
 #define NINA_RESETN ESP32_RESETN
 
 /*
