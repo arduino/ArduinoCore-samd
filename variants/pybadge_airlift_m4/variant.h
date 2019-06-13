@@ -123,13 +123,13 @@ static const uint8_t DAC1 = PIN_DAC1;
 static const uint8_t ATN = PIN_ATN;
 
 /* WiFi interfaces */
-#define SerialESP32 Serial2
+#define SerialESP32 Serial1
 #define SerialNina SerialESP32
 #define SPIWIFI SPI
-#define ESP32_GPIO0 31
-#define ESP32_RESETN 12
-#define SPIWIFI_SS 14
-#define SPIWIFI_ACK 0
+#define ESP32_GPIO0 52
+#define ESP32_RESETN 54
+#define SPIWIFI_SS 4
+#define SPIWIFI_ACK -1
 #define SPIWIFI_RESET ESP32_RESETN
 #define NINA_GPIO0 ESP32_GPIO0
 #define NINA_RESETN ESP32_RESETN
