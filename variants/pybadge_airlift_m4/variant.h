@@ -122,6 +122,17 @@ static const uint8_t DAC1 = PIN_DAC1;
 #define PIN_ATN              (31ul)
 static const uint8_t ATN = PIN_ATN;
 
+/* WiFi interfaces */
+#define SerialESP32 Serial2
+#define SerialNina SerialESP32
+#define SPIWIFI SPI
+#define ESP32_GPIO0 31
+#define ESP32_RESETN 12
+#define SPIWIFI_SS 14
+#define SPIWIFI_RESET ESP32_RESETN
+#define NINA_GPIO0 ESP32_GPIO0
+#define NINA_RESETN ESP32_RESETN
+
 /*
  * Serial interfaces
  */
@@ -149,10 +160,10 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
-  // Internal SPI for TFT
-#define PIN_SPI1_MOSI         (41u)
-#define PIN_SPI1_SCK          (42u)
-#define PIN_SPI1_MISO         (43u)
+// Internal SPI for TFT
+#define PIN_SPI1_MOSI         (23u)
+#define PIN_SPI1_SCK          (13u)
+#define PIN_SPI1_MISO         (12u)
 #define PERIPH_SPI1           sercom4
 #define PAD_SPI1_TX           SPI_PAD_3_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_0
