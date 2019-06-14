@@ -298,10 +298,9 @@ void SystemInit( void )
   uint32_t usbtransn = (*((uint32_t *)USB_FUSES_TRANSN_ADDR) & USB_FUSES_TRANSN_Msk) >> USB_FUSES_TRANSN_Pos;
   uint32_t usbtransp = (*((uint32_t *)USB_FUSES_TRANSP_ADDR) & USB_FUSES_TRANSP_Msk) >> USB_FUSES_TRANSP_Pos;
   uint32_t usbtrim = (*((uint32_t *)USB_FUSES_TRIM_ADDR) & USB_FUSES_TRIM_Msk) >> USB_FUSES_TRIM_Pos;
-  USB->PADCAL = USB_PADCAL_TRIM(usbtrim)
-                | USB_PADCAL_TRANSN(usbtransn)
-                | USB_PADCAL_TRANSP(usbtransp);
-  }
+  USB->DEVICE.PADCAL.reg = USB_PADCAL_TRIM(usbtrim)
+                           | USB_PADCAL_TRANSN(usbtransn)
+                           | USB_PADCAL_TRANSP(usbtransp);
 
 //*************** END SAMD51 *************************//
   
