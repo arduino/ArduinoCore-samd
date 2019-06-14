@@ -163,9 +163,9 @@ static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
 // Internal SPI for TFT
-#define PIN_SPI1_MOSI         (23u)
-#define PIN_SPI1_SCK          (13u)
-#define PIN_SPI1_MISO         (12u)
+#define PIN_SPI1_MOSI         (41u)
+#define PIN_SPI1_SCK          (42u)
+#define PIN_SPI1_MISO         (43u)
 #define PERIPH_SPI1           sercom4
 #define PAD_SPI1_TX           SPI_PAD_3_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_0
