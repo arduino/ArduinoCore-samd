@@ -185,6 +185,22 @@ SERCOM sercom5(SERCOM5);
 #define PMIC_REG01    0x01
 #define PMIC_REG07    0x07
 
+#define PMIC_REG00    0x00
+
+static inline void set_voltage_current_thresholds() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG00);
+  PERIPH_WIRE.sendDataMasterWIRE(0x06);  // input voltage limit = 3.88V, input current limit = 2A
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
 static inline void enable_battery_charging() {
   PERIPH_WIRE.initMasterWIRE(100000);
   PERIPH_WIRE.enableWIRE();
@@ -230,6 +246,7 @@ void initVariant() {
     enable_battery_charging();
   }
   disable_battery_fet(!batteryPresent);
+  set_voltage_current_thresholds();
 #endif
 
   // put GSM modem in reset on start to conserve power if it's not used
