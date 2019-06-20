@@ -130,6 +130,7 @@ static const uint8_t ATN = PIN_ATN;
 #define SPIWIFI_RESET   ESP32_RESETN
 #define NINA_GPIO0      ESP32_GPIO0
 #define NINA_RESETN     ESP32_RESETN
+#define NINA_ACK        SPIWIFI_ACK
 
 
 /*
