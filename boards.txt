@@ -343,6 +343,82 @@ adafruit_pirkey.menu.usbstack.arduino=Arduino
 adafruit_pirkey.menu.usbstack.tinyusb=TinyUSB
 adafruit_pirkey.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 
+# Adafruit HalloWing M0 (SAMD21)
+# ------------------------------
+adafruit_hallowing.name=Adafruit Hallowing M0
+adafruit_hallowing.vid.0=0x239A
+adafruit_hallowing.pid.0=0xDEAD
+adafruit_hallowing.vid.1=0x239A
+adafruit_hallowing.pid.1=0xD1ED
+adafruit_hallowing.vid.1=0x239A
+adafruit_hallowing.pid.1=0xB000
+adafruit_hallowing.upload.tool=bossac
+adafruit_hallowing.upload.protocol=sam-ba
+adafruit_hallowing.upload.maximum_size=262144
+adafruit_hallowing.upload.offset=0x2000
+adafruit_hallowing.upload.use_1200bps_touch=true
+adafruit_hallowing.upload.wait_for_upload_port=true
+adafruit_hallowing.upload.native_usb=true
+adafruit_hallowing.build.mcu=cortex-m0plus
+adafruit_hallowing.build.f_cpu=48000000L
+adafruit_hallowing.build.usb_product="Hallowing M0"
+adafruit_hallowing.build.usb_manufacturer="Adafruit"
+adafruit_hallowing.build.board=SAMD_HALLOWING
+adafruit_hallowing.build.core=arduino
+adafruit_hallowing.build.extra_flags=-DCRYSTALLESS -DARDUINO_SAMD_ZERO -DARDUINO_SAMD_HALLOWING_M0 -DARM_MATH_CM0PLUS -DADAFRUIT_HALLOWING -D__SAMD21G18A__ {build.usb_flags}
+adafruit_hallowing.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_hallowing.build.openocdscript=openocd_scripts/hallowing_m0_express.cfg
+adafruit_hallowing.build.variant=hallowing_m0_express
+adafruit_hallowing.build.variant_system_lib=
+adafruit_hallowing.build.vid=0x239A
+adafruit_hallowing.build.pid=0xDEAD
+adafruit_hallowing.bootloader.tool=openocd
+adafruit_hallowing.bootloader.file=hallowingM0/bootloader-hallowing_m0-v2.0.0-adafruit.0-21-g887cc30.bin
+adafruit_hallowing.menu.usbstack.arduino=Arduino
+adafruit_hallowing.menu.usbstack.tinyusb=TinyUSB
+adafruit_hallowing.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+adafruit_hallowing.menu.debug.off=Off
+adafruit_hallowing.menu.debug.on=On
+adafruit_hallowing.menu.debug.on.build.flags.debug=-g
+
+# Adafruit Crickit M0 (SAMD21)
+# ------------------------------
+adafruit_crickit_m0.name=Adafruit Crickit M0
+adafruit_crickit_m0.vid.0=0x239A
+adafruit_crickit_m0.pid.0=0x802D
+adafruit_crickit_m0.vid.1=0x239A
+adafruit_crickit_m0.pid.1=0x002D
+adafruit_crickit_m0.vid.2=0x239A
+adafruit_crickit_m0.pid.2=0x802D
+adafruit_crickit_m0.upload.tool=bossac
+adafruit_crickit_m0.upload.protocol=sam-ba
+adafruit_crickit_m0.upload.maximum_size=262144
+adafruit_crickit_m0.upload.offset=0x2000
+adafruit_crickit_m0.upload.use_1200bps_touch=true
+adafruit_crickit_m0.upload.wait_for_upload_port=true
+adafruit_crickit_m0.upload.native_usb=true
+adafruit_crickit_m0.build.mcu=cortex-m0plus
+adafruit_crickit_m0.build.f_cpu=48000000L
+adafruit_crickit_m0.build.usb_product="Crickit M0"
+adafruit_crickit_m0.build.usb_manufacturer="Adafruit"
+adafruit_crickit_m0.build.board=CRICKIT_M0
+adafruit_crickit_m0.build.core=arduino
+adafruit_crickit_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_CRICKIT_M0 -D__SAMD21G18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
+adafruit_crickit_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_crickit_m0.build.openocdscript=openocd_scripts/crickit_m0.cfg
+adafruit_crickit_m0.build.variant=crickit_m0
+adafruit_crickit_m0.build.variant_system_lib=
+adafruit_crickit_m0.build.vid=0x239A
+adafruit_crickit_m0.build.pid=0x802D
+adafruit_crickit_m0.bootloader.tool=openocd
+adafruit_crickit_m0.bootloader.file=crickit/samd21_sam_ba.bin
+adafruit_crickit_m0.menu.usbstack.arduino=Arduino
+adafruit_crickit_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_crickit_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+adafruit_crickit_m0.menu.debug.off=Off
+adafruit_crickit_m0.menu.debug.on=On
+adafruit_crickit_m0.menu.debug.on.build.flags.debug=-g
+
 # Adafruit Metro M4 (SAMD51)
 # ------------------------------
 adafruit_metro_m4.name=Adafruit Metro M4 (SAMD51)
@@ -598,44 +674,6 @@ adafruit_feather_m4.menu.debug.off=Off
 adafruit_feather_m4.menu.debug.on=On
 adafruit_feather_m4.menu.debug.on.build.flags.debug=-g
 
-# Adafruit HalloWing M0 (SAMD21)
-# ------------------------------
-adafruit_hallowing.name=Adafruit Hallowing M0
-adafruit_hallowing.vid.0=0x239A
-adafruit_hallowing.pid.0=0xDEAD
-adafruit_hallowing.vid.1=0x239A
-adafruit_hallowing.pid.1=0xD1ED
-adafruit_hallowing.vid.1=0x239A
-adafruit_hallowing.pid.1=0xB000
-adafruit_hallowing.upload.tool=bossac
-adafruit_hallowing.upload.protocol=sam-ba
-adafruit_hallowing.upload.maximum_size=262144
-adafruit_hallowing.upload.offset=0x2000
-adafruit_hallowing.upload.use_1200bps_touch=true
-adafruit_hallowing.upload.wait_for_upload_port=true
-adafruit_hallowing.upload.native_usb=true
-adafruit_hallowing.build.mcu=cortex-m0plus
-adafruit_hallowing.build.f_cpu=48000000L
-adafruit_hallowing.build.usb_product="Hallowing M0"
-adafruit_hallowing.build.usb_manufacturer="Adafruit"
-adafruit_hallowing.build.board=SAMD_HALLOWING
-adafruit_hallowing.build.core=arduino
-adafruit_hallowing.build.extra_flags=-DCRYSTALLESS -DARDUINO_SAMD_ZERO -DARDUINO_SAMD_HALLOWING_M0 -DARM_MATH_CM0PLUS -DADAFRUIT_HALLOWING -D__SAMD21G18A__ {build.usb_flags}
-adafruit_hallowing.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-adafruit_hallowing.build.openocdscript=openocd_scripts/hallowing_m0_express.cfg
-adafruit_hallowing.build.variant=hallowing_m0_express
-adafruit_hallowing.build.variant_system_lib=
-adafruit_hallowing.build.vid=0x239A
-adafruit_hallowing.build.pid=0xDEAD
-adafruit_hallowing.bootloader.tool=openocd
-adafruit_hallowing.bootloader.file=hallowingM0/bootloader-hallowing_m0-v2.0.0-adafruit.0-21-g887cc30.bin
-adafruit_hallowing.menu.usbstack.arduino=Arduino
-adafruit_hallowing.menu.usbstack.tinyusb=TinyUSB
-adafruit_hallowing.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
-adafruit_hallowing.menu.debug.off=Off
-adafruit_hallowing.menu.debug.on=On
-adafruit_hallowing.menu.debug.on.build.flags.debug=-g
-
 # Adafruit Trellis M4 (SAMD51)
 # ------------------------------
 adafruit_trellis_m4.name=Adafruit Trellis M4 (SAMD51)
@@ -700,44 +738,6 @@ adafruit_trellis_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 adafruit_trellis_m4.menu.debug.off=Off
 adafruit_trellis_m4.menu.debug.on=On
 adafruit_trellis_m4.menu.debug.on.build.flags.debug=-g
-
-# Adafruit Crickit M0 (SAMD21)
-# ------------------------------
-adafruit_crickit_m0.name=Adafruit Crickit M0
-adafruit_crickit_m0.vid.0=0x239A
-adafruit_crickit_m0.pid.0=0x802D
-adafruit_crickit_m0.vid.1=0x239A
-adafruit_crickit_m0.pid.1=0x002D
-adafruit_crickit_m0.vid.2=0x239A
-adafruit_crickit_m0.pid.2=0x802D
-adafruit_crickit_m0.upload.tool=bossac
-adafruit_crickit_m0.upload.protocol=sam-ba
-adafruit_crickit_m0.upload.maximum_size=262144
-adafruit_crickit_m0.upload.offset=0x2000
-adafruit_crickit_m0.upload.use_1200bps_touch=true
-adafruit_crickit_m0.upload.wait_for_upload_port=true
-adafruit_crickit_m0.upload.native_usb=true
-adafruit_crickit_m0.build.mcu=cortex-m0plus
-adafruit_crickit_m0.build.f_cpu=48000000L
-adafruit_crickit_m0.build.usb_product="Crickit M0"
-adafruit_crickit_m0.build.usb_manufacturer="Adafruit"
-adafruit_crickit_m0.build.board=CRICKIT_M0
-adafruit_crickit_m0.build.core=arduino
-adafruit_crickit_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_CRICKIT_M0 -D__SAMD21G18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
-adafruit_crickit_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-adafruit_crickit_m0.build.openocdscript=openocd_scripts/crickit_m0.cfg
-adafruit_crickit_m0.build.variant=crickit_m0
-adafruit_crickit_m0.build.variant_system_lib=
-adafruit_crickit_m0.build.vid=0x239A
-adafruit_crickit_m0.build.pid=0x802D
-adafruit_crickit_m0.bootloader.tool=openocd
-adafruit_crickit_m0.bootloader.file=crickit/samd21_sam_ba.bin
-adafruit_crickit_m0.menu.usbstack.arduino=Arduino
-adafruit_crickit_m0.menu.usbstack.tinyusb=TinyUSB
-adafruit_crickit_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
-adafruit_crickit_m0.menu.debug.off=Off
-adafruit_crickit_m0.menu.debug.on=On
-adafruit_crickit_m0.menu.debug.on.build.flags.debug=-g
 
 # Adafruit PyPortal M4 (SAMD51)
 # ------------------------------
@@ -1125,3 +1125,69 @@ adafruit_pybadge_airlift_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TIN
 adafruit_pybadge_airlift_m4.menu.debug.off=Off
 adafruit_pybadge_airlift_m4.menu.debug.on=On
 adafruit_pybadge_airlift_m4.menu.debug.on.build.flags.debug=-g
+
+
+# Adafruit Hallowing Mask M4 Express (SAMD51)
+# ------------------------------
+adafruit_hallowing_mask_m4.name=Adafruit Hallowing Mask M4 (SAMD51)
+adafruit_hallowing_mask_m4.vid.0=0x239A
+adafruit_hallowing_mask_m4.pid.0=0x0047
+adafruit_hallowing_mask_m4.vid.1=0x239A
+adafruit_hallowing_mask_m4.pid.1=0x8047
+adafruit_hallowing_mask_m4.vid.1=0x239A
+adafruit_hallowing_mask_m4.pid.1=0x8048
+adafruit_hallowing_mask_m4.upload.tool=bossac18
+adafruit_hallowing_mask_m4.upload.protocol=sam-ba
+adafruit_hallowing_mask_m4.upload.maximum_size=507904
+adafruit_hallowing_mask_m4.upload.offset=0x4000
+adafruit_hallowing_mask_m4.upload.use_1200bps_touch=true
+adafruit_hallowing_mask_m4.upload.wait_for_upload_port=true
+adafruit_hallowing_mask_m4.upload.native_usb=true
+adafruit_hallowing_mask_m4.build.mcu=cortex-m4
+#adafruit_hallowing_mask_m4.build.f_cpu=120000000L
+adafruit_hallowing_mask_m4.build.usb_product="Adafruit Hallowing Mask M4"
+adafruit_hallowing_mask_m4.build.usb_manufacturer="Adafruit LLC"
+adafruit_hallowing_mask_m4.build.board=HALLOWING_MASK_M4
+adafruit_hallowing_mask_m4.build.core=arduino
+adafruit_hallowing_mask_m4.build.extra_flags=-D__SAMD51G19A__ -DADAFRUIT_HALLOWING_MASK_M4_EXPRESS -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_hallowing_mask_m4.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_hallowing_mask_m4.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_hallowing_mask_m4.build.variant=hallowing_mask_m4
+adafruit_hallowing_mask_m4.build.variant_system_lib=
+adafruit_hallowing_mask_m4.build.vid=0x239A
+adafruit_hallowing_mask_m4.build.pid=0x8047
+adafruit_hallowing_mask_m4.bootloader.tool=openocd
+adafruit_hallowing_mask_m4.bootloader.file=featherM4/bootloader-feather_m4-v2.0.0-adafruit.5.bin
+adafruit_hallowing_mask_m4.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_hallowing_mask_m4.menu.cache.on=Enabled
+adafruit_hallowing_mask_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_hallowing_mask_m4.menu.cache.off=Disabled
+adafruit_hallowing_mask_m4.menu.cache.off.build.cache_flags=
+adafruit_hallowing_mask_m4.menu.speed.120=120 MHz (standard)
+adafruit_hallowing_mask_m4.menu.speed.120.build.f_cpu=120000000L
+adafruit_hallowing_mask_m4.menu.speed.150=150 MHz (overclock)
+adafruit_hallowing_mask_m4.menu.speed.150.build.f_cpu=150000000L
+adafruit_hallowing_mask_m4.menu.speed.180=180 MHz (overclock)
+adafruit_hallowing_mask_m4.menu.speed.180.build.f_cpu=180000000L
+adafruit_hallowing_mask_m4.menu.speed.200=200 MHz (overclock)
+adafruit_hallowing_mask_m4.menu.speed.200.build.f_cpu=200000000L
+adafruit_hallowing_mask_m4.menu.opt.small=Small (-Os) (standard)
+adafruit_hallowing_mask_m4.menu.opt.small.build.flags.optimize=-Os
+adafruit_hallowing_mask_m4.menu.opt.fast=Fast (-O2)
+adafruit_hallowing_mask_m4.menu.opt.fast.build.flags.optimize=-O2
+adafruit_hallowing_mask_m4.menu.opt.faster=Faster (-O3)
+adafruit_hallowing_mask_m4.menu.opt.faster.build.flags.optimize=-O3
+adafruit_hallowing_mask_m4.menu.opt.fastest=Fastest (-Ofast)
+adafruit_hallowing_mask_m4.menu.opt.fastest.build.flags.optimize=-Ofast
+adafruit_hallowing_mask_m4.menu.opt.dragons=Here be dragons (-Ofast -funroll-loops)
+adafruit_hallowing_mask_m4.menu.opt.dragons.build.flags.optimize=-Ofast -funroll-loops
+adafruit_hallowing_mask_m4.menu.maxqspi.50=50 MHz (standard)
+adafruit_hallowing_mask_m4.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_hallowing_mask_m4.menu.maxqspi.fcpu=CPU Speed / 2
+adafruit_hallowing_mask_m4.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_hallowing_mask_m4.menu.usbstack.arduino=Arduino
+adafruit_hallowing_mask_m4.menu.usbstack.tinyusb=TinyUSB
+adafruit_hallowing_mask_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+adafruit_hallowing_mask_m4.menu.debug.off=Off
+adafruit_hallowing_mask_m4.menu.debug.on=On
+adafruit_hallowing_mask_m4.menu.debug.on.build.flags.debug=-g
