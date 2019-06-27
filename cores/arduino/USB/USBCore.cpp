@@ -391,9 +391,10 @@ uint32_t EndPoints[] =
 	0,
 #endif
 };
+#define EP_ARRAY_SIZE   (sizeof(EndPoints)/sizeof(EndPoints[0]))
 
 void USBDeviceClass::initEndpoints() {
-	for (uint8_t i = 1; i < sizeof(EndPoints) && EndPoints[i] != 0; i++) {
+	for (uint8_t i = 1; (i < EP_ARRAY_SIZE) && (EndPoints[i] != 0); i++) {
 		initEP(i, EndPoints[i]);
 	}
 }
