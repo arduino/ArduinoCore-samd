@@ -155,8 +155,8 @@ static const uint8_t SCK1  = PIN_SPI_SCK ;
 #define PIN_SPI2_SCK          (21u)
 #define PIN_SPI2_MOSI         (13u)  // actually LED, ignored
 #define PERIPH_SPI2           sercom3
-#define PAD_SPI2_TX           SPI_PAD_0_SCK_1
-#define PAD_SPI2_RX           SERCOM_RX_PAD_3
+#define PAD_SPI2_TX           SPI_PAD_3_SCK_1
+#define PAD_SPI2_RX           SERCOM_RX_PAD_0
 
 static const uint8_t SS2   = 13 ;	 // also ignored
 static const uint8_t MOSI2 = PIN_SPI_MOSI ;
