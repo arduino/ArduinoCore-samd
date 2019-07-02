@@ -210,6 +210,7 @@ class SERCOM
     bool isRXNackReceivedWIRE( void ) ;
 		int availableWIRE( void ) ;
 		uint8_t readDataWIRE( void ) ;
+		void runstandbyWIRE( bool ) ;
 
 	private:
 		Sercom* sercom;
