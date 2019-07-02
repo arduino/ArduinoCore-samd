@@ -413,6 +413,12 @@ void SERCOM::disableWIRE()
   }
 }
 
+void SERCOM::runstandbyWIRE(bool runstdby) {
+  disableWIRE();                                 //  RUNSTDBY bit is enable protected so disable the peripheral
+  sercom->I2CM.CTRLA.bit.RUNSTDBY = runstdby ;
+  enableWIRE();
+}
+
 void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool enableGeneralCall )
 {
   // Initialize the peripheral clock and interruption

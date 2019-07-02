@@ -37,6 +37,7 @@ class TwoWire : public Stream
     void begin(uint8_t, bool enableGeneralCall = false);
     void end();
     void setClock(uint32_t);
+    void standby(bool runstdby = false);
 
     void beginTransmission(uint8_t);
     uint8_t endTransmission(bool stopBit);
