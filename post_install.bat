@@ -22,7 +22,7 @@ if "%PROCESSOR_ARCHITECTURE%" == "AMD64" (
 ) ELSE IF "%PROCESSOR_ARCHITEW6432%" == "AMD64" (
   drivers\dpinst-amd64.exe /PATH %cd%\drivers\prewin10 %ARGS%
 ) ELSE (
-  drivers/dpinst-x86.exe /PATH %cd%\drivers\prewin10 %ARGS%
+  drivers\dpinst-x86.exe /PATH %cd%\drivers\prewin10 %ARGS%
 )
 
 exit /b 0
