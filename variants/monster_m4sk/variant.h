@@ -57,8 +57,8 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (33u)
-#define NUM_DIGITAL_PINS     (23u)
+#define PINS_COUNT           (35u)
+#define NUM_DIGITAL_PINS     (35u)
 #define NUM_ANALOG_INPUTS    (4u)
 #define NUM_ANALOG_OUTPUTS   (2u)
 #define analogInputToDigitalPin(p)  ((p < NUM_ANALOG_INPUTS) ? (p) + PIN_A0 : -1)
@@ -92,8 +92,8 @@ extern "C"
 #define PIN_A1               (PIN_A0 + 1)
 #define PIN_A2               (PIN_A0 + 2)
 #define PIN_A3               (PIN_A0 + 3)
-#define PIN_DAC0             PIN_A0
-#define PIN_DAC1             PIN_A1
+#define PIN_DAC0              PIN_A0
+#define PIN_DAC1              PIN_A1
 
 static const uint8_t A0  = PIN_A0;
 static const uint8_t A1  = PIN_A1;
@@ -106,7 +106,7 @@ static const uint8_t DAC1 = PIN_DAC1;
 #define ADC_RESOLUTION		12
 
 // Other pins
-#define PIN_ATN              (23ul)
+#define PIN_ATN              (26ul)
 static const uint8_t ATN = PIN_ATN;
 
 /*
@@ -151,8 +151,8 @@ static const uint8_t MISO1 = PIN_SPI_MISO ;
 static const uint8_t SCK1  = PIN_SPI_SCK ;
 
 // SPI for PDM
-#define PIN_SPI2_MISO         (22u)
-#define PIN_SPI2_SCK          (21u)
+#define PIN_SPI2_MISO         (23u)
+#define PIN_SPI2_SCK          (24u)
 #define PIN_SPI2_MOSI         (13u)  // actually LED, ignored
 #define PERIPH_SPI2           sercom3
 #define PAD_SPI2_TX           SPI_PAD_3_SCK_1
@@ -179,9 +179,9 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * USB
  */
-#define PIN_USB_HOST_ENABLE (23ul)
-#define PIN_USB_DM          (24ul)
-#define PIN_USB_DP          (25ul)
+#define PIN_USB_HOST_ENABLE (25ul)
+#define PIN_USB_DM          (26ul)
+#define PIN_USB_DP          (27ul)
 
 /*
  * I2S Interfaces
@@ -192,12 +192,12 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 // no I2S on G19!
 
 //QSPI Pins
-#define PIN_QSPI_SCK	(27u)
-#define PIN_QSPI_CS	(28u)
-#define PIN_QSPI_IO0	(29u)
-#define PIN_QSPI_IO1	(30u)
-#define PIN_QSPI_IO2	(31u)
-#define PIN_QSPI_IO3	(32u)
+#define PIN_QSPI_SCK	(29u)
+#define PIN_QSPI_CS	(30u)
+#define PIN_QSPI_IO0	(31u)
+#define PIN_QSPI_IO1	(32u)
+#define PIN_QSPI_IO2	(33u)
+#define PIN_QSPI_IO3	(34u)
 
 #if !defined(VARIANT_QSPI_BAUD_DEFAULT)
   // TODO: meaningful value for this
