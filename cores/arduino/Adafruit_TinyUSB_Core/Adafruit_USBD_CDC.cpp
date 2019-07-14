@@ -37,10 +37,11 @@ Adafruit_USBD_CDC::Adafruit_USBD_CDC(void)
 
 }
 
-uint16_t Adafruit_USBD_CDC::getDescriptor(uint8_t* buf, uint16_t bufsize)
+uint16_t Adafruit_USBD_CDC::getDescriptor(uint8_t itfnum, uint8_t* buf, uint16_t bufsize)
 {
   // CDC is mostly always existed for DFU
-  uint8_t desc[] = { TUD_CDC_DESCRIPTOR(0, 0, EPIN, 8, EPOUT, EPIN, 64) };
+  // usb core will automatically update endpoint number
+  uint8_t desc[] = { TUD_CDC_DESCRIPTOR(itfnum, 0, EPIN, 8, EPOUT, EPIN, 64) };
   uint16_t const len = sizeof(desc);
 
   if ( bufsize < len ) return 0;
@@ -52,9 +53,13 @@ uint16_t Adafruit_USBD_CDC::getDescriptor(uint8_t* buf, uint16_t bufsize)
 // Baud and config is ignore in CDC
 void Adafruit_USBD_CDC::begin (uint32_t baud)
 {
+  (void) baud;
 }
+
 void Adafruit_USBD_CDC::begin (uint32_t baud, uint8_t config)
 {
+  (void) baud;
+  (void) config;
 }
 
 void Adafruit_USBD_CDC::end(void)
@@ -128,6 +133,7 @@ extern "C"
 void tud_cdc_line_state_cb(uint8_t itf, bool dtr, bool rts)
 {
   (void) itf;  // interface ID, not used
+  (void) rts;
 
   // DTR = false is counted as disconnected
   if ( !dtr )
