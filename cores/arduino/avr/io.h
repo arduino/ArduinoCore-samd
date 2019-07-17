@@ -25,7 +25,7 @@
 #ifndef _IO_H_
 #define _IO_H_
 
-#ifdef HSRAM_ADDR
+#ifdef __SAMD51__
   #define RAMSTART (HSRAM_ADDR)
   #define RAMSIZE  (HSRAM_SIZE)
 #else
