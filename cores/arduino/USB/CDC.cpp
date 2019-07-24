@@ -321,7 +321,7 @@ int32_t Serial_::readBreak() {
 	return ret;
 }
 
-unsigned long Serial_::baud() {
+uint32_t Serial_::baud() {
 	return _usbLineInfo.dwDTERate;
 }
 

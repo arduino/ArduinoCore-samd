@@ -82,7 +82,7 @@ public:
 	Serial_(USBDeviceClass &_usb);
 
 	void begin(uint32_t baud_count);
-	void begin(unsigned long, uint8_t);
+	void begin(uint32_t, uint8_t);
 	void end(void);
 
 	virtual int available(void);
