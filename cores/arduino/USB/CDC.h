@@ -81,8 +81,8 @@ class Serial_ : public Stream, public PluggableUSBModule {
 public:
 	Serial_(USBDeviceClass &_usb);
 
-	void begin(uint32_t baud_count);
-	void begin(unsigned long, uint8_t);
+	void begin(unsigned long baud_count);
+	void begin(unsigned long, uint16_t);
 	void end(void);
 
 	virtual int available(void);
@@ -118,7 +118,7 @@ public:
 	// These return the settings specified by the USB host for the
 	// serial port. These aren't really used, but are offered here
 	// in case a sketch wants to act on these settings.
-	uint32_t baud();
+	unsigned long baud();
 	uint8_t stopbits();
 	uint8_t paritytype();
 	uint8_t numbits();
