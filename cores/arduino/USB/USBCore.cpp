@@ -42,11 +42,15 @@ static volatile uint8_t rxLEDPulse; /**< Milliseconds remaining for data Rx LED 
 static char isRemoteWakeUpEnabled = 0;
 static char isEndpointHalt = 0;
 
-extern void (*gpf_isr)(void);
+void (*gpf_isr)(void);
 
 // USB_Handler ISR
 extern "C" void UDD_Handler(void) {
 	USBDevice.ISRHandler();
+	
+	if (gpf_isr){
+		gpf_isr();
+	}
 }
 
 const uint16_t STRING_LANGUAGE[2] = {

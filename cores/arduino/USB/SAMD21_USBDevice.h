@@ -434,3 +434,4 @@ private:
 	volatile bool notify;
 };
 
+extern void (*gpf_isr)(void);
