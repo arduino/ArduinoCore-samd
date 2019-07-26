@@ -105,7 +105,7 @@ uint8_t load_serial_number(uint16_t* serial_str)
 
   static const char nibble_to_hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
 
-  for (int i = 0; i < sizeof(raw_id); i++) {
+  for (unsigned int i = 0; i < sizeof(raw_id); i++) {
     for (int j = 0; j < 2; j++) {
       uint8_t nibble = (raw_id[i] >> (j * 4)) & 0xf;
       // Strings are UTF-16-LE encoded.
