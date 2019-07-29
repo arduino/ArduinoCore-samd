@@ -123,7 +123,7 @@ String::String(double value, unsigned char decimalPlaces)
 
 String::~String()
 {
-	free(buffer);
+	if (buffer) free(buffer);
 }
 
 /*********************************************/
