@@ -111,7 +111,7 @@ void loop( void ) ;
   }
 
   template<class T, class L> 
-  auto max(const T& a, const L& b) -> decltype((b < a) ? b : a)
+  auto max(const T& a, const L& b) -> decltype((a < b) ? b : a)
   {
     return (a < b) ? b : a;
   }
