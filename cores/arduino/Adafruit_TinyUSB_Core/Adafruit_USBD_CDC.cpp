@@ -91,7 +91,8 @@ int Adafruit_USBD_CDC::available(void)
 
 int Adafruit_USBD_CDC::peek(void)
 {
-  return tud_cdc_peek(0);
+  uint8_t ch;
+  return tud_cdc_peek(0, &ch) ? (int) ch : -1;
 }
 
 int Adafruit_USBD_CDC::read(void)
@@ -123,6 +124,11 @@ size_t Adafruit_USBD_CDC::write(const uint8_t *buffer, size_t size)
   }
 
   return size - remain;
+}
+
+size_t Adafruit_USBD_CDC::availableForWrite(void)
+{
+  return tud_cdc_write_available();
 }
 
 extern "C"
