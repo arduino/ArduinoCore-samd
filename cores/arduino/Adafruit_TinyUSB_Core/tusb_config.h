@@ -60,7 +60,7 @@
 #define CFG_TUD_MSC                 1
 #define CFG_TUD_HID                 1
 #define CFG_TUD_MIDI                1
-#define CFG_TUD_CUSTOM_CLASS        0
+#define CFG_TUD_VENDOR              1
 
 // CDC FIFO size of TX and RX
 #define CFG_TUD_CDC_RX_BUFSIZE      256
@@ -75,6 +75,10 @@
 // MIDI FIFO size of TX and RX
 #define CFG_TUD_MIDI_RX_BUFSIZE     64
 #define CFG_TUD_MIDI_TX_BUFSIZE     64
+
+// Vendor FIFO size of TX and RX
+#define CFG_TUD_VENDOR_RX_BUFSIZE   64
+#define CFG_TUD_VENDOR_TX_BUFSIZE   64
 
 #ifdef __cplusplus
  }

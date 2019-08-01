@@ -41,15 +41,17 @@ public:
 	void begin(uint32_t baud, uint8_t config);
 	void end(void);
 
-	virtual int available(void);
-	virtual int peek(void);
-	virtual int read(void);
-	virtual void flush(void);
+	virtual int    available(void);
+	virtual int    peek(void);
+	virtual int    read(void);
+	virtual void   flush(void);
 	virtual size_t write(uint8_t);
+
 	virtual size_t write(const uint8_t *buffer, size_t size);
 	size_t write(const char *buffer, size_t size) {
 	  return write((const uint8_t *)buffer, size);
 	}
+	virtual int availableForWrite(void);
 	operator bool();
 };
 
