@@ -20,7 +20,6 @@
 #define __USBDESC_H__
 
 #if !defined(USB_DISABLED)
-#define PLUGGABLE_USB_ENABLED
 #endif
 
 #if defined(CDC_ONLY) || defined(CDC_HID) || defined(WITH_CDC)

@@ -108,10 +108,10 @@ volatile uint32_t _usbConfiguration = 0;
 volatile uint32_t _usbSetInterface = 0;
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
-uint8_t udd_ep_out_cache_buffer[4][64];
+uint8_t udd_ep_out_cache_buffer[2][64];
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
-uint8_t udd_ep_in_cache_buffer[4][64];
+uint8_t udd_ep_in_cache_buffer[2][64];
 
 // Some EP are handled using EPHanlders.
 // Possibly all the sparse EP handling subroutines will be
@@ -259,7 +259,6 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			return sendStringDescriptor(STRING_MANUFACTURER, setup.wLength);
 		}
 		else if (setup.wValueL == ISERIAL) {
-#ifdef PLUGGABLE_USB_ENABLED
   #if (SAMD51)
                         // from section 9.6 of the datasheet
                         #define SERIAL_NUMBER_WORD_0    *(volatile uint32_t*)(0x008061FC)
@@ -279,10 +278,10 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			utox8(SERIAL_NUMBER_WORD_1, &name[8]);
 			utox8(SERIAL_NUMBER_WORD_2, &name[16]);
 			utox8(SERIAL_NUMBER_WORD_3, &name[24]);
-
+#ifdef PLUGGABLE_USB_ENABLED
 			PluggableUSB().getShortName(&name[32]);
-			return sendStringDescriptor((uint8_t*)name, setup.wLength);
 #endif
+			return sendStringDescriptor((uint8_t*)name, setup.wLength);
 		}
 		else {
 			return false;
@@ -510,14 +509,15 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	if (config == (USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0)))
 	{
 		usbd.epBank1SetSize(ep, 64);
-		usbd.epBank1SetAddress(ep, &udd_ep_in_cache_buffer[ep]);
+		usbd.epBank1SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
 		usbd.epBank1SetType(ep, 4); // INTERRUPT IN
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0)))
 	{
-		if (epHandlers[ep] == NULL) {
-			epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep, 256);
+		if (epHandlers[ep] != NULL) {
+			delete (DoubleBufferedEPOutHandler*)epHandlers[ep];
 		}
+		epHandlers[ep] = new DoubleBufferedEPOutHandler(usbd, ep);
 	}
 	else if (config == (USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0)))
 	{
@@ -533,7 +533,7 @@ void USBDeviceClass::initEP(uint32_t ep, uint32_t config)
 	{
 		// Setup Control OUT
 		usbd.epBank0SetSize(ep, 64);
-		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[ep]);
+		usbd.epBank0SetAddress(ep, &udd_ep_out_cache_buffer[0]);
 		usbd.epBank0SetType(ep, 1); // CONTROL OUT / SETUP
 
 		// Setup Control IN

@@ -100,6 +100,7 @@ public:
 	inline bool epBank0IsTransferComplete(ep_t ep)  { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT0; }
 	inline bool epBank1IsTransferComplete(ep_t ep)  { return usb.DeviceEndpoint[ep].EPINTFLAG.bit.TRCPT1; }
 
+	inline void epAckPendingInterrupts(ep_t ep)     { usb.DeviceEndpoint[ep].EPINTFLAG.reg = 0x7F; }
 	inline void epBank0AckSetupReceived(ep_t ep)    { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_RXSTP; }
 	inline void epBank0AckStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL(1); }
 	inline void epBank1AckStalled(ep_t ep)          { usb.DeviceEndpoint[ep].EPINTFLAG.reg = USB_DEVICE_EPINTFLAG_STALL(2); }
@@ -161,6 +162,12 @@ public:
 	inline void epBank1DisableAutoZLP(ep_t ep) { EP[ep].DeviceDescBank[1].PCKSIZE.bit.AUTO_ZLP = 0; }
 	inline void epBank0EnableAutoZLP(ep_t ep)  { EP[ep].DeviceDescBank[0].PCKSIZE.bit.AUTO_ZLP = 1; }
 	inline void epBank1EnableAutoZLP(ep_t ep)  { EP[ep].DeviceDescBank[1].PCKSIZE.bit.AUTO_ZLP = 1; }
+
+	inline void epReleaseOutBank0(ep_t ep, uint16_t s) {
+		epBank0SetMultiPacketSize(ep, s);
+		epBank0SetByteCount(ep, 0);
+		epBank0ResetReady(ep);
+	}
 
 private:
 	// USB Device registers
@@ -233,33 +240,41 @@ class EPHandler {
 public:
 	virtual void handleEndpoint() = 0;
 	virtual uint32_t recv(void *_data, uint32_t len) = 0;
-	virtual uint32_t available() const = 0;
+	virtual uint32_t available() = 0;
+	virtual int peek() = 0;
 };
 
 class DoubleBufferedEPOutHandler : public EPHandler {
 public:
-	DoubleBufferedEPOutHandler(USBDevice_SAMD21G18x &usbDev, uint32_t endPoint, uint32_t bufferSize) :
+	enum { size = 64 };
+
+	DoubleBufferedEPOutHandler(USBDevice_SAMD21G18x &usbDev, uint32_t endPoint) :
 		usbd(usbDev),
-		ep(endPoint), size(bufferSize),
+		ep(endPoint),
 		current(0), incoming(0),
 		first0(0), last0(0), ready0(false),
 		first1(0), last1(0), ready1(false),
 		notify(false)
 	{
-		data0 = reinterpret_cast<uint8_t *>(malloc(size));
-		data1 = reinterpret_cast<uint8_t *>(malloc(size));
-
 		usbd.epBank0SetSize(ep, 64);
 		usbd.epBank0SetType(ep, 3); // BULK OUT
-
 		usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
+		usbd.epBank0EnableTransferComplete(ep);
 
 		release();
 	}
 
-	virtual uint32_t recv(void *_data, uint32_t len)
+	virtual ~DoubleBufferedEPOutHandler() {
+	}
+
+	uint32_t _recv()
 	{
-		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
+		uint32_t i = 0;
+		uint32_t len = 0;
+
+		synchronized {
+			len = _rx_buffer.availableForStore();
+		}
 
 		// R/W: current, first0/1, ready0/1, notify
 		// R  : last0/1, data0/1
@@ -270,9 +285,8 @@ public:
 				}
 			}
 			// when ready0==true the buffer is not being filled and last0 is constant
-			uint32_t i;
-			for (i=0; i<len && first0 < last0; i++) {
-				data[i] = data0[first0++];
+			for (; i<len && first0 < last0; i++) {
+				_rx_buffer.store_char(data0[first0++]);
 			}
 			if (first0 == last0) {
 				first0 = 0;
@@ -285,7 +299,6 @@ public:
 					}
 				}
 			}
-			return i;
 		} else {
 			synchronized {
 				if (!ready1) {
@@ -293,9 +306,8 @@ public:
 				}
 			}
 			// when ready1==true the buffer is not being filled and last1 is constant
-			uint32_t i;
-			for (i=0; i<len && first1 < last1; i++) {
-				data[i] = data1[first1++];
+			for (; i<len && first1 < last1; i++) {
+				_rx_buffer.store_char(data1[first1++]);
 			}
 			if (first1 == last1) {
 				first1 = 0;
@@ -308,58 +320,25 @@ public:
 					}
 				}
 			}
-			return i;
 		}
+		return i;
 	}
 
-	virtual void handleEndpoint()
-	{
-		// R/W : incoming, ready0/1
-		//   W : last0/1, notify
-		if (usbd.epBank0IsTransferComplete(ep))
-		{
-			// Ack Transfer complete
-			usbd.epBank0AckTransferComplete(ep);
-			//usbd.epBank0AckTransferFailed(ep); // XXX
-
-			// Update counters and swap banks for non-ZLP's
-			if (incoming == 0) {
-				last0 = usbd.epBank0ByteCount(ep);
-				if (last0 != 0) {
-					incoming = 1;
-					usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
-					synchronized {
-						ready0 = true;
-						if (ready1) {
-							notify = true;
-							return;
-						}
-						notify = false;
-					}
-				}
-			} else {
-				last1 = usbd.epBank0ByteCount(ep);
-				if (last1 != 0) {
-					incoming = 0;
-					usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
-					synchronized {
-						ready1 = true;
-						if (ready0) {
-							notify = true;
-							return;
-						}
-						notify = false;
-					}
-				}
+	virtual uint32_t recv(void *_data, uint32_t len) {
+		_recv();
+		uint32_t i = 0;
+		uint8_t *data = reinterpret_cast<uint8_t *>(_data);
+		synchronized {
+			for (; i < len && _rx_buffer.available(); i++) {
+				data[i] = _rx_buffer.read_char();
 			}
-			release();
 		}
+		return i;
 	}
 
-	// Returns how many bytes are stored in the buffers
-	virtual uint32_t available() const {
+	virtual uint32_t _available() const {
 		if (current == 0) {
-			bool ready = false;
+			bool ready = ready0;
 			synchronized {
 				ready = ready0;
 			}
@@ -373,27 +352,72 @@ public:
 		}
 	}
 
+	virtual void handleEndpoint()
+	{
+		// R/W : incoming, ready0/1
+		//   W : last0/1, notify
+		if (usbd.epBank0IsTransferComplete(ep))
+		{
+			uint32_t received = usbd.epBank0ByteCount(ep);
+			if (received == 0) {
+				release();
+			} else if (incoming == 0) {
+			// Update counters and swap banks for non-ZLP's
+				last0 = received;
+				incoming = 1;
+				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data1));
+				synchronized {
+					ready0 = true;
+					notify = ready1;
+					if (!notify) {
+						release();
+					}
+				}
+			} else {
+				last1 = received;
+				incoming = 0;
+				usbd.epBank0SetAddress(ep, const_cast<uint8_t *>(data0));
+				synchronized {
+					ready1 = true;
+					notify = ready0;
+					if (!notify) {
+						release();
+					}
+				}
+			}
+			usbd.epAckPendingInterrupts(ep);
+		}
+	}
+
+	// Returns how many bytes are stored in the buffers
+	virtual uint32_t available() {
+		_recv();
+		return _rx_buffer.available();
+	}
+
+	virtual int peek() {
+		_recv();
+		return _rx_buffer.peek();
+	}
+
 	void release() {
-		// Release OUT EP
-		usbd.epBank0EnableTransferComplete(ep);
-		usbd.epBank0SetMultiPacketSize(ep, size);
-		usbd.epBank0SetByteCount(ep, 0);
-		usbd.epBank0ResetReady(ep);
+		usbd.epReleaseOutBank0(ep, size);
 	}
 
 private:
 	USBDevice_SAMD21G18x &usbd;
 
-	const uint32_t ep;
-	const uint32_t size;
-	uint32_t current, incoming;
+	RingBuffer _rx_buffer;
 
-	volatile uint8_t *data0;
+	const uint32_t ep;
+	volatile uint32_t current, incoming;
+
+	__attribute__((__aligned__(4)))	volatile uint8_t data0[size];
 	uint32_t first0;
 	volatile uint32_t last0;
 	volatile bool ready0;
 
-	volatile uint8_t *data1;
+	__attribute__((__aligned__(4)))	volatile uint8_t data1[size];
 	uint32_t first1;
 	volatile uint32_t last1;
 	volatile bool ready1;
