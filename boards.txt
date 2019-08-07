@@ -802,6 +802,69 @@ adafruit_pyportal_m4.menu.debug.off=Off
 adafruit_pyportal_m4.menu.debug.on=On
 adafruit_pyportal_m4.menu.debug.on.build.flags.debug=-g
 
+# Adafruit PyPortal M4 Titano (SAMD51)
+# ------------------------------
+adafruit_pyportal_m4_titano.name=Adafruit PyPortal M4 Titano (SAMD51)
+adafruit_pyportal_m4_titano.vid.0=0x239A
+adafruit_pyportal_m4_titano.pid.0=0x8053
+adafruit_pyportal_m4_titano.vid.1=0x239A
+adafruit_pyportal_m4_titano.pid.1=0x8053
+adafruit_pyportal_m4_titano.upload.tool=bossac18
+adafruit_pyportal_m4_titano.upload.protocol=sam-ba
+adafruit_pyportal_m4_titano.upload.maximum_size=1032192
+adafruit_pyportal_m4_titano.upload.offset=0x4000
+adafruit_pyportal_m4_titano.upload.use_1200bps_touch=true
+adafruit_pyportal_m4_titano.upload.wait_for_upload_port=true
+adafruit_pyportal_m4_titano.upload.native_usb=true
+adafruit_pyportal_m4_titano.build.mcu=cortex-m4
+#adafruit_pyportal_m4_titano.build.f_cpu=120000000L
+adafruit_pyportal_m4_titano.build.usb_product="Adafruit PyPortal M4 Titano"
+adafruit_pyportal_m4_titano.build.usb_manufacturer="Adafruit LLC"
+adafruit_pyportal_m4_titano.build.board=PYPORTAL_M4_TITANO
+adafruit_pyportal_m4_titano.build.core=arduino
+adafruit_pyportal_m4_titano.build.extra_flags=-D__SAMD51J20A__ -DADAFRUIT_PYPORTAL_M4_TITANO -DCRYSTALLESS -D__SAMD51__ {build.usb_flags} -D__FPU_PRESENT -DARM_MATH_CM4 -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_pyportal_m4_titano.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_pyportal_m4_titano.build.openocdscript=openocd_scripts/arduino_zero.cfg
+adafruit_pyportal_m4_titano.build.variant=pyportal_m4_titano
+adafruit_pyportal_m4_titano.build.variant_system_lib=
+adafruit_pyportal_m4_titano.build.vid=0x239A
+adafruit_pyportal_m4_titano.build.pid=0x8035
+adafruit_pyportal_m4_titano.bootloader.tool=openocd
+adafruit_pyportal_m4_titano_titano.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
+adafruit_pyportal_m4_titano.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
+adafruit_pyportal_m4_titano.menu.cache.on=Enabled
+adafruit_pyportal_m4_titano.menu.cache.on.build.cache_flags=-DENABLE_CACHE
+adafruit_pyportal_m4_titano.menu.cache.off=Disabled
+adafruit_pyportal_m4_titano.menu.cache.off.build.cache_flags=
+adafruit_pyportal_m4_titano.menu.speed.120=120 MHz (standard)
+adafruit_pyportal_m4_titano.menu.speed.120.build.f_cpu=120000000L
+adafruit_pyportal_m4_titano.menu.speed.150=150 MHz (overclock)
+adafruit_pyportal_m4_titano.menu.speed.150.build.f_cpu=150000000L
+adafruit_pyportal_m4_titano.menu.speed.180=180 MHz (overclock)
+adafruit_pyportal_m4_titano.menu.speed.180.build.f_cpu=180000000L
+adafruit_pyportal_m4_titano.menu.speed.200=200 MHz (overclock)
+adafruit_pyportal_m4_titano.menu.speed.200.build.f_cpu=200000000L
+adafruit_pyportal_m4_titano.menu.opt.small=Small (-Os) (standard)
+adafruit_pyportal_m4_titano.menu.opt.small.build.flags.optimize=-Os
+adafruit_pyportal_m4_titano.menu.opt.fast=Fast (-O2)
+adafruit_pyportal_m4_titano.menu.opt.fast.build.flags.optimize=-O2
+adafruit_pyportal_m4_titano.menu.opt.faster=Faster (-O3)
+adafruit_pyportal_m4_titano.menu.opt.faster.build.flags.optimize=-O3
+adafruit_pyportal_m4_titano.menu.opt.fastest=Fastest (-Ofast)
+adafruit_pyportal_m4_titano.menu.opt.fastest.build.flags.optimize=-Ofast
+adafruit_pyportal_m4_titano.menu.opt.dragons=Here be dragons (-Ofast -funroll-loops)
+adafruit_pyportal_m4_titano.menu.opt.dragons.build.flags.optimize=-Ofast -funroll-loops
+adafruit_pyportal_m4_titano.menu.maxqspi.50=50 MHz (standard)
+adafruit_pyportal_m4_titano.menu.maxqspi.50.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=50000000
+adafruit_pyportal_m4_titano.menu.maxqspi.fcpu=CPU Speed / 2
+adafruit_pyportal_m4_titano.menu.maxqspi.fcpu.build.flags.maxqspi=-DVARIANT_QSPI_BAUD_DEFAULT=({build.f_cpu})
+adafruit_pyportal_m4_titano.menu.usbstack.arduino=Arduino
+adafruit_pyportal_m4_titano.menu.usbstack.tinyusb=TinyUSB
+adafruit_pyportal_m4_titano.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+adafruit_pyportal_m4_titano.menu.debug.off=Off
+adafruit_pyportal_m4_titano.menu.debug.on=On
+adafruit_pyportal_m4_titano.menu.debug.on.build.flags.debug=-g
+
 # Adafruit pyBadge M4 (SAMD51)
 # ------------------------------
 adafruit_pybadge_m4.name=Adafruit pyBadge M4 Express (SAMD51)
