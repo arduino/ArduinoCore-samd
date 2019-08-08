@@ -82,6 +82,7 @@ static inline uint32_t tud_cdc_read            (void* buffer, uint32_t bufsize);
 static inline void     tud_cdc_read_flush      (void);
 static inline bool     tud_cdc_peek            (int pos, uint8_t* u8);
 
+static inline uint32_t tud_cdc_write_char      (char ch);
 static inline uint32_t tud_cdc_write           (void const* buffer, uint32_t bufsize);
 static inline uint32_t tud_cdc_write_str       (char const* str);
 static inline bool     tud_cdc_write_flush     (void);
@@ -165,6 +166,11 @@ static inline void tud_cdc_read_flush (void)
 static inline bool tud_cdc_peek (int pos, uint8_t* u8)
 {
   return tud_cdc_n_peek(0, pos, u8);
+}
+
+static inline uint32_t tud_cdc_write_char (char ch)
+{
+  return tud_cdc_n_write_char(0, ch);
 }
 
 static inline uint32_t tud_cdc_write (void const* buffer, uint32_t bufsize)
