@@ -77,7 +77,6 @@ void loop( void ) ;
   #include "WMath.h"
   #include "HardwareSerial.h"
   #include "pulse.h"
-  #include <bits/stl_algobase.h>
 #endif
 #include "delay.h"
 #ifdef __cplusplus
