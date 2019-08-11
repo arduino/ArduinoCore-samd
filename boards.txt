@@ -830,7 +830,7 @@ adafruit_pyportal_m4_titano.build.variant_system_lib=
 adafruit_pyportal_m4_titano.build.vid=0x239A
 adafruit_pyportal_m4_titano.build.pid=0x8035
 adafruit_pyportal_m4_titano.bootloader.tool=openocd
-adafruit_pyportal_m4_titano_titano.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
+adafruit_pyportal_m4_titano.bootloader.file=metroM4/bootloader-metro_m4-v2.0.0-adafruit.5.bin
 adafruit_pyportal_m4_titano.compiler.arm.cmsis.ldflags="-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_pyportal_m4_titano.menu.cache.on=Enabled
 adafruit_pyportal_m4_titano.menu.cache.on.build.cache_flags=-DENABLE_CACHE
