@@ -24,6 +24,9 @@
 #define SERCOM_FREQ_REF      48000000
 #define SERCOM_NVIC_PRIORITY ((1<<__NVIC_PRIO_BITS) - 1)
 
+// timeout detection default length (zero is disabled)
+#define SERCOM_DEFAULT_I2C_OPERATION_TIMEOUT_MS 1000
+
 typedef enum
 {
 	UART_EXT_CLOCK = 0,
@@ -212,12 +215,21 @@ class SERCOM
     bool isRXNackReceivedWIRE( void ) ;
 		int availableWIRE( void ) ;
 		uint8_t readDataWIRE( void ) ;
+		void setTimeout( uint16_t ms );
+		bool didTimeout( void );
 
 	private:
 		Sercom* sercom;
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate) ;
 		uint32_t division(uint32_t dividend, uint32_t divisor) ;
 		void initClockNVIC( void ) ;
+
+		// timeout detection for I2C operations
+		void initTimeout( void );
+		bool testTimeout( void );
+		uint16_t timeoutInterval;
+		uint32_t timeoutRef;
+		bool timeoutOccurred;
 };
 
 #endif

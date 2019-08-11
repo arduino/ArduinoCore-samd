@@ -37,6 +37,9 @@ TwoWire::TwoWire(SERCOM * s, uint8_t pinSDA, uint8_t pinSCL)
 }
 
 void TwoWire::begin(void) {
+  // track baud clock for auto-restarting bus in timeout condition
+  activeBaudrate = TWI_CLOCK;
+  
   //Master Mode
   sercom->initMasterWIRE(TWI_CLOCK);
   sercom->enableWIRE();
@@ -55,6 +58,9 @@ void TwoWire::begin(uint8_t address, bool enableGeneralCall) {
 }
 
 void TwoWire::setClock(uint32_t baudrate) {
+  // track baud clock for auto-restarting bus in timeout condition
+  activeBaudrate = baudrate;
+  
   sercom->disableWIRE();
   sercom->initMasterWIRE(baudrate);
   sercom->enableWIRE();
@@ -82,7 +88,7 @@ size_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
     bool busOwner;
     // Connected to slave
-    for (byteRead = 1; byteRead < quantity && (busOwner = sercom->isBusOwnerWIRE()); ++byteRead)
+    for (byteRead = 1; byteRead < quantity && !sercom->didTimeout() && (busOwner = sercom->isBusOwnerWIRE()); ++byteRead)
     {
       sercom->prepareAckBitWIRE();                          // Prepare Acknowledge
       sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ); // Prepare the ACK command for the slave
@@ -100,6 +106,15 @@ size_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     {
       byteRead--;   // because last read byte was garbage/invalid
     }
+  }
+
+  // catch timeout condition
+  if (sercom->didTimeout())
+  {
+    // reset the bus
+    setClock(activeBaudrate);
+    transmissionBegun = false;
+    return 0;
   }
 
   return byteRead;
@@ -123,7 +138,8 @@ void TwoWire::beginTransmission(uint8_t address) {
 //  1 : Data too long
 //  2 : NACK on transmit of address
 //  3 : NACK on transmit of data
-//  4 : Other error
+//  4 : Timeout
+//  5 : Other error
 uint8_t TwoWire::endTransmission(bool stopBit)
 {
   transmissionBegun = false ;
@@ -132,6 +148,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
   {
     sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+    if (sercom->didTimeout()) return 4;  // Timeout
     return 2 ;  // Address error
   }
 
@@ -142,6 +159,7 @@ uint8_t TwoWire::endTransmission(bool stopBit)
     if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
     {
       sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+      if (sercom->didTimeout()) return 4;  // Timeout
       return 3 ;  // Nack or error
     }
   }
