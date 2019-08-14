@@ -163,6 +163,7 @@ static const uint8_t MOSI2 = PIN_SPI_MOSI ;
 static const uint8_t MISO2 = PIN_SPI_MISO ;
 static const uint8_t SCK2  = PIN_SPI_SCK ;
 
+
 /*
  * Wire Interfaces
  */
