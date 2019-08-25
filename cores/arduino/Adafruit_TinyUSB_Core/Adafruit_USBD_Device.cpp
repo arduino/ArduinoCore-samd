@@ -34,6 +34,10 @@
   #define USB_PRODUCT "Unknown"
 #endif
 
+#ifndef USB_CONFIG_POWER
+  #define USB_CONFIG_POWER 100
+#endif
+
 extern uint8_t load_serial_number(uint16_t* serial_str);
 
 Adafruit_USBD_Device USBDevice;
@@ -76,7 +80,7 @@ Adafruit_USBD_Device::Adafruit_USBD_Device(void)
     .bConfigurationValue = 1,
     .iConfiguration      = 0x00,
     .bmAttributes        = TU_BIT(7) | TUSB_DESC_CONFIG_ATT_REMOTE_WAKEUP,
-    .bMaxPower           = TUSB_DESC_CONFIG_POWER_MA(100)
+    .bMaxPower           = TUSB_DESC_CONFIG_POWER_MA(USB_CONFIG_POWER)
   };
 
   memcpy(_desc_cfg, &dev_cfg, sizeof(tusb_desc_configuration_t));
