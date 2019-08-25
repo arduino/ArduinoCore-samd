@@ -41,7 +41,7 @@ uint32_t pulseIn(uint32_t pin, uint32_t state, uint32_t timeout)
    * No assembly required, no conversion of loop counts to times (which is
    * worrisome in the presence of cache.)
    */
-  volatile uint32_t *port = &(PORT->Group[p.ulPort].IN.reg);
+  const volatile uint32_t *port = &(PORT->Group[p.ulPort].IN.reg);
   uint32_t usCallStart;  // microseconds at start of call, for timeout.
   uint32_t usPulseStart; // microseconds at start of measured pulse.
   usCallStart = usPulseStart = micros();
