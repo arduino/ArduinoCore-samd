@@ -46,6 +46,9 @@ class Adafruit_USBD_Device
     uint8_t  _epin_count;
     uint8_t  _epout_count;
 
+    const char *_manufacturer;
+    const char *_product;
+
   public:
     Adafruit_USBD_Device(void);
 
@@ -53,6 +56,12 @@ class Adafruit_USBD_Device
 
     void setID(uint16_t vid, uint16_t pid);
     void setVersion(uint16_t bcd);
+
+    const char *getManufacturer(void)    { return _manufacturer; }
+    void setManufacturer(const char *s);
+    const char *getProduct(void)         { return _product; }
+    void setProduct(const char *s);
+
     bool begin(void);
 
     bool mounted      (void) { return tud_mounted(); }
