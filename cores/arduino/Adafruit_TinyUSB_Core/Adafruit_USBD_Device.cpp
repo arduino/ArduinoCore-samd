@@ -83,8 +83,9 @@ Adafruit_USBD_Device::Adafruit_USBD_Device(void)
     .bMaxPower           = TUSB_DESC_CONFIG_POWER_MA(USB_CONFIG_POWER)
   };
 
-  memcpy(_desc_cfg, &dev_cfg, sizeof(tusb_desc_configuration_t));
-
+  memcpy(_desc_cfg_buffer, &dev_cfg, sizeof(tusb_desc_configuration_t));
+  _desc_cfg = _desc_cfg_buffer;
+  _desc_cfg_size = sizeof(_desc_cfg_buffer);
   _desc_cfglen = sizeof(tusb_desc_configuration_t);
   _itf_count = 0;
   _epin_count = _epout_count = 1;
@@ -96,7 +97,7 @@ Adafruit_USBD_Device::Adafruit_USBD_Device(void)
 bool Adafruit_USBD_Device::addInterface(Adafruit_USBD_Interface& itf)
 {
   uint8_t* desc = _desc_cfg+_desc_cfglen;
-  uint16_t const len = itf.getDescriptor(_itf_count, desc, sizeof(_desc_cfg)-_desc_cfglen);
+  uint16_t const len = itf.getDescriptor(_itf_count, desc, _desc_cfg_size-_desc_cfglen);
   uint8_t* desc_end = desc+len;
 
   if ( !len ) return false;
@@ -125,6 +126,16 @@ bool Adafruit_USBD_Device::addInterface(Adafruit_USBD_Interface& itf)
   config->bNumInterfaces = _itf_count;
 
   return true;
+}
+
+void Adafruit_USBD_Device::setDescriptorBuffer(uint8_t* buf, uint32_t buflen)
+{
+  if (buflen < _desc_cfg_size)
+    return;
+
+  memcpy(buf, _desc_cfg, _desc_cfglen);
+  _desc_cfg = buf;
+  _desc_cfg_size = buflen;
 }
 
 void Adafruit_USBD_Device::setID(uint16_t vid, uint16_t pid)

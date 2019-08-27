@@ -38,8 +38,10 @@ class Adafruit_USBD_Device
   private:
     tusb_desc_device_t _desc_device;
 
-    uint8_t  _desc_cfg[256];
+    uint8_t  *_desc_cfg;
+    uint16_t _desc_cfg_size;
     uint16_t _desc_cfglen;
+    uint8_t  _desc_cfg_buffer[256];
 
     uint8_t  _itf_count;
 
@@ -50,6 +52,7 @@ class Adafruit_USBD_Device
     Adafruit_USBD_Device(void);
 
     bool addInterface(Adafruit_USBD_Interface& itf);
+    void setDescriptorBuffer(uint8_t* buf, uint32_t buflen);
 
     void setID(uint16_t vid, uint16_t pid);
     void setVersion(uint16_t bcd);
