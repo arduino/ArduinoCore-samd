@@ -99,10 +99,16 @@ typedef enum _ETCChannel
   TCC0_CH3 = (0<<8)|(3),
   TCC0_CH4 = (0<<8)|(4),
   TCC0_CH5 = (0<<8)|(5),
+  TCC0_CH6 = (0<<8)|(6),
+  TCC0_CH7 = (0<<8)|(7),
   TCC1_CH0 = (1<<8)|(0),
   TCC1_CH1 = (1<<8)|(1),
   TCC1_CH2 = (1<<8)|(2),
   TCC1_CH3 = (1<<8)|(3),
+  TCC1_CH4 = (1<<8)|(4),
+  TCC1_CH5 = (1<<8)|(5),
+  TCC1_CH6 = (1<<8)|(6),
+  TCC1_CH7 = (1<<8)|(7),
   TCC2_CH0 = (2<<8)|(0),
   TCC2_CH1 = (2<<8)|(1),
   TCC2_CH2 = (2<<8)|(2),
@@ -122,6 +128,10 @@ typedef enum _ETCChannel
   TC4_CH1 =  (9<<8)|(1),
   TC5_CH0 =  (10<<8)|(0),
   TC5_CH1 =  (10<<8)|(1),
+  TC6_CH0 =  (11<<8)|(0),
+  TC6_CH1 =  (11<<8)|(1),
+  TC7_CH0 =  (12<<8)|(0),
+  TC7_CH1 =  (12<<8)|(1),
 } ETCChannel ;
 
 #elif defined(__SAMD51P19A__) || defined(__SAMD51P20A__)
@@ -198,6 +208,12 @@ typedef enum _ETCChannel
   TC4_CH1  = (4<<8)|(1),
   TC5_CH0  = (5<<8)|(0),
   TC5_CH1  = (5<<8)|(1),
+  #if defined (__SAMD21J18A__) 
+    TC6_CH0  = (6<<8)|(0),
+    TC6_CH1  = (6<<8)|(1),
+    TC7_CH0  = (7<<8)|(0),
+    TC7_CH1  = (7<<8)|(1),
+  #endif // __SAMD21J18A__
 } ETCChannel ;
 
 // Definitions for PWM channels
