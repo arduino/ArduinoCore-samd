@@ -34,6 +34,10 @@
   #define USB_PRODUCT "Unknown"
 #endif
 
+#ifndef USB_LANGUAGE
+  #define USB_LANGUAGE  0x0409 // default is English
+#endif
+
 #ifndef USB_CONFIG_POWER
   #define USB_CONFIG_POWER 100
 #endif
@@ -90,6 +94,7 @@ Adafruit_USBD_Device::Adafruit_USBD_Device(void)
   _itf_count = 0;
   _epin_count = _epout_count = 1;
 
+  _language_id = USB_LANGUAGE;
   _manufacturer = USB_MANUFACTURER;
   _product = USB_PRODUCT;
 }
@@ -152,12 +157,18 @@ void Adafruit_USBD_Device::setVersion(uint16_t bcd)
   _desc_device.bcdUSB = bcd;
 }
 
-void Adafruit_USBD_Device::setManufacturer(const char *s)
+
+void Adafruit_USBD_Device::setLanguageDescriptor (uint16_t language_id)
+{
+  _language_id = language_id;
+}
+
+void Adafruit_USBD_Device::setManufacturerDescriptor(const char *s)
 {
   _manufacturer = s;
 }
 
-void Adafruit_USBD_Device::setProduct(const char *s)
+void Adafruit_USBD_Device::setProductDescriptor(const char *s)
 {
   _product = s;
 }
@@ -276,17 +287,16 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index)
   switch (index)
   {
     case 0:
-      // language = English
-      _desc_str[1] = 0x0409;
+      _desc_str[1] = USBDevice.getLanguageDescriptor();
       chr_count = 1;
     break;
 
     case 1:
-      chr_count = strcpy_uni16(USBDevice.getManufacturer(), _desc_str + 1, 32);
+      chr_count = strcpy_uni16(USBDevice.getManufacturerDescriptor(), _desc_str + 1, 32);
     break;
 
     case 2:
-      chr_count = strcpy_uni16(USBDevice.getProduct(), _desc_str + 1, 32);
+      chr_count = strcpy_uni16(USBDevice.getProductDescriptor(), _desc_str + 1, 32);
     break;
 
     case 3:
