@@ -39,8 +39,8 @@ class Adafruit_USBD_Device
     tusb_desc_device_t _desc_device;
 
     uint8_t  *_desc_cfg;
-    uint16_t _desc_cfg_size;
-    uint16_t _desc_cfglen;
+    uint16_t _desc_cfg_maxlen;
+    uint16_t _desc_cfg_len;
     uint8_t  _desc_cfg_buffer[256];
 
     uint8_t  _itf_count;

@@ -88,15 +88,16 @@ Adafruit_USBD_Device::Adafruit_USBD_Device(void)
   };
 
   memcpy(_desc_cfg_buffer, &dev_cfg, sizeof(tusb_desc_configuration_t));
-  _desc_cfg = _desc_cfg_buffer;
-  _desc_cfg_size = sizeof(_desc_cfg_buffer);
-  _desc_cfglen = sizeof(tusb_desc_configuration_t);
-  _itf_count = 0;
-  _epin_count = _epout_count = 1;
+  _desc_cfg        = _desc_cfg_buffer;
+  _desc_cfg_maxlen = sizeof(_desc_cfg_buffer);
+  _desc_cfg_len    = sizeof(tusb_desc_configuration_t);
 
-  _language_id = USB_LANGUAGE;
+  _itf_count    = 0;
+  _epin_count   = _epout_count = 1;
+
+  _language_id  = USB_LANGUAGE;
   _manufacturer = USB_MANUFACTURER;
-  _product = USB_PRODUCT;
+  _product      = USB_PRODUCT;
 }
 
 // Add interface descriptor
@@ -104,8 +105,8 @@ Adafruit_USBD_Device::Adafruit_USBD_Device(void)
 // - Endpoint number is updated to be unique
 bool Adafruit_USBD_Device::addInterface(Adafruit_USBD_Interface& itf)
 {
-  uint8_t* desc = _desc_cfg+_desc_cfglen;
-  uint16_t const len = itf.getDescriptor(_itf_count, desc, _desc_cfg_size-_desc_cfglen);
+  uint8_t* desc = _desc_cfg+_desc_cfg_len;
+  uint16_t const len = itf.getDescriptor(_itf_count, desc, _desc_cfg_maxlen-_desc_cfg_len);
   uint8_t* desc_end = desc+len;
 
   if ( !len ) return false;
@@ -126,11 +127,11 @@ bool Adafruit_USBD_Device::addInterface(Adafruit_USBD_Interface& itf)
     desc += desc[0]; // next
   }
 
-  _desc_cfglen += len;
+  _desc_cfg_len += len;
 
   // Update configuration descriptor
   tusb_desc_configuration_t* config = (tusb_desc_configuration_t*)_desc_cfg;
-  config->wTotalLength = _desc_cfglen;
+  config->wTotalLength = _desc_cfg_len;
   config->bNumInterfaces = _itf_count;
 
   return true;
@@ -138,17 +139,17 @@ bool Adafruit_USBD_Device::addInterface(Adafruit_USBD_Interface& itf)
 
 void Adafruit_USBD_Device::setDescriptorBuffer(uint8_t* buf, uint32_t buflen)
 {
-  if (buflen < _desc_cfg_size)
+  if (buflen < _desc_cfg_maxlen)
     return;
 
-  memcpy(buf, _desc_cfg, _desc_cfglen);
-  _desc_cfg = buf;
-  _desc_cfg_size = buflen;
+  memcpy(buf, _desc_cfg, _desc_cfg_len);
+  _desc_cfg        = buf;
+  _desc_cfg_maxlen = buflen;
 }
 
 void Adafruit_USBD_Device::setID(uint16_t vid, uint16_t pid)
 {
-  _desc_device.idVendor = vid;
+  _desc_device.idVendor  = vid;
   _desc_device.idProduct = pid;
 }
 
@@ -195,7 +196,6 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
   (void) index; // for multiple configurations
   return USBDevice._desc_cfg;
 }
-
 
 static int utf8_to_unichar(const char *str8, int *unicharp)
 {
