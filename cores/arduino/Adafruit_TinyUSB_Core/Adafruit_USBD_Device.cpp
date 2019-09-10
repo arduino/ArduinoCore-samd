@@ -89,6 +89,9 @@ Adafruit_USBD_Device::Adafruit_USBD_Device(void)
   _desc_cfglen = sizeof(tusb_desc_configuration_t);
   _itf_count = 0;
   _epin_count = _epout_count = 1;
+
+  _manufacturer = USB_MANUFACTURER;
+  _product = USB_PRODUCT;
 }
 
 // Add interface descriptor
@@ -149,6 +152,16 @@ void Adafruit_USBD_Device::setVersion(uint16_t bcd)
   _desc_device.bcdUSB = bcd;
 }
 
+void Adafruit_USBD_Device::setManufacturer(const char *s)
+{
+  _manufacturer = s;
+}
+
+void Adafruit_USBD_Device::setProduct(const char *s)
+{
+  _product = s;
+}
+
 bool Adafruit_USBD_Device::begin(void)
 {
   return true;
@@ -172,6 +185,85 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
   return USBDevice._desc_cfg;
 }
 
+
+static int utf8_to_unichar(const char *str8, int *unicharp)
+{
+  int unichar;
+  int len;
+
+  if (str8[0] < 0x80)
+    len = 1;
+  else if ((str8[0] & 0xe0) == 0xc0)
+    len = 2;
+  else if ((str8[0] & 0xf0) == 0xe0)
+    len = 3;
+  else if ((str8[0] & 0xf8) == 0xf0)
+    len = 4;
+  else if ((str8[0] & 0xfc) == 0xf8)
+    len = 5;
+  else if ((str8[0] & 0xfe) == 0xfc)
+    len = 6;
+  else
+    return -1;
+
+  switch (len) {
+    case 1:
+      unichar = str8[0];
+      break;
+    case 2:
+      unichar = str8[0] & 0x1f;
+      break;
+    case 3:
+      unichar = str8[0] & 0x0f;
+      break;
+    case 4:
+      unichar = str8[0] & 0x07;
+      break;
+    case 5:
+      unichar = str8[0] & 0x03;
+      break;
+    case 6:
+      unichar = str8[0] & 0x01;
+      break;
+  }
+
+  for (int i = 1; i < len; i++) {
+          if ((str8[i] & 0xc0) != 0x80)
+                  return -1;
+          unichar <<= 6;
+          unichar |= str8[i] & 0x3f;
+  }
+
+  *unicharp = unichar;
+  return len;
+}
+
+// Simple UCS-2/16-bit coversion, which handles the Basic Multilingual Plane
+static int strcpy_uni16(const char *s, uint16_t *buf, int bufsize) {
+  int i = 0;
+  int buflen = 0;
+
+  while (i < bufsize) {
+    int unichar;
+    int utf8len = utf8_to_unichar(s + i, &unichar);
+
+    if (utf8len < 0) {
+      // Invalid utf8 sequence, skip it
+      i++;
+      continue;
+    }
+
+    i += utf8len;
+
+    // If the codepoint is larger than 16 bit, skip it
+    if (unichar <= 0xffff)
+      buf[buflen++] = unichar;
+  }
+
+  buf[buflen] = '\0';
+  return buflen;
+}
+
 // up to 32 unicode characters (header make it 33)
 static uint16_t _desc_str[33];
 
@@ -189,20 +281,12 @@ uint16_t const* tud_descriptor_string_cb(uint8_t index)
       chr_count = 1;
     break;
 
-    case 1: // Manufacturer
-    case 2: // Product
-    {
-      char const * str = (index == 1) ? USB_MANUFACTURER : USB_PRODUCT;
+    case 1:
+      chr_count = strcpy_uni16(USBDevice.getManufacturer(), _desc_str + 1, 32);
+    break;
 
-      // cap at max char
-      chr_count = strlen(str);
-      if ( chr_count > 32 ) chr_count = 32;
-
-      for(uint8_t i=0; i<chr_count; i++)
-      {
-        _desc_str[1+i] = str[i];
-      }
-    }
+    case 2:
+      chr_count = strcpy_uni16(USBDevice.getProduct(), _desc_str + 1, 32);
     break;
 
     case 3:
