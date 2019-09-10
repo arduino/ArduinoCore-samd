@@ -116,6 +116,7 @@ bool CDC_Setup(USBSetup& setup)
 			_usbLineInfo.lineState = setup.wValueL;
 		}
 
+#ifndef mEDBGCLONE
 		if (r == CDC_SET_LINE_CODING || r == CDC_SET_CONTROL_LINE_STATE)
 		{
 			// auto-reset into the bootloader is triggered when the port, already
@@ -123,9 +124,7 @@ bool CDC_Setup(USBSetup& setup)
 			// port is open (bit 0 of lineState).
 			if (_usbLineInfo.dwDTERate == 1200 && (_usbLineInfo.lineState & 0x01) == 0)
 			{
-#ifndef mEDBGCLONE
 				initiateReset(250);
-#endif
 			}
 			else
 			{
@@ -133,6 +132,7 @@ bool CDC_Setup(USBSetup& setup)
 			}
 			return false;
 		}
+#endif
 
 		if (CDC_SEND_BREAK == r)
 		{

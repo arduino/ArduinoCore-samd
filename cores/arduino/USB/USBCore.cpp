@@ -108,10 +108,10 @@ volatile uint32_t _usbConfiguration = 0;
 volatile uint32_t _usbSetInterface = 0;
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
-uint8_t udd_ep_out_cache_buffer[2][64];
+uint8_t udd_ep_out_cache_buffer[3][64];
 
 static __attribute__((__aligned__(4))) //__attribute__((__section__(".bss_hram0")))
-uint8_t udd_ep_in_cache_buffer[2][64];
+uint8_t udd_ep_in_cache_buffer[3][64];
 
 // Some EP are handled using EPHanlders.
 // Possibly all the sparse EP handling subroutines will be
