@@ -280,6 +280,8 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			utox8(SERIAL_NUMBER_WORD_3, &name[24]);
 #ifdef PLUGGABLE_USB_ENABLED
 			PluggableUSB().getShortName(&name[32]);
+#else
+			name[32] = 0;
 #endif
 			return sendStringDescriptor((uint8_t*)name, setup.wLength);
 		}
