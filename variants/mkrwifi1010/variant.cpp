@@ -183,7 +183,23 @@ SERCOM sercom5(SERCOM5);
 
 #define PMIC_ADDRESS  0x6B
 #define PMIC_REG01    0x01
+#define PMIC_REG05    0x05
 #define PMIC_REG07    0x07
+
+static inline void disable_charging_safety_timer() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG05);
+  PERIPH_WIRE.sendDataMasterWIRE(0x82);  //disable chargin safety timer
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
 
 static inline void enable_battery_charging() {
   PERIPH_WIRE.initMasterWIRE(100000);
@@ -230,6 +246,7 @@ void initVariant() {
     enable_battery_charging();
   }
   disable_battery_fet(!batteryPresent);
+  disable_charging_safety_timer();
 #endif
 
   // NINA - SPI boot
