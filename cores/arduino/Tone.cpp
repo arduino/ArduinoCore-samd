@@ -152,9 +152,19 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
 
 void noTone (uint32_t outputPin)
 {
-  resetTC(TONE_TC);
-  digitalWrite(outputPin, LOW);
-  toneIsActive = false;
+  /* 'tone' need to run at least once in order to enable GCLK for
+   * the timers used for the tone-functionality. If 'noTone' is called
+   * without ever calling 'tone' before then 'WAIT_TC16_REGS_SYNC(TCx)'
+   * will wait infinitely. The variable 'firstTimeRunning' is set the
+   * 1st time 'tone' is set so it can be used to detect wether or not
+   * 'tone' has been called before.
+   */
+  if(firstTimeRunning)
+  {
+    resetTC(TONE_TC);
+    digitalWrite(outputPin, LOW);
+    toneIsActive = false;
+  }
 }
 
 #ifdef __cplusplus
