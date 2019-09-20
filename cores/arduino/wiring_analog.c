@@ -280,8 +280,8 @@ uint32_t analogRead(uint32_t pin)
 #ifdef DAC
 
 	#if defined(__SAMD51__)
-	  if (pin == A0 || pin == A1) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
-		uint8_t channel = (pin == PIN_A0 ? 0 : 1);
+	  if (pin == PIN_DAC0 || pin == PIN_DAC1) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
+		uint8_t channel = (pin == PIN_DAC0 ? 0 : 1);
 		
 		if(dacEnabled[channel]){
 			dacEnabled[channel] = false;
@@ -298,7 +298,7 @@ uint32_t analogRead(uint32_t pin)
 		
 		while (DAC->SYNCBUSY.bit.ENABLE);
 	#else
-	  if (pin == A0) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
+	  if (pin == PIN_DAC0) { // Disable DAC, if analogWrite(A0,dval) used previously the DAC is enabled
 	    syncDAC();
 		
 		DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
@@ -410,9 +410,9 @@ void analogWrite(uint32_t pin, uint32_t value)
 	  {
 	    // DAC handling code
 #if defined(__SAMD51__)
-		if (pin == PIN_A0 || pin == PIN_A1) { // 2 DACs on A0 (PA02) and A1 (PA05)
+		if (pin == PIN_DAC0 || pin == PIN_DAC1) { // 2 DACs on A0 (PA02) and A1 (PA05)
 #else
-	    if (pin == PIN_A0) { // Only 1 DAC on A0 (PA02)
+	    if (pin == PIN_DAC0) { // Only 1 DAC on A0 (PA02)
 #endif
 
 #if defined(__SAMD51__)
@@ -420,7 +420,7 @@ void analogWrite(uint32_t pin, uint32_t value)
 	    value = mapResolution(value, _writeResolution, _dacResolution);
 
 
-			uint8_t channel = (pin == PIN_A0 ? 0 : 1);
+			uint8_t channel = (pin == PIN_DAC0 ? 0 : 1);
 
 			pinPeripheral(pin, PIO_ANALOG);
 
