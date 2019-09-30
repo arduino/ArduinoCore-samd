@@ -21,6 +21,8 @@
 
 #include <inttypes.h>
 #include <stdio.h> // for size_t
+#include <stdarg.h> // for printf
+#define PRINTF_BUF 80
 
 #include "WString.h"
 #include "Printable.h"
@@ -85,6 +87,8 @@ class Print
     size_t println(double, int = 2);
     size_t println(const Printable&);
     size_t println(void);
+
+    void printf(const char[], ...);
 
     virtual void flush() { /* Empty implementation for backward compatibility */ }
 };
