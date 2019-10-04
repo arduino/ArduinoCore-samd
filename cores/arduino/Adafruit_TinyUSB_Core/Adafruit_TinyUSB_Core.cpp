@@ -99,7 +99,7 @@ uint8_t load_serial_number(uint16_t* serial_str)
 
   for (int i=0; i<4; i++) {
       for (int k=0; k<4; k++) {
-          raw_id[4 * i + k] = (*(id_addresses[i]) >> k * 8) & 0xff;
+          raw_id[4 * i + (3 - k)] = (*(id_addresses[i]) >> k * 8) & 0xff;
       }
   }
 
@@ -109,7 +109,7 @@ uint8_t load_serial_number(uint16_t* serial_str)
     for (int j = 0; j < 2; j++) {
       uint8_t nibble = (raw_id[i] >> (j * 4)) & 0xf;
       // Strings are UTF-16-LE encoded.
-      serial_str[i * 2 + j] = nibble_to_hex[nibble];
+      serial_str[i * 2 + (1 - j)] = nibble_to_hex[nibble];
     }
   }
 
