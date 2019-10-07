@@ -98,6 +98,7 @@ extern "C"
 #define PIN_A7               (PIN_A0 + 7)
 #define PIN_A8               (PIN_A0 + 8)
 #define PIN_A9               (PIN_A0 + 9)
+#define PIN_BANDGAP_ADC      52
 
 #define PIN_DAC0             PIN_A0
 #define PIN_DAC1             PIN_A1

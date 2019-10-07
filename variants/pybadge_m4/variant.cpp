@@ -117,6 +117,8 @@ const PinDescription g_APinDescription[]=
   // D51 Speaker enable
   { PORTA, 27, PIO_DIGITAL, PIN_ATTR_NONE, No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
 
+  // D52 Bandgap input
+  { NOT_A_PORT, PIN_NOT_A_PIN, PIO_NOT_A_PIN, PIN_ATTR_ANALOG, ADC_Channel_PTAT, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
 } ;
 
 const void* g_apTCInstances[TCC_INST_NUM+TC_INST_NUM]={ TCC0, TCC1, TCC2, TCC3, TCC4, TC0, TC1, TC2, TC3, TC4, TC5 } ;
