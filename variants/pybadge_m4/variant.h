@@ -136,7 +136,7 @@ static const uint8_t ATN = PIN_ATN;
 /*
  * SPI Interfaces
  */
-#define SPI_INTERFACES_COUNT 2
+#define SPI_INTERFACES_COUNT 3
 
 #define PIN_SPI_MISO         (26u)
 #define PIN_SPI_MOSI         (27u)
@@ -150,7 +150,7 @@ static const uint8_t MOSI = PIN_SPI_MOSI ;
 static const uint8_t MISO = PIN_SPI_MISO ;
 static const uint8_t SCK  = PIN_SPI_SCK ;
 
-  // Internal SPI for TFT
+// Internal SPI for TFT
 #define PIN_SPI1_MOSI         (41u)
 #define PIN_SPI1_SCK          (42u)
 #define PIN_SPI1_MISO         (43u)
@@ -162,6 +162,19 @@ static const uint8_t SS1	  = 44 ;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
 static const uint8_t MISO1 = PIN_SPI1_MISO ;
 static const uint8_t SCK1 = PIN_SPI1_SCK ;
+
+// SPI for PDM mic
+#define PIN_SPI2_MOSI         (9u)
+#define PIN_SPI2_SCK          (5u)
+#define PIN_SPI2_MISO         (6u)
+#define PERIPH_SPI2           sercom3
+#define PAD_SPI2_TX           SPI_PAD_3_SCK_1
+#define PAD_SPI2_RX           SERCOM_RX_PAD_2
+
+static const uint8_t SS2	  = 10 ;
+static const uint8_t MOSI2 = PIN_SPI2_MOSI ;
+static const uint8_t MISO2 = PIN_SPI2_MISO ;
+static const uint8_t SCK2 = PIN_SPI2_SCK ;
 
 /*
  * Wire Interfaces
