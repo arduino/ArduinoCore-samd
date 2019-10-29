@@ -57,6 +57,8 @@ typedef enum _EAnalogChannel
   ADC_Channel19=19,
   DAC_Channel0,
   DAC_Channel1,
+  ADC_Channel_Bandgap=0x1B,
+  ADC_Channel_PTAT=0x1C,
 } EAnalogChannel ;
 
 #if defined(__SAMD51__)

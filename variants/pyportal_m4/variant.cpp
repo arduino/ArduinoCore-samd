@@ -75,7 +75,7 @@ const PinDescription g_APinDescription[]=
 
   // 24..26 more TFT control lines
   { PORTA,  0, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC2_CH0   , TC2_CH0     , EXTERNAL_INT_0    }, // TFT_RESET
-  { PORTB, 31, PIO_DIGITAL   , PIN_ATTR_PWM_E                  , No_ADC_Channel, TC0_CH1   , TC0_CH1     , EXTERNAL_INT_15   }, // TFT_BACKLITE
+  { PORTB, 31, PIO_DIGITAL   , PIN_ATTR_PWM_F                  , No_ADC_Channel, TCC4_CH1  , TCC4_CH1    , EXTERNAL_INT_15   }, // TFT_BACKLITE
   { PORTB,  9, PIO_DIGITAL   , (PIN_ATTR_ANALOG|PIN_ATTR_PWM_E), ADC_Channel3  , TC4_CH1   , TC4_CH1     , EXTERNAL_INT_9    }, // TFT_WR, CCL/OUT[2]
 
   // 27..28  I2C pins
