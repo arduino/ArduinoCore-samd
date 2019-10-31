@@ -264,5 +264,5 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE        Serial1
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
-#endif /* _VARIANT_FEATHER_M4_ */
+#endif /* _VARIANT_PYBADGE_AIRLIFT_M4_ */
 
