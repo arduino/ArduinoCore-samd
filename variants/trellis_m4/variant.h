@@ -156,10 +156,13 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PIN_WIRE_SCL         (22u)
 #define PERIPH_WIRE          sercom4
 #define WIRE_IT_HANDLER      SERCOM4_Handler
-#define WIRE_IT_HANDLER_0    SERCOM4_0_Handler
-#define WIRE_IT_HANDLER_1    SERCOM4_1_Handler
-#define WIRE_IT_HANDLER_2    SERCOM4_2_Handler
-#define WIRE_IT_HANDLER_3    SERCOM4_3_Handler
+
+// Sercom interrupt handlers for I2C slave not set; they are used by Serial1
+// #define WIRE_IT_HANDLER_0    SERCOM4_0_Handler
+// #define WIRE_IT_HANDLER_1    SERCOM4_1_Handler
+// #define WIRE_IT_HANDLER_2    SERCOM4_2_Handler
+// #define WIRE_IT_HANDLER_3    SERCOM4_3_Handler
+
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
 
