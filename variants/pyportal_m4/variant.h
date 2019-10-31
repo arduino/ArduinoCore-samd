@@ -175,6 +175,11 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define PIN_WIRE_SCL         (28u)
 #define PERIPH_WIRE          sercom5
 #define WIRE_IT_HANDLER      SERCOM5_Handler
+#define WIRE_IT_HANDLER_0    SERCOM5_0_Handler
+#define WIRE_IT_HANDLER_1    SERCOM5_1_Handler
+#define WIRE_IT_HANDLER_2    SERCOM5_2_Handler
+#define WIRE_IT_HANDLER_3    SERCOM5_3_Handler
+
 
 static const uint8_t SDA = PIN_WIRE_SDA;
 static const uint8_t SCL = PIN_WIRE_SCL;
@@ -245,5 +250,5 @@ extern Uart Serial1;
 #define SERIAL_PORT_HARDWARE        Serial1
 #define SERIAL_PORT_HARDWARE_OPEN   Serial1
 
-#endif /* _VARIANT_METRO_M4_ */
+#endif /* _VARIANT_PYPORTAL_M4_ */
 
