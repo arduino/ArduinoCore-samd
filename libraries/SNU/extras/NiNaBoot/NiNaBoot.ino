@@ -19,6 +19,15 @@
 #include <WiFiNINA.h>
 #include <FlashStorage.h>
 
+#ifdef ARDUINO_SAMD_MKRVIDOR4000
+#include <VidorPeripherals.h>
+#endif /* ARDUINO_SAMD_MKRVIDOR4000 */
+
+#ifdef ARDUINO_SAMD_MKRVIDOR4000
+#define NINA_GPIO0  FPGA_NINA_GPIO0
+#define NINA_RESETN FPGA_SPIWIFI_RESET
+#endif /* ARDUINO_SAMD_MKRVIDOR4000 */
+
 #define SDU_START    0x2000
 #define SDU_SIZE     0x4000
 
@@ -38,13 +47,20 @@ int main() {
 
   delay(1);
 
-  // NINA - SPI boot
-  pinMode(NINA_GPIO0, OUTPUT);
-  digitalWrite(NINA_GPIO0, HIGH);
-
-  // disable NINA
-  pinMode(NINA_RESETN, OUTPUT);
+#if defined(ARDUINO_SAMD_MKRVIDOR4000)
+  FPGA.begin();
+  /* NINA select SPI mode and enable (by setting RESETN = '1') */
+  FPGA.pinMode     (NINA_GPIO0,  OUTPUT);
+  FPGA.digitalWrite(NINA_GPIO0,  HIGH);
+  FPGA.pinMode     (NINA_RESETN, OUTPUT);
+  FPGA.digitalWrite(NINA_RESETN, HIGH);
+#elif defined(ARDUINO_SAMD_MKRWIFI1010)
+  /* NINA select SPI mode and enable (by setting RESETN = '1') */
+  pinMode     (NINA_GPIO0,  OUTPUT);
+  digitalWrite(NINA_GPIO0,  HIGH);
+  pinMode     (NINA_RESETN, OUTPUT);
   digitalWrite(NINA_RESETN, HIGH);
+#endif
 
   if (WiFi.status() == WL_NO_SHIELD) {
     goto boot;
