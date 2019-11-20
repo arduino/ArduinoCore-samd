@@ -24,6 +24,8 @@ __attribute__ ((section(".sketch_boot")))
 unsigned char sduBoot[0x4000] = {
 #if defined(ARDUINO_SAMD_MKRWIFI1010)
   #include "boot/mkrwifi1010.h"
+#elif defined(ARDUINO_SAMD_MKRVIDOR4000)
+  #include "boot/mkrvidor4000.h"
 #else
   #error "Unsupported board!"
 #endif
