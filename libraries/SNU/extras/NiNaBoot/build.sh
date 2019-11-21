@@ -15,7 +15,7 @@ buildSDUBootSketch() {
 	DESTINATION=$2
 
 	$ARDUINO --verify --board $BOARD --preserve-temp-files --pref build.path="$BUILD_PATH" $SKETCH
-	cat "$BUILD_PATH/$SKETCH_NAME.bin" | xxd -i > $DESTINATION
+	cat "$BUILD_PATH/$SKETCH_NAME.bin" | xxd -include -len 0x4000 > $DESTINATION
 	rm -rf "$BUILD_PATH"
 }
 
