@@ -1,12 +1,12 @@
 #######################################
-# Syntax Coloring Map For SDU
+# Syntax Coloring Map For SFU
 #######################################
 
 #######################################
 # Datatypes (KEYWORD1)
 #######################################
 
-SDU	KEYWORD1
+SFU	KEYWORD1
 
 #######################################
 # Methods and Functions (KEYWORD2)
