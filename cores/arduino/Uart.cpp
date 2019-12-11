@@ -131,7 +131,7 @@ int Uart::available()
   return rxBuffer.available();
 }
 
-int Uart::availableForWrite()
+size_t Uart::availableForWrite()
 {
   return txBuffer.availableForStore();
 }
