@@ -254,7 +254,7 @@ static int strcpy_uni16(const char *s, uint16_t *buf, int bufsize) {
   int i = 0;
   int buflen = 0;
 
-  while (i < bufsize) {
+  while (s[i] != 0 && i < bufsize) {
     int unichar;
     int utf8len = utf8_to_unichar(s + i, &unichar);
 
@@ -271,7 +271,6 @@ static int strcpy_uni16(const char *s, uint16_t *buf, int bufsize) {
       buf[buflen++] = unichar;
   }
 
-  buf[buflen] = '\0';
   return buflen;
 }
 
