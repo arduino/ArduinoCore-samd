@@ -59,3 +59,14 @@ int main( void )
 
   return 0;
 }
+
+#if defined(USE_TINYUSB)
+
+// run TinyUSB background task when yield()
+extern  "C" void yield(void)
+{
+  tud_task();
+  tud_cdc_write_flush();
+}
+
+#endif

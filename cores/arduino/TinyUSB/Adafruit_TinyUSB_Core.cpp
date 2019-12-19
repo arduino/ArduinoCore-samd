@@ -100,19 +100,6 @@ uint8_t Adafruit_USBD_Device::getSerialDescriptor(uint16_t* serial_str)
   return sizeof(raw_id)*2;
 }
 
-
-extern  "C"
-{
-
-// running tinyusb background task if yield()
-void yield(void)
-{
-  tud_task();
-  tud_cdc_write_flush();
-}
-
-}
-
 //--------------------------------------------------------------------+
 // Helpers
 //--------------------------------------------------------------------+
