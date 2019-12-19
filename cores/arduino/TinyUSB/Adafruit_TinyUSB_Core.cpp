@@ -133,6 +133,19 @@ void Adafruit_TinyUSB_Core_touch1200(void)
   initiateReset(250);
 }
 
+//--------------------------------------------------------------------+
+//
+//--------------------------------------------------------------------+
+
+void Adafruit_USBD_Device::detach(void)
+{
+  USB->DEVICE.CTRLB.reg |= USB_DEVICE_CTRLB_DETACH;
+}
+
+void Adafruit_USBD_Device::attach(void)
+{
+  USB->DEVICE.CTRLB.reg &= ~USB_DEVICE_CTRLB_DETACH;
+}
 
 extern  "C"
 {
