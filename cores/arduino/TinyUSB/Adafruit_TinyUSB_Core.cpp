@@ -31,6 +31,91 @@
 //--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
 //--------------------------------------------------------------------+
+static void usb_hardware_init(void);
+
+//--------------------------------------------------------------------+
+// Core Init & Touch1200
+//--------------------------------------------------------------------+
+void Adafruit_TinyUSB_Core_init(void)
+{
+  USBDevice.addInterface( (Adafruit_USBD_Interface&) Serial);
+  USBDevice.setID(USB_VID, USB_PID);
+  USBDevice.begin();
+
+  usb_hardware_init();
+
+  // Init tinyusb stack
+  tusb_init();
+}
+
+void Adafruit_TinyUSB_Core_touch1200(void)
+{
+  initiateReset(250);
+}
+
+//--------------------------------------------------------------------+
+// Adafruit_USBD_Device platform dependent
+//--------------------------------------------------------------------+
+void Adafruit_USBD_Device::detach(void)
+{
+  USB->DEVICE.CTRLB.reg |= USB_DEVICE_CTRLB_DETACH;
+}
+
+void Adafruit_USBD_Device::attach(void)
+{
+  USB->DEVICE.CTRLB.reg &= ~USB_DEVICE_CTRLB_DETACH;
+}
+
+uint8_t Adafruit_USBD_Device::getSerialDescriptor(uint16_t* serial_str)
+{
+  enum { SERIAL_BYTE_LEN = 16 };
+
+#ifdef __SAMD51__
+  uint32_t* id_addresses[4] = {(uint32_t *) 0x008061FC, (uint32_t *) 0x00806010,
+                               (uint32_t *) 0x00806014, (uint32_t *) 0x00806018};
+#else // samd21
+  uint32_t* id_addresses[4] = {(uint32_t *) 0x0080A00C, (uint32_t *) 0x0080A040,
+                               (uint32_t *) 0x0080A044, (uint32_t *) 0x0080A048};
+
+#endif
+
+  uint8_t raw_id[SERIAL_BYTE_LEN];
+
+  for (int i=0; i<4; i++) {
+      for (int k=0; k<4; k++) {
+          raw_id[4 * i + (3 - k)] = (*(id_addresses[i]) >> k * 8) & 0xff;
+      }
+  }
+
+  static const char nibble_to_hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+
+  for (unsigned int i = 0; i < sizeof(raw_id); i++) {
+    for (int j = 0; j < 2; j++) {
+      uint8_t nibble = (raw_id[i] >> (j * 4)) & 0xf;
+      // Strings are UTF-16-LE encoded.
+      serial_str[i * 2 + (1 - j)] = nibble_to_hex[nibble];
+    }
+  }
+
+  return sizeof(raw_id)*2;
+}
+
+
+extern  "C"
+{
+
+// running tinyusb background task if yield()
+void yield(void)
+{
+  tud_task();
+  tud_cdc_write_flush();
+}
+
+}
+
+//--------------------------------------------------------------------+
+// Helpers
+//--------------------------------------------------------------------+
 
 // Init usb hardware when starting up. Softdevice is not enabled yet
 static void usb_hardware_init(void)
@@ -80,82 +165,6 @@ static void usb_hardware_init(void)
 	while (GCLK->STATUS.bit.SYNCBUSY)
 	;
 #endif
-}
-
-uint8_t load_serial_number(uint16_t* serial_str)
-{
-  enum { SERIAL_BYTE_LEN = 16 };
-
-#ifdef __SAMD51__
-  uint32_t* id_addresses[4] = {(uint32_t *) 0x008061FC, (uint32_t *) 0x00806010,
-                               (uint32_t *) 0x00806014, (uint32_t *) 0x00806018};
-#else // samd21
-  uint32_t* id_addresses[4] = {(uint32_t *) 0x0080A00C, (uint32_t *) 0x0080A040,
-                               (uint32_t *) 0x0080A044, (uint32_t *) 0x0080A048};
-
-#endif
-
-  uint8_t raw_id[SERIAL_BYTE_LEN];
-
-  for (int i=0; i<4; i++) {
-      for (int k=0; k<4; k++) {
-          raw_id[4 * i + (3 - k)] = (*(id_addresses[i]) >> k * 8) & 0xff;
-      }
-  }
-
-  static const char nibble_to_hex[16] = {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'};
-
-  for (unsigned int i = 0; i < sizeof(raw_id); i++) {
-    for (int j = 0; j < 2; j++) {
-      uint8_t nibble = (raw_id[i] >> (j * 4)) & 0xf;
-      // Strings are UTF-16-LE encoded.
-      serial_str[i * 2 + (1 - j)] = nibble_to_hex[nibble];
-    }
-  }
-
-  return sizeof(raw_id)*2;
-}
-
-void Adafruit_TinyUSB_Core_init(void)
-{
-  USBDevice.addInterface( (Adafruit_USBD_Interface&) Serial);
-  USBDevice.setID(USB_VID, USB_PID);
-  USBDevice.begin();
-
-  usb_hardware_init();
-
-  // Init tinyusb stack
-  tusb_init();
-}
-
-void Adafruit_TinyUSB_Core_touch1200(void)
-{
-  initiateReset(250);
-}
-
-//--------------------------------------------------------------------+
-//
-//--------------------------------------------------------------------+
-
-void Adafruit_USBD_Device::detach(void)
-{
-  USB->DEVICE.CTRLB.reg |= USB_DEVICE_CTRLB_DETACH;
-}
-
-void Adafruit_USBD_Device::attach(void)
-{
-  USB->DEVICE.CTRLB.reg &= ~USB_DEVICE_CTRLB_DETACH;
-}
-
-extern  "C"
-{
-
-void yield(void)
-{
-  tud_task();
-  tud_cdc_write_flush();
-}
-
 }
 
 #endif // USE_TINYUSB
