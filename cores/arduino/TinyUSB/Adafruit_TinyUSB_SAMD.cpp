@@ -33,11 +33,29 @@
 //--------------------------------------------------------------------+
 static void usb_hardware_init(void);
 
+#if CFG_TUSB_DEBUG
+extern "C" int serial1_printf(const char *__restrict format, ...)
+{
+  char buf[PRINTF_BUF];
+  va_list ap;
+  va_start(ap, format);
+  vsnprintf(buf, sizeof(buf), format, ap);
+  Serial1.write(buf);
+  va_end(ap);
+
+}
+#endif
+
 //--------------------------------------------------------------------+
 // Core Init & Touch1200
 //--------------------------------------------------------------------+
 void Adafruit_TinyUSB_Core_init(void)
 {
+#if CFG_TUSB_DEBUG
+  Serial1.begin(115200);
+  serial1_printf("TinyUSB debugging with Serial1\n");
+#endif
+
   USBDevice.addInterface( (Adafruit_USBD_Interface&) Serial);
   USBDevice.setID(USB_VID, USB_PID);
   USBDevice.begin();
