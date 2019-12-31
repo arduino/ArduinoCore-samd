@@ -129,7 +129,7 @@ public:
 	void end(void);
 
 	virtual int available(void);
-	virtual size_t availableForWrite(void);
+	virtual int availableForWrite(void);
 	virtual int peek(void);
 	virtual int read(void);
 	virtual void flush(void);
