@@ -9,7 +9,7 @@ exit_status = 0
 success_count = 0
 fail_count = 0
 
-build_format = '| {:20} | {:30} | {:9} '
+build_format = '| {:22} | {:30} | {:9} '
 build_separator = '-' * 78
 
 all_boards = [ 'metro_m0' ]

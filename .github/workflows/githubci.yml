@@ -41,6 +41,7 @@ jobs:
       env:
         BSP_URL: https://adafruit.github.io/arduino-board-index/package_adafruit_index.json
         BSP_PATH: .arduino15/packages/adafruit/hardware/samd
+        LIB_DEPS: FlashStorage SD
       run: |
         arduino-cli config init
         arduino-cli core update-index
@@ -51,7 +52,7 @@ jobs:
         BSP_VERSION=`eval ls $HOME/$BSP_PATH`
         rm -r $HOME/$BSP_PATH/*
         ln -s $GITHUB_WORKSPACE $HOME/$BSP_PATH/$BSP_VERSION
-        arduino-cli lib install "FlashStorage"
+        arduino-cli lib install $LIB_DEPS
 
     - name: Build examples
       run: python3 extras/build_all.py ${{ matrix.arduino-platform }}
