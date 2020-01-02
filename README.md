@@ -1,5 +1,7 @@
 # Arduino Core for SAMD21 and SAMD51 CPU
 
+[![Build Status](https://github.com/adafruit/ArduinoCore-samd/workflows/Build/badge.svg)](https://github.com/adafruit/ArduinoCore-samd/actions)
+
 This repository contains the source code and configuration files of the Arduino Core
 for Atmel's SAMD21 and SAMD51 processor (used on the Arduino/Genuino Zero, MKR1000 and MKRZero boards).
 
