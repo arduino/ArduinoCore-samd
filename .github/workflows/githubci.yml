@@ -8,7 +8,8 @@ jobs:
       fail-fast: false
       matrix:
         arduino-platform: ['metro_m0', 'hallowing', 'circuitplayground_m0',
-                           'metro_m4', 'pybadge_m4', 'pygamer_m4', 'hallowing_m4', 'monster_m4sk', 'pyportal_m4', 'pyportal_titano']
+                           'metro_m4', 'pybadge_m4', 'pygamer_m4', 'hallowing_m4', 'monster_m4sk', 
+                           'pyportal_m4', 'pyportal_m4_titano']
 
     runs-on: ubuntu-latest
     
