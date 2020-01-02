@@ -10,9 +10,9 @@ success_count = 0
 fail_count = 0
 
 build_format = '| {:22} | {:30} | {:9} '
-build_separator = '-' * 78
+build_separator = '-' * 80
 
-all_boards = [ 'metro_m0' ]
+all_boards = [ 'metro_m0', 'metro_m4' ]
 
 build_boards = []
 
@@ -40,7 +40,7 @@ def build_examples(variant):
 
     print('\n')
     print(build_separator)
-    print('| {:^74} |'.format('Board ' + variant))
+    print('| {:^76} |'.format('Board ' + variant))
     print(build_separator)
     print((build_format + '| {:6} |').format('Library', 'Example', 'Result', 'Time'))
     print(build_separator)
