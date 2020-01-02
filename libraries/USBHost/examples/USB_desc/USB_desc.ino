@@ -382,3 +382,4 @@ void printProgStr(const prog_char str[])
   if(!str) return;
   while((c = pgm_read_byte(str++)))
     SerialDebug.print(c);
+}
