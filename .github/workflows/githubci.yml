@@ -29,7 +29,6 @@ jobs:
         
     - name: Install Arduino CLI and Tools
       run: |
-        pip3 install adafruit-nrfutil
         # make all our directories we need for files and libraries
         mkdir $HOME/.arduino15
         mkdir $HOME/.arduino15/packages
@@ -55,4 +54,4 @@ jobs:
         arduino-cli lib install "FlashStorage"
 
     - name: Build examples
-      run: python3 tools/build_all.py ${{ matrix.arduino-platform }}
+      run: python3 extras/build_all.py ${{ matrix.arduino-platform }}
