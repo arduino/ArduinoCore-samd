@@ -36,14 +36,14 @@ const PinDescription g_APinDescription[] = {
  | 1          | 1 <- TX          |  PB22  |                 |   06   |     |     |     |     |         |  *5/02  |  TC7/0 |        |          | GCLK_IO0 |
  | 2          | ~D2              |  PB10  |                 |  *10   |     |     |     |     |         |   4/02  |* TC5/0 | TCC0/4 | I2S/MCK1 | GCLK_IO4 |
  | 3          | ~D3              |  PB11  |                 |  *11   |     |     |     |     |         |   4/03  |* TC5/1 | TCC0/5 | I2S/SCK1 | GCLK_IO5 |
- | 4          | D4               |  PA07  |                 |   07   | *07 |  03 | Y05 |     |         |   0/03  | TCC1/0 |        | I2S/SD0  |          |
+ | 4          | D4               |  PA07  |                 |   07   | *07 |  03 | Y05 |     |         |   0/03  |*TCC1/1 |        | I2S/SD0  |          |
  | 5          | ~D5              |  PA05  |                 |   05   | *05 |  01 | Y03 |     |         |   0/01  |*TCC0/1 |        |          |          |
  | 6          | ~D6              |  PA04  |                 |   04   | *04 |  00 | Y02 |     |         |   0/00  |*TCC0/0 |        |          |          |
  | 7          | D7               |  PA06  |                 |   06   | *06 |  02 | Y04 |     |         |   0/02  | TCC1/0 |        |          |          |
  +------------+------------------+--------+-----------------+------------------------------------------+---------+--------+------------------------------+
  |            | Digital High     |        |                 |        |     |     |     |     |         |         |        |        |          |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
- | 8          | D8               |  PA18  |                 |   02   |     |     | X06 |     |   1/02  |   3/02  |  TC3/0 | TCC0/7 |          | AC/CMP0  |
+ | 8          | D8               |  PA18  |                 |   02   |     |     | X06 |     |   1/02  |   3/02  |  TC3/0 | TCC0/2 |          | AC/CMP0  |
  | 9          | ~D9              |  PA20  |                 |  *04   |     |     | X08 |     |   5/02  |   3/02  |  TC7/0 |*TCC0/6 |          | GCLK_IO4 |
  | 10         | ~D10             |  PA21  |                 |  *05   |     |     | X09 |     |   5/03  |   3/02  |  TC7/1 |*TCC0/7 | I2S/FS0  | GCLK_IO5 |
  | 11         | ~D11             |  PA16  |                 |  *00   |     |     | X04 |     |  *1/00  |   3/00  |*TCC2/0 | TCC0/6 |          | GCLK_IO2 |
@@ -58,7 +58,7 @@ const PinDescription g_APinDescription[] = {
   // Digital Low
   { PORTB, 10, PIO_DIGITAL,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), No_ADC_Channel, PWM5_CH0,   TC5_CH0,      EXTERNAL_INT_10   },
   { PORTB, 11, PIO_DIGITAL,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), No_ADC_Channel, PWM5_CH1,   TC5_CH1,      EXTERNAL_INT_11   },
-  { PORTA,  7, PIO_DIGITAL,  (PIN_ATTR_DIGITAL                                ), ADC_Channel7,   NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
+  { PORTA,  7, PIO_DIGITAL,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), ADC_Channel7,   PWM1_CH1,   TCC1_CH1,     EXTERNAL_INT_NONE },
   { PORTA,  5, PIO_DIGITAL,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), ADC_Channel5,   PWM0_CH1,   TCC0_CH1,     EXTERNAL_INT_NONE },
   { PORTA,  4, PIO_DIGITAL,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), ADC_Channel4,   PWM0_CH0,   TCC0_CH0,     EXTERNAL_INT_NONE },
   { PORTA,  6, PIO_DIGITAL,  (PIN_ATTR_DIGITAL                                ), ADC_Channel6,   NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
@@ -81,8 +81,8 @@ const PinDescription g_APinDescription[] = {
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  | 14         | A0               |  PA02  | A0              |   02   | *00 |     | Y00 | OUT |         |         |        |        |          |          |
  | 15         | A1               |  PB02  | A1              |  *02   | *10 |     | Y08 |     |         |   5/00  |  TC6/0 |        |          |          |
- | 16         | A2               |  PA11  | A2              |   11   | *19 |     | X03 |     |   0/03  |   2/03  |*TCC1/1 | TCC0/3 | I2S/FS0  | GCLK_IO5 |
- | 17         | A3               |  PA10  | A3              |   10   | *18 |     | X02 |     |   0/02  |   2/02  |*TCC1/0 | TCC0/2 | I2S/SCK0 | GCLK_IO4 |
+ | 16         | A2               |  PA11  | A2              |   11   | *19 |     | X03 |     |   0/03  |   2/03  | TCC1/1 |*TCC0/3 | I2S/FS0  | GCLK_IO5 |
+ | 17         | A3               |  PA10  | A3              |   10   | *18 |     | X02 |     |   0/02  |   2/02  | TCC1/0 |*TCC0/2 | I2S/SCK0 | GCLK_IO4 |
  | 18         | A4               |  PB08  | A4 SDA          |   08   | *02 |     | Y14 |     |         |  *4/00  |  TC4/0 |        |          |          |
  | 19         | A5               |  PB09  | A5 SCL          |  *09   | *03 |     | Y15 |     |         |  *4/01  |* TC4/1 |        |          |          |
  | 20         | A6               |  PA09  | A6              |   09   | *17 |     | X01 |     |   0/01  |   2/01  | TCC0/1 | TCC1/3 | I2S/MCK0 |          |
@@ -92,8 +92,8 @@ const PinDescription g_APinDescription[] = {
   // 14..21 - Analog pins
   { PORTA,  2, PIO_ANALOG,  (PIN_ATTR_DIGITAL|PIN_ATTR_ANALOG /*DAC*/        ), ADC_Channel0,   NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
   { PORTB,  2, PIO_ANALOG,  (PIN_ATTR_DIGITAL                                ), ADC_Channel10,  NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_2    },
-  { PORTA, 11, PIO_ANALOG,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), ADC_Channel19,  PWM1_CH1,   TCC1_CH1,     EXTERNAL_INT_NONE },
-  { PORTA, 10, PIO_ANALOG,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), ADC_Channel18,  PWM1_CH0,   TCC1_CH0,     EXTERNAL_INT_NONE },
+  { PORTA, 11, PIO_ANALOG,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER_ALT), ADC_Channel19,  PWM0_CH3,   TCC0_CH3,     EXTERNAL_INT_NONE },
+  { PORTA, 10, PIO_ANALOG,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER_ALT), ADC_Channel18,  PWM0_CH2,   TCC0_CH2,     EXTERNAL_INT_NONE },
   { PORTB,  8, PIO_SERCOM_ALT,  (PIN_ATTR_DIGITAL|PIN_ATTR_ANALOG            ), ADC_Channel2,   NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SDA: SERCOM4/PAD[0]
   { PORTB,  9, PIO_SERCOM_ALT,  (PIN_ATTR_PWM|PIN_ATTR_TIMER                 ), ADC_Channel3,   PWM4_CH1,   TC4_CH1,      EXTERNAL_INT_9    }, // SCL: SERCOM4/PAD[1]
 
