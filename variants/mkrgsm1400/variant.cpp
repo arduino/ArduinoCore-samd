@@ -195,7 +195,7 @@ static inline void set_voltage_current_thresholds() {
 
   PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
   PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG00);
-  PERIPH_WIRE.sendDataMasterWIRE(0x06);  // input voltage limit = 3.88V, input current limit = 2A
+  PERIPH_WIRE.sendDataMasterWIRE(0x07);  // input voltage limit = 3.88V, input current limit = 3A
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
   PERIPH_WIRE.disableWIRE();
