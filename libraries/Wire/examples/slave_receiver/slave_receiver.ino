@@ -28,6 +28,8 @@ void loop()
 // this function is registered as an event, see setup()
 void receiveEvent(int howMany)
 {
+  (void)howMany; // avoid compiler warning about unused parameter
+  
   while(1 < Wire.available()) // loop through all but the last
   {
     char c = Wire.read(); // receive byte as a character
