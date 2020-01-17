@@ -164,18 +164,19 @@ void arm_float_to_q12_20(float *pIn, q31_t * pOut, uint32_t numSamples)
 uint32_t arm_compare_fixed_q15(q15_t *pIn, q15_t * pOut, uint32_t numSamples)
 {
   uint32_t i; 
-  int32_t diff, diffCrnt = 0;
+  int32_t diff;
+  uint32_t diffCrnt = 0;
   uint32_t maxDiff = 0;
 
   for (i = 0; i < numSamples; i++)
   {
-  	diff = pIn[i] - pOut[i];
-  	diffCrnt = (diff > 0) ? diff : -diff;
+    diff = pIn[i] - pOut[i];
+    diffCrnt = (uint32_t)( (diff > 0) ? diff : -diff );
 
-	if(diffCrnt > maxDiff)
-	{
-		maxDiff = diffCrnt;
-	}	
+    if(diffCrnt > maxDiff)
+    {
+      maxDiff = diffCrnt;
+    }
   }
 
   return(maxDiff);
@@ -192,18 +193,19 @@ uint32_t arm_compare_fixed_q15(q15_t *pIn, q15_t * pOut, uint32_t numSamples)
 uint32_t arm_compare_fixed_q31(q31_t *pIn, q31_t * pOut, uint32_t numSamples)
 {
   uint32_t i; 
-  int32_t diff, diffCrnt = 0;
+  int32_t diff;
+  uint32_t diffCrnt = 0;
   uint32_t maxDiff = 0;
 
   for (i = 0; i < numSamples; i++)
   {
-  	diff = pIn[i] - pOut[i];
-  	diffCrnt = (diff > 0) ? diff : -diff;
+    diff = pIn[i] - pOut[i];
+    diffCrnt = (uint32_t)( (diff > 0) ? diff : -diff );
 
-	if(diffCrnt > maxDiff)
-	{
-		maxDiff = diffCrnt;
-	}
+    if(diffCrnt > maxDiff)
+    {
+      maxDiff = diffCrnt;
+    }
   }
 
   return(maxDiff);
