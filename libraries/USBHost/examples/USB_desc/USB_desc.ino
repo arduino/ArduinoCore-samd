@@ -209,7 +209,7 @@ byte getconfdescr( byte addr, byte conf )
 {
   uint8_t buf[ BUFSIZE ];
   uint8_t* buf_ptr = buf;
-  byte rcode;
+  byte rcode; // BUGBUG -- code does not actually check return code (no error handling!)
   byte descr_length;
   byte descr_type;
   uint16_t total_length;
