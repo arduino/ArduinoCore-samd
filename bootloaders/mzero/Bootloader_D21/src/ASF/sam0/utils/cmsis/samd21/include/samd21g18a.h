@@ -222,7 +222,11 @@ void I2S_Handler                 ( void );
  * \brief Configuration of the Cortex-M0+ Processor and Core Peripherals
  */
 
-#define LITTLE_ENDIAN          1        
+#if defined(LITTLE_ENDIAN) && (LITTLE_ENDIAN != 1)
+  #error "Little Endian is already defined, but to different value than expected?!"
+#else
+  #define LITTLE_ENDIAN          1
+#endif
 #define __CM0PLUS_REV          1         /*!< Core revision r0p1 */
 #define __MPU_PRESENT          0         /*!< MPU present or not */
 #define __NVIC_PRIO_BITS       2         /*!< Number of bits used for Priority Levels */
