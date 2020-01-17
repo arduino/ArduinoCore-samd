@@ -23,6 +23,9 @@ if len(sys.argv) > 1:
 else:
     build_boards = default_boards
 
+all_warnings = True if 'all_warnings' in sys.arv[2:]
+
+
 def errorOutputFilter(line):
     if len(line) == 0:
         return False

@@ -56,4 +56,8 @@ jobs:
         arduino-cli lib install $LIB_DEPS
 
     - name: Build examples
+      allow_failure: true
       run: python3 extras/build_all.py ${{ matrix.arduino-platform }}
+
+#    - name: Build examples with all warnings enabled
+#      run: python3 extras/build_all.py ${{ matrix.arduino-platform }} all_warnings
