@@ -49,15 +49,15 @@ jobs:
         arduino-cli core update-index --additional-urls $BSP_URL        
         arduino-cli core install arduino:samd --additional-urls $BSP_URL
         arduino-cli core install adafruit:samd --additional-urls $BSP_URL
-        # Repalce release BSP with our code
+        # Replace release BSP with our code
         BSP_VERSION=`eval ls $HOME/$BSP_PATH`
         rm -r $HOME/$BSP_PATH/*
         ln -s $GITHUB_WORKSPACE $HOME/$BSP_PATH/$BSP_VERSION
         arduino-cli lib install $LIB_DEPS
 
     - name: Build examples
-      allow_failure: true
       run: python3 extras/build_all.py ${{ matrix.arduino-platform }}
 
-#    - name: Build examples with all warnings enabled
-#      run: python3 extras/build_all.py ${{ matrix.arduino-platform }} all_warnings
+    # How to mark this as allowed-to-fail?
+    - name: Build default boards with all warnings enabled
+      run: python3 extras/build_all.py --all_warnings --warnings_do_not_cause_job_failure
