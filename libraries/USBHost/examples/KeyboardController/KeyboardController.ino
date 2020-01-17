@@ -83,8 +83,7 @@ void setup()
 {
   SerialDebug.begin( 115200 );
   SerialDebug.println("USB Host Keyboard Controller Program started");
-
-  if (usb.Init() == -1)
+  if (usb.Init() == (uint32_t)-1)
 	  SerialDebug.println("USB Host did not start.");
 
   SerialDebug.println("USB Host started");

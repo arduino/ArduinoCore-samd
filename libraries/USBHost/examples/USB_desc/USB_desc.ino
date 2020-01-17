@@ -59,8 +59,8 @@ void setup()
   SerialDebug.println("Starting USB Descriptor test");
 
   SerialDebug.println("Initializing USB");
-  if (usb.Init() == -1)
-      SerialDebug.println("USBhost did not start.");
+  if (usb.Init() == (uint32_t)-1)
+    SerialDebug.println("USBhost did not start.");
 
   delay( 20 );
 
@@ -159,7 +159,7 @@ byte getdevdescr( byte addr, byte &num_conf )
   return( 0 );
 }
 
-void printhubdescr(uint8_t *descrptr, uint8_t addr)
+void printhubdescr(uint8_t *descrptr, __attribute__((unused)) uint8_t addr)
 {
     HubDescriptor  *pHub = (HubDescriptor*) descrptr;
     uint8_t        len = *((uint8_t*)descrptr);
@@ -213,6 +213,7 @@ byte getconfdescr( byte addr, byte conf )
   byte descr_length;
   byte descr_type;
   uint16_t total_length;
+  // BUGBUG -- no check of return code from usb.getConfDescr()
   rcode = usb.getConfDescr( addr, 0, 4, conf, buf );  //get total length
   LOBYTE( total_length ) = buf[ 2 ];
   HIBYTE( total_length ) = buf[ 3 ];
@@ -220,6 +221,7 @@ byte getconfdescr( byte addr, byte conf )
     printProgStr(Conf_Trunc_str);
     total_length = sizeof(buf);
   }
+  // BUGBUG -- no check of return code from usb.getConfDescr()
   rcode = usb.getConfDescr( addr, 0, total_length, conf, buf ); //get the whole descriptor
   while( buf_ptr < buf + total_length ) {  //parsing descriptors
     descr_length = *( buf_ptr );
