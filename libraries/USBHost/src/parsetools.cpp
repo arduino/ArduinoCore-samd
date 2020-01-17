@@ -31,6 +31,15 @@ bool MultiByteValueParser::Parse(uint8_t **pp, uint32_t *pcntdn) {
 	return true;
 }
 
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 bool PTPListParser::Parse(uint8_t **pp, uint32_t *pcntdn, PTP_ARRAY_EL_FUNC pf, const void *me) {
         switch(nStage) {
 	case 0:
@@ -65,3 +74,4 @@ bool PTPListParser::Parse(uint8_t **pp, uint32_t *pcntdn, PTP_ARRAY_EL_FUNC pf, 
 	}
 	return true;
 }
+#pragma GCC diagnostic pop

@@ -1088,6 +1088,15 @@ void ReportDescParserBase::PrintItemTitle(uint8_t prefix) {
         } // switch (**pp & (TYPE_MASK | TAG_MASK))
 }
 
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
         //uint8_t	ret = enErrorSuccess;
         //reinterpret_cast<>(varBuffer);
@@ -1210,6 +1219,7 @@ uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
         itemParseState = 0;
         return enErrorSuccess;
 }
+#pragma GCC diagnostic pop
 
 ReportDescParserBase::UsagePageFunc ReportDescParserBase::usagePageFunctions[] /*PROGMEM*/ = {
         &ReportDescParserBase::PrintGenericDesktopPageUsage,
@@ -1437,6 +1447,15 @@ void ReportDescParserBase::PrintMedicalInstrumentPageUsage(uint16_t usage) {
         else E_Notify(pstrUsagePageUndefined, 0x80);
 }
 
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
         //uint8_t	ret = enErrorSuccess;
 
@@ -1522,6 +1541,7 @@ uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
         itemParseState = 0;
         return enErrorSuccess;
 }
+#pragma GCC diagnostic pop
 
 void ReportDescParser2::OnInputItem(uint8_t itm) {
         uint8_t byte_offset = (totalSize >> 3); // calculate offset to the next unhandled byte i = (int)(totalCount / 8);
