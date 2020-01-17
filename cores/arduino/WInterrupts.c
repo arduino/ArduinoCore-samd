@@ -250,7 +250,7 @@ void detachInterrupt(uint32_t pin)
  * External Interrupt Controller NVIC Interrupt Handler
  */
 #if defined(__SAMD51__)
-void InterruptHandler(uint32_t i)
+void InterruptHandler(__attribute__((unused)) uint32_t i)
 {
   // Calling the routine directly from -here- takes about 1us
   // Depending on where you are in the list it will take longer
