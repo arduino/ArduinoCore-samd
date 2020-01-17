@@ -19,6 +19,17 @@ e-mail   :  support@circuitsathome.com
 #error "Never include confdescparser.h directly; include Usb.h instead"
 #else
 
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+
+
 #define __CONFDESCPARSER_H__
 
 #include <stdint.h>
@@ -219,5 +230,7 @@ void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::PrintHidDescrip
         Notify(PSTR("\r\n"), 0x80);
 }
 
+
+#pragma GCC diagnostic pop
 
 #endif // __CONFDESCPARSER_H__

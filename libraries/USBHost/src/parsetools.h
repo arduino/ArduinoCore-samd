@@ -23,6 +23,19 @@ e-mail   :  support@circuitsathome.com
 #include <stdint.h>
 //#include "Arduino.h"
 
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
+
+
+
+
 struct MultiValueBuffer {
 	uint8_t		valueSize;
 	void		*pValue;
@@ -139,5 +152,8 @@ public:
 
 	bool Parse(uint8_t **pp, uint32_t *pcntdn, PTP_ARRAY_EL_FUNC pf, const void *me = NULL);
 };
+
+
+#pragma GCC diagnostic pop
 
 #endif // __PARSETOOLS_H__
