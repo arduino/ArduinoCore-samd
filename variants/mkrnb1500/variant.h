@@ -131,6 +131,8 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_USB_DM          (22ul)
 #define PIN_USB_DP          (23ul)
 #define PIN_USB_HOST_ENABLE (24ul)
+#define PMIC_IRQ_PIN        (30ul)
+
 
 // I2S Interfaces
 // --------------
