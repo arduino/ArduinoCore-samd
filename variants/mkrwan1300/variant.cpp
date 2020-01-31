@@ -142,6 +142,11 @@ const PinDescription g_APinDescription[] = {
  | 34         |                  |  PA00  | XIN32           |   00   |     |     |     |     |         |   1/00  | TCC2/0 |        |          |          |
  | 35         |                  |  PA01  | XOUT32          |   01   |     |     |     |     |         |   1/01  | TCC2/1 |        |          |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
+ |            |       SPI1       |        |                 |        |     |     |     |     |         |         |        |        |          |          |
+ | 36         | MOSI             |  PA12  |                 |   12   |     |     |     |     |   2/00  |   4/00  | TCC2/0 | TCC0/6 |          | AC/CMP0  |
+ | 37         | SCK              |  PA13  |                 |   13   |     |     |     |     |   2/01  |   4/01  | TCC2/1 | TCC0/7 |          | AC/CMP1  |
+ | 38         | MISO             |  PA15  |                 |   15   |     |     |     |     |   2/03  |   4/03  | TCC3/1 | TCC0/5 |          | GCLK_IO1 |
+ +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  */
   { PORTA, 12, PIO_SERCOM_ALT,  (PIN_ATTR_NONE                               ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // MOSI: SERCOM4/PAD[0]
   { PORTA, 13, PIO_DIGITAL,     (PIN_ATTR_NONE                               ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SCK:  SERCOM4/PAD[1]
