@@ -190,6 +190,10 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_USB_DM          (48ul)
 #define PIN_USB_DP          (49ul)
 
+// On-board QSPI Flash
+#define EXTERNAL_FLASH_DEVICES   GD25Q64C
+#define EXTERNAL_FLASH_USE_QSPI
+
 //QSPI Pins
 #define PIN_QSPI_SCK	(42u)
 #define PIN_QSPI_CS	(43u)
