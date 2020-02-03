@@ -108,6 +108,12 @@ static const uint8_t DAC0 = PIN_DAC0;
 
 #define ADC_RESOLUTION		12
 
+
+// On-board SPI Flash
+#define EXTERNAL_FLASH_DEVICES  GD25Q16C
+#define EXTERNAL_FLASH_USE_SPI  SPI
+#define EXTERNAL_FLASH_USE_CS   SS
+
 /*
  * SPI Interfaces
  */

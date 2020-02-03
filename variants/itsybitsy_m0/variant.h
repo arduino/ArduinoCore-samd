@@ -118,6 +118,11 @@ static const uint8_t DAC0 = PIN_DAC0;
 #define PIN_ATN              (38ul)
 static const uint8_t ATN = PIN_ATN;
 
+// On-board SPI Flash
+#define EXTERNAL_FLASH_DEVICES  GD25Q16C
+#define EXTERNAL_FLASH_USE_SPI  SPI1
+#define EXTERNAL_FLASH_USE_CS   SS1
+
 /*
  * Serial interfaces
  */
