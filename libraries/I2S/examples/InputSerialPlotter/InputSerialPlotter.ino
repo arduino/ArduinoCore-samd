@@ -5,13 +5,13 @@
  data (Tools -> Serial Plotter)
 
  Circuit:
- * Arduino/Genuino Zero, MKRZero or MKR1000 board
+ * Arduino/Genuino Zero, MKR family and Nano 33 IoT
  * ICS43432:
    * GND connected GND
-   * 3.3V connected 3.3V (Zero) or VCC (MKR1000, MKRZero)
-   * WS connected to pin 0 (Zero) or pin 3 (MKR1000, MKRZero)
-   * CLK connected to pin 1 (Zero) or pin 2 (MKR1000, MKRZero)
-   * SD connected to pin 9 (Zero) or pin A6 (MKR1000, MKRZero)
+   * 3.3V connected to 3.3V (Zero, Nano) or VCC (MKR)
+   * WS connected to pin 0 (Zero) or 3 (MKR) or A2 (Nano)
+   * CLK connected to pin 1 (Zero) or 2 (MKR) or A3 (Nano)
+   * SD connected to pin 9 (Zero) or A6 (MKR) or 4 (Nano)
 
  created 17 November 2016
  by Sandeep Mistry
