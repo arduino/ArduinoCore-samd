@@ -178,6 +178,14 @@ void detachInterrupt(uint32_t pin)
   nints--;
 }
 
+static uint32_t currentlyHandled = 0;
+static bool currentCleared = false;
+
+inline void clearInterrupt() {
+  EIC->INTFLAG.reg = ISRlist[currentlyHandled];
+  currentCleared = true;
+}
+
 /*
  * External Interrupt Controller NVIC Interrupt Handler
  */
@@ -187,14 +195,15 @@ void EIC_Handler(void)
   // Depending on where you are in the list it will take longer
 
   // Loop over all enabled interrupts in the list
-  for (uint32_t i=0; i<nints; i++)
+  for (uint32_t currentlyHandled=0; currentlyHandled<nints; currentlyHandled++)
   {
-    if ((EIC->INTFLAG.reg & ISRlist[i]) != 0)
+    if ((EIC->INTFLAG.reg & ISRlist[currentlyHandled]) != 0)
     {
+      currentCleared = false;
       // Call the callback function
-      ISRcallback[i]();
+      ISRcallback[currentlyHandled]();
       // Clear the interrupt
-      EIC->INTFLAG.reg = ISRlist[i];
+      if (!currentCleared) clearInterrupt();
     }
   }
 }
