@@ -46,6 +46,11 @@ void attachInterrupt(uint32_t pin, voidFuncPtr callback, uint32_t mode);
  * \brief Turns off the given interrupt.
  */
 void detachInterrupt(uint32_t pin);
+  
+/*
+ * \brief Clears the current interrup. This intended to be used only inside the ISR.
+ */
+void clearInterrupt();
 
 #ifdef __cplusplus
 }
