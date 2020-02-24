@@ -31,7 +31,8 @@ compiler.warning_flags.default=
 compiler.warning_flags.more=-Wall -Wno-expansion-to-defined
 compiler.warning_flags.all=-Wall -Wextra -Wno-expansion-to-defined
 
-# maintain retrocompatibility
+# EXPERIMENTAL feature: optimization flags
+#  - this is alpha and may be subject to change without notice
 compiler.optimization_flags=-Os
 compiler.optimization_flags.release=-Os
 compiler.optimization_flags.debug=-Og -g3
@@ -228,6 +229,8 @@ tools.openocd-withbootsize.bootloader.pattern="{path}/{cmd}" {bootloader.verbose
 #
 # GDB (Debugger)
 #
+# EXPERIMENTAL feature: debug.pattern
+#  - this is alpha and may be subject to change without notice
 
 tools.gdb.path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 tools.gdb.cmd=arm-none-eabi-gdb
