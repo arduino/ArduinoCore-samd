@@ -149,7 +149,7 @@ class SPIClass {
 #else
   // On SAMD21, this compiles to nothing, so user code doesn't need to
   // check and conditionally compile lines for different architectures.
-  void setClockSource(SercomClockSource clk) { };
+  void setClockSource(__attribute__((unused)) SercomClockSource clk) { };
 #endif // end __SAMD51__
 
   private:
