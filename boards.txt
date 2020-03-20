@@ -20,7 +20,7 @@ arduino_zero_edbg.name=Arduino Zero (Programming Port)
 arduino_zero_edbg.vid.0=0x03eb
 arduino_zero_edbg.pid.0=0x2157
 
-arduino_zero_edbg.debug.tool=gdb
+arduino_zero_edbg.debug.tool=gdb-openocd
 arduino_zero_edbg.upload.tool=openocd
 arduino_zero_edbg.upload.protocol=sam-ba
 arduino_zero_edbg.upload.maximum_size=262144
@@ -91,7 +91,7 @@ mkr1000.pid.2=0x824e
 mkr1000.vid.3=0x2341
 mkr1000.pid.3=0x024e
 
-mkr1000.debug.tool=gdb
+mkr1000.debug.tool=gdb-openocd
 mkr1000.upload.tool=bossac
 mkr1000.upload.protocol=sam-ba
 mkr1000.upload.maximum_size=262144
@@ -122,7 +122,7 @@ mkrzero.pid.0=0x804f
 mkrzero.vid.1=0x2341
 mkrzero.pid.1=0x004f
 
-mkrzero.debug.tool=gdb
+mkrzero.debug.tool=gdb-openocd
 mkrzero.upload.tool=bossac
 mkrzero.upload.protocol=sam-ba
 mkrzero.upload.maximum_size=262144
@@ -153,7 +153,7 @@ mkrwifi1010.pid.0=0x8054
 mkrwifi1010.vid.1=0x2341
 mkrwifi1010.pid.1=0x0054
 
-mkrwifi1010.debug.tool=gdb
+mkrwifi1010.debug.tool=gdb-openocd
 mkrwifi1010.upload.tool=bossac
 mkrwifi1010.upload.protocol=sam-ba
 mkrwifi1010.upload.maximum_size=262144
@@ -184,7 +184,7 @@ nano_33_iot.pid.0=0x8057
 nano_33_iot.vid.1=0x2341
 nano_33_iot.pid.1=0x0057
 
-nano_33_iot.debug.tool=gdb
+nano_33_iot.debug.tool=gdb-openocd
 nano_33_iot.upload.tool=bossac
 nano_33_iot.upload.protocol=sam-ba
 nano_33_iot.upload.maximum_size=262144
@@ -215,7 +215,7 @@ mkrfox1200.pid.0=0x8050
 mkrfox1200.vid.1=0x2341
 mkrfox1200.pid.1=0x0050
 
-mkrfox1200.debug.tool=gdb
+mkrfox1200.debug.tool=gdb-openocd
 mkrfox1200.upload.tool=bossac
 mkrfox1200.upload.protocol=sam-ba
 mkrfox1200.upload.maximum_size=262144
@@ -246,7 +246,7 @@ mkrwan1300.pid.0=0x8053
 mkrwan1300.vid.1=0x2341
 mkrwan1300.pid.1=0x0053
 
-mkrwan1300.debug.tool=gdb
+mkrwan1300.debug.tool=gdb-openocd
 mkrwan1300.upload.tool=bossac
 mkrwan1300.upload.protocol=sam-ba
 mkrwan1300.upload.maximum_size=262144
@@ -277,7 +277,7 @@ mkrwan1310.pid.0=0x8059
 mkrwan1310.vid.1=0x2341
 mkrwan1310.pid.1=0x0059
 
-mkrwan1310.debug.tool=gdb
+mkrwan1310.debug.tool=gdb-openocd
 mkrwan1310.upload.tool=bossac
 mkrwan1310.upload.protocol=sam-ba
 mkrwan1310.upload.maximum_size=262144
@@ -308,7 +308,7 @@ mkrgsm1400.pid.0=0x8052
 mkrgsm1400.vid.1=0x2341
 mkrgsm1400.pid.1=0x0052
 
-mkrgsm1400.debug.tool=gdb
+mkrgsm1400.debug.tool=gdb-openocd
 mkrgsm1400.upload.tool=bossac
 mkrgsm1400.upload.protocol=sam-ba
 mkrgsm1400.upload.maximum_size=262144
@@ -339,7 +339,7 @@ mkrnb1500.pid.0=0x8055
 mkrnb1500.vid.1=0x2341
 mkrnb1500.pid.1=0x0055
 
-mkrnb1500.debug.tool=gdb
+mkrnb1500.debug.tool=gdb-openocd
 mkrnb1500.upload.tool=bossac
 mkrnb1500.upload.protocol=sam-ba
 mkrnb1500.upload.maximum_size=262144
@@ -370,7 +370,7 @@ mkrvidor4000.pid.0=0x8056
 mkrvidor4000.vid.1=0x2341
 mkrvidor4000.pid.1=0x0056
 
-mkrvidor4000.debug.tool=gdb
+mkrvidor4000.debug.tool=gdb-openocd
 mkrvidor4000.upload.tool=bossacI
 mkrvidor4000.upload.protocol=sam-ba
 mkrvidor4000.upload.maximum_size=262144
