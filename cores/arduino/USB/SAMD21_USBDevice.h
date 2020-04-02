@@ -50,6 +50,10 @@ public:
 	inline void noRunInStandby() { usb.CTRLA.bit.RUNSTDBY = 0; }
 	inline void wakeupHost()     { usb.CTRLB.bit.UPRSM = 1; }
 
+	// USB QoS
+	inline void setDataSensitiveQoS() { usb.QOSCTRL.bit.DQOS = 2; }
+	inline void setConfigSensitiveQoS() { usb.QOSCTRL.bit.CQOS = 2; }
+
 	// USB speed
 	inline void setFullSpeed()       { usb.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_FS_Val;   }
 	inline void setLowSpeed()        { usb.CTRLB.bit.SPDCONF = USB_DEVICE_CTRLB_SPDCONF_LS_Val;   }
