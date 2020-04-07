@@ -281,6 +281,8 @@ unsigned char String::concat(const char *cstr)
 
 unsigned char String::concat(char c)
 {
+	std::string text(c);
+	if (text.substr(len) == "\0") return 1;
 	char buf[2];
 	buf[0] = c;
 	buf[1] = 0;
