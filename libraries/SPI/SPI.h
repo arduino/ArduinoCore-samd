@@ -21,6 +21,7 @@
 #define _SPI_H_INCLUDED
 
 #include <Arduino.h>
+#include <api/HardwareSPI.h>
 
 // SPI_HAS_TRANSACTION means SPI has
 //   - beginTransaction()
@@ -45,75 +46,9 @@
   #define SPI_MIN_CLOCK_DIVIDER (uint8_t)(1 + ((F_CPU - 1) / 12000000))
 #endif
 
-class SPISettings {
+class SPIClassSAMD : public arduino::HardwareSPI {
   public:
-  SPISettings(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
-    if (__builtin_constant_p(clock)) {
-      init_AlwaysInline(clock, bitOrder, dataMode);
-    } else {
-      init_MightInline(clock, bitOrder, dataMode);
-    }
-  }
-
-  // Default speed set to 4MHz, SPI mode set to MODE 0 and Bit order set to MSB first.
-  SPISettings() { init_AlwaysInline(4000000, MSBFIRST, SPI_MODE0); }
-
-  bool operator==(const SPISettings& rhs) const
-  {
-    if ((this->clockFreq == rhs.clockFreq) &&
-        (this->bitOrder == rhs.bitOrder) &&
-        (this->dataMode == rhs.dataMode)) {
-      return true;
-    }
-    return false;
-  }
-
-  bool operator!=(const SPISettings& rhs) const
-  {
-    return !(*this == rhs);
-  }
-
-  uint32_t getClockFreq() const {return clockFreq;}
-  uint8_t getDataMode() const {return (uint8_t)dataMode;}
-  BitOrder getBitOrder() const {return (bitOrder == MSB_FIRST ? MSBFIRST : LSBFIRST);}
-
-  private:
-  void init_MightInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) {
-    init_AlwaysInline(clock, bitOrder, dataMode);
-  }
-
-  void init_AlwaysInline(uint32_t clock, BitOrder bitOrder, uint8_t dataMode) __attribute__((__always_inline__)) {
-    this->clockFreq = (clock >= (F_CPU / SPI_MIN_CLOCK_DIVIDER) ? F_CPU / SPI_MIN_CLOCK_DIVIDER : clock);
-
-    this->bitOrder = (bitOrder == MSBFIRST ? MSB_FIRST : LSB_FIRST);
-
-    switch (dataMode)
-    {
-      case SPI_MODE0:
-        this->dataMode = SERCOM_SPI_MODE_0; break;
-      case SPI_MODE1:
-        this->dataMode = SERCOM_SPI_MODE_1; break;
-      case SPI_MODE2:
-        this->dataMode = SERCOM_SPI_MODE_2; break;
-      case SPI_MODE3:
-        this->dataMode = SERCOM_SPI_MODE_3; break;
-      default:
-        this->dataMode = SERCOM_SPI_MODE_0; break;
-    }
-  }
-
-  uint32_t clockFreq;
-  SercomSpiClockMode dataMode;
-  SercomDataOrder bitOrder;
-
-  friend class SPIClass;
-};
-
-const SPISettings DEFAULT_SPI_SETTINGS = SPISettings();
-
-class SPIClass {
-  public:
-  SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad, SercomRXPad);
+  SPIClassSAMD(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad, SercomRXPad);
 
   byte transfer(uint8_t data);
   uint16_t transfer16(uint16_t data);
@@ -155,6 +90,8 @@ class SPIClass {
   char interruptSave;
   uint32_t interruptMask;
 };
+
+#define SPIClass SPIClassSAMD
 
 #if SPI_INTERFACES_COUNT > 0
   extern SPIClass SPI;
