@@ -54,7 +54,7 @@ int main() {
   FPGA.digitalWrite(NINA_GPIO0,  HIGH);
   FPGA.pinMode     (NINA_RESETN, OUTPUT);
   FPGA.digitalWrite(NINA_RESETN, HIGH);
-#elif defined(ARDUINO_SAMD_MKRWIFI1010)
+#elif defined(ARDUINO_SAMD_MKRWIFI1010) || defined(ARDUINO_SAMD_NANO_33_IOT)
   /* NINA select SPI mode and enable (by setting RESETN = '1') */
   pinMode     (NINA_GPIO0,  OUTPUT);
   digitalWrite(NINA_GPIO0,  HIGH);
