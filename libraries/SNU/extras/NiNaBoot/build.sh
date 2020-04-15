@@ -23,3 +23,4 @@ mkdir -p "$OUTPUT_PATH"
 
 buildSDUBootSketch "arduino:samd:mkrwifi1010" "$OUTPUT_PATH/mkrwifi1010.h"
 buildSDUBootSketch "arduino:samd:mkrvidor4000" "$OUTPUT_PATH/mkrvidor4000.h"
+buildSDUBootSketch "arduino:samd:nano_33_iot" "$OUTPUT_PATH/nano33iot.h"

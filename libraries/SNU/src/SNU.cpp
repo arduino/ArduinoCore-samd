@@ -26,6 +26,8 @@ unsigned char sduBoot[0x4000] = {
   #include "boot/mkrwifi1010.h"
 #elif defined(ARDUINO_SAMD_MKRVIDOR4000)
   #include "boot/mkrvidor4000.h"
+#elif defined(ARDUINO_SAMD_NANO_33_IOT)
+  #include "boot/nano33iot.h"
 #else
   #error "Unsupported board!"
 #endif
