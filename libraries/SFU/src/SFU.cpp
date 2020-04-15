@@ -21,7 +21,7 @@
 #include "SFU.h"
 
 __attribute__ ((section(".sketch_boot")))
-uint8_t const SFU_BOOT[0x8000] = {
+unsigned char SFU_BOOT[0x8000] = {
 #if defined(ARDUINO_SAMD_MKRZERO)
   #include "boot/mkrzero.h"
 #elif defined(ARDUINO_SAMD_MKR1000)
