@@ -14,11 +14,11 @@
 
  3) In the IDE select: Sketch -> Export compiled Binary
 
- 4) Write the .bin file from the sketch's folder to the MKRMEM shield using
-    the MKRMEM_WriteUpdate sketch.
+ 4) Open the location of the sketch and convert the .bin file to a C byte array.
+      cat SKETCH.bin | xxd --include > Binary.h
 
- created 15 April 2020
- by Alexander Entinger
+ 5) Copy Binary.h file from the sketch's folder to the SFU_LoadBinary sketch
+    and load it to the MKRMEM via SFU_LoadBinary sketch.
 */
 
 /*
@@ -27,12 +27,14 @@
  This will add some code to the sketch before setup() is called
  to check if UPDATE.bin is present on the flash chip of the MKRMEM
  shield. If this theck is positive the file is used to update the sketch
- running on the board. After this UPDATE.bin is deleted from the flash.
+ running on the board. After this UPDATE.BIN is deleted from the flash.
 */
+
 #include <SFU.h>
 
 void setup() {
   Serial.begin(9600);
+  while(!Serial) { }
 
   // wait a bit
   delay(1000);
@@ -50,4 +52,3 @@ void setup() {
 void loop() {
   // add you own code here
 }
-

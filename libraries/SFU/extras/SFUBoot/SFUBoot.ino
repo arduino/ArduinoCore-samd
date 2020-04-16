@@ -78,7 +78,7 @@ int main()
       int file_size = file.lseek(0, END);
       if (file_size > SFU_SIZE)
       {
-        /* Skip the SDU section */
+        /* Skip the SFU section */
         file.lseek(SFU_SIZE, START);
         file_size -= SFU_SIZE;
 
@@ -101,7 +101,7 @@ int main()
       filesystem.unmount();
     }
   }
-  
+
   /* Jump to the sketch */
   __set_MSP(*SKETCH_START);
 
