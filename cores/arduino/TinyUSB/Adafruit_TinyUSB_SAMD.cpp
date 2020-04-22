@@ -29,6 +29,27 @@
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
 
 //--------------------------------------------------------------------+
+// Forward USB interrupt events to TinyUSB IRQ Handler
+//--------------------------------------------------------------------+
+extern "C"
+{
+#if defined(__SAMD51__)
+
+void USB_0_Handler (void) { tud_int_handler(0); }
+void USB_1_Handler (void) { tud_int_handler(0); }
+void USB_2_Handler (void) { tud_int_handler(0); }
+void USB_3_Handler (void) { tud_int_handler(0); }
+
+#else
+
+void USBD_IRQHandler(void) { tud_int_handler(0); }
+
+#endif
+} // extern C
+
+
+
+//--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
 //--------------------------------------------------------------------+
 static void usb_hardware_init(void);
@@ -74,15 +95,6 @@ void Adafruit_TinyUSB_Core_touch1200(void)
 //--------------------------------------------------------------------+
 // Adafruit_USBD_Device platform dependent
 //--------------------------------------------------------------------+
-void Adafruit_USBD_Device::detach(void)
-{
-  USB->DEVICE.CTRLB.reg |= USB_DEVICE_CTRLB_DETACH;
-}
-
-void Adafruit_USBD_Device::attach(void)
-{
-  USB->DEVICE.CTRLB.reg &= ~USB_DEVICE_CTRLB_DETACH;
-}
 
 uint8_t Adafruit_USBD_Device::getSerialDescriptor(uint16_t* serial_str)
 {
