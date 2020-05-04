@@ -20,6 +20,8 @@
 
 #include <Arduino.h>
 
+#include "api/USBAPI.h"
+#include "USBAPI.h"
 #include "SAMD21_USBDevice.h"
 #include "CDC.h"
 #include "api/PluggableUSB.h"
@@ -230,11 +232,9 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			memset(name, 0, sizeof(name));
 			uint8_t idx = 0;
 #ifdef PLUGGABLE_USB_ENABLED
-			idx += PluggableUSB().getShortName(&name[idx]);
+			PluggableUSB().getShortName(name);
+			return sendStringDescriptor((uint8_t*)name, setup.wLength);
 #endif
-			if (idx > 0) {
-				return sendStringDescriptor((uint8_t*)name, setup.wLength);
-			}
 		}
 		else {
 			return false;
@@ -918,7 +918,7 @@ void USBDeviceClass::ISRHandler()
 				epHandlers[ep]->handleEndpoint();
 			} else {
 				#if defined(PLUGGABLE_USB_ENABLED)
-				PluggableUSB().handleEndpoint(ep);
+				SerialUSB.handleEndpoint(ep);
 				usbd.epAckPendingInterrupts(ep);
 				#endif
 			}
@@ -927,8 +927,8 @@ void USBDeviceClass::ISRHandler()
 }
 
 // PluggableUSB contructor
-PluggableUSB_::PluggableUSB_() : lastIf(CDC_ACM_INTERFACE + CDC_INTERFACE_COUNT),
-                                 lastEp(CDC_FIRST_ENDPOINT + CDC_ENPOINT_COUNT),
+PluggableUSB_::PluggableUSB_() : lastIf(0),
+                                 lastEp(1),
                                  rootNode(NULL), totalEP(USB_ENDPOINTS)
 {
 	// Empty

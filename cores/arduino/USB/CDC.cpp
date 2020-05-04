@@ -19,6 +19,7 @@
 #include <Arduino.h>
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
 #include "CDC.h"
+#include "USBAPI.h"
 #include "SAMD21_USBDevice.h"
 
 #include <stdlib.h>
