@@ -20,16 +20,14 @@
 #ifndef TwoWire_h
 #define TwoWire_h
 
-#include "Stream.h"
+#include "api/HardwareI2C.h"
 #include "variant.h"
-
 #include "SERCOM.h"
-#include "RingBuffer.h"
 
  // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
-class TwoWire : public Stream
+class TwoWire : public HardwareI2C
 {
   public:
     TwoWire(SERCOM *s, uint8_t pinSDA, uint8_t pinSCL);
