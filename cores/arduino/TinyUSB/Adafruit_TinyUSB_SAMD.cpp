@@ -42,7 +42,7 @@ void USB_3_Handler (void) { tud_int_handler(0); }
 
 #else
 
-void USBD_IRQHandler(void) { tud_int_handler(0); }
+void USB_Handler(void) { tud_int_handler(0); }
 
 #endif
 } // extern C
