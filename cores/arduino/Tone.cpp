@@ -57,6 +57,14 @@ void toneAccurateClock (uint32_t accurateSystemCoreClockFrequency)
 
 void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
 {
+  
+  // Avoid divide by zero error by calling 'noTone' instead
+  if (frequency == 0)
+  {
+    noTone(outputPin);
+    return;
+  }
+  
   // Configure interrupt request
   NVIC_DisableIRQ(TONE_TC_IRQn);
   NVIC_ClearPendingIRQ(TONE_TC_IRQn);
