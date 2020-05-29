@@ -225,6 +225,9 @@ class SERCOM
 		bool isSlaveWIRE( void ) ;
 		bool isBusIdleWIRE( void ) ;
 		bool isBusOwnerWIRE( void ) ;
+		bool isBusUnknownWIRE( void ) ;
+		bool isArbLostWIRE( void );
+		bool isBusBusyWIRE( void );
 		bool isDataReadyWIRE( void ) ;
 		bool isStopDetectedWIRE( void ) ;
 		bool isRestartDetectedWIRE( void ) ;
