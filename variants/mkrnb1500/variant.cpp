@@ -252,9 +252,10 @@ void initVariant() {
   pinMode(SARA_PWR_ON, OUTPUT);
   digitalWrite(SARA_PWR_ON, LOW);
 
-  // put SARA modem in reset on start to conserve power if it's not used
+  // data sheet discourages use of SARA modem reset pin
+  // use may lead to irrecoverable state of modem
   pinMode(SARA_RESETN, OUTPUT);
-  digitalWrite(SARA_RESETN, HIGH);
+  digitalWrite(SARA_RESETN, LOW);
 
   // set RTS to LOW
   pinMode(SARA_RTS, OUTPUT);
