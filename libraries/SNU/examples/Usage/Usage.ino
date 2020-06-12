@@ -37,6 +37,7 @@
 */
 #include <SNU.h>
 #include <WiFiNINA.h>
+#include <Adafruit_SleepyDog.h>
 
 #include "arduino_secrets.h"
 ///////please enter your sensitive data in the Secret tab/arduino_secrets.h
@@ -49,9 +50,15 @@ int status = WL_IDLE_STATUS;
 
 String message;
 
+#define COUNTER_FILE "/fs/bootcounter.bin"
+
 void setup() {
   Serial.begin(9600);
   Serial1.begin(9600);
+
+  Watchdog.disable();
+  WiFiStorageFile counterFile = WiFiStorage.open(COUNTER_FILE);
+  counterFile.erase();
 
   // check for the presence of the shield:
   if (WiFi.status() == WL_NO_SHIELD) {

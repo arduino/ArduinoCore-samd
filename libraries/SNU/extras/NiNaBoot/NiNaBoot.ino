@@ -18,6 +18,7 @@
 
 #include <WiFiNINA.h>
 #include <FlashStorage.h>
+#include <Adafruit_SleepyDog.h>
 
 #ifdef ARDUINO_SAMD_MKRVIDOR4000
 #include <VidorPeripherals.h>
@@ -34,6 +35,7 @@
 #define SKETCH_START (uint32_t*)(SDU_START + SDU_SIZE)
 
 #define UPDATE_FILE "/fs/UPDATE.BIN"
+#define COUNTER_FILE "/fs/bootcounter.bin"
 
 FlashClass flash;
 
@@ -66,6 +68,30 @@ int main() {
     goto boot;
   }
 
+  Watchdog.enable(4000);
+
+  if (WiFiStorage.exists(COUNTER_FILE)) {
+    WiFiStorageFile counterFile = WiFiStorage.open(COUNTER_FILE);
+    uint8_t counter;
+    int status = -1;
+    counterFile.read(&counter, 1);
+    if (counter >= 3) {
+      Watchdog.disable();
+      Watchdog.enable(8000);
+      int timeout = 10000;
+      int start = millis();
+      //it only works if it remembers the last working SSID
+      while (status != WL_CONNECTED && (millis() - start) < timeout) {
+        //fake credentials -> the last working credentials are retrieved
+        status = WiFi.begin("foo", "bar");
+        Watchdog.reset();
+      }
+
+      //set the URL to one where a valid binary is available
+      WiFiStorage.download("http://192.168.1.100/Usage_mod.ino.bin", "UPDATE.BIN");
+    }
+  }
+
   if (WiFiStorage.exists(UPDATE_FILE)) {
 
     WiFiStorageFile updateFile = WiFiStorage.open(UPDATE_FILE);
@@ -86,6 +112,8 @@ int main() {
 
       // write the pages
       for (uint32_t i = 0; i < updateSize; i += sizeof(buffer)) {
+
+        Watchdog.reset();
         updateFile.read(buffer, sizeof(buffer));
 
         flash.write((void*)flashAddress, buffer, sizeof(buffer));
