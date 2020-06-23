@@ -109,6 +109,15 @@ void SERCOM::enableUART()
   while(sercom->USART.SYNCBUSY.bit.ENABLE);
 }
 
+void SERCOM::disableUART()
+{
+  //Setting  the enable bit to 1
+  sercom->USART.CTRLA.bit.ENABLE = 0x0u;
+
+  //Wait for then enable bit from SYNCBUSY is equal to 0;
+  while(sercom->USART.SYNCBUSY.bit.ENABLE);
+}
+
 void SERCOM::flushUART()
 {
   // Skip checking transmission completion if data register is empty
