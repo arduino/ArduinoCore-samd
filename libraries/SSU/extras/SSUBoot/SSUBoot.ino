@@ -69,27 +69,31 @@ int main()
   MODEM.begin();
   fileUtils.begin();
   bool update_success = false;
-  auto size = fileUtils.listFile(filename);
-  auto cycles = (size / blockSize) + 1;
-  if (size > SSU_SIZE) {
-    size -= SSU_SIZE;
+  if (fileUtils.listFile("UPDATE.OK") == 1) {
+    auto size = fileUtils.listFile(filename);
+    auto cycles = (size / blockSize) + 1;
+    if (size > SSU_SIZE) {
+      size -= SSU_SIZE;
 
-    /* Erase the MCU flash */
-    uint32_t flash_address = (uint32_t)SKETCH_START;
-    mcu_flash.erase((void*)flash_address, size);
-    
-    for (auto i = 0; i < cycles; i++) {
-      uint8_t block[blockSize] { 0 };
-      digitalWrite(LED_BUILTIN,LOW);
-      auto read = fileUtils.readBlock(filename, (i * blockSize) + SSU_SIZE, blockSize, block);
-      digitalWrite(LED_BUILTIN,HIGH);
-      mcu_flash.write((void*)flash_address, block, read);
-      flash_address += read;
+      /* Erase the MCU flash */
+      uint32_t flash_address = (uint32_t)SKETCH_START;
+      mcu_flash.erase((void*)flash_address, size);
+
+      for (auto i = 0; i < cycles; i++) {
+        uint8_t block[blockSize] { 0 };
+        digitalWrite(LED_BUILTIN,LOW);
+        auto read = fileUtils.readBlock(filename, (i * blockSize) + SSU_SIZE, blockSize, block);
+        digitalWrite(LED_BUILTIN,HIGH);
+        mcu_flash.write((void*)flash_address, block, read);
+        flash_address += read;
+      }
+      update_success = true;
     }
-    update_success = true;
+    if (update_success) {
+      fileUtils.deleteFile(filename);
+      fileUtils.deleteFile("UPDATE.OK");
+    }
   }
-  if (update_success) { fileUtils.deleteFile(filename); }
-
   /* Jump to the sketch */
   __set_MSP(*SKETCH_START);
 
