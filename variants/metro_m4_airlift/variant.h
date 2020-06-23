@@ -131,7 +131,8 @@ static const uint8_t ATN = PIN_ATN;
 #define NINA_GPIO0      ESP32_GPIO0
 #define NINA_RESETN     ESP32_RESETN
 #define NINA_ACK        SPIWIFI_ACK
-
+#define NINA_CTS        SPIWIFI_ACK
+#define NINA_RTS        NINA_GPIO0
 
 /*
  * Serial interfaces
