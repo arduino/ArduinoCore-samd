@@ -29,6 +29,8 @@
 SERCOM::SERCOM(Sercom* s)
 {
   sercom = s;
+  timeoutOccurred = false;
+  timeoutInterval = SERCOM_DEFAULT_I2C_OPERATION_TIMEOUT_MS;
 }
 
 /* 	=========================
@@ -393,11 +395,8 @@ void SERCOM::enableWIRE()
 
   // Setting bus idle mode
   sercom->I2CM.STATUS.bit.BUSSTATE = 1 ;
+  waitSyncWIRE();
 
-  while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
-  {
-    // Wait the SYSOP bit from SYNCBUSY coming back to 0
-  }
 }
 
 void SERCOM::disableWIRE()
@@ -433,10 +432,8 @@ void SERCOM::initSlaveWIRE( uint8_t ucAddress, bool enableGeneralCall )
                               SERCOM_I2CS_INTENSET_AMATCH | // Address Match
                               SERCOM_I2CS_INTENSET_DRDY ;   // Data Ready
 
-  while ( sercom->I2CM.SYNCBUSY.bit.SYSOP != 0 )
-  {
-    // Wait the SYSOP bit from SYNCBUSY to come back to 0
-  }
+  waitSyncWIRE();
+
 }
 
 void SERCOM::initMasterWIRE( uint32_t baudrate )
@@ -453,12 +450,12 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
   // Enable Smart mode and Quick Command
   //sercom->I2CM.CTRLB.reg =  SERCOM_I2CM_CTRLB_SMEN /*| SERCOM_I2CM_CTRLB_QCEN*/ ;
 
-
   // Enable all interrupts
 //  sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
 
   // Synchronous arithmetic baudrate
   sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 5 - (((SystemCoreClock / 1000000) * WIRE_RISE_TIME_NANOSECONDS) / (2 * 1000));
+
 }
 
 void SERCOM::prepareNackBitWIRE( void )
@@ -485,14 +482,17 @@ void SERCOM::prepareCommandBitsWire(uint8_t cmd)
 {
   if(isMasterWIRE()) {
     sercom->I2CM.CTRLB.bit.CMD = cmd;
+    waitSyncWIRE();
+  } else {
+    sercom->I2CS.CTRLB.bit.CMD = cmd;
+  }
+}
 
+void SERCOM::waitSyncWIRE() {
     while(sercom->I2CM.SYNCBUSY.bit.SYSOP)
     {
       // Waiting for synchronization
     }
-  } else {
-    sercom->I2CS.CTRLB.bit.CMD = cmd;
-  }
 }
 
 bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
@@ -500,53 +500,47 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
-  // If another master owns the bus or the last bus owner has not properly
-  // sent a stop, return failure early. This will prevent some misbehaved
-  // devices from deadlocking here at the cost of the caller being responsible
-  // for retrying the failed transmission. See SercomWireBusState for the
-  // possible bus states.
-  if(!isBusOwnerWIRE())
-  {
-    if( isBusBusyWIRE() || (isArbLostWIRE() && !isBusIdleWIRE()) )
-    {
-      return false;
-    }
-  }
-
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
+  waitSyncWIRE();
 
-  // Address Transmitted
+  // wait Address Transmitted
+  initTimeout();
+
   if ( flag == WIRE_WRITE_FLAG ) // Write mode
   {
-    while( !sercom->I2CM.INTFLAG.bit.MB )
+    while (!sercom->I2CM.INTFLAG.bit.MB && !testTimeout())
     {
-      // Wait transmission complete
-    }
-    // Check for loss of arbitration (multiple masters starting communication at the same time)
-    if(!isBusOwnerWIRE())
-    {
-      // Restart communication
-      startTransmissionWIRE(address >> 1, flag);
+        // wait transmission complete
     }
   }
   else  // Read mode
   {
-    while( !sercom->I2CM.INTFLAG.bit.SB )
+    while (!sercom->I2CM.INTFLAG.bit.SB && !testTimeout())
     {
-        // If the slave NACKS the address, the MB bit will be set.
-        // In that case, send a stop condition and return false.
-        if (sercom->I2CM.INTFLAG.bit.MB) {
-            sercom->I2CM.CTRLB.bit.CMD = 3; // Stop condition
-            return false;
-        }
-      // Wait transmission complete
+        // wait transmission complete
     }
-
-    // Clean the 'Slave on Bus' flag, for further usage.
-    //sercom->I2CM.INTFLAG.bit.SB = 0x1ul;
   }
 
+  // Check for loss of arbitration (multiple masters starting communication at the same time)
+  // or timeout
+  if(!isBusOwnerWIRE() || didTimeout()) {
+
+      restartTX_cnt++; // increment restart counter
+
+      if (restartTX_cnt >= restartTX_limit) {
+          // only allow limited restarts
+          restartTX_cnt = 0;
+          return false;
+      } else {
+          // Restart communication after small delay
+          if (!didTimeout()) delayMicroseconds(1000);   // delay if not already timed out
+
+          // Restart
+          startTransmissionWIRE(address >> 1, flag);
+      }
+
+  } else restartTX_cnt = 0;
 
   //ACK received (0: ACK, 1: NACK)
   if(sercom->I2CM.STATUS.bit.RXNACK)
@@ -563,16 +557,17 @@ bool SERCOM::sendDataMasterWIRE(uint8_t data)
 {
   //Send data
   sercom->I2CM.DATA.bit.DATA = data;
+  waitSyncWIRE();
 
   //Wait transmission successful
-  while(!sercom->I2CM.INTFLAG.bit.MB) {
-
-    // If a bus error occurs, the MB bit may never be set.
-    // Check the bus error bit and bail if it's set.
-    if (sercom->I2CM.STATUS.bit.BUSERR) {
-      return false;
-    }
+  initTimeout();
+  while (!sercom->I2CM.INTFLAG.bit.MB && !testTimeout())
+  {
+      // Wait transmission complete
   }
+
+  // check for timeout condition
+  if ( didTimeout() ) return false;
 
   //Problems on line? nack received?
   if(sercom->I2CM.STATUS.bit.RXNACK)
@@ -665,9 +660,10 @@ uint8_t SERCOM::readDataWIRE( void )
 {
   if(isMasterWIRE())
   {
-    while( sercom->I2CM.INTFLAG.bit.SB == 0 && sercom->I2CM.INTFLAG.bit.MB == 0 )
+    initTimeout();
+    while (!sercom->I2CM.INTFLAG.bit.SB && !testTimeout())
     {
-      // Waiting complete receive
+        // wait receive
     }
 
     return sercom->I2CM.DATA.bit.DATA ;
@@ -738,4 +734,27 @@ void SERCOM::initClockNVIC( void )
   {
     /* Wait for synchronization */
   }
+}
+
+void SERCOM::setTimeout( uint16_t ms )
+{
+  timeoutInterval = ms;
+}
+
+bool SERCOM::didTimeout( void )
+{
+  return timeoutOccurred;
+}
+
+void SERCOM::initTimeout( void )
+{
+  timeoutOccurred = false;
+  timeoutRef = millis();
+}
+
+bool SERCOM::testTimeout( void )
+{
+  if (!timeoutInterval) return false;
+  timeoutOccurred = (millis() - timeoutRef) > timeoutInterval;
+  return timeoutOccurred;
 }
