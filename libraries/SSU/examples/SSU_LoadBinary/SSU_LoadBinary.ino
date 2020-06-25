@@ -41,7 +41,7 @@ void setup() {
 
   uint32_t bytes_to_write = sizeof(BINARY);
   auto bytes_written = fileUtils.downloadFile("UPDATE.BIN", BINARY, bytes_to_write);
-  
+
   if(bytes_written != bytes_to_write) {
     Serial.println("downloadFile failed.");return;
 
