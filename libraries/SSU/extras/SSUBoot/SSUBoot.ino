@@ -21,7 +21,8 @@
  **************************************************************************************/
 
 #include <FlashStorage.h>
-#include "MKRGSM.h"
+#include <MKRGSM.h>
+
 
 /**************************************************************************************
    DEFINE
@@ -36,14 +37,18 @@
    GLOBAL CONSTANTS
  **************************************************************************************/
 
-static char const UPDATE_FILE_NAME[] = "UPDATE.BIN";
+static constexpr char UPDATE_FILE_NAME[] = "UPDATE.BIN";
+static constexpr char CHECK_FILE_NAME[] = "UPDATE.OK";
+
 
 /**************************************************************************************
    GLOBAL VARIABLES
  **************************************************************************************/
 
 FlashClass mcu_flash;
-GSMFileUtils  fileUtils(false);
+
+GSMFileUtils  fileUtils;
+
 /**************************************************************************************
    FUNCTION DECLARATION
  **************************************************************************************/
@@ -62,16 +67,18 @@ int main()
 
   delay(1);
 
-  String filename = UPDATE_FILE_NAME;
+  constexpr size_t blockSize = 512;
 
-  const size_t  blockSize = 512;
-
-  MODEM.begin();
   fileUtils.begin();
+
   bool update_success = false;
-  if (fileUtils.listFile("UPDATE.OK") == 1) {
-    auto size = fileUtils.listFile(filename);
-    auto cycles = (size / blockSize) + 1;
+
+  // Try to update only if update file
+  // has been download successfully.
+  if (fileUtils.listFile(CHECK_FILE_NAME) == 1) {
+    uint32_t size = fileUtils.listFile(UPDATE_FILE_NAME);
+    size_t cycles = (size / blockSize) + 1;
+
     if (size > SSU_SIZE) {
       size -= SSU_SIZE;
 
@@ -81,17 +88,17 @@ int main()
 
       for (auto i = 0; i < cycles; i++) {
         uint8_t block[blockSize] { 0 };
-        digitalWrite(LED_BUILTIN,LOW);
-        auto read = fileUtils.readBlock(filename, (i * blockSize) + SSU_SIZE, blockSize, block);
-        digitalWrite(LED_BUILTIN,HIGH);
+        digitalWrite(LED_BUILTIN, LOW);
+        uint32_t read = fileUtils.readBlock(UPDATE_FILE_NAME, (i * blockSize) + SSU_SIZE, blockSize, block);
+        digitalWrite(LED_BUILTIN, HIGH);
         mcu_flash.write((void*)flash_address, block, read);
         flash_address += read;
       }
       update_success = true;
     }
     if (update_success) {
-      fileUtils.deleteFile(filename);
-      fileUtils.deleteFile("UPDATE.OK");
+      fileUtils.deleteFile(UPDATE_FILE_NAME);
+      fileUtils.deleteFile(CHECK_FILE_NAME);
     }
   }
   /* Jump to the sketch */

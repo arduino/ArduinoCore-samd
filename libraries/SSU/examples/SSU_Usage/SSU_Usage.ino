@@ -30,7 +30,9 @@
  running on the board. After this UPDATE.BIN is deleted from the flash.
 */
 
-#include <SFU.h>
+
+#include <SSU.h>
+
 
 void setup() {
   Serial.begin(9600);
