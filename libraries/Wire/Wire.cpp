@@ -97,6 +97,8 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
     sercom->prepareNackBitWIRE(); // prepare NACK for slave
 
+    if (stopBit || didTimeout() || !busOwner) sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP); // Send Stop
+
     if (!busOwner || sercom->didTimeout())
     {
       byteRead--;   // because last read byte was garbage/invalid
@@ -104,18 +106,11 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 
   }
 
-  // Send Stop if we still have control of the bus, or hit a timeout
-  if ((stopBit && busOwner) || sercom->didTimeout())
-  {
-    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-  }
-
   // catch and handle timeout condition
   if (sercom->didTimeout())
   {
     // reset the bus
     setClock(activeBaudrate);
-    transmissionBegun = false;
     return 0;
   }
 
@@ -147,41 +142,33 @@ uint8_t TwoWire::endTransmission(bool stopBit)
   uint8_t errCode = 0;
   bool busOwner;
 
-  transmissionBegun = false ;
-
   // Start I2C transmission
-  if ( !sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
+  if ( sercom->startTransmissionWIRE( txAddress, WIRE_WRITE_FLAG ) )
   {
-    errCode = 2; // Address error
-  }
-
-  // Send all buffer
-  if (!errCode) {
+    // successful start so transmit data
     while ( txBuffer.available() && (busOwner = sercom->isBusOwnerWIRE()) )
     {
-        // Trying to send data
-        if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
-        {
-          errCode = 3; // Nack or error
-          txBuffer.clear();
-          break;
-        }
+      // Trying to send data
+      if ( !sercom->sendDataMasterWIRE( txBuffer.read_char() ) )
+      {
+        errCode = 3; // Nack or error
+        txBuffer.clear();
+        break;
+      }
     }
-  }
 
-  // Send Stop if we still have control of the bus, or hit an error
-  if ((stopBit && busOwner) || errCode)
-  {
-    sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-  }
+    if (stopBit || errCode || !busOwner) sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP); // Send Stop
+
+  } else errCode = 2; // Address error
 
   // catch timeout condition
   if (sercom->didTimeout()) {
     // reset the bus
     setClock(activeBaudrate);
-    transmissionBegun = false;
     errCode = 4;
   }
+
+  transmissionBegun = false ;
 
   return errCode;
 }
