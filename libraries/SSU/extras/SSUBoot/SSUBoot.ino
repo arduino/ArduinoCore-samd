@@ -23,6 +23,7 @@
 #include <FlashStorage.h>
 #include <MKRGSM.h>
 
+#include "lzss.h"
 
 /**************************************************************************************
    DEFINE
@@ -37,17 +38,16 @@
    GLOBAL CONSTANTS
  **************************************************************************************/
 
-static constexpr char UPDATE_FILE_NAME[] = "UPDATE.BIN";
-static constexpr char CHECK_FILE_NAME[] = "UPDATE.OK";
-
+       const char * UPDATE_FILE_NAME      = "UPDATE.BIN";
+       const char * UPDATE_FILE_NAME_LZSS = "UPDATE.BIN.LZSS";
+static const char * CHECK_FILE_NAME       = "UPDATE.OK";
 
 /**************************************************************************************
    GLOBAL VARIABLES
  **************************************************************************************/
 
 FlashClass mcu_flash;
-
-GSMFileUtils  fileUtils;
+GSMFileUtils fileUtils;
 
 /**************************************************************************************
    FUNCTION DECLARATION
@@ -75,29 +75,59 @@ int main()
 
   // Try to update only if update file
   // has been download successfully.
-  if (fileUtils.listFile(CHECK_FILE_NAME) == 1) {
-    uint32_t size = fileUtils.listFile(UPDATE_FILE_NAME);
-    size_t cycles = (size / blockSize) + 1;
-
-    if (size > SSU_SIZE) {
-      size -= SSU_SIZE;
-
-      /* Erase the MCU flash */
-      uint32_t flash_address = (uint32_t)SKETCH_START;
-      mcu_flash.erase((void*)flash_address, size);
-
-      for (auto i = 0; i < cycles; i++) {
-        uint8_t block[blockSize] { 0 };
-        digitalWrite(LED_BUILTIN, LOW);
-        uint32_t read = fileUtils.readBlock(UPDATE_FILE_NAME, (i * blockSize) + SSU_SIZE, blockSize, block);
-        digitalWrite(LED_BUILTIN, HIGH);
-        mcu_flash.write((void*)flash_address, block, read);
-        flash_address += read;
-      }
+  if (fileUtils.listFile(CHECK_FILE_NAME) > 0)
+  {
+    /* This is for LZSS compressed binaries. */
+    if (fileUtils.listFile(UPDATE_FILE_NAME_LZSS) > 0)
+    {
+      /* Erase the complete flash starting from the SSU forward
+       * because we've got no possibility of knowing how large
+       * the decompressed binary will finally be.
+       */
+      mcu_flash.erase((void*)SKETCH_START, 0x40000 - (uint32_t)SKETCH_START);
+      /* Initialize the lzss module with the data which
+       * it requires.
+       */
+      lzss_init((uint32_t)SKETCH_START);
+      /* During the process of decoding UPDATE.BIN.LZSS
+       * is decompressed and stored as UPDATE.BIN.
+       */
+      lzss_decode();
+      /* Write the data remaining in the write buffer to
+       * the file.
+       */
+      lzss_flush();
+      /* Signal a successul update. */
       update_success = true;
     }
+    /* This is for uncompressed binaries. */
+    else if (fileUtils.listFile(UPDATE_FILE_NAME) > 0)
+    {
+      uint32_t size = fileUtils.listFile(UPDATE_FILE_NAME);
+      size_t cycles = (size / blockSize) + 1;
+
+      if (size > SSU_SIZE) {
+        size -= SSU_SIZE;
+
+        /* Erase the MCU flash */
+        uint32_t flash_address = (uint32_t)SKETCH_START;
+        mcu_flash.erase((void*)flash_address, size);
+
+        for (auto i = 0; i < cycles; i++) {
+          uint8_t block[blockSize] { 0 };
+          digitalWrite(LED_BUILTIN, LOW);
+          uint32_t read = fileUtils.readBlock(UPDATE_FILE_NAME, (i * blockSize) + SSU_SIZE, blockSize, block);
+          digitalWrite(LED_BUILTIN, HIGH);
+          mcu_flash.write((void*)flash_address, block, read);
+          flash_address += read;
+        }
+        update_success = true;
+      }
+    }
+    /* Clean up in case of success */
     if (update_success) {
       fileUtils.deleteFile(UPDATE_FILE_NAME);
+      fileUtils.deleteFile(UPDATE_FILE_NAME_LZSS);
       fileUtils.deleteFile(CHECK_FILE_NAME);
     }
   }
