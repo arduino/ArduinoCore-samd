@@ -29,7 +29,7 @@ static constexpr char CHECK_FILE_NAME[] = "UPDATE.OK";
 
 FlashClass mcu_flash;
 
-NBFileUtils  fileUtils;
+NBFileUtils  fileUtils(true);
 
 extern "C" void __libc_init_array(void);
 
@@ -43,21 +43,21 @@ int main()
 
   constexpr size_t blockSize = 512;
   fileUtils.begin();
-  Serial1.begin(115200);
-  Serial1.print("SBU start. ");
 
   bool update_success = false;
 
   // Try to update only if update file
   // has been download successfully.
 
-  if (fileUtils.listFile(CHECK_FILE_NAME)) {
-    Serial1.println("Update file exists");
+  if (fileUtils.existFile(CHECK_FILE_NAME)) {
     uint32_t updateSize = fileUtils.listFile(UPDATE_FILE_NAME);
-    size_t cycles = (updateSize / blockSize) + 1;
+    uint32_t tot_bytes = 0;
+    uint32_t read_bytes = 0;
 
     if (updateSize > SBU_SIZE) {
       updateSize = updateSize - SBU_SIZE - SBU_START;
+      size_t cycles = (updateSize / blockSize);
+      size_t spare_bytes = (updateSize % blockSize);
       /* Erase the MCU flash */
       uint32_t flash_address = (uint32_t)SKETCH_START;
       mcu_flash.erase((void*)flash_address, updateSize);
@@ -65,7 +65,17 @@ int main()
       for (auto i = 0; i < cycles; i++) {
         uint8_t block[blockSize] { 0 };
         digitalWrite(LED_BUILTIN, LOW);
-        uint32_t read_bytes = fileUtils.readBlock(UPDATE_FILE_NAME, (i * blockSize) + SBU_SIZE + SBU_START, blockSize, block);
+        read_bytes = fileUtils.readBlock(UPDATE_FILE_NAME, (i * blockSize) + SBU_SIZE + SBU_START, blockSize, block);
+        digitalWrite(LED_BUILTIN, HIGH);
+        mcu_flash.write((void*)flash_address, block, read_bytes);
+        flash_address += read_bytes;
+        tot_bytes += read_bytes;
+      }
+
+      if (spare_bytes){
+        uint8_t block[spare_bytes] { 0 };
+        digitalWrite(LED_BUILTIN, LOW);
+        read_bytes = fileUtils.readBlock(UPDATE_FILE_NAME, tot_bytes + SBU_SIZE + SBU_START, spare_bytes, block);
         digitalWrite(LED_BUILTIN, HIGH);
         mcu_flash.write((void*)flash_address, block, read_bytes);
         flash_address += read_bytes;
@@ -73,13 +83,8 @@ int main()
       update_success = true;
     }
     if (update_success) {
-      fileUtils.deleteFile(UPDATE_FILE_NAME);
-      fileUtils.deleteFile(CHECK_FILE_NAME);
+      fileUtils.deleteFiles();
     }
-  }
-  else {
-    Serial1.println("Update file does not exist");
-    delay(100);
   }
 
 boot:
