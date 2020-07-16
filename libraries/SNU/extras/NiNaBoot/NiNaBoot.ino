@@ -19,6 +19,8 @@
 #include <WiFiNINA.h>
 #include <FlashStorage.h>
 
+#include "lzss.h"
+
 #ifdef ARDUINO_SAMD_MKRVIDOR4000
 #include <VidorPeripherals.h>
 #endif /* ARDUINO_SAMD_MKRVIDOR4000 */
@@ -33,7 +35,8 @@
 
 #define SKETCH_START (uint32_t*)(SDU_START + SDU_SIZE)
 
-#define UPDATE_FILE "/fs/UPDATE.BIN"
+const char * UPDATE_FILE_NAME      = "/fs/UPDATE.BIN";
+const char * UPDATE_FILE_NAME_LZSS = "/fs/UPDATE.BIN.LZSS";
 
 FlashClass flash;
 
@@ -66,9 +69,35 @@ int main() {
     goto boot;
   }
 
-  if (WiFiStorage.exists(UPDATE_FILE)) {
+  /* For UPDATE.BIN.LZSS - LZSS compressed binary files. */
+  if (WiFiStorage.exists(UPDATE_FILE_NAME_LZSS))
+  {
+    WiFiStorageFile update_file = WiFiStorage.open(UPDATE_FILE_NAME_LZSS);
+    /* Erase the complete flash starting from the SSU forward
+     * because we've got no possibility of knowing how large
+     * the decompressed binary will finally be.
+     */
+    flash.erase((void*)SKETCH_START, 0x40000 - (uint32_t)SKETCH_START);
+    /* Initialize the lzss module with the data which
+     * it requires.
+     */
+    lzss_init(&update_file, (uint32_t)SKETCH_START);
+    /* During the process of decoding UPDATE.BIN.LZSS
+     * is decompressed and stored as UPDATE.BIN.
+     */
+    lzss_decode();
+    /* Write the data remaining in the write buffer to
+     * the file.
+     */
+    lzss_flush();
+    /* Delete UPDATE.BIN.LZSS because this update is complete. */
+    update_file.close();
+    update_file.erase();
+  }
+  /* For UPDATE.BIN - uncompressed binary files. */
+  else if (WiFiStorage.exists(UPDATE_FILE_NAME)) {
 
-    WiFiStorageFile updateFile = WiFiStorage.open(UPDATE_FILE);
+    WiFiStorageFile updateFile = WiFiStorage.open(UPDATE_FILE_NAME);
     uint32_t updateSize = updateFile.size();
     bool updateFlashed = false;
 
