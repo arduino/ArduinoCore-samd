@@ -83,7 +83,8 @@ int main()
       update_success = true;
     }
     if (update_success) {
-      fileUtils.deleteFiles();
+      fileUtils.deleteFile(UPDATE_FILE_NAME);
+      fileUtils.deleteFile(CHECK_FILE_NAME);
     }
   }
 
