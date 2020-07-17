@@ -55,7 +55,7 @@ int main()
     uint32_t read_bytes = 0;
 
     if (updateSize > SBU_SIZE) {
-      updateSize = updateSize - SBU_SIZE - SBU_START;
+      updateSize = updateSize - SBU_SIZE;
       size_t cycles = (updateSize / blockSize);
       size_t spare_bytes = (updateSize % blockSize);
       /* Erase the MCU flash */
@@ -65,7 +65,7 @@ int main()
       for (auto i = 0; i < cycles; i++) {
         uint8_t block[blockSize] { 0 };
         digitalWrite(LED_BUILTIN, LOW);
-        read_bytes = fileUtils.readBlock(UPDATE_FILE_NAME, (i * blockSize) + SBU_SIZE + SBU_START, blockSize, block);
+        read_bytes = fileUtils.readBlock(UPDATE_FILE_NAME, (i * blockSize) + SBU_SIZE, blockSize, block);
         digitalWrite(LED_BUILTIN, HIGH);
         mcu_flash.write((void*)flash_address, block, read_bytes);
         flash_address += read_bytes;
@@ -75,7 +75,7 @@ int main()
       if (spare_bytes){
         uint8_t block[spare_bytes] { 0 };
         digitalWrite(LED_BUILTIN, LOW);
-        read_bytes = fileUtils.readBlock(UPDATE_FILE_NAME, tot_bytes + SBU_SIZE + SBU_START, spare_bytes, block);
+        read_bytes = fileUtils.readBlock(UPDATE_FILE_NAME, tot_bytes + SBU_SIZE, spare_bytes, block);
         digitalWrite(LED_BUILTIN, HIGH);
         mcu_flash.write((void*)flash_address, block, read_bytes);
         flash_address += read_bytes;
