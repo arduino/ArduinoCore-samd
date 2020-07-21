@@ -18,6 +18,7 @@ bool update_available = false;
 
 void setup() {
   Serial.begin(9600);
+  while(!Serial) { }
 
   unsigned long const start = millis();
   for(unsigned long now = millis(); !Serial && ((now - start) < 5000); now = millis()) { };
