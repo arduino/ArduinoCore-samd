@@ -23,7 +23,7 @@ void setup() {
   for(unsigned long now = millis(); !Serial && ((now - start) < 5000); now = millis()) { };
 
   Serial.print("Accessing SARA Filesystem... ");
-  if(!fileUtils.begin()) {
+  if(!fileUtils.begin(false)) {
     Serial.println("failed.");
     return;
 

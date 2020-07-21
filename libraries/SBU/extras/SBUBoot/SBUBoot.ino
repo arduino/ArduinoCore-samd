@@ -49,7 +49,7 @@ int main()
   // Try to update only if update file
   // has been download successfully.
 
-  if (fileUtils.existFile(CHECK_FILE_NAME)) {
+  if (fileUtils.listFile(CHECK_FILE_NAME)) {
     uint32_t updateSize = fileUtils.listFile(UPDATE_FILE_NAME);
     uint32_t tot_bytes = 0;
     uint32_t read_bytes = 0;
