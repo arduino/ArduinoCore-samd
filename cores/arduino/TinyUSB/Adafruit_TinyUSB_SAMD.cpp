@@ -164,6 +164,11 @@ static void usb_hardware_init(void)
 
 
 	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+
+	NVIC_SetPriority(USB_0_IRQn, 0UL);
+	NVIC_SetPriority(USB_1_IRQn, 0UL);
+	NVIC_SetPriority(USB_2_IRQn, 0UL);
+	NVIC_SetPriority(USB_3_IRQn, 0UL);
 #else
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
@@ -181,6 +186,8 @@ static void usb_hardware_init(void)
 	GCLK_CLKCTRL_CLKEN;
 	while (GCLK->STATUS.bit.SYNCBUSY)
 	;
+
+	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
 #endif
 }
 
