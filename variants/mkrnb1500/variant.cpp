@@ -254,7 +254,7 @@ void initVariant() {
 
   // put SARA modem in reset on start to conserve power if it's not used
   pinMode(SARA_RESETN, OUTPUT);
-  digitalWrite(SARA_RESETN, HIGH);
+  digitalWrite(SARA_RESETN, LOW);
 
   // set RTS to LOW
   pinMode(SARA_RTS, OUTPUT);
