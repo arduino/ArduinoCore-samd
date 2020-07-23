@@ -37,6 +37,7 @@ static uint32_t SKETCH_START = 0;
 static uint32_t LZSS_FILE_SIZE = 0;
 
 int bit_buffer = 0, bit_mask = 128;
+unsigned long codecount = 0, textcount = 0;
 unsigned char buffer[N * 2];
 
 static char write_buf[FPUTC_BUF_SIZE];
@@ -45,30 +46,41 @@ static size_t bytes_written_fputc = 0;
 static size_t bytes_written_flash = 0;
 static uint32_t flash_addr = 0;
 
+bool fromLZSStoBIN = true;
+bool append = false;
+
 /**************************************************************************************
    PUBLIC FUNCTIONS
  **************************************************************************************/
 
-void lzss_init(uint32_t const sketch_start)
+void lzss_init(uint32_t const sketch_start, bool LZSStoBIN)
 {
-  SKETCH_START = sketch_start;
-  flash_addr = sketch_start;
-  LZSS_FILE_SIZE = fileUtils.listFile(UPDATE_FILE_NAME_LZSS);
+    fromLZSStoBIN = LZSStoBIN;
+    if (LZSStoBIN) {
+        SKETCH_START = sketch_start;
+        flash_addr = sketch_start;
+        LZSS_FILE_SIZE = fileUtils.listFile("UPDATE.BIN.LZSS");
+    }
 }
 
 void lzss_flush()
 {
   bytes_written_fputc += write_buf_num_bytes;
 
-  /* Only write to the flash once we've surpassed
-   * the SBU in the update binary.
-   */
-  if (bytes_written_fputc > (SKETCH_START - 0x2000))
-  {
-    mcu_flash.write((void*)flash_addr, write_buf, write_buf_num_bytes);
-    flash_addr += write_buf_num_bytes;
-  }
-
+    if (fromLZSStoBIN) {
+        /* Only write to the flash once we've surpassed
+        * the SBU in the update binary.
+        */
+        if (bytes_written_fputc > (SKETCH_START - 0x2000))
+        {
+            mcu_flash.write((void*)flash_addr, write_buf, write_buf_num_bytes);
+            flash_addr += write_buf_num_bytes;
+        }
+    } else {
+        fileUtils.downloadFile("UPDATE.BIN.LZSS", write_buf, write_buf_num_bytes, append);
+        append = true;
+    }
+  
   write_buf_num_bytes = 0;
 }
 
@@ -151,7 +163,7 @@ void putbit0(void)
 void output1(int c)
 {
     int mask;
-
+    
     putbit1();
     mask = 256;
     while (mask >>= 1) {
@@ -163,7 +175,7 @@ void output1(int c)
 void output2(int x, int y)
 {
     int mask;
-
+    
     putbit0();
     mask = N;
     while (mask >>= 1) {
@@ -181,7 +193,7 @@ int getbit(int n) /* get n bits */
 {
     int i, x;
     static int buf, mask = 0;
-
+    
     x = 0;
     for (i = 0; i < n; i++) {
         if (mask == 0) {
@@ -198,7 +210,7 @@ int getbit(int n) /* get n bits */
 void lzss_decode(void)
 {
     int i, j, k, r, c;
-
+    
     for (i = 0; i < N - F; i++) buffer[i] = ' ';
     r = N - F;
     while ((c = getbit(1)) != LZSS_EOF) {

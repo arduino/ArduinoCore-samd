@@ -52,12 +52,12 @@ int main()
   // Try to update only if update file
   // has been download successfully.
 
-  if (fileUtils.existFile(CHECK_FILE_NAME)) 
+  if (fileUtils.listFile(CHECK_FILE_NAME)) 
   {
     /*This is for LZSS compressed binaries. */
-    if (fileUtils.existFile(UPDATE_FILE_NAME_LZSS)) 
+    if (fileUtils.listFile(UPDATE_FILE_NAME_LZSS)) 
     {
-      /* Erase the complete flash starting from the SSU forward
+      /* Erase the complete flash starting from the SBU forward
        * because we've got no possibility of knowing how large
        * the decompressed binary will finally be.
        */
@@ -65,7 +65,7 @@ int main()
       /* Initialize the lzss module with the data which
        * it requires.
        */
-      lzss_init((uint32_t)SKETCH_START);
+      lzss_init((uint32_t)SKETCH_START, true);
       /* During the process of decoding UPDATE.BIN.LZSS
        * is decompressed and stored as UPDATE.BIN.
        */
