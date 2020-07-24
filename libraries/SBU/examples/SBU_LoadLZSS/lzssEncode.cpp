@@ -2,13 +2,12 @@
    INCLUDE
  **************************************************************************************/
 
-#include "lzss.h"
+#include "lzssEncode.h"
 
 #include <stdlib.h>
 #include <stdint.h>
 
 #include <MKRNB.h>
-#include <FlashStorage.h>
 
 /**************************************************************************************
    DEFINE
@@ -30,23 +29,16 @@
  **************************************************************************************/
 
 extern NBFileUtils fileUtils;
-extern FlashClass mcu_flash;
 extern const char * UPDATE_FILE_NAME_LZSS;
 
-static uint32_t SKETCH_START = 0;
-static uint32_t LZSS_FILE_SIZE = 0;
-
 int bit_buffer = 0, bit_mask = 128;
-unsigned long codecount = 0, textcount = 0;
+unsigned long textcount = 0;
 unsigned char buffer[N * 2];
 
 static char write_buf[FPUTC_BUF_SIZE];
 static size_t write_buf_num_bytes = 0;
 static size_t bytes_written_fputc = 0;
-static size_t bytes_written_flash = 0;
-static uint32_t flash_addr = 0;
 
-bool fromLZSStoBIN = true;
 bool append = false;
 bool endOfFile = false;
 
@@ -54,34 +46,13 @@ bool endOfFile = false;
    PUBLIC FUNCTIONS
  **************************************************************************************/
 
-void lzss_init(uint32_t const sketch_start, bool LZSStoBIN)
-{
-    fromLZSStoBIN = LZSStoBIN;
-    if (LZSStoBIN) {
-        SKETCH_START = sketch_start;
-        flash_addr = sketch_start;
-        LZSS_FILE_SIZE = fileUtils.listFile("UPDATE.BIN.LZSS");
-    }
-}
-
 void lzss_flush()
 {
   bytes_written_fputc += write_buf_num_bytes;
 
-    if (fromLZSStoBIN) {
-        /* Only write to the flash once we've surpassed
-        * the SBU in the update binary.
-        */
-        if (bytes_written_fputc > (SKETCH_START - 0x2000))
-        {
-            mcu_flash.write((void*)flash_addr, write_buf, write_buf_num_bytes);
-            flash_addr += write_buf_num_bytes;
-        }
-    } else {
-        fileUtils.downloadFile("UPDATE.BIN.LZSS", write_buf, write_buf_num_bytes, append);
-        append = true;
-    }
-  
+  fileUtils.downloadFile(UPDATE_FILE_NAME_LZSS, write_buf, write_buf_num_bytes, append);        //UPDATE.BIN.LZSS
+  append = true;
+
   write_buf_num_bytes = 0;
 }
 
@@ -91,16 +62,15 @@ void lzss_flush()
 
 void lzss_fputc(int const c)
 {
-  /* Buffer the decompressed data into a buffer so
+  /* Buffer the compressed data into a buffer so
    * we can perform block writes and don't need to
-   * write every byte singly on the flash (which 
-   * wouldn't be possible anyway).
+   * write every byte singly on the modem
    */
   write_buf[write_buf_num_bytes] = static_cast<char>(c);
   write_buf_num_bytes++;
 
-  /* The write buffer is full of decompressed
-   * data, write it to the flash now.
+  /* The write buffer is full of compressed
+   * data, write it to the modem now.
    */
   if (write_buf_num_bytes == FPUTC_BUF_SIZE || endOfFile)
     lzss_flush();
@@ -130,9 +100,7 @@ void putbit0(void)
 void flush_bit_buffer(void)
 {
     if (bit_mask != 128) {
-        //if (fputc(bit_buffer, outfile) == EOF) error();
         lzss_fputc(bit_buffer);
-        codecount++;
     }
 }
 

@@ -65,7 +65,7 @@ int main()
       /* Initialize the lzss module with the data which
        * it requires.
        */
-      lzss_init((uint32_t)SKETCH_START, true);
+      lzss_init((uint32_t)SKETCH_START);
       /* During the process of decoding UPDATE.BIN.LZSS
        * is decompressed and stored as UPDATE.BIN.
        */

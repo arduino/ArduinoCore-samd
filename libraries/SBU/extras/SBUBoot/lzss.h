@@ -11,7 +11,7 @@
    FUNCTION DEFINITION
  **************************************************************************************/
 
-void lzss_init(uint32_t const sketch_start, bool LZSStoBIN);
+void lzss_init(uint32_t const sketch_start);
 void lzss_decode();
 void lzss_flush();
 

@@ -1,10 +1,7 @@
 #include <MKRNB.h>
 #include <SBU.h>
-#include <FlashStorage.h>
 
-#include "lzss.h"
-
-FlashClass mcu_flash;
+#include "lzssEncode.h"
 
 static char const BINARY[] =
 {
@@ -17,7 +14,7 @@ static char const CHECK_FILE[] =
 };
 
 static constexpr char CHECK_FILE_NAME[] = "UPDATE.OK";
-constexpr char UPDATE_FILE_NAME[] = "UPDATE.BIN.LZSS";
+const char * UPDATE_FILE_NAME_LZSS = "UPDATE.BIN.LZSS";
 
 NBFileUtils fileUtils;
 bool update_available = false;
@@ -42,13 +39,6 @@ void setup() {
   Serial.println(bytes_to_write);
 
   Serial.print("Encoding \"BINARY.H\" into \"UPDATE.BIN.LZSS\" and writing it into the Sara-R410M module ... ");
-
-  /*
-   * Set the lzss parameter in the following way:
-   * - 0, false          : you want to perform a LZSS encoding (.H -> .LZSS)
-   * - SKETCH_START, true: you want to perform a LZSS decoding (.LZSS -> .H)
-   */
-  lzss_init(0, false);
   
   //Encode into .lzss and write to the Sara modem
   int bytes_written = lzss_encode(BINARY, bytes_to_write);

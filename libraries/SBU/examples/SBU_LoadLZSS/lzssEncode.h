@@ -11,7 +11,6 @@
    FUNCTION DEFINITION
  **************************************************************************************/
 
-void lzss_init(uint32_t const sketch_start, bool LZSStoBIN);
 void lzss_flush();
 int lzss_encode(const char buf_in[], uint32_t size);
 
