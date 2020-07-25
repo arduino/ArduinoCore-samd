@@ -1320,3 +1320,40 @@ adafruit_hallowing_m4.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
 adafruit_hallowing_m4.menu.debug.off=Off
 adafruit_hallowing_m4.menu.debug.on=On
 adafruit_hallowing_m4.menu.debug.on.build.flags.debug=-g
+
+
+# Adafruit BLM Badge (SAMD21)
+# ------------------------------
+adafruit_blm_badge.name=Adafruit BLM Badge
+adafruit_blm_badge.vid.0=0x239A
+adafruit_blm_badge.pid.0=0x0x80BF
+adafruit_blm_badge.vid.1=0x239A
+adafruit_blm_badge.pid.1=0x00BF
+adafruit_blm_badge.upload.tool=bossac
+adafruit_blm_badge.upload.protocol=sam-ba
+adafruit_blm_badge.upload.maximum_size=262144
+adafruit_blm_badge.upload.offset=0x2000
+adafruit_blm_badge.upload.use_1200bps_touch=true
+adafruit_blm_badge.upload.wait_for_upload_port=true
+adafruit_blm_badge.upload.native_usb=true
+adafruit_blm_badge.build.mcu=cortex-m0plus
+adafruit_blm_badge.build.f_cpu=48000000L
+adafruit_blm_badge.build.usb_product="BLM Badge"
+adafruit_blm_badge.build.usb_manufacturer="Adafruit"
+adafruit_blm_badge.build.board=BLM_BADGE_M0
+adafruit_blm_badge.build.core=arduino
+adafruit_blm_badge.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_BLM_BADGE -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
+adafruit_blm_badge.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_blm_badge.build.openocdscript=openocd_scripts/=blm_badge.cfg
+adafruit_blm_badge.build.variant=blm_badge
+adafruit_blm_badge.build.variant_system_lib=
+adafruit_blm_badge.build.vid=0x239A
+adafruit_blm_badge.build.pid=0x80BF
+adafruit_blm_badge.bootloader.tool=openocd
+adafruit_blm_badge.bootloader.file=gemmaM0/bootloader-gemma_m0-v2.0.0-adafruit.5.bin
+adafruit_blm_badge.menu.usbstack.arduino=Arduino
+adafruit_blm_badge.menu.usbstack.tinyusb=TinyUSB
+adafruit_blm_badge.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+adafruit_blm_badge.menu.debug.off=Off
+adafruit_blm_badge.menu.debug.on=On
+adafruit_blm_badge.menu.debug.on.build.flags.debug=-g
