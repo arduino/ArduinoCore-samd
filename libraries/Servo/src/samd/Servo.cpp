@@ -172,8 +172,9 @@ static inline void resetTC (Tc* TCx)
     while (TCx->COUNT16.CTRLA.bit.SWRST);
 }
 
-static void _initISR(Tc *tc, uint8_t channel, __attribute__((unused)) uint32_t id, IRQn_Type irqn, uint8_t gcmForTimer, uint8_t intEnableBit)
+static void _initISR(Tc *tc, uint8_t channel, uint32_t id, IRQn_Type irqn, uint8_t gcmForTimer, uint8_t intEnableBit)
 {
+    (void)id;
     // Select GCLK0 as timer/counter input clock source
 #if defined(__SAMD51__)
     int idx = gcmForTimer;           // see datasheet Table 14-9
