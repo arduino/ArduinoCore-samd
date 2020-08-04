@@ -16,6 +16,10 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+/**************************************************************************************
+   INCLUDE
+ **************************************************************************************/
+
 #include <WiFiNINA.h>
 #include <FlashStorage.h>
 
@@ -30,10 +34,18 @@
 #define NINA_RESETN FPGA_SPIWIFI_RESET
 #endif /* ARDUINO_SAMD_MKRVIDOR4000 */
 
+/**************************************************************************************
+   DEFINE
+ **************************************************************************************/
+
 #define SDU_START    0x2000
 #define SDU_SIZE     0x4000
 
 #define SKETCH_START (uint32_t*)(SDU_START + SDU_SIZE)
+
+/**************************************************************************************
+   CONST
+ **************************************************************************************/
 
 const char * UPDATE_FILE_NAME      = "/fs/UPDATE.BIN";
 const char * UPDATE_FILE_NAME_LZSS = "/fs/UPDATE.BIN.LZSS";
@@ -73,6 +85,10 @@ static const uint32_t crc_table[256] = {
     0xb3667a2e, 0xc4614ab8, 0x5d681b02, 0x2a6f2b94, 0xb40bbe37, 0xc30c8ea1, 0x5a05df1b, 0x2d02ef8d
 };
 
+/**************************************************************************************
+   FUNCTIONS
+ **************************************************************************************/
+
 uint32_t crc_update(uint32_t crc, const void * data, size_t data_len)
 {
   const unsigned char *d = (const unsigned char *)data;
@@ -87,10 +103,18 @@ uint32_t crc_update(uint32_t crc, const void * data, size_t data_len)
   return crc & 0xffffffff;
 }
 
+/**************************************************************************************
+   GLOBAL VARIABLES
+ **************************************************************************************/
+
 FlashClass flash;
 
 // Initialize C library
 extern "C" void __libc_init_array(void);
+
+/**************************************************************************************
+   MAIN
+ **************************************************************************************/
 
 int main() {
   init();
