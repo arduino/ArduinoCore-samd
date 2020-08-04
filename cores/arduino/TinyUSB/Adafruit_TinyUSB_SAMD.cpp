@@ -29,6 +29,27 @@
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
 
 //--------------------------------------------------------------------+
+// Forward USB interrupt events to TinyUSB IRQ Handler
+//--------------------------------------------------------------------+
+extern "C"
+{
+#if defined(__SAMD51__)
+
+void USB_0_Handler (void) { tud_int_handler(0); }
+void USB_1_Handler (void) { tud_int_handler(0); }
+void USB_2_Handler (void) { tud_int_handler(0); }
+void USB_3_Handler (void) { tud_int_handler(0); }
+
+#else
+
+void USB_Handler(void) { tud_int_handler(0); }
+
+#endif
+} // extern C
+
+
+
+//--------------------------------------------------------------------+
 // MACRO TYPEDEF CONSTANT ENUM DECLARATION
 //--------------------------------------------------------------------+
 static void usb_hardware_init(void);
@@ -74,15 +95,6 @@ void Adafruit_TinyUSB_Core_touch1200(void)
 //--------------------------------------------------------------------+
 // Adafruit_USBD_Device platform dependent
 //--------------------------------------------------------------------+
-void Adafruit_USBD_Device::detach(void)
-{
-  USB->DEVICE.CTRLB.reg |= USB_DEVICE_CTRLB_DETACH;
-}
-
-void Adafruit_USBD_Device::attach(void)
-{
-  USB->DEVICE.CTRLB.reg &= ~USB_DEVICE_CTRLB_DETACH;
-}
 
 uint8_t Adafruit_USBD_Device::getSerialDescriptor(uint16_t* serial_str)
 {
@@ -152,6 +164,11 @@ static void usb_hardware_init(void)
 
 
 	GCLK->PCHCTRL[USB_GCLK_ID].reg = GCLK_PCHCTRL_GEN_GCLK1_Val | (1 << GCLK_PCHCTRL_CHEN_Pos);
+
+	NVIC_SetPriority(USB_0_IRQn, 0UL);
+	NVIC_SetPriority(USB_1_IRQn, 0UL);
+	NVIC_SetPriority(USB_2_IRQn, 0UL);
+	NVIC_SetPriority(USB_3_IRQn, 0UL);
 #else
 	PM->APBBMASK.reg |= PM_APBBMASK_USB;
 
@@ -169,6 +186,8 @@ static void usb_hardware_init(void)
 	GCLK_CLKCTRL_CLKEN;
 	while (GCLK->STATUS.bit.SYNCBUSY)
 	;
+
+	NVIC_SetPriority((IRQn_Type) USB_IRQn, 0UL);
 #endif
 }
 

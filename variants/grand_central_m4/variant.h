@@ -57,7 +57,7 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (94)
+#define PINS_COUNT           (96)
 #define NUM_DIGITAL_PINS     (53)
 #define NUM_ANALOG_INPUTS    (19)
 #define NUM_ANALOG_OUTPUTS   (2)
@@ -257,6 +257,10 @@ static const uint8_t SCL1 = PIN_WIRE1_SCL;
 #define PIN_I2S_SCK         PIN_SERIAL4_TX
 #define PIN_I2S_FS          (33)
 #define PIN_I2S_MCK			    PIN_SERIAL4_RX
+
+// On-board QSPI Flash
+#define EXTERNAL_FLASH_DEVICES   GD25Q16C
+#define EXTERNAL_FLASH_USE_QSPI
 
 //QSPI Pins
 #define PIN_QSPI_SCK	      (89)

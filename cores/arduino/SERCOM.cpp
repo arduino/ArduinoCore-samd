@@ -537,8 +537,18 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
-  // Wait idle or owner bus mode
-   while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
+  // If another master owns the bus or the last bus owner has not properly
+  // sent a stop, return failure early. This will prevent some misbehaved
+  // devices from deadlocking here at the cost of the caller being responsible
+  // for retrying the failed transmission. See SercomWireBusState for the
+  // possible bus states.
+  if(!isBusOwnerWIRE())
+  {
+    if( isBusBusyWIRE() || (isArbLostWIRE() && !isBusIdleWIRE()) || isBusUnknownWIRE() )
+    {
+      return false;
+    }
+  }
 
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
@@ -632,6 +642,21 @@ bool SERCOM::isBusIdleWIRE( void )
 bool SERCOM::isBusOwnerWIRE( void )
 {
   return sercom->I2CM.STATUS.bit.BUSSTATE == WIRE_OWNER_STATE;
+}
+
+bool SERCOM::isBusUnknownWIRE( void )
+{
+  return sercom->I2CM.STATUS.bit.BUSSTATE == WIRE_UNKNOWN_STATE;
+}
+
+bool SERCOM::isArbLostWIRE( void )
+{
+  return sercom->I2CM.STATUS.bit.ARBLOST == 1;
+}
+
+bool SERCOM::isBusBusyWIRE( void )
+{
+  return sercom->I2CM.STATUS.bit.BUSSTATE == WIRE_BUSY_STATE;
 }
 
 bool SERCOM::isDataReadyWIRE( void )

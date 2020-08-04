@@ -32,7 +32,7 @@ static int _writeResolution = 12;
 static int _dacResolution = 12;
 #else
 static int _writeResolution = 8;
-static int _dacResolution = 10;
+//static int _dacResolution = 10;
 #endif
 
 
