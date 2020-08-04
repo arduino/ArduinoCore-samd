@@ -19,6 +19,8 @@ e-mail   :  support@circuitsathome.com
 #error "Never include confdescparser.h directly; include Usb.h instead"
 #else
 
+
+
 #pragma GCC diagnostic push // Available since GCC 4.6.4
 /*
  * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
@@ -70,15 +72,15 @@ class ConfigDescParser : public USBReadParser {
 	uint32_t				ifaceNumber;		// Interface number
 	uint32_t				ifaceAltSet;		// Interface alternate settings
 
-        bool UseOr;
+	bool UseOr;
 	bool ParseDescriptor(uint8_t **pp, uint32_t *pcntdn);
 	void PrintHidDescriptor(const USB_HID_DESCRIPTOR *pDesc);
 
 public:
 
-        void SetOR(void) {
-                UseOr = true;
-        }
+	void SetOR(void) {
+			UseOr = true;
+	}
 	ConfigDescParser(UsbConfigXtracter *xtractor);
 	virtual void Parse(const uint32_t len, const uint8_t *pbuf, const uint32_t &offset);
 };
@@ -109,8 +111,8 @@ void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::Parse(const uin
   compare masks for them. When the match is found, calls EndpointXtract passing buffer containing endpoint descriptor */
 template <const uint8_t CLASS_ID, const uint8_t SUBCLASS_ID, const uint8_t PROTOCOL_ID, const uint8_t MASK>
 bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor(uint8_t **pp, uint32_t *pcntdn) {
-        USB_CONFIGURATION_DESCRIPTOR* ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR*>(varBuffer);
-        USB_INTERFACE_DESCRIPTOR* uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR*>(varBuffer);
+	USB_CONFIGURATION_DESCRIPTOR* ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR*>(varBuffer);
+	USB_INTERFACE_DESCRIPTOR* uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR*>(varBuffer);
 	switch(stateParseDescr) {
 		case 0:
 			theBuffer.valueSize = 2;
@@ -123,7 +125,7 @@ bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor
 			dscrType		= *((uint8_t*)theBuffer.pValue + 1);
 			stateParseDescr	= 2;
 		case 2:
-                        // This is a sort of hack. Assuming that two bytes are all ready in the buffer
+			// This is a sort of hack. Assuming that two bytes are all ready in the buffer
 			//	the pointer is positioned two bytes ahead in order for the rest of descriptor
 			//	to be read right after the size and the type fields.
 			// This should be used carefully. varBuffer should be used directly to handle data
@@ -131,14 +133,14 @@ bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor
 			theBuffer.pValue	= varBuffer + 2;
 			stateParseDescr		= 3;
 		case 3:
-                        switch(dscrType) {
-                                case USB_DESCRIPTOR_INTERFACE:
-                                        isGoodInterface = false;
-                                case USB_DESCRIPTOR_CONFIGURATION:
-                                        theBuffer.valueSize = sizeof (USB_CONFIGURATION_DESCRIPTOR) - 2;
-                                        break;
-                                case USB_DESCRIPTOR_ENDPOINT:
-                                        theBuffer.valueSize = sizeof (USB_ENDPOINT_DESCRIPTOR) - 2;
+			switch(dscrType) {
+				case USB_DESCRIPTOR_INTERFACE:
+					isGoodInterface = false;
+				case USB_DESCRIPTOR_CONFIGURATION:
+					theBuffer.valueSize = sizeof (USB_CONFIGURATION_DESCRIPTOR) - 2;
+					break;
+				case USB_DESCRIPTOR_ENDPOINT:
+					theBuffer.valueSize = sizeof (USB_ENDPOINT_DESCRIPTOR) - 2;
 					break;
 				case HID_DESCRIPTOR_HID:
 					theBuffer.valueSize = dscrLen - 2;
@@ -147,37 +149,37 @@ bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor
 			valParser.Initialize(&theBuffer);
 			stateParseDescr		= 4;
 		case 4:
-                        switch(dscrType) {
+			switch(dscrType) {
 				case USB_DESCRIPTOR_CONFIGURATION:
-                                        if(!valParser.Parse(pp, pcntdn))
-                                                return false;
-                                        confValue = ucd->bConfigurationValue;
+					if(!valParser.Parse(pp, pcntdn))
+							return false;
+					confValue = ucd->bConfigurationValue;
 					break;
 				case USB_DESCRIPTOR_INTERFACE:
-                                        if(!valParser.Parse(pp, pcntdn))
-                                                return false;
-                                        if((MASK & CP_MASK_COMPARE_CLASS) && uid->bInterfaceClass != CLASS_ID)
-                                                break;
-                                        if((MASK & CP_MASK_COMPARE_SUBCLASS) && uid->bInterfaceSubClass != SUBCLASS_ID)
-                                                break;
-                                        if(UseOr) {
-                                                if((!((MASK & CP_MASK_COMPARE_PROTOCOL) && uid->bInterfaceProtocol)))
-                                                        break;
-                                        } else {
-                                                if((MASK & CP_MASK_COMPARE_PROTOCOL) && uid->bInterfaceProtocol != PROTOCOL_ID)
-                                                        break;
-                                        }
-                                        isGoodInterface = true;
-                                        ifaceNumber = uid->bInterfaceNumber;
-                                        ifaceAltSet = uid->bAlternateSetting;
-                                        protoValue = uid->bInterfaceProtocol;
-                                        break;
-                                case USB_DESCRIPTOR_ENDPOINT:
-                                        if(!valParser.Parse(pp, pcntdn))
-                                                return false;
-                                        if(isGoodInterface)
-                                                if(theXtractor)
-							theXtractor->EndpointXtract(confValue, ifaceNumber, ifaceAltSet, protoValue, (USB_ENDPOINT_DESCRIPTOR*)varBuffer);
+					if(!valParser.Parse(pp, pcntdn))
+							return false;
+					if((MASK & CP_MASK_COMPARE_CLASS) && uid->bInterfaceClass != CLASS_ID)
+							break;
+					if((MASK & CP_MASK_COMPARE_SUBCLASS) && uid->bInterfaceSubClass != SUBCLASS_ID)
+							break;
+					if(UseOr) {
+							if((!((MASK & CP_MASK_COMPARE_PROTOCOL) && uid->bInterfaceProtocol)))
+									break;
+					} else {
+							if((MASK & CP_MASK_COMPARE_PROTOCOL) && uid->bInterfaceProtocol != PROTOCOL_ID)
+									break;
+					}
+					isGoodInterface = true;
+					ifaceNumber = uid->bInterfaceNumber;
+					ifaceAltSet = uid->bAlternateSetting;
+					protoValue = uid->bInterfaceProtocol;
+					break;
+				case USB_DESCRIPTOR_ENDPOINT:
+						if(!valParser.Parse(pp, pcntdn))
+								return false;
+						if(isGoodInterface)
+								if(theXtractor)
+									theXtractor->EndpointXtract(confValue, ifaceNumber, ifaceAltSet, protoValue, (USB_ENDPOINT_DESCRIPTOR*)varBuffer);
 					break;
 				//case HID_DESCRIPTOR_HID:
 				//	if (!valParser.Parse(pp, pcntdn))
@@ -196,38 +198,38 @@ bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor
 
 template <const uint8_t CLASS_ID, const uint8_t SUBCLASS_ID, const uint8_t PROTOCOL_ID, const uint8_t MASK>
 void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::PrintHidDescriptor(const USB_HID_DESCRIPTOR *pDesc) {
-        Notify(PSTR("\r\n\r\nHID Descriptor:\r\n"), 0x80);
-        Notify(PSTR("bDescLength:\t\t"), 0x80);
-        PrintHex<uint8_t > (pDesc->bLength, 0x80);
+	Notify(PSTR("\r\n\r\nHID Descriptor:\r\n"), 0x80);
+	Notify(PSTR("bDescLength:\t\t"), 0x80);
+	PrintHex<uint8_t > (pDesc->bLength, 0x80);
 
-        Notify(PSTR("\r\nbDescriptorType:\t"), 0x80);
-        PrintHex<uint8_t > (pDesc->bDescriptorType, 0x80);
+	Notify(PSTR("\r\nbDescriptorType:\t"), 0x80);
+	PrintHex<uint8_t > (pDesc->bDescriptorType, 0x80);
 
-        Notify(PSTR("\r\nbcdHID:\t\t\t"), 0x80);
-        PrintHex<uint16_t > (pDesc->bcdHID, 0x80);
+	Notify(PSTR("\r\nbcdHID:\t\t\t"), 0x80);
+	PrintHex<uint16_t > (pDesc->bcdHID, 0x80);
 
-        Notify(PSTR("\r\nbCountryCode:\t\t"), 0x80);
-        PrintHex<uint8_t > (pDesc->bCountryCode, 0x80);
+	Notify(PSTR("\r\nbCountryCode:\t\t"), 0x80);
+	PrintHex<uint8_t > (pDesc->bCountryCode, 0x80);
 
-        Notify(PSTR("\r\nbNumDescriptors:\t"), 0x80);
-        PrintHex<uint8_t > (pDesc->bNumDescriptors, 0x80);
+	Notify(PSTR("\r\nbNumDescriptors:\t"), 0x80);
+	PrintHex<uint8_t > (pDesc->bNumDescriptors, 0x80);
 
-        //Notify(PSTR("\r\nbDescrType:\t\t"));
-        //PrintHex<uint8_t>(pDesc->bDescrType);
-        //
-        //Notify(PSTR("\r\nwDescriptorLength:\t"));
-        //PrintHex<uint16_t>(pDesc->wDescriptorLength);
+	//Notify(PSTR("\r\nbDescrType:\t\t"));
+	//PrintHex<uint8_t>(pDesc->bDescrType);
+	//
+	//Notify(PSTR("\r\nwDescriptorLength:\t"));
+	//PrintHex<uint16_t>(pDesc->wDescriptorLength);
 
 	for (uint32_t i = 0; i < pDesc->bNumDescriptors; i++) {
 		HID_CLASS_DESCRIPTOR_LEN_AND_TYPE	*pLT = (HID_CLASS_DESCRIPTOR_LEN_AND_TYPE*)&(pDesc->bDescrType);
 
-                Notify(PSTR("\r\nbDescrType:\t\t"), 0x80);
-                PrintHex<uint8_t > (pLT[i].bDescrType, 0x80);
+		Notify(PSTR("\r\nbDescrType:\t\t"), 0x80);
+		PrintHex<uint8_t > (pLT[i].bDescrType, 0x80);
 
-                Notify(PSTR("\r\nwDescriptorLength:\t"), 0x80);
-                PrintHex<uint16_t > (pLT[i].wDescriptorLength, 0x80);
-        }
-        Notify(PSTR("\r\n"), 0x80);
+		Notify(PSTR("\r\nwDescriptorLength:\t"), 0x80);
+		PrintHex<uint16_t > (pLT[i].wDescriptorLength, 0x80);
+	}
+	Notify(PSTR("\r\n"), 0x80);
 }
 
 

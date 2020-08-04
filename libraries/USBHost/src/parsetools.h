@@ -48,12 +48,12 @@ class MultiByteValueParser {
 
 public:
 
-        MultiByteValueParser() : pBuf(NULL), countDown(0), valueSize(0) {
-        };
+	MultiByteValueParser() : pBuf(NULL), countDown(0), valueSize(0) {
+	};
 
-        const uint8_t* GetBuffer() {
-                return pBuf;
-        };
+	const uint8_t* GetBuffer() {
+		return pBuf;
+	};
 
 	void Initialize(MultiValueBuffer * const pbuf) {
 		pBuf = (uint8_t*)pbuf->pValue;
@@ -71,7 +71,7 @@ class ByteSkipper {
 public:
 
 	ByteSkipper() : pBuf(NULL), nStage(0), countDown(0) {
-        };
+	};
 
 	void Initialize(MultiValueBuffer *pbuf) {
 		pBuf = (uint8_t*)pbuf->pValue;
@@ -79,15 +79,14 @@ public:
 	};
 
 	bool Skip(uint8_t **pp, uint32_t *pcntdn, uint32_t bytes_to_skip) {
-                switch(nStage) {
-                       case 0:
-                                countDown = bytes_to_skip;
-                                nStage++;
-                        case 1:
-                                for(; countDown && (*pcntdn); countDown--, (*pp)++, (*pcntdn)--);
-
-                                if(!countDown)
-                                        nStage = 0;
+		switch(nStage) {
+			case 0:
+				countDown = bytes_to_skip;
+				nStage++;
+			case 1:
+				for(; countDown && (*pcntdn); countDown--, (*pp)++, (*pcntdn)--);
+				if(!countDown)
+					nStage = 0;
 		};
 		return (!countDown);
 	};
@@ -99,9 +98,9 @@ typedef void (*PTP_ARRAY_EL_FUNC)(const MultiValueBuffer * const p, uint32_t cou
 class PTPListParser {
 public:
 
-        enum ParseMode {
-                modeArray, modeRange/*, modeEnum*/
-        };
+	enum ParseMode {
+			modeArray, modeRange/*, modeEnum*/
+	};
 
 private:
 	uint32_t				nStage;
