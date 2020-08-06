@@ -248,7 +248,7 @@ class SERCOM
 		uint32_t getFreqRef(void) { return freqRef; };
 #else
 		// The equivalent SAMD21 dummy functions...
-		void setClockSource(__attribute__((unused)) int8_t idx, __attribute__((unused)) SercomClockSource src, __attribute__((unused)) bool core) { };
+		void setClockSource(int8_t idx, SercomClockSource src, bool core) { (void)idx; (void)src; (void)core };
 		SercomClockSource getClockSource(void) { return SERCOM_CLOCK_SOURCE_FCPU; };
 		uint32_t getFreqRef(void) { return F_CPU; };
 #endif

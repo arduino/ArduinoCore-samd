@@ -159,8 +159,9 @@ byte getdevdescr( byte addr, byte &num_conf )
   return( 0 );
 }
 
-void printhubdescr(uint8_t *descrptr, __attribute__((unused)) uint8_t addr)
+void printhubdescr(uint8_t *descrptr, uint8_t addr)
 {
+    (void)addr;
     HubDescriptor  *pHub = (HubDescriptor*) descrptr;
     uint8_t        len = *((uint8_t*)descrptr);
 
