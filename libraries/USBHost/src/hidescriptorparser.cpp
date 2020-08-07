@@ -1087,6 +1087,11 @@ void ReportDescParserBase::PrintItemTitle(uint8_t prefix) {
         } // switch (**pp & (TYPE_MASK | TAG_MASK))
 }
 
+uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
+        //uint8_t	ret = enErrorSuccess;
+        //reinterpret_cast<>(varBuffer);
+
+
 #pragma GCC diagnostic push // Available since GCC 4.6.4
 /*
  * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
@@ -1096,9 +1101,6 @@ void ReportDescParserBase::PrintItemTitle(uint8_t prefix) {
  * are highly recommended....
  */
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
-        //uint8_t	ret = enErrorSuccess;
-        //reinterpret_cast<>(varBuffer);
         switch(itemParseState) {
                 case 0:
                         if(**pp == HID_LONG_ITEM_PREFIX)
@@ -1215,10 +1217,10 @@ uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
                         } // switch (**pp & (TYPE_MASK | TAG_MASK))
                 }
         } // switch (itemParseState)
+#pragma GCC diagnostic pop
         itemParseState = 0;
         return enErrorSuccess;
 }
-#pragma GCC diagnostic pop
 
 ReportDescParserBase::UsagePageFunc ReportDescParserBase::usagePageFunctions[] /*PROGMEM*/ = {
         &ReportDescParserBase::PrintGenericDesktopPageUsage,
@@ -1446,6 +1448,9 @@ void ReportDescParserBase::PrintMedicalInstrumentPageUsage(uint16_t usage) {
         else E_Notify(pstrUsagePageUndefined, 0x80);
 }
 
+uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
+        //uint8_t	ret = enErrorSuccess;
+
 #pragma GCC diagnostic push // Available since GCC 4.6.4
 /*
  * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
@@ -1455,9 +1460,6 @@ void ReportDescParserBase::PrintMedicalInstrumentPageUsage(uint16_t usage) {
  * are highly recommended....
  */
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
-        //uint8_t	ret = enErrorSuccess;
-
         switch(itemParseState) {
                 case 0:
                         if(**pp == HID_LONG_ITEM_PREFIX)
@@ -1537,10 +1539,11 @@ uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
                         } // switch (**pp & (TYPE_MASK | TAG_MASK))
                 }
         } // switch (itemParseState)
+#pragma GCC diagnostic pop
+
         itemParseState = 0;
         return enErrorSuccess;
 }
-#pragma GCC diagnostic pop
 
 void ReportDescParser2::OnInputItem(uint8_t itm) {
         uint8_t byte_offset = (totalSize >> 3); // calculate offset to the next unhandled byte i = (int)(totalCount / 8);

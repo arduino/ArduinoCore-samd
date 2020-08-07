@@ -19,19 +19,6 @@ e-mail   :  support@circuitsathome.com
 #error "Never include confdescparser.h directly; include Usb.h instead"
 #else
 
-
-
-#pragma GCC diagnostic push // Available since GCC 4.6.4
-/*
- * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
- * This code has multiple switch statements that "fall through" to the
- * next case -- but it's not always clear if this is intentional or not.
- * Review and commenting of code, and reducing cyclomatic complexity
- * are highly recommended....
- */
-#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-
-
 #define __CONFDESCPARSER_H__
 
 #include <stdint.h>
@@ -113,6 +100,17 @@ template <const uint8_t CLASS_ID, const uint8_t SUBCLASS_ID, const uint8_t PROTO
 bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor(uint8_t **pp, uint32_t *pcntdn) {
 	USB_CONFIGURATION_DESCRIPTOR* ucd = reinterpret_cast<USB_CONFIGURATION_DESCRIPTOR*>(varBuffer);
 	USB_INTERFACE_DESCRIPTOR* uid = reinterpret_cast<USB_INTERFACE_DESCRIPTOR*>(varBuffer);
+
+
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
 	switch(stateParseDescr) {
 		case 0:
 			theBuffer.valueSize = 2;
@@ -193,6 +191,8 @@ bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor
 			theBuffer.pValue = varBuffer;
 			stateParseDescr = 0;
 	}
+#pragma GCC diagnostic pop
+
 	return true;
 }
 
@@ -233,6 +233,5 @@ void ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::PrintHidDescrip
 }
 
 
-#pragma GCC diagnostic pop
 
 #endif // __CONFDESCPARSER_H__

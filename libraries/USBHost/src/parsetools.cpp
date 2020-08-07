@@ -31,6 +31,8 @@ bool MultiByteValueParser::Parse(uint8_t **pp, uint32_t *pcntdn) {
 	return true;
 }
 
+bool PTPListParser::Parse(uint8_t **pp, uint32_t *pcntdn, PTP_ARRAY_EL_FUNC pf, const void *me) {
+
 #pragma GCC diagnostic push // Available since GCC 4.6.4
 /*
  * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
@@ -40,7 +42,7 @@ bool MultiByteValueParser::Parse(uint8_t **pp, uint32_t *pcntdn) {
  * are highly recommended....
  */
 #pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
-bool PTPListParser::Parse(uint8_t **pp, uint32_t *pcntdn, PTP_ARRAY_EL_FUNC pf, const void *me) {
+
 	switch(nStage) {
 		case 0:
 			pBuf->valueSize = lenSize;
@@ -71,6 +73,7 @@ bool PTPListParser::Parse(uint8_t **pp, uint32_t *pcntdn, PTP_ARRAY_EL_FUNC pf, 
 		}
 		nStage = 0;
 	}
+#pragma GCC diagnostic pop
+
 	return true;
 }
-#pragma GCC diagnostic pop
