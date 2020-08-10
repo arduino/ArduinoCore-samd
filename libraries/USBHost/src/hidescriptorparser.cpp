@@ -994,7 +994,6 @@ void ReportDescParserBase::Parse(const uint32_t len, const uint8_t *pbuf, const 
         uint32_t cntdn = (uint32_t)len;
         uint8_t *p = (uint8_t*)pbuf;
 
-
         totalSize = 0;
 
         while(cntdn) {
@@ -1091,6 +1090,17 @@ void ReportDescParserBase::PrintItemTitle(uint8_t prefix) {
 uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
         //uint8_t	ret = enErrorSuccess;
         //reinterpret_cast<>(varBuffer);
+
+
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * FIXME -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
         switch(itemParseState) {
                 case 0:
                         if(**pp == HID_LONG_ITEM_PREFIX)
@@ -1207,6 +1217,7 @@ uint8_t ReportDescParserBase::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
                         } // switch (**pp & (TYPE_MASK | TAG_MASK))
                 }
         } // switch (itemParseState)
+#pragma GCC diagnostic pop
         itemParseState = 0;
         return enErrorSuccess;
 }
@@ -1236,18 +1247,18 @@ void ReportDescParserBase::SetUsagePage(uint16_t page) {
         if(VALUE_BETWEEN(page, 0x00, 0x11))
                 pfUsage = (usagePageFunctions[page - 1]);
 
-                // Dead code...
-                //
-                //      pfUsage = (UsagePageFunc)pgm_read_pointer(usagePageFunctions[page - 1]);
-                //else if (page > 0x7f && page < 0x84)
-                //      E_Notify(pstrUsagePageMonitor);
-                //else if (page > 0x83 && page < 0x8c)
-                //	E_Notify(pstrUsagePagePower);
-                //else if (page > 0x8b && page < 0x92)
-                //	E_Notify((char*)pgm_read_pointer(&usagePageTitles1[page - 0x8c]));
-                //else if (page > 0xfeff && page <= 0xffff)
-                //	E_Notify(pstrUsagePageVendorDefined);
-                //
+        // Dead code...
+        //
+        //      pfUsage = (UsagePageFunc)pgm_read_pointer(usagePageFunctions[page - 1]);
+        //else if (page > 0x7f && page < 0x84)
+        //      E_Notify(pstrUsagePageMonitor);
+        //else if (page > 0x83 && page < 0x8c)
+        //	E_Notify(pstrUsagePagePower);
+        //else if (page > 0x8b && page < 0x92)
+        //	E_Notify((char*)pgm_read_pointer(&usagePageTitles1[page - 0x8c]));
+        //else if (page > 0xfeff && page <= 0xffff)
+        //	E_Notify(pstrUsagePageVendorDefined);
+        //
         else
                 switch(page) {
                         case 0x14:
@@ -1440,6 +1451,15 @@ void ReportDescParserBase::PrintMedicalInstrumentPageUsage(uint16_t usage) {
 uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
         //uint8_t	ret = enErrorSuccess;
 
+#pragma GCC diagnostic push // Available since GCC 4.6.4
+/*
+ * FIXME -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * This code has multiple switch statements that "fall through" to the
+ * next case -- but it's not always clear if this is intentional or not.
+ * Review and commenting of code, and reducing cyclomatic complexity
+ * are highly recommended....
+ */
+#pragma GCC diagnostic ignored "-Wimplicit-fallthrough"
         switch(itemParseState) {
                 case 0:
                         if(**pp == HID_LONG_ITEM_PREFIX)
@@ -1519,6 +1539,8 @@ uint8_t ReportDescParser2::ParseItem(uint8_t **pp, uint32_t *pcntdn) {
                         } // switch (**pp & (TYPE_MASK | TAG_MASK))
                 }
         } // switch (itemParseState)
+#pragma GCC diagnostic pop
+
         itemParseState = 0;
         return enErrorSuccess;
 }
@@ -1558,8 +1580,7 @@ void ReportDescParser2::OnInputItem(uint8_t itm) {
                 // bits_to_copy		- number of bits to copy to result buffer
 
                 // for each bit in a field
-                for(uint8_t bits_left = rptSize, bits_to_copy = 0; bits_left;
-                        bits_left -= bits_to_copy) {
+                for(uint8_t bits_left = rptSize, bits_to_copy = 0; bits_left; bits_left -= bits_to_copy) {
                         bits_to_copy = (bits_left > bits_of_byte) ? bits_of_byte : bits_left;
 
                         result.dwResult <<= bits_to_copy; // Result buffer is shifted by the number of bits to be copied into it

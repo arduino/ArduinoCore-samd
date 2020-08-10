@@ -3,27 +3,42 @@ import glob
 import sys
 import subprocess
 import time
+import argparse
 
-all_warnings = False
+FQBN_PREFIX='adafruit:samd:adafruit_'
+
+
+parser = argparse.ArgumentParser(
+    description='python wrapper for adafruit arduino CI workflows',
+    allow_abbrev=False
+    )
+parser.add_argument(
+    '--all_warnings', '--Wall',
+    action='store_true',
+    help='build with all warnings enabled (`--warnings all`)',
+    )
+parser.add_argument(
+    '--warnings_do_not_cause_job_failure',
+    action='store_true',
+    help='failed builds will be listed as failed, but not cause job to exit with an error status',
+    )
+parser.add_argument(
+    'build_boards',
+    metavar='board',
+    nargs='*',
+    help='list of boards to be built -- Note that the fqbn is created by prepending "{}"'.format(FQBN_PREFIX),
+    default= [ 'metro_m0', 'metro_m4', 'circuitplayground_m0' ]
+    )
+args = parser.parse_args()
+
 exit_status = 0
 success_count = 0
 fail_count = 0
 skip_count = 0
-
 build_format = '| {:22} | {:30} | {:9} '
 build_separator = '-' * 80
 
-default_boards = [ 'metro_m0', 'metro_m4', 'circuitplayground_m0']
-
-build_boards = []
-
-# build all variants if input not existed
-if len(sys.argv) > 1:
-    build_boards.append(sys.argv[1])
-else:
-    build_boards = default_boards
-
-def errorOutputFilter(line):
+def errorOutputFilter(line: str):
     if len(line) == 0:
         return False
     if line.isspace(): # Note: empty string does not match here!
@@ -31,9 +46,8 @@ def errorOutputFilter(line):
     # TODO: additional items to remove?
     return True
 
-
-def build_examples(variant):
-    global exit_status, success_count, fail_count, skip_count, build_format, build_separator
+def build_examples(variant: str):
+    global args, exit_status, success_count, fail_count, skip_count, build_format, build_separator
 
     print('\n')
     print(build_separator)
@@ -42,7 +56,7 @@ def build_examples(variant):
     print((build_format + '| {:6} |').format('Library', 'Example', 'Result', 'Time'))
     print(build_separator)
     
-    fqbn = "adafruit:samd:adafruit_{}".format(variant)
+    fqbn = "{}{}".format(FQBN_PREFIX, variant)
 
     for sketch in glob.iglob('libraries/**/*.ino', recursive=True):
         start_time = time.monotonic()
@@ -58,14 +72,14 @@ def build_examples(variant):
             # TODO - preferably, would have STDERR show up in **both** STDOUT and STDERR.
             #        preferably, would use Python logging handler to get both distinct outputs and one merged output
             #        for now, split STDERR when building with all warnings enabled, so can detect warning/error output.
-            if all_warnings:
+            if args.all_warnings:
                 build_result = subprocess.run("arduino-cli compile --warnings all --fqbn {} {}".format(fqbn, sketch), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
             else:
                 build_result = subprocess.run("arduino-cli compile --warnings default --fqbn {} {}".format(fqbn, sketch), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
 
             # get stderr into a form where len(warningLines) indicates a true warning was output to stderr
             warningLines = [];
-            if all_warnings and build_result.stderr:
+            if args.all_warnings and build_result.stderr:
                 tmpWarningLines = build_result.stderr.decode("utf-8").splitlines()
                 warningLines = list(filter(errorOutputFilter, (tmpWarningLines)))
 
@@ -74,7 +88,8 @@ def build_examples(variant):
                 success = "\033[31mfailed\033[0m   "
                 fail_count += 1
             elif len(warningLines) != 0:
-                exit_status = -1
+                if not args.warnings_do_not_cause_job_failure:
+                    exit_status = -1
                 success = "\033[31mwarnings\033[0m "
                 fail_count += 1
             else:
@@ -98,7 +113,7 @@ def build_examples(variant):
 
 build_time = time.monotonic()
 
-for board in build_boards:
+for board in args.build_boards:
     build_examples(board)
 
 print(build_separator)
