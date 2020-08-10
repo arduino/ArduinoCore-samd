@@ -104,7 +104,7 @@ bool ConfigDescParser<CLASS_ID, SUBCLASS_ID, PROTOCOL_ID, MASK>::ParseDescriptor
 
 #pragma GCC diagnostic push // Available since GCC 4.6.4
 /*
- * BUGBUG -- Enabled and review all `-Wimplicit-fallthrough` messages
+ * FIXME -- Enabled and review all `-Wimplicit-fallthrough` messages
  * This code has multiple switch statements that "fall through" to the
  * next case -- but it's not always clear if this is intentional or not.
  * Review and commenting of code, and reducing cyclomatic complexity

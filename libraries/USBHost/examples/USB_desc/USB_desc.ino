@@ -210,11 +210,11 @@ byte getconfdescr( byte addr, byte conf )
 {
   uint8_t buf[ BUFSIZE ];
   uint8_t* buf_ptr = buf;
-  byte rcode; // BUGBUG -- code does not actually check return code (no error handling!)
+  byte rcode; // FIXME -- code does not actually check return code (no error handling!)
   byte descr_length;
   byte descr_type;
   uint16_t total_length;
-  // BUGBUG -- no check of return code from usb.getConfDescr()
+  // FIXME -- no check of return code from usb.getConfDescr()
   rcode = usb.getConfDescr( addr, 0, 4, conf, buf );  //get total length
   LOBYTE( total_length ) = buf[ 2 ];
   HIBYTE( total_length ) = buf[ 3 ];
@@ -222,7 +222,7 @@ byte getconfdescr( byte addr, byte conf )
     printProgStr(Conf_Trunc_str);
     total_length = sizeof(buf);
   }
-  // BUGBUG -- no check of return code from usb.getConfDescr()
+  // FIXME -- no check of return code from usb.getConfDescr()
   rcode = usb.getConfDescr( addr, 0, total_length, conf, buf ); //get the whole descriptor
   while( buf_ptr < buf + total_length ) {  //parsing descriptors
     descr_length = *( buf_ptr );
