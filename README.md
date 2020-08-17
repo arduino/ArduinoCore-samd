@@ -27,7 +27,7 @@ to avoid duplicates.
 
 ## Contributions
 
-Contributions are always welcome. The preferred way to receive code cotribution is by submitting a 
+Contributions are always welcome. The preferred way to receive code contribution is by submitting a 
 Pull Request on github.
 
 ## Hourly builds
