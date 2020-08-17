@@ -138,7 +138,14 @@ int main() {
   digitalWrite(NINA_RESETN, HIGH);
 #endif
 
+  String nina_fw_version;
+
   if (WiFi.status() == WL_NO_SHIELD) {
+    goto boot;
+  }
+
+  nina_fw_version = WiFi.firmwareVersion();
+  if (nina_fw_version < "1.4.1") {
     goto boot;
   }
 
