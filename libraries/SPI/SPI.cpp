@@ -321,7 +321,7 @@ void SPIClass::transfer(const void* txbuf, void* rxbuf, size_t count,
             bool blockThisPass;
             if(count > 65535) { // Too big for 1 descriptor
                 blockThisPass = true;
-                bytesThisPass = count % 65535; // Fractional part
+                bytesThisPass = count & 65535; // Fractional part
                 if(!bytesThisPass) bytesThisPass = 65535;
             } else {
                 blockThisPass = block;
