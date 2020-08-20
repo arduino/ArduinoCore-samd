@@ -131,7 +131,8 @@ static const uint8_t ATN = PIN_ATN;
 #define NINA_GPIO0      ESP32_GPIO0
 #define NINA_RESETN     ESP32_RESETN
 #define NINA_ACK        SPIWIFI_ACK
-
+#define NINA_CTS        SPIWIFI_ACK
+#define NINA_RTS        NINA_GPIO0
 
 /*
  * Serial interfaces
@@ -204,6 +205,10 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_I2S_SCK         (3u)
 #define PIN_I2S_FS          (9u)
 #define PIN_I2S_MCK	    (2u)
+
+// On-board QSPI Flash
+#define EXTERNAL_FLASH_DEVICES   GD25Q16C
+#define EXTERNAL_FLASH_USE_QSPI
 
 //QSPI Pins
 #define PIN_QSPI_SCK	(41u)

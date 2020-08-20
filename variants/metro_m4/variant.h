@@ -188,6 +188,10 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define PIN_I2S_FS          (9u)
 #define PIN_I2S_MCK			(2u)
 
+// On-board QSPI Flash
+#define EXTERNAL_FLASH_DEVICES   GD25Q16C
+#define EXTERNAL_FLASH_USE_QSPI
+
 //QSPI Pins
 #define PIN_QSPI_SCK	(41u)
 #define PIN_QSPI_CS	(42u)

@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Adafruit SAMD (32-bits ARM Cortex-M0+ and Cortex-M4) Boards
-version=1.5.7
+version=1.6.1
 
 # Compile variables
 # -----------------
@@ -31,7 +31,7 @@ compiler.warning_flags.default=
 compiler.warning_flags.more=-Wall -Wno-expansion-to-defined
 compiler.warning_flags.all=-Wall -Wextra -Wno-expansion-to-defined
 
-compiler.path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
+compiler.path={runtime.tools.arm-none-eabi-gcc.path}/bin/
 compiler.c.cmd=arm-none-eabi-gcc
 compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g -Os {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500 -MMD -D__SKETCH_NAME__="""{build.project_name}"""
 compiler.c.elf.cmd=arm-none-eabi-g++
@@ -70,8 +70,8 @@ compiler.S.extra_flags=
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
 
-compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Include/" "-I{runtime.tools.CMSIS-Atmel-1.2.0.path}/CMSIS/Device/ATMEL/"
-compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-4.5.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
+compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Core/Include/" "-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/DSP/Include/" "-I{runtime.tools.CMSIS-Atmel-1.2.0.path}/CMSIS/Device/ATMEL/"
+compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 compiler.libraries.ldflags=
 

@@ -225,6 +225,9 @@ class SERCOM
 		bool isSlaveWIRE( void ) ;
 		bool isBusIdleWIRE( void ) ;
 		bool isBusOwnerWIRE( void ) ;
+		bool isBusUnknownWIRE( void ) ;
+		bool isArbLostWIRE( void );
+		bool isBusBusyWIRE( void );
 		bool isDataReadyWIRE( void ) ;
 		bool isStopDetectedWIRE( void ) ;
 		bool isRestartDetectedWIRE( void ) ;
@@ -245,7 +248,7 @@ class SERCOM
 		uint32_t getFreqRef(void) { return freqRef; };
 #else
 		// The equivalent SAMD21 dummy functions...
-		void setClockSource(int8_t idx, SercomClockSource src, bool core) { };
+		void setClockSource(int8_t idx, SercomClockSource src, bool core) { (void)idx; (void)src; (void)core; };
 		SercomClockSource getClockSource(void) { return SERCOM_CLOCK_SOURCE_FCPU; };
 		uint32_t getFreqRef(void) { return F_CPU; };
 #endif
