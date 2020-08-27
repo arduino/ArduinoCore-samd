@@ -19,7 +19,7 @@
 #ifndef _SERCOM_CLASS_
 #define _SERCOM_CLASS_
 
-#include "sam.h"
+#include <samd.h>
 
 #define SERCOM_FREQ_REF      48000000
 #define SERCOM_NVIC_PRIORITY ((1<<__NVIC_PRIO_BITS) - 1)
