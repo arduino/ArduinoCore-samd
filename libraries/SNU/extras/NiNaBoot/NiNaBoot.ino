@@ -154,14 +154,35 @@ int main() {
   {
     WiFiStorageFile update_file = WiFiStorage.open(UPDATE_FILE_NAME_LZSS);
 
+    union HeaderVersion
+    {
+      typedef struct __attribute__((packed))
+      {
+        uint32_t header_version    :  6;
+        uint32_t compression       :  1;
+        uint32_t signature         :  1;
+        uint32_t spare             :  4;
+        uint32_t payload_target    :  4;
+        uint32_t payload_major     :  8;
+        uint32_t payload_minor     :  8;
+        uint32_t payload_patch     :  8;
+        uint32_t payload_build_num : 24;
+      } field;
+      uint8_t buf[sizeof(field)];
+      static_assert(sizeof(buf) == 8, "Error: sizeof(HEADER.VERSION) != 8");
+    };
+
     union
     {
       struct __attribute__((packed))
       {
         uint32_t len;
         uint32_t crc32;
+        uint32_t magic_number;
+        HeaderVersion hdr_version;
       } header;
       uint8_t buf[sizeof(header)];
+      static_assert(sizeof(buf) == 20, "Error: sizeof(HEADER) != 20");
     } ota_header;
     uint32_t crc32, bytes_read;
     uint8_t crc_buf[128];
@@ -170,12 +191,15 @@ int main() {
     update_file.read(ota_header.buf, sizeof(ota_header.buf));
 
     /* ... and check first length ... */
-    if (ota_header.header.len != (update_file.size() - sizeof(ota_header.buf))) {
+    if (ota_header.header.len != (update_file.size() - sizeof(ota_header.header.len) - sizeof(ota_header.header.crc32))) {
       update_file.close();
       update_file.erase();
       goto boot;
     }
-    /* ... and the CRC second ... initialize CRC ... */
+
+    /* ... and the CRC second ... rewind to start of CRC verified header ... */
+    update_file.seek(sizeof(ota_header.header.len) + sizeof(ota_header.header.crc32));
+    /* ... initialize CRC ... */
     crc32 = 0xFFFFFFFF;
     /* ... and calculate over file ... */
     for(bytes_read = 0;
