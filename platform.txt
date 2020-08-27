@@ -28,8 +28,8 @@ version=1.8.9
 compiler.warning_flags=-w
 compiler.warning_flags.none=-w
 compiler.warning_flags.default=
-compiler.warning_flags.more=-Wall -Wno-expansion-to-defined
-compiler.warning_flags.all=-Wall -Wextra -Wno-expansion-to-defined
+compiler.warning_flags.more=-Wall
+compiler.warning_flags.all=-Wall -Wextra
 
 # EXPERIMENTAL feature: optimization flags
 #  - this is alpha and may be subject to change without notice
