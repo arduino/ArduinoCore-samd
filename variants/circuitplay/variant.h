@@ -51,7 +51,10 @@
 #define portInputRegister(port)  (&(port->IN.reg))
 #define portModeRegister(port)   (&(port->DIR.reg))
 #define digitalPinHasPWM(P)      (g_APinDescription[P].ulPWMChannel != NOT_ON_PWM || g_APinDescription[P].ulTCChannel != NOT_ON_TIMER)
-#define digitalPinToInterrupt(P) (g_APinDescription[P].ulExtInt)
+
+#if (ARDUINO_SAMD_VARIANT_COMPLIANCE < 10606)
+  #define digitalPinToInterrupt(P) (g_APinDescription[P].ulExtInt)
+#endif
 
 /*
  * digitalPinToTimer(..) is AVR-specific and is not defined for SAMD

@@ -174,6 +174,7 @@ static inline void resetTC (Tc* TCx)
 
 static void _initISR(Tc *tc, uint8_t channel, uint32_t id, IRQn_Type irqn, uint8_t gcmForTimer, uint8_t intEnableBit)
 {
+    (void)id;
     // Select GCLK0 as timer/counter input clock source
 #if defined(__SAMD51__)
     int idx = gcmForTimer;           // see datasheet Table 14-9
@@ -265,6 +266,7 @@ static void initISR(timer16_Sequence_t timer)
 
 static void finISR(timer16_Sequence_t timer)
 {
+  (void)timer;
 #if defined (_useTimer1)
     // Disable the match channel interrupt request
     TC_FOR_TIMER1->COUNT16.INTENCLR.reg = INTENCLR_BIT_FOR_TIMER_1;

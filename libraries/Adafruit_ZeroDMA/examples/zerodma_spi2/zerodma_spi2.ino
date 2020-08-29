@@ -33,6 +33,7 @@ volatile bool transfer_is_done = true; // Done yet?
 
 // Callback for end-of-DMA-transfer
 void dma_callback(Adafruit_ZeroDMA *dma) {
+  (void)dma; // avoid compiler warning about unused parameter
   transfer_is_done = true;
 }
 

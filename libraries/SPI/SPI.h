@@ -149,11 +149,10 @@ class SPIClass {
 #else
   // On SAMD21, this compiles to nothing, so user code doesn't need to
   // check and conditionally compile lines for different architectures.
-  void setClockSource(__attribute__((unused)) SercomClockSource clk) { };
+  void setClockSource(SercomClockSource clk) { (void)clk; };
 #endif // end __SAMD51__
 
   private:
-  void init();
   void config(SPISettings settings);
 
   SERCOM *_p_sercom;
@@ -169,12 +168,16 @@ class SPIClass {
   char interruptSave;
   uint32_t interruptMask;
 
-  // transfer(txbuf, rxbuf, count, block) uses DMA if possible
-  Adafruit_ZeroDMA readChannel,
-                   writeChannel;
-  DmacDescriptor  *readDescriptor  = NULL,
-                  *writeDescriptor = NULL;
-  volatile bool    dma_busy = false;
+  // transfer(txbuf, rxbuf, count, block) uses DMA when possible
+  Adafruit_ZeroDMA readChannel;
+  Adafruit_ZeroDMA writeChannel;
+  DmacDescriptor  *firstReadDescriptor   = NULL;  // List entry point
+  DmacDescriptor  *firstWriteDescriptor  = NULL;
+  DmacDescriptor  *extraReadDescriptors  = NULL;  // Add'l descriptors
+  DmacDescriptor  *extraWriteDescriptors = NULL;
+  bool             use_dma               = false; // true on successful alloc
+  volatile bool    dma_busy              = false;
+  void             dmaAllocate(void);
   static void      dmaCallback(Adafruit_ZeroDMA *dma);
 };
 
