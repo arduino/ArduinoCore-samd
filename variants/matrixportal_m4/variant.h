@@ -81,13 +81,13 @@ extern "C"
 // #define digitalPinToTimer(P)
 
 // LEDs
-//#define PIN_LED_13           (13u)
+#define PIN_LED_47           (47u)
 //#define PIN_LED_RXL          (25u)
 //#define PIN_LED_TXL          (26u)
-//#define PIN_LED              PIN_LED_13
+#define PIN_LED              PIN_LED_47
 //#define PIN_LED2             PIN_LED_RXL
 //#define PIN_LED3             PIN_LED_TXL
-#define LED_BUILTIN          PIN_LED_13
+#define LED_BUILTIN          PIN_LED_47
 #define PIN_NEOPIXEL         (4)
 
 /*
@@ -112,6 +112,24 @@ static const uint8_t DAC0 = PIN_DAC0;
 static const uint8_t DAC1 = PIN_DAC1;
 
 #define ADC_RESOLUTION		12
+
+
+
+/* WiFi interfaces */
+#define SerialESP32     Serial2
+#define SerialNina      SerialESP32
+#define SPIWIFI         SPI
+#define ESP32_GPIO0     29
+#define ESP32_RESETN    30
+#define SPIWIFI_SS      33
+#define SPIWIFI_ACK     31
+#define SPIWIFI_RESET   ESP32_RESETN
+#define NINA_GPIO0      ESP32_GPIO0
+#define NINA_RESETN     ESP32_RESETN
+#define NINA_ACK        SPIWIFI_ACK
+#define NINA_CTS        SPIWIFI_ACK
+#define NINA_RTS        NINA_GPIO0
+
 
 /*
  * Serial interfaces
@@ -215,6 +233,7 @@ extern SERCOM sercom4;
 extern SERCOM sercom5;
 
 extern Uart Serial1;
+extern Uart Serial2;
 
 #endif
 
