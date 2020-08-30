@@ -1321,7 +1321,6 @@ adafruit_hallowing_m4.menu.debug.off=Off
 adafruit_hallowing_m4.menu.debug.on=On
 adafruit_hallowing_m4.menu.debug.on.build.flags.debug=-g
 
-<<<<<<< HEAD
 # Adafruit Matrix Portal M4 (SAMD51)
 # ------------------------------
 adafruit_matrixportal_m4.name=Adafruit Matrix Portal M4 (SAMD51)
