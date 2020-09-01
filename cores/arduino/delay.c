@@ -94,7 +94,7 @@ void SysTick_DefaultHandler(void)
  *
  * \param dwUs the number of microseconds to pause (uint32_t)
  */
-__attribute__((always_inline)) inline void delayMicroseconds( unsigned int usec )
+void delayMicroseconds( unsigned int usec )
 {
   if ( usec == 0 )
   {
