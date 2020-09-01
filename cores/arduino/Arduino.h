@@ -54,6 +54,13 @@ extern "C"{
 #define digitalPinToInterrupt(P)   ( P )
 #endif
 
+// undefine stdlib's abs if encountered
+#ifdef abs
+#undef abs
+#endif // abs
+
+#define abs(x) ((x)>0?(x):-(x))
+
 // Allows publishing the Beta core under samd-beta / arduino organization
 #ifndef ARDUINO_ARCH_SAMD
 #define ARDUINO_ARCH_SAMD
