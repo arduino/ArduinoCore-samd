@@ -1,0 +1,146 @@
+name: Compile Examples
+
+on: [pull_request, push]
+
+jobs:
+  compile-test:
+    runs-on: ubuntu-latest
+
+    env:
+      # libraries to install for all boards
+      UNIVERSAL_LIBRARIES: '"MFRC522" "Keyboard" "Mouse" "Servo" "LiquidCrystal" "CapacitiveSensor"'
+      # sketch paths to compile (recursive) for all boards
+      UNIVERSAL_SKETCH_PATHS: '"extras/shared/examples" "libraries/Wire" "libraries/USBHost" "libraries/SPI" "libraries/SFU/examples/SFU_LoadBinary" "libraries/SAMD_AnalogCorrection" "~/Arduino/libraries/Keyboard/examples/Serial" "~/Arduino/libraries/Servo/examples" "~/Arduino/libraries/LiquidCrystal/examples" "~/Arduino/libraries/Ethernet/examples" "~/Arduino/libraries/SD/examples" "~/Arduino/libraries/WiFi/examples" "~/Arduino/libraries/Arduino_LSM9DS1/examples" "~/Arduino/libraries/Arduino_JSON/examples" "~/Arduino/libraries/MFRC522/examples/ChangeUID" "~/Arduino/libraries/MFRC522/examples/DumpInfo" "~/Arduino/libraries/MFRC522/examples/FixBrickedUID" "~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock" "~/Arduino/libraries/MFRC522/examples/MinimalInterrupt" "~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH" "~/Arduino/libraries/MFRC522/examples/RFID-Cloner" "~/Arduino/libraries/MFRC522/examples/ReadAndWrite" "~/Arduino/libraries/MFRC522/examples/ReadNUID" "~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader" "~/Arduino/libraries/MFRC522/examples/firmware_check" "~/Arduino/libraries/MFRC522/examples/rfid_default_keys" "~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data" "~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data"' 
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board: [
+          {"fqbn": "arduino:samd:arduino_zero_edbg", "type": "usb"},  #normal
+          {"fqbn": "arduino:samd:arduino_zero_native", "type": "usb"},
+          {"fqbn": "arduino:samd:mkr1000", "type": "usb"},
+          {"fqbn": "arduino:samd:mkrzero", "type": "usb"},
+          {"fqbn": "arduino:samd:mkrwifi1010", "type": "mkrwifi_nb1500"},
+          {"fqbn": "arduino:samd:nano_33_iot", "type": "nano_mkrwan1310"},
+          {"fqbn": "arduino:samd:mkrfox1200", "type": "usb"},
+          {"fqbn": "arduino:samd:mkrwan1300", "type": "usb"},
+          {"fqbn": "arduino:samd:mkrwan1310", "type": "nano_mkrwan1310"},
+          {"fqbn": "arduino:samd:mkrgsm1400", "type": "usb"},
+          {"fqbn": "arduino:samd:mkrnb1500", "type": "mkrwifi_nb1500"},
+          {"fqbn": "arduino:samd:mkrvidor4000", "type": "vidor"},
+          {"fqbn": "arduino:samd:adafruit_circuitplayground_m0", "type": "adafruit_playg"},
+          {"fqbn": "arduino:samd:mzero_pro_bl_dbg", "type": "mzero"},  #normal
+          {"fqbn": "arduino:samd:mzero_pro_bl", "type": "mzero"},
+          {"fqbn": "arduino:samd:mzero_bl", "type": "mzero"},
+          {"fqbn": "arduino:samd:tian", "type": "tian"} #,
+          #{"fqbn": "arduino:samd:tian_cons", "type": "usb"}  #normal
+        ]
+
+        # make board type-specific customizations to the matrix jobs
+        include:
+          # Normal USB boards with all the general libraries
+          - board:
+              type: "usb"
+            additional-sketch-paths: '"~/Arduino/libraries/Firmata/examples/StandardFirmataPlus" "~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet" "~/Arduino/libraries/Firmata/examples/StandardFirmata" "~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata" "~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata" "~/Arduino/libraries/Firmata/examples/ServoFirmata" "~/Arduino/libraries/Firmata/examples/EchoString" "~/Arduino/libraries/Firmata/examples/AnalogFirmata" "~/Arduino/libraries/Firmata/examples/AllInputsFirmata" "libraries/I2S/examples" "libraries/SDU/examples"'
+          # Vidor board
+          - board:
+              type: "vidor"
+            additional-sketch-paths: '"libraries/SAMD_BootloaderUpdater/examples" "libraries/I2S/examples"'
+          # mkrwifi1010 and mkrnb1500 boards
+          - board:
+              type: "mkrwifi_nb1500"
+            additional-sketch-paths: '"libraries/I2S/examples" "libraries/SDU/examples"'
+          # nano_33_iot and mkrwan1310 boards
+          - board:
+              type: "nano_mkrwan1310"
+            additional-sketch-paths: "libraries/I2S/examples"
+          # adafruit_cicrcuitplayground board
+          - board:
+              type: "adafruit_playg"
+            additional-sketch-paths: "libraries/SDU/examples"
+          # mzero boards
+          - board:
+              type: "mzero"
+            additional-sketch-paths: '"~/Arduino/libraries/Firmata/examples/StandardFirmataPlus" "~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet" "~/Arduino/libraries/Firmata/examples/StandardFirmata" "~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata" "~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata" "~/Arduino/libraries/Firmata/examples/ServoFirmata" "~/Arduino/libraries/Firmata/examples/EchoString" "~/Arduino/libraries/Firmata/examples/AnalogFirmata" "~/Arduino/libraries/Firmata/examples/AllInputsFirmata" "libraries/SDU/examples"'
+          # tian board
+          - board:
+              type: "tian"
+            additional-sketch-paths: '"~/Arduino/libraries/Firmata/examples/StandardFirmataPlus" "~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet" "~/Arduino/libraries/Firmata/examples/StandardFirmata" "~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata" "~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata" "~/Arduino/libraries/Firmata/examples/ServoFirmata" "~/Arduino/libraries/Firmata/examples/EchoString" "~/Arduino/libraries/Firmata/examples/AnalogFirmata" "~/Arduino/libraries/Firmata/examples/AllInputsFirmata"'
+          
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
+      - name: Checkout ArduinoCore-API
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-API
+          path: extras/ArduinoCore-API
+
+      - name: Install ArduinoCore-API
+        run: mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+
+      - name: Checkout Adafruit WiFiNINA
+        uses: actions/checkout@v2
+        with:
+          repository: adafruit/WiFiNINA
+          path: adafruit/WiFiNINA
+
+      - name: Compile examples
+        uses: per1234/actions/libraries/compile-examples@master
+        with:
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: |
+            - name: MFRC522
+            - name: Arduino_MKRMEM
+            - name: FlashStorage
+            - source-url: https://github.com/arduino-libraries/Keyboard.git
+            - name: Mouse
+            - name: Servo
+            - name: LiquidCrystal
+            - name: CapacitiveSensor
+            - name: Ethernet
+            - name: ArduinoBearSSL
+            - name: Arduino_APDS9960
+            - name: Servo
+            - name: Arduino_LSM9DS1
+            - name: ArduinoHttpClient
+            - name: NTPClient
+            - name: TFT
+            - name: ArduinoMqttClient
+            - name: Arduino_CRC32
+            - name: Arduino_LSM6DS3
+            - name: Stepper
+            - name: SD
+            - name: WiFi101
+            - name: Arduino_JSON
+            - name: Arduino_HTS221
+            - name: Firmata
+            - name: ArduinoMotorCarrier
+            - name: ArduinoCloudThing
+            - name: Arduino_DebugUtils
+            - name: WiFi Link
+            - name: Arduino_LPS22HB
+            - name: CTC GO MOTIONS
+            - name: ArduinoModbus
+            - name: ArduinoIoTCloudBearSSL
+            - name: ArduinoDMX
+            - name: ArduinoRS485
+            - name: Arduino_OAuth
+            - name: CTC GO CORE
+            - name: WiFi
+            - name: Bridge
+            - name: Temboo
+            - name: ArduinoIoTCloud
+            - name: Madgwick
+          platforms: |
+            # Use Board Manager to install the latest release of Arduino megaAVR Boards to get the toolchain
+            - name: "arduino:samd"
+            # Overwrite the Board Manager installation with the local platform
+            - source-path: "./"
+              name: "arduino:samd"
+          sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ matrix.additional-sketch-paths }}"
+          enable-size-deltas-report: 'true'
+          verbose: 'true'
