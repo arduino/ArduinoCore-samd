@@ -76,7 +76,8 @@ jobs:
       - name: Checkout ArduinoCore-API
         uses: actions/checkout@v2
         with:
-          repository: arduino/ArduinoCore-API
+          repository: giulcioffi/ArduinoCore-API
+          ref: namespaced_api_Hardware
           path: extras/ArduinoCore-API
 
       - name: Install ArduinoCore-API
