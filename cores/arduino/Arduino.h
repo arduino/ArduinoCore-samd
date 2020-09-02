@@ -65,6 +65,10 @@ extern "C"{
 #ifndef ARDUINO_ARCH_SAMD
 #define ARDUINO_ARCH_SAMD
 #endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 /*
  * \brief SAMD products have only one reference for ADC
  */
@@ -78,6 +82,25 @@ typedef enum _eAnalogReference
   AR_INTERNAL2V23
 } eAnalogReference ;
 
+/*
+ * \brief Set the resolution of analogRead return values. Default is 10 bits (range from 0 to 1023).
+ *
+ * \param res
+ */
+extern void analogReadResolution(int res);
+
+/*
+ * \brief Set the resolution of analogWrite parameters. Default is 8 bits (range from 0 to 255).
+ *
+ * \param res
+ */
+extern void analogWriteResolution(int res);
+
+extern void analogOutputInit( void ) ;
+
+#ifdef __cplusplus
+}
+#endif
 
 // USB Device
 #include "USB/USBDesc.h"
