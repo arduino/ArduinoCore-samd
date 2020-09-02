@@ -10,7 +10,7 @@ jobs:
       # libraries to install for all boards
       UNIVERSAL_LIBRARIES: '"MFRC522" "Keyboard" "Mouse" "Servo" "LiquidCrystal" "CapacitiveSensor"'
       # sketch paths to compile (recursive) for all boards
-      UNIVERSAL_SKETCH_PATHS: '"extras/shared/examples" "libraries/Wire" "libraries/USBHost" "libraries/SPI" "libraries/SFU/examples/SFU_LoadBinary" "libraries/SAMD_AnalogCorrection" "~/Arduino/libraries/Keyboard/examples/Serial" "~/Arduino/libraries/Servo/examples" "~/Arduino/libraries/LiquidCrystal/examples" "~/Arduino/libraries/Ethernet/examples" "~/Arduino/libraries/SD/examples" "~/Arduino/libraries/WiFi/examples" "~/Arduino/libraries/Arduino_LSM9DS1/examples" "~/Arduino/libraries/Arduino_JSON/examples" "~/Arduino/libraries/MFRC522/examples/ChangeUID" "~/Arduino/libraries/MFRC522/examples/DumpInfo" "~/Arduino/libraries/MFRC522/examples/FixBrickedUID" "~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock" "~/Arduino/libraries/MFRC522/examples/MinimalInterrupt" "~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH" "~/Arduino/libraries/MFRC522/examples/RFID-Cloner" "~/Arduino/libraries/MFRC522/examples/ReadAndWrite" "~/Arduino/libraries/MFRC522/examples/ReadNUID" "~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader" "~/Arduino/libraries/MFRC522/examples/firmware_check" "~/Arduino/libraries/MFRC522/examples/rfid_default_keys" "~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data" "~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data"' 
+      UNIVERSAL_SKETCH_PATHS: '"extras/shared/examples" "libraries/Wire" "libraries/USBHost" "libraries/SPI" "libraries/SFU/examples/SFU_LoadBinary" "libraries/SAMD_AnalogCorrection" "~/Arduino/libraries/Keyboard/examples/Serial" "~/Arduino/libraries/Servo/examples" "~/Arduino/libraries/LiquidCrystal/examples" "~/Arduino/libraries/Ethernet/examples" "~/Arduino/libraries/SD/examples" "~/Arduino/libraries/WiFi/examples" "~/Arduino/libraries/Arduino_LSM9DS1/examples" "~/Arduino/libraries/Arduino_JSON/examples" "~/Arduino/libraries/MFRC522/examples/ChangeUID" "~/Arduino/libraries/MFRC522/examples/DumpInfo" "~/Arduino/libraries/MFRC522/examples/FixBrickedUID" "~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock" "~/Arduino/libraries/MFRC522/examples/MinimalInterrupt" "~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH" "~/Arduino/libraries/MFRC522/examples/RFID-Cloner" "~/Arduino/libraries/MFRC522/examples/ReadAndWrite" "~/Arduino/libraries/MFRC522/examples/ReadNUID" "~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader" "~/Arduino/libraries/MFRC522/examples/firmware_check" "~/Arduino/libraries/MFRC522/examples/rfid_default_keys" "~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data" "~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data" "~/Arduino/libraries/WiFi101/examples"'
 
     strategy:
       fail-fast: false
@@ -79,11 +79,7 @@ jobs:
           - board:
               fqbn: '"arduino:samd:mkrwan1300" "arduino:samd:mkrwan1310"'
             additional-sketch-paths: "~/Arduino/libraries/MKRWAN/examples"
-          # WiFi101
-          - board:
-              type: "usb"
-            additional-sketch-paths: "~/Arduino/libraries/WiFi101/examples"
-          
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -109,6 +105,8 @@ jobs:
         with:
           fqbn: ${{ matrix.board.fqbn }}
           libraries: |
+            - source-url: https://github.com/giulcioffi/WiFi101.git
+              version: namespaced_api
             - name: MFRC522
             - name: Arduino_MKRMEM
             - name: FlashStorage
@@ -130,7 +128,6 @@ jobs:
             - name: Arduino_LSM6DS3
             - name: Stepper
             - name: SD
-            - name: WiFi101
             - name: Arduino_JSON
             - name: Arduino_HTS221
             - name: Firmata
@@ -154,7 +151,6 @@ jobs:
             - name: MKRGSM
             - name: MKRNB
             - name: MKRWAN
-            - name: WiFi101
           platforms: |
             # Use Board Manager to install the latest release of Arduino megaAVR Boards to get the toolchain
             - name: "arduino:samd"
