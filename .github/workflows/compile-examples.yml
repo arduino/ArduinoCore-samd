@@ -90,7 +90,7 @@ jobs:
           path: adafruit/WiFiNINA
 
       - name: Compile examples
-        uses: per1234/actions/libraries/compile-examples@master
+        uses: arduino/actions/libraries/compile-examples@master
         with:
           fqbn: ${{ matrix.board.fqbn }}
           libraries: |
@@ -143,5 +143,5 @@ jobs:
             - source-path: "./"
               name: "arduino:samd"
           sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ matrix.additional-sketch-paths }}"
-          enable-size-deltas-report: 'true'
+          enable-size-deltas-report: 'false'
           verbose: 'true'
