@@ -67,6 +67,22 @@ jobs:
           - board:
               type: "tian"
             additional-sketch-paths: '"~/Arduino/libraries/Firmata/examples/StandardFirmataPlus" "~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet" "~/Arduino/libraries/Firmata/examples/StandardFirmata" "~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata" "~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata" "~/Arduino/libraries/Firmata/examples/ServoFirmata" "~/Arduino/libraries/Firmata/examples/EchoString" "~/Arduino/libraries/Firmata/examples/AnalogFirmata" "~/Arduino/libraries/Firmata/examples/AllInputsFirmata"'
+          # MKRGSM1400 board
+          - board:
+              fqbn: "arduino:samd:mkrgsm1400"
+            additional-sketch-paths: "~/Arduino/libraries/MKRGSM/examples"
+          # MKRNB1500 board
+          - board:
+              fqbn: "arduino:samd:mkrnb1500"
+            additional-sketch-paths: "~/Arduino/libraries/MKRNB/examples"
+          # MKRWAN board
+          - board:
+              fqbn: '"arduino:samd:mkrwan1300" "arduino:samd:mkrwan1310"'
+            additional-sketch-paths: "~/Arduino/libraries/MKRWAN/examples"
+          # WiFi101
+          - board:
+              type: "usb"
+            additional-sketch-paths: "~/Arduino/libraries/WiFi101/examples"
           
     steps:
       - name: Checkout repository
@@ -135,6 +151,10 @@ jobs:
             - name: Temboo
             - name: ArduinoIoTCloud
             - name: Madgwick
+            - name: MKRGSM
+            - name: MKRNB
+            - name: MKRWAN
+            - name: WiFi101
           platforms: |
             # Use Board Manager to install the latest release of Arduino megaAVR Boards to get the toolchain
             - name: "arduino:samd"
