@@ -146,7 +146,8 @@ jobs:
             - name: WiFi
             - name: Bridge
             - name: Temboo
-            - name: Arduino_ConnectionHandler
+            - source-url: https://github.com/arduino-libraries/Arduino_ConnectionHandler.git
+              version: latest
             - name: ArduinoECCX08
             - name: RTCZero
             - source-url: https://github.com/arduino-libraries/ArduinoIoTCloud.git
