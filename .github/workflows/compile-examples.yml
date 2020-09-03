@@ -146,7 +146,11 @@ jobs:
             - name: WiFi
             - name: Bridge
             - name: Temboo
-            - name: ArduinoIoTCloud
+            - name: Arduino_ConnectionHandler
+            - name: ArduinoECCX08
+            - name: RTCZero
+            - source-url: https://github.com/arduino-libraries/ArduinoIoTCloud.git
+              version: latest
             - name: Madgwick
             - name: MKRGSM
             - name: MKRNB
