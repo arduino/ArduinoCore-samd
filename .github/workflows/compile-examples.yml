@@ -155,6 +155,7 @@ jobs:
             - name: Madgwick
             - name: MKRGSM
             - name: MKRNB
+            - name: LoRa
             - name: MKRWAN
           platforms: |
             # Use Board Manager to install the latest release of Arduino megaAVR Boards to get the toolchain
