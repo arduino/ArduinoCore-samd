@@ -54,6 +54,7 @@ jobs:
         - ~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data
         - ~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data
         - ~/Arduino/libraries/WiFi101/examples
+        - ~/Arduino/libraries/WiFiNINA/examples
 
     strategy:
       fail-fast: false
@@ -176,12 +177,6 @@ jobs:
       - name: Install ArduinoCore-API
         run: mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
 
-      - name: Checkout Adafruit WiFiNINA
-        uses: actions/checkout@v2
-        with:
-          repository: adafruit/WiFiNINA
-          path: adafruit/WiFiNINA
-
       - name: Checkout Basic examples
         uses: actions/checkout@v2
         with:
@@ -239,6 +234,7 @@ jobs:
             - name: MKRNB
             - name: LoRa
             - name: MKRWAN
+            - name: WiFiNINA
           platforms: |
             # Use Board Manager to install the latest release of Arduino megaAVR Boards to get the toolchain
             - name: "arduino:samd"
@@ -248,5 +244,5 @@ jobs:
           sketch-paths: |
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.additional-sketch-paths }}
-          enable-size-deltas-report: 'false'
+          enable-deltas-report: 'false'
           verbose: 'true'
