@@ -23,8 +23,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # libraries to install for all boards
-      UNIVERSAL_LIBRARIES: '"MFRC522" "Keyboard" "Mouse" "Servo" "LiquidCrystal" "CapacitiveSensor"'
       # sketch paths to compile (recursive) for all boards
       UNIVERSAL_SKETCH_PATHS: |
         - extras/examples
