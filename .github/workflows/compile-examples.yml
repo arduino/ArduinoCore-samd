@@ -26,7 +26,7 @@ jobs:
       # libraries to install for all boards
       UNIVERSAL_LIBRARIES: '"MFRC522" "Keyboard" "Mouse" "Servo" "LiquidCrystal" "CapacitiveSensor"'
       # sketch paths to compile (recursive) for all boards
-      UNIVERSAL_SKETCH_PATHS: '"extras/shared/examples" "libraries/Wire" "libraries/USBHost" "libraries/SPI" "libraries/SFU/examples/SFU_LoadBinary" "libraries/SAMD_AnalogCorrection" "~/Arduino/libraries/Keyboard/examples/Serial" "~/Arduino/libraries/Servo/examples" "~/Arduino/libraries/LiquidCrystal/examples" "~/Arduino/libraries/Ethernet/examples" "~/Arduino/libraries/SD/examples" "~/Arduino/libraries/WiFi/examples" "~/Arduino/libraries/Arduino_LSM9DS1/examples" "~/Arduino/libraries/Arduino_JSON/examples" "~/Arduino/libraries/MFRC522/examples/ChangeUID" "~/Arduino/libraries/MFRC522/examples/DumpInfo" "~/Arduino/libraries/MFRC522/examples/FixBrickedUID" "~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock" "~/Arduino/libraries/MFRC522/examples/MinimalInterrupt" "~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH" "~/Arduino/libraries/MFRC522/examples/RFID-Cloner" "~/Arduino/libraries/MFRC522/examples/ReadAndWrite" "~/Arduino/libraries/MFRC522/examples/ReadNUID" "~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader" "~/Arduino/libraries/MFRC522/examples/firmware_check" "~/Arduino/libraries/MFRC522/examples/rfid_default_keys" "~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data" "~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data" "~/Arduino/libraries/WiFi101/examples"'
+      UNIVERSAL_SKETCH_PATHS: '"extras/examples" "libraries/Wire" "libraries/USBHost" "libraries/SPI" "libraries/SFU/examples/SFU_LoadBinary" "libraries/SAMD_AnalogCorrection" "~/Arduino/libraries/Keyboard/examples/Serial" "~/Arduino/libraries/Servo/examples" "~/Arduino/libraries/LiquidCrystal/examples" "~/Arduino/libraries/Ethernet/examples" "~/Arduino/libraries/SD/examples" "~/Arduino/libraries/WiFi/examples" "~/Arduino/libraries/Arduino_LSM9DS1/examples" "~/Arduino/libraries/Arduino_JSON/examples" "~/Arduino/libraries/MFRC522/examples/ChangeUID" "~/Arduino/libraries/MFRC522/examples/DumpInfo" "~/Arduino/libraries/MFRC522/examples/FixBrickedUID" "~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock" "~/Arduino/libraries/MFRC522/examples/MinimalInterrupt" "~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH" "~/Arduino/libraries/MFRC522/examples/RFID-Cloner" "~/Arduino/libraries/MFRC522/examples/ReadAndWrite" "~/Arduino/libraries/MFRC522/examples/ReadNUID" "~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader" "~/Arduino/libraries/MFRC522/examples/firmware_check" "~/Arduino/libraries/MFRC522/examples/rfid_default_keys" "~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data" "~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data" "~/Arduino/libraries/WiFi101/examples"'
 
     strategy:
       fail-fast: false
@@ -115,6 +115,12 @@ jobs:
         with:
           repository: adafruit/WiFiNINA
           path: adafruit/WiFiNINA
+
+      - name: Checkout Basic examples
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/arduino-examples
+          path: extras
 
       - name: Compile examples
         uses: arduino/actions/libraries/compile-examples@master
