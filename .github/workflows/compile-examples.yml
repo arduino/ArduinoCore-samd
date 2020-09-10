@@ -60,7 +60,7 @@ jobs:
 
       matrix:
         board: [
-          {"fqbn": "arduino:samd:arduino_zero_edbg", "type": "usb"},  #normal
+          {"fqbn": "arduino:samd:arduino_zero_edbg", "type": "usb"},
           {"fqbn": "arduino:samd:arduino_zero_native", "type": "usb"},
           {"fqbn": "arduino:samd:mkr1000", "type": "usb"},
           {"fqbn": "arduino:samd:mkrzero", "type": "usb"},
@@ -73,11 +73,10 @@ jobs:
           {"fqbn": "arduino:samd:mkrnb1500", "type": "mkrNB1500"},
           {"fqbn": "arduino:samd:mkrvidor4000", "type": "vidor"},
           {"fqbn": "arduino:samd:adafruit_circuitplayground_m0", "type": "adafruit_playg"},
-          {"fqbn": "arduino:samd:mzero_pro_bl_dbg", "type": "mzero"},  #normal
+          {"fqbn": "arduino:samd:mzero_pro_bl_dbg", "type": "mzero"},
           {"fqbn": "arduino:samd:mzero_pro_bl", "type": "mzero"},
           {"fqbn": "arduino:samd:mzero_bl", "type": "mzero"},
-          {"fqbn": "arduino:samd:tian", "type": "tian"} #,
-          #{"fqbn": "arduino:samd:tian_cons", "type": "usb"}  #normal
+          {"fqbn": "arduino:samd:tian", "type": "tian"}
         ]
 
         # make board type-specific customizations to the matrix jobs
