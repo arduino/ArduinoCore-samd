@@ -26,7 +26,36 @@ jobs:
       # libraries to install for all boards
       UNIVERSAL_LIBRARIES: '"MFRC522" "Keyboard" "Mouse" "Servo" "LiquidCrystal" "CapacitiveSensor"'
       # sketch paths to compile (recursive) for all boards
-      UNIVERSAL_SKETCH_PATHS: '"extras/examples" "libraries/Wire" "libraries/USBHost" "libraries/SPI" "libraries/SFU/examples/SFU_LoadBinary" "libraries/SAMD_AnalogCorrection" "~/Arduino/libraries/Keyboard/examples/Serial" "~/Arduino/libraries/Servo/examples" "~/Arduino/libraries/LiquidCrystal/examples" "~/Arduino/libraries/Ethernet/examples" "~/Arduino/libraries/SD/examples" "~/Arduino/libraries/WiFi/examples" "~/Arduino/libraries/Arduino_LSM9DS1/examples" "~/Arduino/libraries/Arduino_JSON/examples" "~/Arduino/libraries/MFRC522/examples/ChangeUID" "~/Arduino/libraries/MFRC522/examples/DumpInfo" "~/Arduino/libraries/MFRC522/examples/FixBrickedUID" "~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock" "~/Arduino/libraries/MFRC522/examples/MinimalInterrupt" "~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH" "~/Arduino/libraries/MFRC522/examples/RFID-Cloner" "~/Arduino/libraries/MFRC522/examples/ReadAndWrite" "~/Arduino/libraries/MFRC522/examples/ReadNUID" "~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader" "~/Arduino/libraries/MFRC522/examples/firmware_check" "~/Arduino/libraries/MFRC522/examples/rfid_default_keys" "~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data" "~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data" "~/Arduino/libraries/WiFi101/examples"'
+      UNIVERSAL_SKETCH_PATHS: |
+        - extras/examples
+        - libraries/Wire
+        - libraries/USBHost
+        - libraries/SPI
+        - libraries/SFU/examples/SFU_LoadBinary
+        - libraries/SAMD_AnalogCorrection
+        - ~/Arduino/libraries/Keyboard/examples/Serial
+        - ~/Arduino/libraries/Servo/examples
+        - ~/Arduino/libraries/LiquidCrystal/examples
+        - ~/Arduino/libraries/Ethernet/examples
+        - ~/Arduino/libraries/SD/examples
+        - ~/Arduino/libraries/WiFi/examples
+        - ~/Arduino/libraries/Arduino_LSM9DS1/examples
+        - ~/Arduino/libraries/Arduino_JSON/examples
+        - ~/Arduino/libraries/MFRC522/examples/ChangeUID
+        - ~/Arduino/libraries/MFRC522/examples/DumpInfo
+        - ~/Arduino/libraries/MFRC522/examples/FixBrickedUID
+        - ~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock
+        - ~/Arduino/libraries/MFRC522/examples/MinimalInterrupt
+        - ~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH
+        - ~/Arduino/libraries/MFRC522/examples/RFID-Cloner
+        - ~/Arduino/libraries/MFRC522/examples/ReadAndWrite
+        - ~/Arduino/libraries/MFRC522/examples/ReadNUID
+        - ~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader
+        - ~/Arduino/libraries/MFRC522/examples/firmware_check
+        - ~/Arduino/libraries/MFRC522/examples/rfid_default_keys
+        - ~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data
+        - ~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data
+        - ~/Arduino/libraries/WiFi101/examples
 
     strategy:
       fail-fast: false
@@ -58,43 +87,82 @@ jobs:
           # Normal USB boards with all the general libraries
           - board:
               type: "usb"
-            additional-sketch-paths: '"~/Arduino/libraries/Firmata/examples/StandardFirmataPlus" "~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet" "~/Arduino/libraries/Firmata/examples/StandardFirmata" "~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata" "~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata" "~/Arduino/libraries/Firmata/examples/ServoFirmata" "~/Arduino/libraries/Firmata/examples/EchoString" "~/Arduino/libraries/Firmata/examples/AnalogFirmata" "~/Arduino/libraries/Firmata/examples/AllInputsFirmata" "libraries/I2S/examples" "libraries/SDU/examples"'
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataPlus
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/ServoFirmata
+              - ~/Arduino/libraries/Firmata/examples/EchoString
+              - ~/Arduino/libraries/Firmata/examples/AnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/AllInputsFirmata
+              - libraries/I2S/examples
+              - libraries/SDU/examples
           # Vidor board
           - board:
               type: "vidor"
-            additional-sketch-paths: '"libraries/SAMD_BootloaderUpdater/examples" "libraries/I2S/examples"'
+            additional-sketch-paths: |
+              - libraries/SAMD_BootloaderUpdater/examples
+              - libraries/I2S/examples
           # mkrwifi1010 and mkrnb1500 boards
           - board:
               type: "mkrwifi_nb1500"
-            additional-sketch-paths: '"libraries/I2S/examples" "libraries/SDU/examples"'
+            additional-sketch-paths: |
+              - libraries/I2S/examples
+              - libraries/SDU/examples
           # nano_33_iot and mkrwan1310 boards
           - board:
               type: "nano_mkrwan1310"
-            additional-sketch-paths: "libraries/I2S/examples"
+            additional-sketch-paths: |
+              - libraries/I2S/examples
           # adafruit_cicrcuitplayground board
           - board:
               type: "adafruit_playg"
-            additional-sketch-paths: "libraries/SDU/examples"
+            additional-sketch-paths: |
+              - libraries/SDU/examples
           # mzero boards
           - board:
               type: "mzero"
-            additional-sketch-paths: '"~/Arduino/libraries/Firmata/examples/StandardFirmataPlus" "~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet" "~/Arduino/libraries/Firmata/examples/StandardFirmata" "~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata" "~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata" "~/Arduino/libraries/Firmata/examples/ServoFirmata" "~/Arduino/libraries/Firmata/examples/EchoString" "~/Arduino/libraries/Firmata/examples/AnalogFirmata" "~/Arduino/libraries/Firmata/examples/AllInputsFirmata" "libraries/SDU/examples"'
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataPlus
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/ServoFirmata
+              - ~/Arduino/libraries/Firmata/examples/EchoString
+              - ~/Arduino/libraries/Firmata/examples/AnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/AllInputsFirmata
+              - libraries/SDU/examples
           # tian board
           - board:
               type: "tian"
-            additional-sketch-paths: '"~/Arduino/libraries/Firmata/examples/StandardFirmataPlus" "~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet" "~/Arduino/libraries/Firmata/examples/StandardFirmata" "~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata" "~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata" "~/Arduino/libraries/Firmata/examples/ServoFirmata" "~/Arduino/libraries/Firmata/examples/EchoString" "~/Arduino/libraries/Firmata/examples/AnalogFirmata" "~/Arduino/libraries/Firmata/examples/AllInputsFirmata"'
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataPlus
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/ServoFirmata
+              - ~/Arduino/libraries/Firmata/examples/EchoString
+              - ~/Arduino/libraries/Firmata/examples/AnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/AllInputsFirmata
           # MKRGSM1400 board
           - board:
               fqbn: "arduino:samd:mkrgsm1400"
-            additional-sketch-paths: "~/Arduino/libraries/MKRGSM/examples"
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/MKRGSM/examples
           # MKRNB1500 board
           - board:
               fqbn: "arduino:samd:mkrnb1500"
-            additional-sketch-paths: "~/Arduino/libraries/MKRNB/examples"
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/MKRNB/examples
           # MKRWAN board
           - board:
               fqbn: '"arduino:samd:mkrwan1300" "arduino:samd:mkrwan1310"'
-            additional-sketch-paths: "~/Arduino/libraries/MKRWAN/examples"
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/MKRWAN/examples
 
     steps:
       - name: Checkout repository
@@ -179,6 +247,8 @@ jobs:
             # Overwrite the Board Manager installation with the local platform
             - source-path: "./"
               name: "arduino:samd"
-          sketch-paths: "${{ env.UNIVERSAL_SKETCH_PATHS }} ${{ matrix.additional-sketch-paths }}"
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.additional-sketch-paths }}
           enable-size-deltas-report: 'false'
           verbose: 'true'
