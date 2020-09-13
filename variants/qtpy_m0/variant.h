@@ -53,8 +53,8 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (20u)
-#define NUM_DIGITAL_PINS     (20u)
+#define PINS_COUNT           (21u)
+#define NUM_DIGITAL_PINS     (21u)
 #define NUM_ANALOG_INPUTS    (9u)
 #define NUM_ANALOG_OUTPUTS   (1u)
 #define analogInputToDigitalPin(p)  (p)
@@ -134,7 +134,7 @@ static const uint8_t DAC0 = PIN_DAC0;
 #define PIN_SPI_MISO         (9u)
 #define PIN_SPI_MOSI         (10u)
 #define PERIPH_SPI           sercom2
-#define PAD_SPI_TX           SPI_PAD_0_SCK_1
+#define PAD_SPI_TX           SPI_PAD_0_SCK_3
 #define PAD_SPI_RX           SERCOM_RX_PAD_2
 
 static const uint8_t SS	  = PIN_A0 ;	// unused, just for reference
@@ -150,10 +150,10 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PAD_SPI1_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_3
 
-static const uint8_t SS1   = PIN_A0;	// HW SS isn't used. Set here only for reference.
-static const uint8_t MOSI1 = PIN_SPI_MOSI ;
-static const uint8_t MISO1 = PIN_SPI_MISO ;
-static const uint8_t SCK1  = PIN_SPI_SCK ;
+static const uint8_t SS1   = 17;
+static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
+static const uint8_t MISO1 = PIN_SPI1_MISO ;
+static const uint8_t SCK1  = PIN_SPI1_SCK ;
 
 /*
  * Wire Interfaces
@@ -171,19 +171,19 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * USB
  */
-#define PIN_USB_HOST_ENABLE (17ul)
-#define PIN_USB_DM          (18ul)
-#define PIN_USB_DP          (19ul)
+#define PIN_USB_HOST_ENABLE (18ul)
+#define PIN_USB_DM          (19ul)
+#define PIN_USB_DP          (20ul)
 /*
  * I2S Interfaces
  */
-#define I2S_INTERFACES_COUNT 0
+#define I2S_INTERFACES_COUNT 1
 
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
-#define PIN_I2S_SD          (9u)
-#define PIN_I2S_SCK         (1u)
-#define PIN_I2S_FS          (0u)
+#define PIN_I2S_SD          (A7)
+#define PIN_I2S_SCK         (MISO)
+#define PIN_I2S_FS          (SCK)
 
 #ifdef __cplusplus
 }
