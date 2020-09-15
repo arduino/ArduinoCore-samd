@@ -77,7 +77,8 @@ void Adafruit_TinyUSB_Core_init(void)
   serial1_printf("TinyUSB debugging with Serial1\n");
 #endif
 
-  USBDevice.addInterface( (Adafruit_USBD_Interface&) Serial);
+  Serial.setStringDescriptor("TinyUSB Serial");
+  USBDevice.addInterface(Serial);
   USBDevice.setID(USB_VID, USB_PID);
   USBDevice.begin();
 
