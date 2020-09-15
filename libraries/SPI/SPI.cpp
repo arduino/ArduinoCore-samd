@@ -260,7 +260,7 @@ void SPIClass::dmaCallback(Adafruit_ZeroDMA *dma) {
 // to the read channel to indicate end-of-transfer, and the write channel's
 // callback is assigned to this nonsense function (for reasons I'm not
 // entirely sure of, setting the callback to NULL doesn't work).
-static void dmaDoNothingCallback(Adafruit_ZeroDMA *dma) { }
+static void dmaDoNothingCallback(Adafruit_ZeroDMA *dma) { (void)dma; }
 
 // This could've gone in begin(), but for the sake of organization...
 void SPIClass::dmaAllocate(void) {
