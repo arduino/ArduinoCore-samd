@@ -29,7 +29,7 @@
 // location from which to read.
 
 #ifndef SERIAL_BUFFER_SIZE
-#define SERIAL_BUFFER_SIZE 256
+#define SERIAL_BUFFER_SIZE 350
 #endif
 
 template <int N>
