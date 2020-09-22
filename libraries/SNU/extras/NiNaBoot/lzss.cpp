@@ -48,12 +48,12 @@ static uint32_t flash_addr = 0;
    PUBLIC FUNCTIONS
  **************************************************************************************/
 
-void lzss_init(WiFiStorageFile * update_file_ptr, uint32_t const sketch_start)
+void lzss_init(WiFiStorageFile * update_file_ptr, uint32_t const sketch_start, uint32_t const lzss_file_size)
 {
   SKETCH_START = sketch_start;
   flash_addr = sketch_start;
   update_file = update_file_ptr;
-  LZSS_FILE_SIZE = update_file->size();
+  LZSS_FILE_SIZE = lzss_file_size;
 }
 
 void lzss_flush()
