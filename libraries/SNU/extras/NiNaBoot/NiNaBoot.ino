@@ -207,7 +207,8 @@ int main() {
     /* Initialize the lzss module with the data which
      * it requires.
      */
-    lzss_init(&update_file, (uint32_t)SKETCH_START);
+    uint32_t const LZSS_FILE_SIZE = update_file.size() - sizeof(ota_header.buf);
+    lzss_init(&update_file, (uint32_t)SKETCH_START, LZSS_FILE_SIZE);
     /* During the process of decoding UPDATE.BIN.LZSS
      * is decompressed and stored as UPDATE.BIN.
      */
