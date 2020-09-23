@@ -134,8 +134,8 @@ static const uint8_t DAC0 = PIN_DAC0;
 #define PIN_SPI_MISO         (9u)
 #define PIN_SPI_MOSI         (10u)
 #define PERIPH_SPI           sercom2
-#define PAD_SPI_TX           SPI_PAD_0_SCK_3
-#define PAD_SPI_RX           SERCOM_RX_PAD_2
+#define PAD_SPI_TX           SPI_PAD_2_SCK_3
+#define PAD_SPI_RX           SERCOM_RX_PAD_1
 
 static const uint8_t SS	  = PIN_A0 ;	// unused, just for reference
 static const uint8_t MOSI = PIN_SPI_MOSI ;
@@ -182,7 +182,7 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 #define I2S_DEVICE          0
 #define I2S_CLOCK_GENERATOR 3
 #define PIN_I2S_SD          (A7)
-#define PIN_I2S_SCK         (MISO)
+#define PIN_I2S_SCK         (MOSI)
 #define PIN_I2S_FS          (SCK)
 
 #ifdef __cplusplus
