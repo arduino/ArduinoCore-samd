@@ -173,7 +173,7 @@ static const uint8_t SCK  = PIN_SPI_SCK ;
 #define PAD_SPI1_TX           SPI_PAD_0_SCK_1
 #define PAD_SPI1_RX           SERCOM_RX_PAD_3
 
-static const uint8_t SS1	  = A3 ;
+static const uint8_t SS1	 = PIN_A3 ;
 static const uint8_t MOSI1 = PIN_SPI1_MOSI ;
 static const uint8_t MISO1 = PIN_SPI1_MISO ;
 static const uint8_t SCK1  = PIN_SPI1_SCK ;
