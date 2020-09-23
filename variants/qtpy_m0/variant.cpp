@@ -17,7 +17,7 @@
 */
 
 #include "variant.h"
-
+#include "Arduino.h"
 /*
  * Pins descriptions
  */
@@ -77,3 +77,10 @@ void SERCOM0_Handler()
   Serial1.IrqHandler();
 }
 
+void initVariant(void) {
+  // special initialization code just for us
+
+  // turn on neopixel
+  pinMode(12, OUTPUT);
+  digitalWrite(12, HIGH);
+}
