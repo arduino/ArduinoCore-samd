@@ -220,6 +220,29 @@ int main() {
       goto boot;
     }
 
+    /* Thirdly verify via magic number if this application is intented for
+     * MKR WIFI 1010 or NANO 33 IOT.
+     */
+#if defined(ARDUINO_SAMD_MKRWIFI1010)
+    if (ota_header.header.magic_number != 0x23418054) /* 2341:8054 = VID/PID MKR WIFI 1010 */
+    {
+      update_file.close();
+      update_file.erase();
+      goto boot;
+    }
+#elif defined(ARDUINO_SAMD_NANO_33_IOT)
+    if (ota_header.header.magic_number != 0x23418057) /* 2341:8057 = VID/PID NANO 33 IOT */
+    {
+      update_file.close();
+      update_file.erase();
+      goto boot;
+    }
+#else
+    update_file.close();
+    update_file.erase();
+    goto boot;
+#endif
+
     /* Rewind to start of LZSS compressed binary. */
     update_file.seek(sizeof(ota_header.buf));
 
