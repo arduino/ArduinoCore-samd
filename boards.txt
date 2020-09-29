@@ -270,6 +270,43 @@ adafruit_trinket_m0.menu.debug.off=Off
 adafruit_trinket_m0.menu.debug.on=On
 adafruit_trinket_m0.menu.debug.on.build.flags.debug=-g
 
+# Adafruit QT Py M0 (SAMD21)
+# ------------------------------
+adafruit_qtpy_m0.name=Adafruit QT PY (SAMD21)
+adafruit_qtpy_m0.vid.0=0x239A
+adafruit_qtpy_m0.pid.0=0x80CB
+adafruit_qtpy_m0.vid.1=0x239A
+adafruit_qtpy_m0.pid.1=0x00CB
+adafruit_qtpy_m0.vid.1=0x239A
+adafruit_qtpy_m0.pid.1=0x00CC
+adafruit_qtpy_m0.upload.tool=bossac
+adafruit_qtpy_m0.upload.protocol=sam-ba
+adafruit_qtpy_m0.upload.maximum_size=262144
+adafruit_qtpy_m0.upload.offset=0x2000
+adafruit_qtpy_m0.upload.use_1200bps_touch=true
+adafruit_qtpy_m0.upload.wait_for_upload_port=true
+adafruit_qtpy_m0.upload.native_usb=true
+adafruit_qtpy_m0.build.mcu=cortex-m0plus
+adafruit_qtpy_m0.build.f_cpu=48000000L
+adafruit_qtpy_m0.build.usb_product="QT Py M0"
+adafruit_qtpy_m0.build.usb_manufacturer="Adafruit"
+adafruit_qtpy_m0.build.board=QTPY_M0
+adafruit_qtpy_m0.build.core=arduino
+adafruit_qtpy_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_QTPY_M0 -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
+adafruit_qtpy_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_qtpy_m0.build.openocdscript=openocd_scripts/trinket_m0.cfg
+adafruit_qtpy_m0.build.variant=qtpy_m0
+adafruit_qtpy_m0.build.variant_system_lib=
+adafruit_qtpy_m0.build.vid=0x239A
+adafruit_qtpy_m0.build.pid=0x80CB
+adafruit_qtpy_m0.bootloader.tool=openocd
+adafruit_qtpy_m0.bootloader.file=qtpyM0/bootloader-qtpy_m0.bin
+adafruit_qtpy_m0.menu.usbstack.arduino=Arduino
+adafruit_qtpy_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_qtpy_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+adafruit_qtpy_m0.menu.debug.off=Off
+adafruit_qtpy_m0.menu.debug.on=On
+adafruit_qtpy_m0.menu.debug.on.build.flags.debug=-g
 
 # Adafruit ItsyBitsy M0 (SAMD21)
 # ------------------------------
