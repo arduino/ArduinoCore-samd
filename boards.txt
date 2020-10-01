@@ -550,7 +550,7 @@ adafruit_grandcentral_m4.build.variant_system_lib=
 adafruit_grandcentral_m4.build.vid=0x239A
 adafruit_grandcentral_m4.build.pid=0x8031
 adafruit_grandcentral_m4.bootloader.tool=openocd
-adafruit_grandcentral_m4.bootloader.file=grand_central_m4/bootloader-grandcentralM4-v2.0.0-adafruit.5.bin
+adafruit_grandcentral_m4.bootloader.file=grand_central_m4/bootloader-grandcentral_m4.bin
 adafruit_grandcentral_m4.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Lib/GCC/" "-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_grandcentral_m4.menu.cache.on=Enabled
 adafruit_grandcentral_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
