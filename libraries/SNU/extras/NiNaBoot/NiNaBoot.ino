@@ -156,7 +156,7 @@ int main() {
 
     union HeaderVersion
     {
-      typedef struct __attribute__((packed))
+      struct __attribute__((packed))
       {
         uint32_t header_version    :  6;
         uint32_t compression       :  1;
