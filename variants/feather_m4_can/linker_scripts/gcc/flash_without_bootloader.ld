@@ -141,6 +141,15 @@ SECTIONS
 
 	__etext = .;
 
+	/* Data accessed by the CAN peripheral must be in the first 64kB RAM */
+	/* place it at the very start of RAM, before the .data section */
+	/* *NOTE* it is not expliclty zeroed */
+	.canram (NOLOAD) :
+	{
+	    . = ALIGN(4);
+	    *(.canram)
+	} > RAM
+
 	.data : AT (__etext)
 	{
 		__data_start__ = .;
