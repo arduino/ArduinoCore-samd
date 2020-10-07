@@ -203,6 +203,13 @@ static const uint8_t SCL = PIN_WIRE_SCL;
   #define VARIANT_QSPI_BAUD_DEFAULT 5000000
 #endif
 
+/*
+ * CAN
+ */
+#define PIN_CAN_RX      (42)
+#define PIN_CAN_STANDBY (40)
+#define PIN_CAN_TX      (41)
+
 #ifdef __cplusplus
 }
 #endif
