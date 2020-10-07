@@ -713,7 +713,7 @@ adafruit_feather_m4.menu.debug.on.build.flags.debug=-g
 
 # Adafruit Feather M4 CAN (SAME51)
 # ------------------------------
-adafruit_feather_m4_can.name=Adafruit Feather M4 CAN (SAMD51)
+adafruit_feather_m4_can.name=Adafruit Feather M4 CAN (SAME51)
 adafruit_feather_m4_can.vid.0=0x239A
 adafruit_feather_m4_can.pid.0=0x80CD
 adafruit_feather_m4_can.vid.1=0x239A
