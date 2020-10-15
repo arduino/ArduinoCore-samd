@@ -1,0 +1,13 @@
+name: Report PR Size Deltas
+
+on:
+  schedule:
+    - cron:  '*/5 * * * *'
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Comment size deltas reports to PRs
+        uses: arduino/actions/libraries/report-size-deltas@master

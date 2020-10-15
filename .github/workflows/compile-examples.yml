@@ -255,5 +255,11 @@ jobs:
           sketch-paths: |
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.additional-sketch-paths }}
-          enable-deltas-report: 'false'
+          enable-deltas-report: 'true'
           verbose: 'true'
+
+      - name: Save memory usage change report as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: size-deltas-reports
+          path: size-deltas-reports
