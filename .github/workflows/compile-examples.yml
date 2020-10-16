@@ -195,7 +195,7 @@ jobs:
           path: extras
 
       - name: Compile examples
-        uses: arduino/actions/libraries/compile-examples@master
+        uses: arduino/compile-sketches@main
         with:
           fqbn: ${{ matrix.board.fqbn }}
           libraries: |
