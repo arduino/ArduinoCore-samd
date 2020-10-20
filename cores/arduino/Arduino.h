@@ -47,6 +47,10 @@ extern "C"{
 // Include Atmel headers
 #include "sam.h"
 
+#ifdef __SAME51J19A__
+#include "same51j19a.h"
+#endif
+
 #include "wiring_constants.h"
 
 #define clockCyclesPerMicrosecond() ( SystemCoreClock / 1000000L )

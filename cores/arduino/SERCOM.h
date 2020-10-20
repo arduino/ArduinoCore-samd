@@ -21,6 +21,10 @@
 
 #include "sam.h"
 
+#ifdef __SAME51J19A__
+#include "same51j19a.h"
+#endif
+
 // SAMD51 has configurable MAX_SPI, else use peripheral clock default.
 // Update: changing MAX_SPI via compiler flags is DEPRECATED, because
 // this affects ALL SPI peripherals including some that should NOT be
