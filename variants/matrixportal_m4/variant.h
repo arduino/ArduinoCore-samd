@@ -81,13 +81,13 @@ extern "C"
 // #define digitalPinToTimer(P)
 
 // LEDs
-#define PIN_LED_47           (47u)
+#define PIN_LED_13           (13u)
 //#define PIN_LED_RXL          (25u)
 //#define PIN_LED_TXL          (26u)
-#define PIN_LED              PIN_LED_47
+#define PIN_LED              PIN_LED_13
 //#define PIN_LED2             PIN_LED_RXL
 //#define PIN_LED3             PIN_LED_TXL
-#define LED_BUILTIN          PIN_LED_47
+#define LED_BUILTIN          PIN_LED_13
 #define PIN_NEOPIXEL         (4)
 
 /*
