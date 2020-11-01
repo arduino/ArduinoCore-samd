@@ -177,76 +177,28 @@ SERCOM sercom3(SERCOM3);
 SERCOM sercom4(SERCOM4);
 SERCOM sercom5(SERCOM5);
 
-#if defined(USE_BQ24195L_PMIC)
-
+#ifdef USE_BQ24195L_PMIC
+#include "PMIC.h"
 #include "wiring_private.h"
-
-#define PMIC_ADDRESS  0x6B
-#define PMIC_REG01    0x01
-#define PMIC_REG07    0x07
-
-#define PMIC_REG00    0x00
-
-static inline void set_voltage_current_thresholds() {
-  PERIPH_WIRE.initMasterWIRE(100000);
-  PERIPH_WIRE.enableWIRE();
-  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
-  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
-
-  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG00);
-  PERIPH_WIRE.sendDataMasterWIRE(0x07);  // input voltage limit = 3.88V, input current limit = 3A
-  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-
-  PERIPH_WIRE.disableWIRE();
-}
-
-static inline void enable_battery_charging() {
-  PERIPH_WIRE.initMasterWIRE(100000);
-  PERIPH_WIRE.enableWIRE();
-  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
-  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
-
-  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
-  PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
-  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-
-  PERIPH_WIRE.disableWIRE();
-}
-
-static inline void disable_battery_fet(bool disabled) {
-  PERIPH_WIRE.initMasterWIRE(100000);
-  PERIPH_WIRE.enableWIRE();
-  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
-  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
-
-  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
-  // No D+/D– detection + Safety timer not slowed by 2X during input DPM or thermal regulation +
-  // BAT fet disabled/enabled + charge and bat fault INT
-  PERIPH_WIRE.sendDataMasterWIRE(0x0B | (disabled ? 0x20 : 0x00));
-  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-
-  PERIPH_WIRE.disableWIRE();
-}
-
 #endif
 
 void initVariant() {
-#if defined(USE_BQ24195L_PMIC)
+#ifdef USE_BQ24195L_PMIC
   pinMode(ADC_BATTERY, OUTPUT);
   digitalWrite(ADC_BATTERY, LOW);
   delay(10);
   pinMode(ADC_BATTERY, INPUT);
   delay(100);
 
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
   bool batteryPresent = analogRead(ADC_BATTERY) > 600;
-  if (batteryPresent) {
-    enable_battery_charging();
-  }
-  disable_battery_fet(!batteryPresent);
-  set_voltage_current_thresholds();
+  setupPMIC(PERIPH_WIRE, batteryPresent, true);
+
+  PERIPH_WIRE.disableWIRE();
 #endif
 
   // put GSM modem in reset on start to conserve power if it's not used
