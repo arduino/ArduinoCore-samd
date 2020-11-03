@@ -175,86 +175,41 @@ extern "C" {
 const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 };
 
 
-#if defined(USE_BQ24195L_PMIC)
+#ifdef USE_BQ24195L_PMIC
+#include "PMIC.h"
 #include "wiring_private.h"
-#include "delay.h"
-
-#define PMIC_ADDRESS  0x6B
-#define PMIC_REG01    0x01
-#define PMIC_REG07    0x07
-#define PMIC_REG08    0x08
-
-static inline void enable_battery_charging() {
-
-  bool ret = PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  if (!ret) {
-    return;
-  }
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
-  PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
-  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-}
-
-static inline void disable_battery_charging() {
-
-  bool ret = PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  if (!ret) {
-    return;
-  }
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
-  PERIPH_WIRE.sendDataMasterWIRE(0x0B); // Charge Battery + Minimum System Voltage 3.5V
-  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-}
-
-static inline void disable_battery_fet(bool disabled) {
-
-  bool ret = PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  if (!ret) {
-    return;
-  }
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG07);
-  // No D+/D– detection + Safety timer not slowed by 2X during input DPM or thermal regulation +
-  // BAT fet disabled/enabled + charge and bat fault INT
-  PERIPH_WIRE.sendDataMasterWIRE(0x0B | (disabled ? 0x20 : 0x00));
-  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-}
 
 static inline bool is_battery_present() {
+  BQ24195_REG08 reg08;
 
-  bool ret = PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
-  if (!ret) {
-    return false;
-  }
-  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG08);
+  PERIPH_WIRE.startTransmissionWIRE(BQ24195_ADDRESS, WIRE_WRITE_FLAG);
+  PERIPH_WIRE.sendDataMasterWIRE(BQ24195_REG08_ADDRESS);
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
-  ret = PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_READ_FLAG );
-  if (!ret) {
-    return false;
-  }
-  uint8_t res = PERIPH_WIRE.readDataWIRE();
+  PERIPH_WIRE.startTransmissionWIRE(BQ24195_ADDRESS, WIRE_READ_FLAG);
+  reg08.val = PERIPH_WIRE.readDataWIRE();
   PERIPH_WIRE.prepareNackBitWIRE();
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
-  return ((res & 0b1000) != 0);
+  return (reg08.DPM_STAT == 0b1);
 }
+#endif
 
 void initVariant() {
+#ifdef USE_BQ24195L_PMIC
   PERIPH_WIRE.initMasterWIRE(100000);
   PERIPH_WIRE.enableWIRE();
   pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
   pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
 
-  enable_battery_charging();
-  //disable_battery_fet(false);
+  setupPMIC(PERIPH_WIRE, true, false);
   delay(100);
-  bool batteryPresent = is_battery_present();
-  if (!batteryPresent) {
-    disable_battery_charging();
+  if (!is_battery_present()) {
+    setupPMIC(PERIPH_WIRE, false, false);
   }
 
   PERIPH_WIRE.disableWIRE();
-}
 #endif
+}
 
 // Multi-serial objects instantiation
 SERCOM sercom0(SERCOM0);
