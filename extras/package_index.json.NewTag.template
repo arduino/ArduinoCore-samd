@@ -1,0 +1,127 @@
+{
+  "packages": [
+    {
+      "name": "arduino",
+      "maintainer": "Arduino Betatesting",
+      "websiteURL": "http://www.arduino.cc/",
+      "email": "packages@arduino.cc",
+      "help": {
+        "online": "http://www.arduino.cc/en/Reference/HomePage"
+      },
+      "platforms": [
+        {
+          "name": "Arduino SAMD Boards (32-bits ARM Cortex-M0+) - Pre-release",
+          "architecture": "samd",
+          "version": "%%VERSION%%",
+          "category": "Arduino",
+          "help": {
+            "online": "http://www.arduino.cc/en/Reference/HomePage"
+          },
+          "url": "http://downloads.arduino.cc/cores/staging/%%FILENAME%%",
+          "archiveFileName": "%%FILENAME%%",
+          "checksum": "SHA-256:%%CHECKSUM%%",
+          "size": "%%SIZE%%",
+          "boards": [
+            { "name": "Arduino MKR WiFi 1010" },
+            { "name": "Arduino Zero" },
+            { "name": "Arduino MKR1000" },
+            { "name": "Arduino MKRZERO" },
+            { "name": "Arduino MKR FOX 1200" },
+            { "name": "Arduino MKR WAN 1300" },
+            { "name": "Arduino MKR WAN 1310" },
+            { "name": "Arduino MKR GSM 1400" },
+            { "name": "Arduino MKR NB 1500" },
+            { "name": "Arduino MKR Vidor 4000" },
+            { "name": "Arduino Nano 33 IoT" },
+            { "name": "Arduino M0 Pro" },
+            { "name": "Arduino M0" },
+            { "name": "Arduino Tian" },
+            { "name": "Adafruit Circuit Playground Express" }
+          ],
+          "toolsDependencies": [
+            {
+              "packager": "arduino",
+              "name": "arm-none-eabi-gcc",
+              "version": "7-2017q4"
+            },
+            {
+              "packager": "arduino",
+              "name": "bossac",
+              "version": "1.7.0-arduino3"
+            },
+            {
+              "packager": "arduino",
+              "name": "openocd",
+              "version": "0.10.0-arduino7"
+            },
+            {
+              "packager": "arduino",
+              "name": "CMSIS",
+              "version": "4.5.0"
+            },
+            {
+              "packager": "arduino",
+              "name": "CMSIS-Atmel",
+              "version": "1.2.0"
+            },
+            {
+              "packager": "arduino",
+              "name": "arduinoOTA",
+              "version": "1.2.1"
+            }
+          ]
+        }
+      ],
+      "tools": [
+        {
+          "name": "arm-none-eabi-gcc",
+          "version": "7-2017q4",
+          "systems": [
+            {
+              "host": "arm-linux-gnueabihf",
+              "url": "http://downloads.arduino.cc/tools/gcc-arm-none-eabi-7-2019-q4-major-linuxarm.tar.bz2",
+              "archiveFileName": "gcc-arm-none-eabi-7-2019-q4-major-linuxarm.tar.bz2",
+              "checksum": "SHA-256:34180943d95f759c66444a40b032f7dd9159a562670fc334f049567de140c51b",
+              "size": "96613739"
+            },
+            {
+              "host": "aarch64-linux-gnu",
+              "url": "http://downloads.arduino.cc/tools/gcc-arm-none-eabi-7-2018-q2-update-linuxarm64.tar.bz2",
+              "archiveFileName": "gcc-arm-none-eabi-7-2018-q2-update-linuxarm64.tar.bz2",
+              "checksum": "SHA-256:6fb5752fb4d11012bd0a1ceb93a19d0641ff7cf29d289b3e6b86b99768e66f76",
+              "size": "99558726"
+            },
+            {
+              "host": "i686-mingw32",
+              "url": "http://downloads.arduino.cc/tools/gcc-arm-none-eabi-7-2017-q4-major-win32-arduino1.zip",
+              "archiveFileName": "gcc-arm-none-eabi-7-2017-q4-major-win32-arduino1.zip",
+              "checksum": "SHA-256:96dd0091856f4d2eb21046eba571321feecf7d50b9c156f708b2a8b683903382",
+              "size": "131761924"
+            },
+            {
+              "host": "x86_64-apple-darwin",
+              "url": "http://downloads.arduino.cc/tools/gcc-arm-none-eabi-7-2017-q4-major-mac.tar.bz2",
+              "archiveFileName": "gcc-arm-none-eabi-7-2017-q4-major-mac.tar.bz2",
+              "checksum": "SHA-256:89b776c7cf0591c810b5b60067e4dc113b5b71bc50084a536e71b894a97fdccb",
+              "size": "104550003"
+            },
+            {
+              "host": "x86_64-pc-linux-gnu",
+              "url": "http://downloads.arduino.cc/tools/gcc-arm-none-eabi-7-2017-q4-major-linux64.tar.bz2",
+              "archiveFileName": "gcc-arm-none-eabi-7-2017-q4-major-linux64.tar.bz2",
+              "checksum": "SHA-256:96a029e2ae130a1210eaa69e309ea40463028eab18ba19c1086e4c2dafe69a6a",
+              "size": "99857645"
+            },
+            {
+              "host": "i686-pc-linux-gnu",
+              "url": "http://downloads.arduino.cc/tools/gcc-arm-none-eabi-7-2018-q2-update-linux32.tar.bz2",
+              "archiveFileName": "gcc-arm-none-eabi-7-2018-q2-update-linux32.tar.bz2",
+              "checksum": "SHA-256:090a0bc2b1956bc49392dff924a6c30fa57c88130097b1972204d67a45ce3cf3",
+              "size": "97427309"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

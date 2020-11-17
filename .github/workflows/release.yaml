@@ -1,0 +1,74 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+
+jobs:
+  core-pre-release-from-tag:
+    runs-on: ubuntu-latest
+
+    #container:
+      #image: arduino/arduino-cli:builder-1
+      #volumes:
+        # cache go dependencies across pipeline's steps
+       # - ${{ github.workspace }}/go:/go
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set env
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Test
+        run: |
+          echo $TAG_VERSION
+          echo ${{ env.TAG_VERSION }}
+
+      - name: Package the new core
+        run: |
+          extras/pack.release.bash $TAG_VERSION
+          mkdir staging
+          mv *.json staging/
+          mv *.tar.bz2 staging/
+
+      - name: Upload package_*_index.json file to Arduino downloads servers
+        uses: docker://plugins/s3
+        env:
+          PLUGIN_SOURCE: "staging/*.json*"
+          PLUGIN_TARGET: "/packages/staging/"
+          #PLUGIN_STRIP_PREFIX: "staging/"
+          PLUGIN_BUCKET: ${{ secrets.DOWNLOADS_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Upload *.tar.bz2 of new core to Arduino downloads servers
+        uses: docker://plugins/s3
+        env:
+          PLUGIN_SOURCE: "staging/*tar.bz2"
+          PLUGIN_TARGET: "/cores/staging/"
+          #PLUGIN_STRIP_PREFIX: "staging/"
+          PLUGIN_BUCKET: ${{ secrets.DOWNLOADS_BUCKET }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+      - name: Checkout Basic examples
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/arduino-examples
+          path: extras
+
+      - name: skjgs
+        run: |
+          ./arduino-cli version
+          export ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS=https://downloads.arduino.cc/packages/staging/package_new_tag_${{ env.TAG_VERSION }}_index.json
+          ./arduino-cli config init --additional-urls https://downloads.arduino.cc/packages/package_staging_index.json
+          ./arduino-cli config dump --verbose
+          ./arduino-cli core update-index
+          ./arduino-cli core download arduino:samd --additional-urls http://downloads.arduino.cc/packages/staging/package_new_tag_${VERSION}_index.json -v
+          ./arduino-cli core install arduino:samd@${VERSION}
+          ./arduino-cli core update-index
+          ./arduino-cli board listall
+          ./arduino-cli compile --fqbn arduino:samd:mkrwan1300 extras/examples/01.Basics/Blink -v

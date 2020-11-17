@@ -17,17 +17,40 @@
 #  License along with this library; if not, write to the Free Software
 #  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+# Version check removed because version string passed from jenkins was incorrect
+VERSION_FROM_TAG=$1
+echo $VERSION_FROM_TAG
 VERSION=`grep version= platform.txt | sed 's/version=//g'`
+echo $VERSION
+
+if [ $VERSION != $VERSION_FROM_TAG ]; then
+    exit 0
+fi
 
 PWD=`pwd`
 FOLDERNAME=`basename $PWD`
 THIS_SCRIPT_NAME=`basename $0`
+FILENAME=core-new-tag-$VERSION.tar.bz2
 
 rm -f samd-$VERSION.tar.bz2
+rm -f core-new-tag-$VERSION.tar.bz2
 
 cd ..
-tar --transform "s|$FOLDERNAME|$FOLDERNAME-$VERSION|g"  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf samd-$VERSION.tar.bz2 $FOLDERNAME
+tar  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf $FILENAME $FOLDERNAME
 cd -
 
-mv ../samd-$VERSION.tar.bz2 .
+mv ../$FILENAME .
+
+CHKSUM=`sha256sum $FILENAME | awk '{ print $1 }'`
+SIZE=`wc -c $FILENAME | awk '{ print $1 }'`
+
+cat extras/package_index.json.NewTag.template |
+# sed "s/%%BUILD_NUMBER%%/${BUILD_NUMBER}/" |
+# sed "s/%%CURR_TIME%%/${CURR_TIME_SED}/" |
+sed "s/%%VERSION%%/${VERSION}/" |
+sed "s/%%FILENAME%%/${FILENAME}/" |
+sed "s/%%CHECKSUM%%/${CHKSUM}/" |
+sed "s/%%SIZE%%/${SIZE}/" > package_new_tag_${VERSION}_index.json
+
+echo "${VERSION}"
 
