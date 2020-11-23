@@ -200,8 +200,7 @@ jobs:
         with:
           fqbn: ${{ matrix.board.fqbn }}
           libraries: |
-            - source-url: https://github.com/giulcioffi/WiFi101.git
-              version: namespaced_api
+            - source-url: https://github.com/arduino-libraries/WiFi101.git
             - name: MFRC522
             - name: Arduino_MKRMEM
             - name: FlashStorage
