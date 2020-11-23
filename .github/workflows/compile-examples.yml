@@ -116,6 +116,7 @@ jobs:
             additional-sketch-paths: |
               - libraries/I2S/examples
               - libraries/SDU/examples
+              - ~/Arduino/libraries/MKRNB/examples
           # nano_33_iot
           - board:
               type: "nano33IoT"
@@ -164,11 +165,6 @@ jobs:
               fqbn: "arduino:samd:mkrgsm1400"
             mkrgsm1400-sketch-paths: |
               - ~/Arduino/libraries/MKRGSM/examples
-          # MKRNB1500 board
-          - board:
-              fqbn: "arduino:samd:mkrnb1500"
-            additional-sketch-paths: |
-              - ~/Arduino/libraries/MKRNB/examples
           # MKRWAN board
           - board:
               WAN: "true"
