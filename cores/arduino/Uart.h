@@ -24,7 +24,7 @@
 
 #define SERIAL_BUFFER_SIZE  64
 
-class Uart : public arduino::HardwareSerial
+class Uart : public HardwareSerial
 {
   public:
     Uart(SERCOM *_s, uint8_t _pinRX, uint8_t _pinTX, SercomRXPad _padRX, SercomUartTXPad _padTX);
@@ -46,8 +46,8 @@ class Uart : public arduino::HardwareSerial
 
   private:
     SERCOM *sercom;
-    arduino::RingBuffer rxBuffer;
-    arduino::RingBuffer txBuffer;
+    RingBuffer rxBuffer;
+    RingBuffer txBuffer;
 
     uint8_t uc_pinRX;
     uint8_t uc_pinTX;
