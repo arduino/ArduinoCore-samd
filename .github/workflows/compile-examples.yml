@@ -162,7 +162,7 @@ jobs:
           # MKRGSM1400 board
           - board:
               fqbn: "arduino:samd:mkrgsm1400"
-            additional-sketch-paths: |
+            mkrgsm1400-sketch-paths: |
               - ~/Arduino/libraries/MKRGSM/examples
           # MKRNB1500 board
           - board:
