@@ -60,23 +60,23 @@ jobs:
 
       matrix:
         board: [
-          {"fqbn": "arduino:samd:arduino_zero_edbg", "type": "usb"},
-          {"fqbn": "arduino:samd:arduino_zero_native", "type": "usb"},
-          {"fqbn": "arduino:samd:mkr1000", "type": "usb"},
-          {"fqbn": "arduino:samd:mkrzero", "type": "usb"},
-          {"fqbn": "arduino:samd:mkrwifi1010", "type": "mkrWiFi1010"},
-          {"fqbn": "arduino:samd:nano_33_iot", "type": "nano33IoT"},
-          {"fqbn": "arduino:samd:mkrfox1200", "type": "usb"},
-          {"fqbn": "arduino:samd:mkrwan1300", "type": "usb"},
-          {"fqbn": "arduino:samd:mkrwan1310", "type": "mkrwan1310"},
-          {"fqbn": "arduino:samd:mkrgsm1400", "type": "usb"},
-          {"fqbn": "arduino:samd:mkrnb1500", "type": "mkrNB1500"},
-          {"fqbn": "arduino:samd:mkrvidor4000", "type": "vidor"},
-          {"fqbn": "arduino:samd:adafruit_circuitplayground_m0", "type": "adafruit_playg"},
-          {"fqbn": "arduino:samd:mzero_pro_bl_dbg", "type": "mzero"},
-          {"fqbn": "arduino:samd:mzero_pro_bl", "type": "mzero"},
-          {"fqbn": "arduino:samd:mzero_bl", "type": "mzero"},
-          {"fqbn": "arduino:samd:tian", "type": "tian"}
+          {"fqbn": "arduino:samd:arduino_zero_edbg", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:arduino_zero_native", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkr1000", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrzero", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrwifi1010", "type": "mkrWiFi1010", "WAN": "false"},
+          {"fqbn": "arduino:samd:nano_33_iot", "type": "nano33IoT", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrfox1200", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrwan1300", "type": "usb", "WAN": "true"},
+          {"fqbn": "arduino:samd:mkrwan1310", "type": "mkrwan1310", "WAN": "true"},
+          {"fqbn": "arduino:samd:mkrgsm1400", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrnb1500", "type": "mkrNB1500", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrvidor4000", "type": "vidor", "WAN": "false"},
+          {"fqbn": "arduino:samd:adafruit_circuitplayground_m0", "type": "adafruit_playg", "WAN": "false"},
+          {"fqbn": "arduino:samd:mzero_pro_bl_dbg", "type": "mzero", "WAN": "false"},
+          {"fqbn": "arduino:samd:mzero_pro_bl", "type": "mzero", "WAN": "false"},
+          {"fqbn": "arduino:samd:mzero_bl", "type": "mzero", "WAN": "false"},
+          {"fqbn": "arduino:samd:tian", "type": "tian", "WAN": "false"}
         ]
 
         # make board type-specific customizations to the matrix jobs
@@ -171,8 +171,8 @@ jobs:
               - ~/Arduino/libraries/MKRNB/examples
           # MKRWAN board
           - board:
-              fqbn: '"arduino:samd:mkrwan1300" "arduino:samd:mkrwan1310"'
-            additional-sketch-paths: |
+              WAN: "true"
+            wan-sketch-paths: |
               - ~/Arduino/libraries/MKRWAN/examples
 
     steps:
@@ -257,6 +257,7 @@ jobs:
             ${{ env.UNIVERSAL_SKETCH_PATHS }}
             ${{ matrix.additional-sketch-paths }}
             ${{ matrix.mkrgsm1400-sketch-paths }}
+            ${{ matrix.wan-sketch-paths }}
           enable-deltas-report: 'true'
           verbose: 'true'
 
