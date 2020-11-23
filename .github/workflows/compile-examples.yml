@@ -243,7 +243,7 @@ jobs:
             - name: WiFiNINA
             - source-url: https://github.com/vidor-libraries/VidorPeripherals.git
           platforms: |
-            # Use Board Manager to install the latest release of Arduino megaAVR Boards to get the toolchain
+            # Use Board Manager to install the latest release of Arduino SAMD Boards to get the toolchain
             - name: "arduino:samd"
             # Overwrite the Board Manager installation with the local platform
             - source-path: "./"
