@@ -31,7 +31,6 @@ jobs:
         - libraries/SPI
         - libraries/SFU/examples/SFU_LoadBinary
         - libraries/SAMD_AnalogCorrection
-        - ~/Arduino/libraries/Keyboard/examples/Serial
         - ~/Arduino/libraries/Servo/examples
         - ~/Arduino/libraries/LiquidCrystal/examples
         - ~/Arduino/libraries/Ethernet/examples
@@ -200,7 +199,7 @@ jobs:
             - name: MFRC522
             - name: Arduino_MKRMEM
             - name: FlashStorage
-            - source-url: https://github.com/arduino-libraries/Keyboard.git
+            - name: Keyboard
             - name: Mouse
             - name: Servo
             - name: LiquidCrystal
