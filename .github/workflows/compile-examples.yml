@@ -181,8 +181,14 @@ jobs:
           repository: arduino/ArduinoCore-API
           path: extras/ArduinoCore-API
 
+      - name: Check if API should be compiled in the core
+        id: checkapi
+        run: |
+          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
+
       - name: Install ArduinoCore-API
         run: mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+        if: steps.checkapi.outputs.IS_API == 'true'
 
       - name: Checkout Basic examples
         uses: actions/checkout@v2
