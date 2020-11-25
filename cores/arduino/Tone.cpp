@@ -16,7 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
-#include "Tone.h"
+#include "Arduino.h"
 #include "variant.h"
 
 #define WAIT_TC16_REGS_SYNC(x) while(x->COUNT16.STATUS.bit.SYNCBUSY);
@@ -55,7 +55,7 @@ void toneAccurateClock (uint32_t accurateSystemCoreClockFrequency)
   toneMaxFrequency = accurateSystemCoreClockFrequency / 2;
 }
 
-void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
+void tone (unsigned char outputPin, unsigned int frequency, unsigned long duration)
 {
   
   // Avoid divide by zero error by calling 'noTone' instead
@@ -158,7 +158,7 @@ void tone (uint32_t outputPin, uint32_t frequency, uint32_t duration)
   NVIC_EnableIRQ(TONE_TC_IRQn);
 }
 
-void noTone (uint32_t outputPin)
+void noTone (uint8_t outputPin)
 {
   /* 'tone' need to run at least once in order to enable GCLK for
    * the timers used for the tone-functionality. If 'noTone' is called

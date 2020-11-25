@@ -2,7 +2,6 @@
 
 #include "Arduino.h"
 #include <usbhub.h>
-#include "wiring_constants.h"
 #include "pgmstrings.h"
 // Satisfy IDE, which only needs to see the include statment in the ino.
 #ifdef dobogusinclude

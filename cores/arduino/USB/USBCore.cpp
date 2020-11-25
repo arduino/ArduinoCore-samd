@@ -20,16 +20,25 @@
 
 #include <Arduino.h>
 
+#include "api/USBAPI.h"
+#include "USBAPI.h"
 #include "SAMD21_USBDevice.h"
-#include "PluggableUSB.h"
 #include "CDC.h"
+#include "api/PluggableUSB.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <limits.h>
 
+
+/*
+ * USB Device instance
+ * -------------------
+ */
+
 USBDevice_SAMD21G18x usbd;
+USBDeviceClass USBDevice;
 
 /** Pulse generation counters to keep track of the number of milliseconds remaining for each pulse type */
 #define TX_RX_LED_PULSE_MS 100
@@ -223,11 +232,9 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 			memset(name, 0, sizeof(name));
 			uint8_t idx = 0;
 #ifdef PLUGGABLE_USB_ENABLED
-			idx += PluggableUSB().getShortName(&name[idx]);
+			PluggableUSB().getShortName(name);
+			return sendStringDescriptor((uint8_t*)name, setup.wLength);
 #endif
-			if (idx > 0) {
-				return sendStringDescriptor((uint8_t*)name, setup.wLength);
-			}
 		}
 		else {
 			return false;
@@ -911,7 +918,7 @@ void USBDeviceClass::ISRHandler()
 				epHandlers[ep]->handleEndpoint();
 			} else {
 				#if defined(PLUGGABLE_USB_ENABLED)
-				PluggableUSB().handleEndpoint(ep);
+				SerialUSB.handleEndpoint(ep);
 				usbd.epAckPendingInterrupts(ep);
 				#endif
 			}
@@ -919,12 +926,16 @@ void USBDeviceClass::ISRHandler()
 	}
 }
 
-/*
- * USB Device instance
- * -------------------
- */
+// PluggableUSB contructor
+PluggableUSB_::PluggableUSB_() : lastIf(0),
+                                 lastEp(1),
+                                 rootNode(NULL), totalEP(USB_ENDPOINTS)
+{
+	// Empty
+}
 
-// USBDevice class instance
-USBDeviceClass USBDevice;
+void* epBuffer(unsigned int lastEp) {
+	return &(EndPoints[lastEp]);
+}
 
 #endif

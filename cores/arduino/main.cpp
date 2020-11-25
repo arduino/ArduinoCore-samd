@@ -24,6 +24,8 @@
 void initVariant() __attribute__((weak));
 void initVariant() { }
 
+extern USBDeviceClass USBDevice;
+
 // Initialize C library
 extern "C" void __libc_init_array(void);
 

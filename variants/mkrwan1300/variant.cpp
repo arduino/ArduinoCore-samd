@@ -177,7 +177,7 @@ const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3,
 
 #if defined(USE_BQ24195L_PMIC)
 #include "wiring_private.h"
-#include "delay.h"
+#include "../Common.h"
 
 #define PMIC_ADDRESS  0x6B
 #define PMIC_REG01    0x01
