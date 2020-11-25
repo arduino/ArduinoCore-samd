@@ -49,6 +49,7 @@ static inline SercomSpiClockMode getDataMode(SPISettings& settings) {
 }
 
 SPIClass::SPIClass(SERCOM *p_sercom, uint8_t uc_pinMISO, uint8_t uc_pinSCK, uint8_t uc_pinMOSI, SercomSpiTXPad PadTx, SercomRXPad PadRx)
+: settings(0, MSBFIRST, SPI_MODE0)
 {
   initialized = false;
   assert(p_sercom != NULL);
