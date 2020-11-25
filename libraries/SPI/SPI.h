@@ -33,11 +33,6 @@
 // SPI_HAS_NOTUSINGINTERRUPT means that SPI has notUsingInterrupt() method
 #define SPI_HAS_NOTUSINGINTERRUPT 1
 
-#define SPI_MODE0 0x02
-#define SPI_MODE1 0x00
-#define SPI_MODE2 0x03
-#define SPI_MODE3 0x01
-
 #if defined(ARDUINO_ARCH_SAMD)
   // The datasheet specifies a typical SPI SCK period (tSCK) of 42 ns,
   // see "Table 36-48. SPI Timing Characteristics and Requirements",
