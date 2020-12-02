@@ -57,7 +57,7 @@ extern "C"
  *----------------------------------------------------------------------------*/
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (43u)
+#define PINS_COUNT           (44u)
 #define NUM_DIGITAL_PINS     (23u)
 #define NUM_ANALOG_INPUTS    (6u)
 #define NUM_ANALOG_OUTPUTS   (1u)
@@ -206,9 +206,14 @@ static const uint8_t SCL = PIN_WIRE_SCL;
 /*
  * CAN
  */
-#define PIN_CAN_RX      (42)
 #define PIN_CAN_STANDBY (40)
-#define PIN_CAN_TX      (41)
+#define PIN_CAN_BOOSTEN (41)
+#define PIN_CAN_TX      (42)
+#define PIN_CAN_RX      (43)
+
+#define PIN_CAN1_TX     (12)
+#define PIN_CAN1_RX     (13)
+
 
 #ifdef __cplusplus
 }
