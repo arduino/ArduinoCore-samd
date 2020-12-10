@@ -1601,7 +1601,7 @@ adafruit_matrixportal_m4.menu.debug.on.build.flags.debug=-g
 # ------------------------------
 adafruit_blm_badge.name=Adafruit BLM Badge
 adafruit_blm_badge.vid.0=0x239A
-adafruit_blm_badge.pid.0=0x0x80BF
+adafruit_blm_badge.pid.0=0x80BF
 adafruit_blm_badge.vid.1=0x239A
 adafruit_blm_badge.pid.1=0x00BF
 adafruit_blm_badge.upload.tool=bossac
