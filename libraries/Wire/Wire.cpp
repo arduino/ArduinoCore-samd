@@ -64,7 +64,7 @@ void TwoWire::end() {
   sercom->disableWIRE();
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 {
   if(quantity == 0)
   {
@@ -105,7 +105,7 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
   return byteRead;
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity)
 {
   return requestFrom(address, quantity, true);
 }
@@ -336,4 +336,3 @@ void TwoWire::onService(void)
     Wire5.onService();
   }
 #endif
-

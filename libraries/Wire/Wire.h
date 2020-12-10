@@ -45,8 +45,8 @@ class TwoWire : public HardwareI2C
     uint8_t endTransmission(bool stopBit);
     uint8_t endTransmission(void);
 
-    uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit);
-    uint8_t requestFrom(uint8_t address, size_t quantity);
+    size_t requestFrom(uint8_t address, size_t quantity, bool stopBit);
+    size_t requestFrom(uint8_t address, size_t quantity);
 
     size_t write(uint8_t data);
     size_t write(const uint8_t * data, size_t quantity);
