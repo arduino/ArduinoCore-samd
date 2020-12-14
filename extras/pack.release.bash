@@ -19,7 +19,9 @@
 
 # Version check removed because version string passed from jenkins was incorrect
 VERSION_FROM_TAG=$1
+CORE_NAME=$2
 echo $VERSION_FROM_TAG
+echo $CORE_NAME
 VERSION=`grep version= platform.txt | sed 's/version=//g'`
 echo $VERSION
 
@@ -30,13 +32,14 @@ fi
 PWD=`pwd`
 FOLDERNAME=`basename $PWD`
 THIS_SCRIPT_NAME=`basename $0`
-FILENAME=core-new-tag-$VERSION.tar.bz2
+FILENAME=core-$CORE_NAME-$VERSION.tar.bz2
+echo $FILENAME
 
-rm -f samd-$VERSION.tar.bz2
-rm -f core-new-tag-$VERSION.tar.bz2
+rm -f *.tar.bz2
+rm -f *.json
 
 cd ..
-tar  --exclude=extras/** --exclude=.git* --exclude=.idea -cjf $FILENAME $FOLDERNAME
+tar  --exclude=extras/** --exclude=.git* --exclude=.idea -cjhf $FILENAME $FOLDERNAME
 cd -
 
 mv ../$FILENAME .
@@ -50,7 +53,4 @@ cat extras/package_index.json.NewTag.template |
 sed "s/%%VERSION%%/${VERSION}/" |
 sed "s/%%FILENAME%%/${FILENAME}/" |
 sed "s/%%CHECKSUM%%/${CHKSUM}/" |
-sed "s/%%SIZE%%/${SIZE}/" > package_new_tag_${VERSION}_index.json
-
-echo "${VERSION}"
-
+sed "s/%%SIZE%%/${SIZE}/" > package_${CORE_NAME}_${VERSION}_index.json

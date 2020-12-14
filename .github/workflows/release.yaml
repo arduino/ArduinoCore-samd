@@ -9,66 +9,90 @@ jobs:
   core-pre-release-from-tag:
     runs-on: ubuntu-latest
 
-    #container:
-      #image: arduino/arduino-cli:builder-1
-      #volumes:
-        # cache go dependencies across pipeline's steps
-       # - ${{ github.workspace }}/go:/go
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+        with:
+          path: core-repo
+
+      - name: Checkout ArduinoCore-API
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-API
+          path: ArduinoCore-API
 
       - name: Set env
         run: echo "TAG_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
-      - name: Test
+      - name: Get repo name
+        run: echo "REPOSITORY_NAME=$(echo ${{ github.repository }} | cut -d "/" -f2-)" >> $GITHUB_ENV
+
+      - name: Rename core-repo path
         run: |
-          echo $TAG_VERSION
-          echo ${{ env.TAG_VERSION }}
+          mv core-repo ${REPOSITORY_NAME}
 
       - name: Package the new core
         run: |
-          extras/pack.release.bash $TAG_VERSION
+          cd ${REPOSITORY_NAME}
+          echo $PWD
+          extras/pack.release.bash $TAG_VERSION $REPOSITORY_NAME
+          cd extras
           mkdir staging
-          mv *.json staging/
-          mv *.tar.bz2 staging/
+          echo $PWD
+          mv ../*.json staging/
+          mv ../*.tar.bz2 staging/
+          cd ../..
 
-      - name: Upload package_*_index.json file to Arduino downloads servers
-        uses: docker://plugins/s3
-        env:
-          PLUGIN_SOURCE: "staging/*.json*"
-          PLUGIN_TARGET: "/packages/staging/"
-          #PLUGIN_STRIP_PREFIX: "staging/"
-          PLUGIN_BUCKET: ${{ secrets.DOWNLOADS_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      - name: Get architecture name
+        run: |
+          echo "ARCHITECTURE=$(cat ${REPOSITORY_NAME}/extras/package_index.json.NewTag.template | jq ".packages[0].platforms[0].architecture" | sed 's/\"//g')" >> $GITHUB_ENV
 
-      - name: Upload *.tar.bz2 of new core to Arduino downloads servers
-        uses: docker://plugins/s3
+      - name: Upload package_*_index.json and *.tar.bz2 file to Arduino downloads servers
         env:
-          PLUGIN_SOURCE: "staging/*tar.bz2"
-          PLUGIN_TARGET: "/cores/staging/"
-          #PLUGIN_STRIP_PREFIX: "staging/"
-          PLUGIN_BUCKET: ${{ secrets.DOWNLOADS_BUCKET }}
-          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync ${REPOSITORY_NAME}/extras/staging/ s3://${{ secrets.ARDUINO_DOWNLOADS_BUCKET }}/packages/staging/ --exclude "*" --include *.json
+          aws s3 sync ${REPOSITORY_NAME}/extras/staging/ s3://${{ secrets.ARDUINO_DOWNLOADS_BUCKET }}/cores/staging/ --exclude "*" --include *.tar.bz2
 
       - name: Checkout Basic examples
         uses: actions/checkout@v2
         with:
           repository: arduino/arduino-examples
-          path: extras
+          path: extras/arduino-examples
 
-      - name: skjgs
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1.1.1
+        with:
+          version: "0.14.0"
+
+      - name: Verify new core
         run: |
-          ./arduino-cli version
-          export ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS=https://downloads.arduino.cc/packages/staging/package_new_tag_${{ env.TAG_VERSION }}_index.json
-          ./arduino-cli config init --additional-urls https://downloads.arduino.cc/packages/package_staging_index.json
-          ./arduino-cli config dump --verbose
-          ./arduino-cli core update-index
-          ./arduino-cli core download arduino:samd --additional-urls http://downloads.arduino.cc/packages/staging/package_new_tag_${VERSION}_index.json -v
-          ./arduino-cli core install arduino:samd@${VERSION}
-          ./arduino-cli core update-index
-          ./arduino-cli board listall
-          ./arduino-cli compile --fqbn arduino:samd:mkrwan1300 extras/examples/01.Basics/Blink -v
+          export PATH=$PATH:$PWD
+          arduino-cli version
+          cp ${REPOSITORY_NAME}/extras/staging/package_${REPOSITORY_NAME}_${TAG_VERSION}_index.json .
+          export ARDUINO_DIRECTORIES_DATA=$PWD
+          export ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS=file://$PWD/package_${REPOSITORY_NAME}_${TAG_VERSION}_index.json
+          arduino-cli config init
+          arduino-cli config dump -v
+          arduino-cli core update-index -v
+          arduino-cli core install arduino:${ARCHITECTURE}@${TAG_VERSION}
+          INDEX=0
+          arduino-cli board listall --format=json > boardlist.json
+          N=$(jq '.boards | length' boardlist.json)
+          let N=N-1
+          echo $N
+          for INDEX in $(seq 0 1 $N); do arduino-cli compile --fqbn $(cat boardlist.json | jq ".boards[$INDEX].FQBN" | sed 's/\"//g') $PWD/extras/arduino-examples/examples/01.Basics/Blink; done
+
+      # See: https://github.com/rtCamp/action-slack-notify
+      - name: Slack notification of core pre-release
+        uses: rtCamp/action-slack-notify@v2.1.0
+        env:
+          SLACK_CHANNEL: core_releases
+          SLACK_COLOR: good
+          SLACK_USERNAME: ArduinoBot
+          SLACK_ICON: https://github.com/arduino.png?size=48
+          SLACK_TITLE: Arduino core pre-release
+          SLACK_MESSAGE: 'Version ${{ env.TAG_VERSION }} of core ${{ env.REPOSITORY_NAME }} is now available'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          MSG_MINIMAL: true
