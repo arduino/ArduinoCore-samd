@@ -13,6 +13,29 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
+      - name: Checkout ArduinoCore-API
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-API
+          path: extras/ArduinoCore-API
+
+      - name: Check if API should be compiled in the core
+        id: checkapi
+        run: |
+          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
+
+      - name: Checkout latest tag of ArduinoCore-API and add it to the core
+        run: |
+          cd extras/ArduinoCore-API
+          git fetch --tags
+          git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
+          cd ../..
+          mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+        if: steps.checkapi.outputs.IS_API == 'true'
+
+      - name: Remove ArduinoCore-API
+        run: rm -r "$GITHUB_WORKSPACE/extras/ArduinoCore-API"
+
       - name: Set env
         run: echo "TAG_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
 
@@ -52,7 +75,7 @@ jobs:
         with:
           version: "0.14.0"
 
-      - name: Download new core
+      - name: Download and verify new core
         run: |
           export PATH=$PATH:$PWD
           arduino-cli version
@@ -63,24 +86,6 @@ jobs:
           arduino-cli config dump -v
           arduino-cli core update-index -v
           arduino-cli core install arduino:${ARCHITECTURE}@${TAG_VERSION}
-
-      - name: Checkout ArduinoCore-API
-        uses: actions/checkout@v2
-        with:
-          repository: arduino/ArduinoCore-API
-          path: extras/ArduinoCore-API
-
-      - name: Check if API should be compiled in the core
-        id: checkapi
-        run: |
-          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
-
-      - name: Integrate ArduinoCore-API
-        run: mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/packages/arduino/hardware/${ARCHITECTURE}/${TAG_VERSION}/cores/arduino"
-        if: steps.checkapi.outputs.IS_API == 'true'
-
-      - name: Verify new core
-        run: |
           INDEX=0
           arduino-cli board listall --format=json > boardlist.json
           N=$(jq '.boards | length' boardlist.json)
