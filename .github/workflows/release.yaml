@@ -13,22 +13,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v2
 
-      - name: Get Latest Release
-        id: latest_API_version
-        uses: abatilo/release-info-action@v1.3.0
-        with:
-          owner: arduino
-          repo: ArduinoCore-API
-
-      - name: Set ArduinoCore-API latest version as env variable
-        run: |
-          echo "LATEST_TAG_API=$(echo ${{ steps.latest_API_version.outputs.latest_tag }})" >> $GITHUB_ENV
-
       - name: Checkout ArduinoCore-API
         uses: actions/checkout@v2
         with:
           repository: arduino/ArduinoCore-API
-          ref: ${{ env.LATEST_TAG_API }}
           path: extras/ArduinoCore-API
 
       - name: Check if API should be compiled in the core
@@ -36,8 +24,13 @@ jobs:
         run: |
           if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
 
-      - name: Integrate ArduinoCore-API
-        run: mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+      - name: Checkout latest tag of ArduinoCore-API and add it to the core
+        run: |
+          cd extras/ArduinoCore-API
+          git fetch --tags
+          git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
+          cd ../..
+          mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
         if: steps.checkapi.outputs.IS_API == 'true'
 
       - name: Remove ArduinoCore-API
