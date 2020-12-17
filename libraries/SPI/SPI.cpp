@@ -93,8 +93,13 @@ void SPIClass::config(SPISettings settings)
     this->settings = settings;
     _p_sercom->disableSPI();
 
-  _p_sercom->initSPI(_padTx, _padRx, SPI_CHAR_SIZE_8_BITS, getBitOrder(settings));
-  _p_sercom->initSPIClock(getDataMode(settings), settings.getClockFreq());
+    uint32_t clock_freq = settings.getClockFreq();
+    if (clock_freq > F_CPU/2) {
+      clock_freq = F_CPU/2;
+    }
+
+    _p_sercom->initSPI(_padTx, _padRx, SPI_CHAR_SIZE_8_BITS, getBitOrder(settings));
+    _p_sercom->initSPIClock(getDataMode(settings), clock_freq);
 
     _p_sercom->enableSPI();
   }
