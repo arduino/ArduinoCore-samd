@@ -230,7 +230,6 @@ bool USBDeviceClass::sendDescriptor(USBSetup &setup)
 		else if (setup.wValueL == ISERIAL) {
 			char name[ISERIAL_MAX_LEN];
 			memset(name, 0, sizeof(name));
-			uint8_t idx = 0;
 #ifdef PLUGGABLE_USB_ENABLED
 			PluggableUSB().getShortName(name);
 			return sendStringDescriptor((uint8_t*)name, setup.wLength);

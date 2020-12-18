@@ -28,7 +28,8 @@
 //   - endTransaction()
 //   - usingInterrupt()
 //   - SPISetting(clock, bitOrder, dataMode)
-#define SPI_HAS_TRANSACTION 1
+// #define SPI_HAS_TRANSACTION 1
+// Every core implementing arduino API has SPI transaction
 
 // SPI_HAS_NOTUSINGINTERRUPT means that SPI has notUsingInterrupt() method
 #define SPI_HAS_NOTUSINGINTERRUPT 1

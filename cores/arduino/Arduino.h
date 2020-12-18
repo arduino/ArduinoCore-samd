@@ -31,6 +31,7 @@ extern "C"{
 #endif // __cplusplus
 
 // Include Atmel headers
+#undef LITTLE_ENDIAN
 #include <samd.h>
 
 #define clockCyclesPerMicrosecond() ( SystemCoreClock / 1000000L )
