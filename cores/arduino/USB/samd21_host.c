@@ -25,7 +25,6 @@
 #include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
-#include "sam.h"
 #include "wiring_private.h"
 
 #define HOST_DEFINED
