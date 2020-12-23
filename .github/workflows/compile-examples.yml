@@ -53,6 +53,7 @@ jobs:
         - ~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data
         - ~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data
         - ~/Arduino/libraries/WiFi101/examples
+        - ~/Arduino/libraries/AceTime/examples/HelloDateTime
 
     strategy:
       fail-fast: false
