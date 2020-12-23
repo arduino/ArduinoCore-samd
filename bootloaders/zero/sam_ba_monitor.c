@@ -450,19 +450,8 @@ static void sam_ba_monitor_loop(void)
         sam_ba_putdata( ptr_monitor_if, (uint8_t *) RomBOOT_Version, strlen(RomBOOT_Version));
         sam_ba_putdata( ptr_monitor_if, " ", 1);
         sam_ba_putdata( ptr_monitor_if, (uint8_t *) RomBOOT_ExtendedCapabilities, strlen(RomBOOT_ExtendedCapabilities));
-        sam_ba_putdata( ptr_monitor_if, " ", 1);
-        ptr = (uint8_t*) &(__DATE__);
-        i = 0;
-        while (*ptr++ != '\0')
-          i++;
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) &(__DATE__), i);
-        sam_ba_putdata( ptr_monitor_if, " ", 1);
-        i = 0;
-        ptr = (uint8_t*) &(__TIME__);
-        while (*ptr++ != '\0')
-          i++;
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) &(__TIME__), i);
-        sam_ba_putdata( ptr_monitor_if, "\n\r", 2);
+        ptr = (uint8_t*) &(" " __DATE__ " " __TIME__ "\n\r");
+        sam_ba_putdata( ptr_monitor_if, ptr, strlen(ptr));
       }
       else if (command == 'X') // Erase flash
       {
