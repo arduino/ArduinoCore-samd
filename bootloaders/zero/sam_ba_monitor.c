@@ -30,7 +30,8 @@
 #include <stdlib.h>
 
 const char RomBOOT_Version[] = SAM_BA_VERSION;
-const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZ]";
+// X = Chip Erase, Y = Write Buffer, Z = Checksum Buffer, P = Secure Bit Aware
+const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZP]";
 
 /* Provides one common interface to handle both USART and USB-CDC */
 typedef struct
@@ -82,6 +83,8 @@ const t_monitor_if usbcdc_if =
 
 /* The pointer to the interface object use by the monitor */
 t_monitor_if * ptr_monitor_if;
+
+bool b_security_enabled = false;
 
 /* b_terminal_mode mode (ascii) or hex mode */
 volatile bool b_terminal_mode = false;
@@ -225,6 +228,10 @@ void sam_ba_putdata_term(uint8_t* data, uint32_t length)
 volatile uint32_t sp;
 void call_applet(uint32_t address)
 {
+  if (b_security_enabled) {
+    return;
+  }
+
   uint32_t app_start_address;
 
   __disable_irq();
@@ -242,6 +249,7 @@ void call_applet(uint32_t address)
 }
 
 uint32_t current_number;
+uint32_t erased_from = 0;
 uint32_t i, length;
 uint8_t command, *ptr_data, *ptr, data[SIZEBUFMAX];
 uint8_t j;
@@ -264,6 +272,20 @@ static void put_uint32(uint32_t n)
   sam_ba_putdata( ptr_monitor_if, buff, 8);
 }
 
+static void eraseFlash(uint32_t dst_addr)
+{
+	erased_from = dst_addr;
+	while (dst_addr < MAX_FLASH)
+	{
+		// Execute "ER" Erase Row
+		NVMCTRL->ADDR.reg = dst_addr / 2;
+		NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
+		while (NVMCTRL->INTFLAG.bit.READY == 0)
+			;
+		dst_addr += PAGE_SIZE * 4; // Skip a ROW
+	}
+}
+
 #ifdef ENABLE_JTAG_LOAD
 static uint32_t offset = __UINT32_MAX__;
 static bool flashNeeded = false;
@@ -284,7 +306,7 @@ static void sam_ba_monitor_loop(void)
       {
         sam_ba_putdata(ptr_monitor_if, "\n\r", 2);
       }
-      if (command == 'S')
+      if (command == 'S') // Write memory (normally RAM, but might be flash, if client handles the Flash MCU commands?)
       {
         //Check if some data are remaining in the "data" buffer
         if(length>i)
@@ -318,37 +340,80 @@ static void sam_ba_monitor_loop(void)
 
         __asm("nop");
       }
-      else if (command == 'R')
+      else if (command == 'R') // Read memory (flash or RAM)
       {
+        // Flash memory starts at address 0 and runs to flash size 0x40000 (256 KByte)
+
+        // Internal RWW section is at adress 0x400000. RWW is flash used for EEPROM emulation. Will not let anyone read that, when in secure mode, either.
+        // Bootloader ends at 0x1FFF, so user programs start at 0x2000
+        // RAM starts at 0x20000000, so redirect FLASH reads into RAM reads, when in secure mode
+        if (b_security_enabled && ((uint32_t)ptr_data >= 0x0000 && (uint32_t)ptr_data < 0x20000000))
+        {
+          ptr_data = (uint8_t *)0x20005000;
+        }
+
         sam_ba_putdata_xmd(ptr_monitor_if, ptr_data, current_number);
       }
-      else if (command == 'O')
+      else if (command == 'O') // write byte
       {
         *ptr_data = (char) current_number;
       }
-      else if (command == 'H')
+      else if (command == 'H') // Write half word
       {
         *((uint16_t *) ptr_data) = (uint16_t) current_number;
       }
-      else if (command == 'W')
+      else if (command == 'W') // Write word
       {
         *((int *) ptr_data) = current_number;
       }
-      else if (command == 'o')
+      else if (command == 'o') // Read byte
       {
+        // Flash memory starts at address 0 and runs to flash size 0x40000 (256 KByte). RAM starts at 0x20000000.
+        // Intern RWW section is at adress 0x400000. RWW is flash used for EEPROM emulation. Will not let anyone read that, when in secure mode, either.
+        // BOSSA reads address 0 to check something, but using read word instead of read byte, but in any case allow reading first byte
+        // Bootloader ends at 0x1FFF, so user programs start at 0x2000
+        if (b_security_enabled && ((uint32_t)ptr_data > 0x0003 && (uint32_t)ptr_data < 0x20000000))
+        {
+          ptr_data = (uint8_t*) &current_number;
+        }
+
         sam_ba_putdata_term(ptr_data, 1);
       }
-      else if (command == 'h')
+      else if (command == 'h') // Read half word
       {
-        current_number = *((uint16_t *) ptr_data);
+        // Flash memory starts at address 0 and runs to flash size 0x40000 (256 KByte). RAM starts at 0x20000000.
+        // Intern RWW section is at adress 0x400000. RWW is flash used for EEPROM emulation. Will not let anyone read that, when in secure mode, either.
+        // BOSSA reads address 0 to check something, but using read word instead of read byte, but in any case allow reading first byte
+        // Bootloader ends at 0x1FFF, so user programs start at 0x2000
+        if (b_security_enabled && ((uint32_t)ptr_data > 0x0003 && (uint32_t)ptr_data < 0x20000000))
+        {
+          current_number = 0;
+        }
+        else
+        {
+          current_number = *((uint16_t *) ptr_data);
+        }
+
         sam_ba_putdata_term((uint8_t*) &current_number, 2);
       }
-      else if (command == 'w')
+      else if (command == 'w') // Read word
       {
-        current_number = *((uint32_t *) ptr_data);
+        // Flash memory starts at address 0 and runs to flash size 0x40000 (256 KByte). RAM starts at 0x20000000.
+        // Intern RWW section is at adress 0x400000. RWW is flash used for EEPROM emulation. Will not let anyone read that, when in secure mode, either.
+        // BOSSA reads address 0 to check something, but using read word instead of read byte, but in any case allow reading first byte
+        // Bootloader ends at 0x1FFF, so user programs start at 0x2000
+        if (b_security_enabled && ((uint32_t)ptr_data > 0x0003 && (uint32_t)ptr_data < 0x20000000))
+        {
+          current_number = 0;
+        }
+        else
+        {
+          current_number = *((uint32_t *) ptr_data);
+        }
+
         sam_ba_putdata_term((uint8_t*) &current_number, 4);
       }
-      else if (command == 'G')
+      else if (!b_security_enabled && command == 'G')  // Execute code. Will not allow when security is enabled.
       {
         call_applet(current_number);
         /* Rebase the Stack Pointer */
@@ -358,12 +423,12 @@ static void sam_ba_monitor_loop(void)
           ptr_monitor_if->put_c(0x6);
         }
       }
-      else if (command == 'T')
+      else if (command == 'T') // Turn on terminal mode
       {
         b_terminal_mode = 1;
         sam_ba_putdata(ptr_monitor_if, "\n\r", 2);
       }
-      else if (command == 'N')
+      else if (command == 'N') // Turn off terminal mode
       {
         if (b_terminal_mode == 0)
         {
@@ -371,7 +436,7 @@ static void sam_ba_monitor_loop(void)
         }
         b_terminal_mode = 0;
       }
-      else if (command == 'V')
+      else if (command == 'V') // Read version information
       {
         sam_ba_putdata( ptr_monitor_if, "v", 1);
         sam_ba_putdata( ptr_monitor_if, (uint8_t *) RomBOOT_Version, strlen(RomBOOT_Version));
@@ -391,7 +456,7 @@ static void sam_ba_monitor_loop(void)
         sam_ba_putdata( ptr_monitor_if, (uint8_t *) &(__TIME__), i);
         sam_ba_putdata( ptr_monitor_if, "\n\r", 2);
       }
-      else if (command == 'X')
+      else if (command == 'X') // Erase flash
       {
         // Syntax: X[ADDR]#
         // Erase the flash memory starting from ADDR to the end of flash.
@@ -400,22 +465,13 @@ static void sam_ba_monitor_loop(void)
         //       Even if the starting address is the last byte of a ROW the entire
         //       ROW is erased anyway.
 
-        uint32_t dst_addr = current_number; // starting address
-
-        while (dst_addr < MAX_FLASH)
-        {
-          // Execute "ER" Erase Row
-          NVMCTRL->ADDR.reg = dst_addr / 2;
-          NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMDEX_KEY | NVMCTRL_CTRLA_CMD_ER;
-          while (NVMCTRL->INTFLAG.bit.READY == 0)
-            ;
-          dst_addr += PAGE_SIZE * 4; // Skip a ROW
-        }
-
+        // BOSSAC.exe always erase with 0x2000 as argument, but an attacker might try to erase just parts of the flash, to be able to copy or analyze the untouched parts.
+        // To mitigate this, always erase all sketch flash, that is, starting from address 0x2000. This butloader always assume 8 KByte for itself, and sketch starting at 0x2000.
+        eraseFlash(b_security_enabled ? 0x2000 : current_number);
         // Notify command completed
         sam_ba_putdata( ptr_monitor_if, "X\n\r", 3);
       }
-      else if (command == 'Y')
+      else if (command == 'Y') // Write buffer to flash
       {
         // This command writes the content of a buffer in SRAM into flash memory.
 
@@ -435,6 +491,13 @@ static void sam_ba_monitor_loop(void)
         }
         else
         {
+          if (b_security_enabled && erased_from != 0x2000)
+          {
+            // To mitigate that an attacker might not use the ordinary BOSSA method of erasing flash before programming,
+            // always erase flash, if it hasn't been done already.
+            eraseFlash(0x2000);
+          }
+
           // Write to flash
           uint32_t size = current_number/4;
           uint32_t *src_addr = src_buff_addr;
@@ -546,7 +609,7 @@ end:
         // Notify command completed
         sam_ba_putdata( ptr_monitor_if, "Y\n\r", 3);
       }
-      else if (command == 'Z')
+      else if (command == 'Z') // Calculate CRC16
       {
         // This command calculate CRC for a given area of memory.
         // It's useful to quickly check if a transfer has been done
@@ -648,6 +711,7 @@ void sam_ba_monitor_run(void)
   PAGES = NVMCTRL->PARAM.bit.NVMP;
   MAX_FLASH = PAGE_SIZE * PAGES;
 
+  b_security_enabled = NVMCTRL->STATUS.bit.SB != 0;
   ptr_data = NULL;
   command = 'z';
   while (1)
