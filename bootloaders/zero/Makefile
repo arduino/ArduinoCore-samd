@@ -71,10 +71,13 @@ else
   CFLAGS+=-Os -DDEBUG=0 -flto
 endif
 
+ifdef SECURE_BY_DEFAULT
+  CFLAGS+=-DSECURE_BY_DEFAULT=1
+endif
+
 ELF=$(NAME).elf
 BIN=$(NAME).bin
 HEX=$(NAME).hex
-
 
 INCLUDES=-I"$(MODULE_PATH)/tools/CMSIS/4.5.0/CMSIS/Include/" -I"$(MODULE_PATH)/tools/CMSIS-Atmel/1.2.0/CMSIS/Device/ATMEL/"
 

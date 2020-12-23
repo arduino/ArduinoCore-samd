@@ -84,7 +84,11 @@ const t_monitor_if usbcdc_if =
 /* The pointer to the interface object use by the monitor */
 t_monitor_if * ptr_monitor_if;
 
+#ifdef SECURE_BY_DEFAULT
+bool b_security_enabled = true;
+#else
 bool b_security_enabled = false;
+#endif
 
 /* b_terminal_mode mode (ascii) or hex mode */
 volatile bool b_terminal_mode = false;
@@ -225,6 +229,7 @@ void sam_ba_putdata_term(uint8_t* data, uint32_t length)
   return;
 }
 
+#ifndef SECURE_BY_DEFAULT
 volatile uint32_t sp;
 void call_applet(uint32_t address)
 {
@@ -247,6 +252,7 @@ void call_applet(uint32_t address)
   /* Jump to application Reset Handler in the application */
   asm("bx %0"::"r"(app_start_address));
 }
+#endif
 
 uint32_t current_number;
 uint32_t erased_from = 0;
@@ -413,6 +419,7 @@ static void sam_ba_monitor_loop(void)
 
         sam_ba_putdata_term((uint8_t*) &current_number, 4);
       }
+#ifndef SECURE_BY_DEFAULT
       else if (!b_security_enabled && command == 'G')  // Execute code. Will not allow when security is enabled.
       {
         call_applet(current_number);
@@ -423,6 +430,7 @@ static void sam_ba_monitor_loop(void)
           ptr_monitor_if->put_c(0x6);
         }
       }
+#endif
       else if (command == 'T') // Turn on terminal mode
       {
         b_terminal_mode = 1;
@@ -711,7 +719,12 @@ void sam_ba_monitor_run(void)
   PAGES = NVMCTRL->PARAM.bit.NVMP;
   MAX_FLASH = PAGE_SIZE * PAGES;
 
+#ifdef SECURE_BY_DEFAULT
+  b_security_enabled = true;
+#else
   b_security_enabled = NVMCTRL->STATUS.bit.SB != 0;
+#endif
+
   ptr_data = NULL;
   command = 'z';
   while (1)
