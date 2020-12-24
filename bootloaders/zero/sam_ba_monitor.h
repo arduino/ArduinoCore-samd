@@ -36,6 +36,9 @@
 /* Selects USB as the communication interface of the monitor */
 #define SIZEBUFMAX                  64
 
+// Set this flag to let the bootloader enforce read restrictions of flash memory, even if security bit is not set
+//#define SECURE_BY_DEFAULT
+
 /**
  * \brief Initialize the monitor
  *
