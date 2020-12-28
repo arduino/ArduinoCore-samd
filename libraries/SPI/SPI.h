@@ -120,6 +120,7 @@ class SPIClass {
   void transfer(const void* txbuf, void* rxbuf, size_t count,
          bool block = true);
   void waitForTransfer(void);
+  bool isBusy(void);
 
   // Transaction Functions
   void usingInterrupt(int interruptNumber);
