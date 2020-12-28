@@ -458,6 +458,12 @@ void SPIClass::waitForTransfer(void) {
   while(dma_busy);
 }
 
+/* returns the current DMA transfer status to allow non-blocking polling */
+bool SPIClass::isBusy(void) {
+  return dma_busy;
+}
+
+
 // End DMA-based SPI transfer() code ---------------------------------------
 
 void SPIClass::attachInterrupt() {
