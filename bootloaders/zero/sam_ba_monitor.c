@@ -362,15 +362,54 @@ static void sam_ba_monitor_loop(void)
       }
       else if (command == 'O') // write byte
       {
-        *ptr_data = (char) current_number;
+        if (b_security_enabled && (uint16_t *)ptr_data == &NVMCTRL->CTRLA.reg && (current_number & NVMCTRL_CTRLA_CMD_Msk) == NVMCTRL_CTRLA_CMD_ER)
+        {
+          // NVM Erase Row command received in secure mode.
+          // To mitigate that an attacker might not use the ordinary BOSSA method of erasing flash before programming,
+          // always erase flash, if it hasn't been done already.
+          if (erased_from != 0x2000)
+          {
+            eraseFlash(0x2000);
+          }
+        }
+        else
+        {
+          *ptr_data = (char) current_number;
+        }
       }
       else if (command == 'H') // Write half word
       {
-        *((uint16_t *) ptr_data) = (uint16_t) current_number;
+        if (b_security_enabled && (uint16_t *)ptr_data == &NVMCTRL->CTRLA.reg && (current_number & NVMCTRL_CTRLA_CMD_Msk) == NVMCTRL_CTRLA_CMD_ER)
+        {
+          // NVM Erase Row command received in secure mode.
+          // To mitigate that an attacker might not use the ordinary BOSSA method of erasing flash before programming,
+          // always erase flash, if it hasn't been done already.
+          if (erased_from != 0x2000)
+          {
+            eraseFlash(0x2000);
+          }
+        }
+        else
+        {
+          *((uint16_t *) ptr_data) = (uint16_t) current_number;
+        }
       }
       else if (command == 'W') // Write word
       {
-        *((int *) ptr_data) = current_number;
+        if (b_security_enabled && (uint16_t *)ptr_data == &NVMCTRL->CTRLA.reg && (current_number & NVMCTRL_CTRLA_CMD_Msk) == NVMCTRL_CTRLA_CMD_ER)
+        {
+          // NVM Erase Row command received in secure mode.
+          // To mitigate that an attacker might not use the ordinary BOSSA method of erasing flash before programming,
+          // always erase flash, if it hasn't been done already.
+          if (erased_from != 0x2000)
+          {
+            eraseFlash(0x2000);
+          }
+        }
+        else
+        {
+          *((int *) ptr_data) = current_number;
+        }
       }
       else if (command == 'o') // Read byte
       {
