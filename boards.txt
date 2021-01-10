@@ -1617,7 +1617,7 @@ adafruit_blm_badge.build.usb_product="BLM Badge"
 adafruit_blm_badge.build.usb_manufacturer="Adafruit"
 adafruit_blm_badge.build.board=BLM_BADGE_M0
 adafruit_blm_badge.build.core=arduino
-adafruit_blm_badge.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_BLM_BADGE -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
+adafruit_blm_badge.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_BLM_BADGE -D__SAMD21E18A__ -DARDUINO_SAMD_ZERO -DARM_MATH_CM0PLUS {build.usb_flags}
 adafruit_blm_badge.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 adafruit_blm_badge.build.openocdscript=openocd_scripts/=blm_badge.cfg
 adafruit_blm_badge.build.variant=blm_badge
