@@ -263,6 +263,7 @@ jobs:
             ${{ matrix.wan-sketch-paths }}
           enable-deltas-report: 'true'
           verbose: 'true'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save memory usage change report as artifact
         uses: actions/upload-artifact@v1
