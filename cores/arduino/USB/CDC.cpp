@@ -259,6 +259,50 @@ Serial_::operator bool()
 	return result;
 }
 
+int32_t Serial_::readBreak() {
+	uint8_t enableInterrupts = ((__get_PRIMASK() & 0x1) == 0);
+
+	// disable interrupts,
+	// to avoid clearing a breakValue that might occur 
+	// while processing the current break value
+	__disable_irq();
+
+	int32_t ret = breakValue;
+
+	breakValue = -1;
+
+	if (enableInterrupts) {
+		// re-enable the interrupts
+		__enable_irq();
+	}
+
+	return ret;
+}
+
+unsigned long Serial_::baud() {
+	return _usbLineInfo.dwDTERate;
+}
+
+uint8_t Serial_::stopbits() {
+	return _usbLineInfo.bCharFormat;
+}
+
+uint8_t Serial_::paritytype() {
+	return _usbLineInfo.bParityType;
+}
+
+uint8_t Serial_::numbits() {
+	return _usbLineInfo.bDataBits;
+}
+
+bool Serial_::dtr() {
+	return _usbLineInfo.lineState & 0x1;
+}
+
+bool Serial_::rts() {
+	return _usbLineInfo.lineState & 0x2;
+}
+
 Serial_ Serial(USBDevice);
 
 #endif
