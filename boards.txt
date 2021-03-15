@@ -378,6 +378,55 @@ adafruit_qtpy_m0.menu.debug.off=Off
 adafruit_qtpy_m0.menu.debug.on=On
 adafruit_qtpy_m0.menu.debug.on.build.flags.debug=-g
 
+# Adafruit NeoPixel Trinkey (SAMD21)
+# ------------------------------
+adafruit_neotrinkey_m0.name=Adafruit Neo Trinkey (SAMD21)
+adafruit_neotrinkey_m0.vid.0=0x239A
+adafruit_neotrinkey_m0.pid.0=0x80EF
+adafruit_neotrinkey_m0.vid.1=0x239A
+adafruit_neotrinkey_m0.pid.1=0x00EF
+adafruit_neotrinkey_m0.vid.1=0x239A
+adafruit_neotrinkey_m0.pid.1=0x00F0
+adafruit_neotrinkey_m0.upload.tool=bossac
+adafruit_neotrinkey_m0.upload.protocol=sam-ba
+adafruit_neotrinkey_m0.upload.maximum_size=262144
+adafruit_neotrinkey_m0.upload.offset=0x2000
+adafruit_neotrinkey_m0.upload.use_1200bps_touch=true
+adafruit_neotrinkey_m0.upload.wait_for_upload_port=true
+adafruit_neotrinkey_m0.upload.native_usb=true
+adafruit_neotrinkey_m0.build.mcu=cortex-m0plus
+adafruit_neotrinkey_m0.build.f_cpu=48000000L
+adafruit_neotrinkey_m0.build.usb_product="NeoPixel Trinkey M0"
+adafruit_neotrinkey_m0.build.usb_manufacturer="Adafruit"
+adafruit_neotrinkey_m0.build.board=NEOTRINKEY_M0
+adafruit_neotrinkey_m0.build.core=arduino
+adafruit_neotrinkey_m0.build.extra_flags=-DCRYSTALLESS -DADAFRUIT_NEOTRINKEY_M0 -D__SAMD21E18A__ -DARM_MATH_CM0PLUS {build.usb_flags}
+adafruit_neotrinkey_m0.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+adafruit_neotrinkey_m0.build.openocdscript=openocd_scripts/neotrinkey_m0.cfg
+adafruit_neotrinkey_m0.build.variant=neotrinkey_m0
+adafruit_neotrinkey_m0.build.variant_system_lib=
+adafruit_neotrinkey_m0.build.vid=0x239A
+adafruit_neotrinkey_m0.build.pid=0x80EF
+adafruit_neotrinkey_m0.bootloader.tool=openocd
+adafruit_neotrinkey_m0.bootloader.file=neotrinkey_m0/bootloader-neotrinkey_m0.bin
+adafruit_neotrinkey_m0.menu.opt.small=Small (-Os) (standard)
+adafruit_neotrinkey_m0.menu.opt.small.build.flags.optimize=-Os
+adafruit_neotrinkey_m0.menu.opt.fast=Fast (-O2)
+adafruit_neotrinkey_m0.menu.opt.fast.build.flags.optimize=-O2
+adafruit_neotrinkey_m0.menu.opt.faster=Faster (-O3)
+adafruit_neotrinkey_m0.menu.opt.faster.build.flags.optimize=-O3
+adafruit_neotrinkey_m0.menu.opt.fastest=Fastest (-Ofast)
+adafruit_neotrinkey_m0.menu.opt.fastest.build.flags.optimize=-Ofast
+adafruit_neotrinkey_m0.menu.opt.dragons=Here be dragons (-Ofast -funroll-loops)
+adafruit_neotrinkey_m0.menu.opt.dragons.build.flags.optimize=-Ofast -funroll-loops
+adafruit_neotrinkey_m0.menu.usbstack.arduino=Arduino
+adafruit_neotrinkey_m0.menu.usbstack.tinyusb=TinyUSB
+adafruit_neotrinkey_m0.menu.usbstack.tinyusb.build.flags.usbstack=-DUSE_TINYUSB
+adafruit_neotrinkey_m0.menu.debug.off=Off
+adafruit_neotrinkey_m0.menu.debug.on=On
+adafruit_neotrinkey_m0.menu.debug.on.build.flags.debug=-g
+
+
 # Adafruit ItsyBitsy M0 (SAMD21)
 # ------------------------------
 adafruit_itsybitsy_m0.name=Adafruit ItsyBitsy M0
