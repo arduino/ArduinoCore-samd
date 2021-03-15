@@ -78,6 +78,7 @@ extern "C"
 
 // LEDs
 #define PIN_NEOPIXEL         (0u)
+#define NUM_NEOPIXEL         (4u)
 
 /*
  * Analog pins
