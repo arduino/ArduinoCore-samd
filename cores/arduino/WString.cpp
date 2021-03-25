@@ -693,12 +693,19 @@ void String::remove(unsigned int index){
 }
 
 void String::remove(unsigned int index, unsigned int count){
-	if (index >= len) { return; }
-	if (count <= 0) { return; }
-	if (count > len - index) { count = len - index; }
-	char *writeTo = buffer + index;
+	// removes characters from the middle of a string.
+	if (count <= 0) { return; }   // exit if nothing to remove
+	if (index >= len) { return; } // ensure start is within string length; thus, ensures (len-index >= 1)
+	if (count > len - index) {
+		count = len - index;
+	}
+	char *writeTo  = buffer + index;
+	char *copyFrom = buffer + index + count;
 	len = len - count;
-	strncpy(writeTo, buffer + index + count,len - index);
+	// strncpy() cannot be used with overlapping buffers, so copy one char at a time
+	for (unsigned int i = 0; i < count; i++, writeTo++, copyFrom++) {
+		*writeTo = *copyFrom;
+	}
 	buffer[len] = 0;
 }
 
