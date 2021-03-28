@@ -458,7 +458,12 @@ void SERCOM::initMasterWIRE( uint32_t baudrate )
 //  sercom->I2CM.INTENSET.reg = SERCOM_I2CM_INTENSET_MB | SERCOM_I2CM_INTENSET_SB | SERCOM_I2CM_INTENSET_ERROR ;
 
   // Synchronous arithmetic baudrate
-  sercom->I2CM.BAUD.bit.BAUD = SystemCoreClock / ( 2 * baudrate) - 5 - (((SystemCoreClock / 1000000) * WIRE_RISE_TIME_NANOSECONDS) / (2 * 1000));
+  baudrate = SystemCoreClock / ( 2 * baudrate) - 5 - (((SystemCoreClock / 1000000) * WIRE_RISE_TIME_NANOSECONDS) / (2 * 1000));
+  if(baudrate > 255) // I2C baud rate is 8bit
+  {
+    baudrate = 255;
+  }
+  sercom->I2CM.BAUD.bit.BAUD = baudrate;
 }
 
 void SERCOM::prepareNackBitWIRE( void )
