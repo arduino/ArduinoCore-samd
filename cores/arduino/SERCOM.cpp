@@ -524,28 +524,41 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   // Address Transmitted
   if ( flag == WIRE_WRITE_FLAG ) // Write mode
   {
-    while( !sercom->I2CM.INTFLAG.bit.MB )
+    // The loop takes about 100us @ 100kHz baudrate.
+    // Timeout: 20ms = 10000*2us
+    for(uint16_t tmr = 10000; tmr; tmr--)
     {
+      if(sercom->I2CM.INTFLAG.bit.MB) // byte is transmitted
+      {
+        // Check for loss of arbitration (multiple masters starting communication at the same time)
+        if(!isBusOwnerWIRE())
+        {
+          // Restart communication
+          sercom->I2CM.ADDR.bit.ADDR = address;
+        }
+        else
+        {
+          break;
+        }
+      }
       // Wait transmission complete
-    }
-    // Check for loss of arbitration (multiple masters starting communication at the same time)
-    if(!isBusOwnerWIRE())
-    {
-      // Restart communication
-      startTransmissionWIRE(address >> 1, flag);
+      delayMicroseconds(2); // wait 2us
     }
   }
   else  // Read mode
   {
-    while( !sercom->I2CM.INTFLAG.bit.SB )
+    // The loop takes about 200us @ 100kHz baudrate.
+    // Timeout: 20ms = 10000*2us
+    for(uint16_t tmr = 10000; tmr && !sercom->I2CM.INTFLAG.bit.SB; tmr--)
     {
-        // If the slave NACKS the address, the MB bit will be set.
-        // In that case, send a stop condition and return false.
-        if (sercom->I2CM.INTFLAG.bit.MB) {
-            sercom->I2CM.CTRLB.bit.CMD = 3; // Stop condition
-            return false;
-        }
+      // If the slave NACKS the address, the MB bit will be set.
+      // In that case, send a stop condition and return false.
+      if (sercom->I2CM.INTFLAG.bit.MB) {
+        sercom->I2CM.CTRLB.bit.CMD = 3; // Stop condition
+        return false;
+      }
       // Wait transmission complete
+      delayMicroseconds(2); // wait 2us
     }
 
     // Clean the 'Slave on Bus' flag, for further usage.
@@ -569,14 +582,16 @@ bool SERCOM::sendDataMasterWIRE(uint8_t data)
   //Send data
   sercom->I2CM.DATA.bit.DATA = data;
 
-  //Wait transmission successful
-  while(!sercom->I2CM.INTFLAG.bit.MB) {
-
+  // Wait transmission successful
+  // The loop takes about 100us @ 100kHz baudrate.
+  // Timeout: 20ms = 10000*2us
+  for(uint16_t tmr = 10000; tmr && !sercom->I2CM.INTFLAG.bit.MB; tmr--) {
     // If a bus error occurs, the MB bit may never be set.
     // Check the bus error bit and bail if it's set.
     if (sercom->I2CM.STATUS.bit.BUSERR) {
       return false;
     }
+    delayMicroseconds(2); // wait 2us
   }
 
   //Problems on line? nack received?
