@@ -248,7 +248,8 @@ jobs:
             - name: LoRa
             - name: MKRWAN
             - name: WiFiNINA
-            - name: AceTime
+            - name: AceTime@1.4.1
+            - name: AceCommon@1.3.1
             - source-url: https://github.com/vidor-libraries/VidorPeripherals.git
           platforms: |
             # Use Board Manager to install the latest release of Arduino SAMD Boards to get the toolchain
