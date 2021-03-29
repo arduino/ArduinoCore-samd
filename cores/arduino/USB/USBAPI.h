@@ -35,10 +35,6 @@
 #include "api/USBAPI.h"
 #include "CDC.h"
 
-#if ARDUINO_API_VERSION > 10000
-using namespace arduino;
-#endif
-
 //================================================================================
 // USB
 
@@ -59,9 +55,9 @@ public:
 	void standby();
 
 	// Setup API
-	bool handleClassInterfaceSetup(USBSetup &setup);
-	bool handleStandardSetup(USBSetup &setup);
-	bool sendDescriptor(USBSetup &setup);
+	bool handleClassInterfaceSetup(arduino::USBSetup &setup);
+	bool handleStandardSetup(arduino::USBSetup &setup);
+	bool sendDescriptor(arduino::USBSetup &setup);
 
 	// Control EndPoint API
 	uint32_t sendControl(const void *data, uint32_t len);
@@ -100,7 +96,7 @@ extern USBDeviceClass USBDevice;
 //================================================================================
 //	Serial over CDC (Serial1 is the physical port)
 
-class Serial_ : public Stream, public arduino::PluggableUSBModule
+class Serial_ : public arduino::Stream, public arduino::PluggableUSBModule
 {
 public:
 	Serial_(USBDeviceClass &_usb);
@@ -163,8 +159,8 @@ public:
 protected:
     // Implementation of the PUSBListNode
     int getInterface(uint8_t* interfaceNum);
-    int getDescriptor(USBSetup& setup);
-    bool setup(USBSetup& setup);
+    int getDescriptor(arduino::USBSetup& setup);
+    bool setup(arduino::USBSetup& setup);
     uint8_t getShortName(char* name);
     void handleEndpoint(int ep);
     void enableInterrupt();

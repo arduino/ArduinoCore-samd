@@ -28,6 +28,8 @@
 
 #ifdef CDC_ENABLED
 
+using namespace arduino;
+
 extern USBDevice_SAMD21G18x usbd;
 
 #define CDC_SERIAL_BUFFER_SIZE	256
