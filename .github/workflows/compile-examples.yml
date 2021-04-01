@@ -263,7 +263,7 @@ jobs:
             ${{ matrix.mkrgsm1400-sketch-paths }}
             ${{ matrix.wan-sketch-paths }}
           enable-deltas-report: 'true'
-          verbose: 'true'
+          verbose: 'false'
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save memory usage change report as artifact
