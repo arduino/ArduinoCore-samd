@@ -41,6 +41,12 @@ int SafeRingBufferN<N>::read_char() {
   synchronized {
     return RingBufferN<N>::read_char();
   }
+
+  // We should never reached this line because the synchronized {} block gets
+  // executed at least once. However the compiler gets confused and prints a
+  // warning about control reaching the end of a non-void function. This
+  // silences that warning.
+  return -1;
 }
 
 template <int N>
