@@ -6,18 +6,14 @@
 # Datatypes (KEYWORD1)
 ################################################
 
+SAMD_BootloaderUpdater	KEYWORD2
+
 ################################################
 # Methods and Functions (KEYWORD2)
 ################################################
 
 needsUpdate	KEYWORD2
 update	KEYWORD2
-
-#######################################
-# Instances (KEYWORD2)
-#######################################
-
-SAMD_BootloaderUpdater	KEYWORD2
 
 #######################################
 # Constants (LITERAL1)
