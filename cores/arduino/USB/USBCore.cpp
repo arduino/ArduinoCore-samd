@@ -31,6 +31,7 @@
 #include <stdint.h>
 #include <limits.h>
 
+using namespace arduino;
 
 /*
  * USB Device instance

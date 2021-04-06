@@ -27,6 +27,9 @@
 #define RAMEND   (RAMSTART + RAMSIZE - 1)
 
 #ifdef __cplusplus
+
+using namespace arduino;
+
 extern "C"{
 #endif // __cplusplus
 

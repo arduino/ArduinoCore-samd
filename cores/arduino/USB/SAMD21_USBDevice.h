@@ -396,7 +396,7 @@ public:
 private:
 	USBDevice_SAMD21G18x &usbd;
 
-	RingBuffer _rx_buffer;
+	arduino::RingBuffer _rx_buffer;
 
 	const uint32_t ep;
 	volatile uint32_t current, incoming;
