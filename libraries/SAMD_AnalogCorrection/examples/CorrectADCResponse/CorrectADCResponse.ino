@@ -18,7 +18,7 @@
   6) Open the Serial Monitor and press the reset button on the Arduino ZERO
   7) At the and of the procedure you can find logged
        - the offset and gain values for the board where the sketch has been just executed
-       - the instruction line to copy/paste in the final sketch
+       - the code to copy/paste in sketches using this library
 */
 
 #include "SAMD_AnalogCorrection.h"
@@ -32,7 +32,7 @@
 #define ADC_MIN_GAIN         0x0400
 #define ADC_UNITY_GAIN       0x0800
 #define ADC_MAX_GAIN         (0x1000 - 1)
-#define ADC_RESOLUTION_BITS  12
+#define ADC_RESOLUTION_BITS  12 // do not change. This library only supports 12 bit resolution.
 #define ADC_RANGE            (1 << ADC_RESOLUTION_BITS)
 #define ADC_TOP_VALUE        (ADC_RANGE - 1)
 
@@ -162,7 +162,8 @@ void setup()
   Serial.println(offsetCorrectionValue);
   Serial.print("   Gain = ");
   Serial.println(gainCorrectionValue);
-  Serial.println("\r\nAdd the next line to your sketch:");
+  Serial.println("\r\nAdd the next lines to your sketch:");
+  Serial.println("   analogReadResolution(12);");
   Serial.print("   analogReadCorrection(");
   Serial.print(offsetCorrectionValue);
   Serial.print(", ");
