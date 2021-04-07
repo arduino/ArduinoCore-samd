@@ -568,8 +568,8 @@ bool SERCOM::sendDataMasterWIRE(uint8_t data)
   while(!sercom->I2CM.INTFLAG.bit.MB) {
 
     // If a bus error occurs, the MB bit may never be set.
-    // Check the bus error bit and bail if it's set.
-    if (sercom->I2CM.STATUS.bit.BUSERR) {
+    // Check the bus error bit and ARBLOST bit and bail if either is set.
+    if (sercom->I2CM.STATUS.bit.BUSERR || sercom->I2CM.STATUS.bit.ARBLOST) {
       return false;
     }
   }
