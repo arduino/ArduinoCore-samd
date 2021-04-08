@@ -21,13 +21,13 @@
 
 #include <string.h>
 
-static struct ISRReg
+struct ISRReg
 {
   voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
   uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
   uint32_t    nints;  // Stores total number of attached interrupts
-}
-*_registeredISRs = __null;
+};
+static struct ISRReg *_registeredISRs = __null;
 
 /* Configure I/O interrupt sources */
 static void __initialize()
