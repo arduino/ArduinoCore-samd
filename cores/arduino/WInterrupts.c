@@ -21,16 +21,19 @@
 
 #include <string.h>
 
-static voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
-static uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
-static uint32_t    nints = (uint32_t)-1; // Stores total number of attached interrupts; initialization with -1 prevents another static variable (enabled)
+static struct ISRReg
+{
+  voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
+  uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
+  uint32_t    nints;  // Stores total number of attached interrupts
+}
+*_registeredISRs = __null;
 
 /* Configure I/O interrupt sources */
 static void __initialize()
 {
-  memset(ISRlist,     0, sizeof(ISRlist));
-  memset(ISRcallback, 0, sizeof(ISRcallback));
-  nints = 0;
+  _registeredISRs = (ISRReg*)malloc(sizeof(_registeredISRs));
+  memset(_registeredISRs, 0, sizeof(ISRReg));
 
   NVIC_DisableIRQ(EIC_IRQn);
   NVIC_ClearPendingIRQ(EIC_IRQn);
@@ -68,7 +71,7 @@ void attachInterrupt(pin_size_t pin, voidFuncPtr callback, PinStatus mode)
   if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
-  if (nints == (uint32_t)-1)
+  if (_registeredISRs == __null)
     __initialize();
 
   // Enable wakeup capability on pin in case being used during sleep
@@ -88,17 +91,17 @@ void attachInterrupt(pin_size_t pin, voidFuncPtr callback, PinStatus mode)
     uint32_t current = 0;
 
     // Check if we already have this interrupt
-    for (current=0; current<nints; current++) {
-      if (ISRlist[current] == inMask) {
+    for(current = 0 ; current < _registeredISRs->nints ; current++) {
+      if (_registeredISRs->ISRlist[current] == inMask) {
         break;
       }
     }
-    if (current == nints) {
+    if (current == _registeredISRs->nints) {
       // Need to make a new entry
-      nints++;
+      _registeredISRs->nints++;
+      _registeredISRs->ISRlist[current] = inMask;         // List of interrupt in order of when they were attached
     }
-    ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
-    ISRcallback[current] = callback; // List of callback adresses
+    _registeredISRs->ISRcallback[current] = callback;  // List of callback adresses
 
     // Look for right CONFIG register to be addressed
     if (in > EXTERNAL_INT_7) {
@@ -160,27 +163,27 @@ void detachInterrupt(pin_size_t pin)
   // shouldn't this loop be exuted before modifying EIC? if inMask is not found, nobody called attach or detach was already called....
   // Remove callback from the ISR list
   uint32_t current;
-  for (current=0; current<nints; current++) {
-    if (ISRlist[current] == inMask) {
+  for (current = 0; current < _registeredISRs->nints; current++) {
+    if (_registeredISRs->ISRlist[current] == inMask) {
       break;
     }
   }
-  if (current == nints) return; // We didn't have it
+  if (current == _registeredISRs->nints) return; // We didn't have it
 
   // Shift the reminder down
 #if MAYBE_BETTER
   if(current < nints - 1)
   {
-    memmove(ISRlist + current, ISRlist + current + 1, (nints - 1 - current)*sizeof(uint32_t));
-    memmove(ISRcallback + current, ISRcallback + current + 1, (nints - 1 - current)*sizeof(uint32_t));
+    memmove(_registeredISRs->ISRlist + current, _registeredISRs->ISRlist + current + 1, (_registeredISRs->nints - 1 - current)*sizeof(uint32_t));
+    memmove(_registeredISRs->ISRcallback + current, _registeredISRs->ISRcallback + current + 1, (_registeredISRs->nints - 1 - current)*sizeof(uint32_t));
     }
 #else
-  for (; current<nints-1; current++) {
-    ISRlist[current]     = ISRlist[current+1];
-    ISRcallback[current] = ISRcallback[current+1];
+  for (; current < _registeredISRs->nints - 1; current++) {
+    _registeredISRs->ISRlist[current]     = _registeredISRs->ISRlist[current + 1];
+    _registeredISRs->ISRcallback[current] = _registeredISRs->ISRcallback[current + 1];
   }
 #endif
-  nints--;
+  _registeredISRs->nints--;
 }
 
 /*
@@ -192,15 +195,15 @@ void EIC_Handler(void)
   // Depending on where you are in the list it will take longer
 
   // Loop over all enabled interrupts in the list
-  for (uint32_t i=0; i<nints; i++)
+  for(uint32_t i = 0 ; i < _registeredISRs->nints ; i++)
   {
     uint32_t reg = EIC->INTFLAG.reg;
-    if ((reg & ISRlist[i]) != 0)
+    if ((reg & _registeredISRs->ISRlist[i]) != 0)
     {
       // Call the callback function
-      ISRcallback[i]();
-      // Clear the interrupt
-      EIC->INTFLAG.reg = reg ^ ISRlist[i];
+      _registeredISRs->ISRcallback[i]();
+      // Clear only this interrupt
+      EIC->INTFLAG.reg = reg ^ _registeredISRs->ISRlist[i];
       
       break; // found
     }
