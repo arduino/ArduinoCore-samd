@@ -194,12 +194,13 @@ void EIC_Handler(void)
   // Loop over all enabled interrupts in the list
   for (uint32_t i=0; i<nints; i++)
   {
-    if ((EIC->INTFLAG.reg & ISRlist[i]) != 0)
+    uint32_t reg = EIC->INTFLAG.reg;
+    if ((reg & ISRlist[i]) != 0)
     {
       // Call the callback function
       ISRcallback[i]();
       // Clear the interrupt
-      EIC->INTFLAG.reg = ISRlist[i];
+      EIC->INTFLAG.reg = reg ^ ISRlist[i];
       
       break; // found
     }
