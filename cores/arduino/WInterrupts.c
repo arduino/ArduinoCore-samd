@@ -27,7 +27,7 @@ struct ISRReg
   uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
   uint32_t    nints;  // Stores total number of attached interrupts
 };
-static struct ISRReg *_registeredISRs = __null;
+static struct ISRReg *_registeredISRs = NULL;
 
 /* Configure I/O interrupt sources */
 static void __initialize()
@@ -71,7 +71,7 @@ void attachInterrupt(pin_size_t pin, voidFuncPtr callback, PinStatus mode)
   if (in == NOT_AN_INTERRUPT || in == EXTERNAL_INT_NMI)
     return;
 
-  if (_registeredISRs == __null)
+  if (_registeredISRs == NULL)
     __initialize();
 
   // Enable wakeup capability on pin in case being used during sleep
