@@ -29,10 +29,6 @@ extern "C" {
 // Includes Atmel CMSIS
 #include "sam.h"
 
-#ifdef __SAME51J19A__
-#include "same51j19a.h"
-#endif
-
 #include "wiring_constants.h"
 
 int pinPeripheral( uint32_t ulPin, EPioType ulPeripheral );
