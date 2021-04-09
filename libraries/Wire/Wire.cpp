@@ -219,61 +219,60 @@ void TwoWire::onRequest(void(*function)(void))
 
 void TwoWire::onService(void)
 {
-  if ( sercom->isSlaveWIRE() )
+  if (sercom->isSlaveWIRE())
   {
-    if(sercom->isStopDetectedWIRE() || 
-        (sercom->isAddressMatch() && sercom->isRestartDetectedWIRE() && !sercom->isMasterReadOperationWIRE())) //Stop or Restart detected
+    if (sercom->isStopDetectedWIRE() || sercom->isAddressMatch())
     {
       sercom->prepareAckBitWIRE();
       sercom->prepareCommandBitsWire(0x03);
 
-      //Calling onReceiveCallback, if exists
-      if(onReceiveCallback)
-      {
-        onReceiveCallback(available());
+      if (sercom->isStopDetectedWIRE() ||
+          (sercom->isRestartDetectedWIRE() && available()))
+      { // Stop or Restart after Rx detected
+
+        // Calling onReceiveCallback, if exists
+        if (onReceiveCallback)
+        {
+          onReceiveCallback(available());
+        }
+        rxBuffer.clear();
       }
-      
-      rxBuffer.clear();
-    }
-    else if(sercom->isAddressMatch())  //Address Match
-    {
-      sercom->prepareAckBitWIRE();
-      sercom->prepareCommandBitsWire(0x03);
 
-      if(sercom->isMasterReadOperationWIRE()) //Is a request ?
-      {
+      if (sercom->isMasterReadOperationWIRE())
+      { // Is a request ?
         txBuffer.clear();
-
         transmissionBegun = true;
-
-        //Calling onRequestCallback, if exists
-        if(onRequestCallback)
+        // Calling onRequestCallback, if exists
+        if (onRequestCallback)
         {
           onRequestCallback();
         }
       }
     }
-    else if(sercom->isDataReadyWIRE())
+    else if (sercom->isDataReadyWIRE())
     {
       if (sercom->isMasterReadOperationWIRE())
       {
         uint8_t c = 0xff;
-
-        if( txBuffer.available() ) {
+        if (txBuffer.available())
+        {
           c = txBuffer.read_char();
         }
-
         transmissionBegun = sercom->sendDataSlaveWIRE(c);
-      } else { //Received data
-        if (rxBuffer.isFull()) {
-          sercom->prepareNackBitWIRE(); 
-        } else {
-          //Store data
-          rxBuffer.store_char(sercom->readDataWIRE());
-
-          sercom->prepareAckBitWIRE(); 
+      }
+      else
+      {
+        // Received data
+        if (rxBuffer.isFull())
+        {
+          sercom->prepareNackBitWIRE();
         }
-
+        else
+        {
+          // Store data
+          rxBuffer.store_char(sercom->readDataWIRE());
+          sercom->prepareAckBitWIRE();
+        }
         sercom->prepareCommandBitsWire(0x03);
       }
     }
