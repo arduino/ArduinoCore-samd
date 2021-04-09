@@ -19,10 +19,6 @@
 
 #pragma once
 
-#ifdef __SAME51J19A__
-#include "same51j19a.h"
-#endif
-
 #include <stdint.h>
 #include "sam.h"
 #include <limits.h>
