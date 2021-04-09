@@ -696,14 +696,16 @@ void String::remove(unsigned int index, unsigned int count){
 	// removes characters from the middle of a string.
 	if (count <= 0) { return; }   // exit if nothing to remove
 	if (index >= len) { return; } // ensure start is within string length; thus, ensures (len-index >= 1)
-	if (count > len - index) {
+	if (count > len - index) {    // ensure characters to remove is no larger than total length remaining
 		count = len - index;
 	}
 	char *writeTo  = buffer + index;
 	char *copyFrom = buffer + index + count;
 	len = len - count;
+	
 	// strncpy() cannot be used with overlapping buffers, so copy one char at a time
-	for (unsigned int i = 0; i < count; i++, writeTo++, copyFrom++) {
+	unsigned int charactersToMove = len - index; // yes, uses post-adjusted length
+	for (unsigned int i = 0; i < charactersToMove; i++, writeTo++, copyFrom++) {
 		*writeTo = *copyFrom;
 	}
 	buffer[len] = 0;
