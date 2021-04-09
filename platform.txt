@@ -70,7 +70,7 @@ compiler.S.extra_flags=
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
 
-compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Core/Include/" "-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/DSP/Include/" "-I{runtime.tools.CMSIS-Atmel-1.2.0.path}/CMSIS/Device/ATMEL/"
+compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Core/Include/" "-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/DSP/Include/" "-I{runtime.tools.CMSIS-Atmel-1.2.1.path}/CMSIS/Device/ATMEL/"
 compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 compiler.libraries.ldflags=
