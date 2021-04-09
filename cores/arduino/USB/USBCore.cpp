@@ -480,8 +480,8 @@ void USBDeviceClass::stall(uint32_t ep)
 bool USBDeviceClass::connected()
 {
 	// Count frame numbers
-	uint8_t f = USB->DEVICE.FNUM.bit.FNUM;
-	//delay(3);
+	auto f = USB->DEVICE.FNUM.bit.FNUM;
+	delay(3);
 	return f != USB->DEVICE.FNUM.bit.FNUM;
 }
 
