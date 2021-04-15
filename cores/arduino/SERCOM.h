@@ -230,8 +230,13 @@ class SERCOM
 		void initTimeout( void );
 		bool testTimeout( void );
 		uint16_t timeoutInterval;
-		uint32_t timeoutRef, restartTX_cnt, restartTX_limit = 5;
+		uint32_t timeoutRef, restartTX_cnt, restartTX_limit = 10;
 		bool timeoutOccurred;
+
+    // Flag set when data is loaded into sercom->USART.DATA.reg.
+    // Helps with preventing UART lockups when flushing on startup
+    // and the asyncronous nature of the DRE and TXC interrupt flags.
+    bool onFlushWaitUartTXC = false;
 };
 
 #endif
