@@ -233,10 +233,10 @@ class SERCOM
 		uint32_t timeoutRef, restartTX_cnt, restartTX_limit = 10;
 		bool timeoutOccurred;
 
-    // Flag set when data is loaded into sercom->USART.DATA.reg.
-    // Helps with preventing UART lockups when flushing on startup
-    // and the asyncronous nature of the DRE and TXC interrupt flags.
-    bool onFlushWaitUartTXC = false;
+		// Flag set when data is loaded into sercom->USART.DATA.reg.
+		// Helps with preventing UART lockups when flushing on startup
+		// and the asyncronous nature of the DRE and TXC interrupt flags.
+		bool onFlushWaitUartTXC = false;
 };
 
 #endif
