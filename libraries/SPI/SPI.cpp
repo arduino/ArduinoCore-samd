@@ -334,12 +334,18 @@ void SPIClass::dmaAllocate(void) {
           extraWriteDescriptors = &extraReadDescriptors[numReadDescriptors];
           // Initialize descriptors (copy from first ones)
           for(int i=0; i<numReadDescriptors; i++) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
             memcpy(&extraReadDescriptors[i], firstReadDescriptor,
               sizeof(DmacDescriptor));
+#pragma GCC diagnostic pop
           }
           for(int i=0; i<numWriteDescriptors; i++) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wclass-memaccess"
             memcpy(&extraWriteDescriptors[i], firstWriteDescriptor,
               sizeof(DmacDescriptor));
+#pragma GCC diagnostic pop
           }
         } // end malloc
       } // end extra descriptor check
