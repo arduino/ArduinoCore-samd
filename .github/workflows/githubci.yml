@@ -7,8 +7,18 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arduino-platform: ['metro_m0', 'hallowing', 'circuitplayground_m0',
-                           'metro_m4', 'pybadge_m4', 'pygamer_m4', 'hallowing_m4', 'pyportal_m4', 'pyportal_m4_titano']
+        arduino-platform:
+          # Alphabetical order
+          - 'metro_m0'
+          - 'hallowing'
+          - 'circuitplayground_m0'
+          - 'metro_m4'
+          - 'pybadge_m4'
+          - 'pygamer_m4'
+          - 'hallowing_m4'
+          - 'pyportal_m4'
+          - 'pyportal_m4_titano'
+          - 'feather_m4_can'
 
     runs-on: ubuntu-latest
     
