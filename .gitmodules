@@ -1,3 +1,0 @@
-[submodule "cores/arduino/TinyUSB/Adafruit_TinyUSB_ArduinoCore"]
-	path = cores/arduino/TinyUSB/Adafruit_TinyUSB_ArduinoCore
-	url = https://github.com/adafruit/Adafruit_TinyUSB_ArduinoCore.git

@@ -24,6 +24,11 @@
 void initVariant() __attribute__((weak));
 void initVariant() { }
 
+#ifdef USE_TINYUSB
+// Called by main.cpp to initialize usb device typically with CDC device for Serial
+void Adafruit_TinyUSB_Device_init(uint8_t rhport) __attribute__((weak));
+#endif
+
 // Initialize C library
 extern "C" void __libc_init_array(void);
 
@@ -41,7 +46,7 @@ int main( void )
   delay(1);
 
 #if defined(USE_TINYUSB)
-  Adafruit_TinyUSB_Core_init();
+  Adafruit_TinyUSB_Device_init(0);
 #elif defined(USBCON)
   USBDevice.init();
   USBDevice.attach();
@@ -59,14 +64,3 @@ int main( void )
 
   return 0;
 }
-
-#if defined(USE_TINYUSB)
-
-// run TinyUSB background task when yield()
-extern  "C" void yield(void)
-{
-  tud_task();
-  tud_cdc_write_flush();
-}
-
-#endif
