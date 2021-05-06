@@ -26,7 +26,7 @@ void initVariant() { }
 
 #ifdef USE_TINYUSB
 // Called by main.cpp to initialize usb device typically with CDC device for Serial
-void TinyUSB_Device_init(uint8_t rhport) __attribute__((weak));
+void TinyUSB_Device_Init(uint8_t rhport) __attribute__((weak));
 #endif
 
 // Initialize C library
@@ -46,7 +46,7 @@ int main( void )
   delay(1);
 
 #if defined(USE_TINYUSB)
-  TinyUSB_Device_init(0);
+  TinyUSB_Device_Init(0);
 #elif defined(USBCON)
   USBDevice.init();
   USBDevice.attach();
