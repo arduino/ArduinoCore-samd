@@ -150,10 +150,8 @@ void loop( void ) ;
 
 // USB
 #ifdef USE_TINYUSB
-#ifdef __cplusplus
   // Needed for declaring Serial
   #include "Adafruit_USBD_CDC.h"
-#endif
 #else
   #include "USB/USBDesc.h"
   #include "USB/USBCore.h"
