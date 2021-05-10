@@ -332,21 +332,25 @@ void SPIClass::dmaAllocate(void) {
           totalDescriptors * sizeof(DmacDescriptor)))) {
           use_dma = true; // Everything allocated successfully
           extraWriteDescriptors = &extraReadDescriptors[numReadDescriptors];
+
+          // dmac.h didn't include extern "C" which cause
+          // DmacDescriptor and its members are defined as C++ struct therefore
+          // memcpy will throw warning on copying where simple assignment won't work
+          #pragma GCC diagnostic push
+          #pragma GCC diagnostic ignored "-Wclass-memaccess"
+
           // Initialize descriptors (copy from first ones)
           for(int i=0; i<numReadDescriptors; i++) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
             memcpy(&extraReadDescriptors[i], firstReadDescriptor,
               sizeof(DmacDescriptor));
-#pragma GCC diagnostic pop
           }
           for(int i=0; i<numWriteDescriptors; i++) {
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wclass-memaccess"
             memcpy(&extraWriteDescriptors[i], firstWriteDescriptor,
               sizeof(DmacDescriptor));
-#pragma GCC diagnostic pop
           }
+
+          #pragma GCC diagnostic pop
+
         } // end malloc
       } // end extra descriptor check
 
