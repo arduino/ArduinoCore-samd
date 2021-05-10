@@ -24,11 +24,6 @@
 void initVariant() __attribute__((weak));
 void initVariant() { }
 
-#ifdef USE_TINYUSB
-// Called by main.cpp to initialize usb device typically with CDC device for Serial
-void TinyUSB_Device_Init(uint8_t rhport) __attribute__((weak));
-#endif
-
 // Initialize C library
 extern "C" void __libc_init_array(void);
 

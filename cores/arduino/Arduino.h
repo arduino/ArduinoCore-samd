@@ -152,7 +152,6 @@ void loop( void ) ;
 #ifdef USE_TINYUSB
 #ifdef __cplusplus
   // Needed for declaring Serial
-  #include "Adafruit_USBD_Interface.h"
   #include "Adafruit_USBD_CDC.h"
 #endif
 #else

@@ -117,6 +117,18 @@ void SysTick_DefaultHandler(void)
   tickReset();
 }
 
+#if defined(USE_TINYUSB)
+
+#include "Adafruit_TinyUSB_API.h"
+
+// run TinyUSB background task when yield()
+void yield(void)
+{
+  TinyUSB_Device_Task();
+}
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif
