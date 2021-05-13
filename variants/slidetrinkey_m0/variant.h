@@ -82,6 +82,7 @@ extern "C"
 
 // POT
 #define PIN_POTENTIOMETER    (0u)
+#define PIN_TOUCH            (1u)
 
 /*
  * Analog pins
