@@ -59,6 +59,10 @@ def build_examples(variant: str):
     fqbn = "{}{}".format(FQBN_PREFIX, variant)
 
     for sketch in glob.iglob('libraries/**/*.ino', recursive=True):
+        # TODO skip TinyUSB library examples for now
+        if "libraries/Adafruit_TinyUSB_Arduino" in sketch:
+            continue
+
         start_time = time.monotonic()
 
         # Skip if contains: ".board.test.skip" or ".all.test.skip"
