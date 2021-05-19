@@ -117,6 +117,17 @@ void SysTick_DefaultHandler(void)
   tickReset();
 }
 
+#if defined(USE_TINYUSB)
+
+// run TinyUSB background task when yield()
+void yield(void)
+{
+  TinyUSB_Device_Task();
+  TinyUSB_Device_FlushCDC();
+}
+
+#endif
+
 #ifdef __cplusplus
 }
 #endif

@@ -150,12 +150,13 @@ void loop( void ) ;
 
 // USB
 #ifdef USE_TINYUSB
-#include "Adafruit_TinyUSB_Core.h"
+  // Needed for declaring Serial
+  #include "Adafruit_USBD_CDC.h"
 #else
-#include "USB/USBDesc.h"
-#include "USB/USBCore.h"
-#include "USB/USBAPI.h"
-#include "USB/USB_host.h"
+  #include "USB/USBDesc.h"
+  #include "USB/USBCore.h"
+  #include "USB/USBAPI.h"
+  #include "USB/USB_host.h"
 #endif
 
 #endif // Arduino_h
