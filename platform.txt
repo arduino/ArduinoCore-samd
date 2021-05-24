@@ -20,7 +20,7 @@
 # https://github.com/arduino/Arduino/wiki/Arduino-IDE-1.5---3rd-party-Hardware-specification
 
 name=Adafruit SAMD (32-bits ARM Cortex-M0+ and Cortex-M4) Boards
-version=1.7.0
+version=1.7.1
 
 # Compile variables
 # -----------------
@@ -70,7 +70,7 @@ compiler.S.extra_flags=
 compiler.ar.extra_flags=
 compiler.elf2hex.extra_flags=
 
-compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Core/Include/" "-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/DSP/Include/" "-I{runtime.tools.CMSIS-Atmel-1.2.1.path}/CMSIS/Device/ATMEL/"
+compiler.arm.cmsis.c.flags="-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Core/Include/" "-I{runtime.tools.CMSIS-5.4.0.path}/CMSIS/DSP/Include/" "-I{runtime.tools.CMSIS-Atmel-1.2.2.path}/CMSIS/Device/ATMEL/"
 compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Lib/GCC/" -larm_cortexM0l_math
 
 compiler.libraries.ldflags=
