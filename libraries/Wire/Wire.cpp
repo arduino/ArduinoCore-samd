@@ -24,6 +24,11 @@ extern "C" {
 #include <Arduino.h>
 #include <wiring_private.h>
 
+#ifdef USE_TINYUSB
+// For Serial when selecting TinyUSB
+#include <Adafruit_TinyUSB.h>
+#endif
+
 #include "Wire.h"
 
 TwoWire::TwoWire(SERCOM * s, uint8_t pinSDA, uint8_t pinSCL)

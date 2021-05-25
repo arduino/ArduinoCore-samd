@@ -22,6 +22,11 @@
 #include <wiring_private.h>
 #include <assert.h>
 
+#ifdef USE_TINYUSB
+// For Serial when selecting TinyUSB
+#include <Adafruit_TinyUSB.h>
+#endif
+
 #define SPI_IMODE_NONE   0
 #define SPI_IMODE_EXTINT 1
 #define SPI_IMODE_GLOBAL 2
