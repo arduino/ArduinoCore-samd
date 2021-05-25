@@ -2,63 +2,49 @@ import os
 import glob
 import sys
 import subprocess
+from subprocess import Popen, PIPE
 import time
-import argparse
 
-FQBN_PREFIX='adafruit:samd:adafruit_'
-
-
-parser = argparse.ArgumentParser(
-    description='python wrapper for adafruit arduino CI workflows',
-    allow_abbrev=False
-    )
-parser.add_argument(
-    '--all_warnings', '--Wall',
-    action='store_true',
-    help='build with all warnings enabled (`--warnings all`)',
-    )
-parser.add_argument(
-    '--warnings_do_not_cause_job_failure',
-    action='store_true',
-    help='failed builds will be listed as failed, but not cause job to exit with an error status',
-    )
-parser.add_argument(
-    'build_boards',
-    metavar='board',
-    nargs='*',
-    help='list of boards to be built -- Note that the fqbn is created by prepending "{}"'.format(FQBN_PREFIX),
-    default= [ 'metro_m0', 'metro_m4', 'circuitplayground_m0', 'feather_m4_can' ]
-    )
-args = parser.parse_args()
+SUCCEEDED = "\033[32msucceeded\033[0m"
+FAILED = "\033[31mfailed\033[0m"
+SKIPPED = "\033[35mskipped\033[0m"
+WARNING = "\033[33mwarnings\033[0m "
 
 exit_status = 0
 success_count = 0
 fail_count = 0
 skip_count = 0
-build_format = '| {:22} | {:30} | {:9} '
-build_separator = '-' * 80
 
-def errorOutputFilter(line: str):
-    if len(line) == 0:
-        return False
-    if line.isspace(): # Note: empty string does not match here!
-        return False
-    # TODO: additional items to remove?
-    return True
+build_format = '| {:20} | {:35} | {:18} | {:6} |'
+build_separator = '-' * 83
 
-def build_examples(variant: str):
-    global args, exit_status, success_count, fail_count, skip_count, build_format, build_separator
+FQBN_PREFIX='adafruit:samd:adafruit_'
+
+default_boards = [ 'metro_m0', 'metro_m4', 'circuitplayground_m0', 'feather_m4_can' ]
+build_boards = []
+
+# build all variants if input not existed
+if len(sys.argv) > 1:
+    build_boards.append(sys.argv[1])
+else:
+    build_boards = default_boards
+
+all_examples = list(glob.iglob('libraries/**/*.ino', recursive=True))
+all_examples.sort()
+
+def build_examples(variant):
+    global exit_status, success_count, fail_count, skip_count, build_format, build_separator
 
     print('\n')
     print(build_separator)
-    print('| {:^76} |'.format('Board ' + variant))
+    print('| {:^79} |'.format('Board ' + variant))
     print(build_separator)
-    print((build_format + '| {:6} |').format('Library', 'Example', 'Result', 'Time'))
+    print(build_format.format('Library', 'Example', '\033[39mResult\033[0m', 'Time'))
     print(build_separator)
     
     fqbn = "{}{}".format(FQBN_PREFIX, variant)
 
-    for sketch in glob.iglob('libraries/**/*.ino', recursive=True):
+    for sketch in all_examples:
         # TODO skip TinyUSB library examples for now
         if "libraries/Adafruit_TinyUSB_Arduino" in sketch:
             continue
@@ -69,60 +55,47 @@ def build_examples(variant: str):
         # Skip if not contains: ".board.test.only" for a specific board
         sketchdir = os.path.dirname(sketch)
         if os.path.exists(sketchdir + '/.all.test.skip') or os.path.exists(sketchdir + '/.' + variant + '.test.skip'):
-            success = "\033[33mskipped\033[0m  "
-        elif glob.glob(sketchdir+"/.*.test.only") and not os.path.exists(sketchdir + '/.build.' + variant):
-            success = "\033[33mskipped\033[0m  "
+            success = SKIPPED
+            skip_count += 1
+        elif glob.glob(sketchdir+"/.*.test.only") and not os.path.exists(sketchdir + '/.' + variant + '.test.only'):
+            success = SKIPPED
+            skip_count += 1
         else:
-            # TODO - preferably, would have STDERR show up in **both** STDOUT and STDERR.
-            #        preferably, would use Python logging handler to get both distinct outputs and one merged output
-            #        for now, split STDERR when building with all warnings enabled, so can detect warning/error output.
-            if args.all_warnings:
-                build_result = subprocess.run("arduino-cli compile --warnings all --fqbn {} {}".format(fqbn, sketch), shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-            else:
-                build_result = subprocess.run("arduino-cli compile --warnings default --fqbn {} {}".format(fqbn, sketch), shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
+            build_result = subprocess.run("arduino-cli compile --warnings all --fqbn {} {}".format(fqbn, sketch), shell=True, stdout=PIPE, stderr=PIPE)
 
-            # get stderr into a form where len(warningLines) indicates a true warning was output to stderr
-            warningLines = [];
-            if args.all_warnings and build_result.stderr:
-                tmpWarningLines = build_result.stderr.decode("utf-8").splitlines()
-                warningLines = list(filter(errorOutputFilter, (tmpWarningLines)))
-
+            # get stderr into a form where warning/error was output to stderr
             if build_result.returncode != 0:
                 exit_status = build_result.returncode
-                success = "\033[31mfailed\033[0m   "
-                fail_count += 1
-            elif len(warningLines) != 0:
-                if not args.warnings_do_not_cause_job_failure:
-                    exit_status = -1
-                success = "\033[31mwarnings\033[0m "
+                success = FAILED
                 fail_count += 1
             else:
-                success = "\033[32msucceeded\033[0m"
                 success_count += 1
+                if build_result.stderr:
+                    success = WARNING
+                else:
+                    success = SUCCEEDED
 
         build_duration = time.monotonic() - start_time
 
-        print((build_format + '| {:5.2f}s |').format(sketch.split(os.path.sep)[1], os.path.basename(sketch), success, build_duration))
+        print(build_format.format(sketch.split(os.path.sep)[1], os.path.basename(sketch), success, '{:5.2f}s'.format(build_duration)))
 
-        if success != "\033[33mskipped\033[0m  ":
+        if success != SKIPPED:
+            # Build failed
             if build_result.returncode != 0:
                 print(build_result.stdout.decode("utf-8"))
-                if (build_result.stderr):
-                    print(build_result.stderr.decode("utf-8"))
-            if len(warningLines) != 0:
-                for line in warningLines:
-                    print(line)
-        else:
-            skip_count += 1
+
+            # Build with warnings
+            if build_result.stderr:
+                print(build_result.stderr.decode("utf-8"))
 
 build_time = time.monotonic()
 
-for board in args.build_boards:
+for board in build_boards:
     build_examples(board)
 
 print(build_separator)
 build_time = time.monotonic() - build_time
-print("Build Summary: {} \033[32msucceeded\033[0m, {} \033[31mfailed\033[0m, {} \033[33mskipped\033[0m and took {:.2f}s".format(success_count, fail_count, skip_count, build_time))
+print("Build Summary: {} {}, {} {}, {} {} and took {:.2f}s".format(success_count, SUCCEEDED, fail_count, FAILED, skip_count, SKIPPED, build_time))
 print(build_separator)
 
 sys.exit(exit_status)
