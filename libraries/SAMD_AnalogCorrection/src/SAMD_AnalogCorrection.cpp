@@ -19,6 +19,11 @@
 
 #include "SAMD_AnalogCorrection.h"
 
+#ifdef USE_TINYUSB
+// For Serial when selecting TinyUSB
+#include <Adafruit_TinyUSB.h>
+#endif
+
 void analogReadCorrection (int offset, uint16_t gain)
 {
   Adc *adc;

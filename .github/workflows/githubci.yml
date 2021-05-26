@@ -7,7 +7,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        arduino-platform:
+        board:
           # Alphabetical order
           - 'metro_m0'
           - 'hallowing'
@@ -66,8 +66,4 @@ jobs:
         arduino-cli lib install $LIB_DEPS
 
     - name: Build examples
-      run: python3 extras/build_all.py ${{ matrix.arduino-platform }}
-
-    # How to mark this as allowed-to-fail?
-    - name: Build examples (-Wall)
-      run: python3 extras/build_all.py --all_warnings --warnings_do_not_cause_job_failure
+      run: python3 extras/build_all.py ${{ matrix.board }}
