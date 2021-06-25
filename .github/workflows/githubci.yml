@@ -19,6 +19,8 @@ jobs:
           - 'pyportal_m4'
           - 'pyportal_m4_titano'
           - 'feather_m4_can'
+          - 'metro_m0:usbstack=tinyusb'
+          - 'metro_m4:speed=120,usbstack=tinyusb'
 
     runs-on: ubuntu-latest
     
@@ -30,14 +32,9 @@ jobs:
         
     - name: Checkout code
       uses: actions/checkout@v2
+      with:
+        submodules: 'true'
 
-    - name: Checkout submodules
-      shell: bash
-      run: |
-        auth_header="$(git config --local --get http.https://github.com/.extraheader)"
-        git submodule sync --recursive
-        git -c "http.extraheader=$auth_header" -c protocol.version=2 submodule update --init --force --recursive      
-        
     - name: Install Arduino CLI and Tools
       run: |
         # make all our directories we need for files and libraries
@@ -52,7 +49,6 @@ jobs:
       env:
         BSP_URL: https://adafruit.github.io/arduino-board-index/package_adafruit_index.json
         BSP_PATH: .arduino15/packages/adafruit/hardware/samd
-        LIB_DEPS: FlashStorage SD
       run: |
         arduino-cli config init
         arduino-cli core update-index
@@ -63,7 +59,7 @@ jobs:
         BSP_VERSION=`eval ls $HOME/$BSP_PATH`
         rm -r $HOME/$BSP_PATH/*
         ln -s $GITHUB_WORKSPACE $HOME/$BSP_PATH/$BSP_VERSION
-        arduino-cli lib install $LIB_DEPS
+        arduino-cli lib install "Adafruit NeoPixel" "Adafruit seesaw Library" "Adafruit SPIFlash" "FlashStorage" "MIDI Library" "SD" "SdFat - Adafruit Fork"
 
     - name: Build examples
       run: python3 extras/build_all.py ${{ matrix.board }}

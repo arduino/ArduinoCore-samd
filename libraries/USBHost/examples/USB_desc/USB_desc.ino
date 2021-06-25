@@ -216,6 +216,7 @@ byte getconfdescr( byte addr, byte conf )
   uint16_t total_length;
   // FIXME -- no check of return code from usb.getConfDescr()
   rcode = usb.getConfDescr( addr, 0, 4, conf, buf );  //get total length
+  (void) rcode;
   LOBYTE( total_length ) = buf[ 2 ];
   HIBYTE( total_length ) = buf[ 3 ];
   if( total_length > sizeof(buf)) {    //check if total length is larger than buffer
@@ -224,6 +225,7 @@ byte getconfdescr( byte addr, byte conf )
   }
   // FIXME -- no check of return code from usb.getConfDescr()
   rcode = usb.getConfDescr( addr, 0, total_length, conf, buf ); //get the whole descriptor
+  (void) rcode;
   while( buf_ptr < buf + total_length ) {  //parsing descriptors
     descr_length = *( buf_ptr );
     descr_type = *( buf_ptr + 1 );

@@ -37,6 +37,12 @@ static I2SDevice_SAMD21G18x i2sd(*I2S);
 
 #include "I2S.h"
 
+#ifdef USE_TINYUSB
+// For Serial when selecting TinyUSB
+#include <Adafruit_TinyUSB.h>
+#endif
+
+
 int I2SClass::_beginCount = 0;
 
 I2SClass::I2SClass(uint8_t deviceIndex, uint8_t clockGenerator, uint8_t sdPin, uint8_t sckPin, uint8_t fsPin) :

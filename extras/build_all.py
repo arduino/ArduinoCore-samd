@@ -15,12 +15,13 @@ success_count = 0
 fail_count = 0
 skip_count = 0
 
-build_format = '| {:20} | {:35} | {:18} | {:6} |'
-build_separator = '-' * 83
+build_format = '| {:25} | {:35} | {:18} | {:6} |'
+build_separator = '-' * 88
 
 FQBN_PREFIX='adafruit:samd:adafruit_'
 
-default_boards = [ 'metro_m0', 'metro_m4', 'circuitplayground_m0', 'feather_m4_can' ]
+#default_boards = [ 'metro_m0', 'metro_m4', 'circuitplayground_m0', 'feather_m4_can', 'metro_m0:usbstack=tinyusb', 'metro_m4:speed=120,usbstack=tinyusb' ]
+default_boards = [ 'metro_m0', 'metro_m0:usbstack=tinyusb' ]
 build_boards = []
 
 # build all variants if input not existed
@@ -37,7 +38,7 @@ def build_examples(variant):
 
     print('\n')
     print(build_separator)
-    print('| {:^79} |'.format('Board ' + variant))
+    print('| {:^84} |'.format('Board ' + variant))
     print(build_separator)
     print(build_format.format('Library', 'Example', '\033[39mResult\033[0m', 'Time'))
     print(build_separator)
@@ -45,10 +46,6 @@ def build_examples(variant):
     fqbn = "{}{}".format(FQBN_PREFIX, variant)
 
     for sketch in all_examples:
-        # TODO skip TinyUSB library examples for now
-        if "libraries/Adafruit_TinyUSB_Arduino" in sketch:
-            continue
-
         start_time = time.monotonic()
 
         # Skip if contains: ".board.test.skip" or ".all.test.skip"
@@ -58,6 +55,14 @@ def build_examples(variant):
             success = SKIPPED
             skip_count += 1
         elif glob.glob(sketchdir+"/.*.test.only") and not os.path.exists(sketchdir + '/.' + variant + '.test.only'):
+            success = SKIPPED
+            skip_count += 1
+        elif 'usbstack=tinyusb' not in variant and "libraries/Adafruit_TinyUSB_Arduino" in sketch:
+            # skip non-tinyusb variant for tinyusb examples
+            success = SKIPPED
+            skip_count += 1
+        elif 'usbstack=tinyusb' in variant and "libraries/USBHost" in sketch:
+            # skip -tinyusb variant for USBHost examples
             success = SKIPPED
             skip_count += 1
         else:

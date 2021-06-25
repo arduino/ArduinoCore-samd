@@ -21,6 +21,11 @@
 #include <Arduino.h>
 #include <Servo.h>
 
+#ifdef USE_TINYUSB
+// For Serial when selecting TinyUSB
+#include <Adafruit_TinyUSB.h>
+#endif
+
 #if defined(__SAMD51__)
  // Different prescalers depending on FCPU (avoid overflowing 16-bit counter)
  #if(F_CPU > 200000000)
