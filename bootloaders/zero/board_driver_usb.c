@@ -281,6 +281,9 @@ uint8_t USB_IsConfigured(P_USB_CDC pCdc)
 
     // Reset current configuration value to 0
     pCdc->currentConfiguration = 0;
+
+    // Reset the read_job flag back to false
+    read_job = false;
   }
   else
   {
