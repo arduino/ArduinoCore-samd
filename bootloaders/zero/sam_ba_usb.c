@@ -52,7 +52,7 @@ const char devDescriptor[] =
   0x02,   // bcdDevice H
   STRING_INDEX_MANUFACTURER,   // iManufacturer
   STRING_INDEX_PRODUCT,        // iProduct
-  0x00,   // SerialNumber, should be based on product unique ID
+  STRING_INDEX_SERIAL_NUMBER,  // iSerialNumber
   0x01    // bNumConfigs
 };
 
@@ -162,6 +162,28 @@ char cfgDescriptor[] =
 
 USB_CDC sam_ba_cdc;
 
+static void utox8(uint32_t val, char* s) {
+	for (int i = 0; i < 8; i++) {
+		int d = val & 0XF;
+		val = (val >> 4);
+
+		s[7 - i] = d > 9 ? 'A' + d - 10 : '0' + d;
+	}
+}
+
+static void getSerialNumber(char* name) {
+	// from section 9.3.3 of the datasheet
+	#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
+	#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
+	#define SERIAL_NUMBER_WORD_2	*(volatile uint32_t*)(0x0080A044)
+	#define SERIAL_NUMBER_WORD_3	*(volatile uint32_t*)(0x0080A048)
+
+	utox8(SERIAL_NUMBER_WORD_0, &name[0]);
+	utox8(SERIAL_NUMBER_WORD_1, &name[8]);
+	utox8(SERIAL_NUMBER_WORD_2, &name[16]);
+	utox8(SERIAL_NUMBER_WORD_3, &name[24]);
+}
+
 /*----------------------------------------------------------------------------
  * \brief This function is a callback invoked when a SETUP packet is received
  */
@@ -219,6 +241,15 @@ void sam_ba_usb_CDC_Enumerate(P_USB_CDC pCdc)
           case STRING_INDEX_PRODUCT:
             USB_SendString(pCdc->pUsb, STRING_PRODUCT, wLength );
           break;
+
+          case STRING_INDEX_SERIAL_NUMBER: {
+            char sSerialNumber[33];
+            sSerialNumber[32] = 0; /* NUL-byte */
+            getSerialNumber(sSerialNumber);
+            USB_SendString(pCdc->pUsb, sSerialNumber, wLength);
+          }
+          break;
+
           default:
             /* Stall the request */
             USB_SendStall(pUsb, true);

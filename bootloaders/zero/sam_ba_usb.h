@@ -69,6 +69,7 @@
 #define STRING_INDEX_LANGUAGES         (0x00u)
 #define STRING_INDEX_MANUFACTURER      (0x01u)
 #define STRING_INDEX_PRODUCT           (0x02u)
+#define STRING_INDEX_SERIAL_NUMBER     (0x03u)
 
 #define SAM_BA_MIN(a, b) (((a) < (b)) ? (a) : (b))
 
