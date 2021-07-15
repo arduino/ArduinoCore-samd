@@ -1030,7 +1030,7 @@ adafruit_feather_m4.build.vid=0x239A
 adafruit_feather_m4.build.pid=0x8022
 adafruit_feather_m4.bootloader.tool=openocd
 adafruit_feather_m4.bootloader.file=featherM4/bootloader-feather_m4-v2.0.0-adafruit.5.bin
-adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Lib/GCC/" "-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16 
+adafruit_feather_m4.compiler.arm.cmsis.ldflags="-L{runtime.tools.CMSIS-5.4.0.path}/CMSIS/Lib/GCC/" "-L{build.variant.path}" -larm_cortexM4lf_math -mfloat-abi=hard -mfpu=fpv4-sp-d16
 adafruit_feather_m4.menu.cache.on=Enabled
 adafruit_feather_m4.menu.cache.on.build.cache_flags=-DENABLE_CACHE
 adafruit_feather_m4.menu.cache.off=Disabled
