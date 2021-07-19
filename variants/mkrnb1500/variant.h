@@ -36,7 +36,10 @@
 // ----
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (26u)
+#ifdef __cplusplus
+extern "C" unsigned int PINCOUNT_fn();
+#endif
+#define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (15u)
 #define NUM_ANALOG_INPUTS    (7u)
 #define NUM_ANALOG_OUTPUTS   (1u)
@@ -120,12 +123,16 @@ static const uint8_t SCK  = PIN_SPI_SCK;
 #define PIN_WIRE_SCL        (12u)
 #define PERIPH_WIRE         sercom2
 #define WIRE_IT_HANDLER     SERCOM2_Handler
+static const uint8_t SDA = PIN_WIRE_SDA;
+static const uint8_t SCL = PIN_WIRE_SCL;
 
 // USB
 // ---
 #define PIN_USB_DM          (22ul)
 #define PIN_USB_DP          (23ul)
 #define PIN_USB_HOST_ENABLE (24ul)
+#define PMIC_IRQ_PIN        (30ul)
+
 
 // I2S Interfaces
 // --------------

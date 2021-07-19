@@ -22,6 +22,8 @@
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
+
 #define NVM_USB_PAD_TRANSN_POS            (45)
 #define NVM_USB_PAD_TRANSN_SIZE           (5)
 #define NVM_USB_PAD_TRANSP_POS            (50)
@@ -359,3 +361,5 @@ void USB_Configure(Usb *pUsb)
   usb_endpoint_table[USB_EP_COMM].DeviceDescBank[1].PCKSIZE.bit.SIZE = 0;
   pUsb->DEVICE.DeviceEndpoint[USB_EP_COMM].EPSTATUSCLR.reg = USB_DEVICE_EPSTATUSCLR_BK1RDY;
 }
+
+#endif

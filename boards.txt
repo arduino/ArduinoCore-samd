@@ -14,15 +14,16 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-# Arduino/Genuino Zero (Prorgamming Port)
+# Arduino Zero (Prorgamming Port)
 # ---------------------------------------
-arduino_zero_edbg.name=Arduino/Genuino Zero (Programming Port)
+arduino_zero_edbg.name=Arduino Zero (Programming Port)
 arduino_zero_edbg.vid.0=0x03eb
 arduino_zero_edbg.pid.0=0x2157
 
 arduino_zero_edbg.upload.tool=openocd
 arduino_zero_edbg.upload.protocol=sam-ba
 arduino_zero_edbg.upload.maximum_size=262144
+arduino_zero_edbg.upload.maximum_data_size=32768
 arduino_zero_edbg.upload.use_1200bps_touch=false
 arduino_zero_edbg.upload.wait_for_upload_port=false
 arduino_zero_edbg.upload.native_usb=false
@@ -42,33 +43,22 @@ arduino_zero_edbg.build.pid=0x804d
 arduino_zero_edbg.bootloader.tool=openocd
 arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
 
-# Arduino/Genuino Zero (Native USB Port)
+# Arduino Zero (Native USB Port)
 # --------------------------------------
-arduino_zero_native.name=Arduino/Genuino Zero (Native USB Port)
+arduino_zero_native.name=Arduino Zero (Native USB Port)
 arduino_zero_native.vid.0=0x2341
 arduino_zero_native.pid.0=0x804d
 arduino_zero_native.vid.1=0x2341
 arduino_zero_native.pid.1=0x004d
-
 arduino_zero_native.vid.2=0x2341
 arduino_zero_native.pid.2=0x824d
-# If the board is a 2341:824d use 2341:824d for build and set other parameters as well
-arduino_zero_native.vid.2.build.vid=0x2341
-arduino_zero_native.vid.2.build.pid=0x824d
-arduino_zero_native.vid.2.build.usb_product="Genuino Zero"
-arduino_zero_native.vid.2.bootloader.file=zero/samd21_sam_ba_genuino.bin
-
 arduino_zero_native.vid.3=0x2341
 arduino_zero_native.pid.3=0x024d
-# If the board is a 2341:024d use 2341:824d for build and set other parameters as well
-arduino_zero_native.vid.3.build.vid=0x2341
-arduino_zero_native.vid.3.build.pid=0x824d
-arduino_zero_native.vid.3.build.usb_product="Genuino Zero"
-arduino_zero_native.vid.3.bootloader.file=zero/samd21_sam_ba_genuino.bin
 
 arduino_zero_native.upload.tool=bossac
 arduino_zero_native.upload.protocol=sam-ba
 arduino_zero_native.upload.maximum_size=262144
+arduino_zero_native.upload.maximum_data_size=32768
 arduino_zero_native.upload.use_1200bps_touch=true
 arduino_zero_native.upload.wait_for_upload_port=true
 arduino_zero_native.upload.native_usb=true
@@ -88,33 +78,22 @@ arduino_zero_native.build.pid=0x804d
 arduino_zero_native.bootloader.tool=openocd
 arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
 
-# Arduino/Genuino MKR1000
+# Arduino MKR1000
 # -----------------------
-mkr1000.name=Arduino/Genuino MKR1000
+mkr1000.name=Arduino MKR1000
 mkr1000.vid.0=0x2341
 mkr1000.pid.0=0x804e
 mkr1000.vid.1=0x2341
 mkr1000.pid.1=0x004e
-
 mkr1000.vid.2=0x2341
 mkr1000.pid.2=0x824e
-# If the board is a 2341:824e use 2341:824e for build and set other parameters as well
-mkr1000.vid.2.build.vid=0x2341
-mkr1000.vid.2.build.pid=0x824e
-mkr1000.vid.2.build.usb_product="Genuino MKR1000"
-mkr1000.vid.2.bootloader.file=mkr1000/samd21_sam_ba_genuino_mkr1000.bin
-
 mkr1000.vid.3=0x2341
 mkr1000.pid.3=0x024e
-# If the board is a 2341:024e use 2341:824e for build and set other parameters as well
-mkr1000.vid.3.build.vid=0x2341
-mkr1000.vid.3.build.pid=0x824e
-mkr1000.vid.3.build.usb_product="Genuino MKR1000"
-mkr1000.vid.3.bootloader.file=mkr1000/samd21_sam_ba_genuino_mkr1000.bin
 
 mkr1000.upload.tool=bossac
 mkr1000.upload.protocol=sam-ba
 mkr1000.upload.maximum_size=262144
+mkr1000.upload.maximum_data_size=32768
 mkr1000.upload.use_1200bps_touch=true
 mkr1000.upload.wait_for_upload_port=true
 mkr1000.upload.native_usb=true
@@ -144,6 +123,7 @@ mkrzero.pid.1=0x004f
 mkrzero.upload.tool=bossac
 mkrzero.upload.protocol=sam-ba
 mkrzero.upload.maximum_size=262144
+mkrzero.upload.maximum_data_size=32768
 mkrzero.upload.use_1200bps_touch=true
 mkrzero.upload.wait_for_upload_port=true
 mkrzero.upload.native_usb=true
@@ -173,6 +153,7 @@ mkrwifi1010.pid.1=0x0054
 mkrwifi1010.upload.tool=bossac
 mkrwifi1010.upload.protocol=sam-ba
 mkrwifi1010.upload.maximum_size=262144
+mkrwifi1010.upload.maximum_data_size=32768
 mkrwifi1010.upload.use_1200bps_touch=true
 mkrwifi1010.upload.wait_for_upload_port=true
 mkrwifi1010.upload.native_usb=true
@@ -190,6 +171,37 @@ mkrwifi1010.build.vid=0x2341
 mkrwifi1010.build.pid=0x8054
 mkrwifi1010.bootloader.tool=openocd
 mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
+#mkrwifi1010.arduinoota.extraflags=-d
+
+# Arduino NANO 33 IoT
+# --------------------
+nano_33_iot.name=Arduino NANO 33 IoT
+nano_33_iot.vid.0=0x2341
+nano_33_iot.pid.0=0x8057
+nano_33_iot.vid.1=0x2341
+nano_33_iot.pid.1=0x0057
+
+nano_33_iot.upload.tool=bossac
+nano_33_iot.upload.protocol=sam-ba
+nano_33_iot.upload.maximum_size=262144
+nano_33_iot.upload.maximum_data_size=32768
+nano_33_iot.upload.use_1200bps_touch=true
+nano_33_iot.upload.wait_for_upload_port=true
+nano_33_iot.upload.native_usb=true
+nano_33_iot.build.mcu=cortex-m0plus
+nano_33_iot.build.f_cpu=48000000L
+nano_33_iot.build.usb_product="Arduino NANO 33 IoT"
+nano_33_iot.build.usb_manufacturer="Arduino LLC"
+nano_33_iot.build.board=SAMD_NANO_33_IOT
+nano_33_iot.build.core=arduino
+nano_33_iot.build.extra_flags=-DCRYSTALLESS -D__SAMD21G18A__ {build.usb_flags}
+nano_33_iot.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+nano_33_iot.build.openocdscript=openocd_scripts/arduino_zero.cfg
+nano_33_iot.build.variant=nano_33_iot
+nano_33_iot.build.vid=0x2341
+nano_33_iot.build.pid=0x8057
+nano_33_iot.bootloader.tool=openocd
+nano_33_iot.bootloader.file=nano_33_iot/samd21_sam_ba_arduino_nano_33_iot.bin
 
 # Arduino MKR FOX 1200
 # --------------------
@@ -202,6 +214,7 @@ mkrfox1200.pid.1=0x0050
 mkrfox1200.upload.tool=bossac
 mkrfox1200.upload.protocol=sam-ba
 mkrfox1200.upload.maximum_size=262144
+mkrfox1200.upload.maximum_data_size=32768
 mkrfox1200.upload.use_1200bps_touch=true
 mkrfox1200.upload.wait_for_upload_port=true
 mkrfox1200.upload.native_usb=true
@@ -211,7 +224,7 @@ mkrfox1200.build.usb_product="Arduino MKR FOX 1200"
 mkrfox1200.build.usb_manufacturer="Arduino LLC"
 mkrfox1200.build.board=SAMD_MKRFox1200
 mkrfox1200.build.core=arduino
-mkrfox1200.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags}
+mkrfox1200.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags} -DVERY_LOW_POWER
 mkrfox1200.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 mkrfox1200.build.openocdscript=openocd_scripts/arduino_zero.cfg
 mkrfox1200.build.variant=mkrfox1200
@@ -231,6 +244,7 @@ mkrwan1300.pid.1=0x0053
 mkrwan1300.upload.tool=bossac
 mkrwan1300.upload.protocol=sam-ba
 mkrwan1300.upload.maximum_size=262144
+mkrwan1300.upload.maximum_data_size=32768
 mkrwan1300.upload.use_1200bps_touch=true
 mkrwan1300.upload.wait_for_upload_port=true
 mkrwan1300.upload.native_usb=true
@@ -249,6 +263,36 @@ mkrwan1300.build.pid=0x8053
 mkrwan1300.bootloader.tool=openocd
 mkrwan1300.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1300.bin
 
+# Arduino MKR WAN 1310
+# --------------------
+mkrwan1310.name=Arduino MKR WAN 1310
+mkrwan1310.vid.0=0x2341
+mkrwan1310.pid.0=0x8059
+mkrwan1310.vid.1=0x2341
+mkrwan1310.pid.1=0x0059
+
+mkrwan1310.upload.tool=bossac
+mkrwan1310.upload.protocol=sam-ba
+mkrwan1310.upload.maximum_size=262144
+mkrwan1310.upload.maximum_data_size=32768
+mkrwan1310.upload.use_1200bps_touch=true
+mkrwan1310.upload.wait_for_upload_port=true
+mkrwan1310.upload.native_usb=true
+mkrwan1310.build.mcu=cortex-m0plus
+mkrwan1310.build.f_cpu=48000000L
+mkrwan1310.build.usb_product="Arduino MKR WAN 1310"
+mkrwan1310.build.usb_manufacturer="Arduino LLC"
+mkrwan1310.build.board=SAMD_MKRWAN1310
+mkrwan1310.build.core=arduino
+mkrwan1310.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC -DVERY_LOW_POWER
+mkrwan1310.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrwan1310.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrwan1310.build.variant=mkrwan1300
+mkrwan1310.build.vid=0x2341
+mkrwan1310.build.pid=0x8059
+mkrwan1310.bootloader.tool=openocd
+mkrwan1310.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1310.bin
+
 # Arduino MKR GSM 1400
 # --------------------
 mkrgsm1400.name=Arduino MKR GSM 1400
@@ -260,6 +304,7 @@ mkrgsm1400.pid.1=0x0052
 mkrgsm1400.upload.tool=bossac
 mkrgsm1400.upload.protocol=sam-ba
 mkrgsm1400.upload.maximum_size=262144
+mkrgsm1400.upload.maximum_data_size=32768
 mkrgsm1400.upload.use_1200bps_touch=true
 mkrgsm1400.upload.wait_for_upload_port=true
 mkrgsm1400.upload.native_usb=true
@@ -289,6 +334,7 @@ mkrnb1500.pid.1=0x0055
 mkrnb1500.upload.tool=bossac
 mkrnb1500.upload.protocol=sam-ba
 mkrnb1500.upload.maximum_size=262144
+mkrnb1500.upload.maximum_data_size=32768
 mkrnb1500.upload.use_1200bps_touch=true
 mkrnb1500.upload.wait_for_upload_port=true
 mkrnb1500.upload.native_usb=true
@@ -307,6 +353,36 @@ mkrnb1500.build.pid=0x8055
 mkrnb1500.bootloader.tool=openocd
 mkrnb1500.bootloader.file=mkrnb1500/samd21_sam_ba_arduino_mkrnb1500.bin
 
+# Arduino MKR Vidor 4000
+# --------------------
+mkrvidor4000.name=Arduino MKR Vidor 4000
+mkrvidor4000.vid.0=0x2341
+mkrvidor4000.pid.0=0x8056
+mkrvidor4000.vid.1=0x2341
+mkrvidor4000.pid.1=0x0056
+
+mkrvidor4000.upload.tool=bossacI
+mkrvidor4000.upload.protocol=sam-ba
+mkrvidor4000.upload.maximum_size=262144
+mkrvidor4000.upload.maximum_data_size=32768
+mkrvidor4000.upload.use_1200bps_touch=true
+mkrvidor4000.upload.wait_for_upload_port=true
+mkrvidor4000.upload.native_usb=true
+mkrvidor4000.build.mcu=cortex-m0plus
+mkrvidor4000.build.f_cpu=48000000L
+mkrvidor4000.build.usb_product="Arduino MKR Vidor 4000"
+mkrvidor4000.build.usb_manufacturer="Arduino LLC"
+mkrvidor4000.build.board=SAMD_MKRVIDOR4000
+mkrvidor4000.build.core=arduino
+mkrvidor4000.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags} -DUSE_BQ24195L_PMIC
+mkrvidor4000.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+mkrvidor4000.build.openocdscript=openocd_scripts/arduino_zero.cfg
+mkrvidor4000.build.variant=mkrvidor4000
+mkrvidor4000.build.vid=0x2341
+mkrvidor4000.build.pid=0x8056
+mkrvidor4000.bootloader.tool=openocd
+mkrvidor4000.bootloader.file=mkrvidor4000/samd21_sam_ba_arduino_mkrvidor4000.bin
+
 # Adafruit Circuit Playground M0
 # ------------------------------
 adafruit_circuitplayground_m0.name=Adafruit Circuit Playground Express
@@ -317,6 +393,7 @@ adafruit_circuitplayground_m0.pid.1=0x0018
 adafruit_circuitplayground_m0.upload.tool=bossac
 adafruit_circuitplayground_m0.upload.protocol=sam-ba
 adafruit_circuitplayground_m0.upload.maximum_size=262144
+adafruit_circuitplayground_m0.upload.maximum_data_size=32768
 adafruit_circuitplayground_m0.upload.use_1200bps_touch=true
 adafruit_circuitplayground_m0.upload.wait_for_upload_port=true
 adafruit_circuitplayground_m0.upload.native_usb=true
@@ -344,6 +421,7 @@ mzero_pro_bl_dbg.pid.0=0x2111
 mzero_pro_bl_dbg.upload.tool=openocd-withbootsize
 mzero_pro_bl_dbg.upload.protocol=sam-ba
 mzero_pro_bl_dbg.upload.maximum_size=262144
+mzero_pro_bl_dbg.upload.maximum_data_size=32768
 mzero_pro_bl_dbg.upload.use_1200bps_touch=false
 mzero_pro_bl_dbg.upload.wait_for_upload_port=false
 mzero_pro_bl_dbg.upload.native_usb=false
@@ -382,6 +460,7 @@ mzero_pro_bl.pid.3=0x804f
 mzero_pro_bl.upload.tool=avrdude
 mzero_pro_bl.upload.protocol=stk500v2
 mzero_pro_bl.upload.maximum_size=262144
+mzero_pro_bl.upload.maximum_data_size=32768
 mzero_pro_bl.upload.use_1200bps_touch=true
 mzero_pro_bl.upload.wait_for_upload_port=true
 mzero_pro_bl.upload.native_usb=true
@@ -419,6 +498,7 @@ mzero_bl.pid.3=0x804e
 mzero_bl.upload.tool=avrdude
 mzero_bl.upload.protocol=stk500v2
 mzero_bl.upload.maximum_size=262144
+mzero_bl.upload.maximum_data_size=32768
 mzero_bl.upload.use_1200bps_touch=true
 mzero_bl.upload.wait_for_upload_port=true
 mzero_bl.upload.native_usb=true
@@ -454,6 +534,7 @@ tian.upload.tool=avrdude
 #tian.upload.protocol=stk500v2
 tian.upload.protocol=wiring
 tian.upload.maximum_size=262144
+tian.upload.maximum_data_size=32768
 tian.upload.use_1200bps_touch=true
 tian.upload.wait_for_upload_port=true
 tian.upload.native_usb=true

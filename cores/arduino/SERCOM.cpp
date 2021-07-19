@@ -16,6 +16,7 @@
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
 
+#include "Arduino.h"
 #include "SERCOM.h"
 #include "variant.h"
 
@@ -111,8 +112,8 @@ void SERCOM::enableUART()
 void SERCOM::flushUART()
 {
   // Skip checking transmission completion if data register is empty
-  if(isDataRegisterEmptyUART())
-    return;
+//   if(isDataRegisterEmptyUART())
+//     return;
 
   // Wait for transmission to complete
   while(!sercom->USART.INTFLAG.bit.TXC);
@@ -499,8 +500,18 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
-  // Wait idle or owner bus mode
-  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
+  // If another master owns the bus or the last bus owner has not properly
+  // sent a stop, return failure early. This will prevent some misbehaved
+  // devices from deadlocking here at the cost of the caller being responsible
+  // for retrying the failed transmission. See SercomWireBusState for the
+  // possible bus states.
+  if(!isBusOwnerWIRE())
+  {
+    if( isBusBusyWIRE() || (isArbLostWIRE() && !isBusIdleWIRE()) )
+    {
+      return false;
+    }
+  }
 
   // Send start and address
   sercom->I2CM.ADDR.bit.ADDR = address;
@@ -511,6 +522,12 @@ bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag
     while( !sercom->I2CM.INTFLAG.bit.MB )
     {
       // Wait transmission complete
+    }
+    // Check for loss of arbitration (multiple masters starting communication at the same time)
+    if(!isBusOwnerWIRE())
+    {
+      // Restart communication
+      startTransmissionWIRE(address >> 1, flag);
     }
   }
   else  // Read mode
@@ -596,6 +613,16 @@ bool SERCOM::isBusOwnerWIRE( void )
   return sercom->I2CM.STATUS.bit.BUSSTATE == WIRE_OWNER_STATE;
 }
 
+bool SERCOM::isArbLostWIRE( void )
+{
+  return sercom->I2CM.STATUS.bit.ARBLOST == 1;
+}
+
+bool SERCOM::isBusBusyWIRE( void )
+{
+  return sercom->I2CM.STATUS.bit.BUSSTATE == WIRE_BUSY_STATE;
+}
+
 bool SERCOM::isDataReadyWIRE( void )
 {
   return sercom->I2CS.INTFLAG.bit.DRDY;
@@ -638,7 +665,7 @@ uint8_t SERCOM::readDataWIRE( void )
 {
   if(isMasterWIRE())
   {
-    while( sercom->I2CM.INTFLAG.bit.SB == 0 )
+    while( sercom->I2CM.INTFLAG.bit.SB == 0 && sercom->I2CM.INTFLAG.bit.MB == 0 )
     {
       // Waiting complete receive
     }

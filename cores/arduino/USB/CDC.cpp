@@ -18,12 +18,19 @@
 
 #include <Arduino.h>
 #include <Reset.h> // Needed for auto-reset with 1200bps port touch
+#include "CDC.h"
+#include "USBAPI.h"
+#include "SAMD21_USBDevice.h"
 
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdint.h>
 
 #ifdef CDC_ENABLED
+
+using namespace arduino;
+
+extern USBDevice_SAMD21G18x usbd;
 
 #define CDC_SERIAL_BUFFER_SIZE	256
 
@@ -33,6 +40,8 @@
 
 #define CDC_LINESTATE_READY		(CDC_LINESTATE_RTS | CDC_LINESTATE_DTR)
 
+extern USBDeviceClass USBDevice;
+
 typedef struct {
 	uint32_t dwDTERate;
 	uint8_t bCharFormat;
@@ -41,7 +50,6 @@ typedef struct {
 	uint8_t lineState;
 } LineInfo;
 
-_Pragma("pack(1)")
 static volatile LineInfo _usbLineInfo = {
 	115200, // dWDTERate
 	0x00,   // bCharFormat
@@ -52,45 +60,80 @@ static volatile LineInfo _usbLineInfo = {
 
 static volatile int32_t breakValue = -1;
 
-static CDCDescriptor _cdcInterface = {
-	D_IAD(0, 2, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
+// CDC
+#define CDC_ACM_INTERFACE  pluggedInterface              // CDC ACM
+#define CDC_DATA_INTERFACE uint8_t(pluggedInterface + 1) // CDC Data
+#define CDC_ENDPOINT_ACM   pluggedEndpoint
+#define CDC_ENDPOINT_OUT   pluggedEndpoint + 1
+#define CDC_ENDPOINT_IN    pluggedEndpoint + 2
 
-	// CDC communication interface
-	D_INTERFACE(CDC_ACM_INTERFACE, 1, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
-	D_CDCCS(CDC_HEADER, CDC_V1_10 & 0xFF, (CDC_V1_10>>8) & 0x0FF), // Header (1.10 bcd)
+#define CDC_RX CDC_ENDPOINT_OUT
+#define CDC_TX CDC_ENDPOINT_IN
 
-	D_CDCCS4(CDC_ABSTRACT_CONTROL_MANAGEMENT, 6), // SET_LINE_CODING, GET_LINE_CODING, SET_CONTROL_LINE_STATE supported
-	D_CDCCS(CDC_UNION, CDC_ACM_INTERFACE, CDC_DATA_INTERFACE), // Communication interface is master, data interface is slave 0
-	D_CDCCS(CDC_CALL_MANAGEMENT, 1, 1), // Device handles call management (not)
-	D_ENDPOINT(USB_ENDPOINT_IN(CDC_ENDPOINT_ACM), USB_ENDPOINT_TYPE_INTERRUPT, 0x10, 0x10),
-
-	// CDC data interface
-	D_INTERFACE(CDC_DATA_INTERFACE, 2, CDC_DATA_INTERFACE_CLASS, 0, 0),
-	D_ENDPOINT(USB_ENDPOINT_OUT(CDC_ENDPOINT_OUT), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0),
-	D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_IN ), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0)
-};
-_Pragma("pack()")
-
-const void* _CDC_GetInterface(void)
-{
-	return &_cdcInterface;
-}
-
-uint32_t _CDC_GetInterfaceLength(void)
-{
-	return sizeof(_cdcInterface);
-}
-
-int CDC_GetInterface(uint8_t* interfaceNum)
+int Serial_::getInterface(uint8_t* interfaceNum)
 {
 	interfaceNum[0] += 2;	// uses 2
-	return USBDevice.sendControl(&_cdcInterface,sizeof(_cdcInterface));
+	CDCDescriptor _cdcInterface = {
+		D_IAD(pluggedInterface, 2, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
+
+		// CDC communication interface
+		D_INTERFACE(CDC_ACM_INTERFACE, 1, CDC_COMMUNICATION_INTERFACE_CLASS, CDC_ABSTRACT_CONTROL_MODEL, 0),
+		D_CDCCS(CDC_HEADER, CDC_V1_10 & 0xFF, (CDC_V1_10>>8) & 0x0FF), // Header (1.10 bcd)
+
+		D_CDCCS4(CDC_ABSTRACT_CONTROL_MANAGEMENT, 6), // SET_LINE_CODING, GET_LINE_CODING, SET_CONTROL_LINE_STATE supported
+		D_CDCCS(CDC_UNION, CDC_ACM_INTERFACE, CDC_DATA_INTERFACE), // Communication interface is master, data interface is slave 0
+		D_CDCCS(CDC_CALL_MANAGEMENT, 1, 1), // Device handles call management (not)
+		D_ENDPOINT(USB_ENDPOINT_IN(CDC_ENDPOINT_ACM), USB_ENDPOINT_TYPE_INTERRUPT, 0x10, 0x10),
+
+		// CDC data interface
+		D_INTERFACE(CDC_DATA_INTERFACE, 2, CDC_DATA_INTERFACE_CLASS, 0, 0),
+		D_ENDPOINT(USB_ENDPOINT_OUT(CDC_ENDPOINT_OUT), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0),
+		D_ENDPOINT(USB_ENDPOINT_IN (CDC_ENDPOINT_IN), USB_ENDPOINT_TYPE_BULK, EPX_SIZE, 0)
+	};
+
+	return USBDevice.sendControl(&_cdcInterface, sizeof(_cdcInterface));
 }
 
-bool CDC_Setup(USBSetup& setup)
+int Serial_::getDescriptor(USBSetup& /* setup */)
+{
+	return 0;
+}
+
+static void utox8(uint32_t val, char* s) {
+	for (int i = 0; i < 8; i++) {
+		int d = val & 0XF;
+		val = (val >> 4);
+
+		s[7 - i] = d > 9 ? 'A' + d - 10 : '0' + d;
+	}
+}
+
+uint8_t Serial_::getShortName(char* name) {
+	// from section 9.3.3 of the datasheet
+	#define SERIAL_NUMBER_WORD_0	*(volatile uint32_t*)(0x0080A00C)
+	#define SERIAL_NUMBER_WORD_1	*(volatile uint32_t*)(0x0080A040)
+	#define SERIAL_NUMBER_WORD_2	*(volatile uint32_t*)(0x0080A044)
+	#define SERIAL_NUMBER_WORD_3	*(volatile uint32_t*)(0x0080A048)
+
+	utox8(SERIAL_NUMBER_WORD_0, &name[0]);
+	utox8(SERIAL_NUMBER_WORD_1, &name[8]);
+	utox8(SERIAL_NUMBER_WORD_2, &name[16]);
+	utox8(SERIAL_NUMBER_WORD_3, &name[24]);
+	return 32;
+}
+
+void Serial_::handleEndpoint(int /* ep */) {
+}
+
+bool Serial_::setup(USBSetup& setup)
 {
 	uint8_t requestType = setup.bmRequestType;
 	uint8_t r = setup.bRequest;
+	uint8_t i = setup.wIndex;
+
+	if (CDC_ACM_INTERFACE != i) {
+		return false;
+	}
 
 	if (requestType == REQUEST_DEVICETOHOST_CLASS_INTERFACE)
 	{
@@ -103,6 +146,7 @@ bool CDC_Setup(USBSetup& setup)
 
 	if (requestType == REQUEST_HOSTTODEVICE_CLASS_INTERFACE)
 	{
+
 		if (r == CDC_SET_LINE_CODING)
 		{
 			USBDevice.recvControl((void*)&_usbLineInfo, 7);
@@ -118,7 +162,7 @@ bool CDC_Setup(USBSetup& setup)
 			// auto-reset into the bootloader is triggered when the port, already
 			// open at 1200 bps, is closed. We check DTR state to determine if host 
 			// port is open (bit 0 of lineState).
-			if (_usbLineInfo.dwDTERate == 1200 && (_usbLineInfo.lineState & 0x01) == 0)
+			if (_usbLineInfo.dwDTERate == 1200 && (_usbLineInfo.lineState & CDC_LINESTATE_DTR) == 0)
 			{
 				initiateReset(250);
 			}
@@ -126,16 +170,30 @@ bool CDC_Setup(USBSetup& setup)
 			{
 				cancelReset();
 			}
-			return false;
+			USBDevice.sendZlp(0);
 		}
 
 		if (CDC_SEND_BREAK == r)
 		{
 			breakValue = ((uint16_t)setup.wValueH << 8) | setup.wValueL;
-			return false;
+			USBDevice.sendZlp(0);
 		}
+		return true;
 	}
 	return false;
+}
+
+Serial_::Serial_(USBDeviceClass &_usb) : PluggableUSBModule(3, 2, epType), usb(_usb), stalled(false)
+{
+  epType[0] = USB_ENDPOINT_TYPE_INTERRUPT | USB_ENDPOINT_IN(0);
+  epType[1] = USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_OUT(0);
+  epType[2] = USB_ENDPOINT_TYPE_BULK | USB_ENDPOINT_IN(0);
+  PluggableUSB().plug(this);
+}
+
+void Serial_::enableInterrupt() {
+	usbd.epBank1EnableTransferComplete(CDC_ENDPOINT_ACM);
+	usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);
 }
 
 void Serial_::begin(uint32_t /* baud_count */)
@@ -153,9 +211,11 @@ void Serial_::end(void)
 	memset((void*)&_usbLineInfo, 0, sizeof(_usbLineInfo));
 }
 
+int _serialPeek = -1;
+
 int Serial_::available(void)
 {
-	return usb.available(CDC_ENDPOINT_OUT);
+	return usb.available(CDC_ENDPOINT_OUT) + (_serialPeek != -1);
 }
 
 int Serial_::availableForWrite(void)
@@ -164,8 +224,6 @@ int Serial_::availableForWrite(void)
 	// always EP size - 1, because bank is flushed on every write
 	return (EPX_SIZE - 1);
 }
-
-int _serialPeek = -1;
 
 int Serial_::peek(void)
 {
@@ -202,6 +260,10 @@ size_t Serial_::readBytes(char *buffer, size_t length)
 void Serial_::flush(void)
 {
 	usb.flush(CDC_ENDPOINT_IN);
+}
+
+void Serial_::clear(void) {
+	usb.clear(CDC_ENDPOINT_IN);
 }
 
 size_t Serial_::write(const uint8_t *buffer, size_t size)
@@ -281,11 +343,11 @@ uint8_t Serial_::numbits() {
 }
 
 bool Serial_::dtr() {
-	return _usbLineInfo.lineState & 0x1;
+	return ((_usbLineInfo.lineState & CDC_LINESTATE_DTR) == CDC_LINESTATE_DTR);
 }
 
 bool Serial_::rts() {
-	return _usbLineInfo.lineState & 0x2;
+	return ((_usbLineInfo.lineState & CDC_LINESTATE_RTS) == CDC_LINESTATE_RTS);
 }
 
 Serial_ SerialUSB(USBDevice);

@@ -21,12 +21,10 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "../Arduino.h"
+#include "Arduino.h"
 #include "variant.h"
 #include "USB_host.h"
 #include "samd21_host.h"
-#include "sam.h"
-#include "wiring_digital.h"
 #include "wiring_private.h"
 
 #define HOST_DEFINED
@@ -151,8 +149,10 @@ void UHD_Init(void)
 	uhd_state = UHD_STATE_NO_VBUS;
 
 	// Put VBUS on USB port
+	#ifdef PIN_USB_HOST_ENABLE
 	pinMode( PIN_USB_HOST_ENABLE, OUTPUT );
 	digitalWrite( PIN_USB_HOST_ENABLE, HIGH );
+	#endif
 
 	uhd_enable_connection_int();
 

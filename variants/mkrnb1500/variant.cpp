@@ -163,6 +163,12 @@ const PinDescription g_APinDescription[] = {
 
 const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 };
 
+extern "C" {
+    unsigned int PINCOUNT_fn() {
+        return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
+    }
+}
+
 // Multi-serial objects instantiation
 SERCOM sercom0(SERCOM0);
 SERCOM sercom1(SERCOM1);
@@ -176,6 +182,7 @@ SERCOM sercom5(SERCOM5);
 #include "wiring_private.h"
 
 #define PMIC_ADDRESS  0x6B
+#define PMIC_REG00    0x00
 #define PMIC_REG01    0x01
 #define PMIC_REG07    0x07
 
@@ -188,6 +195,20 @@ static inline void enable_battery_charging() {
   PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
   PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG01);
   PERIPH_WIRE.sendDataMasterWIRE(0x1B); // Charge Battery + Minimum System Voltage 3.5V
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
+
+static inline void set_voltage_current_thresholds() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG00);
+  PERIPH_WIRE.sendDataMasterWIRE(0x06); // 3.880 V + 2A ILIM
   PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
 
   PERIPH_WIRE.disableWIRE();
@@ -224,15 +245,17 @@ void initVariant() {
     enable_battery_charging();
   }
   disable_battery_fet(!batteryPresent);
+  set_voltage_current_thresholds();
 #endif
 
-  // enable the POW_ON pin
+  // power off the module
   pinMode(SARA_PWR_ON, OUTPUT);
-  digitalWrite(SARA_PWR_ON, HIGH);
+  digitalWrite(SARA_PWR_ON, LOW);
 
-  // put SARA modem in reset on start to conserve power if it's not used
+  // data sheet discourages use of SARA modem reset pin
+  // use may lead to irrecoverable state of modem
   pinMode(SARA_RESETN, OUTPUT);
-  digitalWrite(SARA_RESETN, HIGH);
+  digitalWrite(SARA_RESETN, LOW);
 
   // set RTS to LOW
   pinMode(SARA_RTS, OUTPUT);

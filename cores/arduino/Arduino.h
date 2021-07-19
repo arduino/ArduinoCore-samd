@@ -20,48 +20,26 @@
 #ifndef Arduino_h
 #define Arduino_h
 
-#include <stdbool.h>
-#include <stdint.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
+#include "api/ArduinoAPI.h"
 
-typedef bool boolean;
-typedef uint8_t byte;
-typedef uint16_t word;
-
-// some libraries and sketches depend on this AVR stuff,
-// assuming Arduino.h or WProgram.h automatically includes it...
-//
-#include "avr/pgmspace.h"
-#include "avr/interrupt.h"
-#include "avr/io.h"
-
-#include "binary.h"
-#include "itoa.h"
+#define RAMSTART (HMCRAMC0_ADDR)
+#define RAMSIZE  (HMCRAMC0_SIZE)
+#define RAMEND   (RAMSTART + RAMSIZE - 1)
 
 #ifdef __cplusplus
+
+using namespace arduino;
+
 extern "C"{
 #endif // __cplusplus
 
 // Include Atmel headers
-#include "sam.h"
-
-#include "wiring_constants.h"
+#undef LITTLE_ENDIAN
+#include <samd.h>
 
 #define clockCyclesPerMicrosecond() ( SystemCoreClock / 1000000L )
 #define clockCyclesToMicroseconds(a) ( ((a) * 1000L) / (SystemCoreClock / 1000L) )
 #define microsecondsToClockCycles(a) ( (a) * (SystemCoreClock / 1000000L) )
-
-void yield( void ) ;
-
-/* system functions */
-int main( void );
-void init( void );
-
-/* sketch */
-void setup( void ) ;
-void loop( void ) ;
 
 #include "WVariant.h"
 
@@ -69,59 +47,63 @@ void loop( void ) ;
 } // extern "C"
 #endif
 
-// The following headers are for C++ only compilation
-#ifdef __cplusplus
-  #include "WCharacter.h"
-  #include "WString.h"
-  #include "Tone.h"
-  #include "WMath.h"
-  #include "HardwareSerial.h"
-  #include "pulse.h"
-#endif
-#include "delay.h"
-#ifdef __cplusplus
-  #include "Uart.h"
-#endif
-
 // Include board variant
 #include "variant.h"
 
-#include "wiring.h"
-#include "wiring_digital.h"
-#include "wiring_analog.h"
-#include "wiring_shift.h"
-#include "WInterrupts.h"
+#define interrupts()    __enable_irq()
+#define noInterrupts()  __disable_irq()
+
+#if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606)
+// Interrupts
+#define digitalPinToInterrupt(P)   ( P )
+#endif
 
 // undefine stdlib's abs if encountered
 #ifdef abs
 #undef abs
 #endif // abs
 
-#define min(a,b) ((a)<(b)?(a):(b))
-#define max(a,b) ((a)>(b)?(a):(b))
 #define abs(x) ((x)>0?(x):-(x))
-#define constrain(amt,low,high) ((amt)<(low)?(low):((amt)>(high)?(high):(amt)))
-#define round(x)     ((x)>=0?(long)((x)+0.5):(long)((x)-0.5))
-#define radians(deg) ((deg)*DEG_TO_RAD)
-#define degrees(rad) ((rad)*RAD_TO_DEG)
-#define sq(x) ((x)*(x))
 
-#define interrupts() __enable_irq()
-#define noInterrupts() __disable_irq()
+// Allows publishing the Beta core under samd-beta / arduino organization
+#ifndef ARDUINO_ARCH_SAMD
+#define ARDUINO_ARCH_SAMD
+#endif
 
-#define lowByte(w) ((uint8_t) ((w) & 0xff))
-#define highByte(w) ((uint8_t) ((w) >> 8))
+#ifdef __cplusplus
+extern "C" {
+#endif
+/*
+ * \brief SAMD products have only one reference for ADC
+ */
+typedef enum _eAnalogReference
+{
+  AR_DEFAULT,
+  AR_INTERNAL,
+  AR_EXTERNAL,
+  AR_INTERNAL1V0,
+  AR_INTERNAL1V65,
+  AR_INTERNAL2V23
+} eAnalogReference ;
 
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) (bitvalue ? bitSet(value, bit) : bitClear(value, bit))
+/*
+ * \brief Set the resolution of analogRead return values. Default is 10 bits (range from 0 to 1023).
+ *
+ * \param res
+ */
+extern void analogReadResolution(int res);
 
-#define bit(b) (1UL << (b))
+/*
+ * \brief Set the resolution of analogWrite parameters. Default is 8 bits (range from 0 to 255).
+ *
+ * \param res
+ */
+extern void analogWriteResolution(int res);
 
-#if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10606)
-// Interrupts
-#define digitalPinToInterrupt(P)   ( P )
+extern void analogOutputInit( void ) ;
+
+#ifdef __cplusplus
+}
 #endif
 
 // USB Device
@@ -129,5 +111,8 @@ void loop( void ) ;
 #include "USB/USBCore.h"
 #include "USB/USBAPI.h"
 #include "USB/USB_host.h"
+
+// ARM toolchain doesn't provide itoa etc, provide them
+#include "api/itoa.h"
 
 #endif // Arduino_h

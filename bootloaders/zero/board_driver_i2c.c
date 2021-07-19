@@ -246,14 +246,19 @@ static inline void prepareAckBitWIRE( void )
   I2C_SERCOM->I2CM.CTRLB.bit.ACKACT = 0;
 }
 
-static inline void prepareCommandBitsWire(uint8_t cmd)
+static inline int prepareCommandBitsWire(uint8_t cmd)
 {
   I2C_SERCOM->I2CM.CTRLB.bit.CMD = cmd;
 
+  int timeout = 50000;
   while(I2C_SERCOM->I2CM.SYNCBUSY.bit.SYSOP)
   {
+    if (timeout -- < 0) {
+      return -1;
+    }
     // Waiting for synchronization
   }
+  return 0;
 }
 
 static inline bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
@@ -261,9 +266,14 @@ static inline bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFla
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
+  int timeout = 50000;
 
   // Wait idle or owner bus mode
-  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() );
+  while ( !isBusIdleWIRE() && !isBusOwnerWIRE() ) {
+    if (timeout -- < 0) {
+      return false;
+    }
+  }
 
   // Send start and address
   I2C_SERCOM->I2CM.ADDR.bit.ADDR = address;
@@ -273,6 +283,9 @@ static inline bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFla
   {
     while( !I2C_SERCOM->I2CM.INTFLAG.bit.MB )
     {
+      if (timeout -- < 0) {
+        return false;
+      }
       // Wait transmission complete
     }
   }
@@ -280,6 +293,9 @@ static inline bool startTransmissionWIRE(uint8_t address, SercomWireReadWriteFla
   {
     while( !I2C_SERCOM->I2CM.INTFLAG.bit.SB )
     {
+        if (timeout -- < 0) {
+          return false;
+        }
         // If the slave NACKS the address, the MB bit will be set.
         // In that case, send a stop condition and return false.
         if (I2C_SERCOM->I2CM.INTFLAG.bit.MB) {
@@ -310,9 +326,14 @@ static inline bool sendDataMasterWIRE(uint8_t data)
   //Send data
   I2C_SERCOM->I2CM.DATA.bit.DATA = data;
 
+  int timeout = 50000;
+
   //Wait transmission successful
   while(!I2C_SERCOM->I2CM.INTFLAG.bit.MB) {
 
+    if (timeout -- < 0) {
+        return false;
+    }
     // If a bus error occurs, the MB bit may never be set.
     // Check the bus error bit and bail if it's set.
     if (I2C_SERCOM->I2CM.STATUS.bit.BUSERR) {
@@ -410,7 +431,7 @@ uint8_t i2c_endTransmission(bool stopBit)
       txBufferLen--;
     }
   }
-  
+
   if (stopBit)
   {
     prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);

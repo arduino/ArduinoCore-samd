@@ -24,6 +24,8 @@
 #include "board_definitions.h"
 #include "board_driver_led.h"
 #include "board_driver_i2c.h"
+#include "board_driver_pmic.h"
+#include "board_driver_jtag.h"
 #include "sam_ba_usb.h"
 #include "sam_ba_cdc.h"
 
@@ -104,6 +106,16 @@ static void check_start_application(void)
       return;
     }
 
+#ifdef HAS_EZ6301QI
+    // wait a tiny bit for the EZ6301QI to settle,
+    // as it's connected to RESETN and might reset
+    // the chip when the cable is plugged in fresh
+
+    for (uint32_t i=0; i<2500; i++) /* 10ms */
+      /* force compiler to not optimize this... */
+      __asm__ __volatile__("");
+#endif
+
     /* First tap */
     BOOT_DOUBLE_TAP_DATA = DOUBLE_TAP_MAGIC;
 
@@ -163,7 +175,7 @@ static void check_start_application(void)
  */
 int main(void)
 {
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   P_USB_CDC pCdc;
 #endif
   DEBUG_PIN_HIGH;
@@ -178,17 +190,37 @@ int main(void)
 
 #ifdef CONFIGURE_PMIC
   configure_pmic();
+#endif
+
+#ifdef ENABLE_JTAG_LOAD
+  uint32_t temp ;
+  // Get whole current setup for both odd and even pins and remove odd one
+  temp = (PORT->Group[0].PMUX[27 >> 1].reg) & PORT_PMUX_PMUXE( 0xF ) ;
+  // Set new muxing
+  PORT->Group[0].PMUX[27 >> 1].reg = temp|PORT_PMUX_PMUXO( 7 ) ;
+  // Enable port mux
+  PORT->Group[0].PINCFG[27].reg |= PORT_PINCFG_PMUXEN ;
+  clockout(0, 1);
+
+  jtagInit();
+  if ((jtagBitstreamVersion() & 0xFF000000) != 0xB0000000) {
+    // FPGA is not in the bootloader, restart it
+    jtagReload();    
+  }
+#endif
+
+#ifdef CONFIGURE_PMIC
   if (jump_to_app == true) {
     jump_to_application();
   }
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   /* UART is enabled in all cases */
   serial_open();
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
   pCdc = usb_init();
 #endif
 
@@ -207,7 +239,7 @@ int main(void)
   /* Wait for a complete enum on usb or a '#' char on serial line */
   while (1)
   {
-#if SAM_BA_INTERFACE == SAM_BA_USBCDC_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_USBCDC_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
     if (pCdc->IsConfigured(pCdc) != 0)
     {
       main_b_cdc_enable = true;
@@ -225,7 +257,7 @@ int main(void)
     }
 #endif
 
-#if SAM_BA_INTERFACE == SAM_BA_UART_ONLY  ||  SAM_BA_INTERFACE == SAM_BA_BOTH_INTERFACES
+#if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
     /* Check if a '#' has been received */
     if (!main_b_cdc_enable && serial_sharp_received())
     {

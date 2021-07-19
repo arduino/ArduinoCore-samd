@@ -26,6 +26,8 @@ extern "C" {
 
 #include "Wire.h"
 
+using namespace arduino;
+
 TwoWire::TwoWire(SERCOM * s, uint8_t pinSDA, uint8_t pinSCL)
 {
   this->sercom = s;
@@ -62,7 +64,7 @@ void TwoWire::end() {
   sercom->disableWIRE();
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
 {
   if(quantity == 0)
   {
@@ -78,8 +80,9 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     // Read first data
     rxBuffer.store_char(sercom->readDataWIRE());
 
+    bool busOwner;
     // Connected to slave
-    for (byteRead = 1; byteRead < quantity; ++byteRead)
+    for (byteRead = 1; byteRead < quantity && (busOwner = sercom->isBusOwnerWIRE()); ++byteRead)
     {
       sercom->prepareAckBitWIRE();                          // Prepare Acknowledge
       sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_READ); // Prepare the ACK command for the slave
@@ -88,16 +91,21 @@ uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     sercom->prepareNackBitWIRE();                           // Prepare NACK to stop slave transmission
     //sercom->readDataWIRE();                               // Clear data register to send NACK
 
-    if (stopBit)
+    if (stopBit && busOwner)
     {
-      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);   // Send Stop
+      sercom->prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);   // Send Stop unless arbitration was lost
+    }
+
+    if (!busOwner)
+    {
+      byteRead--;   // because last read byte was garbage/invalid
     }
   }
 
   return byteRead;
 }
 
-uint8_t TwoWire::requestFrom(uint8_t address, size_t quantity)
+size_t TwoWire::requestFrom(uint8_t address, size_t quantity)
 {
   return requestFrom(address, quantity, true);
 }
@@ -282,7 +290,7 @@ void TwoWire::onService(void)
     #define PERIPH_WIRE          sercom3
     #define WIRE_IT_HANDLER      SERCOM3_Handler
   #endif // PERIPH_WIRE
-  TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
+  arduino::TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
 
   void WIRE_IT_HANDLER(void) {
     Wire.onService();
@@ -290,7 +298,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 1
-  TwoWire Wire1(&PERIPH_WIRE1, PIN_WIRE1_SDA, PIN_WIRE1_SCL);
+  arduino::TwoWire Wire1(&PERIPH_WIRE1, PIN_WIRE1_SDA, PIN_WIRE1_SCL);
 
   void WIRE1_IT_HANDLER(void) {
     Wire1.onService();
@@ -298,7 +306,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 2
-  TwoWire Wire2(&PERIPH_WIRE2, PIN_WIRE2_SDA, PIN_WIRE2_SCL);
+  arduino::TwoWire Wire2(&PERIPH_WIRE2, PIN_WIRE2_SDA, PIN_WIRE2_SCL);
 
   void WIRE2_IT_HANDLER(void) {
     Wire2.onService();
@@ -306,7 +314,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 3
-  TwoWire Wire3(&PERIPH_WIRE3, PIN_WIRE3_SDA, PIN_WIRE3_SCL);
+  arduino::TwoWire Wire3(&PERIPH_WIRE3, PIN_WIRE3_SDA, PIN_WIRE3_SCL);
 
   void WIRE3_IT_HANDLER(void) {
     Wire3.onService();
@@ -314,7 +322,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 4
-  TwoWire Wire4(&PERIPH_WIRE4, PIN_WIRE4_SDA, PIN_WIRE4_SCL);
+  arduino::TwoWire Wire4(&PERIPH_WIRE4, PIN_WIRE4_SDA, PIN_WIRE4_SCL);
 
   void WIRE4_IT_HANDLER(void) {
     Wire4.onService();
@@ -322,10 +330,9 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 5
-  TwoWire Wire5(&PERIPH_WIRE5, PIN_WIRE5_SDA, PIN_WIRE5_SCL);
+  arduino::TwoWire Wire5(&PERIPH_WIRE5, PIN_WIRE5_SDA, PIN_WIRE5_SCL);
 
   void WIRE5_IT_HANDLER(void) {
     Wire5.onService();
   }
 #endif
-

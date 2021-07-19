@@ -28,7 +28,7 @@ extern "C" {
 #if (ARDUINO_SAMD_VARIANT_COMPLIANCE >= 10610)
 
 extern const uint32_t __text_start__;
-#define APP_START ((volatile uint32_t)(&__text_start__) + 4)
+#define APP_START ((uint32_t)(&__text_start__) + 4)
 
 #else
 #define APP_START 0x00002004
@@ -69,6 +69,7 @@ reset:
 static int ticks = -1;
 
 void initiateReset(int _ticks) {
+	resetExternalChip();
 	ticks = _ticks;
 }
 

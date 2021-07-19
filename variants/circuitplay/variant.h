@@ -37,7 +37,10 @@
 // ----
 
 // Number of pins defined in PinDescription array
-#define PINS_COUNT           (39u)
+#ifdef __cplusplus
+extern "C" unsigned int PINCOUNT_fn();
+#endif
+#define PINS_COUNT           (PINCOUNT_fn())
 #define NUM_DIGITAL_PINS     (39u)
 #define NUM_ANALOG_INPUTS    (11u)
 #define NUM_ANALOG_OUTPUTS   (1u)
@@ -179,6 +182,13 @@ extern Uart Serial1;
 #define PAD_SERIAL1_RX       (SERCOM_RX_PAD_1)
 #endif // __cplusplus
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+unsigned int PINCOUNT_fn();
+#ifdef __cplusplus
+}
+#endif
 
 
 // These serial port names are intended to allow libraries and architecture-neutral

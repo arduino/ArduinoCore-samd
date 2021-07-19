@@ -18,6 +18,9 @@
 */
 
 #include "board_driver_serial.h"
+#include "board_definitions.h"
+
+#if defined(SAM_BA_UART_ONLY)  ||  defined(SAM_BA_BOTH_INTERFACES)
 
 bool uart_drv_error_flag = false;
 
@@ -102,3 +105,5 @@ void uart_read_buffer_polled(Sercom *sercom, uint8_t *ptr, uint16_t length)
 		*ptr++ = (uint8_t)sercom->USART.DATA.reg;
 	} while (length--);
 }
+
+#endif

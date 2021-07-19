@@ -1,0 +1,273 @@
+name: Compile Examples
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/compile-examples.yml"
+      - "cores/**"
+      - "libraries/**"
+      - "variants/**"
+      - "boards.txt"
+      - "platform.txt"
+  push:
+    paths:
+      - ".github/workflows/compile-examples.yml"
+      - "cores/**"
+      - "libraries/**"
+      - "variants/**"
+      - "boards.txt"
+      - "platform.txt"
+
+jobs:
+  compile-test:
+    runs-on: ubuntu-latest
+
+    env:
+      # sketch paths to compile (recursive) for all boards
+      UNIVERSAL_SKETCH_PATHS: |
+        - extras/examples
+        - libraries/Wire
+        - libraries/USBHost
+        - libraries/SPI
+        - libraries/SFU/examples/SFU_LoadBinary
+        - libraries/SAMD_AnalogCorrection
+        - ~/Arduino/libraries/Servo/examples
+        - ~/Arduino/libraries/LiquidCrystal/examples
+        - ~/Arduino/libraries/Ethernet/examples
+        - ~/Arduino/libraries/SD/examples
+        - ~/Arduino/libraries/WiFi/examples
+        - ~/Arduino/libraries/Arduino_LSM9DS1/examples
+        - ~/Arduino/libraries/Arduino_JSON/examples
+        - ~/Arduino/libraries/MFRC522/examples/ChangeUID
+        - ~/Arduino/libraries/MFRC522/examples/DumpInfo
+        - ~/Arduino/libraries/MFRC522/examples/FixBrickedUID
+        - ~/Arduino/libraries/MFRC522/examples/MifareClassicValueBlock
+        - ~/Arduino/libraries/MFRC522/examples/MinimalInterrupt
+        - ~/Arduino/libraries/MFRC522/examples/Ntag216_AUTH
+        - ~/Arduino/libraries/MFRC522/examples/RFID-Cloner
+        - ~/Arduino/libraries/MFRC522/examples/ReadAndWrite
+        - ~/Arduino/libraries/MFRC522/examples/ReadNUID
+        - ~/Arduino/libraries/MFRC522/examples/ReadUidMultiReader
+        - ~/Arduino/libraries/MFRC522/examples/firmware_check
+        - ~/Arduino/libraries/MFRC522/examples/rfid_default_keys
+        - ~/Arduino/libraries/MFRC522/examples/rfid_read_personal_data
+        - ~/Arduino/libraries/MFRC522/examples/rfid_write_personal_data
+        - ~/Arduino/libraries/WiFi101/examples
+        - ~/Arduino/libraries/AceTime/examples/HelloDateTime
+
+    strategy:
+      fail-fast: false
+
+      matrix:
+        board: [
+          {"fqbn": "arduino:samd:arduino_zero_edbg", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:arduino_zero_native", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkr1000", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrzero", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrwifi1010", "type": "mkrWiFi1010", "WAN": "false"},
+          {"fqbn": "arduino:samd:nano_33_iot", "type": "nano33IoT", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrfox1200", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrwan1300", "type": "usb", "WAN": "true"},
+          {"fqbn": "arduino:samd:mkrwan1310", "type": "mkrwan1310", "WAN": "true"},
+          {"fqbn": "arduino:samd:mkrgsm1400", "type": "usb", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrnb1500", "type": "mkrNB1500", "WAN": "false"},
+          {"fqbn": "arduino:samd:mkrvidor4000", "type": "vidor", "WAN": "false"},
+          {"fqbn": "arduino:samd:adafruit_circuitplayground_m0", "type": "adafruit_playg", "WAN": "false"},
+          {"fqbn": "arduino:samd:mzero_pro_bl_dbg", "type": "mzero", "WAN": "false"},
+          {"fqbn": "arduino:samd:mzero_pro_bl", "type": "mzero", "WAN": "false"},
+          {"fqbn": "arduino:samd:mzero_bl", "type": "mzero", "WAN": "false"},
+          {"fqbn": "arduino:samd:tian", "type": "tian", "WAN": "false"}
+        ]
+
+        # make board type-specific customizations to the matrix jobs
+        include:
+          # Normal USB boards with all the general libraries
+          - board:
+              type: "usb"
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataPlus
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/ServoFirmata
+              - ~/Arduino/libraries/Firmata/examples/EchoString
+              - ~/Arduino/libraries/Firmata/examples/AnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/AllInputsFirmata
+              - libraries/I2S/examples
+              - libraries/SDU/examples
+          # Vidor board
+          - board:
+              type: "vidor"
+            additional-sketch-paths: |
+              - libraries/SAMD_BootloaderUpdater/examples
+              - libraries/I2S/examples
+              - ~/Arduino/libraries/VidorPeripherals/examples
+          # mkrwifi1010
+          - board:
+              type: "mkrWiFi1010"
+            additional-sketch-paths: |
+              - libraries/I2S/examples
+              - libraries/SDU/examples
+              - ~/Arduino/libraries/WiFiNINA/examples
+          # mkrnb1500 boards
+          - board:
+              type: "mkrNB1500"
+            additional-sketch-paths: |
+              - libraries/I2S/examples
+              - libraries/SDU/examples
+              - ~/Arduino/libraries/MKRNB/examples
+          # nano_33_iot
+          - board:
+              type: "nano33IoT"
+            additional-sketch-paths: |
+              - libraries/I2S/examples
+              - ~/Arduino/libraries/WiFiNINA/examples
+          # mkrwan1310
+          - board:
+              type: "mkrwan1310"
+            additional-sketch-paths: |
+              - libraries/I2S/examples
+          # adafruit_cicrcuitplayground board
+          - board:
+              type: "adafruit_playg"
+            additional-sketch-paths: |
+              - libraries/SDU/examples
+          # mzero boards
+          - board:
+              type: "mzero"
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataPlus
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/ServoFirmata
+              - ~/Arduino/libraries/Firmata/examples/EchoString
+              - ~/Arduino/libraries/Firmata/examples/AnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/AllInputsFirmata
+              - libraries/SDU/examples
+          # tian board
+          - board:
+              type: "tian"
+            additional-sketch-paths: |
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataPlus
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmataEthernet
+              - ~/Arduino/libraries/Firmata/examples/StandardFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleDigitalFirmata
+              - ~/Arduino/libraries/Firmata/examples/SimpleAnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/ServoFirmata
+              - ~/Arduino/libraries/Firmata/examples/EchoString
+              - ~/Arduino/libraries/Firmata/examples/AnalogFirmata
+              - ~/Arduino/libraries/Firmata/examples/AllInputsFirmata
+          # MKRGSM1400 board
+          - board:
+              fqbn: "arduino:samd:mkrgsm1400"
+            mkrgsm1400-sketch-paths: |
+              - ~/Arduino/libraries/MKRGSM/examples
+          # MKRWAN board
+          - board:
+              WAN: "true"
+            wan-sketch-paths: |
+              - ~/Arduino/libraries/MKRWAN/examples
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
+      - name: Checkout ArduinoCore-API
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-API
+          path: extras/ArduinoCore-API
+
+      - name: Check if API should be compiled in the core
+        id: checkapi
+        run: |
+          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
+
+      - name: Install ArduinoCore-API
+        run: mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+        if: steps.checkapi.outputs.IS_API == 'true'
+
+      - name: Checkout Basic examples
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/arduino-examples
+          path: extras
+
+      - name: Compile examples
+        uses: arduino/compile-sketches@main
+        with:
+          fqbn: ${{ matrix.board.fqbn }}
+          libraries: |
+            - source-url: https://github.com/arduino-libraries/WiFi101.git
+            - name: MFRC522
+            - name: Arduino_MKRMEM
+            - name: FlashStorage
+            - name: Keyboard
+            - name: Mouse
+            - name: Servo
+            - name: LiquidCrystal
+            - name: CapacitiveSensor
+            - name: Ethernet
+            - name: ArduinoBearSSL
+            - name: Arduino_APDS9960
+            - name: Arduino_LSM9DS1
+            - name: ArduinoHttpClient
+            - name: NTPClient
+            - name: TFT
+            - name: ArduinoMqttClient
+            - name: Arduino_CRC32
+            - name: Arduino_LSM6DS3
+            - name: Stepper
+            - name: SD
+            - name: Arduino_JSON
+            - name: Arduino_HTS221
+            - name: Firmata
+            - name: ArduinoMotorCarrier
+            - name: ArduinoCloudThing
+            - name: Arduino_DebugUtils
+            - name: WiFi Link
+            - name: Arduino_LPS22HB
+            - name: CTC GO MOTIONS
+            - name: ArduinoModbus
+            - name: ArduinoIoTCloudBearSSL
+            - name: ArduinoDMX
+            - name: ArduinoRS485
+            - name: Arduino_OAuth
+            - name: CTC GO CORE
+            - name: WiFi
+            - name: Bridge
+            - name: Temboo
+            - name: ArduinoIoTCloud
+            - name: Madgwick
+            - name: MKRGSM
+            - name: MKRNB
+            - name: LoRa
+            - name: MKRWAN
+            - name: WiFiNINA
+            - name: AceTime@1.4.1
+            - name: AceCommon@1.3.1
+            - source-url: https://github.com/vidor-libraries/VidorPeripherals.git
+          platforms: |
+            # Use Board Manager to install the latest release of Arduino SAMD Boards to get the toolchain
+            - name: "arduino:samd"
+            # Overwrite the Board Manager installation with the local platform
+            - source-path: "./"
+              name: "arduino:samd"
+          sketch-paths: |
+            ${{ env.UNIVERSAL_SKETCH_PATHS }}
+            ${{ matrix.additional-sketch-paths }}
+            ${{ matrix.mkrgsm1400-sketch-paths }}
+            ${{ matrix.wan-sketch-paths }}
+          enable-deltas-report: 'true'
+          verbose: 'false'
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Save memory usage change report as artifact
+        uses: actions/upload-artifact@v1
+        with:
+          name: sketches-reports
+          path: sketches-reports

@@ -161,6 +161,12 @@ const PinDescription g_APinDescription[] = {
   { PORTA, 28, PIO_DIGITAL,    (PIN_ATTR_NONE                                ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE },
 };
 
+extern "C" {
+    unsigned int PINCOUNT_fn() {
+        return (sizeof(g_APinDescription) / sizeof(g_APinDescription[0]));
+    }
+}
+
 const void* g_apTCInstances[TCC_INST_NUM + TC_INST_NUM]={ TCC0, TCC1, TCC2, TC3, TC4, TC5 };
 
 // Multi-serial objects instantiation
@@ -178,6 +184,22 @@ SERCOM sercom5(SERCOM5);
 #define PMIC_ADDRESS  0x6B
 #define PMIC_REG01    0x01
 #define PMIC_REG07    0x07
+
+#define PMIC_REG00    0x00
+
+static inline void set_voltage_current_thresholds() {
+  PERIPH_WIRE.initMasterWIRE(100000);
+  PERIPH_WIRE.enableWIRE();
+  pinPeripheral(PIN_WIRE_SDA, g_APinDescription[PIN_WIRE_SDA].ulPinType);
+  pinPeripheral(PIN_WIRE_SCL, g_APinDescription[PIN_WIRE_SCL].ulPinType);
+
+  PERIPH_WIRE.startTransmissionWIRE( PMIC_ADDRESS, WIRE_WRITE_FLAG );
+  PERIPH_WIRE.sendDataMasterWIRE(PMIC_REG00);
+  PERIPH_WIRE.sendDataMasterWIRE(0x07);  // input voltage limit = 3.88V, input current limit = 3A
+  PERIPH_WIRE.prepareCommandBitsWire(WIRE_MASTER_ACT_STOP);
+
+  PERIPH_WIRE.disableWIRE();
+}
 
 static inline void enable_battery_charging() {
   PERIPH_WIRE.initMasterWIRE(100000);
@@ -224,6 +246,7 @@ void initVariant() {
     enable_battery_charging();
   }
   disable_battery_fet(!batteryPresent);
+  set_voltage_current_thresholds();
 #endif
 
   // put GSM modem in reset on start to conserve power if it's not used

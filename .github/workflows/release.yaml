@@ -1,0 +1,107 @@
+name: release
+
+on:
+  push:
+    tags:
+      - "[0-9]+.[0-9]+.[0-9]+*"
+
+jobs:
+  core-pre-release-from-tag:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Checkout ArduinoCore-API
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/ArduinoCore-API
+          path: extras/ArduinoCore-API
+
+      - name: Check if API should be compiled in the core
+        id: checkapi
+        run: |
+          if [[ $(grep -r api platform.txt) ]]; then echo "::set-output name=IS_API::true"; fi
+
+      - name: Checkout latest tag of ArduinoCore-API and add it to the core
+        run: |
+          cd extras/ArduinoCore-API
+          git fetch --tags
+          git checkout $(git describe --tags $(git rev-list --tags --max-count=1))
+          cd ../..
+          mv "$GITHUB_WORKSPACE/extras/ArduinoCore-API/api" "$GITHUB_WORKSPACE/cores/arduino"
+        if: steps.checkapi.outputs.IS_API == 'true'
+
+      - name: Remove ArduinoCore-API
+        run: rm -r "$GITHUB_WORKSPACE/extras/ArduinoCore-API"
+
+      - name: Set env
+        run: echo "TAG_VERSION=${GITHUB_REF#refs/*/}" >> $GITHUB_ENV
+
+      - name: Get repo name
+        run: echo "REPOSITORY_NAME=$(echo ${{ github.repository }} | cut -d "/" -f2-)" >> $GITHUB_ENV
+
+      - name: Package the new core
+        run: |
+          extras/pack.release.bash $TAG_VERSION $REPOSITORY_NAME
+          cd extras
+          mkdir staging
+          echo $PWD
+          mv ../*.json staging/
+          mv ../*.tar.bz2 staging/
+          cd ..
+
+      - name: Get architecture name
+        run: |
+          echo "ARCHITECTURE=$(cat extras/package_index.json.NewTag.template | jq ".packages[0].platforms[0].architecture" | sed 's/\"//g')" >> $GITHUB_ENV
+
+      - name: Upload package_*_index.json and *.tar.bz2 file to Arduino downloads servers
+        env:
+            AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync extras/staging/ s3://${{ secrets.ARDUINO_DOWNLOADS_BUCKET }}/packages/staging/ --exclude "*" --include *.json
+          aws s3 sync extras/staging/ s3://${{ secrets.ARDUINO_DOWNLOADS_BUCKET }}/cores/staging/ --exclude "*" --include *.tar.bz2
+
+      - name: Checkout Basic examples
+        uses: actions/checkout@v2
+        with:
+          repository: arduino/arduino-examples
+          path: extras/arduino-examples
+
+      - name: Install Arduino CLI
+        uses: arduino/setup-arduino-cli@v1.1.1
+        with:
+          version: "0.14.0"
+
+      - name: Download and verify new core
+        run: |
+          export PATH=$PATH:$PWD
+          arduino-cli version
+          cp extras/staging/package_${REPOSITORY_NAME}_${TAG_VERSION}_index.json .
+          export ARDUINO_DIRECTORIES_DATA=$PWD
+          export ARDUINO_BOARD_MANAGER_ADDITIONAL_URLS=file://$PWD/package_${REPOSITORY_NAME}_${TAG_VERSION}_index.json
+          arduino-cli config init
+          arduino-cli config dump -v
+          arduino-cli core update-index -v
+          arduino-cli core install arduino:${ARCHITECTURE}@${TAG_VERSION}
+          INDEX=0
+          arduino-cli board listall --format=json > boardlist.json
+          N=$(jq '.boards | length' boardlist.json)
+          let N=N-1
+          echo $N
+          for INDEX in $(seq 0 1 $N); do arduino-cli compile --fqbn $(cat boardlist.json | jq ".boards[$INDEX].FQBN" | sed 's/\"//g') $PWD/extras/arduino-examples/examples/01.Basics/Blink; done
+
+      # See: https://github.com/rtCamp/action-slack-notify
+      - name: Slack notification of core pre-release
+        uses: rtCamp/action-slack-notify@v2.1.0
+        env:
+          SLACK_CHANNEL: core_releases
+          SLACK_COLOR: good
+          SLACK_USERNAME: ArduinoBot
+          SLACK_ICON: https://github.com/arduino.png?size=48
+          SLACK_TITLE: Arduino core pre-release
+          SLACK_MESSAGE: 'Version ${{ env.TAG_VERSION }} of core ${{ env.REPOSITORY_NAME }} is now available'
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          MSG_MINIMAL: true

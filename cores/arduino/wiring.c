@@ -80,11 +80,15 @@ void init( void )
   // Clock ADC/DAC for Analog
   PM->APBCMASK.reg |= PM_APBCMASK_ADC | PM_APBCMASK_DAC ;
 
+// Defining VERY_LOW_POWER breaks Arduino APIs since all pins are considered INPUT at startup
+// However, it really lowers the power consumption by a factor of 20 in low power mode (0.03mA vs 0.6mA)
+#ifndef VERY_LOW_POWER
   // Setup all pins (digital and analog) in INPUT mode (default is nothing)
   for (uint32_t ul = 0 ; ul < NUM_DIGITAL_PINS ; ul++ )
   {
     pinMode( ul, INPUT ) ;
   }
+#endif
 
   // Initialize Analog Controller
   // Setting clock

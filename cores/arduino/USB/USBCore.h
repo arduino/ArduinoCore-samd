@@ -33,8 +33,8 @@
 
 // bEndpointAddress in Endpoint Descriptor
 #define USB_ENDPOINT_DIRECTION_MASK            0x80
-#define USB_ENDPOINT_OUT(addr)                 ((addr) | 0x00)
-#define USB_ENDPOINT_IN(addr)                  ((addr) | 0x80)
+#define USB_ENDPOINT_OUT(addr)                 uint8_t((addr) | 0x00)
+#define USB_ENDPOINT_IN(addr)                  uint8_t((addr) | 0x80)
 
 #define USB_ENDPOINTS                          7
 
@@ -104,25 +104,11 @@
  #define USB_CONFIG_POWER                      (500)
 #endif
 
-#define CDC_V1_10                               0x0110
-#define CDC_COMMUNICATION_INTERFACE_CLASS       0x02
-
-#define CDC_CALL_MANAGEMENT                     0x01
-#define CDC_ABSTRACT_CONTROL_MODEL              0x02
-#define CDC_HEADER                              0x00
-#define CDC_ABSTRACT_CONTROL_MANAGEMENT         0x02
-#define CDC_UNION                               0x06
-#define CDC_CS_INTERFACE                        0x24
-#define CDC_CS_ENDPOINT                         0x25
-#define CDC_DATA_INTERFACE_CLASS                0x0A
-
 #define MSC_SUBCLASS_SCSI						0x06
 #define MSC_PROTOCOL_BULK_ONLY					0x50
 
-_Pragma("pack(1)")
-
 //	Device
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t len;				// 18
 	uint8_t dtype;				// 1 USB_DEVICE_DESCRIPTOR_TYPE
 	uint16_t usbVersion;		// 0x200
@@ -140,7 +126,7 @@ typedef struct {
 } DeviceDescriptor;
 
 //	Config
-typedef struct {
+typedef struct __attribute__((packed)) {
 	uint8_t	len;			// 9
 	uint8_t	dtype;			// 2
 	uint16_t clen;			// total length
@@ -154,8 +140,7 @@ typedef struct {
 //	String
 
 //	Interface
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	uint8_t len;		// 9
 	uint8_t dtype;		// 4
 	uint8_t number;
@@ -168,8 +153,7 @@ typedef struct
 } InterfaceDescriptor;
 
 //	Endpoint
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	uint8_t len;		// 7
 	uint8_t dtype;		// 5
 	uint8_t addr;
@@ -180,8 +164,7 @@ typedef struct
 
 // Interface Association Descriptor
 // Used to bind 2 interfaces together in CDC compostite device
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	uint8_t len;				// 8
 	uint8_t dtype;				// 11
 	uint8_t firstInterface;
@@ -192,67 +175,11 @@ typedef struct
 	uint8_t iInterface;
 } IADDescriptor;
 
-//	CDC CS interface descriptor
-typedef struct
-{
-	uint8_t len;		// 5
-	uint8_t dtype;		// 0x24
-	uint8_t subtype;
-	uint8_t d0;
-	uint8_t d1;
-} CDCCSInterfaceDescriptor;
-
-typedef struct
-{
-	uint8_t len;		// 4
-	uint8_t dtype;		// 0x24
-	uint8_t subtype;
-	uint8_t d0;
-} CDCCSInterfaceDescriptor4;
-
-typedef struct
-{
-    uint8_t	len;
-    uint8_t 	dtype;		// 0x24
-    uint8_t 	subtype;	// 1
-    uint8_t 	bmCapabilities;
-    uint8_t 	bDataInterface;
-} CMFunctionalDescriptor;
-
-typedef struct
-{
-    uint8_t	len;
-    uint8_t 	dtype;		// 0x24
-    uint8_t 	subtype;	// 1
-    uint8_t 	bmCapabilities;
-} ACMFunctionalDescriptor;
-
-typedef struct
-{
-	//	IAD
-	IADDescriptor				iad;	// Only needed on compound device
-	//	Control
-	InterfaceDescriptor			cif;
-	CDCCSInterfaceDescriptor	header;
-	ACMFunctionalDescriptor		controlManagement;		// ACM
-	CDCCSInterfaceDescriptor	functionalDescriptor;	// CDC_UNION
-	CMFunctionalDescriptor		callManagement;			// Call Management
-	EndpointDescriptor			cifin;
-
-	//	Data
-	InterfaceDescriptor			dif;
-	EndpointDescriptor			in;
-	EndpointDescriptor			out;
-} CDCDescriptor;
-
-typedef struct
-{
+typedef struct __attribute__((packed)) {
 	InterfaceDescriptor			msc;
 	EndpointDescriptor			in;
 	EndpointDescriptor			out;
 } MSCDescriptor;
-
-_Pragma("pack()")
 
 #define D_DEVICE(_class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs) \
 	{ 18, 1, 0x200, _class,_subClass,_proto,_packetSize0,_vid,_pid,_version,_im,_ip,_is,_configs }
