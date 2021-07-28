@@ -28,12 +28,14 @@ static I2SDevice_SAMD21G18x i2sd(*I2S);
 
 int I2SClass::_beginCount = 0;
 
-I2SClass::I2SClass(uint8_t deviceIndex, uint8_t clockGenerator, uint8_t sdPin, uint8_t sckPin, uint8_t fsPin) :
+I2SClass::I2SClass(uint8_t deviceIndex, uint8_t clockGenerator, uint8_t sdPin, uint8_t sckPin, uint8_t fsPin, uint8_t mckPin) :
   _deviceIndex(deviceIndex),
   _clockGenerator(clockGenerator),
   _sdPin(sdPin),
   _sckPin(sckPin),
   _fsPin(fsPin),
+  _mckPin(mckPin),
+  _mckFsMultiplier(0),
 
   _state(I2S_STATE_IDLE),
   _dmaChannel(-1),
@@ -108,7 +110,16 @@ int I2SClass::begin(int mode, long sampleRate, int bitsPerSample, bool driveCloc
 
   if (driveClock) {
     // set up clock
-    enableClock(sampleRate * 2 * bitsPerSample);
+    int F_BCKL = sampleRate * 2 * bitsPerSample; // LRCLOCK
+    int F_MCKL = _mckFsMultiplier * sampleRate; // SYSCLK
+    
+    enableClock(_mckFsMultiplier ? F_MCKL : F_BCKL);
+
+    if (_mckFsMultiplier) {
+        i2sd.enableMasterClock(_deviceIndex);
+        i2sd.setMasterClockDiv(_deviceIndex, F_MCKL / F_BCKL - 1);
+        pinPeripheral(_mckPin, PIO_COM);
+    }
 
     i2sd.setSerialClockSelectMasterClockDiv(_deviceIndex);
     i2sd.setFrameSyncSelectSerialClockDiv(_deviceIndex);
@@ -167,6 +178,11 @@ void I2SClass::end()
   pinMode(_sdPin, INPUT);
   pinMode(_fsPin, INPUT);
   pinMode(_sckPin, INPUT);
+
+  if (_mckFsMultiplier) {
+      pinMode(_mckPin, INPUT);
+      _mckFsMultiplier = 0;
+  }
 
   disableClock();
 
@@ -401,9 +417,25 @@ void I2SClass::setBufferSize(int bufferSize)
   _doubleBuffer.setSize(bufferSize);
 }
 
+void I2SClass::enableMasterClock(int mckFsMultiplier)
+{
+    switch (mckFsMultiplier) {
+    case 128:
+    case 192:
+    case 256:
+    case 384:
+    case 512:
+        _mckFsMultiplier = mckFsMultiplier;
+        return;
+
+    default:
+        _mckFsMultiplier = 256;
+    }
+}
+
 void I2SClass::enableClock(int divider)
 {
-  int div = SystemCoreClock / divider;
+  int div = (float)SystemCoreClock / divider + 0.5f;
   int src = GCLK_GENCTRL_SRC_DFLL48M_Val;
 
   if (div > 255) {
@@ -529,5 +561,5 @@ void I2SClass::onDmaTransferComplete(int channel)
 }
 
 #if I2S_INTERFACES_COUNT > 0
-I2SClass I2S(I2S_DEVICE, I2S_CLOCK_GENERATOR, PIN_I2S_SD, PIN_I2S_SCK, PIN_I2S_FS);
+I2SClass I2S(I2S_DEVICE, I2S_CLOCK_GENERATOR, PIN_I2S_SD, PIN_I2S_SCK, PIN_I2S_FS, PIN_I2S_MCK);
 #endif
