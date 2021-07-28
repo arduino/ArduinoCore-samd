@@ -40,7 +40,7 @@ public:
 
   // the SCK and FS pins are driven as outputs using the sample rate
   int begin(int mode, long sampleRate, int bitsPerSample);
-  // the SCK and FS pins are driven as outputs using the sample rate
+  // the SCK and FS pins are inputs, other side controls the sample rate
   int begin(int mode, int bitsPerSample);
   void end();
 
