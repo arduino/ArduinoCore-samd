@@ -43,7 +43,7 @@ compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g {compiler.optimization_flags} {
 compiler.c.elf.cmd=arm-none-eabi-g++
 compiler.c.elf.flags={compiler.optimization_flags} -Wl,--gc-sections -save-temps
 compiler.S.cmd=arm-none-eabi-gcc
-compiler.S.flags=-c -g -x assembler-with-cpp -MMD
+compiler.S.flags=-mcpu={build.mcu} -mthumb -c -g -x assembler-with-cpp -MMD
 compiler.cpp.cmd=arm-none-eabi-g++
 compiler.cpp.flags=-mcpu={build.mcu} -mthumb -c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu++11 -ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib --param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD
 compiler.ar.cmd=arm-none-eabi-ar
