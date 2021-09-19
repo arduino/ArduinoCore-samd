@@ -21,7 +21,7 @@
 #include "SDU.h"
 
 __attribute__ ((section(".sketch_boot")))
-unsigned char sduBoot[0x4000] = {
+unsigned char sduBoot[0x6000] = {
 #if defined(ARDUINO_SAMD_ZERO)
   #include "boot/zero.h"
 #elif defined(ARDUINO_SAMD_MKR1000)
@@ -40,6 +40,9 @@ unsigned char sduBoot[0x4000] = {
   #include "boot/mkrnb1500.h"
 #elif defined(ARDUINO_SAM_ZERO)
   #include "boot/mzero.h"
+#elif defined(ARDUINO_SAMD_NANO_33_IOT)
+
+  #include "boot/nano_33_iot.h"
 #else
   #error "Unsupported board!"
 #endif

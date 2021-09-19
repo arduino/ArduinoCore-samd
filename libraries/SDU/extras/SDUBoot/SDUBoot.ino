@@ -24,12 +24,12 @@
 #else
 #define SDU_START    0x2000
 #endif
-#define SDU_SIZE     0x4000
+#define SDU_SIZE     0x6000
 
 #define SKETCH_START (uint32_t*)(SDU_START + SDU_SIZE)
 
 #ifndef SDCARD_SS_PIN
-#define SDCARD_SS_PIN 4
+#define SDCARD_SS_PIN 10
 #endif
 
 #define UPDATE_FILE "UPDATE.BIN"
