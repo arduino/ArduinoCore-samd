@@ -47,9 +47,9 @@ class TwoWire : public Stream
 
     uint8_t requestFrom(uint8_t address, size_t quantity, bool stopBit);
     uint8_t requestFrom(uint8_t address, size_t quantity);
-    
+
     bool didTimeout() { return sercom->didTimeout(); }
-    bool setTimeout(uint16_t ms) { sercom->setTimeout(ms); }
+    void setTimeout(uint16_t ms) { sercom->setTimeout(ms); }
 
     size_t write(uint8_t data);
     size_t write(const uint8_t * data, size_t quantity);
