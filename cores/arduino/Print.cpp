@@ -94,6 +94,28 @@ size_t Print::print(unsigned long n, int base)
   else return printNumber(n, base);
 }
 
+size_t Print::print(long long n, int base)
+{
+  if (base == 0) {
+    return write(n);
+  } else if (base == 10) {
+    if (n < 0) {
+      int t = print('-');
+      n = -n;
+      return printULLNumber(n, 10) + t;
+    }
+    return printULLNumber(n, 10);
+  } else {
+    return printULLNumber(n, base);
+  }
+}
+
+size_t Print::print(unsigned long long n, int base)
+{
+  if (base == 0) return write(n);
+  else return printULLNumber(n, base);
+}
+
 size_t Print::print(double n, int digits)
 {
   return printFloat(n, digits);
@@ -172,6 +194,20 @@ size_t Print::println(unsigned long num, int base)
   return n;
 }
 
+size_t Print::println(long long num, int base)
+{
+  size_t n = print(num, base);
+  n += println();
+  return n;
+}
+
+size_t Print::println(unsigned long long num, int base)
+{
+  size_t n = print(num, base);
+  n += println();
+  return n;
+}
+
 size_t Print::println(double num, int digits)
 {
   size_t n = print(num, digits);
@@ -218,6 +254,81 @@ size_t Print::printNumber(unsigned long n, uint8_t base)
   return write(str);
 }
 
+// REFERENCE IMPLEMENTATION FOR ULL
+// size_t Print::printULLNumber(unsigned long long n, uint8_t base)
+// {
+  // // if limited to base 10 and 16 the bufsize can be smaller
+  // char buf[65];
+  // char *str = &buf[64];
+
+  // *str = '\0';
+
+  // // prevent crash if called with base == 1
+  // if (base < 2) base = 10;
+
+    // do {
+      // unsigned long long t = n / base;
+      // char c = n - t * base;  // faster than c = n%base;
+      // n = t;
+      // *--str = c < 10 ? c + '0' : c + 'A' - 10;
+  // } while(n);
+
+  // return write(str);
+// }
+
+// FAST IMPLEMENTATION FOR ULL
+size_t Print::printULLNumber(unsigned long long n64, uint8_t base)
+{
+  // if limited to base 10 and 16 the bufsize can be 20
+  char buf[64];
+  uint8_t i = 0;
+  uint8_t innerLoops = 0;
+
+  // prevent crash if called with base == 1
+  if (base < 2) base = 10;
+
+  // process chunks that fit in "16 bit math".
+  uint16_t top = 0xFFFF / base;
+  uint16_t th16 = 1;
+  while (th16 < top)
+  {
+    th16 *= base;
+    innerLoops++;
+  }
+
+  while (n64 > th16)
+  {
+    // 64 bit math part
+    uint64_t q = n64 / th16;
+    uint16_t r = n64 - q*th16;
+    n64 = q;
+
+    // 16 bit math loop to do remainder. (note buffer is filled reverse)
+    for (uint8_t j=0; j < innerLoops; j++)
+    {
+      uint16_t qq = r/base;
+      buf[i++] = r - qq*base;
+      r = qq;
+    }
+  }
+
+  uint16_t n16 = n64;
+  while (n16 > 0)
+  {
+    uint16_t qq = n16/base;
+    buf[i++] = n16 - qq*base;
+    n16 = qq;
+  }
+
+  size_t bytes = i;
+  for (; i > 0; i--)
+    write((char) (buf[i - 1] < 10 ?
+    '0' + buf[i - 1] :
+    'A' + buf[i - 1] - 10));
+
+  return bytes;
+}
+
 size_t Print::printFloat(double number, uint8_t digits)
 {
   size_t n = 0;
@@ -262,3 +373,4 @@ size_t Print::printFloat(double number, uint8_t digits)
 
   return n;
 }
+
