@@ -22,7 +22,11 @@
 #include "SERCOM.h"
 #include "SafeRingBuffer.h"
 
-#define SERIAL_BUFFER_SIZE  64
+#ifdef SERIAL_BUFFER_SIZE
+#undef SERIAL_BUFFER_SIZE
+#endif
+
+#define SERIAL_BUFFER_SIZE  256
 
 class Uart : public arduino::HardwareSerial
 {
@@ -46,8 +50,9 @@ class Uart : public arduino::HardwareSerial
 
   private:
     SERCOM *sercom;
-    arduino::SafeRingBuffer rxBuffer;
-    arduino::SafeRingBuffer txBuffer;
+
+    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> rxBuffer;
+    arduino::SafeRingBufferN<SERIAL_BUFFER_SIZE> txBuffer;
 
     uint8_t uc_pinRX;
     uint8_t uc_pinTX;
