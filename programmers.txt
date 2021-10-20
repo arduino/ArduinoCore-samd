@@ -42,4 +42,5 @@ jlink.name=Segger J-Link
 jlink.communication=USB
 jlink.protocol=jlink.cfg
 jlink.program.tool=openocd
+jlink.program.tool.default=openocd
 jlink.extra_params=-c "transport select swd"
