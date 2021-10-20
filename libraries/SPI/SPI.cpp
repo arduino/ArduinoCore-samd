@@ -94,8 +94,8 @@ void SPIClass::config(SPISettings settings)
     _p_sercom->disableSPI();
 
     uint32_t clock_freq = settings.getClockFreq();
-    if (clock_freq > F_CPU/2) {
-      clock_freq = F_CPU/2;
+    if (clock_freq > SERCOM_FREQ_REF/SPI_MIN_CLOCK_DIVIDER) {
+      clock_freq = SERCOM_FREQ_REF/SPI_MIN_CLOCK_DIVIDER;
     }
 
     _p_sercom->initSPI(_padTx, _padRx, SPI_CHAR_SIZE_8_BITS, getBitOrder(settings));
