@@ -112,11 +112,10 @@ void SERCOM::enableUART()
 void SERCOM::flushUART()
 {
   // Skip checking transmission completion if data register is empty
-//   if(isDataRegisterEmptyUART())
-//     return;
+  // Wait for transmission to complete, if ok to do so.
+  while(!sercom->USART.INTFLAG.bit.TXC && onFlushWaitUartTXC);
 
-  // Wait for transmission to complete
-  while(!sercom->USART.INTFLAG.bit.TXC);
+  onFlushWaitUartTXC = false;
 }
 
 void SERCOM::clearStatusUART()
@@ -183,6 +182,10 @@ int SERCOM::writeDataUART(uint8_t data)
 
   //Put data into DATA register
   sercom->USART.DATA.reg = (uint16_t)data;
+
+  // indicate it's ok to wait for TXC flag when flushing
+  onFlushWaitUartTXC = true;
+
   return 1;
 }
 
@@ -568,8 +571,8 @@ bool SERCOM::sendDataMasterWIRE(uint8_t data)
   while(!sercom->I2CM.INTFLAG.bit.MB) {
 
     // If a bus error occurs, the MB bit may never be set.
-    // Check the bus error bit and bail if it's set.
-    if (sercom->I2CM.STATUS.bit.BUSERR) {
+    // Check the bus error bit and ARBLOST bit and bail if either is set.
+    if (sercom->I2CM.STATUS.bit.BUSERR || sercom->I2CM.STATUS.bit.ARBLOST) {
       return false;
     }
   }

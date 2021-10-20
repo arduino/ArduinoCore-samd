@@ -202,14 +202,14 @@ tools.openocd.cmd.windows=bin/openocd.exe
 
 tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
-tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{build.path}/{build.project_name}.bin} verify reset 0x2000; shutdown"
+tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "interface/{protocol}" -c "set telnet_port 0" {extra_params} -f "target/at91samdXX.cfg" -c "telnet_port disabled; program {{build.path}/{build.project_name}.bin} verify reset 0x2000; shutdown"
 
 # the following rule is deprecated by pluggable discovery
 tools.openocd.upload.network_pattern={tools.arduino_ota.cmd} -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
 
 tools.openocd.program.params.verbose=-d2
 tools.openocd.program.params.quiet=-d0
-tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{build.path}/{build.project_name}.hex} verify reset; shutdown"
+tools.openocd.program.pattern="{path}/{cmd}" {program.verbose} -s "{path}/share/openocd/scripts/" -f "interface/{protocol}" -c "set telnet_port 0" {extra_params} -f "target/at91samdXX.cfg" -c "telnet_port disabled; program {{build.path}/{build.project_name}.hex} verify reset; shutdown"
 
 tools.openocd.erase.params.verbose=-d3
 tools.openocd.erase.params.quiet=-d0
@@ -217,7 +217,7 @@ tools.openocd.erase.pattern=
 
 tools.openocd.bootloader.params.verbose=-d2
 tools.openocd.bootloader.params.quiet=-d0
-tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{runtime.platform.path}/bootloaders/{bootloader.file}} verify reset; shutdown"
+tools.openocd.bootloader.pattern="{path}/{cmd}" {bootloader.verbose} -s "{path}/share/openocd/scripts/" -f "interface/{protocol}" -c "set telnet_port 0" {extra_params} -f "target/at91samdXX.cfg" -c "telnet_port disabled; init; halt; at91samd bootloader 0; program {{runtime.platform.path}/bootloaders/{bootloader.file}} verify reset; shutdown"
 
 #
 # OpenOCD sketch upload - version with configurable bootloader size
