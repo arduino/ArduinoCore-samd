@@ -15,24 +15,9 @@
   License along with this library; if not, write to the Free Software
   Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 */
-
+#include "Board.h"
 #include <SD.h>
 #include <FlashStorage.h>
-
-#ifdef ARDUINO_SAM_ZERO
-#define SDU_START    0x4000
-#else
-#define SDU_START    0x2000
-#endif
-#define SDU_SIZE     0x4000
-
-#define SKETCH_START (uint32_t*)(SDU_START + SDU_SIZE)
-
-#ifndef SDCARD_SS_PIN
-#define SDCARD_SS_PIN 4
-#endif
-
-#define UPDATE_FILE "UPDATE.BIN"
 
 FlashClass flash;
 
@@ -93,5 +78,3 @@ int main() {
   // jump to reset handler
   asm("bx %0"::"r"(resetHandlerAddress));
 }
-
-
