@@ -218,6 +218,11 @@ class SERCOM
 		uint8_t calculateBaudrateSynchronous(uint32_t baudrate) ;
 		uint32_t division(uint32_t dividend, uint32_t divisor) ;
 		void initClockNVIC( void ) ;
+
+		// Flag set when data is loaded into sercom->USART.DATA.reg.
+		// Helps with preventing UART lockups when flushing on startup
+		// and the asyncronous nature of the DRE and TXC interrupt flags.
+		bool onFlushWaitUartTXC = false;
 };
 
 #endif
