@@ -18,22 +18,29 @@ edbg.name=Atmel EDBG
 edbg.communication=USB
 edbg.protocol=cmsis-dap.cfg
 edbg.program.tool=openocd
+edbg.program.tool.default=openocd
+edbg.program.extra_params=
 edbg.extra_params=
 
 atmel_ice.name=Atmel-ICE
 atmel_ice.communication=USB
 atmel_ice.protocol=cmsis-dap.cfg
 atmel_ice.program.tool=openocd
+atmel_ice.program.tool.default=openocd
+atmel_ice.program.extra_params=
 atmel_ice.extra_params=
 
 sam_ice.name=Atmel SAM-ICE
 sam_ice.communication=USB
 sam_ice.protocol=cmsis-dap.cfg
 sam_ice.program.tool=openocd
+sam_ice.program.tool.default=openocd
+sam_ice.program.extra_params=
 sam_ice.extra_params=
 
 jlink.name=Segger J-Link
 jlink.communication=USB
 jlink.protocol=jlink.cfg
 jlink.program.tool=openocd
+jlink.program.tool.default=openocd
 jlink.extra_params=-c "transport select swd"

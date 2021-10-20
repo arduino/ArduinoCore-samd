@@ -19,8 +19,13 @@
 arduino_zero_edbg.name=Arduino Zero (Programming Port)
 arduino_zero_edbg.vid.0=0x03eb
 arduino_zero_edbg.pid.0=0x2157
+arduino_zero_edbg.upload_port.0.vid=0x03eb
+arduino_zero_edbg.upload_port.0.pid=0x2157
+arduino_zero_edbg.upload_port.1.board=arduino_zero_edbg
 
 arduino_zero_edbg.upload.tool=openocd
+arduino_zero_edbg.upload.tool.default=openocd
+arduino_zero_edbg.upload.tool.network=arduino_ota
 arduino_zero_edbg.upload.protocol=sam-ba
 arduino_zero_edbg.upload.maximum_size=262144
 arduino_zero_edbg.upload.maximum_data_size=32768
@@ -41,6 +46,7 @@ arduino_zero_edbg.build.variant_system_lib=
 arduino_zero_edbg.build.vid=0x2341
 arduino_zero_edbg.build.pid=0x804d
 arduino_zero_edbg.bootloader.tool=openocd
+arduino_zero_edbg.bootloader.tool.default=openocd
 arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
 
 # Arduino Zero (Native USB Port)
@@ -54,8 +60,19 @@ arduino_zero_native.vid.2=0x2341
 arduino_zero_native.pid.2=0x824d
 arduino_zero_native.vid.3=0x2341
 arduino_zero_native.pid.3=0x024d
+arduino_zero_native.upload_port.0.vid=0x2341
+arduino_zero_native.upload_port.0.pid=0x804d
+arduino_zero_native.upload_port.1.vid=0x2341
+arduino_zero_native.upload_port.1.pid=0x004d
+arduino_zero_native.upload_port.2.vid=0x2341
+arduino_zero_native.upload_port.2.pid=0x824d
+arduino_zero_native.upload_port.3.vid=0x2341
+arduino_zero_native.upload_port.3.pid=0x024d
+arduino_zero_native.upload_port.4.board=arduino_zero_native
 
 arduino_zero_native.upload.tool=bossac
+arduino_zero_native.upload.tool.default=bossac
+arduino_zero_native.upload.tool.network=arduino_ota
 arduino_zero_native.upload.protocol=sam-ba
 arduino_zero_native.upload.maximum_size=262144
 arduino_zero_native.upload.maximum_data_size=32768
@@ -76,6 +93,7 @@ arduino_zero_native.build.variant_system_lib=
 arduino_zero_native.build.vid=0x2341
 arduino_zero_native.build.pid=0x804d
 arduino_zero_native.bootloader.tool=openocd
+arduino_zero_native.bootloader.tool.default=openocd
 arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
 
 # Arduino MKR1000
@@ -89,8 +107,19 @@ mkr1000.vid.2=0x2341
 mkr1000.pid.2=0x824e
 mkr1000.vid.3=0x2341
 mkr1000.pid.3=0x024e
+mkr1000.upload_port.0.vid=0x2341
+mkr1000.upload_port.0.pid=0x804e
+mkr1000.upload_port.1.vid=0x2341
+mkr1000.upload_port.1.pid=0x004e
+mkr1000.upload_port.2.vid=0x2341
+mkr1000.upload_port.2.pid=0x824e
+mkr1000.upload_port.3.vid=0x2341
+mkr1000.upload_port.3.pid=0x024e
+mkr1000.upload_port.4.board=mkr1000
 
 mkr1000.upload.tool=bossac
+mkr1000.upload.tool.default=bossac
+mkr1000.upload.tool.network=arduino_ota
 mkr1000.upload.protocol=sam-ba
 mkr1000.upload.maximum_size=262144
 mkr1000.upload.maximum_data_size=32768
@@ -110,6 +139,7 @@ mkr1000.build.variant=mkr1000
 mkr1000.build.vid=0x2341
 mkr1000.build.pid=0x804e
 mkr1000.bootloader.tool=openocd
+mkr1000.bootloader.tool.default=openocd
 mkr1000.bootloader.file=mkr1000/samd21_sam_ba_arduino_mkr1000.bin
 
 # Arduino MKRZero
@@ -119,8 +149,15 @@ mkrzero.vid.0=0x2341
 mkrzero.pid.0=0x804f
 mkrzero.vid.1=0x2341
 mkrzero.pid.1=0x004f
+mkrzero.upload_port.0.vid=0x2341
+mkrzero.upload_port.0.pid=0x804f
+mkrzero.upload_port.1.vid=0x2341
+mkrzero.upload_port.1.pid=0x004f
+mkrzero.upload_port.2.board=mkrzero
 
 mkrzero.upload.tool=bossac
+mkrzero.upload.tool.default=bossac
+mkrzero.upload.tool.network=arduino_ota
 mkrzero.upload.protocol=sam-ba
 mkrzero.upload.maximum_size=262144
 mkrzero.upload.maximum_data_size=32768
@@ -140,6 +177,7 @@ mkrzero.build.variant=mkrzero
 mkrzero.build.vid=0x2341
 mkrzero.build.pid=0x804f
 mkrzero.bootloader.tool=openocd
+mkrzero.bootloader.tool.default=openocd
 mkrzero.bootloader.file=mkrzero/samd21_sam_ba_arduino_mkrzero.bin
 
 # Arduino MKR WiFi 1010
@@ -149,8 +187,15 @@ mkrwifi1010.vid.0=0x2341
 mkrwifi1010.pid.0=0x8054
 mkrwifi1010.vid.1=0x2341
 mkrwifi1010.pid.1=0x0054
+mkrwifi1010.upload_port.0.vid=0x2341
+mkrwifi1010.upload_port.0.pid=0x8054
+mkrwifi1010.upload_port.1.vid=0x2341
+mkrwifi1010.upload_port.1.pid=0x0054
+mkrwifi1010.upload_port.2.board=mkrwifi1010
 
 mkrwifi1010.upload.tool=bossac
+mkrwifi1010.upload.tool.default=bossac
+mkrwifi1010.upload.tool.network=arduino_ota
 mkrwifi1010.upload.protocol=sam-ba
 mkrwifi1010.upload.maximum_size=262144
 mkrwifi1010.upload.maximum_data_size=32768
@@ -170,6 +215,7 @@ mkrwifi1010.build.variant=mkrwifi1010
 mkrwifi1010.build.vid=0x2341
 mkrwifi1010.build.pid=0x8054
 mkrwifi1010.bootloader.tool=openocd
+mkrwifi1010.bootloader.tool.default=openocd
 mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
 #mkrwifi1010.arduinoota.extraflags=-d
 
@@ -180,8 +226,15 @@ nano_33_iot.vid.0=0x2341
 nano_33_iot.pid.0=0x8057
 nano_33_iot.vid.1=0x2341
 nano_33_iot.pid.1=0x0057
+nano_33_iot.upload_port.0.vid=0x2341
+nano_33_iot.upload_port.0.pid=0x8057
+nano_33_iot.upload_port.1.vid=0x2341
+nano_33_iot.upload_port.1.pid=0x0057
+nano_33_iot.upload_port.2.board=nano_33_iot
 
 nano_33_iot.upload.tool=bossac
+nano_33_iot.upload.tool.default=bossac
+nano_33_iot.upload.tool.network=arduino_ota
 nano_33_iot.upload.protocol=sam-ba
 nano_33_iot.upload.maximum_size=262144
 nano_33_iot.upload.maximum_data_size=32768
@@ -201,6 +254,7 @@ nano_33_iot.build.variant=nano_33_iot
 nano_33_iot.build.vid=0x2341
 nano_33_iot.build.pid=0x8057
 nano_33_iot.bootloader.tool=openocd
+nano_33_iot.bootloader.tool.default=openocd
 nano_33_iot.bootloader.file=nano_33_iot/samd21_sam_ba_arduino_nano_33_iot.bin
 
 # Arduino MKR FOX 1200
@@ -210,8 +264,15 @@ mkrfox1200.vid.0=0x2341
 mkrfox1200.pid.0=0x8050
 mkrfox1200.vid.1=0x2341
 mkrfox1200.pid.1=0x0050
+mkrfox1200.upload_port.0.vid=0x2341
+mkrfox1200.upload_port.0.pid=0x8050
+mkrfox1200.upload_port.1.vid=0x2341
+mkrfox1200.upload_port.1.pid=0x0050
+mkrfox1200.upload_port.2.board=mkrfox1200
 
 mkrfox1200.upload.tool=bossac
+mkrfox1200.upload.tool.default=bossac
+mkrfox1200.upload.tool.network=arduino_ota
 mkrfox1200.upload.protocol=sam-ba
 mkrfox1200.upload.maximum_size=262144
 mkrfox1200.upload.maximum_data_size=32768
@@ -231,6 +292,7 @@ mkrfox1200.build.variant=mkrfox1200
 mkrfox1200.build.vid=0x2341
 mkrfox1200.build.pid=0x8050
 mkrfox1200.bootloader.tool=openocd
+mkrfox1200.bootloader.tool.default=openocd
 mkrfox1200.bootloader.file=mkrfox1200/samd21_sam_ba_arduino_mkrfox1200.bin
 
 # Arduino MKR WAN 1300
@@ -240,8 +302,15 @@ mkrwan1300.vid.0=0x2341
 mkrwan1300.pid.0=0x8053
 mkrwan1300.vid.1=0x2341
 mkrwan1300.pid.1=0x0053
+mkrwan1300.upload_port.0.vid=0x2341
+mkrwan1300.upload_port.0.pid=0x8053
+mkrwan1300.upload_port.1.vid=0x2341
+mkrwan1300.upload_port.1.pid=0x0053
+mkrwan1300.upload_port.2.board=mkrwan1300
 
 mkrwan1300.upload.tool=bossac
+mkrwan1300.upload.tool.default=bossac
+mkrwan1300.upload.tool.network=arduino_ota
 mkrwan1300.upload.protocol=sam-ba
 mkrwan1300.upload.maximum_size=262144
 mkrwan1300.upload.maximum_data_size=32768
@@ -261,6 +330,7 @@ mkrwan1300.build.variant=mkrwan1300
 mkrwan1300.build.vid=0x2341
 mkrwan1300.build.pid=0x8053
 mkrwan1300.bootloader.tool=openocd
+mkrwan1300.bootloader.tool.default=openocd
 mkrwan1300.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1300.bin
 
 # Arduino MKR WAN 1310
@@ -270,8 +340,15 @@ mkrwan1310.vid.0=0x2341
 mkrwan1310.pid.0=0x8059
 mkrwan1310.vid.1=0x2341
 mkrwan1310.pid.1=0x0059
+mkrwan1310.upload_port.0.vid=0x2341
+mkrwan1310.upload_port.0.pid=0x8059
+mkrwan1310.upload_port.1.vid=0x2341
+mkrwan1310.upload_port.1.pid=0x0059
+mkrwan1310.upload_port.2.board=mkrwan1310
 
 mkrwan1310.upload.tool=bossac
+mkrwan1310.upload.tool.default=bossac
+mkrwan1310.upload.tool.network=arduino_ota
 mkrwan1310.upload.protocol=sam-ba
 mkrwan1310.upload.maximum_size=262144
 mkrwan1310.upload.maximum_data_size=32768
@@ -291,6 +368,7 @@ mkrwan1310.build.variant=mkrwan1300
 mkrwan1310.build.vid=0x2341
 mkrwan1310.build.pid=0x8059
 mkrwan1310.bootloader.tool=openocd
+mkrwan1310.bootloader.tool.default=openocd
 mkrwan1310.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1310.bin
 
 # Arduino MKR GSM 1400
@@ -300,8 +378,15 @@ mkrgsm1400.vid.0=0x2341
 mkrgsm1400.pid.0=0x8052
 mkrgsm1400.vid.1=0x2341
 mkrgsm1400.pid.1=0x0052
+mkrgsm1400.upload_port.0.vid=0x2341
+mkrgsm1400.upload_port.0.pid=0x8052
+mkrgsm1400.upload_port.1.vid=0x2341
+mkrgsm1400.upload_port.1.pid=0x0052
+mkrgsm1400.upload_port.2.board=mkrgsm1400
 
 mkrgsm1400.upload.tool=bossac
+mkrgsm1400.upload.tool.default=bossac
+mkrgsm1400.upload.tool.network=arduino_ota
 mkrgsm1400.upload.protocol=sam-ba
 mkrgsm1400.upload.maximum_size=262144
 mkrgsm1400.upload.maximum_data_size=32768
@@ -321,6 +406,7 @@ mkrgsm1400.build.variant=mkrgsm1400
 mkrgsm1400.build.vid=0x2341
 mkrgsm1400.build.pid=0x8052
 mkrgsm1400.bootloader.tool=openocd
+mkrgsm1400.bootloader.tool.default=openocd
 mkrgsm1400.bootloader.file=mkrgsm1400/samd21_sam_ba_arduino_mkrgsm1400.bin
 
 # Arduino MKR NB 1500
@@ -330,8 +416,15 @@ mkrnb1500.vid.0=0x2341
 mkrnb1500.pid.0=0x8055
 mkrnb1500.vid.1=0x2341
 mkrnb1500.pid.1=0x0055
+mkrnb1500.upload_port.0.vid=0x2341
+mkrnb1500.upload_port.0.pid=0x8055
+mkrnb1500.upload_port.1.vid=0x2341
+mkrnb1500.upload_port.1.pid=0x0055
+mkrnb1500.upload_port.2.board=mkrnb1500
 
 mkrnb1500.upload.tool=bossac
+mkrnb1500.upload.tool.default=bossac
+mkrnb1500.upload.tool.network=arduino_ota
 mkrnb1500.upload.protocol=sam-ba
 mkrnb1500.upload.maximum_size=262144
 mkrnb1500.upload.maximum_data_size=32768
@@ -351,6 +444,7 @@ mkrnb1500.build.variant=mkrnb1500
 mkrnb1500.build.vid=0x2341
 mkrnb1500.build.pid=0x8055
 mkrnb1500.bootloader.tool=openocd
+mkrnb1500.bootloader.tool.default=openocd
 mkrnb1500.bootloader.file=mkrnb1500/samd21_sam_ba_arduino_mkrnb1500.bin
 
 # Arduino MKR Vidor 4000
@@ -360,8 +454,15 @@ mkrvidor4000.vid.0=0x2341
 mkrvidor4000.pid.0=0x8056
 mkrvidor4000.vid.1=0x2341
 mkrvidor4000.pid.1=0x0056
+mkrvidor4000.upload_port.0.vid=0x2341
+mkrvidor4000.upload_port.0.pid=0x8056
+mkrvidor4000.upload_port.1.vid=0x2341
+mkrvidor4000.upload_port.1.pid=0x0056
+mkrvidor4000.upload_port.2.board=mkrvidor4000
 
 mkrvidor4000.upload.tool=bossacI
+mkrvidor4000.upload.tool.default=bossacI
+mkrvidor4000.upload.tool.network=arduino_ota
 mkrvidor4000.upload.protocol=sam-ba
 mkrvidor4000.upload.maximum_size=262144
 mkrvidor4000.upload.maximum_data_size=32768
@@ -381,6 +482,7 @@ mkrvidor4000.build.variant=mkrvidor4000
 mkrvidor4000.build.vid=0x2341
 mkrvidor4000.build.pid=0x8056
 mkrvidor4000.bootloader.tool=openocd
+mkrvidor4000.bootloader.tool.default=openocd
 mkrvidor4000.bootloader.file=mkrvidor4000/samd21_sam_ba_arduino_mkrvidor4000.bin
 
 # Adafruit Circuit Playground M0
@@ -390,7 +492,14 @@ adafruit_circuitplayground_m0.vid.0=0x239A
 adafruit_circuitplayground_m0.pid.0=0x8018
 adafruit_circuitplayground_m0.vid.1=0x239A
 adafruit_circuitplayground_m0.pid.1=0x0018
+adafruit_circuitplayground_m0.upload_port.0.vid=0x239A
+adafruit_circuitplayground_m0.upload_port.0.pid=0x8018
+adafruit_circuitplayground_m0.upload_port.1.vid=0x239A
+adafruit_circuitplayground_m0.upload_port.1.pid=0x0018
+adafruit_circuitplayground_m0.upload_port.2.board=adafruit_circuitplayground_m0
 adafruit_circuitplayground_m0.upload.tool=bossac
+adafruit_circuitplayground_m0.upload.tool.default=bossac
+adafruit_circuitplayground_m0.upload.tool.network=arduino_ota
 adafruit_circuitplayground_m0.upload.protocol=sam-ba
 adafruit_circuitplayground_m0.upload.maximum_size=262144
 adafruit_circuitplayground_m0.upload.maximum_data_size=32768
@@ -411,6 +520,7 @@ adafruit_circuitplayground_m0.build.variant_system_lib=
 adafruit_circuitplayground_m0.build.vid=0x239A
 adafruit_circuitplayground_m0.build.pid=0x8018
 adafruit_circuitplayground_m0.bootloader.tool=openocd
+adafruit_circuitplayground_m0.bootloader.tool.default=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplay/circuitplay_m0_samd21g18_sam_ba.bin
 
 # Arduino M0 PRO (with) bootloader - Programming port
@@ -418,7 +528,10 @@ adafruit_circuitplayground_m0.bootloader.file=circuitplay/circuitplay_m0_samd21g
 mzero_pro_bl_dbg.name=Arduino M0 Pro (Programming Port)
 mzero_pro_bl_dbg.vid.0=0x03eb
 mzero_pro_bl_dbg.pid.0=0x2111
+mzero_pro_bl_dbg.upload_port.0.vid=0x03eb
+mzero_pro_bl_dbg.upload_port.0.pid=0x2111
 mzero_pro_bl_dbg.upload.tool=openocd-withbootsize
+mzero_pro_bl_dbg.upload.tool.default=openocd-withbootsize
 mzero_pro_bl_dbg.upload.protocol=sam-ba
 mzero_pro_bl_dbg.upload.maximum_size=262144
 mzero_pro_bl_dbg.upload.maximum_data_size=32768
@@ -441,6 +554,7 @@ mzero_pro_bl_dbg.build.preferred_out_format=hex
 mzero_pro_bl_dbg.bootloader.size=0x4000
 
 mzero_pro_bl_dbg.bootloader.tool=openocd-withbootsize
+mzero_pro_bl_dbg.bootloader.tool.default=openocd-withbootsize
 mzero_pro_bl_dbg.bootloader.cmd_unprotect=at91samd bootloader 0
 mzero_pro_bl_dbg.bootloader.cmd_protect=at91samd bootloader 16384
 mzero_pro_bl_dbg.bootloader.cmd_protect_verify=at91samd bootloader
@@ -457,7 +571,18 @@ mzero_pro_bl.vid.2=0x2a03
 mzero_pro_bl.pid.2=0x004f
 mzero_pro_bl.vid.3=0x2a03
 mzero_pro_bl.pid.3=0x804f
+mzero_pro_bl.upload_port.0.vid=0x2a03
+mzero_pro_bl.upload_port.0.pid=0x004d
+mzero_pro_bl.upload_port.1.vid=0x2a03
+mzero_pro_bl.upload_port.1.pid=0x804d
+mzero_pro_bl.upload_port.2.vid=0x2a03
+mzero_pro_bl.upload_port.2.pid=0x004f
+mzero_pro_bl.upload_port.3.vid=0x2a03
+mzero_pro_bl.upload_port.3.pid=0x804f
+mzero_pro_bl.upload_port.4.board=mzero_pro_bl
 mzero_pro_bl.upload.tool=avrdude
+mzero_pro_bl.upload.tool.default=avrdude
+mzero_pro_bl.upload.tool.network=arduino_ota
 mzero_pro_bl.upload.protocol=stk500v2
 mzero_pro_bl.upload.maximum_size=262144
 mzero_pro_bl.upload.maximum_data_size=32768
@@ -481,6 +606,7 @@ mzero_pro_bl.build.preferred_out_format=hex
 mzero_pro_bl.bootloader.size=0x4000
 mzero_pro_bl.build.emu.mcu=atmega2560
 mzero_pro_bl.bootloader.tool=openocd-withbootsize
+mzero_pro_bl.bootloader.tool.default=openocd-withbootsize
 mzero_pro_bl.bootloader.file=mzero/Bootloader_D21_M0_Pro_150427.hex
 mzero_pro_bl.bootloader.low_fuses=0xff
 
@@ -495,7 +621,18 @@ mzero_bl.vid.2=0x2a03
 mzero_bl.pid.2=0x004e
 mzero_bl.vid.3=0x2a03
 mzero_bl.pid.3=0x804e
+mzero_bl.upload_port.0.vid=0x2a03
+mzero_bl.upload_port.0.pid=0x004d
+mzero_bl.upload_port.1.vid=0x2a03
+mzero_bl.upload_port.1.pid=0x804d
+mzero_bl.upload_port.2.vid=0x2a03
+mzero_bl.upload_port.2.pid=0x004e
+mzero_bl.upload_port.3.vid=0x2a03
+mzero_bl.upload_port.3.pid=0x804e
+mzero_bl.upload_port.4.board=mzero_bl
 mzero_bl.upload.tool=avrdude
+mzero_bl.upload.tool.default=avrdude
+mzero_bl.upload.tool.network=arduino_ota
 mzero_bl.upload.protocol=stk500v2
 mzero_bl.upload.maximum_size=262144
 mzero_bl.upload.maximum_data_size=32768
@@ -519,6 +656,7 @@ mzero_bl.build.preferred_out_format=hex
 mzero_bl.bootloader.size=0x4000
 mzero_bl.build.emu.mcu=atmega2560
 mzero_bl.bootloader.tool=openocd-withbootsize
+mzero_bl.bootloader.tool.default=openocd-withbootsize
 mzero_bl.bootloader.low_fuses=0xff
 mzero_bl.bootloader.file=mzero/Bootloader_D21_M0_150515.hex
 
@@ -529,8 +667,13 @@ tian.upload.via_ssh=true
 tian.vid.0=0x10C4
 tian.pid.0=0xEA70
 tian.descriptor.0=Enhanced Com Port
+tian.upload_port.0.vid=0x10C4
+tian.upload_port.0.pid=0xEA70
+tian.upload_port.1.board=tian
 
 tian.upload.tool=avrdude
+tian.upload.tool.default=avrdude
+tian.upload.tool.network=arduino_ota
 #tian.upload.protocol=stk500v2
 tian.upload.protocol=wiring
 tian.upload.maximum_size=262144
@@ -555,6 +698,7 @@ tian.build.preferred_out_format=hex
 tian.bootloader.size=0x4000
 tian.build.emu.mcu=atmega2560
 tian.bootloader.tool=openocd-withbootsize
+tian.bootloader.tool.default=openocd-withbootsize
 tian.bootloader.low_fuses=0xff
 tian.bootloader.file=sofia/Sofia_Tian_151118.hex
 tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
@@ -564,6 +708,8 @@ tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
 tian_cons.name=Arduino Tian (MIPS Console port)
 tian_cons.vid.0=0x10C4
 tian_cons.pid.0=0xEA70
+tian_cons.upload_port.0.vid=0x10C4
+tian_cons.upload_port.0.pid=0xEA70
 tian_cons.descriptor.0=Standard Com Port
 tian_cons.hide=true
 tian_cons.build.board=SAMD_TIAN
