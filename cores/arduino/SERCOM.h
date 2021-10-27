@@ -25,7 +25,7 @@
 #define SERCOM_NVIC_PRIORITY ((1<<__NVIC_PRIO_BITS) - 1)
 
 // timeout detection default length (zero is disabled)
-#define SERCOM_DEFAULT_I2C_OPERATION_TIMEOUT_MS 1000
+#define SERCOM_DEFAULT_I2C_OPERATION_TIMEOUT_MS 25
 
 typedef enum
 {
