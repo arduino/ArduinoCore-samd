@@ -499,53 +499,52 @@ void SERCOM::waitSyncWIRE() {
 
 bool SERCOM::startTransmissionWIRE(uint8_t address, SercomWireReadWriteFlag flag)
 {
+  bool restart = false; // transmission restart flag, is set to true on loss of arbitration
+
   // 7-bits address + 1-bits R/W
   address = (address << 0x1ul) | flag;
 
-  // Send start and address
-  sercom->I2CM.ADDR.bit.ADDR = address;
-  waitSyncWIRE();
-
-  // wait Address Transmitted
+  // mark timeout timer start
   initTimeout();
 
-  if ( flag == WIRE_WRITE_FLAG ) // Write mode
+  do
   {
-    while (!sercom->I2CM.INTFLAG.bit.MB && !testTimeout())
+    // Send start and address
+    sercom->I2CM.ADDR.bit.ADDR = address;
+    waitSyncWIRE();
+
+    // wait Address Transmitted
+    if ( flag == WIRE_WRITE_FLAG ) // Write mode
     {
-        // wait transmission complete
-    }
-  }
-  else  // Read mode
-  {
-    while (!sercom->I2CM.INTFLAG.bit.SB && !testTimeout())
-    {
-        // wait transmission complete
-    }
-  }
-
-  // Check for loss of arbitration (multiple masters starting communication at the same time)
-  // or timeout
-  if(!isBusOwnerWIRE() || didTimeout()) {
-
-      restartTX_cnt++; // increment restart counter
-
-      if (restartTX_cnt >= restartTX_limit) {
-          // only allow limited restarts
-          restartTX_cnt = 0;
-          return false;
-      } else {
-          // Restart communication after small delay
-          if (!didTimeout()) delayMicroseconds(1000);   // delay if not already timed out
-
-          // Restart
-          startTransmissionWIRE(address >> 1, flag);
+      while (!sercom->I2CM.INTFLAG.bit.MB && !testTimeout())
+      {
+          // wait transmission complete
       }
+    }
+    else  // Read mode
+    {
+      while (!sercom->I2CM.INTFLAG.bit.SB && !testTimeout())
+      {
+          // wait transmission complete
+      }
+    }
 
-  } else restartTX_cnt = 0;
+    // Check for loss of arbitration (multiple masters starting communication at the same time)
+    if (!isBusOwnerWIRE() && !didTimeout())
+    {
+      // small 1ms delay before restart
+      uint32_t start = micros();
+      while ((micros() - start) < 1000) yield();
+      restart = true;
+    } else
+    {
+      restart = false;
+    }
 
-  //ACK received (0: ACK, 1: NACK)
-  if(sercom->I2CM.STATUS.bit.RXNACK)
+  } while (restart && !didTimeout());
+
+  //ACK received (0: ACK, 1: NACK) or timeout
+  if(sercom->I2CM.STATUS.bit.RXNACK || didTimeout())
   {
     return false;
   }

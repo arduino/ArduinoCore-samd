@@ -230,7 +230,7 @@ class SERCOM
 		void initTimeout( void );
 		bool testTimeout( void );
 		uint16_t timeoutInterval;
-		uint32_t timeoutRef, restartTX_cnt, restartTX_limit = 10;
+		uint32_t timeoutRef;
 		bool timeoutOccurred;
 
 		// Flag set when data is loaded into sercom->USART.DATA.reg.
