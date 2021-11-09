@@ -60,6 +60,7 @@ jobs:
         env:
             AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
             AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            AWS_REGION: "us-east-1" # or https://github.com/aws/aws-cli/issues/5623
         run: |
           aws s3 sync extras/staging/ s3://${{ secrets.ARDUINO_DOWNLOADS_BUCKET }}/packages/staging/ --exclude "*" --include *.json
           aws s3 sync extras/staging/ s3://${{ secrets.ARDUINO_DOWNLOADS_BUCKET }}/cores/staging/ --exclude "*" --include *.tar.bz2
