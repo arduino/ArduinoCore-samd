@@ -87,25 +87,25 @@ class SPIClassSAMD : public arduino::HardwareSPI {
   uint32_t interruptMask;
 };
 
-#define SPIClass SPIClassSAMD
+//#define SPIClass SPIClassSAMD
 
 #if SPI_INTERFACES_COUNT > 0
-  extern SPIClass SPI;
+  extern SPIClassSAMD SPI;
 #endif
 #if SPI_INTERFACES_COUNT > 1
-  extern SPIClass SPI1;
+  extern SPIClassSAMD SPI1;
 #endif
 #if SPI_INTERFACES_COUNT > 2
-  extern SPIClass SPI2;
+  extern SPIClassSAMD SPI2;
 #endif
 #if SPI_INTERFACES_COUNT > 3
-  extern SPIClass SPI3;
+  extern SPIClassSAMD SPI3;
 #endif
 #if SPI_INTERFACES_COUNT > 4
-  extern SPIClass SPI4;
+  extern SPIClassSAMD SPI4;
 #endif
 #if SPI_INTERFACES_COUNT > 5
-  extern SPIClass SPI5;
+  extern SPIClassSAMD SPI5;
 #endif
 
 // For compatibility with sketches designed for AVR @ 16 MHz
