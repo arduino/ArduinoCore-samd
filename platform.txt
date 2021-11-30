@@ -156,8 +156,10 @@ tools.avrdude.upload.pattern="{cmd}" "-C{config.path}" {upload.verbose} -p{build
 
 tools.avrdude_remote.upload.pattern="openocd --version 2>&1 | grep 2016 && if opkg update; then opkg upgrade openocd; exit 1; else echo 'Please connect your board to the Internet in order to upgrade tools' >&2; exit 1; fi || /usr/bin/run-avrdude /tmp/sketch.hex"
 
-# the following rule is deprecated by pluggable discovery
-tools.avrdude.upload.network_pattern="{tools.arduino_ota.cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
+# The following rule is deprecated by pluggable discovery.
+# We keep it to avoid breaking compatibility with the Arduino Java IDE.
+tools.avrdude.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.avrdude.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
 
 #
 # BOSSA
@@ -172,8 +174,10 @@ tools.bossac.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port.
 
 tools.bossac_remote.upload.pattern=/usr/bin/run-bossac {upload.verbose} --port=ttyATH0 -U {upload.native_usb} -e -w -v /tmp/sketch.bin -R
 
-# the following rule is deprecated by pluggable discovery
-tools.bossac.upload.network_pattern="{tools.arduino_ota.cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b {arduinoota.extraflags}
+# The following rule is deprecated by pluggable discovery.
+# We keep it to avoid breaking compatibility with the Arduino Java IDE.
+tools.bossac.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.bossac.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b {arduinoota.extraflags}
 
 #
 # BOSSA (ignore binary size)
@@ -188,8 +192,10 @@ tools.bossacI.upload.pattern="{path}/{cmd}" {upload.verbose} --port={serial.port
 
 tools.bossacI_remote.upload.pattern=/usr/bin/run-bossac {upload.verbose} --port=ttyATH0 -U {upload.native_usb} -e -w -v /tmp/sketch.bin -R
 
-# the following rule is deprecated by pluggable discovery
-tools.bossacI.upload.network_pattern="{tools.arduino_ota.cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
+# The following rule is deprecated by pluggable discovery.
+# We keep it to avoid breaking compatibility with the Arduino Java IDE.
+tools.bossacI.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.bossacI.upload.network_pattern="{network_cmd}" -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
 
 
 #
@@ -204,8 +210,10 @@ tools.openocd.upload.params.verbose=-d2
 tools.openocd.upload.params.quiet=-d0
 tools.openocd.upload.pattern="{path}/{cmd}" {upload.verbose} -s "{path}/share/openocd/scripts/" -f "{runtime.platform.path}/variants/{build.variant}/{build.openocdscript}" -c "telnet_port disabled; program {{build.path}/{build.project_name}.bin} verify reset 0x2000; shutdown"
 
-# the following rule is deprecated by pluggable discovery
-tools.openocd.upload.network_pattern={tools.arduino_ota.cmd} -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
+# The following rule is deprecated by pluggable discovery.
+# We keep it to avoid breaking compatibility with the Arduino Java IDE.
+tools.openocd.network_cmd={runtime.tools.arduinoOTA.path}/bin/arduinoOTA
+tools.openocd.upload.network_pattern={network_cmd} -address {serial.port} -port 65280 -username arduino -password "{network.password}" -sketch "{build.path}/{build.project_name}.bin" -upload /sketch -b
 
 tools.openocd.program.params.verbose=-d2
 tools.openocd.program.params.quiet=-d0
