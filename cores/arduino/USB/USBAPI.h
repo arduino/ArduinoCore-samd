@@ -32,6 +32,7 @@
 #include "Arduino.h"
 #include "api/Stream.h"
 #include "api/RingBuffer.h"
+#include "api/HardwareSerial.h"
 #include "api/USBAPI.h"
 #include "CDC.h"
 
@@ -96,12 +97,12 @@ extern USBDeviceClass USBDevice;
 //================================================================================
 //	Serial over CDC (Serial1 is the physical port)
 
-class Serial_ : public arduino::Stream, public arduino::PluggableUSBModule
+class Serial_ : public arduino::HardwareSerial, arduino::PluggableUSBModule
 {
 public:
 	Serial_(USBDeviceClass &_usb);
 	void begin(uint32_t baud_count);
-	void begin(unsigned long, uint8_t);
+	void begin(unsigned long, uint16_t);
 	void end(void);
 
 	virtual int available(void);
