@@ -117,6 +117,7 @@ public:
 	operator bool();
 
 	size_t readBytes(char *buffer, size_t length);
+	size_t readBytes( uint8_t *buffer, size_t length) { return readBytes((char *)buffer, length); }
 
 	// This method allows processing "SEND_BREAK" requests sent by
 	// the USB host. Those requests indicate that the host wants to
