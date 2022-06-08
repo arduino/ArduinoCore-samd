@@ -196,12 +196,12 @@ void Serial_::enableInterrupt() {
 	usbd.epBank0EnableTransferComplete(CDC_ENDPOINT_OUT);
 }
 
-void Serial_::begin(uint32_t /* baud_count */)
+void Serial_::begin(unsigned long /* baudrate */)
 {
 	// uart config is ignored in USB-CDC
 }
 
-void Serial_::begin(uint32_t /* baud_count */, uint16_t /* config */)
+void Serial_::begin(unsigned long /* baudrate */, uint16_t /* config */)
 {
 	// uart config is ignored in USB-CDC
 }
