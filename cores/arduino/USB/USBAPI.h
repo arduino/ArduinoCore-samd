@@ -101,8 +101,8 @@ class Serial_ : public arduino::HardwareSerial, arduino::PluggableUSBModule
 {
 public:
 	Serial_(USBDeviceClass &_usb);
-	void begin(uint32_t baud_count);
-	void begin(unsigned long, uint16_t);
+	void begin(unsigned long baudrate);
+	void begin(unsigned long baudrate, uint16_t config);
 	void end(void);
 
 	virtual int available(void);
