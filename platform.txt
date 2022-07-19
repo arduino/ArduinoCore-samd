@@ -39,13 +39,13 @@ compiler.optimization_flags.debug=-Og -g3
 
 compiler.path={runtime.tools.arm-none-eabi-gcc-7-2017q4.path}/bin/
 compiler.c.cmd=arm-none-eabi-gcc
-compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections -nostdlib --param max-inline-insns-single=500 -MMD
+compiler.c.flags=-mcpu={build.mcu} -mthumb -c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu11 -ffunction-sections -fdata-sections --param max-inline-insns-single=500 -MMD
 compiler.c.elf.cmd=arm-none-eabi-g++
 compiler.c.elf.flags={compiler.optimization_flags} -Wl,--gc-sections -save-temps
 compiler.S.cmd=arm-none-eabi-gcc
 compiler.S.flags=-mcpu={build.mcu} -mthumb -c -g -x assembler-with-cpp -MMD
 compiler.cpp.cmd=arm-none-eabi-g++
-compiler.cpp.flags=-mcpu={build.mcu} -mthumb -c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu++11 -ffunction-sections -fdata-sections -fno-threadsafe-statics -nostdlib --param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD
+compiler.cpp.flags=-mcpu={build.mcu} -mthumb -c -g {compiler.optimization_flags} {compiler.warning_flags} -std=gnu++11 -ffunction-sections -fdata-sections -fno-threadsafe-statics --param max-inline-insns-single=500 -fno-rtti -fno-exceptions -MMD
 compiler.ar.cmd=arm-none-eabi-ar
 compiler.ar.flags=rcs
 compiler.objcopy.cmd=arm-none-eabi-objcopy
