@@ -32,9 +32,9 @@ Pull Request on github.
 
 ## Developing
 
-1. Create an `<SKETCHBOOK>/hardware/arduino` folder, where `<SKETCHBOOK>` is the location of your
+1. Create an `<SKETCHBOOK>/hardware/arduino-git` folder, where `<SKETCHBOOK>` is the location of your
   Arduino sketchbook.
-1. Change directories: `cd <SKETCHBOOK>/hardware/arduino`.
+1. Change directories: `cd <SKETCHBOOK>/hardware/arduino-git`.
 1. Clone this repo: `git clone https://github.com/arduino/ArduinoCore-samd.git samd`.
 1. Change directories: `cd samd/cores/arduino`.
 1. Copy or symlink the `api` folder from the [ArduinoCore-API](https://github.com/arduino/ArduinoCore-API) repo (i.e. `ln -s <ARDUINO_CORE_API>/api .`, where `<ARDUINO_CORE_API>` is the location where you've cloned the ArduinoCore-API repository too).
