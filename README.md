@@ -30,6 +30,33 @@ to avoid duplicates.
 Contributions are always welcome. The preferred way to receive code contribution is by submitting a 
 Pull Request on github.
 
+## Developing
+
+1. Clone the [ArduinoCore-API](https://github.com/arduino/ArduinoCore-API) repo to any convenient location:
+   ```
+   git clone https://github.com/arduino/ArduinoCore-API.git
+   ```
+1. Create an `<SKETCHBOOK>/hardware/arduino-git` folder, where `<SKETCHBOOK>` is the location of your
+  Arduino sketchbook.
+1. Change directories:
+   ```
+   cd <SKETCHBOOK>/hardware/arduino-git
+   ```
+1. Clone this repo:
+   ```
+   git clone https://github.com/arduino/ArduinoCore-samd.git samd
+   ```
+1. Change directories:
+   ```
+   cd samd/cores/arduino
+   ```
+1. Copy or symlink the `api` folder from the [ArduinoCore-API](https://github.com/arduino/ArduinoCore-API) repo:
+   ```
+   ln -s <ARDUINO_CORE_API>/api .
+   ```
+   where `<ARDUINO_CORE_API>` is the location where you've cloned the ArduinoCore-API repository to.
+1. Restart the IDE.
+
 ## Hourly builds
 
 This repository is under a Continuous Integration system that every hour checks if there are updates and
