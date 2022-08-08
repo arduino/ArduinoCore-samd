@@ -32,6 +32,10 @@ Pull Request on github.
 
 ## Developing
 
+1. Clone the [ArduinoCore-API](https://github.com/arduino/ArduinoCore-API) repo to any convenient location:
+   ```
+   git clone https://github.com/arduino/ArduinoCore-API.git
+   ```
 1. Create an `<SKETCHBOOK>/hardware/arduino-git` folder, where `<SKETCHBOOK>` is the location of your
   Arduino sketchbook.
 1. Change directories: `cd <SKETCHBOOK>/hardware/arduino-git`.
