@@ -196,52 +196,9 @@ int pinPeripheral( uint32_t ulPin, uint32_t ulPeripheral )
     break ;
   }
 
-  // Disable DAC if setting pin to anything other than DAC. If analogWrite() was used previously, the DAC is enabled.
-  // Note that on the L21, the DAC output would interfere with other peripherals if left enabled, even if the analog peripheral is not selected
-#if (SAMD21 || SAMD11 || SAMC21)
-  if ( ((pinPort == 0) && (pinNum == 2)) && ulPeripheral != PIO_ANALOG_DAC )
-  {
-    if (dacEnabled[0]) {
-      dacEnabled[0] = false;
-      //syncDAC();
-      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC
-      //DAC->CTRLB.bit.EOEN = 0x00; // The DAC output is turned off.
-      syncDAC();
-    }
-#elif (SAML21 || SAMD51)
-  if ( ((pinPort == 0) && (pinNum == 2 || pinNum == 5)) && ulPeripheral != PIO_ANALOG_DAC )
-  {
-    uint8_t DACNumber = 0x00;
-
-    if ( (pinPort == 0) && (pinNum == 5) ) {
-      DACNumber = 0x01;
-    }
-
-    if (dacEnabled[DACNumber]) {
-      dacEnabled[DACNumber] = false;
-      //syncDAC();
-      DAC->CTRLA.bit.ENABLE = 0x00; // Disable DAC controller (so that DACCTRL can be modified)
-      delayMicroseconds(40);	// Must delay for at least 30us when turning off while refresh is on due to DAC errata
-      syncDAC();
-
-      DAC->DACCTRL[DACNumber].bit.ENABLE = 0x00; // The DACx output is turned off.
-
-      if (dacEnabled[0] || dacEnabled[1]) {
-        DAC->CTRLA.bit.ENABLE = 0x01;     // Enable DAC controller, so that the other DAC can function
-        syncDAC();
-        while ( (DAC->STATUS.reg & (1 << (1 - DACNumber))) == 0 );   // Must wait for DACx to start
-      }
-    }
-#endif
-  }
-
   uint8_t pinCfg = (PORT->Group[pinPort].PINCFG[pinNum].reg & PORT_PINCFG_PULLEN);   // Preserve state of pullup/pulldown enable, clear the rest of the bits
 
-  // INEN should be enabled for both input and output (but not analog)
-  if ( ulPeripheral != PIO_ANALOG_ADC && ulPeripheral != PIO_ANALOG_DAC && ulPeripheral != PIO_ANALOG_REF )
-  {
-    pinCfg |= PORT_PINCFG_INEN;
-  }
+  pinCfg |= PORT_PINCFG_INEN;
 
   // Set pin drive strength (DRVSTR), which is used with PIO_OUTPUT and PIO_SERCOM (UART, SPI, and I2C)
   if ( (peripheralAttribute & PER_ATTR_DRIVE_MASK) == PER_ATTR_DRIVE_STRONG )

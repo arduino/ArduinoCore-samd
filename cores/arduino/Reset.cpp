@@ -85,7 +85,7 @@ void banzai() {
           NVMCTRL->CTRLB.reg = NVMCTRL_CTRLB_CMD_EB | NVMCTRL_CTRLB_CMDEX_KEY;
         #else
           NVMCTRL->STATUS.reg |= NVMCTRL_STATUS_MASK;
-          NVMCTRL->ADDR.reg  = (uintptr_t)&NVM_MEMORY[APP_START / 4];   // 16-bit hardware address
+          NVMCTRL->ADDR.reg  = (uintptr_t)&NVM_MEMORY[APP_START >> 2];   // 16-bit hardware address
           NVMCTRL->CTRLA.reg = NVMCTRL_CTRLA_CMD_ER | NVMCTRL_CTRLA_CMDEX_KEY;
         #endif
 

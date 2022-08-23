@@ -37,7 +37,7 @@
    * Note that when using this define, EXTERNAL_INT_15 and the EXTERNAL_INT_NMI are NOT available
    * and only ADC_Channel0 through ADC_Channel14 are available.
    */
-  //#define PIN_DESCRIPTION_TABLE_SIMPLE
+  #define PIN_DESCRIPTION_TABLE_SIMPLE
 
   /* Define PIN_PERIPHERAL_CHECKS_DISABLED to disable some sanity and other checks at the beginning 
    * of pinPeripheral() (ie: out of bounds access, pin isn't usable as PIO, verify hardware peripheral
@@ -58,7 +58,7 @@
   /* Define DISABLE_ADC_CALIBRATION to disable ADC calibration using the NVM factory values, which
    * occurs during initialization, and save a few bytes. This setting is not generally recommended.
    */
-  //#define DISABLE_ADC_CALIBRATION
+  #define DISABLE_ADC_CALIBRATION
 
   /* Define TRUST_RESET_DEFAULTS to avoid writing default values into registers during hardware
    * initialization, saving about 50 bytes (currently).
