@@ -68,7 +68,7 @@ void SystemInit( void )
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 ); // Wait for oscillator stabilization
 
-#elif VARIANT_MAINOSC == 32768 // has 32.768MHz crystal
+#elif VARIANT_MAINOSC == 32768 // has 32.76kMHz crystal
 
   /* ----------------------------------------------------------------------------------------------
    * 1) Enable XOSC32K clock (External on-board 32.768kHz oscillator)
@@ -120,7 +120,7 @@ void SystemInit( void )
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
 #if defined(CRYSTALLESS)
                       GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
-#elif VARIANT_MAINOSC == 32768 // has 32.768MHz crystal
+#elif VARIANT_MAINOSC == 32768 // has 32.768Hz crystal
                       GCLK_GENCTRL_SRC_XOSC32K | // Selected source is External 32KHz Oscillator
 #else // has other crystal
                       GCLK_GENCTRL_SRC_XOSC | // Selected source is External Oscillator
