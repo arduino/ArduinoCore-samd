@@ -85,9 +85,9 @@ void SystemInit( void )
   /* ----------------------------------------------------------------------------------------------
    * 1) Enable XOSC clock (External on-board oscillator)
    */
-  SYSCTRL->XOSC.reg = SYSCTRL_XOSC_STARTUP( 0x6u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 TODO: update reference */
+  SYSCTRL->XOSC.reg = SYSCTRL_XOSC_STARTUP( 0x6u ) | /* cf table in product datasheet in chapter 17.8.5 */
                          SYSCTRL_XOSC_XTALEN | SYSCTRL_XOSC_ENABLE ;
-  SYSCTRL->XOSC.bit.ENABLE = 1 ; /* separate call, as described in chapter 15.6.3 TODO: update reference */
+  SYSCTRL->XOSC.bit.ENABLE = 1 ;
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSCRDY) == 0 )
   {
