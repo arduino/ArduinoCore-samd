@@ -3,6 +3,16 @@
 This repository contains the source code and configuration files of the Arduino Core
 for Atmel's SAMD21 processor (used on the Arduino/Genuino Zero, MKR1000 and MKRZero boards).
 
+## My mods contained in 'wire_timeout' branch
+
+This version of the core has the following changes:
+
+1. A modified version of jrowberg's excellent i2c wire timeout implementation. See pull request [#439](https://github.com/arduino/ArduinoCore-samd/pull/439). By the way I've made the default timeout 25ms. An example modification of Adafruits SSD1306 library for a 128x64 OLED is [here](https://github.com/acicuc/Adafruit_SSD1306/tree/wire_timeout). Albeit old, it still demonstrates one use for the i2c timeout implementation.
+2. A fix for the infamous infinite recursion SERCOM issue, see pull request [#535](https://github.com/arduino/ArduinoCore-samd/pull/535).
+3. The Serial.flush() blocks forever fix, see issue [#597](https://github.com/arduino/ArduinoCore-samd/issues/597).
+
+These are currently the main issues I've struck while working with the SAMD21 in the 'real' world. In particular 1&2 above have allowed for hot-swap and plug&play for devices on the i2c bus, and allows for complete device failure without locking up your entire system or blowing the stack! I'll add others as they raise their ugly heads within my projects.
+
 ## Installation on Arduino IDE
 
 This core is available as a package in the Arduino IDE cores manager.
