@@ -422,6 +422,7 @@ void I2SClass::enableClock(int divider)
   GCLK->GENCTRL.bit.ID = _clockGenerator;
   GCLK->GENCTRL.bit.SRC = src;
   GCLK->GENCTRL.bit.IDC = 1;
+  GCLK->GENCTRL.bit.DIVSEL = 0;
   GCLK->GENCTRL.bit.GENEN = 1;
 
   // enable
