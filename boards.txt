@@ -98,7 +98,7 @@ arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
 
 # Arduino MKR1000
 # -----------------------
-mkr1000.name=Arduino MKR1000
+mkr1000.name=Arduino MKR 1000 WiFi
 mkr1000.vid.0=0x2341
 mkr1000.pid.0=0x804e
 mkr1000.vid.1=0x2341
@@ -144,7 +144,7 @@ mkr1000.bootloader.file=mkr1000/samd21_sam_ba_arduino_mkr1000.bin
 
 # Arduino MKRZero
 # ---------------
-mkrzero.name=Arduino MKRZERO
+mkrzero.name=Arduino MKR Zero
 mkrzero.vid.0=0x2341
 mkrzero.pid.0=0x804f
 mkrzero.vid.1=0x2341
