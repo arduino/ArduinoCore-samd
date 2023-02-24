@@ -24,8 +24,8 @@
           "boards": [
             { "name": "Arduino MKR WiFi 1010" },
             { "name": "Arduino Zero" },
-            { "name": "Arduino MKR1000" },
-            { "name": "Arduino MKRZERO" },
+            { "name": "Arduino MKR 1000" },
+            { "name": "Arduino MKR Zero" },
             { "name": "Arduino MKR FOX 1200" },
             { "name": "Arduino MKR WAN 1300" },
             { "name": "Arduino MKR WAN 1310" },
