@@ -25,6 +25,7 @@ edbg.extra_params=
 atmel_ice.name=Atmel-ICE
 atmel_ice.communication=USB
 atmel_ice.protocol=cmsis-dap.cfg
+atmel_ice.programmer.protocol=cmsis-dap
 atmel_ice.program.tool=openocd
 atmel_ice.program.tool.default=openocd
 atmel_ice.program.extra_params=
