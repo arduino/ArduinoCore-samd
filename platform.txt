@@ -138,6 +138,7 @@ debug.server=openocd
 debug.server.openocd.path={runtime.tools.openocd-0.10.0-arduino7.path}/bin/openocd
 debug.server.openocd.scripts_dir={runtime.tools.openocd-0.10.0-arduino7.path}/share/openocd/scripts/
 build.openocdinterface=interface/{programmer.protocol}.cfg
+debug.server.openocd.script={runtime.platform.path}/variants/{build.variant}/{build.openocdoldscript}
 debug.server.openocd.scripts.0={build.openocdinterface}
 debug.server.openocd.scripts.1={runtime.platform.path}/variants/{build.variant}/{build.openocdscript}
 debug.svd_file={build.svd_file}
