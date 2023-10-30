@@ -20,6 +20,9 @@
 #include <variant.h>
 #include <stdio.h>
 
+/* libc */
+void __libc_init_array(void);
+
 /* RTOS Hooks */
 extern void svcHook(void);
 extern void pendSVHook(void);
@@ -155,6 +158,9 @@ void Reset_Handler(void)
     for (pDest = &__bss_start__; pDest < &__bss_end__; pDest += sizeof(uint32_t))
       *pDest = 0;
   }
+
+  /* Initialize C library */
+  __libc_init_array();
 
   SystemInit();
 
