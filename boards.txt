@@ -257,7 +257,7 @@ nano_33_iot.build.pid=0x8057
 nano_33_iot.bootloader.tool=openocd
 nano_33_iot.bootloader.tool.default=openocd
 nano_33_iot.bootloader.file=nano_33_iot/samd21_sam_ba_arduino_nano_33_iot.bin
-nano_33_iot.build.svd_file={runtime.platform.path}/svd/at91samd21g18.svd
+nano_33_iot.debug.svd_file={runtime.platform.path}/svd/at91samd21g18.svd
 
 nano_33_iot.debug.cortex-debug.custom.postAttachCommands.0=set remote hardware-watchpoint-limit 2
 nano_33_iot.debug.cortex-debug.custom.postAttachCommands.1=monitor reset halt

@@ -141,7 +141,6 @@ build.openocdinterface=interface/{programmer.protocol}.cfg
 debug.server.openocd.script={runtime.platform.path}/variants/{build.variant}/{build.openocdoldscript}
 debug.server.openocd.scripts.0={build.openocdinterface}
 debug.server.openocd.scripts.1={runtime.platform.path}/variants/{build.variant}/{build.openocdscript}
-debug.svd_file={build.svd_file}
 
 # Upload/Debug tools
 # ------------------
