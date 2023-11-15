@@ -269,6 +269,8 @@ nano_33_iot.debug.cortex-debug.custom.overrideRestartCommands.1=monitor gdb_sync
 nano_33_iot.debug.cortex-debug.custom.overrideRestartCommands.2=thb setup
 nano_33_iot.debug.cortex-debug.custom.overrideRestartCommands.3=c
 
+nano_33_iot.programmer.default=atmel_ice
+
 # Arduino MKR FOX 1200
 # --------------------
 mkrfox1200.name=Arduino MKR FOX 1200
