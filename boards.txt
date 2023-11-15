@@ -49,6 +49,9 @@ arduino_zero_edbg.bootloader.tool=openocd
 arduino_zero_edbg.bootloader.tool.default=openocd
 arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
 
+# Reference for native programming
+# arduino_zero_edbg.programmer.default=edbg
+
 # Arduino Zero (Native USB Port)
 # --------------------------------------
 arduino_zero_native.name=Arduino Zero (Native USB Port)
