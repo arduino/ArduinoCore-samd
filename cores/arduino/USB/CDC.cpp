@@ -42,22 +42,6 @@ extern USBDevice_SAMD21G18x usbd;
 
 extern USBDeviceClass USBDevice;
 
-typedef struct {
-	uint32_t dwDTERate;
-	uint8_t bCharFormat;
-	uint8_t bParityType;
-	uint8_t bDataBits;
-	uint8_t lineState;
-} LineInfo;
-
-static volatile LineInfo _usbLineInfo = {
-	115200, // dWDTERate
-	0x00,   // bCharFormat
-	0x00,   // bParityType
-	0x08,   // bDataBits
-	0x00    // lineState
-};
-
 static volatile int32_t breakValue = -1;
 
 // CDC
