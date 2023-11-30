@@ -73,6 +73,14 @@ typedef struct
 	EndpointDescriptor			out;
 } CDCDescriptor;
 
+typedef struct {
+	uint32_t dwDTERate;
+	uint8_t bCharFormat;
+	uint8_t bParityType;
+	uint8_t bDataBits;
+	uint8_t lineState;
+} LineInfo;
+
 
 #endif
 #endif
