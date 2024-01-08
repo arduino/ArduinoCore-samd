@@ -176,6 +176,14 @@ private:
 	bool stalled;
 	unsigned int epType[3];
 
+	volatile LineInfo _usbLineInfo = {
+		115200, // dWDTERate
+		0x00,   // bCharFormat
+		0x00,   // bParityType
+		0x08,   // bDataBits
+		0x00    // lineState
+	};
+
 };
 extern Serial_ SerialUSB;
 
