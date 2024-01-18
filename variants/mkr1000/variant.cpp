@@ -57,8 +57,8 @@ const PinDescription g_APinDescription[] = {
  | 10         | MISO             |  PA19  |                 |   03   |     |     | X07 |     |  *1/03  |   3/03  |* TC3/1 | TCC0/3 | I2S/SD0  | AC/CMP1  |
  +------------+------------------+--------+-----------------+--------------------+-----+-----+---------+---------+--------+--------+----------+----------+
  |            |       Wire       |        |                 |        |     |     |     |     |         |         |        |        |          |          |
- | 11         | SDA              |  PA08  |                 |   NMI  | *16 |     | X00 |     |  *0/00  |   2/00  | TCC0/0 | TCC1/2 | I2S/SD1  |          |
- | 12         | SCL              |  PA09  |                 |   09   | *17 |     | X01 |     |  *0/01  |   2/01  | TCC0/1 | TCC1/3 | I2S/MCK0 |          |
+ | 11         | SDA              |  PA08  |                 |   NMI  | *16 |     | X00 |     |   0/00  |  *2/00  | TCC0/0 | TCC1/2 | I2S/SD1  |          |
+ | 12         | SCL              |  PA09  |                 |   09   | *17 |     | X01 |     |   0/01  |  *2/01  | TCC0/1 | TCC1/3 | I2S/MCK0 |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  |            |      Serial1     |        |                 |        |     |     |     |     |         |         |        |        |          |          |
  | 13         | RX               |  PB23  |                 |   07   |     |     |     |     |         |  *5/03  |        |        |          | GCLK_IO1 |
@@ -71,8 +71,8 @@ const PinDescription g_APinDescription[] = {
   { PORTA, 19, PIO_SERCOM,  (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER    ), No_ADC_Channel, PWM3_CH1,   TC3_CH1,      EXTERNAL_INT_NONE }, // MISO: SERCOM1/PAD[3]
 
                                                                                                                                                // PINOUT=0
-  { PORTA,  8, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER ), ADC_Channel16,  PWM0_CH0,   TCC0_CH0,     EXTERNAL_INT_NMI  }, // SDA:  SERCOM4/PAD[0]
-  { PORTA,  9, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL                             ), ADC_Channel17,  NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SCL:  SERCOM4/PAD[1]
+  { PORTA,  8, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL|PIN_ATTR_PWM|PIN_ATTR_TIMER ), ADC_Channel16,  PWM0_CH0,   TCC0_CH0,     EXTERNAL_INT_NMI  }, // SDA:  SERCOM2/PAD[0]
+  { PORTA,  9, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL                             ), ADC_Channel17,  NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // SCL:  SERCOM2/PAD[1]
 
                                                                                                                                                // RXPO=3 TXPO=1
   { PORTB, 23, PIO_SERCOM_ALT, (PIN_ATTR_DIGITAL                             ), No_ADC_Channel, NOT_ON_PWM, NOT_ON_TIMER, EXTERNAL_INT_NONE }, // RX:   SERCOM5/PAD[3]
@@ -129,10 +129,10 @@ const PinDescription g_APinDescription[] = {
  |            |                  |        |                 |(EXTINT)|(AIN)|(AIN)|     |     | (x/PAD) | (x/PAD) | (x/WO) | (x/WO) |          |          |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  |            | ATWINC1501B SPI  |        |                 |        |     |     |     |     |         |         |        |        |          |          |
- | 26         |                  |  PA12  | WINC MOSI       |   12   |     |     |     |     |  *2/00  |   4/00  | TCC2/0 | TCC0/6 |          | AC/CMP0  |
- | 27         |                  |  PA13  | WINC SCK        |   13   |     |     |     |     |  *2/01  |   4/01  | TCC2/1 | TCC0/7 |          | AC/CMP1  |
+ | 26         |                  |  PA12  | WINC MOSI       |   12   |     |     |     |     |   2/00  |  *4/00  | TCC2/0 | TCC0/6 |          | AC/CMP0  |
+ | 27         |                  |  PA13  | WINC SCK        |   13   |     |     |     |     |   2/01  |  *4/01  | TCC2/1 | TCC0/7 |          | AC/CMP1  |
  | 28         |                  |  PA14  | WINC SSN        |   14   |     |     |     |     |   2/02  |   4/02  |  TC3/0 | TCC0/4 |          | GCLK_IO0 |
- | 29         |                  |  PA15  | WINC MISO       |   15   |     |     |     |     |  *2/03  |   4/03  |  TC3/1 | TCC0/5 |          | GCLK_IO1 |
+ | 29         |                  |  PA15  | WINC MISO       |   15   |     |     |     |     |   2/03  |  *4/03  |  TC3/1 | TCC0/5 |          | GCLK_IO1 |
  +------------+------------------+--------+-----------------+--------+-----+-----+-----+-----+---------+---------+--------+--------+----------+----------+
  |            | ATWINC1501B PINS |        |                 |        |     |     |     |     |         |         |        |        |          |          |
  | 30         |                  |  PA27  | WINC RESETN_WIFI|   15   |     |     |     |     |         |         |        |        |          | GCLK_IO0 |
