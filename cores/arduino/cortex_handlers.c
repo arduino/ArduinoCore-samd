@@ -20,6 +20,9 @@
 #include <variant.h>
 #include <stdio.h>
 
+/* libc */
+void __libc_init_array(void);
+
 /* RTOS Hooks */
 extern void svcHook(void);
 extern void pendSVHook(void);
@@ -146,15 +149,18 @@ void Reset_Handler(void)
   pDest = &__data_start__;
 
   if ((&__data_start__ != &__data_end__) && (pSrc != pDest)) {
-    for (; pDest < &__data_end__; pDest++, pSrc++)
+    for (; pDest < &__data_end__; pDest += sizeof(uint32_t), pSrc += sizeof(uint32_t))
       *pDest = *pSrc;
   }
 
   /* Clear the zero section */
-  if ((&__data_start__ != &__data_end__) && (pSrc != pDest)) {
-    for (pDest = &__bss_start__; pDest < &__bss_end__; pDest++)
+  if ((&__bss_start__ != &__bss_end__)) {
+    for (pDest = &__bss_start__; pDest < &__bss_end__; pDest += sizeof(uint32_t))
       *pDest = 0;
   }
+
+  /* Initialize C library */
+  __libc_init_array();
 
   SystemInit();
 
