@@ -27,7 +27,7 @@
  * - OSC8M clock source is enabled with a divider by 8 (1MHz).
  * - Generic Clock Generator 0 (GCLKMAIN) is using OSC8M as source.
  * We need to:
- * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator), will be used as DFLL48M reference.
+ * 1) Enable XOSC32K clock (External on-board 32.768KHz oscillator), will be used as DFLL48M reference.
  * 2) Put XOSC32K as source of Generic Clock Generator 1
  * 3) Put Generic Clock Generator 1 as source for Generic Clock Multiplexer 0 (DFLL48M reference)
  * 4) Enable DFLL48M clock
@@ -56,7 +56,7 @@ void SystemInit( void )
 #if defined(CRYSTALLESS)
 
   /* ----------------------------------------------------------------------------------------------
-   * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
+   * 1) Enable OSC32K clock (Internal 32.768KHz oscillator)
    */
 
   uint32_t calib = (*((uint32_t *) FUSES_OSC32K_CAL_ADDR) & FUSES_OSC32K_CAL_Msk) >> FUSES_OSC32K_CAL_Pos;
@@ -71,7 +71,7 @@ void SystemInit( void )
 #else // has crystal
 
   /* ----------------------------------------------------------------------------------------------
-   * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
+   * 1) Enable XOSC32K clock (External on-board 32.768KHz oscillator)
    */
   SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP( 0x6u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
                          SYSCTRL_XOSC32K_XTALEN | SYSCTRL_XOSC32K_EN32K ;
