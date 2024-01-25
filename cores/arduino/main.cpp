@@ -56,3 +56,10 @@ int main( void )
 
   return 0;
 }
+
+// Ensure our version of sbrk is used by forcing a reference to it here
+// (without this, an undefined reference only occurs later when linking
+// newlib, and the dummy from libgloss/nosys will be used instead).
+// This variable will be optimized away later.
+extern "C" void *_sbrk(int);
+void * force_reference_to_sbrk = (void*)&_sbrk;
