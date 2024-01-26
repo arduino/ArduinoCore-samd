@@ -24,6 +24,8 @@
 #include "variant.h"
 #include "SERCOM.h"
 
+#define BUFFER_LENGTH 256
+
  // WIRE_HAS_END means Wire has end()
 #define WIRE_HAS_END 1
 
@@ -74,10 +76,10 @@ class TwoWire : public HardwareI2C
     bool transmissionBegun;
 
     // RX Buffer
-    arduino::RingBufferN<256> rxBuffer;
+    arduino::RingBufferN<BUFFER_LENGTH> rxBuffer;
 
     //TX buffer
-    arduino::RingBufferN<256> txBuffer;
+    arduino::RingBufferN<BUFFER_LENGTH> txBuffer;
     uint8_t txAddress;
 
     // Callback user functions
