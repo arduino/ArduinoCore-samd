@@ -37,7 +37,7 @@
  */
 // Constants for Clock generators
 #define GENERIC_CLOCK_GENERATOR_MAIN      (0u)
-#define GENERIC_CLOCK_GENERATOR_XOSC32K   (1u)
+#define GENERIC_CLOCK_GENERATOR_XOSC      (1u)
 #define GENERIC_CLOCK_GENERATOR_OSC32K    (1u)
 #define GENERIC_CLOCK_GENERATOR_OSCULP32K (2u) /* Initialized at reset for WDT */
 #define GENERIC_CLOCK_GENERATOR_OSC8M     (3u)
@@ -56,7 +56,7 @@ void SystemInit( void )
 #if defined(CRYSTALLESS)
 
   /* ----------------------------------------------------------------------------------------------
-   * 1) Enable OSC32K clock (Internal 32.768Hz oscillator)
+   * 1) Enable OSC32K clock (Internal 32.768kHz oscillator)
    */
 
   uint32_t calib = (*((uint32_t *) FUSES_OSC32K_CAL_ADDR) & FUSES_OSC32K_CAL_Msk) >> FUSES_OSC32K_CAL_Pos;
@@ -68,10 +68,10 @@ void SystemInit( void )
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC32KRDY) == 0 ); // Wait for oscillator stabilization
 
-#else // has crystal
+#elif VARIANT_MAINOSC == 32768 // has 32.76kMHz crystal
 
   /* ----------------------------------------------------------------------------------------------
-   * 1) Enable XOSC32K clock (External on-board 32.768Hz oscillator)
+   * 1) Enable XOSC32K clock (External on-board 32.768kHz oscillator)
    */
   SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_STARTUP( 0x6u ) | /* cf table 15.10 of product datasheet in chapter 15.8.6 */
                          SYSCTRL_XOSC32K_XTALEN | SYSCTRL_XOSC32K_EN32K ;
@@ -81,7 +81,18 @@ void SystemInit( void )
   {
     /* Wait for oscillator stabilization */
   }
+#else // has other crystal
+  /* ----------------------------------------------------------------------------------------------
+   * 1) Enable XOSC clock (External on-board oscillator)
+   */
+  SYSCTRL->XOSC.reg = SYSCTRL_XOSC_STARTUP( 0x6u ) | /* cf table in product datasheet in chapter 17.8.5 */
+                         SYSCTRL_XOSC_XTALEN | SYSCTRL_XOSC_ENABLE ;
+  SYSCTRL->XOSC.bit.ENABLE = 1 ;
 
+  while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_XOSCRDY) == 0 )
+  {
+    /* Wait for oscillator stabilization */
+  }
 #endif
 
   /* Software reset the module to ensure it is re-initialized correctly */
@@ -96,9 +107,9 @@ void SystemInit( void )
   }
 
   /* ----------------------------------------------------------------------------------------------
-   * 2) Put XOSC32K as source of Generic Clock Generator 1
+   * 2) Put XOSC as source of Generic Clock Generator 1
    */
-  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_XOSC32K ) ; // Generic Clock Generator 1
+  GCLK->GENDIV.reg = GCLK_GENDIV_ID( GENERIC_CLOCK_GENERATOR_XOSC ) ; // Generic Clock Generator 1
 
   while ( GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY )
   {
@@ -109,8 +120,10 @@ void SystemInit( void )
   GCLK->GENCTRL.reg = GCLK_GENCTRL_ID( GENERIC_CLOCK_GENERATOR_OSC32K ) | // Generic Clock Generator 1
 #if defined(CRYSTALLESS)
                       GCLK_GENCTRL_SRC_OSC32K | // Selected source is Internal 32KHz Oscillator
-#else
+#elif VARIANT_MAINOSC == 32768 // has 32.768Hz crystal
                       GCLK_GENCTRL_SRC_XOSC32K | // Selected source is External 32KHz Oscillator
+#else // has other crystal
+                      GCLK_GENCTRL_SRC_XOSC | // Selected source is External Oscillator
 #endif
 //                      GCLK_GENCTRL_OE | // Output clock to a pin for tests
                       GCLK_GENCTRL_GENEN ;
@@ -148,7 +161,7 @@ void SystemInit( void )
 
   SYSCTRL->DFLLMUL.reg = SYSCTRL_DFLLMUL_CSTEP( 31 ) | // Coarse step is 31, half of the max value
                          SYSCTRL_DFLLMUL_FSTEP( 511 ) | // Fine step is 511, half of the max value
-                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK + VARIANT_MAINOSC/2) / VARIANT_MAINOSC ) ; // External 32KHz is the reference
+                         SYSCTRL_DFLLMUL_MUL( (VARIANT_MCK + VARIANT_MAINOSC/2) / VARIANT_MAINOSC ) ; // External MAINOSC clock is the reference
 
   while ( (SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0 )
   {
