@@ -14,6 +14,8 @@
 # License along with this library; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
+menu.usbstack=Arduino USB Stack
+
 # Arduino Zero (Prorgamming Port)
 # ---------------------------------------
 arduino_zero_edbg.name=Arduino Zero (Programming Port)
@@ -38,6 +40,7 @@ arduino_zero_edbg.build.usb_product="Arduino Zero"
 arduino_zero_edbg.build.usb_manufacturer="Arduino LLC"
 arduino_zero_edbg.build.board=SAMD_ZERO
 arduino_zero_edbg.build.core=arduino
+arduino_zero_edbg.build.flags.usbstack=-DUSBCON
 arduino_zero_edbg.build.extra_flags=-D__SAMD21G18A__ {build.usb_flags}
 arduino_zero_edbg.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 arduino_zero_edbg.build.openocdscript=openocd_scripts/arduino_zero.cfg
@@ -96,6 +99,11 @@ arduino_zero_native.bootloader.tool=openocd
 arduino_zero_native.bootloader.tool.default=openocd
 arduino_zero_native.bootloader.file=zero/samd21_sam_ba.bin
 
+arduino_zero_native.menu.usbstack.enabled=Enabled
+arduino_zero_native.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+arduino_zero_native.menu.usbstack.disabled=Disabled
+arduino_zero_native.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino MKR1000
 # -----------------------
 mkr1000.name=Arduino MKR 1000 WiFi
@@ -142,6 +150,11 @@ mkr1000.bootloader.tool=openocd
 mkr1000.bootloader.tool.default=openocd
 mkr1000.bootloader.file=mkr1000/samd21_sam_ba_arduino_mkr1000.bin
 
+mkr1000.menu.usbstack.enabled=Enabled
+mkr1000.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkr1000.menu.usbstack.disabled=Disabled
+mkr1000.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino MKRZero
 # ---------------
 mkrzero.name=Arduino MKR Zero
@@ -179,6 +192,11 @@ mkrzero.build.pid=0x804f
 mkrzero.bootloader.tool=openocd
 mkrzero.bootloader.tool.default=openocd
 mkrzero.bootloader.file=mkrzero/samd21_sam_ba_arduino_mkrzero.bin
+
+mkrzero.menu.usbstack.enabled=Enabled
+mkrzero.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrzero.menu.usbstack.disabled=Disabled
+mkrzero.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
 
 # Arduino MKR WiFi 1010
 # --------------------
@@ -219,6 +237,11 @@ mkrwifi1010.bootloader.tool.default=openocd
 mkrwifi1010.bootloader.file=mkrwifi1010/samd21_sam_ba_arduino_mkrwifi1010.bin
 #mkrwifi1010.arduinoota.extraflags=-d
 
+mkrwifi1010.menu.usbstack.enabled=Enabled
+mkrwifi1010.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrwifi1010.menu.usbstack.disabled=Disabled
+mkrwifi1010.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino NANO 33 IoT
 # --------------------
 nano_33_iot.name=Arduino NANO 33 IoT
@@ -256,6 +279,11 @@ nano_33_iot.build.pid=0x8057
 nano_33_iot.bootloader.tool=openocd
 nano_33_iot.bootloader.tool.default=openocd
 nano_33_iot.bootloader.file=nano_33_iot/samd21_sam_ba_arduino_nano_33_iot.bin
+
+nano_33_iot.menu.usbstack.enabled=Enabled
+nano_33_iot.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+nano_33_iot.menu.usbstack.disabled=Disabled
+nano_33_iot.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
 
 # Arduino MKR FOX 1200
 # --------------------
@@ -295,6 +323,11 @@ mkrfox1200.bootloader.tool=openocd
 mkrfox1200.bootloader.tool.default=openocd
 mkrfox1200.bootloader.file=mkrfox1200/samd21_sam_ba_arduino_mkrfox1200.bin
 
+mkrfox1200.menu.usbstack.enabled=Enabled
+mkrfox1200.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrfox1200.menu.usbstack.disabled=Disabled
+mkrfox1200.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino MKR WAN 1300
 # --------------------
 mkrwan1300.name=Arduino MKR WAN 1300
@@ -332,6 +365,11 @@ mkrwan1300.build.pid=0x8053
 mkrwan1300.bootloader.tool=openocd
 mkrwan1300.bootloader.tool.default=openocd
 mkrwan1300.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1300.bin
+
+mkrwan1300.menu.usbstack.enabled=Enabled
+mkrwan1300.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrwan1300.menu.usbstack.disabled=Disabled
+mkrwan1300.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
 
 # Arduino MKR WAN 1310
 # --------------------
@@ -371,6 +409,11 @@ mkrwan1310.bootloader.tool=openocd
 mkrwan1310.bootloader.tool.default=openocd
 mkrwan1310.bootloader.file=mkrwan1300/samd21_sam_ba_arduino_mkrwan1310.bin
 
+mkrwan1310.menu.usbstack.enabled=Enabled
+mkrwan1310.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrwan1310.menu.usbstack.disabled=Disabled
+mkrwan1310.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino MKR GSM 1400
 # --------------------
 mkrgsm1400.name=Arduino MKR GSM 1400
@@ -408,6 +451,11 @@ mkrgsm1400.build.pid=0x8052
 mkrgsm1400.bootloader.tool=openocd
 mkrgsm1400.bootloader.tool.default=openocd
 mkrgsm1400.bootloader.file=mkrgsm1400/samd21_sam_ba_arduino_mkrgsm1400.bin
+
+mkrgsm1400.menu.usbstack.enabled=Enabled
+mkrgsm1400.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrgsm1400.menu.usbstack.disabled=Disabled
+mkrgsm1400.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
 
 # Arduino MKR NB 1500
 # --------------------
@@ -447,6 +495,11 @@ mkrnb1500.bootloader.tool=openocd
 mkrnb1500.bootloader.tool.default=openocd
 mkrnb1500.bootloader.file=mkrnb1500/samd21_sam_ba_arduino_mkrnb1500.bin
 
+mkrnb1500.menu.usbstack.enabled=Enabled
+mkrnb1500.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrnb1500.menu.usbstack.disabled=Disabled
+mkrnb1500.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino MKR Vidor 4000
 # --------------------
 mkrvidor4000.name=Arduino MKR Vidor 4000
@@ -484,6 +537,11 @@ mkrvidor4000.build.pid=0x8056
 mkrvidor4000.bootloader.tool=openocd
 mkrvidor4000.bootloader.tool.default=openocd
 mkrvidor4000.bootloader.file=mkrvidor4000/samd21_sam_ba_arduino_mkrvidor4000.bin
+
+mkrvidor4000.menu.usbstack.enabled=Enabled
+mkrvidor4000.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mkrvidor4000.menu.usbstack.disabled=Disabled
+mkrvidor4000.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
 
 # Adafruit Circuit Playground M0
 # ------------------------------
@@ -523,6 +581,11 @@ adafruit_circuitplayground_m0.bootloader.tool=openocd
 adafruit_circuitplayground_m0.bootloader.tool.default=openocd
 adafruit_circuitplayground_m0.bootloader.file=circuitplay/circuitplay_m0_samd21g18_sam_ba.bin
 
+adafruit_circuitplayground_m0.menu.usbstack.enabled=Enabled
+adafruit_circuitplayground_m0.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+adafruit_circuitplayground_m0.menu.usbstack.disabled=Disabled
+adafruit_circuitplayground_m0.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino M0 PRO (with) bootloader - Programming port
 # ---------------------------------------------------
 mzero_pro_bl_dbg.name=Arduino M0 Pro (Programming Port)
@@ -543,6 +606,7 @@ mzero_pro_bl_dbg.build.f_cpu=48000000L
 mzero_pro_bl_dbg.build.usb_product="Arduino M0 Pro"
 mzero_pro_bl_dbg.build.board=SAM_ZERO
 mzero_pro_bl_dbg.build.core=arduino
+mzero_pro_bl_dbg.build.flags.usbstack=-DUSBCON
 mzero_pro_bl_dbg.build.extra_flags=-D__SAMD21G18A__ -mthumb {build.usb_flags}
 mzero_pro_bl_dbg.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
 mzero_pro_bl_dbg.build.openocdscript=openocd_scripts/arduino_zero.cfg
@@ -610,6 +674,11 @@ mzero_pro_bl.bootloader.tool.default=openocd-withbootsize
 mzero_pro_bl.bootloader.file=mzero/Bootloader_D21_M0_Pro_150427.hex
 mzero_pro_bl.bootloader.low_fuses=0xff
 
+mzero_pro_bl.menu.usbstack.enabled=Enabled
+mzero_pro_bl.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mzero_pro_bl.menu.usbstack.disabled=Disabled
+mzero_pro_bl.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino M0 (with) Bootloader
 # ----------------------------
 mzero_bl.name=Arduino M0
@@ -660,6 +729,11 @@ mzero_bl.bootloader.tool.default=openocd-withbootsize
 mzero_bl.bootloader.low_fuses=0xff
 mzero_bl.bootloader.file=mzero/Bootloader_D21_M0_150515.hex
 
+mzero_bl.menu.usbstack.enabled=Enabled
+mzero_bl.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+mzero_bl.menu.usbstack.disabled=Disabled
+mzero_bl.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
+
 # Arduino Tian (with) Bootloader
 # ------------------------------
 tian.name=Arduino Tian
@@ -702,6 +776,11 @@ tian.bootloader.tool.default=openocd-withbootsize
 tian.bootloader.low_fuses=0xff
 tian.bootloader.file=sofia/Sofia_Tian_151118.hex
 tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
+
+tian.menu.usbstack.enabled=Enabled
+tian.menu.usbstack.enabled.build.flags.usbstack=-DUSBCON
+tian.menu.usbstack.disabled=Disabled
+tian.menu.usbstack.disabled.build.flags.usbstack=-DCDC_DISABLED
 
 # Arduino Tian Console port (not for upload)
 # ------------------------------------------

@@ -77,7 +77,7 @@ compiler.libraries.ldflags=
 
 # USB Flags
 # ---------
-build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} -DUSBCON '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}'
+build.usb_flags=-DUSB_VID={build.vid} -DUSB_PID={build.pid} '-DUSB_MANUFACTURER={build.usb_manufacturer}' '-DUSB_PRODUCT={build.usb_product}' {build.flags.usbstack}
 
 # Default usb manufacturer will be replaced at compile time using
 # numeric vendor ID if available or by board's specific value.
