@@ -49,6 +49,9 @@ arduino_zero_edbg.bootloader.tool=openocd
 arduino_zero_edbg.bootloader.tool.default=openocd
 arduino_zero_edbg.bootloader.file=zero/samd21_sam_ba.bin
 
+# Reference for native programming
+# arduino_zero_edbg.programmer.default=edbg
+
 # Arduino Zero (Native USB Port)
 # --------------------------------------
 arduino_zero_native.name=Arduino Zero (Native USB Port)
@@ -249,13 +252,27 @@ nano_33_iot.build.board=SAMD_NANO_33_IOT
 nano_33_iot.build.core=arduino
 nano_33_iot.build.extra_flags=-DCRYSTALLESS -D__SAMD21G18A__ {build.usb_flags}
 nano_33_iot.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
-nano_33_iot.build.openocdscript=openocd_scripts/arduino_zero.cfg
+nano_33_iot.build.openocdoldscript=openocd_scripts/arduino_zero.cfg
+nano_33_iot.build.openocdscript=openocd_scripts/openocd.cfg
 nano_33_iot.build.variant=nano_33_iot
 nano_33_iot.build.vid=0x2341
 nano_33_iot.build.pid=0x8057
 nano_33_iot.bootloader.tool=openocd
 nano_33_iot.bootloader.tool.default=openocd
 nano_33_iot.bootloader.file=nano_33_iot/samd21_sam_ba_arduino_nano_33_iot.bin
+nano_33_iot.debug.svd_file={runtime.platform.path}/svd/at91samd21g18.svd
+
+nano_33_iot.debug.cortex-debug.custom.postAttachCommands.0=set remote hardware-watchpoint-limit 2
+nano_33_iot.debug.cortex-debug.custom.postAttachCommands.1=monitor reset halt
+nano_33_iot.debug.cortex-debug.custom.postAttachCommands.2=monitor gdb_sync
+nano_33_iot.debug.cortex-debug.custom.postAttachCommands.3=thb setup
+nano_33_iot.debug.cortex-debug.custom.postAttachCommands.4=c
+nano_33_iot.debug.cortex-debug.custom.overrideRestartCommands.0=monitor reset halt
+nano_33_iot.debug.cortex-debug.custom.overrideRestartCommands.1=monitor gdb_sync
+nano_33_iot.debug.cortex-debug.custom.overrideRestartCommands.2=thb setup
+nano_33_iot.debug.cortex-debug.custom.overrideRestartCommands.3=c
+
+nano_33_iot.programmer.default=atmel_ice
 
 # Arduino MKR FOX 1200
 # --------------------
