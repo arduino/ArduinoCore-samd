@@ -29,9 +29,9 @@
 #include "board_driver_led.h"
 #include <stdlib.h>
 
-const char RomBOOT_Version[] = SAM_BA_VERSION;
 // X = Chip Erase, Y = Write Buffer, Z = Checksum Buffer, P = Secure Bit Aware
-const char RomBOOT_ExtendedCapabilities[] = "[Arduino:XYZP]";
+#define ROMBOOT_EXTENDEDCAPABILITIES "[Arduino:XYZP]"
+const char ROMBoot_VersionInformation[] = "v" SAM_BA_VERSION " " ROMBOOT_EXTENDEDCAPABILITIES " " __DATE__ " " __TIME__ "\n\r";
 
 /* Provides one common interface to handle both USART and USB-CDC */
 typedef struct
@@ -362,15 +362,54 @@ static void sam_ba_monitor_loop(void)
       }
       else if (command == 'O') // write byte
       {
-        *ptr_data = (char) current_number;
+        if (b_security_enabled && (uint16_t *)ptr_data == &NVMCTRL->CTRLA.reg && (current_number & NVMCTRL_CTRLA_CMD_Msk) == NVMCTRL_CTRLA_CMD_ER)
+        {
+          // NVM Erase Row command received in secure mode.
+          // To mitigate that an attacker might not use the ordinary BOSSA method of erasing flash before programming,
+          // always erase flash, if it hasn't been done already.
+          if (erased_from != 0x2000)
+          {
+            eraseFlash(0x2000);
+          }
+        }
+        else
+        {
+          *ptr_data = (char) current_number;
+        }
       }
       else if (command == 'H') // Write half word
       {
-        *((uint16_t *) ptr_data) = (uint16_t) current_number;
+        if (b_security_enabled && (uint16_t *)ptr_data == &NVMCTRL->CTRLA.reg && (current_number & NVMCTRL_CTRLA_CMD_Msk) == NVMCTRL_CTRLA_CMD_ER)
+        {
+          // NVM Erase Row command received in secure mode.
+          // To mitigate that an attacker might not use the ordinary BOSSA method of erasing flash before programming,
+          // always erase flash, if it hasn't been done already.
+          if (erased_from != 0x2000)
+          {
+            eraseFlash(0x2000);
+          }
+        }
+        else
+        {
+          *((uint16_t *) ptr_data) = (uint16_t) current_number;
+        }
       }
       else if (command == 'W') // Write word
       {
-        *((int *) ptr_data) = current_number;
+        if (b_security_enabled && (uint16_t *)ptr_data == &NVMCTRL->CTRLA.reg && (current_number & NVMCTRL_CTRLA_CMD_Msk) == NVMCTRL_CTRLA_CMD_ER)
+        {
+          // NVM Erase Row command received in secure mode.
+          // To mitigate that an attacker might not use the ordinary BOSSA method of erasing flash before programming,
+          // always erase flash, if it hasn't been done already.
+          if (erased_from != 0x2000)
+          {
+            eraseFlash(0x2000);
+          }
+        }
+        else
+        {
+          *((int *) ptr_data) = current_number;
+        }
       }
       else if (command == 'o') // Read byte
       {
@@ -446,12 +485,7 @@ static void sam_ba_monitor_loop(void)
       }
       else if (command == 'V') // Read version information
       {
-        sam_ba_putdata( ptr_monitor_if, "v", 1);
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) RomBOOT_Version, strlen(RomBOOT_Version));
-        sam_ba_putdata( ptr_monitor_if, " ", 1);
-        sam_ba_putdata( ptr_monitor_if, (uint8_t *) RomBOOT_ExtendedCapabilities, strlen(RomBOOT_ExtendedCapabilities));
-        ptr = (uint8_t*) &(" " __DATE__ " " __TIME__ "\n\r");
-        sam_ba_putdata( ptr_monitor_if, ptr, strlen(ptr));
+        sam_ba_putdata( ptr_monitor_if, ROMBoot_VersionInformation, sizeof(ROMBoot_VersionInformation) - 1);
       }
       else if (command == 'X') // Erase flash
       {
