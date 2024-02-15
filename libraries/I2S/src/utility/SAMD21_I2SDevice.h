@@ -47,6 +47,14 @@ public:
     return (index == 0) ? I2S_GCLK_ID_0 : I2S_GCLK_ID_1;
   }
 
+  inline void setMasterClockDiv(int index, int div) {
+      i2s.CLKCTRL[index].bit.MCKDIV = div;
+  }
+
+  inline void enableMasterClock(int index) {
+      i2s.CLKCTRL[index].bit.MCKEN = 1;
+  }
+
   inline void setSerialClockSelectMasterClockDiv(int index) {
     i2s.CLKCTRL[index].bit.SCKSEL = I2S_CLKCTRL_SCKSEL_MCKDIV_Val;
   }

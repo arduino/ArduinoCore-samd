@@ -24,6 +24,7 @@
 #include "utility/I2SDoubleBuffer.h"
 
 #define I2S_HAS_SET_BUFFER_SIZE 1
+#define PIN_I2S_MCK PIN_WIRE_SCL //I2S_MCK[0]
 
 typedef enum {
   I2S_PHILIPS_MODE,
@@ -35,11 +36,11 @@ class I2SClass : public Stream
 {
 public:
   // the device index and pins must map to the "COM" pads in Table 6-1 of the datasheet 
-  I2SClass(uint8_t deviceIndex, uint8_t clockGenerator, uint8_t sdPin, uint8_t sckPin, uint8_t fsPin);
+  I2SClass(uint8_t deviceIndex, uint8_t clockGenerator, uint8_t sdPin, uint8_t sckPin, uint8_t fsPin, uint8_t mckPin);
 
   // the SCK and FS pins are driven as outputs using the sample rate
   int begin(int mode, long sampleRate, int bitsPerSample);
-  // the SCK and FS pins are inputs, other side controls sample rate
+  // the SCK and FS pins are inputs, other side controls the sample rate
   int begin(int mode, int bitsPerSample);
   void end();
 
@@ -65,6 +66,7 @@ public:
   void onReceive(void(*)(void));
 
   void setBufferSize(int bufferSize);
+  void enableMasterClock(int _mckFsMultiplier = 256);
 
 private:
   int begin(int mode, long sampleRate, int bitsPerSample, bool driveClock);
@@ -93,6 +95,9 @@ private:
   uint8_t _sdPin;
   uint8_t _sckPin;
   uint8_t _fsPin;
+
+  uint8_t _mckPin;
+  int _mckFsMultiplier;
 
   i2s_state_t _state;
   int _dmaChannel;
