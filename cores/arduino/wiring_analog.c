@@ -91,7 +91,7 @@ static inline uint32_t mapResolution(uint32_t value, uint32_t from, uint32_t to)
  *
  * Warning : On Arduino Zero board the input/output voltage for SAMD21G18 is 3.3 volts maximum
  */
-void analogReference(eAnalogReference mode)
+void analogReference(AnalogReference mode)
 {
   syncADC();
   switch (mode)
