@@ -5,8 +5,11 @@
 #define SECRET_SSID "YOUR_WIFI_NETWORK_NAME"
 #define SECRET_PASS "YOUR_WIFI_PASSWORD"
 
-// Arduino IoT Cloud device credentials
-// Get these from your Arduino IoT Cloud dashboard
-#define SECRET_DEVICE_KEY "YOUR_DEVICE_KEY_FROM_IOT_CLOUD"
+// Azure CosmosDB credentials
+// Get these from your Azure portal
+#define AZURE_COSMOSDB_HOST "YOUR_COSMOSDB_ACCOUNT.documents.azure.com"
+#define AZURE_COSMOSDB_KEY "type=master&ver=1.0&sig=YOUR_PRIMARY_KEY"
+#define AZURE_COSMOSDB_DATABASE "WeatherStation"
+#define AZURE_COSMOSDB_CONTAINER "SensorData"
 
 #endif // ARDUINO_SECRETS_H

@@ -6,7 +6,8 @@
 extern MKRIoTCarrier carrier;
 
 void app_loop() {
-  ArduinoCloud.update();
+  // Update Azure cloud data
+  updateAzureData();
   carrier.Buttons.update();
  
   while(!carrier.Light.colorAvailable()) {
