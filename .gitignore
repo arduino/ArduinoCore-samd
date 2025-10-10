@@ -1,3 +1,55 @@
 *.bz2
 
 bootloaders/*/build/
+
+# PlatformIO build directory and dependencies
+.pio/
+
+# Arduino IoT secrets (sensitive data - create template instead)
+src/arduino_secrets.h
+
+# VS Code settings
+.vscode/
+
+# Compiled Object files
+*.o
+*.obj
+
+# Compiled Dynamic libraries
+*.so
+*.dylib
+*.dll
+
+# Compiled Static libraries
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Debug files
+*.dSYM/
+*.su
+*.idb
+*.pdb
+
+# Build directories
+build/
+bin/
+obj/
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*~
