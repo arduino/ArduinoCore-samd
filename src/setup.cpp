@@ -10,14 +10,16 @@ void app_setup() {
   // This delay gives the chance to wait for a Serial Monitor without blocking if none is found
   delay(1500); 
  
+  // Initialize carrier first
+  CARRIER_CASE = false;
+  carrier.begin();
+  carrier.display.setRotation(0);
+  Serial.println("Carrier initialized");
+  delay(2000); // Give sensors time to warm up
+  
   // Initialize Azure connection
   initAzureConnection();
   
   Serial.println("Azure CosmosDB Weather Station initialized");
   delay(1000);
-  
-  CARRIER_CASE = false;
-  carrier.begin();
-  carrier.display.setRotation(0);
-  delay(1500);
 }

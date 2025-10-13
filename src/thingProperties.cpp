@@ -4,6 +4,7 @@
 */
 
 #include "thingProperties.h"
+#include "AzureAuth.h"
 
 // Sensor data variables
 float humidity = 0.0f;
@@ -32,6 +33,21 @@ void initAzureConnection(){
   Serial.print("Connected to WiFi. IP: ");
   Serial.println(WiFi.localIP());
   
+  // Synchronize time with NTP
+  Serial.print("Synchronizing time with NTP...");
+  unsigned long startTime = millis();
+  while (WiFi.getTime() == 0 && (millis() - startTime) < 20000) { // Increased timeout to 20 seconds
+    delay(500); // Longer delay between checks
+    Serial.print(".");
+  }
+  if (WiFi.getTime() > 0) {
+    Serial.println();
+    Serial.print("Time synchronized: ");
+    Serial.println(WiFi.getTime());
+  } else {
+    Serial.println(" Failed to sync time - using fallback");
+  }
+  
   // Set HTTP client timeout
   azureClient.setTimeout(10000);
 }
@@ -39,7 +55,7 @@ void initAzureConnection(){
 bool sendWeatherDataToAzure() {
   // Create JSON payload with current timestamp
   JsonDocument doc;
-  doc["id"] = String(millis()); // Unique ID for CosmosDB
+  doc["id"] = String("mkr-") + String(millis()); // Unique ID for CosmosDB
   doc["deviceId"] = "mkr-weather-station-001";
   doc["timestamp"] = WiFi.getTime();
   doc["temperature"] = temperature;
@@ -54,13 +70,22 @@ bool sendWeatherDataToAzure() {
   Serial.println("Sending to Azure CosmosDB:");
   Serial.println(jsonString);
   
+  // Get current date/time in RFC 1123 format
+  String dateTime = getRFC1123DateTime();
+  
   // Prepare Azure CosmosDB REST API request
-  String path = "/dbs/" + String(AZURE_COSMOSDB_DATABASE) + "/colls/" + String(AZURE_COSMOSDB_CONTAINER) + "/docs";
+  String resourceType = "docs";
+  String resourceLink = "dbs/" + String(AZURE_COSMOSDB_DATABASE) + "/colls/" + String(AZURE_COSMOSDB_CONTAINER);
+  String path = "/" + resourceLink + "/docs";
+  
+  // Generate authorization token - Azure expects lowercase verb!
+  String authToken = generateAzureAuthToken("post", resourceType, resourceLink, dateTime, AZURE_COSMOSDB_KEY);
   
   azureClient.beginRequest();
   azureClient.post(path);
   azureClient.sendHeader("Content-Type", "application/json");
-  azureClient.sendHeader("Authorization", AZURE_COSMOSDB_KEY);
+  azureClient.sendHeader("Authorization", authToken);
+  azureClient.sendHeader("x-ms-date", dateTime);
   azureClient.sendHeader("x-ms-version", "2018-12-31");
   azureClient.sendHeader("x-ms-documentdb-partitionkey", "[\"mkr-weather-station-001\"]");
   azureClient.sendHeader("Content-Length", jsonString.length());

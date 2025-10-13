@@ -29,6 +29,18 @@ src/arduino_secrets.h
 *.out
 *.app
 
+# Node.js dependencies (should not be in Arduino project)
+node_modules/
+package.json
+package-lock.json
+npm-debug.log*
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
 # Debug files
 *.dSYM/
 *.su
