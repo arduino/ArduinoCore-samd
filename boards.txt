@@ -664,12 +664,6 @@ mzero_bl.bootloader.file=mzero/Bootloader_D21_M0_150515.hex
 # ------------------------------
 tian.name=Arduino Tian
 tian.upload.via_ssh=true
-tian.vid.0=0x10C4
-tian.pid.0=0xEA70
-tian.descriptor.0=Enhanced Com Port
-tian.upload_port.0.vid=0x10C4
-tian.upload_port.0.pid=0xEA70
-tian.upload_port.1.board=tian
 
 tian.upload.tool=avrdude
 tian.upload.tool.default=avrdude
@@ -706,10 +700,5 @@ tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
 # Arduino Tian Console port (not for upload)
 # ------------------------------------------
 tian_cons.name=Arduino Tian (MIPS Console port)
-tian_cons.vid.0=0x10C4
-tian_cons.pid.0=0xEA70
-tian_cons.upload_port.0.vid=0x10C4
-tian_cons.upload_port.0.pid=0xEA70
-tian_cons.descriptor.0=Standard Com Port
 tian_cons.hide=true
 tian_cons.build.board=SAMD_TIAN
