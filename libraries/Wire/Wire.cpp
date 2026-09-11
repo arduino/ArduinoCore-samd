@@ -80,7 +80,7 @@ size_t TwoWire::requestFrom(uint8_t address, size_t quantity, bool stopBit)
     // Read first data
     rxBuffer.store_char(sercom->readDataWIRE());
 
-    bool busOwner;
+    bool busOwner = sercom->isBusOwnerWIRE();
     // Connected to slave
     for (byteRead = 1; byteRead < quantity && (busOwner = sercom->isBusOwnerWIRE()); ++byteRead)
     {
