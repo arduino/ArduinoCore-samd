@@ -106,11 +106,13 @@ extern void analogOutputInit( void ) ;
 }
 #endif
 
+#if defined(USBCON)
 // USB Device
 #include "USB/USBDesc.h"
 #include "USB/USBCore.h"
 #include "USB/USBAPI.h"
 #include "USB/USB_host.h"
+#endif
 
 // ARM toolchain doesn't provide itoa etc, provide them
 #include "api/itoa.h"
