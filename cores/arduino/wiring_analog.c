@@ -131,7 +131,9 @@ int analogRead(pin_size_t pin)
 
   if (pin < A0) {
     pin += A0;
-  }
+  }else if(pin > 5 && pin <= 11){
+    pin += 40;
+ }
 
   pinPeripheral(pin, PIO_ANALOG);
 
