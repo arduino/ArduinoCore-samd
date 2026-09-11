@@ -83,7 +83,7 @@ void digitalWrite( pin_size_t ulPin, PinStatus ulVal )
   uint32_t pin = g_APinDescription[ulPin].ulPin;
   uint32_t pinMask = (1ul << pin);
 
-  if ( (PORT->Group[port].DIRSET.reg & pinMask) == 0 ) {
+  if ( (PORT->Group[port].DIR.reg & pinMask) == 0 ) {
     // the pin is not an output, disable pull-up if val is LOW, otherwise enable pull-up
     PORT->Group[port].PINCFG[pin].bit.PULLEN = ((ulVal == LOW) ? 0 : 1) ;
   }
