@@ -419,6 +419,7 @@ void I2SClass::enableClock(int divider)
 
   // use the DFLL as the source
   while (GCLK->STATUS.bit.SYNCBUSY);
+  GCLK->GENCTRL.bit.DIVSEL = 0;
   GCLK->GENCTRL.bit.ID = _clockGenerator;
   GCLK->GENCTRL.bit.SRC = src;
   GCLK->GENCTRL.bit.IDC = 1;
