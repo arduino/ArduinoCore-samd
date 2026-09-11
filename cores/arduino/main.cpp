@@ -26,17 +26,12 @@ void initVariant() { }
 
 extern USBDeviceClass USBDevice;
 
-// Initialize C library
-extern "C" void __libc_init_array(void);
-
 /*
  * \brief Main entry point of Arduino application
  */
 int main( void )
 {
   init();
-
-  __libc_init_array();
 
   initVariant();
 
