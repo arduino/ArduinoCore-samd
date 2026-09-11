@@ -21,9 +21,10 @@
 
 #include <string.h>
 
-static voidFuncPtr ISRcallback[EXTERNAL_NUM_INTERRUPTS];
-static uint32_t    ISRlist[EXTERNAL_NUM_INTERRUPTS];
-static uint32_t    nints; // Stores total number of attached interrupts
+static voidFuncPtrParam ISRcallback[EXTERNAL_NUM_INTERRUPTS];
+static void*            ISRcallbackParams[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t         ISRlist[EXTERNAL_NUM_INTERRUPTS];
+static uint32_t         nints; // Stores total number of attached interrupts
 
 /* Configure I/O interrupt sources */
 static void __initialize()
@@ -55,7 +56,7 @@ static void __initialize()
  * \brief Specifies a named Interrupt Service Routine (ISR) to call when an interrupt occurs.
  *        Replaces any previous function that was attached to the interrupt.
  */
-void attachInterrupt(pin_size_t pin, voidFuncPtr callback, PinStatus mode)
+void attachInterruptParam(pin_size_t pin, voidFuncPtrParam callback, PinStatus mode, void* params)
 {
   static int enabled = 0;
   uint32_t config;
@@ -100,8 +101,9 @@ void attachInterrupt(pin_size_t pin, voidFuncPtr callback, PinStatus mode)
       // Need to make a new entry
       nints++;
     }
-    ISRlist[current] = inMask;       // List of interrupt in order of when they were attached
-    ISRcallback[current] = callback; // List of callback adresses
+    ISRlist[current] = inMask;           // List of interrupt in order of when they were attached
+    ISRcallback[current] = callback;     // List of callback adresses
+    ISRcallbackParams[current] = params; // List of arguments to send to the callbacks
 
     // Look for right CONFIG register to be addressed
     if (in > EXTERNAL_INT_7) {
@@ -142,6 +144,15 @@ void attachInterrupt(pin_size_t pin, voidFuncPtr callback, PinStatus mode)
 }
 
 /*
+ * \brief Specifies a named Interrupt Service Routine (ISR) to call when an interrupt occurs.
+ *        Replaces any previous function that was attached to the interrupt.
+ */
+void attachInterrupt(uint8_t pin, voidFuncPtr callback, PinStatus mode)
+{
+  attachInterruptParam(pin, (voidFuncPtrParam)callback, mode, NULL);
+}
+
+/*
  * \brief Turns off the given interrupt.
  */
 void detachInterrupt(pin_size_t pin)
@@ -171,8 +182,9 @@ void detachInterrupt(pin_size_t pin)
 
   // Shift the reminder down
   for (; current<nints-1; current++) {
-    ISRlist[current]     = ISRlist[current+1];
-    ISRcallback[current] = ISRcallback[current+1];
+    ISRlist[current]           = ISRlist[current+1];
+    ISRcallback[current]       = ISRcallback[current+1];
+    ISRcallbackParams[current] = ISRcallbackParams[current+1];
   }
   nints--;
 }
@@ -191,7 +203,7 @@ void EIC_Handler(void)
     if ((EIC->INTFLAG.reg & ISRlist[i]) != 0)
     {
       // Call the callback function
-      ISRcallback[i]();
+      ISRcallback[i](ISRcallbackParams[i]);
       // Clear the interrupt
       EIC->INTFLAG.reg = ISRlist[i];
     }
