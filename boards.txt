@@ -702,3 +702,42 @@ tian.drivers=SiliconLabs-CP2105/Silicon Labs VCP Driver.pkg
 tian_cons.name=Arduino Tian (MIPS Console port)
 tian_cons.hide=true
 tian_cons.build.board=SAMD_TIAN
+
+# OpenRB-150
+# ---------------
+# menu.device_variant=Variant
+# menu.bootloader_version=Bootloader version
+# menu.upload_method=Upload method
+
+OpenRB-150.name=OpenRB-150
+OpenRB-150.vid.0=0x2F5D
+OpenRB-150.pid.0=0x2202
+OpenRB-150.upload_port.0.vid=0x2F5D
+OpenRB-150.upload_port.0.pid=0x2202
+
+OpenRB-150.upload.tool=bossac
+OpenRB-150.upload.tool.default=bossac
+OpenRB-150.upload.tool.network=arduino_ota
+OpenRB-150.upload.protocol=sam-ba
+OpenRB-150.upload.maximum_size=262144
+OpenRB-150.upload.maximum_data_size=32768
+OpenRB-150.upload.use_1200bps_touch=true
+OpenRB-150.upload.wait_for_upload_port=true
+OpenRB-150.upload.native_usb=true
+OpenRB-150.build.mcu=cortex-m0plus
+OpenRB-150.build.f_cpu=48000000L
+OpenRB-150.build.usb_product="OpenRB-150"
+OpenRB-150.build.usb_manufacturer="ROBOTIS"
+OpenRB-150.build.board=ARDUINO_OpenRB
+OpenRB-150.build.core=arduino
+OpenRB-150.build.common_flags=-D__OPENRB_150__
+OpenRB-150.build.extra_flags=-DUSE_ARDUINO_MKR_PIN_LAYOUT -D__SAMD21G18A__ {build.usb_flags}
+OpenRB-150.build.ldscript=linker_scripts/gcc/flash_with_bootloader.ld
+OpenRB-150.build.openocdscript=openocd_scripts/arduino_zero.cfg
+OpenRB-150.build.variant=OpenRB-150
+OpenRB-150.build.vid=0x2F5D
+OpenRB-150.build.pid=0x2202
+OpenRB-150.bootloader.tool=openocd
+OpenRB-150.bootloader.tool.default=openocd
+OpenRB-150.bootloader.file=openrb-150_bootloader.bin
+
