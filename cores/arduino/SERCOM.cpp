@@ -137,7 +137,10 @@ bool SERCOM::isUARTError()
 
 void SERCOM::acknowledgeUARTError()
 {
-  sercom->USART.INTFLAG.bit.ERROR = 1;
+  // Write 1 to ERROR only. INTFLAG flags are cleared by writing 1, so a bit-field
+  // write (read-modify-write) would also clear TXC if it is set, and flushUART()
+  // would then wait forever for a TXC that never comes.
+  sercom->USART.INTFLAG.reg = SERCOM_USART_INTFLAG_ERROR;
 }
 
 bool SERCOM::isBufferOverflowErrorUART()
