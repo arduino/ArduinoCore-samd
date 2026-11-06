@@ -120,8 +120,11 @@ void SERCOM::flushUART()
 
 void SERCOM::clearStatusUART()
 {
-  //Reset (with 0) the STATUS register
-  sercom->USART.STATUS.reg = SERCOM_USART_STATUS_RESETVALUE;
+  // Clear the error bits of the STATUS register. They are cleared by writing 1:
+  // writing 0 (the reset value) left them set.
+  sercom->USART.STATUS.reg = SERCOM_USART_STATUS_PERR | SERCOM_USART_STATUS_FERR |
+                             SERCOM_USART_STATUS_BUFOVF | SERCOM_USART_STATUS_ISF |
+                             SERCOM_USART_STATUS_COLL;
 }
 
 bool SERCOM::availableDataUART()
@@ -157,8 +160,8 @@ bool SERCOM::isFrameErrorUART()
 
 void SERCOM::clearFrameErrorUART()
 {
-  // clear FERR bit writing 1 status bit
-  sercom->USART.STATUS.bit.FERR = 1;
+  // clear FERR bit writing 1 status bit (FERR only, no read-modify-write)
+  sercom->USART.STATUS.reg = SERCOM_USART_STATUS_FERR;
 }
 
 bool SERCOM::isParityErrorUART()
