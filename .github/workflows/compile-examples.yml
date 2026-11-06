@@ -172,11 +172,11 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
 
       # The source files are in a subfolder of the ArduinoCore-API repository, so it's not possible to clone it directly to the final destination in the core
       - name: Checkout ArduinoCore-API
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: arduino/ArduinoCore-API
           path: extras/ArduinoCore-API
@@ -191,7 +191,7 @@ jobs:
         if: steps.checkapi.outputs.IS_API == 'true'
 
       - name: Checkout Basic examples
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           repository: arduino/arduino-examples
           path: extras
@@ -264,7 +264,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Save memory usage change report as artifact
-        uses: actions/upload-artifact@v1
+        uses: actions/upload-artifact@v4
         with:
-          name: sketches-reports
+          # upload-artifact@v4 needs a unique artifact name per matrix job
+          name: sketches-report-${{ strategy.job-index }}
           path: sketches-reports

@@ -11,3 +11,6 @@ jobs:
     steps:
       - name: Comment size deltas reports to PRs
         uses: arduino/report-size-deltas@main
+        with:
+          # matches the per-job artifact names uploaded by compile-examples.yml
+          sketches-reports-source: ^sketches-report-.+
