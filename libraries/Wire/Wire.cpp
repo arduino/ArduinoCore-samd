@@ -290,7 +290,7 @@ void TwoWire::onService(void)
     #define PERIPH_WIRE          sercom3
     #define WIRE_IT_HANDLER      SERCOM3_Handler
   #endif // PERIPH_WIRE
-  arduino::TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
+  TwoWire Wire(&PERIPH_WIRE, PIN_WIRE_SDA, PIN_WIRE_SCL);
 
   void WIRE_IT_HANDLER(void) {
     Wire.onService();
@@ -298,7 +298,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 1
-  arduino::TwoWire Wire1(&PERIPH_WIRE1, PIN_WIRE1_SDA, PIN_WIRE1_SCL);
+  TwoWire Wire1(&PERIPH_WIRE1, PIN_WIRE1_SDA, PIN_WIRE1_SCL);
 
   void WIRE1_IT_HANDLER(void) {
     Wire1.onService();
@@ -306,7 +306,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 2
-  arduino::TwoWire Wire2(&PERIPH_WIRE2, PIN_WIRE2_SDA, PIN_WIRE2_SCL);
+  TwoWire Wire2(&PERIPH_WIRE2, PIN_WIRE2_SDA, PIN_WIRE2_SCL);
 
   void WIRE2_IT_HANDLER(void) {
     Wire2.onService();
@@ -314,7 +314,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 3
-  arduino::TwoWire Wire3(&PERIPH_WIRE3, PIN_WIRE3_SDA, PIN_WIRE3_SCL);
+  TwoWire Wire3(&PERIPH_WIRE3, PIN_WIRE3_SDA, PIN_WIRE3_SCL);
 
   void WIRE3_IT_HANDLER(void) {
     Wire3.onService();
@@ -322,7 +322,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 4
-  arduino::TwoWire Wire4(&PERIPH_WIRE4, PIN_WIRE4_SDA, PIN_WIRE4_SCL);
+  TwoWire Wire4(&PERIPH_WIRE4, PIN_WIRE4_SDA, PIN_WIRE4_SCL);
 
   void WIRE4_IT_HANDLER(void) {
     Wire4.onService();
@@ -330,7 +330,7 @@ void TwoWire::onService(void)
 #endif
 
 #if WIRE_INTERFACES_COUNT > 5
-  arduino::TwoWire Wire5(&PERIPH_WIRE5, PIN_WIRE5_SDA, PIN_WIRE5_SCL);
+  TwoWire Wire5(&PERIPH_WIRE5, PIN_WIRE5_SDA, PIN_WIRE5_SCL);
 
   void WIRE5_IT_HANDLER(void) {
     Wire5.onService();
